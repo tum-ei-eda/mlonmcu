@@ -38,3 +38,13 @@ from .tvm import *  # noqa: F401, F403
 from .utvmcg import *  # noqa: F401, F403
 from .zephyr import *  # noqa: F401, F403
 from .pulp import *  # noqa: F401, F403
+from .ara import *  # noqa: F401, F403
+from .verilator import *  # noqa: F401, F403
+from .ovpsim import *  # noqa: F401, F403
+from .vicuna import *  # noqa: F401, F403
+from .benchmarks import *  # noqa: F401, F403
+from .srecord import *  # noqa: F401, F403
+from .layergen import *  # noqa: F401, F403
+from .dtc import *  # noqa: F401, F403
+from .corev import *  # noqa: F401, F403
+from .cv32e40p import *  # noqa: F401, F403

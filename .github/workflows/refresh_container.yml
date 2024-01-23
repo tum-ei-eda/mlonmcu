@@ -1,0 +1,85 @@
+##
+## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
+##
+## This file is part of MLonMCU.
+## See https://github.com/tum-ei-eda/mlonmcu.git for further info.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+name: Refresh Docker Container
+on:
+  workflow_dispatch:
+    inputs:
+      base_image:
+        description: 'Base Image'
+        required: true
+        default: "?"
+      out_image:
+        description: 'Output Image'
+        required: true
+        default: "?"
+      template:
+        description: 'Used environment.yml template'
+        required: true
+        default: "default"
+
+jobs:
+  refresh:
+    name: Refresh large image for benchmarking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 40960
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lowercase repository url
+        id: lowered
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push to Docker Hub
+        uses: docker/build-push-action@v4
+        if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        with:
+          context: .
+          file: docker/Dockerfile2
+          push: true
+          build-args: |
+            BASE_IMAGE=${{ github.event.inputs.base_image }}
+            MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+          tags: ${{ github.event.inputs.out_image }}

@@ -32,7 +32,7 @@ class HostX86Target(Target):
     Mainly interesting to easy testing and debugging because benchmarking is not possible.
     """
 
-    FEATURES = Target.FEATURES + ["gdbserver"]
+    FEATURES = Target.FEATURES | {"gdbserver"}
 
     DEFAULTS = {
         **Target.DEFAULTS,

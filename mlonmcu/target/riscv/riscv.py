@@ -23,7 +23,8 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target import Target
-from .util import sort_extensions_canonical, join_extensions
+from mlonmcu.config import str2list, str2bool
+from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
 
 logger = get_logger()
 
@@ -31,22 +32,37 @@ logger = get_logger()
 class RISCVTarget(Target):
     """Common base class for RISCV-like targets. Please do not use this as a target itself!"""
 
-    FEATURES = Target.FEATURES + []
+    FEATURES = Target.FEATURES
 
     DEFAULTS = {
         **Target.DEFAULTS,
+        # Default: rv32gc
         "xlen": 32,
-        "extensions": ["g", "c"],  # TODO overwrite extensions elegantly
-        "timeout_sec": 0,  # disabled
+        "embedded": False,
+        "compressed": True,
+        "atomic": True,
+        "multiply": True,
         "extra_args": "",
+        "timeout_sec": 0,  # disabled
+        "extensions": [],  # Should only be used for unhandled custom exts
         "fpu": "double",  # allowed: none, single, double
-        "arch": None,
-        "abi": None,
-        "attr": "",
+        "arch": None,  # Please use above properties if possible
+        "abi": None,  # Please use above properties if possible
+        "attr": "",  # Please avoid using this directly
+        "cpu": None,
     }
-    REQUIRED = ["riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"]
-    PUPL_GCC_TOOLCHAIN_REQUIRED = ["pulp_gcc.install_dir", "pulp_gcc.name"]
-    OPTIONAL = ["llvm.install_dir"]
+    REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
+    PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
+    OPTIONAL = {"llvm.install_dir", "mlif.toolchain"}  # TODO: just a workaround until tc components are implemented
+
+    def reconfigure(self):
+        # super().reconfigure()
+        self.config.update(
+            {
+                "final_arch": self.arch,
+                "final_abi": self.abi,
+            }
+        )
 
     @property
     def riscv_gcc_prefix(self):
@@ -70,24 +86,95 @@ class RISCVTarget(Target):
 
     @property
     def xlen(self):
+        arch = self.config.get("arch", None)
+        if arch is not None:
+            assert isinstance(arch, str)
+            xlen = int(arch[2:4])
+            return xlen
         return int(self.config["xlen"])
 
     @property
+    def embedded(self):
+        arch = self.config.get("arch", None)
+        if arch is not None:
+            exts = split_extensions(arch)
+            if "e" in exts:
+                return True
+        value = self.config["embedded"]
+        return str2bool(value)
+
+    @property
+    def compressed(self):
+        arch = self.config.get("arch", None)
+        if arch is not None:
+            exts = split_extensions(arch)
+            if "c" in exts:
+                return True
+        value = self.config["compressed"]
+        return str2bool(value)
+
+    @property
+    def atomic(self):
+        arch = self.config.get("arch", None)
+        if arch is not None:
+            exts = split_extensions(arch)
+            if "a" in exts or "g" in exts:
+                return True
+        value = self.config["atomic"]
+        return str2bool(value)
+
+    @property
+    def multiply(self):
+        arch = self.config.get("arch", None)
+        if arch is not None:
+            exts = split_extensions(arch)
+            if "m" in exts or "g" in exts:
+                return True
+        value = self.config["multiply"]
+        return str2bool(value)
+
+    @property
     def extensions(self):
+        arch = self.config.get("arch", None)
         exts = self.config.get("extensions", []).copy()
-        if not isinstance(exts, list):
-            exts = exts.split(",")
-        if "g" not in exts:
-            required = []
-            if self.fpu == "double":
-                required.append("d")
-                required.append("f")
-            if self.fpu == "single":
-                required.append("f")
-            for ext in required:
-                if ext not in exts:
-                    exts.append(ext)
+        if isinstance(exts, str):
+            exts = str2list(exts)
+        assert isinstance(exts, (list, set))
+        exts = set(exts)
+
+        if arch is not None:
+            assert isinstance(arch, str)
+            exts = split_extensions(arch) | exts
+        return update_extensions(
+            exts,
+            fpu=self.fpu,
+            embedded=self.embedded,
+            compressed=self.compressed,
+            atomic=self.atomic,
+            multiply=self.multiply,
+            pext=False,
+            pext_spec=None,
+            vext=False,
+            elen=None,
+            embedded_vext=False,
+            vlen=None,
+        )
+
+    @property
+    def gcc_extensions(self):
+        # return [ext for ext in (self.extensions | {"zicsr"}) if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
+        exts = {"zicsr"}
+        for ext in self.extensions:
+            if "xcv" in ext:
+                if ext[-2] != "p":
+                    # Add missing version
+                    ext = ext + "1p0"
+            exts.add(ext)
         return exts
+
+    @property
+    def llvm_extensions(self):
+        return [ext for ext in self.extensions if ext not in ["zifencei", "zicsr"]]
 
     @property
     def arch(self):
@@ -96,6 +183,32 @@ class RISCVTarget(Target):
             return temp
         else:
             exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def cpu(self):
+        temp = self.config["cpu"]
+        if temp:
+            return temp
+        else:
+            return f"generic-rv{self.xlen}"
+
+    @property
+    def llvm_arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.llvm_extensions, lower=True))
+            return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def gcc_arch(self):
+        temp = self.config["arch"]  # TODO: allow underscores and versions
+        if temp:
+            return temp
+        else:
+            exts_str = join_extensions(sort_extensions_canonical(self.gcc_extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
 
     @property
@@ -117,13 +230,26 @@ class RISCVTarget(Target):
             return temp
 
     @property
+    def attrs(self):
+        attr = self.config.get("attr", None)
+        attrs = []
+        if attr is not None:
+            assert isinstance(attr, str)
+            attrs = attr.split(",")
+            if len(attrs) == 1 and len(attrs[0]) == 0:
+                attrs = []
+        if len(attrs) == 0:
+            for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
+                if ext == "i":
+                    continue
+                attrs.append(f"+{ext}")
+            if self.xlen == 64:
+                attrs.append("+64bit")
+        return attrs
+
+    @property
     def attr(self):
-        attrs = str(self.config["attr"]).split(",")
-        if len(attrs) == 1 and len(attrs[0]) == 0:
-            attrs = []
-        for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):
-            attrs.append(f"+{ext}")
-        attrs = list(set(attrs))
+        attrs = self.attrs
         return ",".join(attrs)
 
     @property
@@ -138,10 +264,19 @@ class RISCVTarget(Target):
 
     @property
     def timeout_sec(self):
-        return int(self.config["timeout_sec"])
+        return float(self.config["timeout_sec"])
 
     @property
     def fpu(self):
+        arch = self.config.get("arch", None)
+        if arch is not None:
+            exts = split_extensions(arch)
+            if "d" in exts or "g" in exts:
+                return "double"
+            elif "f" in exts:
+                return "single"
+            else:
+                return "none"
         value = self.config["fpu"]
         if value is None or not value:
             value = "none"
@@ -152,34 +287,78 @@ class RISCVTarget(Target):
     def has_fpu(self):
         return self.fpu != "none"
 
+    @property
+    def toolchain(self):
+        value = self.config.get("mlif.toolchain", None)
+        if value is None:
+            value = "gcc"
+        return str(value)
+
     def get_target_system(self):
         return "generic_riscv"  # TODO: rename to generic-rv32 for compatibility with LLVM
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        # TODO refactor the following using inheritance instead of branching
         if "riscv_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the riscv_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
         elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
             ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = self.arch
+        ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
         ret["RISCV_ABI"] = self.abi
-        ret["RISCV_ATTR"] = self.attr  # TODO: use for clang
+        ret["RISCV_MCPU"] = self.cpu
+        # llvm/clang only!
+        ret["RISCV_ATTR"] = self.attr
+
+        def feature_helper(attrs):
+            # TODO
+            return ""
+
+        ret["RISCV_FEATURES"] = feature_helper(self.attr)
         return ret
 
     def get_arch(self):
         return "riscv"
 
-    def get_backend_config(self, backend):
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
-            return {
-                "target_device": "riscv_cpu",
-                "target_march": self.arch,
-                "target_model": "unknown",
-                "target_mtriple": self.riscv_gcc_basename,  # TODO: riscv32-esp-elf for esp32c3!
-                "target_mabi": self.abi,
-                "target_mattr": self.attr,
-                "target_mcpu": f"generic-rv{self.xlen}",
-            }
-        return {}
+            arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
+            ret.update(
+                {
+                    # "target_march": self.llvm_arch,
+                    "target_mtriple": self.riscv_gcc_basename,
+                    "target_mabi": self.abi,
+                    "target_mattr": self.attr,
+                    "target_mcpu": self.cpu,
+                    "target_model": f"etiss-{arch_clean}",
+                    # "target_model": f"{self.name}-{arch_clean}",
+                    "target_num_cores": 1,  # TODO: also add for non-riscv targets
+                    # "target_device": ?,
+                    # "target_libs": ?,
+                    # "target_tag": ?,
+                    # "target_march": ?,
+                    # "target_keys": ?,
+                    # "target_opt_level": ?,
+                    # "target_cl_opt": ?,
+                    # "target_mfloat_abi": ?,
+                    # "target_fast_math_ninf": ?,
+                    # "target_fast_math_contract": ?,
+                    # "target_fast_math_nnan": ?,
+                    # "target_fast_math": ?,
+                    # "target_fast_math_nsz": ?,
+                    # "target_fast_math_reassoc": ?,
+                    # "target_fast_math_arcp": ?,
+                    # "target_model": "host",
+                }
+            )
+            if optimized_schedules:
+                ret.update(
+                    {
+                        "target_device": "riscv_cpu",
+                        "target_keys": None,
+                    }
+                )
+        return ret

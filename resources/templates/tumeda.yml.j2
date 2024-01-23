@@ -38,6 +38,8 @@ repos:
   tvm:
     url: "git@github.com:rafzi/privtvm.git"
     ref: moiopt
+    options:
+      recursive: true
   utvm_staticrt_codegen:
     url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
@@ -64,12 +66,14 @@ repos:
     ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
   mlif:
     url: "git@github.com:tum-ei-eda/mlonmcu-sw.git"
-    ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
+    ref: 51156746e7ec2efb7489846083b86fecb3943430
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etissvp:
-    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    options:
+      recursive: true
+  microtvm_etiss:
+    url: "git@github.com:PhilippvK/microtvm-etiss-template.git"
     ref: 41e591ea5479484154598fa74e3d7097ded3da86
 
 # Here all supported frameworks with their specific features are defined
@@ -212,7 +216,7 @@ targets:
       ethosu: false
       arm_mvei: false
       arm_dsp: true
-  microtvm_etissvp:
+  microtvm_etiss:
     enabled: true
   microtvm_espidf:
     enabled: false

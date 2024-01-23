@@ -18,24 +18,41 @@
 #
 
 
-class TVMTuner:
-    DEFAULTS = {
-        "enable": False,
-        "print_outputs": False,
+def get_autotuning_defaults():
+    return {
+        "mode": None,
         "results_file": None,
         "append": None,
-        "tuner": "ga",  # Options: ga,gridsearch,random,xgb,xgb_knob,xgb-rank
         "trials": 10,  # TODO: increase to 100?
+        "trials_single": None,
         "early_stopping": None,  # calculate default dynamically
-        "num_workers": 1,
+        "num_workers": None,
         "max_parallel": 1,
         "use_rpc": False,
         "timeout": 100,
-        "mode": "autotvm",  # Options: autotvm, auto_scheduler
-        "visualize": False,
         "tasks": None,
+        "visualize": False,
+        "visualize_file": None,
+        "visualize_live": False,
     }
 
-    def __init__(self, backend, config=None):
-        self.backend = backend
-        self.config = config if config is not None else {}
+
+def get_autotvm_defaults():
+    return {
+        "enable": False,
+        "tuner": "ga",  # Options: ga,gridsearch,random,xgb,xgb_knob,xgb-rank
+    }
+
+
+def get_autoscheduler_defaults():
+    return {
+        "enable": False,
+        "include_simple_tasks": False,
+        "log_estimated_latency": True,
+    }
+
+
+def get_metascheduler_defaults():
+    return {
+        "enable": False,
+    }

@@ -43,10 +43,10 @@ First, a set of APT packages needs to be installed:
 sudo apt install python3-pip python3-venv
 
 # MLonMCU related
-sudo apt install libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler tree g++
+sudo apt install libboost-all-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler tree g++
 
 # Optional (depending on configuration)
-sudo apt install ninja-build
+sudo apt install ninja-build flex
 ```
 
 Also make sure that your default Python is at least v3.7. If the `python` command is not available in your shell or points Python v2.7 check out `python-is-python3`.

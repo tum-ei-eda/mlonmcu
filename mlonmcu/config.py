@@ -78,7 +78,14 @@ def filter_config(config, prefix, defaults, optionals, required_keys):
     ------
     AssertionError: If a required key is missing.
     """
-    cfg = remove_config_prefix(config, prefix, skip=required_keys + optionals)
+    if not isinstance(required_keys, set):
+        logger.warning(
+            "Deprecated: FEATURES, REQUIRED, OPTIONAL should now be sets, not lists for component %s", prefix
+        )
+        required_keys = set(required_keys)
+    if not isinstance(optionals, set):
+        optionals = set(optionals)
+    cfg = remove_config_prefix(config, prefix, skip=required_keys | optionals)
     for required in required_keys:
         value = None
         if required in cfg:
@@ -102,7 +109,7 @@ def filter_config(config, prefix, defaults, optionals, required_keys):
             cfg[key] = defaults[key]
 
     for key in cfg:
-        if key not in list(defaults.keys()) + required_keys:
+        if key not in set(defaults.keys()) | required_keys:
             # logger.warn("Component received an unknown config key: %s", key)
             pass
 
@@ -210,10 +217,30 @@ def str2bool(value, allow_none=False):
     if value is None:
         assert allow_none, "str2bool received None value while allow_none=False"
         return value
+    if isinstance(value, (int, bool)):
+        return bool(value)
     assert isinstance(value, str)
-    return bool(value) if isinstance(value, (int, bool)) else bool(distutils.util.strtobool(value))
+    return bool(distutils.util.strtobool(value))
 
 
-def str2dict(value):
+def str2dict(value, allow_none=False):
+    if value is None:
+        assert allow_none, "str2dict received None value while allow_none=False"
+        return value
+    if isinstance(value, dict):
+        return value
     assert isinstance(value, str)
+    # TODO: parse key=value,key2=value2 via regex
     return dict(ast.literal_eval(value))
+
+
+def str2list(value, allow_none=False):
+    if value is None:
+        assert allow_none, "str2list received None value while allow_none=False"
+        return value
+    if isinstance(value, (list, set, tuple)):
+        return list(value)
+    assert isinstance(value, str)
+    if value.startswith("["):
+        return list(ast.literal_eval(value))
+    return value.split(",")

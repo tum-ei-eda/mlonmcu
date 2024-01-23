@@ -53,7 +53,7 @@ def clone_tflite_micro_compiler(
     tflmcSrcDir = context.environment.paths["deps"].path / "src" / tflmcName
     if rebuild or not utils.is_populated(tflmcSrcDir):
         tflmcRepo = context.environment.repos["tflite_micro_compiler"]
-        utils.clone(tflmcRepo.url, tflmcSrcDir, branch=tflmcRepo.ref)
+        utils.clone_wrapper(tflmcRepo, tflmcSrcDir, refresh=rebuild)
     context.cache["tflmc.src_dir"] = tflmcSrcDir
 
 
@@ -76,7 +76,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 @Tasks.needs(["tflmc.src_dir", "tf.src_dir"])
 @Tasks.optional(["muriscvnn.lib", "muriscvnn.inc_dir", "cmsisnn.dir"])
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
-@Tasks.param("muriscvnn", [False, True])
+@Tasks.param("muriscvnn", [False])
 @Tasks.param("cmsisnn", [False, True])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("arch", ["x86"])  # TODO: compile for arm/riscv in the future
@@ -139,3 +139,4 @@ def build_tflite_micro_compiler(
         utils.move(tflmcBuildDir / "compiler", tflmcExe)
     context.cache["tflmc.build_dir", flags] = tflmcBuildDir
     context.cache["tflmc.exe", flags] = tflmcExe
+    context.export_paths.add(tflmcExe.parent)

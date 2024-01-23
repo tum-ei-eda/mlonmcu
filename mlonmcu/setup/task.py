@@ -200,6 +200,20 @@ class TaskFactory:
         """Decorator for optional task requirements."""
         return self.needs(keys, force=False)
 
+    def removes(self, keys):
+        """Decorator for cleanuo tasks."""
+
+        # TODO: implementation
+        def real_decorator(function):
+            @wraps(function)
+            def wrapper(*args, **kwargs):
+                retval = function(*args, **kwargs)
+                return retval
+
+            return wrapper
+
+        return real_decorator
+
     # def optional(self, keys):
     #     def real_decorator(function):
     #         name = function.__name__
@@ -264,7 +278,7 @@ class TaskFactory:
         return real_decorator
 
     def validate(self, func):
-        """Decorator which registers validattion functions for a task."""
+        """Decorator which registers validation functions for a task."""
 
         def real_decorator(function):
             name = function.__name__
@@ -293,7 +307,7 @@ class TaskFactory:
                         ret.append(comb)
                     return ret
 
-                combs = get_valid_combs(combs)
+                combs_ = get_valid_combs(combs)
 
                 def process(name_, params=None, rebuild=False):
                     if not params:
@@ -315,7 +329,7 @@ class TaskFactory:
 
                 if progress:
                     pbar = tqdm(
-                        total=max(len(combs), 1),
+                        total=max(len(combs_), 1),
                         desc="Processing",
                         ncols=100,
                         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
@@ -323,15 +337,18 @@ class TaskFactory:
                     )
                 else:
                     pbar = None
-                if len(combs) == 0:
+                if len(combs_) == 0:
                     if pbar:
                         pbar.set_description(f"Processing: {name}")
                     else:
                         logger.info("Processing task: %s", name)
                     time.sleep(0.1)
                     check = True
-                    if name in self.validates:
-                        check = self.validates[name](args[0], params={})
+                    if len(combs) > 0:
+                        check = False
+                    else:
+                        if name in self.validates:
+                            check = self.validates[name](args[0], params={})
                     if check:
                         start = time.time()
                         retval = process(name, rebuild=rebuild)
@@ -349,7 +366,7 @@ class TaskFactory:
                     if pbar:
                         pbar.update(1)
                 else:
-                    for comb in combs:  # TODO process in parallel?
+                    for comb in combs_:  # TODO process in parallel?
                         extended_name = name + str(comb)
                         if pbar:
                             pbar.set_description(f"Processing - {extended_name}")

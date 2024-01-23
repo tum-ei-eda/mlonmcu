@@ -35,15 +35,15 @@ logger = get_logger()
 class Setup:
     """MLonMCU dependency management interface."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {
         "print_outputs": False,
         "num_threads": None,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, features=None, config=None, context=None, tasks_factory=None):
         if not tasks_factory:
@@ -94,6 +94,7 @@ class Setup:
             # assert (
             #     feature.name in self.FEATURES
             # ), f"Incompatible feature: {feature.name}"
+            feature.used = True
             feature.add_setup_config(self.config)
         return features
 
@@ -132,22 +133,34 @@ class Setup:
         cache_file = self.context.environment.paths["deps"].path / "cache.ini"
         self.context.cache.write_to_file(cache_file)
 
+    def write_env_file(self):
+        logger.debug("Updating paths cript")
+        paths_file = self.context.environment.paths["deps"].path / "paths.sh"
+        paths = self.context.export_paths
+        temp = ":".join(map(str, paths))
+        content = f"export PATH={temp}:$PATH"
+        with open(paths_file, "w") as handle:
+            handle.write(content)
+
     def visualize(self, path, ordered=False):
         task_graph = self._get_task_graph()
         task_graph.export_dot(path)
         logger.debug("Written task graph to file: %s" % path)
 
-    def invoke_single_task(self, name, progress=False, write_cache=True, rebuild=False):
+    def invoke_single_task(self, name, progress=False, write_cache=True, write_env=True, rebuild=False):
         assert name in self.tasks_factory.registry, f"Invalid task name: {name}"
         func = self.tasks_factory.registry[name]
         func(self.context, progress=progress, rebuild=rebuild, verbose=self.verbose, threads=self.num_threads)
         if write_cache:
             self.write_cache_file()
+        if write_env:
+            self.write_env_file()
 
     def install_dependencies(
         self,
         progress=False,
         write_cache=True,
+        write_env=True,
         rebuild=False,
     ):
         assert self.context is not None
@@ -162,6 +175,8 @@ class Setup:
             pbar.close()
         if write_cache:
             self.write_cache_file()
+        if write_env:
+            self.write_env_file()
         logger.info("Finished installing dependencies")
         return True
 

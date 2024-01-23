@@ -22,8 +22,8 @@ import tempfile
 import json
 from pathlib import Path
 import tarfile
+from typing import Tuple
 
-from .backend import TVMBackend
 from .tvmrt import TVMRTBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -33,11 +33,7 @@ from mlonmcu.setup import utils
 class TVMCGBackend(TVMRTBackend):
     name = "tvmcg"
 
-    FEATURES = [
-        *TVMBackend.FEATURES,
-    ]
-
-    REQUIRED = TVMRTBackend.REQUIRED + ["utvmcg.exe"]
+    REQUIRED = TVMRTBackend.REQUIRED | {"utvmcg.exe"}
 
     def get_max_workspace_size_from_metadata(self, metadata):
         max_workspace = 0
@@ -53,8 +49,8 @@ class TVMCGBackend(TVMRTBackend):
             )
         return max_workspace
 
-    def generate_code(self):
-        super().generate_code()
+    def generate(self) -> Tuple[dict, dict]:
+        super().generate()
         artifacts = self.artifacts
         artifact = None
         for artifact in artifacts:

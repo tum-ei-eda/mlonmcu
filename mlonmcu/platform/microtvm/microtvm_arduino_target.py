@@ -28,8 +28,6 @@ logger = get_logger()
 
 
 class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = Target.FEATURES + []
-
     DEFAULTS = {
         **Target.DEFAULTS,
         "project_type": None,
@@ -39,7 +37,7 @@ class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "verbose": False,
         "port": -1,
     }
-    REQUIRED = Target.REQUIRED + ["arduino.install_dir"]
+    REQUIRED = Target.REQUIRED | {"arduino.install_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

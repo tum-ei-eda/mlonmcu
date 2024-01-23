@@ -280,16 +280,24 @@ class MlonMcuContext:
         elif deps_lock == "write":
             self.deps_lock = WriteFileLock(os.path.join(self.environment.home, ".deps_lock"))
         self.latest_session_link_lock = filelock.FileLock(
-            os.path.join(self.environment.home, ".latest_session_link_lock_lock")
+            os.path.join(self.environment.home, ".latest_session_link_lock")
         )
-        self.sessions = load_recent_sessions(self.environment)
-        if self.environment.defaults.cleanup_auto:
-            logger.debug("Cleaning up old sessions automaticaly")
-            self.cleanup_sessions(keep=self.environment.defaults.cleanup_keep, interactive=False)
-            self.sessions = load_recent_sessions(self.environment)
-        self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
-        logger.debug(f"Restored {len(self.sessions)} recent sessions")
+        # Reusing lock for latest session link here...
+        try:
+            lock = self.latest_session_link_lock.acquire(timeout=10)
+        except filelock.Timeout as err:
+            raise RuntimeError("Lock on current context could not be aquired.") from err
+        else:
+            with lock:
+                self.sessions = load_recent_sessions(self.environment)
+                if self.environment.defaults.cleanup_auto:
+                    logger.debug("Cleaning up old sessions automaticaly")
+                    self.cleanup_sessions(keep=self.environment.defaults.cleanup_keep, interactive=False)
+                    self.sessions = load_recent_sessions(self.environment)
+                self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
+                logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
+        self.export_paths = set()
 
     def create_session(self, label="", config=None):
         try:
@@ -304,6 +312,7 @@ class MlonMcuContext:
                 logger.debug("Creating a new session with idx %s", idx)
                 temp_directory = self.environment.paths["temp"].path
                 sessions_directory = temp_directory / "sessions"
+                sessions_directory.mkdir(exist_ok=True, parents=True)
                 session_dir = sessions_directory / str(idx)
                 session = Session(idx=idx, label=label, dir=session_dir, config=config)
                 self.sessions.append(session)
@@ -425,6 +434,10 @@ class MlonMcuContext:
                     if not session_dir.is_dir():
                         # Skip / Dir does not exist
                         continue
+                    session_lock = session_dir / ".lock"
+                    if session_lock.is_file():
+                        # Skip / Session locked (unclean or in progress)
+                        continue
                     shutil.rmtree(session_dir)
                 self.sessions = to_keep
                 self.session_idx = self.sessions[-1].idx if len(self.sessions) > 0 else -1
@@ -461,6 +474,12 @@ class MlonMcuContext:
         print("Context Summary\n")
         sessions_runs = self.get_sessions_runs_idx()
         print_sessions(sessions_runs, with_runs=runs, with_labels=labels)
+
+    def lookup(self, key, flags=None):
+        user_vars = self.environment.vars
+        if key in user_vars:
+            return user_vars[key]
+        return self.cache[key, flags]
 
     def export(self, dest, session_ids=None, run_ids=None, interactive=True):
         dest = Path(dest)
@@ -504,9 +523,13 @@ class MlonMcuContext:
                     base = tmpdir / str(sid)
                 if run_ids is None:
                     src = session.dir / "runs"
+                    report_path = session.dir / "report.csv"  # TODO: only works for csv
+                    # TODO: use artifacts from restored session instead
                     shutil.copytree(
                         src, base, dirs_exist_ok=True, symlinks=True
                     )  # Warning: dirs_exist_ok=True requires python 3.8+
+                    if report_path.is_file():
+                        shutil.copyfile(report_path, base / "report.csv")
                 else:
                     base = base / "runs"
                     for rid in run_ids:

@@ -41,8 +41,16 @@ class Metrics:
         if not empty:
             reader = csv.DictReader(lines)
             data = list(reader)[0]
-            ret.data = data
-            ret.order = list(data.keys())
+            data_ = {}
+            for key, value in data.items():
+                if len(key) > 2 and key[0] == key[-1] == "_":
+                    new_key = key[1:-1]
+                    data_[new_key] = value
+                    ret.optional_keys.append(new_key)
+                else:
+                    data_[key] = value
+            ret.data = data_
+            ret.order = list(data_.keys())
         return ret
 
     def add(self, name, value, optional=False, overwrite=False, prepend=False):
@@ -63,11 +71,15 @@ class Metrics:
     def has(self, name):
         return name in self.data
 
-    def get_data(self, include_optional=False):
-        return {key: self.get(key) for key in self.order if key not in self.optional_keys or include_optional}
+    def get_data(self, include_optional=False, identify_optional=False):
+        return {
+            f"_{key}_" if identify_optional and key in self.optional_keys else key: self.get(key)
+            for key in self.order
+            if key not in self.optional_keys or include_optional
+        }
 
     def to_csv(self, include_optional=False):
-        data = self.get_data(include_optional=include_optional)
+        data = self.get_data(include_optional=include_optional, identify_optional=True)
         output = io.StringIO()
         writer = csv.DictWriter(output, fieldnames=data.keys())
         writer.writeheader()

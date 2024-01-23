@@ -36,7 +36,7 @@ logger = get_logger()
 class Corstone300Target(Target):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = ["ethosu", "arm_mvei", "arm_dsp"]
+    FEATURES = {"ethosu", "arm_mvei", "arm_dsp"}
 
     DEFAULTS = {
         **Target.DEFAULTS,
@@ -50,11 +50,13 @@ class Corstone300Target(Target):
         "ethosu_num_macs": 256,
         "extra_args": "",
     }
-    REQUIRED = [
+    REQUIRED = {
         "corstone300.exe",
+        "cmsis.dir",
         "cmsisnn.dir",
+        "ethosu_platform.dir",
         "arm_gcc.install_dir",
-    ]  # Actually cmsisnn.dir points to the root CMSIS_5 directory
+    }  # Actually cmsisnn.dir points to the root CMSIS_5 directory
 
     def __init__(self, name="corstone300", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -96,8 +98,16 @@ class Corstone300Target(Target):
         return str(self.config["arm_gcc.install_dir"])
 
     @property
+    def cmsis_dir(self):
+        return Path(self.config["cmsis.dir"])
+
+    @property
     def cmsisnn_dir(self):
         return Path(self.config["cmsisnn.dir"])
+
+    @property
+    def ethosu_platform_dir(self):
+        return Path(self.config["ethosu_platform.dir"])
 
     @property
     def extra_args(self):
@@ -201,7 +211,9 @@ class Corstone300Target(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret["CMSIS_PATH"] = self.cmsisnn_dir
+        ret["CMSIS_DIR"] = self.cmsis_dir
+        ret["CMSISNN_DIR"] = self.cmsisnn_dir
+        ret["ETHOSU_PLATFORM_DIR"] = self.ethosu_platform_dir
         ret["ARM_COMPILER_PREFIX"] = self.gcc_prefix
         cpu, float_abi, fpu = resolve_cpu_features(
             self.model, enable_fp=self.enable_fpu, enable_dsp=self.enable_dsp, enable_mve=self.enable_mvei
@@ -214,21 +226,31 @@ class Corstone300Target(Target):
     def get_arch(self):
         return "arm"  # TODO: use proper mapping (v6, v7, v8, v8.1...)
 
-    def get_backend_config(self, backend):
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = {}
+        cpu, _, _ = resolve_cpu_features(
+            self.model, enable_fp=self.enable_fpu, enable_dsp=self.enable_dsp, enable_mve=self.enable_mvei
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
             ret = {
-                "target_device": "arm_cpu",
                 # "target_march": self.get_arch(),
-                "target_model": "unknown",
                 "target_mtriple": "arm-none-eabi",
                 "target_mcpu": self.model,
                 # "target_mattr": "?",
                 # "target_mabi": self.abi,
+                "target_model": f"{self.name}-{cpu}",
             }
-            if self.enable_dsp:
-                ret.update({"desired_layout": "NHWC:HWOI"})  # Not yet supported by upstream TVMC
-            return ret
-        return {}
+            if optimized_schedules:
+                ret.update(
+                    {
+                        "target_device": "arm_cpu",
+                    }
+                )
+
+                if optimized_layouts:
+                    if self.enable_dsp:
+                        ret.update({"desired_layout": "NHWC:HWOI"})
+        return ret
 
 
 if __name__ == "__main__":

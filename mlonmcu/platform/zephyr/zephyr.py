@@ -25,6 +25,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import pkg_resources
+from typing import Tuple
 
 
 from mlonmcu.setup import utils
@@ -51,7 +52,7 @@ def get_project_template(name="project2"):  # Workaround which only support tvma
 class ZephyrPlatform(CompilePlatform, TargetPlatform):
     """Zephyr Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
+    FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -66,7 +67,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         "optimize": None,  # values: 0,1,2,3,s
     }
 
-    REQUIRED = ["zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"]
+    REQUIRED = {"zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -314,7 +315,7 @@ project(ProjectName)
         out += self.invoke_west(*westArgs, live=self.print_outputs)
         return out
 
-    def generate_elf(self, src, target, model=None, data_file=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         artifacts = []
         out = self.compile(target, src=src)
         elf_name = "zephyr.elf"
@@ -330,14 +331,11 @@ project(ProjectName)
             artifact = Artifact(elf_name, path=elf_file, fmt=ArtifactFormat.PATH)
             artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
-        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
-        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
-        artifacts.append(metrics_artifact)
         stdout_artifact = Artifact(
             "zephyr_out.log", content=out, fmt=ArtifactFormat.TEXT  # TODO: split into one file per command
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {"default": metrics}
 
     def get_serial(self, target):
         port = target.port

@@ -122,7 +122,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         "microtvm",
         (
             "Requirements for using microtvm",
-            ["pyserial", "pyusb"],
+            ["matplotlib", "pyserial", "pyusb"],
         ),
     ),
     # Provide support for moiopt.
@@ -161,6 +161,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "cloudpickle",
                 "decorator",
                 "graphviz",  # for relay visualization
+                "matplotlib",
                 "numpy",
                 "psutil",
                 "scipy",
@@ -244,12 +245,12 @@ CONSTRAINTS = [
     ("reedsolo", ">=1.5.3,<=1.5.4"),
     ("scipy", None),
     ("synr", None),
-    ("tensorflow", "~=2.8.0"),
+    ("tensorflow", ">=2.11.1"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
     ("typing_extensions", None),
     ("xdg", None),
-    ("xgboost", "~=1.5.2"),
+    ("xgboost", ">=1.7.0"),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]

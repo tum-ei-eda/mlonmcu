@@ -23,11 +23,15 @@ from .postprocesses import (
     RenameColumnsPostprocess,
     Features2ColumnsPostprocess,
     Config2ColumnsPostprocess,
+    MyPostprocess,
     PassConfig2ColumnsPostprocess,
     VisualizePostprocess,
     Bytes2kBPostprocess,
     Artifact2ColumnPostprocess,
     AnalyseInstructionsPostprocess,
+    CompareRowsPostprocess,
+    AnalyseDumpPostprocess,
+    AnalyseCoreVCountsPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -35,9 +39,13 @@ SUPPORTED_POSTPROCESSES = {
     "rename_cols": RenameColumnsPostprocess,
     "features2cols": Features2ColumnsPostprocess,
     "config2cols": Config2ColumnsPostprocess,
+    "mypost": MyPostprocess,
     "passcfg2cols": PassConfig2ColumnsPostprocess,
     "visualize": VisualizePostprocess,
     "bytes2kb": Bytes2kBPostprocess,
     "artifact2cols": Artifact2ColumnPostprocess,
     "analyse_instructions": AnalyseInstructionsPostprocess,
+    "compare_rows": CompareRowsPostprocess,
+    "analyse_dump": AnalyseDumpPostprocess,
+    "analyse_corev_counts": AnalyseCoreVCountsPostprocess,
 }

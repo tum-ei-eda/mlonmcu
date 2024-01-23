@@ -51,7 +51,7 @@ def clone_utvm_staticrt_codegen(
     utvmcgSrcDir = context.environment.paths["deps"].path / "src" / utvmcgName
     if rebuild or not utils.is_populated(utvmcgSrcDir):
         utvmcgRepo = context.environment.repos["utvm_staticrt_codegen"]
-        utils.clone(utvmcgRepo.url, utvmcgSrcDir, branch=utvmcgRepo.ref)
+        utils.clone_wrapper(utvmcgRepo, utvmcgSrcDir, refresh=rebuild)
     context.cache["utvmcg.src_dir"] = utvmcgSrcDir
 
 
@@ -94,3 +94,4 @@ def build_utvm_staticrt_codegen(
         utils.move(utvmcgBuildDir / "utvm_staticrt_codegen", utvmcgExe)
     context.cache["utvmcg.build_dir", flags] = utvmcgBuildDir
     context.cache["utvmcg.exe", flags] = utvmcgExe
+    context.export_paths.add(utvmcgExe.parent)

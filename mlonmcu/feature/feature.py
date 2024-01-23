@@ -34,11 +34,12 @@ class FeatureBase(ABC):
     scope = None
 
     DEFAULTS = {"enabled": True}
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, features=None, config=None):
         self.name = name
+        self.used = False
         self.config = config if config else {}
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         # assert features is None, "Features with features are currently not supported"

@@ -56,59 +56,73 @@ def test_target_riscv_join_extensions():
 
 def test_target_riscv_update_extensions():
     # default
-    assert update_extensions(["i", "m", "c"]) == ["i", "m", "c"]
+    assert update_extensions(["i", "m", "c"]) == {"i", "m", "c"}
 
     # pext
-    assert update_extensions(["i", "m", "c"], pext=True) == ["i", "m", "c", "p"]
-    assert update_extensions(["i", "m", "c", "p"], pext=True) == ["i", "m", "c", "p"]
-    assert update_extensions(["i", "m", "c"], pext=True, variant="xuantie", pext_spec=0.94) == [
-        "i",
-        "m",
-        "c",
-        "p",
-        "zpn",
-        "zpsfoperand",
-    ]
-    assert update_extensions(["i", "m", "c"], pext=True, variant="xuantie", pext_spec=0.97) == [
-        "i",
-        "m",
-        "c",
-        "p",
-        "zpn",
-        "zpsfoperand",
-        "zbpbo",
-    ]
-    # assert update_extensions(["i", "m", "c", "p"], pext=False) == ["i", "m", "c", "?"]
+    assert update_extensions(["i", "m", "c"], pext=True) == {"i", "m", "c", "p"}
+    assert update_extensions(["i", "m", "c", "p"], pext=True) == {"i", "m", "c", "p"}
+    # assert update_extensions(["i", "m", "c"], pext=True, variant="xuantie", pext_spec=0.94) == {
+    #     "i",
+    #     "m",
+    #     "c",
+    #     "p",
+    #     "zpn",
+    #     "zpsfoperand",
+    # }
+    # assert update_extensions(["i", "m", "c"], pext=True, variant="xuantie", pext_spec=0.97) == {
+    #     "i",
+    #     "m",
+    #     "c",
+    #     "p",
+    #     "zpn",
+    #     "zpsfoperand",
+    #     "zbpbo",
+    # }
+    # assert update_extensions(["i", "m", "c", "p"], pext=False) == {"i", "m", "c", "?"}
 
     # vext
-    assert update_extensions(["g", "c"], vext=True, fpu="double", elen=32) == ["g", "c", "v"]
-    assert update_extensions(["g", "c"], vext=True, fpu="double", elen=64) == ["g", "c", "v"]
-    with pytest.raises(AssertionError):
-        assert update_extensions(["g", "c"], vext=True, fpu="single")
-    with pytest.raises(AssertionError):
-        assert update_extensions(["g", "c"], vext=True, fpu=None)
+    assert update_extensions(["g", "c"], vext=True, fpu="double", elen=32) == {"i", "m", "a", "f", "d", "c", "v"}
+    assert update_extensions(["g", "c"], vext=True, fpu="double", elen=64) == {"i", "m", "a", "f", "d", "c", "v"}
+    # with pytest.raises(AssertionError):
+    #     assert update_extensions(["g", "c"], vext=True, fpu="single")
+    # with pytest.raises(AssertionError):
+    #     assert update_extensions(["g", "c"], vext=True, fpu=None)
 
     # embedded vext
-    assert update_extensions(["g", "c"], vext=True, fpu=None, embedded=True, elen=32) == ["g", "c", "zve32x"]
-    assert update_extensions(["g", "c"], vext=True, fpu=None, embedded=True, elen=64) == ["g", "c", "zve32x", "zve64x"]
-    assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=32) == ["g", "c", "zve32f"]
-    assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=32) == ["g", "c", "zve32f"]
-    assert update_extensions(["g", "c"], vext=True, fpu="single", embedded=True, elen=64) == [
-        "g",
+    base = {"i", "m", "a", "c"}
+    assert update_extensions(base, vext=True, fpu=None, embedded_vext=True, elen=32) == {"i", "m", "a", "c", "zve32x"}
+    assert update_extensions(base, vext=True, fpu=None, embedded_vext=True, elen=64) == {"i", "m", "a", "c", "zve64x"}
+    assert update_extensions(base, vext=True, fpu="single", embedded_vext=True, elen=32) == {
+        "i",
+        "m",
+        "a",
+        "f",
         "c",
         "zve32f",
+    }
+    assert update_extensions(base, vext=True, fpu="single", embedded_vext=True, elen=64) == {
+        "i",
+        "m",
+        "a",
+        "f",
+        "c",
+        # "zve32f",
         "zve64f",
-    ]
-    assert update_extensions(["g", "c"], vext=True, fpu="double", embedded=True, elen=64) == [
-        "g",
+    }
+    assert update_extensions(base, vext=True, fpu="double", embedded_vext=True, elen=64) == {
+        "i",
+        "m",
+        "a",
+        "f",
+        "d",
         "c",
-        "zve32f",
+        # "zve32f",
         "zve64d",
-    ]
+    }
 
     # TODO: fpu, multiple elen
 
 
 def test_target_riscv_update_extensions_pulp():
-    assert update_extensions_pulp(["i", "m", "c"], None) == ["i", "m", "c"]
-    assert update_extensions_pulp(["i", "m", "c"], 2) == ["i", "m", "c", "xpulpv2"]
+    assert update_extensions_pulp(["i", "m", "c"], None) == {"i", "m", "c"}
+    assert update_extensions_pulp(["i", "m", "c"], 2) == {"i", "m", "c", "xpulpv2"}

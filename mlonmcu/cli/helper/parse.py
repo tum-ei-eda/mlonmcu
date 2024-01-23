@@ -16,6 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import itertools
+from collections import ChainMap
+
+NUM_GEN_ARGS = 9
 
 
 def parse_var(s):
@@ -57,16 +61,32 @@ def extract_feature_names(args):
         features = args.feature
     else:
         features = []
-    if hasattr(args, "feature_gen") and args.feature_gen:
+
+    def helper(args, name):
         gen = []
-        for x in args.feature_gen:
-            if "_" in x:
-                assert len(x) == 1
-                gen.append([])
-            else:
-                gen.append(x)
-    else:
-        gen = [[]]
+        if hasattr(args, name):
+            feature_gen = getattr(args, name)
+            if not feature_gen:
+                gen = [[]]
+                return gen
+            for x in feature_gen:
+                if "_" in x:
+                    assert len(set(x)) == 1
+                    gen.append([])
+                else:
+                    gen.append(x)
+        else:
+            gen = [[]]
+        return gen
+
+    gens = []
+    for i in range(NUM_GEN_ARGS):
+        suffix = str(i + 1) if i > 0 else ""
+        gen = helper(args, "feature_gen" + suffix)
+        gens.append(gen)
+
+    gen = list(map(lambda x: sum(x, []), (itertools.product(*gens))))
+
     return features, gen
 
 
@@ -76,17 +96,32 @@ def extract_config(args):
         configs = parse_vars(configs)
     else:
         configs = {}
-    if hasattr(args, "config_gen") and args.config_gen:
+
+    def helper(args, name):
         gen = []
-        for x in args.config_gen:
-            if "_" in x:
-                assert len(x) == 1
-                gen.append({})
-            else:
-                c = parse_vars(x)
-                gen.append(c)
-    else:
-        gen = [{}]
+        if hasattr(args, name):
+            config_gen = getattr(args, name)
+            if not config_gen:
+                gen = [{}]
+                return gen
+            for x in config_gen:
+                if "_" in x:
+                    assert len(set(x)) == 1
+                    gen.append({})
+                else:
+                    c = parse_vars(x)
+                    gen.append(c)
+        else:
+            gen = [{}]
+        return gen
+
+    gens = []
+    for i in range(NUM_GEN_ARGS):
+        suffix = str(i + 1) if i > 0 else ""
+        gen = helper(args, "config_gen" + suffix)
+        gens.append(gen)
+
+    gen = list(map(lambda x: dict(ChainMap(*x)), (itertools.product(*gens))))
 
     return configs, gen
 

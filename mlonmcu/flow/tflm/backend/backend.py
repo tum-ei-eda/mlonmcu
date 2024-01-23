@@ -26,12 +26,14 @@ class TFLMBackend(Backend):
 
     name = None
 
+    FEATURES = set()
+
     DEFAULTS = {}
 
-    REQUIRED = []
+    REQUIRED = set()
 
     def __init__(self, features=None, config=None):
-        super().__init__(framework="tflm", config=config)
+        super().__init__(framework="tflm", config=config, features=features)
         self.model = None
         self.supported_formats = [ModelFormats.TFLITE]
 
@@ -40,7 +42,7 @@ class TFLMBackend(Backend):
         assert isinstance(cls.name, str)
         cls.registry[cls.name] = cls
 
-    def load_model(self, model):
+    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         self.model = model
         ext = os.path.splitext(model)[1][1:]
         fmt = ModelFormats.from_extension(ext)

@@ -65,6 +65,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
         "template": "ml_interface",
+        "template_version": None,
         "ignore_data": True,
         "skip_check": False,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
@@ -248,6 +249,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["template"]
 
     @property
+    def template_version(self):
+        return self.config["template_version"]
+
+    @property
     def ignore_data(self):
         value = self.config["ignore_data"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -352,6 +357,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def get_definitions(self):
         definitions = self.definitions
         definitions["TEMPLATE"] = self.template
+        if self.template_version:
+            definitions["TEMPLATE_VERSION"] = self.template_version
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
         definitions["SKIP_CHECK"] = self.skip_check

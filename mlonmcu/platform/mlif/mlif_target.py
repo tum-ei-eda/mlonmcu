@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import os
+from math import ceil
 from pathlib import Path
 from enum import IntEnum
 
@@ -55,9 +56,9 @@ def create_mlif_platform_target(name, platform, base=Target):
         def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             ins_file = None
             num_inputs = 0
-            batch_size = 5  # idea is to process i.e. 5 samples per batch, repeating until no samples remain
             in_interface = None
             out_interface = None
+            batch_size = 1
             if self.platform.set_inputs:
                 # first figure out how many inputs are provided
                 assert self.platform.inputs_artifact is not None
@@ -107,7 +108,7 @@ def create_mlif_platform_target(name, platform, base=Target):
                     encoding = None
             ret = ""
             artifacts = []
-            num_batches = max(round(num_inputs / batch_size), 1)
+            num_batches = max(ceil(num_inputs / batch_size), 1)
             processed_inputs = 0
             remaining_inputs = num_inputs
             outs_data = []

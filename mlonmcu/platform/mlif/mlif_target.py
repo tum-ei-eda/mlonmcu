@@ -66,51 +66,18 @@ def create_mlif_platform_target(name, platform, base=Target):
                 data = np.load(self.platform.inputs_artifact, allow_pickle=True)
                 # print("data", data, type(data))
                 num_inputs = len(data)
-                in_interface = self.platform.set_inputs_interface
-                if in_interface == "auto":
-                    if self.supports_filesystem:
-                        in_interface = "filesystem"
-                        # TODO: eventually update batch_size
-                    elif self.supports_stdin:
-                        in_interface = "stdin_raw"
-                        # TODO: also allow stdin?
-                        # TODO: eventually update batch_size
-                    else:  # Fallback
-                        in_interface = "rom"
-                        batch_size = 1e6  # all inputs are in already compiled into program
-                else:
-                    assert in_interface in ["filesystem", "stdin", "stdin_raw", "rom"]
-                if in_interface == "filesystem":
-                    pass
-                elif in_interface == "stdin":
-                    pass
-                elif in_interface == "stdin_raw":
-                    pass
-                elif in_interface == "rom":
-                    pass  # nothing to do
+                in_interface, batch_size = self.platform.select_set_inputs_interface(self, self.platform.batch_size)
             outs_file = None
             encoding = "utf-8"
             if self.platform.get_outputs:
-                out_interface = self.platform.get_outputs_interface
-                if out_interface == "auto":
-                    if self.supports_filesystem:
-                        out_interface = "filesystem"
-                    elif self.supports_stdout:
-                        out_interface = "stdout_raw"
-                        # TODO: support stdout?
-                else:
-                    assert out_interface in ["filesystem", "stdout", "stdout_raw"]
-                if out_interface == "filesystem":
-                    pass
-                elif out_interface == "stdout":
-                    pass
-                elif out_interface == "stdout_raw":
+                out_interface, batch_size = self.platform.select_get_outputs_interface(self, batch_size)
+                if out_interface == "stdout_raw":
                     encoding = None
             ret = ""
             artifacts = []
             num_batches = max(ceil(num_inputs / batch_size), 1)
             processed_inputs = 0
-            remaining_inputs = num_inputs
+            # remaining_inputs = num_inputs
             outs_data = []
             stdin_data = None
             for idx in range(num_batches):

@@ -98,6 +98,7 @@ class TVMBackend(Backend):
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
+        self.model_format = None
         self.supported_formats = get_supported_formats()
         self.target = target
         self.runtime = runtime
@@ -434,11 +435,14 @@ class TVMBackend(Backend):
             try:
                 self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
             except Exception as e:
-                logger.warning(
-                    "Fetching of Model Info failed (%s). Falling back to Relay-based info.", type(e).__name__
-                )
                 self.model_format = get_model_format(model)
-                self.model_info = None
+                if self.model_format != "relay":
+                    logger.warning(
+                        "Fetching of Model Info failed (%s). Falling back to Relay-based info.", type(e).__name__
+                    )
+                    self.model_info = None
+                else:
+                    raise e
 
             if self.model_info and not self.input_shapes:
                 self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

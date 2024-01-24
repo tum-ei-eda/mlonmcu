@@ -168,8 +168,6 @@ def parse_relay_main(line):
             output_shape = shape_from_str(output_shape_str)
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             output_tensors.append(output_tensor)
-    assert len(input_tensors) > 0, "No input tensors found in RelayIR"
-    assert len(output_tensors) > 0, "No output tensors found in RelayIR"
     return input_tensors, output_tensors
 
 
@@ -181,7 +179,8 @@ class RelayModelInfo(ModelInfo):
             if "def @main(" in line:
                 in_tensors, out_tensors = parse_relay_main(line)
                 break
-        assert in_tensors is not None and out_tensors is not None
+        assert in_tensors is not None and len(in_tensors) > 0, "RelayModelInfo: input_tensors not found (Add TypeInfer details or provided types/shapes manually)"
+        assert out_tensors is not None and len(out_tensors) > 0, "RelayModelInfo: output tensors not found (Add TypeInfer details or provide types/shapes manually)"
         super().__init__(in_tensors, out_tensors)
 
 

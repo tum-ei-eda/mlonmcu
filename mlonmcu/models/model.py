@@ -88,7 +88,7 @@ def parse_shape_string(inputs_string):
     # * dots inside names
     pattern = r"(?:\w+\/)?[:\w.]+\:\s*\[\-?\d+(?:\,\s*\-?\d+)*\]"
     input_mappings = re.findall(pattern, inputs_string)
-    assert input_mappings
+    assert input_mappings, f"Invalid shapes string: {inputs_string} (Expected syntax: 'foo:[1,32,32,3] bar:[10,10]')"
     shape_dict = {}
     for mapping in input_mappings:
         # Remove whitespace.
@@ -104,9 +104,22 @@ def parse_shape_string(inputs_string):
 
 
 def parse_type_string(inputs_string):
+    """Parse an input type dictionary string to a usable dictionary.
+
+    Parameters
+    ----------
+    inputs_string: str
+        A string of the form "input_name:ty input_name2:ty" that
+        indicates the desired type for specific model inputs/outputs. Colons, forward slashes and dots
+        within input_names are supported. Spaces are supported inside of dimension arrays.
+    Returns
+    -------
+    type_dict: dict
+        A dictionary mapping input names to their type.
+    """
     pattern = r"(?:\w+\/)?[:\w.]+\:\s*\-?\w+(?:\s*\-?\w+)*"
     input_mappings = re.findall(pattern, inputs_string)
-    assert input_mappings
+    assert input_mappings, f"Invalid types string: {inputs_string} (Expected syntax: 'foo:int8 bar:int32')"
     type_dict = {}
     for mapping in input_mappings:
         # Remove whitespace.

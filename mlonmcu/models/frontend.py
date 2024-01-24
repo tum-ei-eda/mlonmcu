@@ -281,7 +281,10 @@ class Frontend(ABC):
             input_names = []
 
         if metadata is None:
-            input_names, input_shapes, input_types, input_quant_details, output_names, output_shapes, output_types, output_quant_details = self.extract_model_info(model)
+            try:
+                input_names, input_shapes, input_types, input_quant_details, output_names, output_shapes, output_types, output_quant_details = self.extract_model_info(model)
+            except NotImplementedError:
+                logger.warning("Model info could not be extracted.")
 
         # Detect model support code (Allow overwrite in metadata YAML)
         support_path = model_dir / "support"

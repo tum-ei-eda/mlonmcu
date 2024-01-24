@@ -164,8 +164,8 @@ class Frontend(ABC):
             ret = ret and supported
         return ret
 
-    def lookup_models(self, names, context=None):
-        return lookup_models(names, frontends=[self], context=context)
+    def lookup_models(self, names, config=None, context=None):
+        return lookup_models(names, frontends=[self], config=config, context=context)
 
     def process_features(self, features):
         if features is None:
@@ -281,7 +281,10 @@ class Frontend(ABC):
             input_names = []
 
         if metadata is None:
-            input_names, input_shapes, input_types, input_quant_details, output_names, output_shapes, output_types, output_quant_details = self.extract_model_info(model)
+            try:
+                input_names, input_shapes, input_types, input_quant_details, output_names, output_shapes, output_types, output_quant_details = self.extract_model_info(model)
+            except NotImplementedError:
+                logger.warning("Model info could not be extracted.")
 
         # Detect model support code (Allow overwrite in metadata YAML)
         support_path = model_dir / "support"

@@ -477,8 +477,10 @@ class Run:
         assert len(self.frontends) > 0, "Add a frontend to the run before adding a model"
         model = None
         for frontend in self.frontends:
+            if model is not None:
+                break
             try:
-                model_hints = frontend.lookup_models([model_name], context=context)
+                model_hints = frontend.lookup_models([model_name], config=self.config, context=context)
                 # model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
                 for model_hint in model_hints:
                     if (

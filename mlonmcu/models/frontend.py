@@ -291,7 +291,8 @@ class Frontend(ABC):
         if support_path.is_dir():
             assert cfg is not None
             # TODO: onlu overwrite if unset?
-            cfg.update({"mlif.model_support_dir": support_path})
+            if cfg.get("mlif.model_support_dir", None) is not None:
+                cfg.update({"mlif.model_support_dir": support_path})
             # cfg.update({"espidf.model_support_dir": support_path})
             # cfg.update({"zephyr.model_support_dir": support_path})
         if len(in_paths) > 0:

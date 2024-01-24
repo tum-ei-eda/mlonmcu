@@ -193,9 +193,10 @@ def create_mlif_platform_target(name, platform, base=Target):
                         if code in MlifExitCode.values():
                             reason = MlifExitCode(code).name
                             logger.error("A platform error occured during the simulation. Reason: %s", reason)
-                            self.validation_result = False
-                            if not self.platform.fail_on_error:
-                                code = 0
+                            if code == MlifExitCode.OUTPUT_MISSMATCH:
+                                self.validation_result = False
+                                if not self.platform.fail_on_error:
+                                    code = 0
                     return code
 
             else:

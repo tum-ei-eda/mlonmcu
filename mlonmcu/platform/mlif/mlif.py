@@ -29,7 +29,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
-from mlonmcu.models.utils import get_data_source
+from mlonmcu.models.utils import get_data_source, fill_data_source_inputs_only
 
 from ..platform import CompilePlatform, TargetPlatform
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
@@ -88,6 +88,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "get_outputs": False,
         "get_outputs_interface": None,
         "get_outputs_fmt": None,
+        "batch_size": None,
+        "model_support_file": None,
+        "model_support_dir": None,
+        "model_support_lib": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -132,6 +136,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return value
 
     @property
+    def batch_size(self):
+        value = self.config["batch_size"]  # TODO: use
+        if isinstance(value, str):
+            value = int(value)
+        return value
+
+    @property
     def inputs_artifact(self):
         # THIS IS A HACK (get inputs fom artifacts!)
         lookup_path = self.build_dir.parent / "inputs.npy"
@@ -150,7 +161,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             logger.warning("Artifact 'model_info.yml' not found!")
             return None
-
 
     def gen_data_artifact(self):
         in_paths = self.input_data_path
@@ -261,8 +271,19 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return str(self.config["toolchain"])
 
     @property
+    def model_support_file(self):
+        value = self.config["model_support_file"]  # TODO: use
+        return value
+
+    @property
     def model_support_dir(self):
-        return self.config["model_support_dir"]
+        value = self.config["model_support_dir"]  # TODO: use
+        return value
+
+    @property
+    def model_support_lib(self):
+        value = self.config["model_support_lib"]  # TODO: use
+        return value
 
     @property
     def prebuild_lib_dir(self):
@@ -334,6 +355,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
         definitions["SKIP_CHECK"] = self.skip_check
+        if self.batch_size is not None:
+            definitions["BATCH_SIZE"] = self.batch_size
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
         if self.toolchain == "llvm" and self.llvm_dir is None:
@@ -352,8 +375,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["ENABLE_GC"] = self.garbage_collect
         if self.slim_cpp is not None:
             definitions["SLIM_CPP"] = self.slim_cpp
+        if self.model_support_file is not None:
+            definitions["MODEL_SUPPORT_FILE"] = self.model_support_file
         if self.model_support_dir is not None:
             definitions["MODEL_SUPPORT_DIR"] = self.model_support_dir
+        if self.model_support_lib is not None:
+            definitions["MODEL_SUPPORT_LIB"] = self.model_support_lib
         if self.fuse_ld is not None:
             definitions["FUSE_LD"] = self.fuse_ld
         if self.strip_strings is not None:
@@ -373,7 +400,192 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prepare(self):
         self.init_directory()
 
+    def select_set_inputs_interface(self, target, batch_size):
+        in_interface = self.set_inputs_interface
+        if in_interface == "auto":
+            if target.supports_filesystem:
+                in_interface = "filesystem"
+            elif target.supports_stdin:
+                in_interface = "stdin_raw"
+                # TODO: also allow stdin?
+            else:  # Fallback
+                in_interface = "rom"
+        assert in_interface in ["filesystem", "stdin", "stdin_raw", "rom"]
+        if batch_size is None:
+            if in_interface == "rom":
+                batch_size = 1e6  # all inputs are in already compiled into program
+            else:
+                batch_size = 10
+        return in_interface, batch_size
+
+    def select_get_outputs_interface(self, target, batch_size):
+        out_interface = self.get_outputs_interface
+        if out_interface == "auto":
+            if target.supports_filesystem:
+                out_interface = "filesystem"
+            elif target.supports_stdin:
+                out_interface = "stdout_raw"
+                # TODO: also allow stdout?
+            else:  # Fallback
+                out_interface = "ram"
+        assert out_interface in ["filesystem", "stdout", "stdout_raw", "ram"]
+        if batch_size is None:
+            batch_size = 10
+        return out_interface, batch_size
+
+    def generate_model_support_code(self, in_interface, out_interface, batch_size):
+        code = ""
+        code += """
+#include "quantize.h"
+#include "printing.h"
+#include "exit.h"
+// #include "ml_interface.h"
+#include <cstring>
+#include <unistd.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include  <stdio.h>
+
+extern "C" {
+int mlif_process_inputs(size_t, bool*);
+int mlif_process_outputs(size_t);
+void *mlif_input_ptr(int);
+void *mlif_output_ptr(int);
+int mlif_input_sz(int);
+int mlif_output_sz(int);
+int mlif_num_inputs();
+int mlif_num_outputs();
+}
+"""
+        if in_interface == "rom":
+            assert self.inputs_artifact is not None
+            import numpy as np
+            data = np.load(self.inputs_artifact, allow_pickle=True)
+            in_bufs = []
+            for i, ins_data in enumerate(data):
+                temp = []
+                for j, in_data in enumerate(ins_data.values()):
+                    byte_data = in_data.tobytes()
+                    temp2 = ", ".join(["0x{:02x}".format(x) for x in byte_data] + [""])
+                    temp.append(temp2)
+                in_bufs.append(temp)
+
+            code += fill_data_source_inputs_only(in_bufs)
+            code += """
+int mlif_process_inputs(size_t batch_idx, bool *new_)
+{
+    *new_ = true;
+    int num_inputs = mlif_num_inputs();
+    for (int i = 0; i < num_inputs; i++)
+    {
+        int idx = num_inputs * batch_idx + i;
+        int size = mlif_input_sz(i);
+        char* model_input_ptr = (char*)mlif_input_ptr(i);
+        if (idx >= num_data_buffers_in)
+        {
+            *new_ = false;
+            break;
+        }
+        if (size != data_size_in[idx])
+        {
+            return EXIT_MLIF_INVALID_SIZE;
+        }
+        memcpy(model_input_ptr, data_buffers_in[idx], size);
+    }
+    return 0;
+}
+"""
+        elif in_interface == "stdin_raw":
+            code += """
+int mlif_process_inputs(size_t batch_idx, bool *new_)
+{
+    char ch;
+    *new_ = true;
+    for (int i = 0; i < mlif_num_inputs(); i++)
+    {
+        int cnt = 0;
+        int size = mlif_input_sz(i);
+        char* model_input_ptr = (char*)mlif_input_ptr(i);
+        while(read(STDIN_FILENO, &ch, 1) > 0) {
+            // printf("c=%c / %d\\n", ch, ch);
+            model_input_ptr[cnt] = ch;
+            cnt++;
+            if (cnt == size) {
+                break;
+            }
+        }
+        // printf("cnt=%d in_size=%lu\\n", cnt, in_size);
+        if (cnt == 0) {
+            *new_ = false;
+            return 0;
+        }
+        else if (cnt < size)
+        {
+            return EXIT_MLIF_INVALID_SIZE;
+        }
+    }
+    return 0;
+}
+"""
+        elif in_interface == "stdin":
+            raise NotImplementedError
+        elif in_interface == "filesystem":
+            raise NotImplementedError
+        else:
+            assert False
+        if out_interface == "ram":
+            raise NotImplementedError
+        elif out_interface == "stdout_raw":
+            # TODO: maybe hardcode num_outputs and size here because we know it
+            # and get rid of loop?
+            code += """
+int mlif_process_outputs(size_t batch_idx)
+{
+    for (int i = 0; i < mlif_num_outputs(); i++)
+    {
+        int8_t *model_output_ptr = (int8_t*)mlif_output_ptr(i);
+        int size = mlif_output_sz(i);
+        // TODO: move markers out of loop
+        write(1, "-?-", 3);
+        write(1, model_output_ptr, size);
+        write(1, "-!-\\n" ,4);
+    }
+    return 0;
+}
+"""
+        elif out_interface == "stdout":
+            raise NotImplementedError
+        elif out_interface == "filesystem":
+            raise NotImplementedError
+        else:
+            assert False
+        return code
+
+    def generate_model_support(self, target):
+        artifacts = []
+        in_interface = None
+        batch_size = self.batch_size
+        if self.set_inputs:
+            in_interface, batch_size = self.select_set_inputs_interface(target, batch_size)
+        if self.get_outputs:
+            out_interface, batch_size = self.select_get_outputs_interface(target, batch_size)
+        if in_interface or out_interface:
+            code = self.generate_model_support_code(in_interface, out_interface, batch_size)
+            code_artifact = Artifact(
+                "model_support.cpp", content=code, fmt=ArtifactFormat.TEXT, flags=("model_support"),
+            )
+            self.definitions["BATCH_SIZE"] = batch_size
+            artifacts.append(code_artifact)
+        return artifacts
+
     def configure(self, target, src, _model):
+        artifacts = self.generate_model_support(target)
+        if len(artifacts) > 0:
+            assert len(artifacts) == 1
+            model_support_artifact = artifacts[0]
+            model_support_file = self.build_dir / model_support_artifact.name
+            model_support_artifact.export(model_support_file)
+            self.definitions["MODEL_SUPPORT_FILE"] = model_support_file
         del target
         if not isinstance(src, Path):
             src = Path(src)
@@ -384,7 +596,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
-        artifacts = []
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
         else:

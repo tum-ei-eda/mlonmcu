@@ -25,6 +25,8 @@ from mlonmcu.target import get_targets, Target
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 
+from .interfaces import ModelSupport
+
 logger = get_logger()
 
 
@@ -59,20 +61,36 @@ def create_mlif_platform_target(name, platform, base=Target):
             in_interface = None
             out_interface = None
             batch_size = 1
-            if self.platform.set_inputs:
-                # first figure out how many inputs are provided
-                assert self.platform.inputs_artifact is not None
-                import numpy as np
-                data = np.load(self.platform.inputs_artifact, allow_pickle=True)
-                # print("data", data, type(data))
-                num_inputs = len(data)
-                in_interface, batch_size = self.platform.select_set_inputs_interface(self, self.platform.batch_size)
-            outs_file = None
             encoding = "utf-8"
-            if self.platform.get_outputs:
-                out_interface, batch_size = self.platform.select_get_outputs_interface(self, batch_size)
+            model_info_file = self.platform.model_info_file  # TODO: replace workaround (add model info to platform?)
+            if self.platform.set_inputs or self.platform.get_outputs:
+                # first figure out how many inputs are provided
+                if model_info_file is not None:
+                    import yaml
+                    with open(model_info_file, "r") as f:
+                        model_info_data = yaml.safe_load(f)
+                else:
+                    model_info_data = None
+                if self.platform.inputs_artifact is not None:
+                    import numpy as np
+                    data = np.load(self.platform.inputs_artifact, allow_pickle=True)
+                    num_inputs = len(data)
+                else:
+                    data = None
+                model_support = ModelSupport(
+                    in_interface=self.platform.set_inputs_interface,
+                    out_interface=self.platform.get_outputs_interface,
+                    model_info=model_info_data,
+                    target=self,
+                    batch_size=self.platform.batch_size,
+                    inputs_data=data,
+                )
+                in_interface = model_support.in_interface
+                out_interface = model_support.out_interface
+                batch_size = model_support.batch_size
                 if out_interface == "stdout_raw":
                     encoding = None
+            outs_file = None
             ret = ""
             artifacts = []
             num_batches = max(ceil(num_inputs / batch_size), 1)
@@ -121,11 +139,7 @@ def create_mlif_platform_target(name, platform, base=Target):
                         raise NotImplementedError
                     elif out_interface == "stdout_raw":
                         # DUMMY BELOW
-                        model_info_file = self.platform.model_info_file  # TODO: replace workaround (add model info to platform?)
-                        assert model_info_file is not None
-                        import yaml
-                        with open(model_info_file, "r") as f:
-                            model_info_data = yaml.safe_load(f)
+                        assert model_info_data is not None
                         # print("model_info_data", model_info_data)
                         # dtype = "int8"
                         # shape = [1, 10]

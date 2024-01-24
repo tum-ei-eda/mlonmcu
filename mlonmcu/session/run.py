@@ -903,7 +903,17 @@ class Run:
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
                     model_artifact.export(self.dir)
-                self.backend.load_model(model=model_artifact.path)
+                input_shapes = self.model.input_shapes
+                output_shapes = self.model.output_shapes
+                input_types = self.model.input_types
+                output_types = self.model.output_types
+                self.backend.load_model(
+                    model=model_artifact.path,
+                    input_shapes=input_shapes,
+                    output_shapes=output_shapes,
+                    input_types=input_types,
+                    output_types=output_types,
+                )
                 _build()
 
         self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])

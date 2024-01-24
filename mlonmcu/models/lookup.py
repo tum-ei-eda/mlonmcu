@@ -154,13 +154,13 @@ def list_modelgroups(directory):
     return groups
 
 
-def lookup_models_and_groups(directories, formats):
+def lookup_models_and_groups(directories, formats, config=None):
     all_models = []
     all_groups = []
     duplicates = {}
     group_duplicates = {}
     for directory in directories:
-        models = list_models(directory, formats=formats)
+        models = list_models(directory, formats=formats, config=config)
         if len(all_models) == 0:
             all_models = models
         else:
@@ -260,7 +260,7 @@ def print_summary(context, detailed=False):
     print_groups(groups, duplicates=group_duplicates, all_models=models, detailed=detailed)
 
 
-def lookup_models(names, frontends=None, context=None):
+def lookup_models(names, frontends=None, config=None, context=None):
     if frontends is None:
         assert context is not None
         # TODO: Get defaults frontends from environment (with no config/features)
@@ -272,7 +272,7 @@ def lookup_models(names, frontends=None, context=None):
 
     if context:
         directories = get_model_directories(context)
-        models, _, _, _ = lookup_models_and_groups(directories, allowed_fmts)
+        models, _, _, _ = lookup_models_and_groups(directories, allowed_fmts, config=config)
     else:
         models = []
     model_names = [model.name for model in models]
@@ -287,7 +287,6 @@ def lookup_models(names, frontends=None, context=None):
                 ext in allowed_exts
             ), f"Unsupported file extension for model which was explicitly passed by path: {ext}"
             paths = [filepath]
-            config = {}
             metadata_path = find_metadata(filepath.parent.resolve(), model_name=real_name)
             if metadata_path:
                 config[f"{real_name}.metadata_path"] = metadata_path

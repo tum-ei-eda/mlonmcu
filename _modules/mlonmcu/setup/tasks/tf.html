@@ -170,6 +170,14 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">tflmLib</span> <span class="o">=</span> <span class="n">tflmBuildDir</span> <span class="o">/</span> <span class="s2">&quot;gen&quot;</span> <span class="o">/</span> <span class="s2">&quot;linux_x86_64&quot;</span> <span class="o">/</span> <span class="s2">&quot;lib&quot;</span> <span class="o">/</span> <span class="s2">&quot;libtensorflow-microlite.a&quot;</span>
     <span class="c1"># if rebuild or not tflmLib.is_file() or not utils.is_populated(tflmDownloadsDir):</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">and</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tflmDownloadsDir</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>
+            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">tflmDir</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span> <span class="o">/</span> <span class="s2">&quot;make&quot;</span> <span class="o">/</span> <span class="s2">&quot;Makefile&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;clean_downloads&quot;</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">tfSrcDir</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tflmDownloadsDir</span><span class="p">):</span>
         <span class="n">tfDbgArg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BUILD_TYPE=debug&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>

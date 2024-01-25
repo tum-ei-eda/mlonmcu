@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.target.riscv.ara &mdash; ML on MCU 0.4.dev0 documentation</title>
+  <title>mlonmcu.target.riscv.ara_rtl &mdash; ML on MCU 0.4.dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -76,7 +76,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">mlonmcu.target.riscv.ara</li>
+      <li class="breadcrumb-item active">mlonmcu.target.riscv.ara_rtl</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -85,7 +85,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.target.riscv.ara</h1><div class="highlight"><pre>
+  <h1>Source code for mlonmcu.target.riscv.ara_rtl</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
 <span class="c1">#</span>
@@ -127,10 +127,10 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="AraTarget">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget">[docs]</a>
-<span class="k">class</span> <span class="nc">AraTarget</span><span class="p">(</span><span class="n">RVVTarget</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the GVSOC simulator&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AraRtlTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget">[docs]</a>
+<span class="k">class</span> <span class="nc">AraRtlTarget</span><span class="p">(</span><span class="n">RVVTarget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;vext&quot;</span><span class="p">}</span>
 
@@ -149,15 +149,15 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span>
         <span class="s2">&quot;ara.src_dir&quot;</span><span class="p">,</span>  <span class="c1"># for the bsp package</span>
-        <span class="s2">&quot;verilator.install_dir&quot;</span><span class="p">,</span>  <span class="c1"># for simulation</span>
+        <span class="s2">&quot;spike.install_dir&quot;</span><span class="p">,</span>  <span class="c1"># for dpi-lib</span>
+        <span class="s2">&quot;verilator.install_dir&quot;</span><span class="p">,</span>  <span class="c1"># for dpi-lib</span>
     <span class="p">}</span>
 
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span>
-        <span class="s2">&quot;ara.verilator_tb&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;questasim.install_dir&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ara&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ara_rtl&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlen&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">64</span><span class="p">,</span> <span class="s1">&#39;ARA target must has xlen equal 64, try &quot;-c ara.xlen=64&quot;&#39;</span>
 
     <span class="nd">@property</span>
@@ -169,12 +169,16 @@
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ara.src_dir&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="s2">&quot;hardware&quot;</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spike_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spike.install_dir&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">verilator_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;verilator.install_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ara_verilator_tb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ara.verilator_tb&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">questasim_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;questasim.install_dir&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
@@ -221,30 +225,26 @@
     <span class="k">def</span> <span class="nf">num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_threads&quot;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="AraTarget.prepare_simulator">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.prepare_simulator">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.prepare_simulator">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.prepare_simulator">[docs]</a>
     <span class="k">def</span> <span class="nf">prepare_simulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># populate the ara verilator testbench directory</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tb_ara_verilator_build_dir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
-        <span class="c1"># self.tb_ara_verilator_build_dir = Path(&quot;/tmp/tmpd7kz4i6z&quot;)</span>
-        <span class="c1"># env = os.environ.copy()</span>
-        <span class="c1"># env[&quot;ROOT_DIR&quot;] = str(self.ara_hardware_dir)</span>
-        <span class="c1"># env[&quot;veril_library&quot;] = self.tb_ara_verilator_build_dir.name</span>
-        <span class="c1"># env[&quot;veril_path&quot;] = str(self.verilator_install_dir / &quot;bin&quot;)</span>
-        <span class="c1"># env[&quot;nr_lanes&quot;] = str(self.nr_lanes)</span>
-        <span class="c1"># env[&quot;vlen&quot;] = str(self.vlen)</span>
-        <span class="c1"># env[&quot;bender_defs&quot;] = f&quot;--define NR_LANES={self.nr_lanes} --define VLEN={self.vlen} --define RVV_ARIANE=1&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">questasim_install_dir</span><span class="p">:</span>
+            <span class="n">path_before</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">questasim_install_dir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">path_before</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ROOT_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_hardware_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;veril_library=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tb_ara_verilator_build_dir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;veril_path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verilator_install_dir</span><span class="si">}</span><span class="s2">/bin&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RISCV_ISA_SIM_INSTALL_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spike_install_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VERILATOR_INCLUDE=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verilator_install_dir</span><span class="si">}</span><span class="s2">/share/verilator/include/vltstd/&quot;</span><span class="p">)</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nr_lanes=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_lanes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;vlen=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;buildpath=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">compile_verilator_tb_ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
             <span class="s2">&quot;make&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;verilate&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;JOBS=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="c1"># env=env,</span>
+            <span class="s2">&quot;compile&quot;</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_hardware_dir</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -252,8 +252,8 @@
         <span class="k">return</span> <span class="n">compile_verilator_tb_ret</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.exec">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.exec">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.exec">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.exec">[docs]</a>
     <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute an executable with given arguments&quot;&quot;&quot;</span>
         <span class="c1"># run simulation</span>
@@ -265,28 +265,39 @@
         <span class="n">ara_verilator_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;ram,</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_verilator_tb</span><span class="p">:</span>
-            <span class="n">exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_verilator_tb</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">tb_ara_verilator_build_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">),</span> <span class="s2">&quot;A folder containing Vara_tb_verilator should be generated by the function prepare_simulator&quot;</span>
-            <span class="n">exe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tb_ara_verilator_build_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;Vara_tb_verilator&quot;</span>
+        <span class="n">vsim_args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;+UVM_NO_RELNOTES&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;+PRELOAD=</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-sv_lib&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;work-dpi/ara_dpi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-work&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;work&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-voptargs=+acc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-suppress&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vsim-3009&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-suppress&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vopt-7033&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-suppress&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vopt-8386&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;work.ara_tb&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-do&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;run -a&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
         <span class="n">simulation_ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">exe</span><span class="p">),</span>
-            <span class="o">*</span><span class="n">ara_verilator_args</span><span class="p">,</span>
+            <span class="s2">&quot;vsim&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">vsim_args</span><span class="p">,</span>
             <span class="c1"># env=env,</span>
-            <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_verilator_tb</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tb_ara_verilator_build_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">simulation_ret</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.parse_exit">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.parse_exit">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.parse_exit">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_exit">[docs]</a>
     <span class="k">def</span> <span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
         <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -295,8 +306,8 @@
         <span class="k">return</span> <span class="n">exit_code</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.parse_stdout">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.parse_stdout">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.parse_stdout">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_stdout">[docs]</a>
     <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -322,11 +333,11 @@
             <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;MIPS&quot;</span><span class="p">,</span> <span class="n">speed</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.get_metrics">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_metrics">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.get_metrics">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_metrics">[docs]</a>
     <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_verilator_tb</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">prepare_simulator</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -363,14 +374,15 @@
         <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.get_target_system">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_target_system">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.get_target_system">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_target_system">[docs]</a>
     <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+        <span class="c1"># return self.name</span>
+        <span class="k">return</span> <span class="s2">&quot;ara&quot;</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.get_platform_defs">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_platform_defs">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.get_platform_defs">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_platform_defs">[docs]</a>
     <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
@@ -384,8 +396,8 @@
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
-<div class="viewcode-block" id="AraTarget.get_backend_config">
-<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_backend_config">[docs]</a>
+<div class="viewcode-block" id="AraRtlTarget.get_backend_config">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_backend_config">[docs]</a>
     <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span>
             <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="n">optimized_layouts</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="n">optimized_schedules</span>
@@ -396,7 +408,7 @@
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">cli</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">AraTarget</span><span class="p">)</span>
+    <span class="n">cli</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">AraRtlTarget</span><span class="p">)</span>
 </pre></div>
 
            </div>

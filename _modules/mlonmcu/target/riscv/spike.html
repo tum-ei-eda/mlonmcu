@@ -118,6 +118,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.target.bench</span> <span class="kn">import</span> <span class="n">add_bench_metrics</span>
 <span class="kn">from</span> <span class="nn">.riscv_pext_target</span> <span class="kn">import</span> <span class="n">RVPTarget</span>
 <span class="kn">from</span> <span class="nn">.riscv_vext_target</span> <span class="kn">import</span> <span class="n">RVVTarget</span>
+<span class="kn">from</span> <span class="nn">.riscv_bext_target</span> <span class="kn">import</span> <span class="n">RVBTarget</span>
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">update_extensions</span><span class="p">,</span> <span class="n">sort_extensions_canonical</span><span class="p">,</span> <span class="n">join_extensions</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
@@ -159,17 +160,18 @@
 
 <div class="viewcode-block" id="SpikeTarget">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.SpikeTarget">[docs]</a>
-<span class="k">class</span> <span class="nc">SpikeTarget</span><span class="p">(</span><span class="n">RVPTarget</span><span class="p">,</span> <span class="n">RVVTarget</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">SpikeTarget</span><span class="p">(</span><span class="n">RVPTarget</span><span class="p">,</span> <span class="n">RVVTarget</span><span class="p">,</span> <span class="n">RVBTarget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using the riscv-isa-sim (Spike) RISC-V simulator.&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVPTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;cachesim&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVPTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="n">RVBTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;cachesim&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RVPTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="o">**</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">RVBTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;spikepk_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVPTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVPTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVBTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -302,6 +304,7 @@
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RVPTarget</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RVBTarget</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 

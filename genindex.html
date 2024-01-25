@@ -104,6 +104,7 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -269,8 +270,6 @@
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_postprocesses_by_name">add_postprocesses_by_name() (mlonmcu.session.run.Run method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.SetupFeature.add_required_cache_flags">add_required_cache_flags() (mlonmcu.feature.feature.SetupFeature method)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.RunFeature.add_run_config">add_run_config() (mlonmcu.feature.feature.RunFeature method)</a>
@@ -281,6 +280,8 @@
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.setup.add_setup_options">add_setup_options() (in module mlonmcu.cli.setup)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_target">add_target() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_target_by_name">add_target_by_name() (mlonmcu.session.run.Run method)</a>
@@ -311,6 +312,18 @@
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess">AnalyseInstructionsPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
 </li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.analyze_enable">analyze_enable (mlonmcu.models.frontend.TfLiteFrontend property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.TfLiteFrontend.analyze_enable">(mlonmcu.models.TfLiteFrontend property)</a>
+</li>
+      </ul></li>
+      <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.analyze_script">analyze_script (mlonmcu.models.frontend.TfLiteFrontend property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.TfLiteFrontend.analyze_script">(mlonmcu.models.TfLiteFrontend property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.features.TVMTuneBase.append">append (mlonmcu.feature.features.TVMTuneBase property)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.apply">apply() (in module mlonmcu.setup.utils)</a>
@@ -320,12 +333,20 @@
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.ara_apps_dir">ara_apps_dir (mlonmcu.target.riscv.ara.AraTarget property)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.ara_apps_dir">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.ara_apps_dir">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.ara_apps_dir">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
       </ul></li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.ara_hardware_dir">ara_hardware_dir (mlonmcu.target.riscv.ara.AraTarget property)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.ara_hardware_dir">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.ara_hardware_dir">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.ara_hardware_dir">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
       </ul></li>
@@ -333,6 +354,12 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.ara_verilator_tb">(mlonmcu.target.riscv.AraTarget property)</a>
+</li>
+      </ul></li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget">AraRtlTarget (class in mlonmcu.target.riscv)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget">(class in mlonmcu.target.riscv.ara_rtl)</a>
 </li>
       </ul></li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget">AraTarget (class in mlonmcu.target.riscv)</a>
@@ -473,14 +500,24 @@
         <li><a href="mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.ZephyrPlatform.baud">(mlonmcu.platform.zephyr.ZephyrPlatform property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.bext_spec">bext_spec (mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
+</li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.bext_zba">bext_zba (mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
+</li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.bext_zbb">bext_zbb (mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
+</li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.bext_zbc">bext_zbc (mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
+</li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.bext_zbs">bext_zbs (mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
+</li>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.BIN">BIN (mlonmcu.artifact.ArtifactFormat attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.board">board (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
 </li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH">BRANCH (mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH_TAKEN">BRANCH_TAKEN (mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount attribute)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage.BUILD">BUILD (mlonmcu.session.run.RunStage attribute)</a>
@@ -1098,6 +1135,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.DEFAULTS">(mlonmcu.target.riscv.ara.AraTarget attribute)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.DEFAULTS">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.DEFAULTS">(mlonmcu.target.riscv.AraRtlTarget attribute)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.DEFAULTS">(mlonmcu.target.riscv.AraTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.DEFAULTS">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget attribute)</a>
@@ -1121,6 +1162,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.OVPSimTarget.DEFAULTS">(mlonmcu.target.riscv.OVPSimTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.DEFAULTS">(mlonmcu.target.riscv.riscv.RISCVTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.DEFAULTS">(mlonmcu.target.riscv.riscv_bext_target.RVBTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.DEFAULTS">(mlonmcu.target.riscv.riscv_pext_target.RVPTarget attribute)</a>
 </li>
@@ -1230,6 +1273,10 @@
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.elen">(mlonmcu.target.riscv.ara.AraTarget property)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.elen">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.elen">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.elen">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.elen">(mlonmcu.target.riscv.etiss.EtissTarget property)</a>
@@ -1256,6 +1303,10 @@
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.embedded_vext">(mlonmcu.target.riscv.ara.AraTarget property)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.embedded_vext">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.embedded_vext">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.embedded_vext">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.embedded_vext">(mlonmcu.target.riscv.etiss.EtissTarget property)</a>
@@ -1278,6 +1329,8 @@
       <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend">EmbenchFrontend (class in mlonmcu.models.frontend)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.model.EmbenchProgram">EmbenchProgram (class in mlonmcu.models.model)</a>
+</li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.enable_bext">enable_bext (mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
 </li>
       <li><a href="mlonmcu.target.arm.html#mlonmcu.target.arm.corstone300.Corstone300Target.enable_dsp">enable_dsp (mlonmcu.target.arm.corstone300.Corstone300Target property)</a>
 
@@ -1329,6 +1382,10 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.enable_vext">(mlonmcu.target.riscv.ara.AraTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.enable_vext">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.enable_vext">(mlonmcu.target.riscv.AraRtlTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.enable_vext">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
@@ -1523,10 +1580,10 @@
 </li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target">Esp32C3Target (class in mlonmcu.platform.espidf.espidf_target)</a>
 </li>
-      <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.esp_idf_install_dir">esp_idf_install_dir (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.esp_idf_install_dir">esp_idf_install_dir (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
+</li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.esp_idf_src_dir">esp_idf_src_dir (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
 </li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.espidf_install_dir">espidf_install_dir (mlonmcu.platform.espidf.espidf.EspIdfPlatform property)</a>
@@ -1633,6 +1690,10 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.OVPSimTarget.exec">(mlonmcu.target.OVPSimTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.exec">(mlonmcu.target.riscv.ara.AraTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.exec">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.exec">(mlonmcu.target.riscv.AraRtlTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.exec">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
@@ -1746,6 +1807,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.extensions">(mlonmcu.target.riscv.ara.AraTarget property)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.extensions">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.extensions">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.extensions">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.extensions">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget property)</a>
@@ -1769,6 +1834,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.OVPSimTarget.extensions">(mlonmcu.target.riscv.OVPSimTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.extensions">(mlonmcu.target.riscv.riscv.RISCVTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.extensions">(mlonmcu.target.riscv.riscv_bext_target.RVBTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.extensions">(mlonmcu.target.riscv.riscv_pext_target.RVPTarget property)</a>
 </li>
@@ -1843,6 +1910,8 @@
         <li><a href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.fail_on_error">(mlonmcu.platform.mlif.MlifPlatform property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.failing">failing (mlonmcu.session.session.Session property)</a>
+</li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.PackedFrontend.fake_pack">fake_pack (mlonmcu.models.frontend.PackedFrontend property)</a>
 
       <ul>
@@ -2008,6 +2077,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.FEATURES">(mlonmcu.target.riscv.ara.AraTarget attribute)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.FEATURES">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.FEATURES">(mlonmcu.target.riscv.AraRtlTarget attribute)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.FEATURES">(mlonmcu.target.riscv.AraTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.FEATURES">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget attribute)</a>
@@ -2031,6 +2104,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.OVPSimTarget.FEATURES">(mlonmcu.target.riscv.OVPSimTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.FEATURES">(mlonmcu.target.riscv.riscv.RISCVTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.FEATURES">(mlonmcu.target.riscv.riscv_bext_target.RVBTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.FEATURES">(mlonmcu.target.riscv.riscv_pext_target.RVPTarget attribute)</a>
 </li>
@@ -2506,6 +2581,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_backend_config">(mlonmcu.target.riscv.ara.AraTarget method)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_backend_config">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.get_backend_config">(mlonmcu.target.riscv.AraRtlTarget method)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.get_backend_config">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.get_backend_config">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget method)</a>
@@ -2754,6 +2833,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_metrics">(mlonmcu.target.riscv.ara.AraTarget method)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_metrics">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.get_metrics">(mlonmcu.target.riscv.AraRtlTarget method)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.get_metrics">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.get_metrics">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget method)</a>
@@ -2940,6 +3023,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_platform_defs">(mlonmcu.target.riscv.ara.AraTarget method)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_platform_defs">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.get_platform_defs">(mlonmcu.target.riscv.AraRtlTarget method)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.get_platform_defs">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.get_platform_defs">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget method)</a>
@@ -2967,6 +3054,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.OVPSimTarget.get_platform_defs">(mlonmcu.target.riscv.OVPSimTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.get_platform_defs">(mlonmcu.target.riscv.riscv.RISCVTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.get_platform_defs">(mlonmcu.target.riscv.riscv_bext_target.RVBTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.get_platform_defs">(mlonmcu.target.riscv.riscv_pext_target.RVPTarget method)</a>
 </li>
@@ -3131,6 +3220,10 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.get_target_system">(mlonmcu.target.riscv.ara.AraTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_target_system">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.get_target_system">(mlonmcu.target.riscv.AraRtlTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.get_target_system">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
@@ -3650,6 +3743,10 @@
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.limit_cycles">limit_cycles (mlonmcu.target.riscv.ara.AraTarget property)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.limit_cycles">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.limit_cycles">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.limit_cycles">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
       </ul></li>
@@ -4858,8 +4955,6 @@
         <li><a href="mlonmcu.setup.tasks.html#module-mlonmcu.setup.tasks.cv32e40p">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mlonmcu.setup.tasks.dtc
 
@@ -4874,6 +4969,8 @@
         <li><a href="mlonmcu.setup.tasks.html#module-mlonmcu.setup.tasks.espidf">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mlonmcu.setup.tasks.etiss
 
@@ -5085,6 +5182,13 @@
 </li>
       </ul></li>
       <li>
+    mlonmcu.target.riscv.ara_rtl
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.ara_rtl">module</a>
+</li>
+      </ul></li>
+      <li>
     mlonmcu.target.riscv.corev_ovpsim
 
       <ul>
@@ -5131,6 +5235,13 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv">module</a>
+</li>
+      </ul></li>
+      <li>
+    mlonmcu.target.riscv.riscv_bext_target
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv_bext_target">module</a>
 </li>
       </ul></li>
       <li>
@@ -5592,6 +5703,8 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.ara">mlonmcu.target.riscv.ara</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.ara_rtl">mlonmcu.target.riscv.ara_rtl</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.corev_ovpsim">mlonmcu.target.riscv.corev_ovpsim</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.cv32e40p">mlonmcu.target.riscv.cv32e40p</a>
@@ -5605,6 +5718,8 @@
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.ovpsim">mlonmcu.target.riscv.ovpsim</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv">mlonmcu.target.riscv.riscv</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv_bext_target">mlonmcu.target.riscv.riscv_bext_target</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#module-mlonmcu.target.riscv.riscv_pext_target">mlonmcu.target.riscv.riscv_pext_target</a>
 </li>
@@ -5752,6 +5867,10 @@
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.nr_lanes">nr_lanes (mlonmcu.target.riscv.ara.AraTarget property)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.nr_lanes">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.nr_lanes">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.nr_lanes">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
       </ul></li>
@@ -5761,6 +5880,10 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.num_threads">(mlonmcu.target.riscv.ara.AraTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.num_threads">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.num_threads">(mlonmcu.target.riscv.AraRtlTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.num_threads">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
@@ -5850,6 +5973,10 @@
 </li>
         <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.Frontend.OPTIONAL">(mlonmcu.models.frontend.Frontend attribute)</a>
 </li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.OPTIONAL">(mlonmcu.models.frontend.TfLiteFrontend attribute)</a>
+</li>
+        <li><a href="mlonmcu.models.html#mlonmcu.models.TfLiteFrontend.OPTIONAL">(mlonmcu.models.TfLiteFrontend attribute)</a>
+</li>
         <li><a href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.OPTIONAL">(mlonmcu.platform.mlif.mlif.MlifPlatform attribute)</a>
 </li>
         <li><a href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.OPTIONAL">(mlonmcu.platform.mlif.MlifPlatform attribute)</a>
@@ -5865,6 +5992,10 @@
         <li><a href="mlonmcu.setup.html#mlonmcu.setup.setup.Setup.OPTIONAL">(mlonmcu.setup.setup.Setup attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.OPTIONAL">(mlonmcu.target.riscv.ara.AraTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.OPTIONAL">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.OPTIONAL">(mlonmcu.target.riscv.AraRtlTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.OPTIONAL">(mlonmcu.target.riscv.AraTarget attribute)</a>
 </li>
@@ -5956,6 +6087,10 @@
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.parse_exit">parse_exit() (mlonmcu.target.riscv.ara.AraTarget method)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_exit">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.parse_exit">(mlonmcu.target.riscv.AraRtlTarget method)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.parse_exit">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.parse_exit">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget method)</a>
@@ -5999,6 +6134,10 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.OVPSimTarget.parse_stdout">(mlonmcu.target.OVPSimTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.parse_stdout">(mlonmcu.target.riscv.ara.AraTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_stdout">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.parse_stdout">(mlonmcu.target.riscv.AraRtlTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.parse_stdout">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
@@ -6206,6 +6345,10 @@
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.prepare_simulator">prepare_simulator() (mlonmcu.target.riscv.ara.AraTarget method)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.prepare_simulator">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget method)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.prepare_simulator">(mlonmcu.target.riscv.AraRtlTarget method)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.prepare_simulator">(mlonmcu.target.riscv.AraTarget method)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.prepare_simulator">(mlonmcu.target.riscv.vicuna.VicunaTarget method)</a>
@@ -6367,6 +6510,18 @@
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.python">python() (in module mlonmcu.setup.utils)</a>
 </li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.questasim_install_dir">questasim_install_dir (mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.questasim_install_dir">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -6646,6 +6801,10 @@
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.REQUIRED">(mlonmcu.target.riscv.ara.AraTarget attribute)</a>
 </li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.REQUIRED">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.REQUIRED">(mlonmcu.target.riscv.AraRtlTarget attribute)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.REQUIRED">(mlonmcu.target.riscv.AraTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget.REQUIRED">(mlonmcu.target.riscv.corev_ovpsim.COREVOVPSimTarget attribute)</a>
@@ -6673,6 +6832,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.OVPSimTarget.REQUIRED">(mlonmcu.target.riscv.OVPSimTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.REQUIRED">(mlonmcu.target.riscv.riscv.RISCVTarget attribute)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget.REQUIRED">(mlonmcu.target.riscv.riscv_bext_target.RVBTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.REQUIRED">(mlonmcu.target.riscv.riscv_pext_target.RVPTarget attribute)</a>
 </li>
@@ -6795,6 +6956,8 @@
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage">RunStage (class in mlonmcu.session.run)</a>
 </li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_bext_target.RVBTarget">RVBTarget (class in mlonmcu.target.riscv.riscv_bext_target)</a>
+</li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget">RVPTarget (class in mlonmcu.target.riscv.riscv_pext_target)</a>
 </li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_vext_target.RVVTarget">RVVTarget (class in mlonmcu.target.riscv.riscv_vext_target)</a>
@@ -6893,6 +7056,12 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spike_exe">(mlonmcu.target.SpikeTarget property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.spike_install_dir">spike_install_dir (mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.spike_install_dir">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget.spike_pk">spike_pk (mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget property)</a>
 
       <ul>
@@ -6905,6 +7074,8 @@
       </ul></li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget">SpikeMicroTvmPlatformTarget (class in mlonmcu.platform.microtvm.microtvm_spike_target)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.spike.SpikeTarget.spikepk_extra_args">spikepk_extra_args (mlonmcu.target.riscv.spike.SpikeTarget property)</a>
 
       <ul>
@@ -6913,8 +7084,6 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spikepk_extra_args">(mlonmcu.target.SpikeTarget property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.html#mlonmcu.target.SpikeTarget">SpikeTarget (class in mlonmcu.target)</a>
 
       <ul>
@@ -7536,6 +7705,10 @@
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.verilator_install_dir">verilator_install_dir (mlonmcu.target.riscv.ara.AraTarget property)</a>
 
       <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.verilator_install_dir">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.verilator_install_dir">(mlonmcu.target.riscv.AraRtlTarget property)</a>
+</li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.verilator_install_dir">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.verilator_install_dir">(mlonmcu.target.riscv.vicuna.VicunaTarget property)</a>
@@ -7547,6 +7720,10 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.vext_spec">(mlonmcu.target.riscv.ara.AraTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.vext_spec">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.vext_spec">(mlonmcu.target.riscv.AraRtlTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.vext_spec">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>
@@ -7609,6 +7786,10 @@
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.vlen">(mlonmcu.target.riscv.ara.AraTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.vlen">(mlonmcu.target.riscv.ara_rtl.AraRtlTarget property)</a>
+</li>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraRtlTarget.vlen">(mlonmcu.target.riscv.AraRtlTarget property)</a>
 </li>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.AraTarget.vlen">(mlonmcu.target.riscv.AraTarget property)</a>
 </li>

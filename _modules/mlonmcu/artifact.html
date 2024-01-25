@@ -143,6 +143,8 @@
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.lookup_artifacts">[docs]</a>
 <span class="k">def</span> <span class="nf">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to get a matching artifact for a given set of properties.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Warning: if neither name, fmt nor flags is provided, the first artifact (first_only=True)</span>
     <span class="c1"># or all (first_only=False) are returned</span>

@@ -483,6 +483,24 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get active property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">OPEN</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">failing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get failng property.&quot;&quot;&quot;</span>
+
+        <span class="c1"># via report</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="o">.</span><span class="n">df</span>
+            <span class="k">if</span> <span class="s2">&quot;Failing&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Failing&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># via runs</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">failing</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
 <div class="viewcode-block" id="Session.open">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.open">[docs]</a>
     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

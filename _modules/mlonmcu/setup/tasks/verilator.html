@@ -128,6 +128,7 @@
 <span class="k">def</span> <span class="nf">_validate_verilator</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;ara&quot;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;ara_rtl&quot;</span><span class="p">)</span>
         <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;vicuna&quot;</span><span class="p">)</span>
         <span class="ow">or</span> <span class="n">_validate_cv32e40p</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="p">)</span>

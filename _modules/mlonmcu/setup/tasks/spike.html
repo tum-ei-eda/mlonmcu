@@ -117,6 +117,7 @@
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
+<span class="kn">from</span> <span class="nn">.ara</span> <span class="kn">import</span> <span class="n">_validate_ara_rtl</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -124,7 +125,7 @@
 
 
 <span class="k">def</span> <span class="nf">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_validate_ara_rtl</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="k">if</span> <span class="s2">&quot;spike.pk&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
@@ -295,7 +296,8 @@
         <span class="c1"># No need to build a vext and non-vext variant?</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeBuildDir</span><span class="p">)</span>
         <span class="n">spikeArgs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--prefix=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">]))</span>
+        <span class="c1"># spikeArgs.append(&quot;--prefix=&quot; + str(context.cache[&quot;riscv_gcc.install_dir&quot;]))</span>
+        <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--prefix=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">))</span>
         <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--enable-misaligned&quot;</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">spikeSrcDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;configure&quot;</span><span class="p">),</span>
@@ -305,10 +307,11 @@
             <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-        <span class="c1"># utils.make(target=&quot;install&quot;, cwd=spikeBuildDir, threads=threads, live=verbose)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">spikeBuildDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">spikeExe</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeInstallDir</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeExe</span>
     <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">)</span></div>
 

@@ -256,13 +256,13 @@
 
 <div class="viewcode-block" id="lookup_models_and_groups">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.lookup_models_and_groups">[docs]</a>
-<span class="k">def</span> <span class="nf">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">all_models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">all_groups</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">duplicates</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">group_duplicates</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
-        <span class="n">models</span> <span class="o">=</span> <span class="n">list_models</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="n">formats</span><span class="p">)</span>
+        <span class="n">models</span> <span class="o">=</span> <span class="n">list_models</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="n">formats</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">all_models</span> <span class="o">=</span> <span class="n">models</span>
         <span class="k">else</span><span class="p">:</span>
@@ -377,7 +377,7 @@
 
 <div class="viewcode-block" id="lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.lookup_models">[docs]</a>
-<span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">frontends</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="c1"># TODO: Get defaults frontends from environment (with no config/features)</span>
@@ -389,7 +389,7 @@
 
     <span class="k">if</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">models</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">allowed_fmts</span><span class="p">)</span>
+        <span class="n">models</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">allowed_fmts</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">model_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
@@ -404,7 +404,6 @@
                 <span class="n">ext</span> <span class="ow">in</span> <span class="n">allowed_exts</span>
             <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Unsupported file extension for model which was explicitly passed by path: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">metadata_path</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="n">model_name</span><span class="o">=</span><span class="n">real_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">metadata_path</span><span class="p">:</span>
                 <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">real_name</span><span class="si">}</span><span class="s2">.metadata_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata_path</span>

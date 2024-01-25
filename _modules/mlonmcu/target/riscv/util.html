@@ -218,6 +218,12 @@
     <span class="n">vlen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">fpu</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">minimal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bext_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bext_zba</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bext_zbb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bext_zbc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">bext_zbs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="c1"># ret = exts.copy()</span>
     <span class="n">require</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -253,6 +259,16 @@
             <span class="n">elen_</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ext</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">elen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">elen_</span> <span class="o">&gt;</span> <span class="n">elen</span><span class="p">:</span>
                 <span class="n">elen</span> <span class="o">=</span> <span class="n">elen_</span>
+        <span class="c1"># elif bext is None and ext in [&quot;zba&quot;, &quot;zbb&quot;, &quot;zbc&quot;, &quot;zbs&quot;]:</span>
+        <span class="c1">#     bext = True</span>
+        <span class="k">elif</span> <span class="n">bext_zba</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;zba&quot;</span><span class="p">:</span>
+            <span class="n">bext_zba</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">bext_zbb</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;zbb&quot;</span><span class="p">:</span>
+            <span class="n">bext_zbb</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">bext_zbc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;zbc&quot;</span><span class="p">:</span>
+            <span class="n">bext_zbc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">bext_zbs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;zbs&quot;</span><span class="p">:</span>
+            <span class="n">bext_zbs</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">ignore_exts</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
@@ -274,6 +290,14 @@
         <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">pext</span><span class="p">:</span>
         <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bext_zba</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zba&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bext_zbb</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zbb&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bext_zbc</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zbc&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bext_zbs</span><span class="p">:</span>
+        <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zbs&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vext</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">elen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">elen</span> <span class="o">=</span> <span class="mi">32</span>

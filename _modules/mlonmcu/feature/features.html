@@ -635,6 +635,73 @@
         <span class="p">}</span>
 
 
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;bext&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Bext</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">TargetFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enable bitmanipulation extension for supported RISC-V targets&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="c1"># use target-side settings by default</span>
+        <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;zba&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;zbb&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;zbc&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;zbs&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;bext&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zba</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zba&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zbb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zbb&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zbc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zbc&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zbs&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_bext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Handle via arch characters in the future</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.bext_spec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.bext_zba&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zba</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.bext_zbb&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zbb</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.bext_zbc&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zbc</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.bext_zbs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zbs</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for platform &#39;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;RISCV_PEXT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># These will be merged automatically with existing ones</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="c1"># &quot;riscv_gcc.install_dir&quot;: [&quot;bext&quot;],</span>
+            <span class="c1"># &quot;riscv_gcc.name&quot;: [&quot;bext&quot;],</span>
+            <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
+
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Debug</span><span class="p">(</span><span class="n">SetupFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enable debugging ability of target software.&quot;&quot;&quot;</span>
@@ -1441,8 +1508,8 @@
                                     <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                                 <span class="k">else</span><span class="p">:</span>
                                     <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                            <span class="n">content</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">),)</span>
-                            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
+                            <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">)</span>
+                            <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">]</span>
                             <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;instrs.txt&quot;</span>
@@ -2058,6 +2125,34 @@
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.pack_script&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflite_pack_exe</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;tflite_analyze&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TfLiteAnalyze</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the estimated ROM, RAM and MACs from a TFLite model.&quot;&quot;&quot;</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tflite_analyze.exe&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;tflite_analyze&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tflite_analyze_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tflite_analyze.exe&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.analyze_enable&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.analyze_script&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflite_analyze_exe</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">,</span> <span class="n">input_formats</span><span class="p">,</span> <span class="n">output_formats</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for frontend &#39;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="n">output_formats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
 
 
 <span class="c1"># @register_feature(&quot;hpmcounter&quot;)</span>

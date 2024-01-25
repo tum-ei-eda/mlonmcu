@@ -187,7 +187,7 @@
     <span class="c1"># * dots inside names</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?:\w+\/)?[:\w.]+\:\s*\[\-?\d+(?:\,\s*\-?\d+)*\]&quot;</span>
     <span class="n">input_mappings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">inputs_string</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">input_mappings</span>
+    <span class="k">assert</span> <span class="n">input_mappings</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid shapes string: </span><span class="si">{</span><span class="n">inputs_string</span><span class="si">}</span><span class="s2"> (Expected syntax: &#39;foo:[1,32,32,3] bar:[10,10]&#39;)&quot;</span>
     <span class="n">shape_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">mapping</span> <span class="ow">in</span> <span class="n">input_mappings</span><span class="p">:</span>
         <span class="c1"># Remove whitespace.</span>
@@ -206,9 +206,22 @@
 <div class="viewcode-block" id="parse_type_string">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.parse_type_string">[docs]</a>
 <span class="k">def</span> <span class="nf">parse_type_string</span><span class="p">(</span><span class="n">inputs_string</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse an input type dictionary string to a usable dictionary.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inputs_string: str</span>
+<span class="sd">        A string of the form &quot;input_name:ty input_name2:ty&quot; that</span>
+<span class="sd">        indicates the desired type for specific model inputs/outputs. Colons, forward slashes and dots</span>
+<span class="sd">        within input_names are supported. Spaces are supported inside of dimension arrays.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    type_dict: dict</span>
+<span class="sd">        A dictionary mapping input names to their type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?:\w+\/)?[:\w.]+\:\s*\-?\w+(?:\s*\-?\w+)*&quot;</span>
     <span class="n">input_mappings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">inputs_string</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">input_mappings</span>
+    <span class="k">assert</span> <span class="n">input_mappings</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid types string: </span><span class="si">{</span><span class="n">inputs_string</span><span class="si">}</span><span class="s2"> (Expected syntax: &#39;foo:int8 bar:int32&#39;)&quot;</span>
     <span class="n">type_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">mapping</span> <span class="ow">in</span> <span class="n">input_mappings</span><span class="p">:</span>
         <span class="c1"># Remove whitespace.</span>

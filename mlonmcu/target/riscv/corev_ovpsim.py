@@ -274,7 +274,7 @@ class COREVOVPSimTarget(RISCVTarget):
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        add_bench_metrics(out, metrics, exit_code != 0)
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         if self.end_to_end_cycles:
             sim_insns = re.search(r".*  Simulated instructions:(.*)", out)
             sim_insns = int(float(sim_insns.group(1)))

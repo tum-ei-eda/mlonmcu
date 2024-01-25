@@ -188,7 +188,7 @@ class CV32E40PTarget(RISCVTarget):
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        add_bench_metrics(out, metrics, exit_code != 0)
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         sim_insns = re.search(r"#insns=(\d*)\s", out)
         if sim_insns:
             sim_insns = int(float(sim_insns.group(1)))

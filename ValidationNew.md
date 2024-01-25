@@ -124,9 +124,10 @@ python3 -m mlonmcu.cli.main flow run resnet -v \
 - [ ] Eliminate hacks used to get `model_info.yml` and `inputs.yml` in RUN stage -> PHILIPP
 - [ ] Implement missing interfaces for tvm (out: `stdout`) -> LIU
 - [ ] Implement missing interfaces for mlif platform (in: `filesystem`, `stdin`; out: `filesystem`, `stdout`) -> LIU
-- [ ] Implement missing interfaces for mlif platform (in: `rom`) -> PHILIPP)
+- [x] Implement missing interfaces for mlif platform (in: `rom`) -> PHILIPP)
 - [ ] Add support for multi-output/multi-input -> PHILIPP/LIU
-- [x] Update `gen_data` & `gen_ref_data` feature (see NotImplementedErrors, respect fmt,...)
+- [x] Update `gen_data` & `gen_ref_data` feature (see NotImplementedErrors, respect fmt,...) -> PHILIPP
+- [x] Implement model-based gen_ref_data mode (currenly only tflite inference) -> PHILIPP
 - [ ] Move `gen_data` & `gen_ref_data` from LOAD stage to custom stage (remove dependency on tflite frontend) -> PHILIPP
 - [ ] Test with targets: `tvm_cpu`, `host_x86`, `spike` (See example commands above) -> LIU
 - [ ] Extend `validate_outputs` postprocess (Add `report`, implement `atol`/`rtol`, `fail_on_error`, `top-k`,...) -> LIU
@@ -137,4 +138,4 @@ python3 -m mlonmcu.cli.main flow run resnet -v \
 - [ ] Add tests -> LIU/PHILIPP
 - [ ] Streamline `model_info.yml` with BUILD stage `ModelInfo` -> PHILIPP
 - [ ] Improve artifacts handling -> PHILIPP
-- [ ] Support automatic quantization of inputs (See `vww` and `toycar`) -> PHILIPP/LIU
+- [x] Support automatic quantization of inputs (See `vww` and `toycar`) -> PHILIPP/LIU

@@ -275,7 +275,7 @@ class Frontend(ABC):
         if len(input_shapes) > 0:
             assert len(input_types) in [len(input_shapes), 0]
             input_names = list(input_shapes.keys())
-        elif len(input_shapes) > 0:
+        elif len(input_types) > 0:
             input_names = list(input_types.keys())
         else:
             input_names = []

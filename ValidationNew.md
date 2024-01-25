@@ -9,8 +9,6 @@
 	- `resnet/support/mlif_override.cpp`
 		- Comment out old validation code
 		- Add example code to dump raw inputs/outputs via stdin/stdout
-- `mlonmcu-sw` (`$MLONMCU_HOME/deps/src/mlif`):
-	- Nothing changed (yet)
 - `mlonmcu` (Branch: `refactor-validate`):
 	- `mlonmcu/target/common.py`
 		- Allow overriding used encoding for stdout (Required for dumping raw data)
@@ -41,7 +39,21 @@
 	- `mlonmcu/session/postprocess/postprocesses.py`
 		- Add `ValidateOutputs` postprocess (WIP)
 
-
+## Updates (25.01.2024)
+- `mlonmcu-models` (`$MLONMCU_HOME/models/`, Branch: `refactor-validate`):
+  - Update some more definition.yml files
+- `mlonmcu-sw` (`$MLONMCU_HOME/deps/src/mlif`, Branch: `refactor-validate` **NEW**):
+	- Added versioning to ml_interface template (Use `-c mlif.template_version=v2` to use the updated mlif)
+  - Link `mlifio` utilities to ml_interface
+  - Drop old model support and data handling
+  - Refactor API to be aware of batch index
+  - Replace `process_input` and `process_output` functions by `process_inputs` and `process_outputs` processing all inputs at once
+  - Expose `TVMWrap_GetInputPtr`,... to model support via `mlif_input_ptr`,...
+  - Model support will determine input size, pointers via above mentioned API instead of arguments.
+- `mlonmcu` (Branch: `refactor-validate`):
+  - TODO
+  - Allow overriding model support files
+  - Add generation of model support files
 
 
 ## Examples
@@ -99,13 +111,14 @@ python3 -m mlonmcu.cli.main flow run resnet -v \
 
 # platform: mlif target: host_x86`
 # TODO: should support same configs as spike target
+# TODO: gen_data/gen_ref_data
 ```
 
 ## TODOs
 - [ ] Fix broken targets (due to refactoring of `self.exec`) -> PHILIPP
 - [ ] Add missing target checks (see above) -> PHILIPP
 - [ ] Update `definition.yml` for other models in `mlonmcu-sw` (At least `aww`, `vww`, `toycar`) -> LIU
-- [ ] Refactor model support (see `mlomcu_sw/lib/ml_interface`) to be aware of output/input tensor index (maybe even name?) und sample index -> PHILIPP
+- [x] Refactor model support (see `mlomcu_sw/lib/ml_interface`) to be aware of output/input tensor index (maybe even name?) und sample index -> PHILIPP
 - [ ] Write generator for custom `mlif_override.cpp` (based on `model_info.yml` + `in_interface` + `out_interface` (+ `inputs.npy`)) -> LIU
 - [ ] Eliminate hacks used to get `model_info.yml` and `inputs.yml` in RUN stage -> PHILIPP
 - [ ] Implement missing interfaces for tvm (out: `stdout`) -> LIU

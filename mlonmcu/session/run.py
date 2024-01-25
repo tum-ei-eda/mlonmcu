@@ -487,10 +487,14 @@ class Run:
                         self.frontends = [frontend]
                         assert model_hint is not None, "Unable to pick a suitable model"
                         model = model_hint
-            except Exception:
-                # TODO: collect errors
-                continue
-        assert model is not None, f"Model with name '{model_name}' not found"
+                        break
+            except Exception as e:
+                reasons[frontend.name] = str(e)
+        if model is None:
+            if reasons:
+                logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
+            else:
+                raise RuntimeError(f"Model with name '{model_name}' not found.")
         self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):

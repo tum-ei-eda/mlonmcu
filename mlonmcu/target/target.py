@@ -137,9 +137,9 @@ class Target:
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
-            out = self.exec(
+            out, artifacts = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
         # TODO: do something with out?
@@ -149,7 +149,7 @@ class Target:
         metrics = Metrics()
         metrics.add("Runtime [s]", diff)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def generate(self, elf) -> Tuple[dict, dict]:
         artifacts = []

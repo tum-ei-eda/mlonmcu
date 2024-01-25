@@ -32,7 +32,7 @@ def parse_bench_results(out, allow_missing=False, target_name=None):
         if target_name and target_name == "ara_rtl":
             search = "gram finish."
         if search in line:
-            lines = lines[:i+1]
+            lines = lines[: i + 1]
             break
     out = "\n".join(lines)
     matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out)

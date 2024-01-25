@@ -187,7 +187,7 @@ class AraRtlTarget(RVVTarget):
             "vopt-8386",
             "work.ara_tb",
             "-do",
-            "run -a"
+            "run -a",
         ]
         simulation_ret = execute(
             "vsim",

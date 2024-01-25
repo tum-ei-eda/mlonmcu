@@ -326,7 +326,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def lto(self):
-        value = self.config["verbose_makefile"]
+        value = self.config["lto"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -454,6 +454,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
+        artifacts = []
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
         else:

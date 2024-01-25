@@ -105,7 +105,6 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">git</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">venv</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -120,6 +119,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.templates</span> <span class="kn">import</span> <span class="n">write_environment_yaml_from_template</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">in_virtualenv</span><span class="p">,</span> <span class="n">ask_user</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
@@ -139,10 +139,10 @@
 
 <div class="viewcode-block" id="clone_models_repo">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.clone_models_repo">[docs]</a>
-<span class="k">def</span> <span class="nf">clone_models_repo</span><span class="p">(</span>
-    <span class="n">dest</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/tum-ei-eda/mlonmcu-models.git&quot;</span>
-<span class="p">):</span>  <span class="c1"># TODO: how to get submodule url/ref</span>
-    <span class="n">git</span><span class="o">.</span><span class="n">Repo</span><span class="o">.</span><span class="n">clone_from</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
+<span class="k">def</span> <span class="nf">clone_models_repo</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/tum-ei-eda/mlonmcu-models.git&quot;</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
 
@@ -256,7 +256,11 @@
                 <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">):</span>
-            <span class="n">clone_models_repo</span><span class="p">(</span><span class="n">models_subdir</span><span class="p">)</span>
+            <span class="n">custom_url</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">custom_ref</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">custom_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;models.clone_url&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">custom_ref</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;models.clone_ref&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">clone_models_repo</span><span class="p">(</span><span class="n">models_subdir</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">custom_url</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">custom_ref</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">subdirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;models&quot;</span><span class="p">)</span>
 

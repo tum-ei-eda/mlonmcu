@@ -148,9 +148,9 @@ class Target:
             return temp
 
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out = self.exec(
+            out, artifacts = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
@@ -160,7 +160,7 @@ class Target:
         metrics = Metrics()
         metrics.add("Runtime [s]", diff)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def generate(self, elf) -> Tuple[dict, dict]:
         artifacts = []

@@ -208,7 +208,7 @@ class AraRtlTarget(RVVTarget):
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        add_bench_metrics(out, metrics, exit_code != 0)
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         """
         Expected output looks like this:
 

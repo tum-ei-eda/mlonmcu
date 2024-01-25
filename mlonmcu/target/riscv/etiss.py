@@ -436,7 +436,7 @@ class EtissTarget(RISCVTarget):
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        add_bench_metrics(out, metrics, exit_code != 0)
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
             error_msg = error_match.group(1)

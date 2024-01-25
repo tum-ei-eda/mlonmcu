@@ -153,7 +153,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         return ret, []
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        add_bench_metrics(out, metrics, exit_code != 0)
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         sim_insns = re.search(r"(\d*) cycles", out)
         if sim_insns:
             sim_insns = int(float(sim_insns.group(1)))

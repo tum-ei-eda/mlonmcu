@@ -38,7 +38,8 @@ def _validate_llvm(context: MlonMcuContext, params=None):
         return True
     if context.environment.has_framework("tvm"):
         user_vars = context.environment.vars
-        if "tvm.use_tlcpack" in user_vars and not user_vars["tvm.use_tlcpack"]:
+        use_tlcpack = user_vars.get("tvm.use_tlcpack", False)
+        if not use_tlcpack:
             return True
 
 

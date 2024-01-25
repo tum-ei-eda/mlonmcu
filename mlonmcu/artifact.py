@@ -50,6 +50,8 @@ class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
 
 def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):
     """Utility to get a matching artifact for a given set of properties."""
+    if isinstance(name, Path):
+        name = str(name)
     matches = []
     # Warning: if neither name, fmt nor flags is provided, the first artifact (first_only=True)
     # or all (first_only=False) are returned

@@ -22,6 +22,7 @@ from .riscv import (
     GvsocPulpTarget,
     EtissTarget,
     AraTarget,
+    AraRtlTarget,
     CV32E40PTarget,
     VicunaTarget,
 )
@@ -53,5 +54,6 @@ register_target("corev_ovpsim", COREVOVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)
 register_target("gvsoc_pulp", GvsocPulpTarget)
 register_target("ara", AraTarget)
+register_target("ara_rtl", AraRtlTarget)
 register_target("cv32e40p", CV32E40PTarget)
 register_target("vicuna", VicunaTarget)

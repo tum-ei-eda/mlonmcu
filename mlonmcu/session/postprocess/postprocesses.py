@@ -22,6 +22,7 @@ import re
 import ast
 import tempfile
 from pathlib import Path
+from io import StringIO
 
 import pandas as pd
 
@@ -516,13 +517,34 @@ class Artifact2ColumnPostprocess(RunPostprocess):
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         for filename, colname in self.file2colname.items():
+            filename = Path(filename)
+            filecol = None
+            if ":" in filename.name:
+                fname, filecol = filename.name.rsplit(":", 1)
+                filename = filename.parent / fname
             matches = lookup_artifacts(artifacts, name=filename, first_only=True)
             if not matches:
                 report.main_df[colname] = ""
                 continue
             if matches[0].fmt != ArtifactFormat.TEXT:
                 raise RuntimeError("Can only put text into report columns")
-            report.main_df[colname] = matches[0].content
+            content = matches[0].content
+            if filecol:
+                assert filename.suffix == ".csv"
+                filedf = pd.read_csv(StringIO(content))
+                if filecol == "*":
+                    cols = list(filedf.columns)
+                else:
+                    assert filecol in filedf.columns
+                    cols = [filecol]
+                content = filedf[cols].to_dict(orient="list")
+                if len(content) == 1:
+                    content = content[list(content.keys())[0]]
+                if len(content) == 1:
+                    content = content[0]
+                content = str(content)
+            report.main_df[colname] = content
+        return []
 
 
 class AnalyseInstructionsPostprocess(RunPostprocess):
@@ -533,7 +555,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         "groups": True,
         "sequences": True,
         "top": 10,
-        "to_df": True,
+        "to_df": False,
         "to_file": True,
     }
 
@@ -588,10 +610,10 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         elif is_etiss:
             content = log_artifact.content
             if self.groups:
-                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([01]+)\s.*").findall(content)
-                encodings = [f"0b{enc}" for enc in encodings]
+                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                # encodings = [f"{enc}" for enc in encodings]
             if self.sequences:
-                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[01]+\s.*").findall(content)
+                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
         elif is_ovpsim:
             content = log_artifact.content
             if self.groups:
@@ -828,7 +850,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
 
     DEFAULTS = {
         **RunPostprocess.DEFAULTS,
-        "to_df": True,
+        "to_df": False,
         "to_file": True,
     }
 
@@ -909,7 +931,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
 
     DEFAULTS = {
         **RunPostprocess.DEFAULTS,
-        "to_df": True,
+        "to_df": False,
         "to_file": True,
     }
 

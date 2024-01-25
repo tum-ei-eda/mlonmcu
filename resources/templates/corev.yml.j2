@@ -68,7 +68,7 @@ repos:
     ref: 35ce20560794ddc9e6d87006cad7a3bc665f8319  # v4.0.0 + portability patch
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 00dc07c675fa4be01726fc2238d2024becacbec2
+    ref: 5fea258856b350735002d2d18732c8a60b5115da
   microtvm_etiss:
     url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: 4460f539f6607b0c8b90321e7cb80e28d1e1fbe2
@@ -264,11 +264,12 @@ postprocesses:
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   allow_extensions: false
+  runs_per_stage: true
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fi2nv21dKWpdLGzV3j4NES/corev_llvm_custom.tar.xz"
-  runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiVEqbY3A7PCSDrw6fvCKu/rv32im_ilp32.tar.xz"
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/corev/Archive/corev_llvm_custom.tar.xz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32im_ilp32.tar.xz"
+  # riscv_gcc.dl_url: "https://buildbot.embecosm.com/job/corev-gcc-ubuntu2004/25/artifact/corev-openhw-gcc-ubuntu2004-20231205.tar.gz"  # TODO: use corev gcc?
   corev_ovpsim.version: "v20231026"
   # spike.keep_build_dir: false
   # etiss.keep_build_dir: false

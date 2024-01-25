@@ -39,6 +39,10 @@ def _validate_ara(context: MlonMcuContext, params=None):
     return context.environment.has_target("ara")
 
 
+def _validate_ara_rtl(context: MlonMcuContext, params=None):
+    return context.environment.has_target("ara_rtl")
+
+
 @Tasks.provides(["ara.src_dir"])
 @Tasks.validate(_validate_ara)
 @Tasks.register(category=TaskType.TARGET)
@@ -58,4 +62,5 @@ def clone_ara(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             araRepo = context.environment.repos["ara"]
             utils.clone_wrapper(araRepo, araSrcDir, refresh=rebuild)
             utils.exec_getout("make", "apply-patches", cwd=araSrcDir / "hardware")
+            utils.exec_getout("make", "bender", cwd=araSrcDir / "hardware")
     context.cache["ara.src_dir", flags] = araSrcDir

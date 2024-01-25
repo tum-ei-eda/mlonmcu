@@ -119,6 +119,12 @@ def update_extensions(
     vlen=None,
     fpu=None,
     minimal=True,
+    bext=None,
+    bext_spec=None,
+    bext_zba=None,
+    bext_zbb=None,
+    bext_zbc=None,
+    bext_zbs=None,
 ):
     # ret = exts.copy()
     require = set()
@@ -154,6 +160,16 @@ def update_extensions(
             elen_ = int(ext[3:-1])
             if elen is None or elen_ > elen:
                 elen = elen_
+        # elif bext is None and ext in ["zba", "zbb", "zbc", "zbs"]:
+        #     bext = True
+        elif bext_zba is None and ext == "zba":
+            bext_zba = True
+        elif bext_zbb is None and ext == "zbb":
+            bext_zbb = True
+        elif bext_zbc is None and ext == "zbc":
+            bext_zbc = True
+        elif bext_zbs is None and ext == "zbs":
+            bext_zbs = True
         elif ext in ignore_exts:
             pass
         else:
@@ -175,6 +191,14 @@ def update_extensions(
         require.add("f")
     if pext:
         require.add("p")
+    if bext_zba:
+        require.add("zba")
+    if bext_zbb:
+        require.add("zbb")
+    if bext_zbc:
+        require.add("zbc")
+    if bext_zbs:
+        require.add("zbs")
     if vext:
         if elen is None:
             elen = 32

@@ -30,6 +30,7 @@ from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
+from .riscv_bext_target import RVBTarget
 from .util import update_extensions, sort_extensions_canonical, join_extensions
 
 logger = get_logger()
@@ -66,17 +67,18 @@ def filter_unsupported_extensions(exts):
     return ret
 
 
-class SpikeTarget(RVPTarget, RVVTarget):
+class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
     """Target using the riscv-isa-sim (Spike) RISC-V simulator."""
 
-    FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | {"cachesim", "log_instrs"}
+    FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | RVBTarget.FEATURES | {"cachesim", "log_instrs"}
 
     DEFAULTS = {
         **RVPTarget.DEFAULTS,
         **RVVTarget.DEFAULTS,
+        **RVBTarget.DEFAULTS,
         "spikepk_extra_args": [],
     }
-    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | {"spike.exe", "spike.pk"}
+    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED | {"spike.exe", "spike.pk"}
 
     def __init__(self, name="spike", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -198,6 +200,7 @@ class SpikeTarget(RVPTarget, RVVTarget):
         ret = {}
         ret.update(RVPTarget.get_platform_defs(self, platform))
         ret.update(RVVTarget.get_platform_defs(self, platform))
+        ret.update(RVBTarget.get_platform_defs(self, platform))
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

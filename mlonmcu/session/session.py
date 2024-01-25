@@ -369,6 +369,24 @@ class Session:
         """Get active property."""
         return self.status == SessionStatus.OPEN
 
+    @property
+    def failing(self):
+        """Get failng property."""
+
+        # via report
+        if self.report:
+            df = self.report.df
+            if "Failing" in df.columns:
+                if df["Failing"].any():
+                    return True
+        # via runs
+        if len(self.runs) > 0:
+            for run in self.runs:
+                if run.failing:
+                    return True
+
+        return False
+
     def open(self):
         """Open this run."""
         self.status = SessionStatus.OPEN

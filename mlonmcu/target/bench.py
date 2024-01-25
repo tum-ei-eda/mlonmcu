@@ -22,7 +22,18 @@ import ast
 
 
 def parse_bench_results(out, allow_missing=False):
-    matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out, re.DOTALL)
+    lines = out.split("\n")
+    for i, line in enumerate(lines):
+        if "Program start." in line:
+            lines = lines[i:]
+            break
+    for i, line in enumerate(lines):
+        if "Program finish." in line:
+            lines = lines[: i + 1]
+            break
+    out = "\n".join(lines)
+    # matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out, re.DOTALL)
+    matches = re.compile(r"# (.+): ([0-9.,E-]+)").findall(out)
     ret = {}
     for key, value in matches:
         value = ast.literal_eval(value)

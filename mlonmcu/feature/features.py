@@ -535,6 +535,73 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
         }
 
 
+@register_feature("bext")
+class Bext(SetupFeature, TargetFeature, PlatformFeature):
+    """Enable bitmanipulation extension for supported RISC-V targets"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        # use target-side settings by default
+        "spec": None,
+        "zba": True,
+        "zbb": True,
+        "zbc": True,
+        "zbs": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("bext", features=features, config=config)
+
+    @property
+    def spec(self):
+        return self.config["spec"]
+
+    @property
+    def zba(self):
+        value = self.config["zba"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def zbb(self):
+        value = self.config["zbb"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def zbc(self):
+        value = self.config["zbc"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def zbs(self):
+        value = self.config["zbs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def get_target_config(self, target):
+        return filter_none(
+            {
+                f"{target}.enable_bext": True,  # Handle via arch characters in the future
+                f"{target}.bext_spec": self.spec,
+                f"{target}.bext_zba": self.zba,
+                f"{target}.bext_zbb": self.zbb,
+                f"{target}.bext_zbc": self.zbc,
+                f"{target}.bext_zbs": self.zbs,
+            }
+        )
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {"RISCV_PEXT": self.enabled}
+
+    def get_required_cache_flags(self):
+        # These will be merged automatically with existing ones
+        return {
+            # "riscv_gcc.install_dir": ["bext"],
+            # "riscv_gcc.name": ["bext"],
+            "riscv_gcc.install_dir": [],
+            "riscv_gcc.name": [],
+        }
+
+
 @register_feature("debug")
 class Debug(SetupFeature, PlatformFeature):
     """Enable debugging ability of target software."""
@@ -1335,8 +1402,8 @@ class LogInstructions(TargetFeature):
                                     instrs.append(line)
                                 else:
                                     new_lines.append(line)
-                            content = ("\n".join(instrs),)
-                            return "\n".join(new_lines)
+                            content = "\n".join(instrs)
+                            stdout = "\n".join(new_lines)
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
@@ -1952,6 +2019,34 @@ class SplitLayers(FrontendFeature):
                 f"{frontend}.pack_script": self.tflite_pack_exe,
             }
         )
+
+
+@register_feature("tflite_analyze")
+class TfLiteAnalyze(FrontendFeature):
+    """Get the estimated ROM, RAM and MACs from a TFLite model."""
+
+    REQUIRED = {"tflite_analyze.exe"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("tflite_analyze", features=features, config=config)
+
+    @property
+    def tflite_analyze_exe(self):
+        return self.config["tflite_analyze.exe"]
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        return filter_none(
+            {
+                f"{frontend}.analyze_enable": self.enabled,
+                f"{frontend}.analyze_script": self.tflite_analyze_exe,
+            }
+        )
+
+    def update_formats(self, frontend, input_formats, output_formats):
+        assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
+        if self.enabled:
+            output_formats.append(ArtifactFormat.TEXT)
 
 
 # @register_feature("hpmcounter")

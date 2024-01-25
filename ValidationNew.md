@@ -51,7 +51,8 @@
   - Expose `TVMWrap_GetInputPtr`,... to model support via `mlif_input_ptr`,...
   - Model support will determine input size, pointers via above mentioned API instead of arguments.
 - `mlonmcu` (Branch: `refactor-validate`):
-  - TODO
+  - Add `mlif.template_version` to select ml_interface version (v1 vs v2), will be automatic in the future
+  - Add `mlif.batch_size` config to override default batch size
   - Allow overriding model support files
   - Add generation of model support files
 

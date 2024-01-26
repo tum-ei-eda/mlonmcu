@@ -17,6 +17,7 @@
 # under the License.
 */
 #include <stdlib.h>
+#include <stdint.h>
 
 // TODO(mjklaiber): leverage pragma import_c in the future
 #ifdef __cplusplus
@@ -37,8 +38,8 @@ extern "C"
      *
      */
     int
-    vanilla_accelerator_conv2dnchw(float* ifmap, float* weights, float* result, int oc, int iw, int ih, int ic,
-                        int kh, int kw) {
+    vanilla_accelerator_conv2dnchw(float* ifmap, float* weights, float* result, int32_t oc, int32_t iw, int32_t ih, int32_t ic,
+                        int32_t kh, int32_t kw) {
 
   int kw_low = kw / 2;
   int kh_low = kh / 2;

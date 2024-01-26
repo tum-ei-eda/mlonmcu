@@ -25,7 +25,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool, str2list
+from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
@@ -74,6 +74,10 @@ class EtissTarget(RISCVTarget):
         "enable_xcorevbitmanip": False,
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
+        "extra_int_config": {},
+        "extra_bool_config": {},
+        "extra_string_config": {},
+        "extra_plugin_config": {},
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script"}
 
@@ -219,6 +223,26 @@ class EtissTarget(RISCVTarget):
         return self.config["jit"]
 
     @property
+    def extra_bool_config(self):
+        value = self.config["extra_bool_config"]
+        return str2dict(value) if not isinstance(value, dict) else value
+
+    @property
+    def extra_int_config(self):
+        value = self.config["extra_int_config"]
+        return str2dict(value) if not isinstance(value, dict) else value
+
+    @property
+    def extra_string_config(self):
+        value = self.config["extra_string_config"]
+        return str2dict(value) if not isinstance(value, dict) else value
+
+    @property
+    def extra_plugin_config(self):
+        value = self.config["extra_plugin_config"]
+        return str2dict(value) if not isinstance(value, dict) else value
+
+    @property
     def extensions(self):
         exts = super().extensions
         required = set()
@@ -299,9 +323,11 @@ class EtissTarget(RISCVTarget):
         return value
 
     def get_ini_bool_config(self):
-        return {
+        ret = {
             "arch.enable_semihosting": True,
         }
+        ret.update(self.extra_string_config)
+        return ret
 
     def get_ini_string_config(self):
         ret = {
@@ -309,6 +335,7 @@ class EtissTarget(RISCVTarget):
         }
         if self.jit is not None:
             ret["jit.type"] = f"{self.jit}JIT"
+        ret.update(self.extra_string_config)
         return ret
 
     def get_ini_int_config(self):
@@ -331,6 +358,7 @@ class EtissTarget(RISCVTarget):
                 ret["arch.rv32imacfdpv.vlen"] = self.vlen
             if self.elen > 0:
                 ret["arch.rv32imacfdpv.elen"] = self.elen
+        ret.update(self.extra_int_config)
         return ret
 
     def get_ini_plugin_config(self):
@@ -340,6 +368,7 @@ class EtissTarget(RISCVTarget):
             ret["gdbserver"] = {
                 "port": self.gdbserver_port,
             }
+        ret.update(self.extra_plugin_config)  # TODO: merge nested dict instead of overriding
         return ret
 
     def write_ini(self, path):

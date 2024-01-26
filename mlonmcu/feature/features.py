@@ -2151,6 +2151,7 @@ class VanillaAccelerator(TargetFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "plugin_name": "VanillaAccelerator",
+        "base_addr": None,
     }
 
     def __init__(self, features=None, config=None):
@@ -2161,10 +2162,20 @@ class VanillaAccelerator(TargetFeature):
         value = self.config["plugin_name"]
         return value
 
+    @property
+    def base_addr(self):
+        value = self.config["base_addr"]
+        return value
+
     def add_target_config(self, target, config):
         assert target in ["etiss"]
         if not self.enabled:
             return
-        plugins_new = config.get("plugins", [])
+        plugins_new = config.get(f"{target}.plugins", [])
         plugins_new.append(self.plugin_name)
         config.update({f"{target}.plugins": plugins_new})
+        if self.base_addr is not None:
+            extra_plugin_config = config.get(f"{target}.extra_plugin_config", {})
+            assert self.name not in extra_plugin_config
+            extra_plugin_config[self.name]["baseaddr"] = self.base_addr
+            config.update({f"{target}.extra_plugin_config": extra_plugin_config})

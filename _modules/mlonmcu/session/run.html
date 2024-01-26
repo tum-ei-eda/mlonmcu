@@ -1112,7 +1112,17 @@
                 <span class="n">model_artifact</span> <span class="o">=</span> <span class="n">model_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">model_artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
                     <span class="n">model_artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">input_shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">input_shapes</span>
+                <span class="n">output_shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">output_shapes</span>
+                <span class="n">input_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">input_types</span>
+                <span class="n">output_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">output_types</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">=</span><span class="n">model_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                    <span class="n">input_shapes</span><span class="o">=</span><span class="n">input_shapes</span><span class="p">,</span>
+                    <span class="n">output_shapes</span><span class="o">=</span><span class="n">output_shapes</span><span class="p">,</span>
+                    <span class="n">input_types</span><span class="o">=</span><span class="n">input_types</span><span class="p">,</span>
+                    <span class="n">output_types</span><span class="o">=</span><span class="n">output_types</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">_build</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">BUILD</span><span class="p">])</span>

@@ -1148,7 +1148,7 @@ class DisableLegalize(BackendFeature, SetupFeature):
 class UMABackends(BackendFeature):
     """Add directories that contain UMA backends."""
 
-    REQUIRED = []
+    REQUIRED = set()
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,

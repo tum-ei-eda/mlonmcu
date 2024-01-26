@@ -634,6 +634,8 @@
 </li>
       <li><a href="mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.clone_etiss">clone_etiss() (in module mlonmcu.setup.tasks.etiss)</a>
 </li>
+      <li><a href="mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.clone_etiss_accelerator_plugins">clone_etiss_accelerator_plugins() (in module mlonmcu.setup.tasks.etiss)</a>
+</li>
       <li><a href="mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.layergen.clone_layergen">clone_layergen() (in module mlonmcu.setup.tasks.layergen)</a>
 </li>
       <li><a href="mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.clone_microtvm_etiss">clone_microtvm_etiss() (in module mlonmcu.setup.tasks.etiss)</a>
@@ -1580,8 +1582,6 @@
 </li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target">Esp32C3Target (class in mlonmcu.platform.espidf.espidf_target)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.esp_idf_install_dir">esp_idf_install_dir (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
 </li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.esp_idf_src_dir">esp_idf_src_dir (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
@@ -1592,6 +1592,8 @@
         <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.EspIdfPlatform.espidf_install_dir">(mlonmcu.platform.espidf.EspIdfPlatform property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.espidf_src_dir">espidf_src_dir (mlonmcu.platform.espidf.espidf.EspIdfPlatform property)</a>
 
       <ul>
@@ -1864,10 +1866,34 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.extra_args">(mlonmcu.target.riscv.riscv.RISCVTarget property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.extra_bool_config">extra_bool_config (mlonmcu.target.riscv.etiss.EtissTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.extra_bool_config">(mlonmcu.target.riscv.EtissTarget property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.extra_incs">extra_incs (mlonmcu.flow.tvm.framework.TVMFramework property)</a>
 </li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.extra_int_config">extra_int_config (mlonmcu.target.riscv.etiss.EtissTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.extra_int_config">(mlonmcu.target.riscv.EtissTarget property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.extra_libs">extra_libs (mlonmcu.flow.tvm.framework.TVMFramework property)</a>
 </li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.extra_plugin_config">extra_plugin_config (mlonmcu.target.riscv.etiss.EtissTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.extra_plugin_config">(mlonmcu.target.riscv.EtissTarget property)</a>
+</li>
+      </ul></li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.extra_string_config">extra_string_config (mlonmcu.target.riscv.etiss.EtissTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.extra_string_config">(mlonmcu.target.riscv.EtissTarget property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.extra_target_details">extra_target_details (mlonmcu.flow.tvm.backend.backend.TVMBackend property)</a>
 
       <ul>
@@ -7074,8 +7100,6 @@
       </ul></li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeMicroTvmPlatformTarget">SpikeMicroTvmPlatformTarget (class in mlonmcu.platform.microtvm.microtvm_spike_target)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.spike.SpikeTarget.spikepk_extra_args">spikepk_extra_args (mlonmcu.target.riscv.spike.SpikeTarget property)</a>
 
       <ul>
@@ -7084,6 +7108,8 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spikepk_extra_args">(mlonmcu.target.SpikeTarget property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.html#mlonmcu.target.SpikeTarget">SpikeTarget (class in mlonmcu.target)</a>
 
       <ul>
@@ -7188,6 +7214,8 @@
         <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.TunePlatform.supports_tune">(mlonmcu.platform.platform.TunePlatform property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.symlink">symlink() (in module mlonmcu.setup.utils)</a>
+</li>
   </ul></td>
 </tr></table>
 

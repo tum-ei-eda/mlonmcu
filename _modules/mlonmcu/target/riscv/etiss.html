@@ -113,7 +113,7 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.timeout</span> <span class="kn">import</span> <span class="n">exec_timeout</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span><span class="p">,</span> <span class="n">str2dict</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
@@ -129,7 +129,7 @@
 <span class="k">class</span> <span class="nc">EtissTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a simple RISC-V VP running in the ETISS simulator&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;xcorev&quot;</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;xcorev&quot;</span><span class="p">,</span> <span class="s2">&quot;vanilla_accelerator&quot;</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -164,6 +164,10 @@
         <span class="s2">&quot;enable_xcorevbitmanip&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_xcorevsimd&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_xcorevhwlp&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;extra_int_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;extra_bool_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;extra_string_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;extra_plugin_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
 
@@ -309,6 +313,26 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;jit&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_bool_config&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_int_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_int_config&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_string_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_string_config&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_plugin_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_plugin_config&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">exts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
         <span class="n">required</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -391,9 +415,11 @@
 <div class="viewcode-block" id="EtissTarget.get_ini_bool_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.get_ini_bool_config">[docs]</a>
     <span class="k">def</span> <span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;arch.enable_semihosting&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_string_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="EtissTarget.get_ini_string_config">
@@ -404,6 +430,7 @@
         <span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;jit.type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">jit</span><span class="si">}</span><span class="s2">JIT&quot;</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_string_config</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -429,6 +456,7 @@
                 <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.vlen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.elen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_int_config</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -441,6 +469,7 @@
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="p">,</span>
             <span class="p">}</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_plugin_config</span><span class="p">)</span>  <span class="c1"># TODO: merge nested dict instead of overriding</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 

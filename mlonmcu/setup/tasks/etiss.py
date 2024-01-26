@@ -74,6 +74,7 @@ def clone_etiss(
 
 # @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.needs(["etiss.src_dir"])
+@Tasks.optional(["etiss.plugins_dir"])  # Just as a dummy target to enforce order
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
@@ -175,3 +176,38 @@ def clone_microtvm_etiss(
         utils.clone_wrapper(repo, srcDir, refresh=rebuild)
     context.cache["microtvm_etiss.src_dir"] = srcDir
     context.cache["microtvm_etiss.template"] = srcDir / "template_project"
+
+
+def _validate_etiss_accelerator_plugins(context: MlonMcuContext, params=None):
+    return _validate_etiss(context, params=params) and context.environment.has_feature("vanilla_accelerator")
+
+
+@Tasks.needs(["etiss.src_dir"])
+@Tasks.provides(["etiss_accelerator_plugins.src_dir", "etiss.plugins_dir"])
+@Tasks.validate(_validate_etiss_accelerator_plugins)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_etiss_accelerator_plugins(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the plugins repository."""
+    name = utils.makeDirName("etiss_accelerator_plugins")
+    user_vars = context.environment.vars
+    pluginsDir = Path(context.cache["etiss.src_dir"]) / "PluginImpl"
+    if "etiss_accelerator_plugins.src_dir" in user_vars:
+        srcDir = Path(user_vars["etiss_accelerator_plugins.src_dir"])
+        rebuild = False
+    else:
+        srcDir = context.environment.paths["deps"].path / "src" / name
+    # TODO: lookup directories automatically
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["etiss_accelerator_plugins"]
+        utils.clone_wrapper(repo, srcDir, refresh=rebuild)
+    plugins = ["VanillaAccelerator", "QVanillaAccelerator", "QVanillaAcceleratorT"]
+    for plugin in plugins:
+        dest = pluginsDir / plugin
+        if rebuild or not dest.is_symlink():
+            if dest.is_symlink():
+                dest.unlink()
+            utils.symlink(srcDir / plugin, dest)
+    context.cache["etiss_accelerator_plugins.src_dir"] = srcDir
+    context.cache["etiss.plugins_dir"] = pluginsDir

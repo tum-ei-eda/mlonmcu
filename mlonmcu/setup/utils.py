@@ -357,6 +357,10 @@ def copy(src, dest):
     shutil.copy(src, dest)
 
 
+def symlink(src, dest):
+    os.symlink(src, dest)
+
+
 def is_populated(path):
     if not isinstance(path, Path):
         path = Path(path)

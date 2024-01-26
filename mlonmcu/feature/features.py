@@ -2142,3 +2142,29 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
 
     def __init__(self, features=None, config=None):
         super().__init__("cv32_hpmcounter", features=features, config=config)
+
+
+@register_feature("vanilla_accelerator")
+class VanillaAccelerator(TargetFeature):
+    """TODO"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "plugin_name": "VanillaAccelerator",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("vanilla_accelerator", features=features, config=config)
+
+    @property
+    def plugin_name(self):
+        value = self.config["plugin_name"]
+        return value
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss"]
+        if not self.enabled:
+            return
+        plugins_new = config.get("plugins", [])
+        plugins_new.append(self.plugin_name)
+        config.update({f"{target}.plugins": plugins_new})

@@ -42,6 +42,8 @@
 ## Updates (25.01.2024)
 - `mlonmcu-models` (`$MLONMCU_HOME/models/`, Branch: `refactor-validate`):
   - Update some more definition.yml files
+  - Resnet: add support_new dir for ml_interface v2 compatibility
+  - Resnet: add support_new_mlifio as demo/test of new interfaces
 - `mlonmcu-sw` (`$MLONMCU_HOME/deps/src/mlif`, Branch: `refactor-validate` **NEW**):
 	- Added versioning to ml_interface template (Use `-c mlif.template_version=v2` to use the updated mlif)
   - Link `mlifio` utilities to ml_interface
@@ -58,6 +60,29 @@
 
 
 ## Examples
+
+### Generation of Data (NEW)
+
+```
+python3 -m mlonmcu.cli.main flow load resnet -f gen_data -c gen_data.number=5 -c gen_data.fill_mode=zeros -c run.export_optional=1
+python3 -m mlonmcu.cli.main flow load resnet -f gen_data -c gen_data.number=5 -c gen_data.fill_mode=ones -c run.export_optional=1
+python3 -m mlonmcu.cli.main flow load resnet -f gen_data -f gen_ref_data -c gen_data.number=5 -c gen_data.fill_mode=random -c gen_ref_data.mode=model -c run.export_optional=1
+```
+
+### Generated Model Support (NEW)
+
+```
+# mlifio demo (hardcoded, not functional)
+python3 -m mlonmcu.cli.main flow run resnet --target host_x86 -f debug  --backend tvmaotplus -c mlif.print_outputs=1 -c host_x86.print_outputs=1 -v -f validate -c mlif.template_version=v2 --parallel -c mlif.model_support_dir=$MLONMCU_HOME/models/resnet/support_new_mlifio -c mlif.batch_size=5
+
+# in: rom, out: stdout_raw
+python3 -m mlonmcu.cli.main flow run resnet --target host_x86 -f debug  --backend tvmaotplus -c mlif.print_outputs=1 -c host_x86.print_outputs=1 -v -f validate -c mlif.template_version=v2 --parallel  --feature validate_new --post validate_outputs -c set_inputs.interface=rom get_outputs.interface=stdout_raw -c run.export_optional=1 -c gen_data.number=5 -c gen_data.fill_mode=random -c gen_ref_data.mode=model
+
+# in: stdin_raw, out: stdout_raw
+python3 -m mlonmcu.cli.main flow run resnet --target host_x86 -f debug  --backend tvmaotplus -c mlif.print_outputs=1 -c host_x86.print_outputs=1 -v -f validate -c mlif.template_version=v2 --parallel  --feature validate_new --post validate_outputs -c set_inputs.interface=stdin_raw get_outputs.interface=stdout_raw -c run.export_optional=1 -c gen_data.number=5 -c gen_data.fill_mode=random -c gen_ref_data.mode=model
+```
+
+### Full Flow
 
 ```
 # platform: tvm target: tvm_cpu`

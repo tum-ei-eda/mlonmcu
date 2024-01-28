@@ -123,7 +123,7 @@ class Frontend(ABC):
 
     @property
     def gen_ref_data(self):
-        value = self.config["gen_data"]
+        value = self.config["gen_ref_data"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property

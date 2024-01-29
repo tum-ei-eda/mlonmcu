@@ -25,64 +25,64 @@ extern "C"
      *
      */
 
-typedef struct regs
-        {
-            uint32_t ifmap;
-            uint32_t weights;
-            uint32_t bias;
-            uint32_t result;
-            int32_t oc;
-            int32_t iw;
-            int32_t ih;
-            int32_t ic;
-            int32_t kh;
-            int32_t kw;
-            int32_t i_zp;
-            int32_t k_zp;
-            uint32_t control;
-            uint32_t status;
-        } regs_t;
+// typedef struct regs
+//         {
+//             uint32_t ifmap;
+//             uint32_t weights;
+//             uint32_t bias;
+//             uint32_t result;
+//             int32_t oc;
+//             int32_t iw;
+//             int32_t ih;
+//             int32_t ic;
+//             int32_t kh;
+//             int32_t kw;
+//             int32_t i_zp;
+//             int32_t k_zp;
+//             uint32_t control;
+//             uint32_t status;
+//         } regs_t;
 
 int32_t q_vanilla_accelerator_conv2dnchw(int8_t* q_vanilla_accelerator_0_i0, int8_t* q_vanilla_accelerator_0_i1, int32_t* bias_data, int32_t* compute,
                                       int32_t oc, int32_t iw, int32_t ih, int32_t ic, int32_t kh, int32_t kw, int32_t i_zp, int32_t k_zp) {
 
 
 
+
    // QVanillaAcceleratorT (with timing) base_adr = 0x70002000,
    // for QVanillaAccelerator (w/o timing) replace this file with conv2dnchw1.cc contents or interchange the names!
-  regs_t *p_regs = (regs_t *)0x70002000;
 
-  p_regs->ifmap   = (uint32_t) q_vanilla_accelerator_0_i0;
-	p_regs->weights = (uint32_t) q_vanilla_accelerator_0_i1;
-	p_regs->bias    = (uint32_t) bias_data;
-	p_regs->result  = (uint32_t) compute;
-
-	p_regs->oc = oc;
-	p_regs->iw = iw;
-	p_regs->ih = ih;
-	p_regs->ic = ic;
-	p_regs->kh = kh;
-	p_regs->kw = kw;
-	p_regs->i_zp = i_zp;
-	p_regs->k_zp = k_zp;
-	p_regs->control = 1;  //issue start signal
-
-  volatile uint32_t * status_reg = (int32_t*) 0x70000034;
-
-  volatile int32_t ready = 0;
-
-
-  while (!ready) {
-
-    ready = 0x1 & (p_regs->status);
-
-    // printf("ready = %d\n", ready);
-
-  }
-
-  printf("staus: completed (driver)\n");
-
-
-
-  return 0;
+   *(uint32_t**)0x70002000 = (uint32_t*)q_vanilla_accelerator_0_i0;
+   *(uint32_t**)0x70002004 = (uint32_t*)q_vanilla_accelerator_0_i1;
+   *(uint32_t**)0x70002008 = (uint32_t*)bias_data;
+   *(uint32_t**)0x7000200c = (uint32_t*)compute;
+ 
+   *(int32_t*)0x70002010 = oc;
+   *(int32_t*)0x70002014 = iw;
+   *(int32_t*)0x70002018 = ih;
+   *(int32_t*)0x7000201c = ic;
+   *(int32_t*)0x70002020 = kh;
+   *(int32_t*)0x70002024 = kw;
+   *(int32_t*)0x70002028 = i_zp;
+   *(int32_t*)0x7000202c = k_zp;
+ 
+   //issue start signal
+   // printf("issue start ...\n");
+   *(uint32_t*)0x70002030 = 0x00000001;
+ 
+ 
+   volatile uint32_t* status_reg = (uint32_t*) 0x70002034;
+ 
+   volatile uint32_t ready = 0;
+ 
+   while (!ready) {
+    
+     ready = 0x1 & (*status_reg);
+ 
+     // printf("ready = %d\n", ready);
+ 
+   }
+   
+   // printf("staus: completed (driver)\n");
+   return 0;
 }

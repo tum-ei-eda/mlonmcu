@@ -31,6 +31,7 @@ from .frontend import (
     CoremarkFrontend,
     DhrystoneFrontend,
     MathisFrontend,
+    AraAppsFrontend,
     MibenchFrontend,
     LayerGenFrontend,
 )
@@ -49,6 +50,7 @@ SUPPORTED_FRONTENDS = {
     "dhrystone": DhrystoneFrontend,
     "polybench": PolybenchFrontend,
     "mathis": MathisFrontend,
+    "ara_apps": AraAppsFrontend,
     "mibench": MibenchFrontend,
     "layergen": LayerGenFrontend,
 }  # TODO: use registry instead

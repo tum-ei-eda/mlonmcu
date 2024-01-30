@@ -35,6 +35,7 @@ from mlonmcu.models.model import (
     CoremarkProgram,
     DhrystoneProgram,
     MathisProgram,
+    AraAppsProgram,
     MibenchProgram,
 )
 from mlonmcu.models.lookup import lookup_models
@@ -1361,3 +1362,53 @@ class LayerGenFrontend(Frontend):
             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
             artifacts[name] = [artifact]
         return artifacts, {}
+
+
+class AraAppsFrontend(SimpleFrontend):
+    REQUIRED = set()
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "ara_apps",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "iconv2d",
+            "fconv2d",
+            "fconv3d",
+            "imatmul",
+            "fmatmul",
+            "conjugate_gradient",
+            "cos",
+            "dotproduct",
+            "fdotproduct",
+        ]
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("ara_apps/", "")
+            if name in self.supported_names:
+                hint = AraAppsProgram(
+                    name,
+                    alt=f"ara_apps/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "ara_apps"
+        return ret

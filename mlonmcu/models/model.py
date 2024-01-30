@@ -387,3 +387,25 @@ class DhrystoneProgram(Program):
         if platform == "mlif":
             ret["DHRYSTONE_ITERATIONS"] = 10000
         return ret
+
+
+class AraAppsProgram(Program):
+    DEFAULTS = {
+        # "size": 1024,
+    }
+
+    # @property
+    # def size(self):
+    #     value = self.config["size"]
+    #     if isinstance(value, str):
+    #         value = str(value)
+    #     assert isinstance(value, int)
+    #     assert value > 0
+    #     return value
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["ARA_APP"] = self.name
+            # ret["MATHIS_SIZE"] = self.size
+        return ret

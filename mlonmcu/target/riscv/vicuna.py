@@ -29,6 +29,7 @@ from mlonmcu.logging import get_logger
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from mlonmcu.setup import utils
 from .riscv_vext_target import RVVTarget
 
@@ -257,46 +258,44 @@ class VicunaTarget(RVVTarget):
         # input("!")
         self.prj_dir.cleanup()
         self.obj_dir = None
-        return out
+        return out, []
 
-    def parse_stdout(self, out):
-        cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
-            cycles = None
-        else:
-            cycles = int(float(cpu_cycles.group(1)))
-
-        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
-        if not cpu_instructions:
-            logger.warning("unexpected script output (instructions)")
-            cpu_instructions = None
-        else:
-            cpu_instructions = int(float(cpu_instructions.group(1)))
-        return cycles, cpu_instructions
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0)
+        sim_insns = re.search(r"(\d*) cycles", out)
+        if sim_insns:
+            sim_insns = int(float(sim_insns.group(1)))
+            metrics.add("Simulated Instructions", sim_insns, True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+        artifacts = []
         if self.print_outputs:
             self.prepare_simulator(cwd=directory, live=True)
         else:
             self.prepare_simulator(cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         simulation_start = time.time()
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
         else:
-            out += self.exec(
+            out_, artifacts_ = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
             )
+        out += out_
+        artifacts += artifacts_
         simulation_end = time.time()
-        cycles, instructions = self.parse_stdout(out)
+        exit_code = 0
         metrics = Metrics()
-        metrics.add("Cycles", cycles)
-        metrics.add("Instructions", instructions)
-        if cycles and instructions:
-            metrics.add("CPI", cycles / instructions)
-        metrics.add("finished_in_sec", simulation_end - simulation_start, True)
-        return metrics, out, []
+        self.parse_stdout(out, metrics, exit_code=exit_code)
+        wall = simulation_end - simulation_start
+        # metrics.add("Wallclock time", wall, True)
+        if metrics.has("Total Instructions"):
+            instructions = metrics.get("Total Instructions")
+            if instructions > 0:
+                # Warning: Total Instructions != Simulated Instructions
+                mips = (instructions / wall) / 1e6
+                metrics.add("MIPS", mips, True)
+        return metrics, out, artifacts
 
     def get_target_system(self):
         return self.name

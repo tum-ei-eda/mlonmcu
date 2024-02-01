@@ -34,7 +34,6 @@ from mlonmcu.setup import utils
 class ArtifactFormat(IntFlag):
     """Enumeration of artifact types."""
 
-<<<<<<< HEAD
     UNKNOWN = auto()
     SOURCE = auto()
     TEXT = auto()

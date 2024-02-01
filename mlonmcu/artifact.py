@@ -34,6 +34,7 @@ from mlonmcu.setup import utils
 class ArtifactFormat(IntFlag):
     """Enumeration of artifact types."""
 
+<<<<<<< HEAD
     UNKNOWN = auto()
     SOURCE = auto()
     TEXT = auto()
@@ -49,6 +50,7 @@ class ArtifactFormat(IntFlag):
     BIN = RAW
     SHARED_OBJECT = auto()  # Here: the parent tar archive
     ARCHIVE = auto()
+    YAML = auto()
 
 
 def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):

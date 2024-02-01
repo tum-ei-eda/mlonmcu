@@ -39,7 +39,16 @@ logger = get_logger()
 class EtissTarget(RISCVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES | {"gdbserver", "etissdbg", "trace", "log_instrs", "pext", "vext", "xcorev", "vanilla_accelerator"}
+    FEATURES = RISCVTarget.FEATURES | {
+        "gdbserver",
+        "etissdbg",
+        "trace",
+        "log_instrs",
+        "pext",
+        "vext",
+        "xcorev",
+        "vanilla_accelerator",
+    }
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,

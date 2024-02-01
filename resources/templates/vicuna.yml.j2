@@ -31,12 +31,12 @@ paths:
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 75f52901ebf5f1d6fbcef7e65e5e99e31ac63e44
+    ref: ca5358f4680dbd94717a4c6bd77186bc1c799e1b
     options:
       single_branch: true
   tvm:
     url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
-    ref: 603ee8acf34550f1f9b76ce607769b61a77c5354
+    ref: develop
     options:
       recursive: true
       submodules:
@@ -46,7 +46,7 @@ repos:
         - 3rdparty/rang
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: 658c9ff5b58b92608590feeba4b52ca1bb131396
+    ref: bc60b2d2f541e1fee6352b9c9ab7cb442ff59bf4
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
     ref: 439b78d36456f716629ad9dbaff9734baaa75db9
@@ -64,11 +64,11 @@ repos:
       # Shallow clone could save 200MB clone size, but not really possible with commit
       # shallow: true
   cmsisnn:
-    url: "https://github.com/PhilippvK/CMSIS-NN.git"
-    ref: 35ce20560794ddc9e6d87006cad7a3bc665f8319  # v4.0.0 + portability patch
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    ref: ffeca904368926d60caeb2d97858215626892f35
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 33009faae718ad7d0be1044f22f12c95a1e7fae1
+    ref: e12daefbd384b38f539fd8c108e072467804b54c
   microtvm_spike:
     url: "https://github.com/PhilippvK/microtvm-spike-template.git"
     ref: ddaaf4554aaafb0a509cd4d9db3397e07b512d9d

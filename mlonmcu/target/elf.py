@@ -105,6 +105,8 @@ def parseElf(inFile):
         ".debugger_stack",
         # ara
         ".l2",
+        # vicuna (ram)
+        ".user_align",
     ]
     ignorePrefixes = [
         ".gcc_except",

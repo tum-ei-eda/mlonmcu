@@ -432,8 +432,9 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "vlen": 128,  # 64 does not work with every toolchain
-        "elen": 64,  # some toolchains may generate auto-vectorized programs with elen 64
+        # None -> use target setting
+        "vlen": None,  # 64 does not work with every toolchain
+        "elen": None,  # some toolchains may generate auto-vectorized programs with elen 64
         # use target-side settings by default
         "spec": None,
         "embedded": None,
@@ -444,11 +445,13 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     @property
     def vlen(self):
-        return int(self.config["vlen"])
+        value = self.config["vlen"]
+        return None if value is None else int(value)
 
     @property
     def elen(self):
-        return int(self.config["elen"])
+        value = self.config["elen"]
+        return None if value is None else int(value)
 
     @property
     def spec(self):

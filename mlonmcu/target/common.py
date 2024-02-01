@@ -18,92 +18,31 @@
 #
 """Helper functions used by MLonMCU targets"""
 
-import subprocess
 import argparse
-from typing import List, Callable
+from typing import List
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_available_features
 from mlonmcu.logging import get_logger
+from mlonmcu.setup.utils import execute as execute_new
 
 logger = get_logger()
 
 
-# TODO: merge together with mlonmcu.setup.utils.exec_getout
-def execute(
-    *args: List[str],
-    ignore_output: bool = False,
-    live: bool = False,
-    print_func: Callable = print,
-    handle_exit=None,
-    err_func: Callable = logger.error,
-    **kwargs,
-) -> str:
-    """Wrapper for running a program in a subprocess.
+def execute(*args, **kwargs):
+    """Redicrection of old mlonmcu.target.common.execute to new location
+    mlonmcu.setup.utils.execute
 
     Parameters
     ----------
     args : list
-        The actual command.
-    ignore_output : bool
-        Do not get the stdout and stderr or the subprocess.
-    live : bool
-        Print the output line by line instead of only at the end.
-    print_func : Callable
-        Function which should be used to print sysout messages.
-    err_func : Callable
-        Function which should be used to print errors.
-    kwargs: dict
-        Arbitrary keyword arguments passed through to the subprocess.
-
-    Returns
-    -------
-    out : str
-        The command line output of the command
+        Arguments
+    kwargs : dict
+        Keyword Arguments
     """
-    logger.debug("- Executing: %s", str(args))
-    if "cwd" in kwargs:
-        logger.debug("- CWD: %s", str(kwargs["cwd"]))
-    if ignore_output:
-        assert not live
-        subprocess.run(args, **kwargs, check=True)
-        return None
-
-    out_str = ""
-    if live:
-        with subprocess.Popen(
-            args,
-            **kwargs,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        ) as process:
-            for line in process.stdout:
-                new_line = line.decode(errors="replace")
-                out_str = out_str + new_line
-                print_func(new_line.replace("\n", ""))
-            exit_code = None
-            while exit_code is None:
-                exit_code = process.poll()
-            if handle_exit is not None:
-                exit_code = handle_exit(exit_code, out=out_str)
-            assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                exit_code, " ".join(list(map(str, args)))
-            )
-    else:
-        p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        out_str = p.communicate()[0].decode(errors="replace")
-        exit_code = p.poll()
-        print_func(out_str)
-        if handle_exit is not None:
-            exit_code = handle_exit(exit_code, out=out_str)
-        if exit_code != 0:
-            err_func(out_str)
-        assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-            exit_code, " ".join(list(map(str, args)))
-        )
-
-    return out_str
+    logger.warning("DEPRECATED: Please use mlonmcu.setup.utils.execute instead of mlonmcu.target.common.execute")
+    execute_new(*args, **kwargs)
 
 
 def add_common_options(parser: argparse.ArgumentParser, target):

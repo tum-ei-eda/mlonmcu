@@ -252,9 +252,9 @@ class VicunaTarget(RVVTarget):
             *args,
             **kwargs,
         )
-        print("prj", self.prj_dir)
-        print("out", out)
-        input("!")
+        # print("prj", self.prj_dir)
+        # print("out", out)
+        # input("!")
         self.prj_dir.cleanup()
         self.obj_dir = None
         return out

@@ -267,19 +267,38 @@ class VicunaTarget(RVVTarget):
             sim_insns = int(float(sim_insns.group(1)))
             metrics.add("Simulated Instructions", sim_insns, True)
 
+    def parse_exit(self, out):
+        exit_code = super().parse_exit(out)
+        if exit_code is None:
+            if "Program finish." not in out:
+                exit_code = -2  # did not finish
+            # elif "EXCEP" in out:
+            #     exit_code = -1  # unhandled exception
+        return exit_code
+
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
         artifacts = []
+
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
         if self.print_outputs:
             self.prepare_simulator(cwd=directory, live=True)
         else:
             self.prepare_simulator(cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         simulation_start = time.time()
         if self.print_outputs:
-            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out_, artifacts_ = self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         out += out_
         artifacts += artifacts_

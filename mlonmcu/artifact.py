@@ -47,6 +47,7 @@ class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
     BIN = 11
     SHARED_OBJECT = 12  # Here: the parent tar archive
     ARCHIVE = 13
+    YAML = 14
 
 
 def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):

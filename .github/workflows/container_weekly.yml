@@ -33,6 +33,7 @@ on:
     - cron: "0 6 * * 6"  # develop, corev
     - cron: "0 12 * * 6"  # develop, dev
     - cron: "0 18 * * 6"  # develop, ara
+    - cron: "0 20 * * 6"  # develop, vicuna
 
 jobs:
   minimal:
@@ -71,6 +72,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=ara" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 20 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=vicuna" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -186,6 +191,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=ara" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 20 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=vicuna" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -297,6 +306,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=ara" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 20 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=vicuna" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1

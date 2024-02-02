@@ -62,6 +62,7 @@ class OVPSimTarget(RVPTarget, RVVTarget):
         **RVPTarget.DEFAULTS,
         **RVVTarget.DEFAULTS,
         "bitmanip_spec": 0.94,
+        # TODO: add bext feature
         "variant": None,
         "end_to_end_cycles": True,
         "gdbserver_enable": False,

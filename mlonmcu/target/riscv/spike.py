@@ -133,7 +133,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             spikepk_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
 
         if self.enable_vext:
-            assert self.vlen > 0
+            assert self.vlen < 8192, "Spike does not support VLEN >= 8192"
             spike_args.append(f"--varch=vlen:{self.vlen},elen:{self.elen}")
         else:
             assert self.vlen == 0

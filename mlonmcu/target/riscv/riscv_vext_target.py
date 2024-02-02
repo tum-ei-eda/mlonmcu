@@ -20,6 +20,7 @@
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+from mlonmcu.utils import is_power_of_two
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .riscv import RISCVTarget
 from .util import update_extensions
@@ -37,8 +38,8 @@ class RVVTarget(RISCVTarget):
         "enable_vext": False,
         "vext_spec": 1.0,
         "embedded_vext": False,
-        "vlen": 0,  # vectorization=off
-        "elen": 32,
+        "vlen": 128,  # vectorization=off
+        "elen": 64,
     }
     REQUIRED = RISCVTarget.REQUIRED
 
@@ -54,11 +55,20 @@ class RVVTarget(RISCVTarget):
 
     @property
     def vlen(self):
-        return int(self.config["vlen"])
+        value = int(self.config["vlen"])
+        assert value == 0 or is_power_of_two(value), "VLEN needs to be a power of 2."
+        assert value == 0 or value >= 32, "VLEN < 32 not allowed"
+        if value < 128:
+            assert self.embedded_vext, "VLEN < 128 imples embedded_vext=false"
+        return value
 
     @property
     def elen(self):
-        return int(self.config["elen"])
+        value = int(self.config["elen"])
+        assert value in [32, 64]
+        if value == 32:
+            assert self.embedded_vext, "ELEN=32 imples embedded_vext=true"
+        return value
 
     @property
     def vext_spec(self):

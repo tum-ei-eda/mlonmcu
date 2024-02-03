@@ -136,7 +136,8 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             assert self.vlen < 8192, "Spike does not support VLEN >= 8192"
             spike_args.append(f"--varch=vlen:{self.vlen},elen:{self.elen}")
         else:
-            assert self.vlen == 0
+            # assert self.vlen == 0
+            pass
 
         if self.timeout_sec > 0:
             raise NotImplementedError

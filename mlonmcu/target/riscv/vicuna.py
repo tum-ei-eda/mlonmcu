@@ -284,7 +284,11 @@ class VicunaTarget(RVVTarget):
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
         if exit_code is None:
-            if "Program finish." not in out:
+            if "EXCEPTION: Illegal instruction at":
+                exit_code = -4
+            elif "WARNING: memory interface inactive for":
+                exit_code = -3
+            elif "Program finish." not in out:
                 exit_code = -2  # did not finish
             # elif "EXCEP" in out:
             #     exit_code = -1  # unhandled exception

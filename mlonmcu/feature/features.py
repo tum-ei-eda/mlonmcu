@@ -494,8 +494,8 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
         return {
             "muriscvnn.lib": ["vext"],
             "tflmc.exe": ["vext"],
-            "riscv_gcc.install_dir": ["vext"],
-            "riscv_gcc.name": ["vext"],
+            # "riscv_gcc.install_dir": ["vext"],
+            # "riscv_gcc.name": ["vext"],
         }
 
 

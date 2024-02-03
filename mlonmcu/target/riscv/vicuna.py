@@ -85,9 +85,12 @@ class VicunaTarget(RVVTarget):
         "ic_size": 0,  # off
         "ic_line_width": 128,
         "dc_size": 0,  # off
-        "dc_line_width": None  # AUTO (2*VMEM_W)
+        "dc_line_width": None,  # AUTO (2*VMEM_W)
         # trace config
         # TODO
+        # testbench config
+        "abort_cycles": 10000000,  # Used to detect freezes
+        "extra_cycles": 4096,  # Number of remaining cycles after jump to reset vector
     }
 
     REQUIRED = RVVTarget.REQUIRED | {
@@ -170,6 +173,16 @@ class VicunaTarget(RVVTarget):
         value = self.config["vproc_pipelines"]
         return value
 
+    @property
+    def abort_cycles(self):
+        value = self.config["abort_cycles"]
+        return int(value)
+
+    @property
+    def extra_cycles(self):
+        value = self.config["extra_cycles"]
+        return int(value)
+
     def get_config_args(self):
         ret = []
         if self.core is not None:
@@ -213,6 +226,7 @@ class VicunaTarget(RVVTarget):
         out += utils.make(
             self.obj_dir / "Vvproc_top.mk",
             f"PROJ_DIR={self.prj_dir.name}",
+            f"SIM_ABORT_CYCLES={self.abort_cycles}",
             *self.get_config_args(),
             env=env,
             cwd=sim_dir,
@@ -240,7 +254,7 @@ class VicunaTarget(RVVTarget):
             str(self.mem_width),
             str(self.mem_size),
             str(self.mem_latency),
-            str(self.vlen * 2),
+            str(self.extra_cycles),
             trace_file,
             trace_vcd,
         ]

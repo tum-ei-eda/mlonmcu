@@ -229,6 +229,8 @@ def update_extensions(
     if not minimal:
         if fpu in ["single", "double"] and not minimal:
             require.add("zicsr")
+        if vext or embedded_vext:
+            require.add("zicsr")
         if atomic and multiply and fpu == "double":
             require.add("zifencei")
 

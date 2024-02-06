@@ -56,7 +56,7 @@ TRACE_SIGS ?= '*'
 class VicunaTarget(RVVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RVVTarget.FEATURES | {"log_instrs", "vext"}  # TODO: cache feature?
+    FEATURES = RVVTarget.FEATURES | {"log_instrs"}  # TODO: cache feature?
 
     DEFAULTS = {
         **RVVTarget.DEFAULTS,
@@ -246,8 +246,8 @@ class VicunaTarget(RVVTarget):
         assert self.prj_dir is not None, "Not prepared?"
         path_file = f"{program}.path"
 
-        trace_file = "file"
-        trace_vcd = "vcd"
+        trace_file = "trace.csv"
+        # trace_vcd = "vcd"
         # trace_fst = "fst"
         vicuna_args = [
             path_file,
@@ -256,7 +256,7 @@ class VicunaTarget(RVVTarget):
             str(self.mem_latency),
             str(self.extra_cycles),
             trace_file,
-            trace_vcd,
+            # trace_vcd,
         ]
         env = os.environ.copy()
         out = execute(
@@ -284,9 +284,9 @@ class VicunaTarget(RVVTarget):
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
         if exit_code is None:
-            if "EXCEPTION: Illegal instruction at":
+            if "EXCEPTION: Illegal instruction at" in out:
                 exit_code = -4
-            elif "WARNING: memory interface inactive for":
+            elif "WARNING: memory interface inactive for" in out:
                 exit_code = -3
             elif "Program finish." not in out:
                 exit_code = -2  # did not finish

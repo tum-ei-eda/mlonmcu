@@ -25,29 +25,35 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
         """Called at the end of a session."""
         df = report.post_df.copy()
         df["Kernels"] = df.apply(
-            lambda row: "muRISCV-NN"
-            if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
-            else (
-                "CMSIS-NN"
-                if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
-                else ("Autotuned" if row.get("feature_autotuned") else "Default")
+            lambda row: (
+                "muRISCV-NN"
+                if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
+                else (
+                    "CMSIS-NN"
+                    if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
+                    else ("Autotuned" if row.get("feature_autotuned") else "Default")
+                )
             ),
             axis=1,
         )
         # TODO: allow combinations
         df["Extensions"] = df.apply(
-            lambda row: "VEXT+PEXT"
-            if row.get("feature_vext") and row.get("feature_pext")
-            else (
-                "VEXT"
-                if row.get("feature_vext")
+            lambda row: (
+                "VEXT+PEXT"
+                if row.get("feature_vext") and row.get("feature_pext")
                 else (
-                    "PEXT"
-                    if row.get("feature_pext")
+                    "VEXT"
+                    if row.get("feature_vext")
                     else (
-                        "MVEI+DSP"
-                        if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
-                        else ("MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else ""))
+                        "PEXT"
+                        if row.get("feature_pext")
+                        else (
+                            "MVEI+DSP"
+                            if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
+                            else (
+                                "MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else "")
+                            )
+                        )
                     )
                 )
             ),

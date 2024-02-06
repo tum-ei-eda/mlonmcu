@@ -119,9 +119,11 @@ def add_flow_options(parser):
                 metavar="FEATURES",
                 nargs="+",
                 action="append",
-                help=f"Generator statement for features. (Also available: --feature-gen2 ... --feature-gen{number})"
-                if i == 0
-                else argparse.SUPPRESS,
+                help=(
+                    f"Generator statement for features. (Also available: --feature-gen2 ... --feature-gen{number})"
+                    if i == 0
+                    else argparse.SUPPRESS
+                ),
             )
             flow_parser.add_argument(
                 "--config-gen" + suffix,
@@ -129,9 +131,11 @@ def add_flow_options(parser):
                 metavar="KEY=VALUE",
                 nargs="+",
                 action="append",
-                help=f"Generator statement for configs. (Also available: --config-gen2 ... --config-gen{number})"
-                if i == 0
-                else argparse.SUPPRESS,
+                help=(
+                    f"Generator statement for configs. (Also available: --config-gen2 ... --config-gen{number})"
+                    if i == 0
+                    else argparse.SUPPRESS
+                ),
             )
 
     add_gen_args(flow_parser, NUM_GEN_ARGS)

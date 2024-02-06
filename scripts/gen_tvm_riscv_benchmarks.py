@@ -25,22 +25,32 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
         """Called at the end of a session."""
         df = report.post_df.copy()
         df["Schedules"] = df.apply(
-            lambda row: "ARM (Tuned)"
-            if row.get("config_tvmaot.target_device", "") == "arm_cpu" and row.get("feature_autotuned")
-            else "ARM"
-            if row.get("config_tvmaot.target_device", "") == "arm_cpu"
-            else "RISC-V (Tuned)"
-            if row.get("feature_target_optimized") and row.get("feature_autotuned")
-            else "RISC-V"
-            if row.get("feature_target_optimized")
-            else ("Default (Tuned)" if row.get("feature_autotuned") else "Default"),
+            lambda row: (
+                "ARM (Tuned)"
+                if row.get("config_tvmaot.target_device", "") == "arm_cpu" and row.get("feature_autotuned")
+                else (
+                    "ARM"
+                    if row.get("config_tvmaot.target_device", "") == "arm_cpu"
+                    else (
+                        "RISC-V (Tuned)"
+                        if row.get("feature_target_optimized") and row.get("feature_autotuned")
+                        else (
+                            "RISC-V"
+                            if row.get("feature_target_optimized")
+                            else ("Default (Tuned)" if row.get("feature_autotuned") else "Default")
+                        )
+                    )
+                )
+            ),
             axis=1,
         )
         # TODO: allow combinations
         df["Extensions"] = df.apply(
-            lambda row: "VEXT+PEXT"
-            if row.get("feature_vext") and row.get("feature_pext")
-            else ("VEXT" if row.get("feature_vext") else ("PEXT" if row.get("feature_pext") else (None))),
+            lambda row: (
+                "VEXT+PEXT"
+                if row.get("feature_vext") and row.get("feature_pext")
+                else ("VEXT" if row.get("feature_vext") else ("PEXT" if row.get("feature_pext") else (None)))
+            ),
             axis=1,
         )
         report.post_df = df

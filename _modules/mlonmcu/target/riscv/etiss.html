@@ -129,7 +129,16 @@
 <span class="k">class</span> <span class="nc">EtissTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a simple RISC-V VP running in the ETISS simulator&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="s2">&quot;xcorev&quot;</span><span class="p">,</span> <span class="s2">&quot;vanilla_accelerator&quot;</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span>
+        <span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;trace&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pext&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vext&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;xcorev&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vanilla_accelerator&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>

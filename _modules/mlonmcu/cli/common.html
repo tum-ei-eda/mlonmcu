@@ -212,9 +212,11 @@
                 <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;FEATURES&quot;</span><span class="p">,</span>
                 <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
                 <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
-                <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generator statement for features. (Also available: --feature-gen2 ... --feature-gen</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
-                <span class="k">else</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Generator statement for features. (Also available: --feature-gen2 ... --feature-gen</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="k">else</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span>
+                <span class="p">),</span>
             <span class="p">)</span>
             <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
                 <span class="s2">&quot;--config-gen&quot;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
@@ -222,9 +224,11 @@
                 <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;KEY=VALUE&quot;</span><span class="p">,</span>
                 <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
                 <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
-                <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Generator statement for configs. (Also available: --config-gen2 ... --config-gen</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
-                <span class="k">else</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Generator statement for configs. (Also available: --config-gen2 ... --config-gen</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="k">else</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span>
+                <span class="p">),</span>
             <span class="p">)</span>
 
     <span class="n">add_gen_args</span><span class="p">(</span><span class="n">flow_parser</span><span class="p">,</span> <span class="n">NUM_GEN_ARGS</span><span class="p">)</span>

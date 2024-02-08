@@ -762,7 +762,7 @@ class ExampleFrontend(SimpleFrontend):
     def supported_names(self):
         return ["hello_world", "foobar"]
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("example/", "")
@@ -770,6 +770,7 @@ class ExampleFrontend(SimpleFrontend):
                 hint = ExampleProgram(
                     name,
                     alt=f"example/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -829,7 +830,7 @@ class EmbenchFrontend(SimpleFrontend):
     # def skip_backend(self):
     #     return True
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("embench/", "")
@@ -837,6 +838,7 @@ class EmbenchFrontend(SimpleFrontend):
                 hint = EmbenchProgram(
                     name,
                     alt=f"embench/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -937,7 +939,7 @@ class TaclebenchFrontend(SimpleFrontend):
     # def skip_backend(self):
     #     return True
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("taclebench/", "")
@@ -945,6 +947,7 @@ class TaclebenchFrontend(SimpleFrontend):
                 hint = TaclebenchProgram(
                     name,
                     alt=f"taclebench/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -1018,7 +1021,7 @@ class PolybenchFrontend(SimpleFrontend):
     # def skip_backend(self):
     #     return True
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("polybench/", "")
@@ -1026,6 +1029,7 @@ class PolybenchFrontend(SimpleFrontend):
                 hint = PolybenchProgram(
                     name,
                     alt=f"polybench/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -1065,7 +1069,7 @@ class CoremarkFrontend(SimpleFrontend):
             "coremark",
         ]
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("coremark/", "")
@@ -1073,6 +1077,7 @@ class CoremarkFrontend(SimpleFrontend):
                 hint = CoremarkProgram(
                     name,
                     alt=f"coremark/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -1106,7 +1111,7 @@ class DhrystoneFrontend(SimpleFrontend):
             "dhrystone",
         ]
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("dhrystone/", "")
@@ -1114,6 +1119,7 @@ class DhrystoneFrontend(SimpleFrontend):
                 hint = DhrystoneProgram(
                     name,
                     alt=f"dhrystone/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -1167,7 +1173,7 @@ class MathisFrontend(SimpleFrontend):
             "transposed_matmul16_b",
         ]
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("mathis/", "")
@@ -1175,6 +1181,7 @@ class MathisFrontend(SimpleFrontend):
                 hint = MathisProgram(
                     name,
                     alt=f"mathis/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret
@@ -1222,7 +1229,7 @@ class MibenchFrontend(SimpleFrontend):
     # def skip_backend(self):
     #     return True
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, config=None, context=None):
         ret = []
         for name in names:
             name = name.replace("mibench/", "")
@@ -1230,6 +1237,7 @@ class MibenchFrontend(SimpleFrontend):
                 hint = MibenchProgram(
                     name,
                     alt=f"mibench/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret

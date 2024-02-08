@@ -929,7 +929,7 @@
 
 <div class="viewcode-block" id="ExampleFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.ExampleFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;example/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -937,6 +937,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">ExampleProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;example/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1008,7 +1009,7 @@
 
 <div class="viewcode-block" id="EmbenchFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.EmbenchFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;embench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1016,6 +1017,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">EmbenchProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;embench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1131,7 +1133,7 @@
 
 <div class="viewcode-block" id="TaclebenchFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TaclebenchFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;taclebench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1139,6 +1141,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">TaclebenchProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;taclebench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1227,7 +1230,7 @@
 
 <div class="viewcode-block" id="PolybenchFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;polybench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1235,6 +1238,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">PolybenchProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;polybench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1289,7 +1293,7 @@
 
 <div class="viewcode-block" id="CoremarkFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CoremarkFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;coremark/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1297,6 +1301,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">CoremarkProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;coremark/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1342,7 +1347,7 @@
 
 <div class="viewcode-block" id="DhrystoneFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.DhrystoneFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;dhrystone/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1350,6 +1355,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">DhrystoneProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dhrystone/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1415,7 +1421,7 @@
 
 <div class="viewcode-block" id="MathisFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MathisFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;mathis/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1423,6 +1429,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">MathisProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;mathis/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -1482,7 +1489,7 @@
 
 <div class="viewcode-block" id="MibenchFrontend.lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MibenchFrontend.lookup_models">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;mibench/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1490,6 +1497,7 @@
                 <span class="n">hint</span> <span class="o">=</span> <span class="n">MibenchProgram</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
                     <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;mibench/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>

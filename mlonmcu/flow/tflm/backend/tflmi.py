@@ -147,9 +147,16 @@ size_t {prefix}_outputs();
                     elif c.islower():
                         new_name += c
                     prev = c
+                # workarounds for strange op names
+                MAPPINGS = {
+                    "Lstm": "LSTM",
+                }
+                for key, value in MAPPINGS.items():
+                    new_name = new_name.replace(key, value)
                 return new_name
 
             op_names = list(map(convert_op_name, ops))
+
             ops = op_names
         if len(custom_ops) > 0:
             raise NotImplementedError

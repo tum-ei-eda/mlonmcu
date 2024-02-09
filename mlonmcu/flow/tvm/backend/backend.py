@@ -324,6 +324,7 @@ class TVMBackend(Backend):
         assert isinstance(value, bool)
         return value
 
+    @property
     def num_threads(self):
         return self.config["num_threads"]
 

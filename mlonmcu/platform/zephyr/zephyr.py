@@ -162,7 +162,7 @@ project(ProjectName)
                 return 0
 
             text = self.invoke_west(
-                "build", "-d", b, "-b", "help", temp, live=False, print_output=False, handle_exit=_handle
+                "build", "-d", b, "-b", "help", temp, live=False, handle_exit=_handle
             )
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?

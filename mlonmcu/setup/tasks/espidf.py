@@ -83,6 +83,6 @@ def install_espidf(
         espidfInstallArgs = ["install", f"--targets={boards}"]
         env = os.environ.copy()
         env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
-        utils.python(espidfInstallScript, *espidfInstallArgs, print_output=False, live=verbose, env=env)
+        utils.python(espidfInstallScript, *espidfInstallArgs, lve=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir
     context.export_paths.add(espidfInstallDir / "bin")

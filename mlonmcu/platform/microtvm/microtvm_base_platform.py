@@ -187,7 +187,7 @@ class MicroTvmBasePlatform(TvmBasePlatform):
             pre = ["-m", "tvm.driver.tvmc"]
         else:
             pre = [self.tvmc_custom_script]
-        return utils.python(*pre, command, *args, live=live, print_output=False, env=env, **kwargs)
+        return utils.python(*pre, command, *args, live=live, env=env, **kwargs)
 
     def close(self):
         if self.tempdir:

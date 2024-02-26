@@ -36,6 +36,7 @@ from mlonmcu.models.model import (
     DhrystoneProgram,
     MathisProgram,
     MibenchProgram,
+    OpenASIPProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -1361,3 +1362,50 @@ class LayerGenFrontend(Frontend):
             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
             artifacts[name] = [artifact]
         return artifacts, {}
+
+
+class OpenASIPFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "openasip",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "sha256",
+            "aes",
+            "crc",
+        ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("openasip/", "")
+            if name in self.supported_names:
+                hint = OpenASIPProgram(
+                    name,
+                    alt=f"openasip/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "openasip"
+        return ret

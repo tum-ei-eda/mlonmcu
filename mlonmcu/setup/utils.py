@@ -111,7 +111,7 @@ def exec(*args, **kwargs):
     _ = execute(*args, ignore_output=True, live=False, print_func=None, **kwargs)
 
 
-def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exit=None, prefix="", **kwargs) -> str:
+def exec_getout(*args, live: bool = False, print_output: bool = False, handle_exit=None, prefix="", **kwargs) -> str:
     """Execute a process with the given args and using the given kwards as Popen arguments and return the output.
 
     Parameters
@@ -262,7 +262,7 @@ def execute(
             out_str = p.communicate()[0].decode(errors="replace")
             out_str = prefix + out_str
             exit_code = p.poll()
-            print_func(out_str)
+            # print_func(out_str)
             if handle_exit is not None:
                 exit_code = handle_exit(exit_code, out=out_str)
             if exit_code != 0:

@@ -554,6 +554,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         **RunPostprocess.DEFAULTS,
         "groups": True,
         "sequences": True,
+        "seq_depth": 3,
         "top": 10,
         "to_df": False,
         "to_file": True,
@@ -575,8 +576,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def seq_depth(self):
+        """get seq_depth property."""
+        return int(self.config["seq_depth"])
+
+    @property
     def top(self):
-        """get sequences property."""
+        """get top property."""
         return int(self.config["top"])
 
     @property
@@ -726,7 +732,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 post_df["AnalyseInstructionsMajorsProbs"] = str(major_probs)
                 report.post_df = post_df
         if self.sequences:
-            max_len = 3
+            max_len = self.seq_depth
 
             def _get_sublists(lst, length):
                 ret = []

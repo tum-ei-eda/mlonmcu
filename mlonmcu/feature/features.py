@@ -785,6 +785,42 @@ class Usmp(BackendFeature):
     # -> enable this via backend
 
 
+@register_feature("fuse_ops")
+class FuseOps(BackendFeature):
+    """TODO"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "max_depth": 100,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("fuse_ops", features=features, config=config)
+
+    @property
+    def max_depth(self):
+        return int(self.config["max_depth"])
+
+    def add_backend_config(self, backend, config):
+        # assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
+        # TODO: tvm only
+        if f"{backend}.extra_pass_config" in config:
+            tmp = config[f"{backend}.extra_pass_config"]
+        elif "extra_pass_config" in config:
+            tmp = config["extra_pass_config"]
+        else:
+            tmp = {}
+        if isinstance(tmp, str):
+            import ast
+
+            tmp = ast.literal_eval(tmp)
+        assert isinstance(tmp, dict)
+        tmp["relay.FuseOps.max_depth"] = self.max_depth
+        config.update(
+            {f"{backend}.extra_pass_config": tmp}
+        )
+
+
 @register_feature("moiopt")
 class MOIOPT(BackendFeature):
     """Memory-Optimizing, Inter-Operator Tiling - currently only supported with custom TVM"""

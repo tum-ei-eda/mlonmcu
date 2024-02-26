@@ -611,6 +611,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             content = log_artifact.content
             if self.groups:
                 encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                encodings = [f"0b{enc}" for enc in encodings]
                 # encodings = [f"{enc}" for enc in encodings]
             if self.sequences:
                 names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)

@@ -149,6 +149,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             *spikepk_args,
             program,
             *args,
+            cwd=cwd,
             **kwargs,
         )
         return ret

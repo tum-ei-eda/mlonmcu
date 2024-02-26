@@ -180,7 +180,7 @@ class Target:
                 else:
                     temp_dir_ = Path(temp_dir) / str(n)
                     temp_dir_.mkdir()
-                metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir_)
+                metrics_, out, artifacts_ = self.get_metrics(elf, temp_dir, *args)
                 metrics.append(metrics_)
             for callback in self.post_callbacks:
                 out = callback(out, metrics, artifacts_, directory=temp_dir)

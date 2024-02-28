@@ -470,7 +470,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
         else:
-            data_artifact = self.gen_data_artifact()
+            # data_artifact = self.gen_data_artifact()
+            data_artifact = None
             if data_artifact:
                 data_file = self.build_dir / data_artifact.name
                 data_artifact.export(data_file)

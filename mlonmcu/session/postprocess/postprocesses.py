@@ -1503,7 +1503,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         outputs_ref_artifact = outputs_ref_artifact[0]
         import numpy as np
         outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
-        import copy
+        # import copy
         # outputs = copy.deepcopy(outputs_ref)
         # outputs[1][list(outputs[1].keys())[0]][0] = 42
         outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
@@ -1511,8 +1511,18 @@ class ValidateOutputsPostprocess(RunPostprocess):
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
         compared = 0
-        matching = 0
+        # matching = 0
         missing = 0
+        metrics = {
+            "allclose(atol=0.0,rtol=0.0)": 0,
+            "allclose(atol=0.05,rtol=0.05)": 0,
+            "allclose(atol=0.1,rtol=0.1)": 0,
+            "topk(n=1)": 0,
+            "topk(n=2)": 0,
+            "topk(n=inf)": 0,
+            "toy": 0,
+            "mse": 0,
+        }
         for i, output_ref in enumerate(outputs_ref):
             if i >= len(outputs):
                 logger.warning("Missing output sample")
@@ -1533,6 +1543,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 else:
                     RuntimeError(f"Output not found: {out_name}")
                 # optional dequantize
+                # print("out_data_before_quant", out_data)
+                # print("sum(out_data_before_quant", np.sum(out_data))
                 quant = model_info_data.get("output_quant_details", None)
                 if quant:
                     assert ii < len(quant)
@@ -1545,13 +1557,106 @@ class ValidateOutputsPostprocess(RunPostprocess):
                                 assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                                 assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
                                 out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
-                print("out_data", out_data)
-                print("out_ref_data", out_ref_data)
+                # print("out_data", out_data)
+                # print("sum(out_data)", np.sum(out_data))
+                # print("out_ref_data", out_ref_data)
+                # print("sum(out_ref_data)", np.sum(out_ref_data))
+                # input("TIAW")
                 assert out_data.dtype == out_ref_data.dtype, "dtype missmatch"
                 assert out_data.shape == out_ref_data.shape, "shape missmatch"
                 # if np.allclose(out_data, out_ref_data, rtol=0, atol=0):
-                if np.allclose(out_data, out_ref_data, rtol=0, atol=0.1):
-                    matching += 1
+                # if np.allclose(out_data, out_ref_data, rtol=0.1, atol=0.1):
+                # if np.allclose(out_data, out_ref_data, rtol=0.0, atol=0.0):
+                # if np.allclose(out_data, out_ref_data, rtol=0.01, atol=0.01):
+
+                def mse_helper(data, ref_data, thr):
+                    mse = ((data - ref_data)**2).mean()
+                    print("mse", mse)
+                    return mse < thr
+
+                def toy_helper(data, ref_data, atol, rtol):
+                    data_flat = data.flatten().tolist()
+                    ref_data_flat = ref_data.flatten().tolist()
+                    res = 0
+                    ref_res = 0
+                    length = len(data_flat)
+                    for jjj in range(length):
+                        res += data_flat[jjj] ** 2
+                        ref_res += ref_data_flat[jjj] ** 2
+                    res /= length
+                    ref_res /= length
+                    print("res", res)
+                    print("ref_res", ref_res)
+                    return np.allclose([res], [ref_res], atol=atol, rtol=rtol)
+
+                def topk_helper(data, ref_data, n):
+                    # TODO: only for classification models!
+                    # TODO: support multi_outputs?
+                    data_sorted_idx = list(reversed(np.argsort(data).tolist()[0]))
+                    ref_data_sorted_idx = list(reversed(np.argsort(ref_data).tolist()[0]))
+                    k = 0
+                    num_checks = min(n, len(data_sorted_idx))
+                    assert len(data_sorted_idx) == len(ref_data_sorted_idx)
+                    # print("data_sorted_idx", data_sorted_idx, type(data_sorted_idx))
+                    # print("ref_data_sorted_idx", ref_data_sorted_idx, type(ref_data_sorted_idx))
+                    # print("num_checks", num_checks)
+                    for j in range(num_checks):
+                        # print("j", j)
+                        # print(f"data_sorted_idx[{j}]", data_sorted_idx[j], type(data_sorted_idx[j]))
+                        idx = data_sorted_idx[j]
+                        # print("idx", idx)
+                        ref_idx = ref_data_sorted_idx[j]
+                        # print("ref_idx", ref_idx)
+                        if idx == ref_idx:
+                            # print("IF")
+                            k += 1
+                        else:
+                            # print("ELSE")
+                            if data.tolist()[0][idx] == ref_data.tolist()[0][ref_idx]:
+                                # print("SAME")
+                                k += 1
+                            else:
+                                # print("BREAK")
+                                break
+                    # print("k", k)
+                    if k < num_checks:
+                        return False
+                    elif k == num_checks:
+                        return True
+                    else:
+                        assert False
+                for metric_name in metrics:
+                    if "allclose" in metric_name:
+                        if metric_name == "allclose(atol=0.0,rtol=0.0)":
+                            atol = 0.0
+                            rtol = 0.0
+                        elif metric_name == "allclose(atol=0.05,rtol=0.05)":
+                            atol = 0.05
+                            rtol = 0.05
+                        elif metric_name == "allclose(atol=0.1,rtol=0.1)":
+                            atol = 0.1
+                            rtol = 0.1
+                        else:
+                            raise NotImplementedError
+                        if np.allclose(out_data, out_ref_data, rtol=rtol, atol=atol):
+                            metrics[metric_name] += 1
+                    elif "topk" in metric_name:
+                        if metric_name == "topk(n=1)":
+                            n = 1
+                        elif metric_name == "topk(n=2)":
+                            n = 2
+                        elif metric_name == "topk(n=inf)":
+                            n = 1000000
+                        else:
+                            raise NotImplementedError
+                        if topk_helper(out_data, out_ref_data, n):
+                            metrics[metric_name] += 1
+                    elif metric_name == "toy":
+                        if toy_helper(out_data, out_ref_data, 0.01, 0.01):
+                            metrics[metric_name] += 1
+                    elif metric_name == "mse":
+                        if mse_helper(out_data, out_ref_data, 0.1):
+                            metrics[metric_name] += 1
                 compared += 1
                 ii += 1
         if self.report:
@@ -1560,6 +1665,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
             raise NotImplementedError
         if self.rtol:
             raise NotImplementedError
-        res = f"{matching}/{compared} ({int(matching/compared*100)}%)"
-        report.post_df["Validation Result"] = res
+        for metric_name, metric_data in metrics.items():
+            matching = metric_data
+            res = f"{matching}/{compared} ({int(matching/compared*100)}%)"
+            report.post_df[f"{metric_name}"] = res
         return []

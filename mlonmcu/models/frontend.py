@@ -337,27 +337,78 @@ class Frontend(ABC):
                 for i in range(self.gen_data_number):
                     print("i", i)
                     data = {}
+                    NEW = True
                     for ii, input_name in enumerate(input_names):
                         print("ii", ii)
                         assert input_name in input_types, f"Unknown dtype for input: {input_name}"
                         dtype = input_types[input_name]
                         quant = input_quant_details.get(input_name, None)
+                        gen_dtype = dtype
                         if quant:
                             _, _, ty = quant
-                            # dtype = ty
+                            assert "float" in ty, "Input already quantized?"
+                            if NEW:
+                                gen_dtype = ty
                         assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
                         shape = input_shapes[input_name]
                         if self.gen_data_fill_mode == "zeros":
-                            arr = np.zeros(shape, dtype=dtype)
+                            arr = np.zeros(shape, dtype=gen_dtype)
                         elif self.gen_data_fill_mode == "ones":
-                            arr = np.ones(shape, dtype=dtype)
+                            arr = np.ones(shape, dtype=gen_dtype)
                         elif self.gen_data_fill_mode == "random":
-                            if "float" in dtype:
-                                arr = np.random.rand(*shape).astype(dtype)
-                            elif "int" in dtype:
-                                arr = np.random.randint(np.iinfo(dtype).min, np.iinfo(dtype).max, size=shape, dtype=dtype)
+                            DIST = "uniform"
+                            if DIST == "uniform":
+                                UPPER = None  # TODO: config
+                                LOWER = None  # TODO: config
+                                if "float" in gen_dtype:
+                                    if UPPER is None:
+                                        # UPPER = 1.0
+                                        UPPER = 0.5
+                                    if LOWER is None:
+                                        # LOWER = -1.0
+                                        LOWER = -0.5
+                                elif "int" in gen_dtype:
+                                    dtype_info = np.iinfo(gen_dtype),
+                                    if UPPER is None:
+                                        UPPER = dtype_info.max
+                                    else:
+                                        assert UPPER <= dtype_info.max, f"Out of dtype bound"
+                                    if LOWER is None:
+                                        LOWER = dtype_info.min
+                                    else:
+                                        assert LOWER >= dtype_info.min, f"Out of dtype bound"
+                                else:
+                                    raise RuntimeError(f"Unsupported dtype: {gen_dtype}")
+                                RANGE = UPPER - LOWER
+                                print("dtype", dtype)
+                                print("gen_dtype", gen_dtype)
+                                print("UPPER,LOWER,RANGE", UPPER, LOWER, RANGE)
+                                assert RANGE > 0
+                                arr = np.random.uniform(LOWER, UPPER, shape)
+                                print("arr0", arr)
+                                arr = arr.astype(gen_dtype)
+                                print("arr1", arr)
+                                # input("?=")
+                                # if "float" in dtype:
+                                #     arr = np.random.rand(*shape).astype(dtype)
+                                # elif "int" in dtype:
+                                #     arr = np.random.randint(np.iinfo(dtype).min, np.iinfo(dtype).max, size=shape, dtype=dtype)
+                                # else:
+                                #     assert False
+                            # Quantize if required
+                            if gen_dtype != dtype:
+                                assert "int" in dtype
+                                assert quant
+                                scale, shift, ty = quant
+                                arr = (arr / scale) + shift
+                                print("arr2", arr)
+                                arr = np.around(arr)
+                                print("arr3", arr)
+                                arr = arr.astype(dtype)
+                                print("arr4", arr)
+                                # input("!=")
                             else:
-                                assert False
+                                raise RuntimeError(f"Unsupported distribution: {DIST}")
                         else:
                             assert False
                         data[input_name] = arr
@@ -373,10 +424,11 @@ class Frontend(ABC):
                     else:
                         files = in_paths
                     temp = {}
+                    NEW = True
                     for file in files:
                         if not isinstance(file, Path):
                             file = Path(file)
-                        assert file.is_file()
+                        assert file.is_file(), f"Not found: {file}"
                         print("file", file)
                         basename, ext = file.stem, file.suffix
                         if ext == ".bin":
@@ -408,13 +460,28 @@ class Frontend(ABC):
                             assert input_name in input_types, f"Unknown dtype for input: {input_name}"
                             dtype = input_types[input_name]
                             quant = input_quant_details.get(input_name, None)
+                            gen_dtype = dtype
                             if quant:
                                 _, _, ty = quant
-                                dtype = ty
-                            arr = np.frombuffer(temp[i][ii], dtype=dtype)
+                                assert "float" in ty, "Input already quantized?"
+                                if NEW:
+                                    gen_dtype = ty
+                            arr = np.frombuffer(temp[i][ii], dtype=gen_dtype)
                             assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
                             shape = input_shapes[input_name]
                             arr = np.reshape(arr, shape)
+                            # Quantize if required
+                            if gen_dtype != dtype:
+                                assert "int" in dtype
+                                assert quant
+                                scale, shift, ty = quant
+                                arr = (arr / scale) + shift
+                                print("arr2", arr)
+                                arr = np.around(arr)
+                                print("arr3", arr)
+                                arr = arr.astype(dtype)
+                                print("arr4", arr)
+                                # input("!=")
                             data[input_name] = arr
                         inputs_data.append(data)
                 else:

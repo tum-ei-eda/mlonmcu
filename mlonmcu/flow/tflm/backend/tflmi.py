@@ -174,6 +174,7 @@ size_t {prefix}_outputs();
 
         wrapper_content = """
 // This file is generated. Do not edit.
+#include "printing.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -355,6 +356,14 @@ int {prefix}_invoke() {{
             # TODO
             wrapper_content += """
   error_reporter->Report("Arena Usage after model invocation: %d bytes\\n", used);
+"""
+        else:
+            wrapper_content += """
+  // printf("Arena Usage after model invocation: %d bytes\\n", used);
+  // printf("# Arena Usage: %d\\n", used);
+  // mlonmcu_printf("# Arena Usage: %d\\n", used);
+  MicroPrintf("# Arena Usage: %d\\n", used);
+
 """
         wrapper_content += """
 #endif  // DEBUG_ARENA_USAGE

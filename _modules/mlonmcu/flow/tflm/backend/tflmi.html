@@ -279,6 +279,7 @@
 
         <span class="n">wrapper_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">// This file is generated. Do not edit.</span>
+<span class="s2">#include &quot;printing.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/kernels/micro_ops.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_interpreter.h&quot;</span>
 <span class="s2">#include &quot;tensorflow/lite/micro/micro_mutable_op_resolver.h&quot;</span>
@@ -460,6 +461,14 @@
             <span class="c1"># TODO</span>
             <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">  error_reporter-&gt;Report(&quot;Arena Usage after model invocation: </span><span class="si">%d</span><span class="s2"> bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  // printf(&quot;Arena Usage after model invocation: </span><span class="si">%d</span><span class="s2"> bytes</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">  // printf(&quot;# Arena Usage: </span><span class="si">%d</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">  // mlonmcu_printf(&quot;# Arena Usage: </span><span class="si">%d</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+<span class="s2">  MicroPrintf(&quot;# Arena Usage: </span><span class="si">%d</span><span class="se">\\</span><span class="s2">n&quot;, used);</span>
+
 <span class="s2">&quot;&quot;&quot;</span>
         <span class="n">wrapper_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#endif  // DEBUG_ARENA_USAGE</span>

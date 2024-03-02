@@ -92,7 +92,8 @@ def get_matching_features(features, feature_type):
     return [feature for feature in features if feature_type in feature.types()]
 
 
-@register_feature("debug_arena", depends=["debug"])
+# @register_feature("debug_arena", depends=["debug"])
+@register_feature("debug_arena")
 class DebugArena(BackendFeature):
     """Enable verbose printing of arena usage for debugging."""
 

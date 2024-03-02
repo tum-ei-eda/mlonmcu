@@ -361,8 +361,8 @@ int {prefix}_invoke() {{
             wrapper_content += """
   // printf("Arena Usage after model invocation: %d bytes\\n", used);
   // printf("# Arena Usage: %d\\n", used);
-  // mlonmcu_printf("# Arena Usage: %d\\n", used);
-  MicroPrintf("# Arena Usage: %d\\n", used);
+  mlonmcu_printf("# Arena Usage: %d\\n", used);
+  // MicroPrintf("# Arena Usage: %d\\n", used);
 
 """
         wrapper_content += """

@@ -1514,14 +1514,17 @@ class ValidateOutputsPostprocess(RunPostprocess):
         # matching = 0
         missing = 0
         metrics = {
-            "allclose(atol=0.0,rtol=0.0)": 0,
-            "allclose(atol=0.05,rtol=0.05)": 0,
-            "allclose(atol=0.1,rtol=0.1)": 0,
-            "topk(n=1)": 0,
-            "topk(n=2)": 0,
-            "topk(n=inf)": 0,
-            "toy": 0,
-            "mse": 0,
+            "allclose(atol=0.0,rtol=0.0)": None,
+            "allclose(atol=0.05,rtol=0.05)": None,
+            "allclose(atol=0.1,rtol=0.1)": None,
+            "topk(n=1)": None,
+            "topk(n=2)": None,
+            "topk(n=inf)": None,
+            "toy": None,
+            "mse(thr=0.1)": None,
+            "mse(thr=0.05)": None,
+            "mse(thr=0.01)": None,
+            "+-1": None,
         }
         for i, output_ref in enumerate(outputs_ref):
             if i >= len(outputs):
@@ -1545,6 +1548,19 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 # optional dequantize
                 # print("out_data_before_quant", out_data)
                 # print("sum(out_data_before_quant", np.sum(out_data))
+
+                def pm1_helper(data, ref_data):
+                    data_ = data.flatten().tolist()
+                    ref_data_ = ref_data.flatten().tolist()
+
+                    length = len(data_)
+                    for jjj in range(length):
+                        diff = abs(data_[jjj] - ref_data_[jjj])
+                        print("diff", diff)
+                        if diff > 1:
+                            print("r FALSE")
+                            return False
+                    return True
                 quant = model_info_data.get("output_quant_details", None)
                 if quant:
                     assert ii < len(quant)
@@ -1556,6 +1572,13 @@ class ValidateOutputsPostprocess(RunPostprocess):
                                 # need to dequantize here
                                 assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                                 assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                                for metric_name in metrics:
+                                    if metric_name == "+-1":
+                                        if metrics[metric_name] is None:
+                                            metrics[metric_name] = 0
+                                        out_ref_data_quant = np.around((out_ref_data / quant_scale) + quant_zero_point).astype("int8")
+                                        if pm1_helper(out_data, out_ref_data_quant):
+                                            metrics[metric_name] += 1
                                 out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
                 # print("out_data", out_data)
                 # print("sum(out_data)", np.sum(out_data))
@@ -1627,6 +1650,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         assert False
                 for metric_name in metrics:
                     if "allclose" in metric_name:
+                        if metrics[metric_name] is None:
+                            metrics[metric_name] = 0
                         if metric_name == "allclose(atol=0.0,rtol=0.0)":
                             atol = 0.0
                             rtol = 0.0
@@ -1641,6 +1666,11 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         if np.allclose(out_data, out_ref_data, rtol=rtol, atol=atol):
                             metrics[metric_name] += 1
                     elif "topk" in metric_name:
+                        data_len = len(out_data.flatten().tolist())
+                        if data_len > 25:  # Probably no classification
+                            continue
+                        if metrics[metric_name] is None:
+                            metrics[metric_name] = 0
                         if metric_name == "topk(n=1)":
                             n = 1
                         elif metric_name == "topk(n=2)":
@@ -1652,11 +1682,28 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         if topk_helper(out_data, out_ref_data, n):
                             metrics[metric_name] += 1
                     elif metric_name == "toy":
+                        data_len = len(out_data.flatten().tolist())
+                        if data_len != 640:
+                            continue
+                        if metrics[metric_name] is None:
+                            metrics[metric_name] = 0
                         if toy_helper(out_data, out_ref_data, 0.01, 0.01):
                             metrics[metric_name] += 1
                     elif metric_name == "mse":
-                        if mse_helper(out_data, out_ref_data, 0.1):
+                        if metrics[metric_name] is None:
+                            metrics[metric_name] = 0
+                        if metric_name == "mse(thr=0.1)":
+                            thr = 0.1
+                        elif metric_name == "mse(thr=0.05)":
+                            thr = 0.05
+                        elif metric_name == "mse(thr=0.01)":
+                            thr = 0.01
+                        else:
+                            raise NotImplementedError
+                        if mse_helper(out_data, out_ref_data, thr):
                             metrics[metric_name] += 1
+                    elif metric_name == "+-1":
+                        continue
                 compared += 1
                 ii += 1
         if self.report:
@@ -1666,7 +1713,10 @@ class ValidateOutputsPostprocess(RunPostprocess):
         if self.rtol:
             raise NotImplementedError
         for metric_name, metric_data in metrics.items():
-            matching = metric_data
-            res = f"{matching}/{compared} ({int(matching/compared*100)}%)"
+            if metric_data is None:
+                res = "N/A"
+            else:
+                matching = metric_data
+                res = f"{matching}/{compared} ({int(matching/compared*100)}%)"
             report.post_df[f"{metric_name}"] = res
         return []

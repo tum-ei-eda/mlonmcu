@@ -1138,6 +1138,8 @@ class AnalyseDumpPostprocess(RunPostprocess):
         if self.to_df:
             post_df = report.post_df.copy()
             post_df["DumpCounts"] = str(counts)
+            # post_df["DumpCountsGen"] = str({key: value for key, value in counts.items() if "gen." in key.lower()})
+            post_df["DumpCountsGen"] = str({key: value for key, value in counts.items() if "cv." in key.lower()})
             report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

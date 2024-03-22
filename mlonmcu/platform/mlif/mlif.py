@@ -84,6 +84,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         # llvm specific (TODO: move to toolchain components)
         "fuse_ld": None,
         "global_isel": False,
+        "extend_attrs": False,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -275,6 +276,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def extend_attrs(self):
+        value = self.config["extend_attrs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def strip_strings(self):
         value = self.config["strip_strings"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -317,6 +323,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["FUSE_LD"] = self.fuse_ld
         if self.global_isel is not None:
             definitions["GLOBAL_ISEL"] = self.global_isel
+        if self.extend_attrs is not None:
+            definitions["EXTEND_ATTRS"] = self.extend_attrs
         if self.strip_strings is not None:
             definitions["STRIP_STRINGS"] = self.strip_strings
 

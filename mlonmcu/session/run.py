@@ -105,22 +105,23 @@ class RunInitializer:
         run = Run(
             idx=self.idx,
             config=self.config,
-            comment=self.comment,
         )
+        if self.comment:
+            run.comment = self.comment
         if self.frontend_names:
             run.add_frontends_by_name(self.frontend_names, context=context)
         if self.model_name:
             run.add_model_by_name(self.model_name, context=context)
         if self.platform_names:
-            run.add_platforms_by_name(self, self.platform_names, context=context)
+            run.add_platforms_by_name(self.platform_names, context=context)
         if self.backend_name:
-            run.add_backend_by_name(self, self.backend_name, context=context)
+            run.add_backend_by_name(self.backend_name, context=context)
         if self.target_name:
-            run.add_target_by_name(self, self.target_name, context=context)
+            run.add_target_by_name(self.target_name, context=context)
         if self.postprocess_names:
-            run.add_postprocesses_by_name(self, self.postprocess_names, context=context)
+            run.add_postprocesses_by_name(self.postprocess_names, context=context)
         if self.feature_names:
-            run.add_features_by_name(self, self.feature_names, context=context)
+            run.add_features_by_name(self.feature_names, context=context)
         return run
 
     def has_target(self):
@@ -182,9 +183,20 @@ class RunInitializer:
 
 
 class RunResult:
+    # def __init__(self, run: "Run", session: "Session"):
     def __init__(self, run: "Run"):
-        self.foo = "bar"
+        self.idx = run.idx
         self.failing = run.failing
+        # self.report = run.get_report(session=session)
+        self.report = run.get_report()
+
+    def get_report(self, session=None):
+        # TODO: read only?!
+        # if session is not None:
+        #     pre = self.report.pre_df
+        #     pre["Session"] = session.idx
+        #     self.report.pre_df = pre
+        return self.report
 
 
 class Run:

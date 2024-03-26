@@ -222,7 +222,6 @@ class Run:
         config=None,  # TODO: All config combined or explicit run-config?
         postprocesses=None,
         archived=False,
-        session=None,
         comment="",
     ):
         self.idx = idx
@@ -233,14 +232,12 @@ class Run:
         self.platforms = platforms if platforms is not None else []
         self.artifacts_per_stage = {}
         self.archived = archived
-        self.session = session
         self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
         self.directories = {}
-        # self.init_directory()
         self.target = target
         self.cache_hints = []
         self.config = config if config else {}
@@ -403,15 +400,15 @@ class Run:
         # self.lock.release()
         self.locked = False
 
-    def init_directory(self):
+    def init_directory(self, session=None):
         """Initialize the temporary directory for this run."""
-        if self.session is None:
+        if session is None:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)
         else:
             self.tempdir = None
-            self.dir = self.session.runs_dir / str(self.idx)
+            self.dir = session.runs_dir / str(self.idx)
             if not self.dir.is_dir():
                 os.mkdir(self.dir)
             # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
@@ -442,11 +439,12 @@ class Run:
                 setattr(result, k, copy.deepcopy(v, memo))
         return result
 
-    def copy(self):
+    def copy(self, session=None):
         """Create a new run based on this instance."""
         new = copy.deepcopy(self)
-        if self.session:
-            new_idx = self.session.request_run_idx()
+        assert session is not None, "Run.copy() needs session"
+        if session:
+            new_idx = session.request_run_idx()
             new.idx = new_idx
             # self.init_directory()
         return new
@@ -1202,8 +1200,9 @@ class Run:
     @property
     def prefix(self):
         """Get prefix property."""
+        session = None  # TODO: fix
         return (
-            (f"[session-{self.session.idx}] [run-{self.idx}]" if self.session else f"[run-{self.idx}]")
+            (f"[session-{session.idx}] [run-{self.idx}]" if session else f"[run-{self.idx}]")
             if self.idx is not None
             else ""
         )
@@ -1291,7 +1290,7 @@ class Run:
             ret.update(config_helper(postprocess))
         return ret
 
-    def get_report(self):
+    def get_report(self, session=None):
         """Returns teh complete report of this run."""
         if self.completed[RunStage.POSTPROCESS]:
             if self.report is not None:
@@ -1301,8 +1300,8 @@ class Run:
         # TODO: config or args for stuff like (session id) and run id as well as detailed features and configs
         report = Report()
         pre = {}
-        if self.session is not None:
-            pre["Session"] = self.session.idx
+        if session is not None:
+            pre["Session"] = session.idx
         if self.idx is not None:
             pre["Run"] = self.idx
         if self.model:

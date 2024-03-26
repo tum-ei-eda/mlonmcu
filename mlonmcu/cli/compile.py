@@ -54,7 +54,7 @@ def _handle(args, context):
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        if run.target is None:
+        if run.has_target():
             # assert run.compile_platform is None
             targets_ = targets
         else:

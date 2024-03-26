@@ -268,6 +268,9 @@ class Run:
             self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         return features
 
+    def has_target(self):
+        return self.target is not None
+
     @property
     def tune_enabled(self):
         """Get tune_enabled property."""

@@ -266,6 +266,7 @@ class Run:
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
         self.locked = False
         self.report = None
+        self.dir = None
 
     def process_features(self, features):
         """Utility which handles postprocess_features."""

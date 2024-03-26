@@ -1421,5 +1421,8 @@ class Run:
 
         self.write_run_file()
 
+    def result(self):
+        return RunResult(self)  # TODO: session?
+
 
 # TODO: implement close()? and use closing contextlib?

@@ -761,6 +761,9 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                     post_df = report.post_df.copy()
                     post_df[f"AnalyseInstructionsSeq{length}Counts"] = str(counts)
                     post_df[f"AnalyseInstructionsSeq{length}Probs"] = str(probs)
+                    post_df[f"AnalyseInstructionsSeq{length}Probs"] = str(probs)
+                    if length == 1:
+                        post_df["TraceCountsGen"] = str({key: value for key, value in counts.items() if "cv_" in key.lower()})
                     report.post_df = post_df
         if self.corev:
             XCVMAC_INSNS = {

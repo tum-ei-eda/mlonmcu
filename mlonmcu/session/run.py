@@ -259,7 +259,7 @@ class Run:
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.sub_names = []
         self.sub_parents = {}
-        self.result = None
+        # self.result = None
         self.failing = False  # -> RunStatus
         self.reason = None
         self.failed_stage = None

@@ -71,6 +71,122 @@ def add_any(new, base=None, append=True):
     return ret
 
 
+class RunInitializer:
+
+    def __init__(
+        self,
+        idx=None,
+        model_name=None,
+        framework_name=None,
+        frontend_names=None,
+        backend_name=None,
+        target_name=None,
+        platform_names=None,
+        feature_names=None,
+        config=None,
+        postprocess_names=None,
+        comment=None,
+        from_stage=None,
+    ):
+        self.idx = idx
+        self.model_name = model_name
+        self.frontend_names = frontend_names
+        self.framework_name = framework_name
+        self.backend_name = backend_name
+        self.platform_names = platform_names
+        self.postprocess_names = postprocess_names
+        self.comment = comment
+        self.target_name = target_name
+        self.config = config
+        self.feature_names = feature_names
+
+    def realize(self, context=None):
+        assert context is not None
+        run = Run(
+            idx=self.idx,
+            config=self.config,
+            comment=self.comment,
+        )
+        if self.frontend_names:
+            run.add_frontends_by_name(self.frontend_names, context=context)
+        if self.model_name:
+            run.add_model_by_name(self.model_name, context=context)
+        if self.platform_names:
+            run.add_platforms_by_name(self, self.platform_names, context=context)
+        if self.backend_name:
+            run.add_backend_by_name(self, self.backend_name, context=context)
+        if self.target_name:
+            run.add_target_by_name(self, self.target_name, context=context)
+        if self.postprocess_names:
+            run.add_postprocesses_by_name(self, self.postprocess_names, context=context)
+        if self.feature_names:
+            run.add_features_by_name(self, self.feature_names, context=context)
+        return run
+
+    def has_target(self):
+        return self.target_name is not None
+
+    def add_model_by_name(self, model_name, context=None):
+        assert self.model_name is None
+        self.model_name = model_name
+
+    def add_frontend_by_name(self, frontend_name, context=None):
+        self.add_frontends_by_name([frontend_name])
+
+    def add_frontends_by_name(self, frontend_names, context=None):
+        if self.frontend_names is None:
+            self.frontend_names = []
+        self.frontend_names.extend(frontend_names)
+
+    def add_backend_by_name(self, backend_name, context=None):
+        assert self.backend_name is None
+        self.backend_name = backend_name
+
+    def add_target_by_name(self, target_name, context=None):
+        # assert self.target_name is None
+        self.target_name = target_name
+
+    def add_platform_by_name(self, platform_name, context=None):
+        self.add_platforms_by_name([platform_name])
+
+    def add_platforms_by_name(self, platform_names, context=None):
+        if self.platform_names is None:
+            self.platform_names = []
+        self.platform_names.extend(platform_names)
+
+    def add_postprocess_by_name(self, postprocess_name, context=None):
+        self.add_postprocesses_by_name([postprocess_name])
+
+    def add_postprocesses_by_name(self, postprocess_names, context=None):
+        if self.postprocess_names is None:
+            self.postprocess_names = []
+        self.postprocess_names.extend(postprocess_names)
+
+    def add_feature_by_name(self, feature_name, context=None):
+        self.add_features_by_name([feature_name])
+
+    def add_features_by_name(self, feature_names, context=None):
+        if self.feature_names is None:
+            self.feature_names = []
+        self.feature_names.extend(feature_names)
+
+    def copy(self, session=None):
+        """Create a new runinitializer based on this instance."""
+        new = copy.deepcopy(self)
+        assert session is not None, "Run.copy() needs session"
+        if session:
+            new_idx = session.request_run_idx()
+            new.idx = new_idx
+            # self.init_directory()
+        return new
+
+
+class RunResult:
+    def __init__(self, run: "Run"):
+        self.foo = "bar"
+        self.failing = run.failing
+
+
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 

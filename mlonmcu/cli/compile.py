@@ -60,7 +60,7 @@ def _handle(args, context):
         else:
             targets_ = [None]
         for target_name in targets_:
-            new_run = run.copy()
+            new_run = run.copy(session=session)
             if target_name is not None:
                 platform_name = None
                 for platform in platforms:

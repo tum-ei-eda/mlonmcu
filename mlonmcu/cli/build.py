@@ -75,7 +75,7 @@ def _handle(args, context, require_target=False):
     for run in session.runs:
         for target_name in targets:
             for backend_name in backends:
-                new_run = run.copy()
+                new_run = run.copy(session=session)
                 if backend_name is not None:
                     platform_name = None
                     for platform in platforms:

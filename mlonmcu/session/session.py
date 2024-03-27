@@ -202,6 +202,7 @@ class Session:
 
         def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
+            print("run.platforms[0].build_dir", run.platforms[0].build_dir)
             run.process(until=until, skip=skip, export=export)
             if progress:
                 _update_progress(pbar)

@@ -288,6 +288,7 @@ class Run:
         self.locked = False
 
     def init_directory(self):
+        print("init_directory")
         """Initialize the temporary directory for this run."""
         if self.session is None:
             assert not self.archived
@@ -312,10 +313,28 @@ class Run:
             #     target_dir = Path(self.dir) /target.name
             #     if target.init_directory(path=target_dir)
             #         self.directories[target.name] = target_dir
-
-            # TODO: other components
+        #### # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
+        #### # A solution would be to split up the framework runtime libs from the mlif...
+        #### print("self.platforms", self.platforms)
+        #### print("self.directories", self.directories)
+        #### print("self.platforms[0].build_dir", self.platforms[0].build_dir)
+        #### for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
+        ####     # The stage_subdirs setting is ignored here because platforms can be multi-stage!
+        ####     # platform.init_directory(path=Path(self.dir) / platform.name)
+        ####     if platform in self.directories:
+        ####         continue
+        ####     platform_dir = Path(self.dir) / platform.name
+        ####     if platform.init_directory(path=platform_dir):
+        ####         self.directories[platform.name] = platform_dir
+        #### print("self.directories2", self.directories)
+        #### print("self.platforms[0].build_dir", self.platforms[0].build_dir)
+        #### # if target not in self.directories:
+        #### #     target_dir = Path(self.dir) /target.name
+        #### #     if target.init_directory(path=target_dir)
+        #### #         self.directories[target.name] = target_dir
 
     def __deepcopy__(self, memo):
+        print("__deepcopy__")
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result
@@ -327,12 +346,15 @@ class Run:
         return result
 
     def copy(self):
+        print("run.copy", self)
         """Create a new run based on this instance."""
         new = copy.deepcopy(self)
         if self.session:
             new_idx = self.session.request_run_idx()
             new.idx = new_idx
             # self.init_directory()
+        print("new", new)
+        input("->")
         return new
 
     def init_component(self, component_cls, context=None):
@@ -459,11 +481,13 @@ class Run:
 
     def add_feature(self, feature, append=True):
         """Setter for a feature instance."""
+        print("add_feature", feature)
         self.features = add_any(feature, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
+        print("add_features", features)
         self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
@@ -568,10 +592,12 @@ class Run:
 
     def add_feature_by_name(self, feature_name, append=True, context=None):
         """Helper function to initialize and configure a feature by its name."""
+        print("add_feature_by_name2", feature_name)
         self.add_features_by_name([feature_name], context=context, append=append)
 
     def add_features_by_name(self, feature_names, append=False, context=None):
         """Helper function to initialize and configure features by their names."""
+        print("add_feature_by_names2", feature_names)
         features = []
         for feature_name in feature_names:
             available_features = get_available_features(feature_name=feature_name, deps=True)
@@ -654,6 +680,7 @@ class Run:
                             artifact.export(dest, extract=True)
 
     def postprocess(self):
+        print("POST")
         """Postprocess the 'run'."""
         logger.debug("%s Processing stage POSTPROCESS", self.prefix)
         self.lock()
@@ -776,6 +803,8 @@ class Run:
                 if name not in ["", "default"]:
                     codegen_dir = codegen_dir / "sub" / name
                 # TODO!
+                print("self.platforms[0].build_dir", self.platforms[0].build_dir)
+                print("self.compile_platform.build_dir", self.compile_platform.build_dir)
                 artifacts = self.compile_platform.generate_artifacts(
                     codegen_dir, self.target
                 )  # TODO: has to go into different dirs
@@ -798,6 +827,11 @@ class Run:
             self.artifacts_per_stage[RunStage.COMPILE] = {}
             codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
             name = "default"
+            print("self.platforms", self.platforms)
+            print("self.compile_platfrom", self.compile_platform)
+            print("self.target.platfrom", self.target.platform)
+            print("self.platforms[0].build_dir", self.platforms[0].build_dir)
+            print("self.compile_platform.build_dir", self.compile_platform.build_dir)
             artifacts = self.compile_platform.generate_artifacts(codegen_dir, self.target)
             if isinstance(artifacts, dict):
                 new = {
@@ -1009,6 +1043,7 @@ class Run:
         self.unlock()
 
     def process(self, until=RunStage.RUN, skip=None, export=False):
+        print("process", until, skip, export)
         """Process the run until a given stage."""
         skip = skip if skip is not None else []
         if until == RunStage.DONE:

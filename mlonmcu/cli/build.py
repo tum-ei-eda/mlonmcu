@@ -73,6 +73,9 @@ def _handle(args, context, require_target=False):
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
+        print("run2", run)
+        print("run2.target", run.target)
+        input("321_2")
         for target_name in targets:
             for backend_name in backends:
                 new_run = run.copy()
@@ -103,7 +106,10 @@ def _handle(args, context, require_target=False):
                         platform_name is not None
                     ), f"Unable to find a suitable platform for the target '{target_name}'"
                     new_run.add_platform_by_name(platform_name, context=context)
+                    print("new_run.platforms", new_run.platforms)
                     new_run.add_target_by_name(target_name, context=context)
+                    print("new_run.target.platform", new_run.target.platform)
+                    input("123_2")
                 new_run.add_backend_by_name(backend_name, context=context)
                 new_runs.append(new_run)
 

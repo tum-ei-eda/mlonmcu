@@ -108,6 +108,8 @@ class RunInitializer:
         )
         if self.comment:
             run.comment = self.comment
+        if self.feature_names:
+            run.add_features_by_name(self.feature_names, context=context)
         if self.frontend_names:
             run.add_frontends_by_name(self.frontend_names, context=context)
         if self.model_name:
@@ -120,8 +122,6 @@ class RunInitializer:
             run.add_target_by_name(self.target_name, context=context)
         if self.postprocess_names:
             run.add_postprocesses_by_name(self.postprocess_names, context=context)
-        if self.feature_names:
-            run.add_features_by_name(self.feature_names, context=context)
         return run
 
     def has_target(self):
@@ -427,22 +427,22 @@ class Run:
             self.dir = session.runs_dir / str(self.idx)
             if not self.dir.is_dir():
                 os.mkdir(self.dir)
-            # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
-            # A solution would be to split up the framework runtime libs from the mlif...
-            for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
-                # The stage_subdirs setting is ignored here because platforms can be multi-stage!
-                # platform.init_directory(path=Path(self.dir) / platform.name)
-                if platform in self.directories:
-                    continue
-                platform_dir = Path(self.dir) / platform.name
-                if platform.init_directory(path=platform_dir):
-                    self.directories[platform.name] = platform_dir
-            # if target not in self.directories:
-            #     target_dir = Path(self.dir) /target.name
-            #     if target.init_directory(path=target_dir)
-            #         self.directories[target.name] = target_dir
+        # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
+        # A solution would be to split up the framework runtime libs from the mlif...
+        for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
+            # The stage_subdirs setting is ignored here because platforms can be multi-stage!
+            # platform.init_directory(path=Path(self.dir) / platform.name)
+            if platform in self.directories:
+                continue
+            platform_dir = Path(self.dir) / platform.name
+            if platform.init_directory(path=platform_dir):
+                self.directories[platform.name] = platform_dir
+        # if target not in self.directories:
+        #     target_dir = Path(self.dir) /target.name
+        #     if target.init_directory(path=target_dir)
+        #         self.directories[target.name] = target_dir
 
-            # TODO: other components
+        # TODO: other components
 
     def __deepcopy__(self, memo):
         cls = self.__class__

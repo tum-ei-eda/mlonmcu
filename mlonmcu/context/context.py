@@ -566,3 +566,13 @@ class MlonMcuContext:
             logger.debug("Releasing lock on context")
             self.deps_lock.release()
         return False
+
+    def get_read_only_context(self):
+        return MlonMcuContextMinimal(self)
+
+
+class MlonMcuContextMinimal:
+
+    def __init__(self, context: MlonMcuContext):
+        self.environment = context.environment
+        self.cache = context.cache

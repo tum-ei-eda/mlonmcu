@@ -22,6 +22,7 @@ import multiprocessing
 import logging
 import argparse
 
+from mlonmcu.config import str2bool
 from mlonmcu.platform import get_platforms
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
@@ -218,12 +219,13 @@ def kickoff_runs(args, until, context):
     assert len(context.sessions) > 0
     session = context.sessions[-1]
     # session.label = args.label
-    config = extract_config(args)
+    config, config_gen = extract_config(args)
     # TODO: move into context/session
     per_stage = True
     print_report = True
     if "runs_per_stage" in config:
-        per_stage = bool(config["runs_per_stage"])
+        value = config["runs_per_stage"]
+        per_stage = str2bool(value) if isinstance(value, str) else value
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])
     if "print_report" in config:

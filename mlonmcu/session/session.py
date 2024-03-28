@@ -29,15 +29,39 @@ import concurrent.futures
 
 from tqdm import tqdm
 
-from mlonmcu.session.run import Run
+from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
 from mlonmcu.config import filter_config
+from mlonmcu.config import str2bool
 
 from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
+
+
+def _process2(pbar, run_initializer, until, skip, export, context):
+    """Helper function to invoke the run."""
+    run = run_initializer.realize(context=context)
+    session = None  # TODO
+    run.init_directory(session=session)
+    used_stages = get_used_stages([run], until)
+    assert skip is None
+    skip = [stage for stage in RunStage if stage not in used_stages]
+    run.process(until=until, skip=skip, export=export)
+    ret = run.result()
+    return ret
+
+
+def get_used_stages(runs, until):
+    """Determines the stages which are used by at least one run."""
+    used = []
+    for stage_index in list(range(RunStage.LOAD, until + 1)) + [RunStage.POSTPROCESS]:
+        stage = RunStage(stage_index)
+        if any(run.has_stage(stage) for run in runs):
+            used.append(stage)
+    return used
 
 
 class SessionStatus(Enum):  # TODO: remove?
@@ -54,6 +78,7 @@ class Session:
 
     DEFAULTS = {
         "report_fmt": "csv",
+        "process_pool": False,
     }
 
     def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
@@ -100,11 +125,20 @@ class Session:
         """get report_fmt property."""
         return str(self.config["report_fmt"])
 
+    @property
+    def process_pool(self):
+        """get process_pool property."""
+        value = self.config["process_pool"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
         idx = len(self.runs)
         logger.debug("Creating a new run with id %s", idx)
-        run = Run(*args, idx=idx, session=self, **kwargs)
+        if self.process_pool:
+            run = RunInitializer(*args, idx=idx, **kwargs)
+        else:
+            run = Run(*args, idx=idx, **kwargs)
         self.runs.append(run)
         return run
 
@@ -116,7 +150,7 @@ class Session:
         if self.report:
             return self.report
 
-        reports = [run.get_report() for run in self.runs]
+        reports = [run.get_report(session=self) for run in self.runs if not isinstance(run, RunInitializer)]
         merged = Report()
         merged.add(reports)
         return merged
@@ -126,14 +160,18 @@ class Session:
         # Find start index
         max_idx = -1
         for run in self.runs:
-            if run.archived:
+            if not isinstance(run, RunInitializer) and run.archived:
                 max_idx = max(max_idx, run.idx)
         run_idx = max_idx + 1
         last_run_idx = None
         for run in self.runs:
-            if not run.archived:
+            if isinstance(run, RunInitializer):
                 run.idx = run_idx
-                run.init_directory()
+                run_idx += 1
+                last_run_idx = run.idx
+            elif not run.archived:
+                run.idx = run_idx
+                run.init_directory(session=self)
                 run_idx += 1
                 last_run_idx = run.idx
         self.next_run_idx = run_idx
@@ -200,7 +238,7 @@ class Session:
             if pbar:
                 pbar.close()
 
-        def _process(pbar, run, until, skip):
+        def _process(pbar, run, until, skip, export, context=None):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
             if progress:
@@ -211,16 +249,28 @@ class Session:
             nonlocal num_failures
             results = []
             for i, w in enumerate(workers):
+                res = None
+                failing = False
                 try:
-                    results.append(w.result())
+                    res = w.result()
+                    results.append(res)
                 except Exception as e:
+                    failing = True
                     logger.exception(e)
                     logger.error("An exception was thrown by a worker during simulation")
-                run_index = worker_run_idx[i]
+                print("res", res, type(res))
+                input("111")
+                if res is not None:
+                    assert isinstance(res, RunResult), "Expected RunResult type"
+                    run_index = res.idx
+                    # run = res
+                    self.runs[run_index] = res
+                else:
+                    run_index = worker_run_idx[i]
                 run = self.runs[run_index]
-                if run.failing:
+                if failing or run.failing:
                     num_failures += 1
-                    failed_stage = RunStage(run.next_stage).name
+                    failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None
                     if failed_stage in stage_failures:
                         stage_failures[failed_stage].append(run_index)
                     else:
@@ -229,22 +279,17 @@ class Session:
                 _close_progress(pbar)
             return results
 
-        def _used_stages(runs, until):
-            """Determines the stages which are used by at least one run."""
-            used = []
-            for stage_index in list(range(RunStage.LOAD, until + 1)) + [RunStage.POSTPROCESS]:
-                stage = RunStage(stage_index)
-                if any(run.has_stage(stage) for run in runs):
-                    used.append(stage)
-            return used
-
-        used_stages = _used_stages(self.runs, until)
-        skipped_stages = [stage for stage in RunStage if stage not in used_stages]
-
-        with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
+        if self.process_pool:
+            assert not progress, "progress bar not supported if session.process_pool=1"
+            assert not per_stage, "per stage not supported if session.process_pool=1"
+        executor_cls = concurrent.futures.ProcessPoolExecutor if self.process_pool else concurrent.futures.ThreadPoolExecutor
+        with executor_cls(num_workers) as executor:
             if per_stage:
+                used_stages = get_used_stages(self.runs, until)
+                skipped_stages = [stage for stage in RunStage if stage not in used_stages]
                 if progress:
                     pbar2 = _init_progress(len(used_stages), msg="Processing stages")
+
                 for stage in used_stages:
                     run_stage = RunStage(stage).name
                     if progress:
@@ -271,7 +316,7 @@ class Session:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages))
+                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages, export=export))
                     _join_workers(workers)
                     workers = []
                     worker_run_idx = []
@@ -285,7 +330,7 @@ class Session:
                 else:
                     logger.info(self.prefix + "Processing all stages")
                 for i, run in enumerate(self.runs):
-                    if i == 0:
+                    if i == 0 and not isinstance(run, RunInitializer):
                         total_threads = min(len(self.runs), num_workers)
                         cpu_count = multiprocessing.cpu_count()
                         if (
@@ -307,7 +352,8 @@ class Session:
                                 cpu_count,
                             )
                     worker_run_idx.append(i)
-                    workers.append(executor.submit(_process, pbar, run, until=until, skip=skipped_stages))
+                    context_minimal = context.get_read_only_context()
+                    workers.append(executor.submit(_process2 if self.process_pool else _process, pbar, run, until=until, skip=None, export=export, context=context_minimal))
                 _join_workers(workers)
         if num_failures == 0:
             logger.info("All runs completed successfuly!")
@@ -331,6 +377,11 @@ class Session:
         # also it will be applied to all rows!
         session_postprocesses = []
         for run in self.runs:
+            if isinstance(run, RunInitializer):
+                continue
+            if isinstance(run, RunResult):
+                # TODO: fix
+                run.postprocesses = []
             for postprocess in run.postprocesses:
                 if isinstance(postprocess, SessionPostprocess):
                     if postprocess.name not in [p.name for p in session_postprocesses]:

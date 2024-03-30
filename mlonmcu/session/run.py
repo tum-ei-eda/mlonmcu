@@ -420,8 +420,11 @@ class Run:
         """Initialize the temporary directory for this run."""
         if session is None:
             assert not self.archived
-            self.tempdir = tempfile.TemporaryDirectory()
-            self.dir = Path(self.tempdir.name)
+            # self.tempdir = tempfile.TemporaryDirectory()
+            # self.dir = Path(self.tempdir.name)
+            self.dir = Path("/tmp") / str(self.idx)
+            if not self.dir.is_dir():
+                os.mkdir(self.dir)
         else:
             self.tempdir = None
             self.dir = session.runs_dir / str(self.idx)

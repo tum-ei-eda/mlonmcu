@@ -172,9 +172,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
 
     def get_tvmc_run_args(self, ins_file=None, outs_file=None, print_top=None):
         return [
-            *get_data_tvmc_args(
-                mode=self.fill_mode, ins_file=ins_file, outs_file=outs_file, print_top=print_top
-            ),
+            *get_data_tvmc_args(mode=self.fill_mode, ins_file=ins_file, outs_file=outs_file, print_top=print_top),
             *get_bench_tvmc_args(
                 print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
             ),

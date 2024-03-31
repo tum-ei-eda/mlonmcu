@@ -84,7 +84,7 @@ class VicunaTarget(RVVTarget):
         "ic_size": 0,  # off
         "ic_line_width": 128,
         "dc_size": 0,  # off
-        "dc_line_width": None  # AUTO (2*VMEM_W)
+        "dc_line_width": None,  # AUTO (2*VMEM_W)
         # trace config
         # TODO
     }

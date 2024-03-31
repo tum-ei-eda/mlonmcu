@@ -1244,12 +1244,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
 class ValidateOutputsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "atol": 0.0,
-        "rtol": 0.0,
-        "report": False
-    }
+    DEFAULTS = {**RunPostprocess.DEFAULTS, "atol": 0.0, "rtol": 0.0, "report": False}
 
     def __init__(self, features=None, config=None):
         super().__init__("validate_outputs", features=features, config=config)
@@ -1278,6 +1273,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
         model_info_artifact = model_info_artifact[0]
         import yaml
+
         model_info_data = yaml.safe_load(model_info_artifact.content)
         print("model_info_data", model_info_data)
         if len(model_info_data["output_names"]) > 1:
@@ -1286,6 +1282,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
         outputs_ref_artifact = outputs_ref_artifact[0]
         import numpy as np
+
         outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
         # import copy
         # outputs = copy.deepcopy(outputs_ref)
@@ -1345,6 +1342,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                             print("r FALSE")
                             return False
                     return True
+
                 quant = model_info_data.get("output_quant_details", None)
                 if quant:
                     assert ii < len(quant)
@@ -1360,7 +1358,9 @@ class ValidateOutputsPostprocess(RunPostprocess):
                                     if metric_name == "+-1":
                                         if metrics[metric_name] is None:
                                             metrics[metric_name] = 0
-                                        out_ref_data_quant = np.around((out_ref_data / quant_scale) + quant_zero_point).astype("int8")
+                                        out_ref_data_quant = np.around(
+                                            (out_ref_data / quant_scale) + quant_zero_point
+                                        ).astype("int8")
                                         if pm1_helper(out_data, out_ref_data_quant):
                                             metrics[metric_name] += 1
                                 out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
@@ -1377,7 +1377,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 # if np.allclose(out_data, out_ref_data, rtol=0.01, atol=0.01):
 
                 def mse_helper(data, ref_data, thr):
-                    mse = ((data - ref_data)**2).mean()
+                    mse = ((data - ref_data) ** 2).mean()
                     print("mse", mse)
                     return mse < thr
 
@@ -1432,6 +1432,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         return True
                     else:
                         assert False
+
                 for metric_name in metrics:
                     if "allclose" in metric_name:
                         if metrics[metric_name] is None:

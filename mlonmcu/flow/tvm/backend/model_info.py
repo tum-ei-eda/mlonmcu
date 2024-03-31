@@ -179,8 +179,12 @@ class RelayModelInfo(ModelInfo):
             if "def @main(" in line:
                 in_tensors, out_tensors = parse_relay_main(line)
                 break
-        assert in_tensors is not None and len(in_tensors) > 0, "RelayModelInfo: input_tensors not found (Add TypeInfer details or provided types/shapes manually)"
-        assert out_tensors is not None and len(out_tensors) > 0, "RelayModelInfo: output tensors not found (Add TypeInfer details or provide types/shapes manually)"
+        assert (
+            in_tensors is not None and len(in_tensors) > 0
+        ), "RelayModelInfo: input_tensors not found (Add TypeInfer details or provided types/shapes manually)"
+        assert (
+            out_tensors is not None and len(out_tensors) > 0
+        ), "RelayModelInfo: output tensors not found (Add TypeInfer details or provide types/shapes manually)"
         super().__init__(in_tensors, out_tensors)
 
 

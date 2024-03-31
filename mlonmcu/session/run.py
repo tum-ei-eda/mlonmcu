@@ -790,9 +790,11 @@ class Run:
                 # artifacts = self.compile_platform.artifacts
                 if isinstance(artifacts, dict):
                     new = {
-                        key
-                        if name in ["", "default"]
-                        else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
                         for key, value in artifacts.items()
                     }
                 else:

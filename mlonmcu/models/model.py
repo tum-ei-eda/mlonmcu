@@ -160,9 +160,9 @@ class Model(Workload):
         "output_shapes": None,
         "input_types": None,
         "output_types": None,
-        "support_path": "support",
-        "inputs_path": "input",
-        "outputs_path": "output",
+        "support_path": None,
+        "inputs_path": None,
+        "outputs_path": None,
     }
 
     def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):

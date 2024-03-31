@@ -551,7 +551,16 @@ class Frontend(ABC):
 
         if metadata is None:
             try:
-                input_names, input_shapes, input_types, input_quant_details, output_names, output_shapes, output_types, output_quant_details = self.extract_model_info(model)
+                (
+                    input_names,
+                    input_shapes,
+                    input_types,
+                    input_quant_details,
+                    output_names,
+                    output_shapes,
+                    output_types,
+                    output_quant_details,
+                ) = self.extract_model_info(model)
             except NotImplementedError:
                 logger.warning("Model info could not be extracted.")
 
@@ -803,6 +812,7 @@ class TfLiteFrontend(SimpleFrontend):
 
     def extract_model_info(self, model: Model):
         import tensorflow as tf
+
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
         input_details = interpreter.get_input_details()

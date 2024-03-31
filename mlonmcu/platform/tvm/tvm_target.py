@@ -78,6 +78,7 @@ def create_tvm_platform_target(name, platform, base=Target):
                     if ins_file is None:
                         assert self.platform.inputs_artifact is not None
                         import numpy as np
+
                         data = np.load(self.platform.inputs_artifact, allow_pickle=True)
                         print("data", data, type(data))
                         num_inputs = len(data)
@@ -102,7 +103,6 @@ def create_tvm_platform_target(name, platform, base=Target):
                 elif interface == "stdout":
                     print_top = 1e6
 
-
             ret = ""
             artifacts = []
             num_batches = max(round(num_inputs / batch_size), 1)
@@ -123,7 +123,9 @@ def create_tvm_platform_target(name, platform, base=Target):
                     remaining_inputs -= 1
                 else:
                     ins_file = None
-                ret_, artifacts_ = self.platform.run(program, self, cwd=cwd, ins_file=ins_file, outs_file=outs_file, print_top=print_top)
+                ret_, artifacts_ = self.platform.run(
+                    program, self, cwd=cwd, ins_file=ins_file, outs_file=outs_file, print_top=print_top
+                )
                 ret += ret_
                 print("self.platform.get_outputs", self.platform.get_outputs)
                 if self.platform.get_outputs:
@@ -138,6 +140,7 @@ def create_tvm_platform_target(name, platform, base=Target):
                         assert interface in ["filesystem", "stdout"]
                     if interface == "filesystem":
                         import numpy as np
+
                         with np.load(outs_file) as out_data:
                             outs_data.append(dict(out_data))
                     elif interface == "stdout":
@@ -151,7 +154,9 @@ def create_tvm_platform_target(name, platform, base=Target):
                 np.save(outs_path, outs_data)
                 with open(outs_path, "rb") as f:
                     outs_raw = f.read()
-                outputs_artifact = Artifact("outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy"))
+                outputs_artifact = Artifact(
+                    "outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy")
+                )
                 artifacts.append(outputs_artifact)
 
             return ret, artifacts

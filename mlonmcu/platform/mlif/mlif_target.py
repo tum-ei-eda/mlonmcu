@@ -67,12 +67,14 @@ def create_mlif_platform_target(name, platform, base=Target):
                 # first figure out how many inputs are provided
                 if model_info_file is not None:
                     import yaml
+
                     with open(model_info_file, "r") as f:
                         model_info_data = yaml.safe_load(f)
                 else:
                     model_info_data = None
                 if self.platform.inputs_artifact is not None:
                     import numpy as np
+
                     data = np.load(self.platform.inputs_artifact, allow_pickle=True)
                     num_inputs = len(data)
                 else:
@@ -103,14 +105,14 @@ def create_mlif_platform_target(name, platform, base=Target):
                 # current_batch_size = max(min(batch_size, remaining_inputs), 1)
                 if processed_inputs < num_inputs:
                     if in_interface == "filesystem":
-                        batch_data = data[idx * batch_size:((idx + 1) * batch_size)]
+                        batch_data = data[idx * batch_size : ((idx + 1) * batch_size)]
                         # print("batch_data", batch_data, type(batch_data))
                         ins_file = Path(cwd) / "ins.npy"
                         np.save(ins_file, batch_data)
                     elif in_interface == "stdin":
                         raise NotImplementedError
                     elif in_interface == "stdin_raw":
-                        batch_data = data[idx * batch_size:((idx + 1) * batch_size)]
+                        batch_data = data[idx * batch_size : ((idx + 1) * batch_size)]
                         # print("batch_data", batch_data, type(batch_data))
                         stdin_data = b""
                         for cur_data in batch_data:
@@ -127,10 +129,13 @@ def create_mlif_platform_target(name, platform, base=Target):
                         # raise NotImplementedError
                         # TODO: generate input stream here!
 
-                ret_, artifacts_ = super().exec(program, *args, cwd=cwd, **kwargs, stdin_data=stdin_data, encoding=encoding)
+                ret_, artifacts_ = super().exec(
+                    program, *args, cwd=cwd, **kwargs, stdin_data=stdin_data, encoding=encoding
+                )
                 if self.platform.get_outputs:
                     if out_interface == "filesystem":
                         import numpy as np
+
                         outs_file = Path(cwd) / "outs.npy"
                         with np.load(outs_file) as out_data:
                             outs_data.extend(dict(out_data))
@@ -155,13 +160,13 @@ def create_mlif_platform_target(name, platform, base=Target):
                             # print("found_start", found_start)
                             if found_start < 0:
                                 break
-                            x = x[found_start+3:]
+                            x = x[found_start + 3 :]
                             # print("x[:20]", x[:20])
                             found_end = x.find("-!-".encode())
                             # print("found_end", found_end)
                             assert found_end >= 0
                             x_ = x[:found_end]
-                            x = x[found_end+3:]
+                            x = x[found_end + 3 :]
                             # print("x[:20]", x[:20])
                             # print("x_", x_)
                             # out_idx += 1
@@ -189,7 +194,9 @@ def create_mlif_platform_target(name, platform, base=Target):
                 np.save(outs_path, outs_data)
                 with open(outs_path, "rb") as f:
                     outs_raw = f.read()
-                outputs_artifact = Artifact("outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy"))
+                outputs_artifact = Artifact(
+                    "outputs.npy", raw=outs_raw, fmt=ArtifactFormat.BIN, flags=("outputs", "npy")
+                )
                 artifacts.append(outputs_artifact)
             return ret, artifacts
 

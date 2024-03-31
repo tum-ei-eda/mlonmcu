@@ -443,7 +443,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             )
             code = model_support.generate()
             code_artifact = Artifact(
-                "model_support.cpp", content=code, fmt=ArtifactFormat.TEXT, flags=("model_support"),
+                "model_support.cpp",
+                content=code,
+                fmt=ArtifactFormat.TEXT,
+                flags=("model_support"),
             )
             self.definitions["BATCH_SIZE"] = model_support.batch_size
             artifacts.append(code_artifact)

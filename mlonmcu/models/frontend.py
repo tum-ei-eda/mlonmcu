@@ -526,6 +526,12 @@ class Frontend(ABC):
             fallback_out_path = model_dir / "output"
             if fallback_out_path.is_dir():
                 out_paths.append(fallback_out_path)
+        if model.inputs_path:
+            logger.info("Overriding default model input data with user path")
+            in_paths = [model.inputs_path]
+        if model.outputs_path:
+            logger.info("Overriding default model output data with user path")
+            out_paths = [model.outputs_path]
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -550,7 +556,10 @@ class Frontend(ABC):
                 logger.warning("Model info could not be extracted.")
 
         # Detect model support code (Allow overwrite in metadata YAML)
-        support_path = model_dir / "support"
+        if model.support_path:
+            support_path = model.support_path
+        else:
+            support_path = model_dir / "support"
         if support_path.is_dir():
             assert cfg is not None
             # TODO: onlu overwrite if unset?

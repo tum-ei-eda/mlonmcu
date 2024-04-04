@@ -424,7 +424,7 @@ class EtissTarget(RISCVTarget):
                 cwd=cwd,
                 **kwargs,
             )
-        return ret
+        return ret, []
 
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
@@ -457,6 +457,7 @@ class EtissTarget(RISCVTarget):
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+        artifacts = []
         if self.trace_memory:
             trace_file = os.path.join(directory, "dBusAccess.csv")
             if os.path.exists(trace_file):
@@ -479,11 +480,15 @@ class EtissTarget(RISCVTarget):
             return temp
 
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out += out_
+            artifacts += artifacts_
         else:
-            out += self.exec(
+            out_, artifacts_ = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
+            out += out_
+            artifacts += artifacts_
         # TODO: get exit code
         exit_code = 0
         metrics = Metrics()
@@ -555,7 +560,6 @@ class EtissTarget(RISCVTarget):
                 metrics.add("RAM stack", ram_stack)
                 metrics.add("RAM heap", ram_heap)
 
-        artifacts = []
         ini_content = open(etiss_ini, "r").read()
         ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
         artifacts.append(ini_artifact)

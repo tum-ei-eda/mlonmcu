@@ -1319,7 +1319,7 @@ class ExampleFrontend(SimpleFrontend):
     def supported_names(self):
         return ["hello_world", "foobar", "overflow"]
 
-    def lookup_models(self, names, context=None):
+    def lookup_models(self, names, context=None, config=None):
         ret = []
         for name in names:
             name = name.replace("example/", "")
@@ -1327,6 +1327,7 @@ class ExampleFrontend(SimpleFrontend):
                 hint = ExampleProgram(
                     name,
                     alt=f"example/{name}",
+                    config=config,
                 )
                 ret.append(hint)
         return ret

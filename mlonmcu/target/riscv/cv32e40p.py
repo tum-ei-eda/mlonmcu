@@ -174,7 +174,7 @@ class CV32E40PTarget(RISCVTarget):
                 cwd=cwd,
                 **kwargs,
             )
-        return ret
+        return ret, []
 
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
@@ -211,13 +211,18 @@ class CV32E40PTarget(RISCVTarget):
             os.remove(metrics_file)
 
         # TODO: re-enable sim MIPS
+        artifacts = []
         start_time = time.time()
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out += out_
+            artifacts += artifacts_
         else:
-            out += self.exec(
+            out_, artifacts_ = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
+            out += out_
+            artifacts += artifacts_
         end_time = time.time()
         diff = end_time - start_time
         exit_code = 0
@@ -227,7 +232,7 @@ class CV32E40PTarget(RISCVTarget):
             sim_insns = metrics.get("Simulated Instructions")
             metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def get_target_system(self):
         return self.name

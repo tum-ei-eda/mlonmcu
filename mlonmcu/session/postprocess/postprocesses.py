@@ -31,6 +31,7 @@ from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
+from .validate_metrics import parse_validate_metrics
 
 logger = get_logger()
 
@@ -1460,22 +1461,20 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
 class ValidateOutputsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
-    DEFAULTS = {**RunPostprocess.DEFAULTS, "atol": 0.0, "rtol": 0.0, "report": False}
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "report": False,
+        "validate_metrics": "topk(n=1);topk(n=2)",
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("validate_outputs", features=features, config=config)
 
     @property
-    def atol(self):
-        """Get atol property."""
-        value = self.config["atol"]
-        return float(value)
-
-    @property
-    def rtol(self):
-        """Get rtol property."""
-        value = self.config["rtol"]
-        return float(value)
+    def validate_metrics(self):
+        """Get validate_metrics property."""
+        value = self.config["validate_metrics"]
+        return value
 
     @property
     def report(self):
@@ -1507,22 +1506,24 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
-        compared = 0
+        # compared = 0
         # matching = 0
         missing = 0
-        metrics = {
-            "allclose(atol=0.0,rtol=0.0)": None,
-            "allclose(atol=0.05,rtol=0.05)": None,
-            "allclose(atol=0.1,rtol=0.1)": None,
-            "topk(n=1)": None,
-            "topk(n=2)": None,
-            "topk(n=inf)": None,
-            "toy": None,
-            "mse(thr=0.1)": None,
-            "mse(thr=0.05)": None,
-            "mse(thr=0.01)": None,
-            "+-1": None,
-        }
+        # metrics = {
+        #     "allclose(atol=0.0,rtol=0.0)": None,
+        #     "allclose(atol=0.05,rtol=0.05)": None,
+        #     "allclose(atol=0.1,rtol=0.1)": None,
+        #     "topk(n=1)": None,
+        #     "topk(n=2)": None,
+        #     "topk(n=inf)": None,
+        #     "toy": None,
+        #     "mse(thr=0.1)": None,
+        #     "mse(thr=0.05)": None,
+        #     "mse(thr=0.01)": None,
+        #     "+-1": None,
+        # }
+        validate_metrics_str = self.validate_metrics
+        validate_metrics = parse_validate_metrics(validate_metrics_str)
         for i, output_ref in enumerate(outputs_ref):
             if i >= len(outputs):
                 logger.warning("Missing output sample")
@@ -1546,19 +1547,6 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 # print("out_data_before_quant", out_data)
                 # print("sum(out_data_before_quant", np.sum(out_data))
 
-                def pm1_helper(data, ref_data):
-                    data_ = data.flatten().tolist()
-                    ref_data_ = ref_data.flatten().tolist()
-
-                    length = len(data_)
-                    for jjj in range(length):
-                        diff = abs(data_[jjj] - ref_data_[jjj])
-                        print("diff", diff)
-                        if diff > 1:
-                            print("r FALSE")
-                            return False
-                    return True
-
                 quant = model_info_data.get("output_quant_details", None)
                 if quant:
                     assert ii < len(quant)
@@ -1570,15 +1558,11 @@ class ValidateOutputsPostprocess(RunPostprocess):
                                 # need to dequantize here
                                 assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                                 assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
-                                for metric_name in metrics:
-                                    if metric_name == "+-1":
-                                        if metrics[metric_name] is None:
-                                            metrics[metric_name] = 0
-                                        out_ref_data_quant = np.around(
-                                            (out_ref_data / quant_scale) + quant_zero_point
-                                        ).astype("int8")
-                                        if pm1_helper(out_data, out_ref_data_quant):
-                                            metrics[metric_name] += 1
+                                out_ref_data_quant = np.around(
+                                    (out_ref_data / quant_scale) + quant_zero_point
+                                ).astype("int8")
+                                for vm in validate_metrics:
+                                    vm.process(out_data, out_ref_data_quant, quant=True)
                                 out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
                 # print("out_data", out_data)
                 # print("sum(out_data)", np.sum(out_data))
@@ -1587,137 +1571,13 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 # input("TIAW")
                 assert out_data.dtype == out_ref_data.dtype, "dtype missmatch"
                 assert out_data.shape == out_ref_data.shape, "shape missmatch"
-                # if np.allclose(out_data, out_ref_data, rtol=0, atol=0):
-                # if np.allclose(out_data, out_ref_data, rtol=0.1, atol=0.1):
-                # if np.allclose(out_data, out_ref_data, rtol=0.0, atol=0.0):
-                # if np.allclose(out_data, out_ref_data, rtol=0.01, atol=0.01):
 
-                def mse_helper(data, ref_data, thr):
-                    mse = ((data - ref_data) ** 2).mean()
-                    print("mse", mse)
-                    return mse < thr
-
-                def toy_helper(data, ref_data, atol, rtol):
-                    data_flat = data.flatten().tolist()
-                    ref_data_flat = ref_data.flatten().tolist()
-                    res = 0
-                    ref_res = 0
-                    length = len(data_flat)
-                    for jjj in range(length):
-                        res += data_flat[jjj] ** 2
-                        ref_res += ref_data_flat[jjj] ** 2
-                    res /= length
-                    ref_res /= length
-                    print("res", res)
-                    print("ref_res", ref_res)
-                    return np.allclose([res], [ref_res], atol=atol, rtol=rtol)
-
-                def topk_helper(data, ref_data, n):
-                    # TODO: only for classification models!
-                    # TODO: support multi_outputs?
-                    data_sorted_idx = list(reversed(np.argsort(data).tolist()[0]))
-                    ref_data_sorted_idx = list(reversed(np.argsort(ref_data).tolist()[0]))
-                    k = 0
-                    num_checks = min(n, len(data_sorted_idx))
-                    assert len(data_sorted_idx) == len(ref_data_sorted_idx)
-                    # print("data_sorted_idx", data_sorted_idx, type(data_sorted_idx))
-                    # print("ref_data_sorted_idx", ref_data_sorted_idx, type(ref_data_sorted_idx))
-                    # print("num_checks", num_checks)
-                    for j in range(num_checks):
-                        # print("j", j)
-                        # print(f"data_sorted_idx[{j}]", data_sorted_idx[j], type(data_sorted_idx[j]))
-                        idx = data_sorted_idx[j]
-                        # print("idx", idx)
-                        ref_idx = ref_data_sorted_idx[j]
-                        # print("ref_idx", ref_idx)
-                        if idx == ref_idx:
-                            # print("IF")
-                            k += 1
-                        else:
-                            # print("ELSE")
-                            if data.tolist()[0][idx] == ref_data.tolist()[0][ref_idx]:
-                                # print("SAME")
-                                k += 1
-                            else:
-                                # print("BREAK")
-                                break
-                    # print("k", k)
-                    if k < num_checks:
-                        return False
-                    elif k == num_checks:
-                        return True
-                    else:
-                        assert False
-
-                for metric_name in metrics:
-                    if "allclose" in metric_name:
-                        if metrics[metric_name] is None:
-                            metrics[metric_name] = 0
-                        if metric_name == "allclose(atol=0.0,rtol=0.0)":
-                            atol = 0.0
-                            rtol = 0.0
-                        elif metric_name == "allclose(atol=0.05,rtol=0.05)":
-                            atol = 0.05
-                            rtol = 0.05
-                        elif metric_name == "allclose(atol=0.1,rtol=0.1)":
-                            atol = 0.1
-                            rtol = 0.1
-                        else:
-                            raise NotImplementedError
-                        if np.allclose(out_data, out_ref_data, rtol=rtol, atol=atol):
-                            metrics[metric_name] += 1
-                    elif "topk" in metric_name:
-                        data_len = len(out_data.flatten().tolist())
-                        if data_len > 25:  # Probably no classification
-                            continue
-                        if metrics[metric_name] is None:
-                            metrics[metric_name] = 0
-                        if metric_name == "topk(n=1)":
-                            n = 1
-                        elif metric_name == "topk(n=2)":
-                            n = 2
-                        elif metric_name == "topk(n=inf)":
-                            n = 1000000
-                        else:
-                            raise NotImplementedError
-                        if topk_helper(out_data, out_ref_data, n):
-                            metrics[metric_name] += 1
-                    elif metric_name == "toy":
-                        data_len = len(out_data.flatten().tolist())
-                        if data_len != 640:
-                            continue
-                        if metrics[metric_name] is None:
-                            metrics[metric_name] = 0
-                        if toy_helper(out_data, out_ref_data, 0.01, 0.01):
-                            metrics[metric_name] += 1
-                    elif metric_name == "mse":
-                        if metrics[metric_name] is None:
-                            metrics[metric_name] = 0
-                        if metric_name == "mse(thr=0.1)":
-                            thr = 0.1
-                        elif metric_name == "mse(thr=0.05)":
-                            thr = 0.05
-                        elif metric_name == "mse(thr=0.01)":
-                            thr = 0.01
-                        else:
-                            raise NotImplementedError
-                        if mse_helper(out_data, out_ref_data, thr):
-                            metrics[metric_name] += 1
-                    elif metric_name == "+-1":
-                        continue
-                compared += 1
+                for vm in validate_metrics:
+                    vm.process(out_data, out_ref_data_quant, quant=False)
                 ii += 1
         if self.report:
             raise NotImplementedError
-        if self.atol:
-            raise NotImplementedError
-        if self.rtol:
-            raise NotImplementedError
-        for metric_name, metric_data in metrics.items():
-            if metric_data is None:
-                res = "N/A"
-            else:
-                matching = metric_data
-                res = f"{matching}/{compared} ({int(matching/compared*100)}%)"
-            report.post_df[f"{metric_name}"] = res
+        for vm in validate_metrics:
+            res = vm.get_summary()
+            report.post_df[f"{vm.name}"] = res
         return []

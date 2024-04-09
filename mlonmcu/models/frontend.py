@@ -659,6 +659,7 @@ class Frontend(ABC):
                 f"outputs_ref.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs_ref", fmt)
             )
             artifacts.append(outputs_data_artifact)
+        return artifacts
 
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []

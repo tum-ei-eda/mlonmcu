@@ -49,7 +49,7 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = {"autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt", "uma_backends"}
+    FEATURES = {"autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt", "uma_backends", "fuse_ops"}
 
     DEFAULTS = {
         "print_outputs": False,
@@ -394,15 +394,13 @@ class TVMBackend(Backend):
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
-            return utils.exec_getout(
-                *pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd
-            )
+            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
         else:
             if self.tvmc_custom_script is None:
                 pre = ["-m", "tvm.driver.tvmc"]
             else:
                 pre = [self.tvmc_custom_script]
-            return utils.python(*pre, command, *args, live=self.print_outputs, print_output=False, env=env, cwd=cwd)
+            return utils.python(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
 
     def invoke_tvmc_compile(self, out, dump=None, cwd=None):
         args = self.get_tvmc_compile_args(out, dump=dump)

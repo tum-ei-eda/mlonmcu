@@ -139,7 +139,6 @@ def build_spike_pk(
             cwd=spikepkBuildDir,
             env=env,
             live=False,
-            print_output=False,
         )
         utils.make(cwd=spikepkBuildDir, threads=threads, live=verbose, env=env)
         # utils.make(target="install", cwd=spikepkBuildDir, live=verbose, env=env)
@@ -205,7 +204,6 @@ def build_spike(
             *spikeArgs,
             cwd=spikeBuildDir,
             live=False,
-            print_output=False,
         )
         utils.make(cwd=spikeBuildDir, threads=threads, live=verbose)
         utils.make("install", cwd=spikeBuildDir, threads=threads, live=verbose)

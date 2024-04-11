@@ -554,9 +554,11 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         **RunPostprocess.DEFAULTS,
         "groups": True,
         "sequences": True,
+        "seq_depth": 3,
         "top": 10,
         "to_df": False,
         "to_file": True,
+        "corev": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -575,8 +577,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def seq_depth(self):
+        """get seq_depth property."""
+        return int(self.config["seq_depth"])
+
+    @property
     def top(self):
-        """get sequences property."""
+        """get top property."""
         return int(self.config["top"])
 
     @property
@@ -589,6 +596,12 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def corev(self):
+        """Get corev property."""
+        value = self.config["corev"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
@@ -611,6 +624,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             content = log_artifact.content
             if self.groups:
                 encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                encodings = [f"0b{enc}" for enc in encodings]
                 # encodings = [f"{enc}" for enc in encodings]
             if self.sequences:
                 names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
@@ -725,7 +739,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 post_df["AnalyseInstructionsMajorsProbs"] = str(major_probs)
                 report.post_df = post_df
         if self.sequences:
-            max_len = 3
+            max_len = self.seq_depth
 
             def _get_sublists(lst, length):
                 ret = []
@@ -748,6 +762,208 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                     post_df[f"AnalyseInstructionsSeq{length}Counts"] = str(counts)
                     post_df[f"AnalyseInstructionsSeq{length}Probs"] = str(probs)
                     report.post_df = post_df
+        if self.corev:
+            XCVMAC_INSNS = {
+                "cv.mac",
+                "cv.msu",
+                "cv.mulun",
+                "cv.mulhhun",
+                "cv.mulsn",
+                "cv.mulhhsn",
+                "cv.mulurn",
+                "cv.mulhhurn",
+                "cv.mulsrn",
+                "cv.mulhhsrn",
+                "cv.macun",
+                "cv.machhun",
+                "cv.macsn",
+                "cv.machhsn",
+                "cv.macurn",
+                "cv.machhurn",
+                "cv.macsrn",
+                "cv.machhsrn",
+            }
+            XCVMEM_INSNS = {
+                "cv.lb_ri_inc",
+                "cv.lbu_ri_inc",
+                "cv.lh_ri_inc",
+                "cv.lhu_ri_inc",
+                "cv.lw_ri_inc",
+                "cv.lb_ri_inc",
+                "cv.lbu_ri_inc",
+                "cv.lh_ri_inc",
+                "cv.lhu_ri_inc",
+                "cv.lw_ri_inc",
+                "cv.lb_rr_inc",
+                "cv.lbu_rr_inc",
+                "cv.lh_rr_inc",
+                "cv.lhu_rr_inc",
+                "cv.lw_rr_inc",
+                "cv.lb_rr_inc",
+                "cv.lbu_rr_inc",
+                "cv.lh_rr_inc",
+                "cv.lhu_rr_inc",
+                "cv.lw_rr_inc",
+                "cv.lb_rr",
+                "cv.lbu_rr",
+                "cv.lh_rr",
+                "cv.lhu_rr",
+                "cv.lw_rr",
+                "cv.sb_ri_inc",
+                "cv.sh_ri_inc",
+                "cv.sw_ri_inc",
+                "cv.sb_ri_inc",
+                "cv.sh_ri_inc",
+                "cv.sw_ri_inc",
+                "cv.sb_rr_inc",
+                "cv.sh_rr_inc",
+                "cv.sw_rr_inc",
+                "cv.sb_rr_inc",
+                "cv.sh_rr_inc",
+                "cv.sw_rr_inc",
+                "cv.sb_rr",
+                "cv.sh_rr",
+                "cv.sw_rr",
+            }
+            XCVBI_INSNS = {
+                "cv.bneimm",
+                "cv.beqimm",
+            }
+            XCVALU_INSNS = {
+                "cv.slet",
+                "cv.min",
+                "cv.addnr",
+                "cv.addunr",
+                "cv.addn",
+                "cv.maxu",
+                "cv.subun",
+                "cv.extbz",
+                "cv.addun",
+                "cv.clip",
+                "cv.clipu",
+                "cv.subn",
+                "cv.max",
+                "cv.extbs",
+                "cv.abs",
+                "cv.addurn",
+                "cv.exths",
+                "cv.exthz",
+                "cv.minu",
+                "cv.sletu",
+                "cv.suburn",
+                "cv.addrn",
+                "cv.clipur",
+                "cv.subrn",
+            }
+            XCVBITMANIP_INSNS = {
+                "cv.ror",
+                "cv.clb",
+            }
+            XCVSIMD_INSNS = {
+                "cv.add.h",
+                "cv.add.sc.b",
+                "cv.add.sc.h",
+                "cv.add.sci.h",
+                "cv.and.b",
+                "cv.and.h",
+                "cv.and.sc.h",
+                "cv.and.sci.h",
+                "cv.cmpeq.sc.h",
+                "cv.cmpge.sci.h",
+                "cv.cmpgtu.h",
+                "cv.cmplt.sci.h",
+                "cv.cmpltu.sci.b",
+                "cv.cmpne.sc.h",
+                "cv.cmpne.sci.b",
+                "cv.extract.b",
+                "cv.extract.h",
+                "cv.extractu.b",
+                "cv.extractu.h",
+                "cv.insert.h",
+                "cv.max.h",
+                "cv.max.sci.h",
+                "cv.maxu.h",
+                "cv.or.b",
+                "cv.or.h",
+                "cv.pack",
+                "cv.packhi.b",
+                "cv.packlo.b",
+                "cv.shuffle2.b",
+                "cv.shuffle2.h",
+                "cv.shufflei0.sci.b",
+                "cv.sll.sci.h",
+                "cv.sra.h",
+                "cv.sra.sci.h",
+                "cv.srl.h",
+                "cv.srl.sci.h",
+                "cv.sub.b",
+                "cv.sub.h",
+                "cv.xor.b",
+                "cv.xor.sci.b",
+                "cv.add.sci.b",
+                "cv.cmpeq.b",
+                "cv.cmpgtu.sc.h",
+                "cv.cmpleu.sc.h",
+                "cv.sdotup.h",
+                "cv.sdotup.b",
+                "cv.shuffle.sci.h",
+                "cv.xor.sc.b",
+                "cv.xor.sc.h",
+                "cv.sdotsp.h",
+                "cv.cmpeq.sci.b",
+                "cv.and.sci.b",
+                "cv.dotsp.h",
+                "cv.dotsp.b",
+                "cv.sdotsp.b",
+                "cv.add.b",
+                "cv.dotup.sci.b",
+            }
+            XCVHWLP_INSNS = {
+                "cv.count",
+                "cv.counti",
+                "cv.start",
+                "cv.starti",
+                "cv.end",
+                "cv.endi",
+                "cv.setup",
+                "cv.setupi",
+            }
+
+            def apply_mapping(x):
+                x = x.replace("cv_", "cv.")
+                x = x.replace("_sc", ".sc")
+                x = x.replace("_b", ".b")
+                x = x.replace("_h", ".h")
+                if x in XCVMAC_INSNS:
+                    return "XCVMac"
+                elif x in XCVMEM_INSNS:
+                    return "XCVMem"
+                elif x in XCVALU_INSNS:
+                    return "XCVAlu"
+                elif x in XCVBITMANIP_INSNS:
+                    return "XCVBitmanip"
+                elif x in XCVBI_INSNS:
+                    return "XCVBi"
+                elif x in XCVSIMD_INSNS:
+                    return "XCVSimd"
+                elif x in XCVHWLP_INSNS:
+                    return "XCVHwlp"
+                elif "cv." in x:
+                    return "XCV?"
+                else:
+                    return "Other"
+
+            names_ = list(map(apply_mapping, names))
+            cv_ext_counts, cv_ext_probs = _helper(names_, top=self.top)
+            corev_csv = _gen_csv("Set", cv_ext_counts, cv_ext_probs)
+            artifact = Artifact("analyse_instructions_corev.csv", content=corev_csv, fmt=ArtifactFormat.TEXT)
+            if self.to_file:
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["CoreVSetCounts"] = str(cv_ext_counts)
+                post_df["CoreVSetProbs"] = str(cv_ext_probs)
+                report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
 

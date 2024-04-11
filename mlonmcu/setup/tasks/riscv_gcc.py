@@ -36,7 +36,7 @@ Tasks = get_task_factory()
 
 def check_multilibs(riscvInstallDir, gccName, live=False, vext=False, pext=False):
     gccExe = Path(riscvInstallDir) / "bin" / f"{gccName}-gcc"
-    out = utils.exec_getout(gccExe, "--print-multi-lib", print_output=False, live=live)
+    out = utils.exec_getout(gccExe, "--print-multi-lib", live=live)
     multilibs = []
     if vext and pext:
         default_multilib = "rv32gcpv/ilp32d" if "32" in gccName else "rv64gcpv/lp64d"  # TODO: improve this

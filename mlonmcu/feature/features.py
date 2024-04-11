@@ -433,8 +433,9 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "vlen": 128,  # 64 does not work with every toolchain
-        "elen": 64,  # some toolchains may generate auto-vectorized programs with elen 64
+        # None -> use target setting
+        "vlen": None,  # 64 does not work with every toolchain
+        "elen": None,  # some toolchains may generate auto-vectorized programs with elen 64
         # use target-side settings by default
         "spec": None,
         "embedded": None,
@@ -445,11 +446,13 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     @property
     def vlen(self):
-        return int(self.config["vlen"])
+        value = self.config["vlen"]
+        return None if value is None else int(value)
 
     @property
     def elen(self):
-        return int(self.config["elen"])
+        value = self.config["elen"]
+        return None if value is None else int(value)
 
     @property
     def spec(self):
@@ -492,8 +495,8 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
         return {
             "muriscvnn.lib": ["vext"],
             "tflmc.exe": ["vext"],
-            "riscv_gcc.install_dir": ["vext"],
-            "riscv_gcc.name": ["vext"],
+            # "riscv_gcc.install_dir": ["vext"],
+            # "riscv_gcc.name": ["vext"],
         }
 
 
@@ -781,6 +784,40 @@ class Usmp(BackendFeature):
         )  # In recent TVM versions USMP will have it's own arena.
 
     # -> enable this via backend
+
+
+@register_feature("fuse_ops")
+class FuseOps(BackendFeature):
+    """TODO"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "max_depth": 100,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("fuse_ops", features=features, config=config)
+
+    @property
+    def max_depth(self):
+        return int(self.config["max_depth"])
+
+    def add_backend_config(self, backend, config):
+        # assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
+        # TODO: tvm only
+        if f"{backend}.extra_pass_config" in config:
+            tmp = config[f"{backend}.extra_pass_config"]
+        elif "extra_pass_config" in config:
+            tmp = config["extra_pass_config"]
+        else:
+            tmp = {}
+        if isinstance(tmp, str):
+            import ast
+
+            tmp = ast.literal_eval(tmp)
+        assert isinstance(tmp, dict)
+        tmp["relay.FuseOps.max_depth"] = self.max_depth
+        config.update({f"{backend}.extra_pass_config": tmp})
 
 
 @register_feature("moiopt")

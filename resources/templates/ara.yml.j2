@@ -78,6 +78,17 @@ repos:
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
     ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+  cmsisnn:
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    # ref: v4.0.0
+    ref: ffeca904368926d60caeb2d97858215626892f35
+  cmsis:
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: 51263182d16c92649a48144ba56c0945f9fce60e
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here

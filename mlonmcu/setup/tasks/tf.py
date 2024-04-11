@@ -133,5 +133,5 @@ def install_tflite_pack(
     installDir = context.environment.paths["deps"].path / "install" / name
     if rebuild or not utils.is_populated(installDir):
         installScript = srcDir / "install.sh"
-        utils.exec_getout(installScript, installDir, live=verbose, print_output=False)
+        utils.exec_getout(installScript, installDir, live=verbose)
     context.cache["tflite_pack.exe"] = installDir / "run.sh"

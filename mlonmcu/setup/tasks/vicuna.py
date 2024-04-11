@@ -85,7 +85,6 @@ def clone_vicuna(
 #             cwd=vicunaBuildDir,
 #             # live=False,
 #             live=verbose,
-#             print_output=False,
 #         )
 #         utils.make(cwd=vicunaBuildDir, threads=threads, live=verbose)
 #         utils.make(target="install", cwd=vicunaBuildDir, live=verbose)

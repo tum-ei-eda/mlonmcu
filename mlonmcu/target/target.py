@@ -136,11 +136,22 @@ class Target:
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
+
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out = self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
         end_time = time.time()
@@ -170,7 +181,7 @@ class Target:
                 else:
                     temp_dir_ = Path(temp_dir) / str(n)
                     temp_dir_.mkdir()
-                metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir_)
+                metrics_, out, artifacts_ = self.get_metrics(elf, temp_dir, *args)
                 metrics.append(metrics_)
             for callback in self.post_callbacks:
                 out = callback(out, metrics, artifacts_, directory=temp_dir)

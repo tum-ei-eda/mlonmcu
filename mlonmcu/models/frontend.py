@@ -392,7 +392,7 @@ class TfLiteFrontend(SimpleFrontend):
 
                 assert self.analyze_script is not None
                 assert Path(self.analyze_script).is_file(), f"Script {self.analyze_script} not found."
-                utils.python(self.analyze_script, *args, print_output=False)
+                utils.python(self.analyze_script, *args)
 
                 with open(out_file, "r") as handle:
                     tflite_analyze_csv = handle.read()
@@ -411,7 +411,7 @@ class TfLiteFrontend(SimpleFrontend):
             with tempfile.TemporaryDirectory() as tmpdirname:
                 out_file = str(Path(tmpdirname) / f"tflite_visualize.{ext}")
 
-                utils.python(self.visualize_script, in_file, out_file, print_output=False)
+                utils.python(self.visualize_script, in_file, out_file)
 
                 with open(out_file, "r") as handle:
                     tflite_visualize_text = handle.read()
@@ -452,7 +452,7 @@ class TfLiteFrontend(SimpleFrontend):
 
                 def get_num_layers(file):
                     tflite_pack_args = [path, "--count-layers", "--noop"]
-                    out = utils.exec_getout(self.pack_script, *tflite_pack_args, print_output=False)
+                    out = utils.exec_getout(self.pack_script, *tflite_pack_args)
                     matches = re.compile(r"Found\s(\d+)\slayers.").findall(out)
                     assert len(matches) == 1
                     num = int(matches[0])
@@ -469,7 +469,7 @@ class TfLiteFrontend(SimpleFrontend):
                         out_name = f"layer{i}"
                         out_file = Path(dest) / out_name
                         tflite_pack_args = [path, "-k", str(i), "--out", out_file]
-                        utils.exec_getout(self.pack_script, *tflite_pack_args, print_output=False)
+                        utils.exec_getout(self.pack_script, *tflite_pack_args)
                         assert out_file.is_file()
                         results.append(out_file)
                     return results
@@ -1311,7 +1311,7 @@ class LayerGenFrontend(Frontend):
     #         args = args.split(" ")
     #         with tempfile.TemporaryDirectory() as tmpdirname:
     #             out = Path(tmpdirname) / f"out.{ext}"
-    #             utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
+    #             utils.python(self.layergen_exe, self.fmt.lower(), out, *args, cwd=tmpdirname)
     #             # TODO: log output
     #             with open(out, "rb") as handle:
     #                 raw = handle.read()
@@ -1341,7 +1341,7 @@ class LayerGenFrontend(Frontend):
             args = args.split(" ")
             with tempfile.TemporaryDirectory() as tmpdirname:
                 out = Path(tmpdirname) / f"out.{ext}"
-                utils.python(self.layergen_exe, self.fmt.lower(), out, *args, print_output=True, cwd=tmpdirname)
+                utils.python(self.layergen_exe, self.fmt.lower(), out, *args, cwd=tmpdirname)
                 # TODO: log output
                 with open(out, "rb") as handle:
                     raw = handle.read()

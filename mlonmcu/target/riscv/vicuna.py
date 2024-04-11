@@ -29,6 +29,7 @@ from mlonmcu.logging import get_logger
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 from mlonmcu.setup import utils
 from .riscv_vext_target import RVVTarget
 
@@ -55,7 +56,7 @@ TRACE_SIGS ?= '*'
 class VicunaTarget(RVVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RVVTarget.FEATURES | {"log_instrs", "vext"}  # TODO: cache feature?
+    FEATURES = RVVTarget.FEATURES | {"log_instrs"}  # TODO: cache feature?
 
     DEFAULTS = {
         **RVVTarget.DEFAULTS,
@@ -87,6 +88,9 @@ class VicunaTarget(RVVTarget):
         "dc_line_width": None,  # AUTO (2*VMEM_W)
         # trace config
         # TODO
+        # testbench config
+        "abort_cycles": 10000000,  # Used to detect freezes
+        "extra_cycles": 4096,  # Number of remaining cycles after jump to reset vector
     }
 
     REQUIRED = RVVTarget.REQUIRED | {
@@ -169,6 +173,16 @@ class VicunaTarget(RVVTarget):
         value = self.config["vproc_pipelines"]
         return value
 
+    @property
+    def abort_cycles(self):
+        value = self.config["abort_cycles"]
+        return int(value)
+
+    @property
+    def extra_cycles(self):
+        value = self.config["extra_cycles"]
+        return int(value)
+
     def get_config_args(self):
         ret = []
         if self.core is not None:
@@ -212,6 +226,7 @@ class VicunaTarget(RVVTarget):
         out += utils.make(
             self.obj_dir / "Vvproc_top.mk",
             f"PROJ_DIR={self.prj_dir.name}",
+            f"SIM_ABORT_CYCLES={self.abort_cycles}",
             *self.get_config_args(),
             env=env,
             cwd=sim_dir,
@@ -231,17 +246,17 @@ class VicunaTarget(RVVTarget):
         assert self.prj_dir is not None, "Not prepared?"
         path_file = f"{program}.path"
 
-        trace_file = "file"
-        trace_vcd = "vcd"
+        trace_file = "trace.csv"
+        # trace_vcd = "vcd"
         # trace_fst = "fst"
         vicuna_args = [
             path_file,
             str(self.mem_width),
             str(self.mem_size),
             str(self.mem_latency),
-            str(self.vlen * 2),
+            str(self.extra_cycles),
             trace_file,
-            trace_vcd,
+            # trace_vcd,
         ]
         env = os.environ.copy()
         out = execute(
@@ -252,51 +267,73 @@ class VicunaTarget(RVVTarget):
             *args,
             **kwargs,
         )
-        print("prj", self.prj_dir)
-        print("out", out)
-        input("!")
+        # print("prj", self.prj_dir)
+        # print("out", out)
+        # input("!")
         self.prj_dir.cleanup()
         self.obj_dir = None
-        return out
+        return out, []
 
-    def parse_stdout(self, out):
-        cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
-            cycles = None
-        else:
-            cycles = int(float(cpu_cycles.group(1)))
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0)
+        sim_insns = re.search(r"(\d*) cycles", out)
+        if sim_insns:
+            sim_insns = int(float(sim_insns.group(1)))
+            metrics.add("Simulated Instructions", sim_insns, True)
 
-        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
-        if not cpu_instructions:
-            logger.warning("unexpected script output (instructions)")
-            cpu_instructions = None
-        else:
-            cpu_instructions = int(float(cpu_instructions.group(1)))
-        return cycles, cpu_instructions
+    def parse_exit(self, out):
+        exit_code = super().parse_exit(out)
+        if exit_code is None:
+            if "EXCEPTION: Illegal instruction at" in out:
+                exit_code = -4
+            elif "WARNING: memory interface inactive for" in out:
+                exit_code = -3
+            elif "Program finish." not in out:
+                exit_code = -2  # did not finish
+            # elif "EXCEP" in out:
+            #     exit_code = -1  # unhandled exception
+        return exit_code
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+        artifacts = []
+
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
             self.prepare_simulator(cwd=directory, live=True)
         else:
             self.prepare_simulator(cwd=directory, live=False, print_func=lambda *args, **kwargs: None)
         simulation_start = time.time()
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out += self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+            out_, artifacts_ = self.exec(
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
+        out += out_
+        artifacts += artifacts_
         simulation_end = time.time()
-        cycles, instructions = self.parse_stdout(out)
+        exit_code = 0
         metrics = Metrics()
-        metrics.add("Cycles", cycles)
-        metrics.add("Instructions", instructions)
-        if cycles and instructions:
-            metrics.add("CPI", cycles / instructions)
-        metrics.add("finished_in_sec", simulation_end - simulation_start, True)
-        return metrics, out, []
+        self.parse_stdout(out, metrics, exit_code=exit_code)
+        wall = simulation_end - simulation_start
+        # metrics.add("Wallclock time", wall, True)
+        if metrics.has("Total Instructions"):
+            instructions = metrics.get("Total Instructions")
+            if instructions > 0:
+                # Warning: Total Instructions != Simulated Instructions
+                mips = (instructions / wall) / 1e6
+                metrics.add("MIPS", mips, True)
+        return metrics, out, artifacts
 
     def get_target_system(self):
         return self.name

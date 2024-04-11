@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MLIF Platform"""
+import os
 import tempfile
 from typing import Tuple
 
@@ -84,7 +85,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -179,6 +180,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def llvm_dir(self):
         return self.config["llvm.install_dir"]
+
+    @property
+    def srecord_dir(self):
+        return self.config["srecord.install_dir"]
 
     @property
     def template(self):
@@ -320,6 +325,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prepare(self):
         self.init_directory()
 
+    def prepare_environment(self):
+        env = os.environ.copy()
+        if self.srecord_dir:
+            path_old = env["PATH"]
+            path_new = f"{self.srecord_dir}:{path_old}"
+            env["PATH"] = path_new
+        return env
+
     def configure(self, target, src, _model):
         del target
         if not isinstance(src, Path):
@@ -344,12 +357,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             else:
                 logger.warning("No validation data provided for model.")
         utils.mkdirs(self.build_dir)
+        env = self.prepare_environment()
         out = utils.cmake(
             self.mlif_dir,
             *cmakeArgs,
             cwd=self.build_dir,
             debug=self.debug,
             live=self.print_outputs,
+            env=env,
         )
         return out, artifacts
 
@@ -358,11 +373,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if src:
             configure_out, artifacts = self.configure(target, src, model)
             out += configure_out
+        env = self.prepare_environment()
         out += utils.make(
             self.goal,
             cwd=self.build_dir,
             threads=self.num_threads,
             live=self.print_outputs,
+            env=env,
         )
         return out, artifacts
 

@@ -598,11 +598,18 @@
                     <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="k">return</span> <span class="n">num</span>
 
+                <span class="n">replace</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># replace = True</span>
+                <span class="n">drop</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="c1"># drop = True</span>
                 <span class="k">def</span> <span class="nf">gen_layer_files</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
                     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">num_layers</span> <span class="o">=</span> <span class="n">get_num_layers</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">0</span>
                     <span class="n">keep</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="n">keep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
                         <span class="k">if</span> <span class="n">keep</span> <span class="ow">and</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep</span><span class="p">:</span>
                             <span class="k">continue</span>
@@ -626,7 +633,11 @@
                     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; frontend should produce at least one model&quot;</span>
                     <span class="n">max_outs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_formats</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_outs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; frontend should not return more than </span><span class="si">{</span><span class="n">max_outs</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
+                        <span class="n">subrun</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
                     <span class="n">artifacts</span><span class="p">[</span><span class="n">subrun</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span>
+                <span class="k">if</span> <span class="n">drop</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
 
             <span class="k">return</span> <span class="n">artifacts</span><span class="p">,</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>

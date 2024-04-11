@@ -111,18 +111,20 @@
 
 <div class="viewcode-block" id="parse_bench_results">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.bench.parse_bench_results">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_bench_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">parse_bench_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;Program start.&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
             <span class="k">break</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;Program finish.&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;Program finish.&quot;</span>
+        <span class="k">if</span> <span class="n">target_name</span> <span class="ow">and</span> <span class="n">target_name</span> <span class="o">==</span> <span class="s2">&quot;ara_rtl&quot;</span><span class="p">:</span>
+            <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;gram finish.&quot;</span>
+        <span class="k">if</span> <span class="n">search</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">break</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-    <span class="c1"># matches = re.compile(r&quot;# (.+): ([0-9.,E-]+)&quot;).findall(out, re.DOTALL)</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;# (.+): ([0-9.,E-]+)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
@@ -143,8 +145,8 @@
 
 <div class="viewcode-block" id="add_bench_metrics">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.bench.add_bench_metrics">[docs]</a>
-<span class="k">def</span> <span class="nf">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="n">parse_bench_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">parse_bench_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">optional</span> <span class="o">=</span> <span class="s2">&quot;Total&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></div>

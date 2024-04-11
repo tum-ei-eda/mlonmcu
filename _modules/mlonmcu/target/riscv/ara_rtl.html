@@ -309,7 +309,7 @@
 <div class="viewcode-block" id="AraRtlTarget.parse_stdout">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_stdout">[docs]</a>
     <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Expected output looks like this:</span>
 

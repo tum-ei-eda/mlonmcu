@@ -166,6 +166,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             logger.warning("Artifact 'model_info.yml' not found!")
             return None
 
+    @property
+    def needs_model_support(self):
+        return self.set_inputs or self.get_outputs
+
     def gen_data_artifact(self):
         in_paths = self.input_data_path
         if not isinstance(in_paths, list):
@@ -440,14 +444,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return artifacts
 
     def configure(self, target, src, _model):
-        artifacts = self.generate_model_support(target)
-        if len(artifacts) > 0:
-            assert len(artifacts) == 1
-            model_support_artifact = artifacts[0]
-            model_support_file = self.build_dir / model_support_artifact.name
-            model_support_artifact.export(model_support_file)
-            self.definitions["MODEL_SUPPORT_FILE"] = model_support_file
-        del target
+        if self.needs_model_support:
+            artifacts = self.generate_model_support(target)
+            if len(artifacts) > 0:
+                assert len(artifacts) == 1
+                model_support_artifact = artifacts[0]
+                model_support_file = self.build_dir / model_support_artifact.name
+                model_support_artifact.export(model_support_file)
+                self.definitions["MODEL_SUPPORT_FILE"] = model_support_file
+            del target
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = self.get_cmake_args()

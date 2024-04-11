@@ -18,14 +18,12 @@
 #
 """TVM Target Platform"""
 import os
-from pathlib import Path
 from mlonmcu.config import str2bool
 from .tvm_rpc_platform import TvmRpcPlatform
 from ..platform import TargetPlatform
 from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from .tvm_target import create_tvm_platform_target
-from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_bench_tvmc_args,
     get_data_tvmc_args,

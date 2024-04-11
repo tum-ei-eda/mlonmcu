@@ -229,11 +229,11 @@ class Frontend(ABC):
                                 if UPPER is None:
                                     UPPER = dtype_info.max
                                 else:
-                                    assert UPPER <= dtype_info.max, f"Out of dtype bound"
+                                    assert UPPER <= dtype_info.max, "Out of dtype bound"
                                 if LOWER is None:
                                     LOWER = dtype_info.min
                                 else:
-                                    assert LOWER >= dtype_info.min, f"Out of dtype bound"
+                                    assert LOWER >= dtype_info.min, "Out of dtype bound"
                             else:
                                 raise RuntimeError(f"Unsupported dtype: {gen_dtype}")
                             RANGE = UPPER - LOWER
@@ -244,7 +244,8 @@ class Frontend(ABC):
                             # if "float" in dtype:
                             #     arr = np.random.rand(*shape).astype(dtype)
                             # elif "int" in dtype:
-                            #     arr = np.random.randint(np.iinfo(dtype).min, np.iinfo(dtype).max, size=shape, dtype=dtype)
+                            #     arr = np.random.randint(np.iinfo(dtype).min,
+                            #     np.iinfo(dtype).max, size=shape, dtype=dtype)
                             # else:
                             #     assert False
                         # Quantize if required

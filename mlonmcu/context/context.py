@@ -273,6 +273,14 @@ class MlonMcuContext:
         env_file = resolve_environment_file(name=name, path=path)
         assert env_file is not None, "Unable to find a MLonMCU environment"
         self.environment = UserEnvironment.from_file(env_file)  # TODO: move to __enter__
+        actual_home = env_file.parent.resolve()
+        specified_home = Path(self.environment.home).resolve()
+        if specified_home != actual_home:
+            logger.warning(
+                "The HOME directory %s specified in environment.yml does not match workspace directory %s!",
+                specified_home,
+                actual_home,
+            )
         setup_logging(self.environment)
         assert deps_lock in ["read", "write"]
         if deps_lock == "read":

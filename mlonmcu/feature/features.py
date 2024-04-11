@@ -2389,4 +2389,3 @@ class ValidateNew(RunFeature):
         # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
         # return [validate_outputs_postprocess]
         return ["validate_outputs"]
->>>>>>> a3ccb1a1... WIP: add new features and postprocesses for validate_new

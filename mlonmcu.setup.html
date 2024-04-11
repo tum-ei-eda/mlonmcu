@@ -852,6 +852,8 @@ a line in requirements.txt. The converted constraint is appended to this list.</
 <dd class="field-odd"><dl class="simple">
 <dt><strong>args</strong></dt><dd><p>The command to be executed.</p>
 </dd>
+<dt><strong>kwargs</strong></dt><dd><p>Parameters to be passed to subprocess</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -859,7 +861,7 @@ a line in requirements.txt. The converted constraint is appended to this list.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.setup.utils.exec_getout">
-<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">exec_getout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#exec_getout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.exec_getout" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">exec_getout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#exec_getout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.exec_getout" title="Link to this definition"></a></dt>
 <dd><p>Execute a process with the given args and using the given kwards as Popen arguments and return the output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -875,6 +877,38 @@ a line in requirements.txt. The converted constraint is appended to this list.</
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>output</dt><dd><p>The text printed to the command line.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.setup.utils.execute">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.setup.utils.</span></span><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*args:</span> <span class="pre">~typing.List[str],</span> <span class="pre">ignore_output:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">live:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">print_func:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;built-in</span> <span class="pre">function</span> <span class="pre">print&gt;,</span> <span class="pre">handle_exit:</span> <span class="pre">~typing.Callable</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">err_func:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;bound</span> <span class="pre">method</span> <span class="pre">Logger.error</span> <span class="pre">of</span> <span class="pre">&lt;Logger</span> <span class="pre">mlonmcu</span> <span class="pre">(INFO)&gt;&gt;,</span> <span class="pre">prefix:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">**kwargs</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mlonmcu/setup/utils.html#execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.setup.utils.execute" title="Link to this definition"></a></dt>
+<dd><p>Wrapper for running a program in a subprocess.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>args</strong><span class="classifier">list</span></dt><dd><p>The actual command.</p>
+</dd>
+<dt><strong>ignore_output</strong><span class="classifier">bool</span></dt><dd><p>Do not get the stdout and stderr or the subprocess.</p>
+</dd>
+<dt><strong>live</strong><span class="classifier">bool</span></dt><dd><p>Print the output line by line instead of only at the end.</p>
+</dd>
+<dt><strong>print_func</strong><span class="classifier">Callable</span></dt><dd><p>Function which should be used to print sysout messages.</p>
+</dd>
+<dt><strong>handle_exit: Callable</strong></dt><dd><p>Handler for exit code.</p>
+</dd>
+<dt><strong>err_func</strong><span class="classifier">Callable</span></dt><dd><p>Function which should be used to print errors.</p>
+</dd>
+<dt><strong>kwargs: dict</strong></dt><dd><p>Arbitrary keyword arguments passed through to the subprocess.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">str</span></dt><dd><p>The command line output of the command</p>
 </dd>
 </dl>
 </dd>

@@ -228,10 +228,11 @@
             <span class="n">spikepk_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_args</span><span class="p">)</span>  <span class="c1"># I rename args to extra_args because otherwise it overwrites *args</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">&lt;</span> <span class="mi">8192</span><span class="p">,</span> <span class="s2">&quot;Spike does not support VLEN &gt;= 8192&quot;</span>
             <span class="n">spike_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--varch=vlen:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">,elen:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="c1"># assert self.vlen == 0</span>
+            <span class="k">pass</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -243,6 +244,7 @@
             <span class="o">*</span><span class="n">spikepk_args</span><span class="p">,</span>
             <span class="n">program</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>

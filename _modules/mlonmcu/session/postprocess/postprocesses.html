@@ -701,9 +701,11 @@
         <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;sequences&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;seq_depth&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
         <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
         <span class="s2">&quot;to_df&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;corev&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -722,8 +724,13 @@
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seq_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get seq_depth property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;seq_depth&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;get sequences property.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get top property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
@@ -736,6 +743,12 @@
     <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">corev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get corev property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;corev&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="AnalyseInstructionsPostprocess.post_run">
@@ -760,6 +773,7 @@
             <span class="n">content</span> <span class="o">=</span> <span class="n">log_artifact</span><span class="o">.</span><span class="n">content</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
                 <span class="n">encodings</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+                <span class="n">encodings</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;0b</span><span class="si">{</span><span class="n">enc</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">encodings</span><span class="p">]</span>
                 <span class="c1"># encodings = [f&quot;{enc}&quot; for enc in encodings]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
                 <span class="n">names</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
@@ -874,7 +888,7 @@
                 <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;AnalyseInstructionsMajorsProbs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">major_probs</span><span class="p">)</span>
                 <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
-            <span class="n">max_len</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">max_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seq_depth</span>
 
             <span class="k">def</span> <span class="nf">_get_sublists</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
@@ -897,6 +911,208 @@
                     <span class="n">post_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;AnalyseInstructionsSeq</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">Counts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
                     <span class="n">post_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;AnalyseInstructionsSeq</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">Probs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
                     <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corev</span><span class="p">:</span>
+            <span class="n">XCVMAC_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.mac&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.msu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulun&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulhhun&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulsn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulhhsn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulurn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulhhurn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulsrn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.mulhhsrn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.macun&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.machhun&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.macsn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.machhsn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.macurn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.machhurn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.macsrn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.machhsrn&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">XCVMEM_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.lb_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lbu_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lh_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lhu_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lw_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lb_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lbu_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lh_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lhu_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lw_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lb_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lbu_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lh_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lhu_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lw_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lb_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lbu_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lh_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lhu_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lw_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lb_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lbu_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lh_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lhu_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.lw_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sb_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sh_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sw_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sb_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sh_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sw_ri_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sb_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sh_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sw_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sb_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sh_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sw_rr_inc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sb_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sh_rr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sw_rr&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">XCVBI_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.bneimm&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.beqimm&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">XCVALU_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.slet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.min&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.addnr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.addunr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.addn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.maxu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.subun&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.extbz&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.addun&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.clip&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.clipu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.subn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.max&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.extbs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.abs&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.addurn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.exths&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.exthz&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.minu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sletu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.suburn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.addrn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.clipur&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.subrn&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">XCVBITMANIP_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.ror&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.clb&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">XCVSIMD_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.add.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.add.sc.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.add.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.add.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.and.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.and.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.and.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.and.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpeq.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpge.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpgtu.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmplt.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpltu.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpne.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpne.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.extract.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.extract.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.extractu.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.extractu.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.insert.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.max.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.max.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.maxu.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.or.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.or.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.pack&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.packhi.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.packlo.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.shuffle2.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.shuffle2.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.shufflei0.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sll.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sra.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sra.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.srl.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.srl.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sub.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sub.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.xor.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.xor.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.add.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpeq.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpgtu.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpleu.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sdotup.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sdotup.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.shuffle.sci.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.xor.sc.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.xor.sc.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sdotsp.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.cmpeq.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.and.sci.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.dotsp.h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.dotsp.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.sdotsp.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.add.b&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.dotup.sci.b&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">XCVHWLP_INSNS</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;cv.count&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.counti&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.start&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.starti&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.end&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.endi&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.setup&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cv.setupi&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="k">def</span> <span class="nf">apply_mapping</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;cv_&quot;</span><span class="p">,</span> <span class="s2">&quot;cv.&quot;</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_sc&quot;</span><span class="p">,</span> <span class="s2">&quot;.sc&quot;</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_b&quot;</span><span class="p">,</span> <span class="s2">&quot;.b&quot;</span><span class="p">)</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_h&quot;</span><span class="p">,</span> <span class="s2">&quot;.h&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVMAC_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVMac&quot;</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVMEM_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVMem&quot;</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVALU_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVAlu&quot;</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVBITMANIP_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVBitmanip&quot;</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVBI_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVBi&quot;</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVSIMD_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVSimd&quot;</span>
+                <span class="k">elif</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">XCVHWLP_INSNS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCVHwlp&quot;</span>
+                <span class="k">elif</span> <span class="s2">&quot;cv.&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;XCV?&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s2">&quot;Other&quot;</span>
+
+            <span class="n">names_</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">apply_mapping</span><span class="p">,</span> <span class="n">names</span><span class="p">))</span>
+            <span class="n">cv_ext_counts</span><span class="p">,</span> <span class="n">cv_ext_probs</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">names_</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+            <span class="n">corev_csv</span> <span class="o">=</span> <span class="n">_gen_csv</span><span class="p">(</span><span class="s2">&quot;Set&quot;</span><span class="p">,</span> <span class="n">cv_ext_counts</span><span class="p">,</span> <span class="n">cv_ext_probs</span><span class="p">)</span>
+            <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;analyse_instructions_corev.csv&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">corev_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;CoreVSetCounts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cv_ext_counts</span><span class="p">)</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;CoreVSetProbs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cv_ext_probs</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">&quot;Either to_file or to_df have to be true&quot;</span>
         <span class="k">return</span> <span class="n">ret_artifacts</span></div>
 </div>

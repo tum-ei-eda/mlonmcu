@@ -117,6 +117,7 @@
 <span class="c1"># from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">execute</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.target.bench</span> <span class="kn">import</span> <span class="n">add_bench_metrics</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">.riscv_vext_target</span> <span class="kn">import</span> <span class="n">RVVTarget</span>
 
@@ -145,7 +146,7 @@
 <span class="k">class</span> <span class="nc">VicunaTarget</span><span class="p">(</span><span class="n">RVVTarget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the GVSOC simulator&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="s2">&quot;vext&quot;</span><span class="p">}</span>  <span class="c1"># TODO: cache feature?</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">}</span>  <span class="c1"># TODO: cache feature?</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -177,6 +178,9 @@
         <span class="s2">&quot;dc_line_width&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># AUTO (2*VMEM_W)</span>
         <span class="c1"># trace config</span>
         <span class="c1"># TODO</span>
+        <span class="c1"># testbench config</span>
+        <span class="s2">&quot;abort_cycles&quot;</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">,</span>  <span class="c1"># Used to detect freezes</span>
+        <span class="s2">&quot;extra_cycles&quot;</span><span class="p">:</span> <span class="mi">4096</span><span class="p">,</span>  <span class="c1"># Number of remaining cycles after jump to reset vector</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span>
@@ -259,6 +263,16 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vproc_pipelines&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">value</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">abort_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;abort_cycles&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_cycles&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
 <div class="viewcode-block" id="VicunaTarget.get_config_args">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.get_config_args">[docs]</a>
     <span class="k">def</span> <span class="nf">get_config_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -307,6 +321,7 @@
         <span class="n">out</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">obj_dir</span> <span class="o">/</span> <span class="s2">&quot;Vvproc_top.mk&quot;</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;PROJ_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prj_dir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;SIM_ABORT_CYCLES=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">abort_cycles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config_args</span><span class="p">(),</span>
             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="n">sim_dir</span><span class="p">,</span>
@@ -329,17 +344,17 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">prj_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Not prepared?&quot;</span>
         <span class="n">path_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">.path&quot;</span>
 
-        <span class="n">trace_file</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
-        <span class="n">trace_vcd</span> <span class="o">=</span> <span class="s2">&quot;vcd&quot;</span>
+        <span class="n">trace_file</span> <span class="o">=</span> <span class="s2">&quot;trace.csv&quot;</span>
+        <span class="c1"># trace_vcd = &quot;vcd&quot;</span>
         <span class="c1"># trace_fst = &quot;fst&quot;</span>
         <span class="n">vicuna_args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">path_file</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_width</span><span class="p">),</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_size</span><span class="p">),</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_latency</span><span class="p">),</span>
-            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_cycles</span><span class="p">),</span>
             <span class="n">trace_file</span><span class="p">,</span>
-            <span class="n">trace_vcd</span><span class="p">,</span>
+            <span class="c1"># trace_vcd,</span>
         <span class="p">]</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
@@ -350,57 +365,82 @@
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;prj&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prj_dir</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)</span>
+        <span class="c1"># print(&quot;prj&quot;, self.prj_dir)</span>
+        <span class="c1"># print(&quot;out&quot;, out)</span>
+        <span class="c1"># input(&quot;!&quot;)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prj_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">obj_dir</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">out</span></div>
+        <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="VicunaTarget.parse_stdout">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.parse_stdout">[docs]</a>
-    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
-        <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Total Cycles: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;unexpected script output (cycles)&quot;</span><span class="p">)</span>
-            <span class="n">cycles</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">cycles</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_cycles</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">sim_insns</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d*) cycles&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sim_insns</span><span class="p">:</span>
+            <span class="n">sim_insns</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sim_insns</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Simulated Instructions&quot;</span><span class="p">,</span> <span class="n">sim_insns</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
-        <span class="n">cpu_instructions</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Total Instructions: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_instructions</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;unexpected script output (instructions)&quot;</span><span class="p">)</span>
-            <span class="n">cpu_instructions</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">cpu_instructions</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_instructions</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
-        <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">cpu_instructions</span></div>
+
+<div class="viewcode-block" id="VicunaTarget.parse_exit">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.parse_exit">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;EXCEPTION: Illegal instruction at&quot;</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span>
+            <span class="k">elif</span> <span class="s2">&quot;WARNING: memory interface inactive for&quot;</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+            <span class="k">elif</span> <span class="s2">&quot;Program finish.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>  <span class="c1"># did not finish</span>
+            <span class="c1"># elif &quot;EXCEP&quot; in out:</span>
+            <span class="c1">#     exit_code = -1  # unhandled exception</span>
+        <span class="k">return</span> <span class="n">exit_code</span></div>
 
 
 <div class="viewcode-block" id="VicunaTarget.get_metrics">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.get_metrics">[docs]</a>
     <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span> <span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="c1"># TODO: before or after?</span>
+            <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">code</span>
+            <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">temp</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prepare_simulator</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prepare_simulator</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">simulation_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
+            <span class="n">out_</span><span class="p">,</span> <span class="n">artifacts_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
-                <span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span>
+            <span class="n">out_</span><span class="p">,</span> <span class="n">artifacts_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                <span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span>
             <span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="n">out_</span>
+        <span class="n">artifacts</span> <span class="o">+=</span> <span class="n">artifacts_</span>
         <span class="n">simulation_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">cycles</span><span class="p">,</span> <span class="n">instructions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
-        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Cycles&quot;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">)</span>
-        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Instructions&quot;</span><span class="p">,</span> <span class="n">instructions</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cycles</span> <span class="ow">and</span> <span class="n">instructions</span><span class="p">:</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;CPI&quot;</span><span class="p">,</span> <span class="n">cycles</span> <span class="o">/</span> <span class="n">instructions</span><span class="p">)</span>
-        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;finished_in_sec&quot;</span><span class="p">,</span> <span class="n">simulation_end</span> <span class="o">-</span> <span class="n">simulation_start</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="n">exit_code</span><span class="p">)</span>
+        <span class="n">wall</span> <span class="o">=</span> <span class="n">simulation_end</span> <span class="o">-</span> <span class="n">simulation_start</span>
+        <span class="c1"># metrics.add(&quot;Wallclock time&quot;, wall, True)</span>
+        <span class="k">if</span> <span class="n">metrics</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s2">&quot;Total Instructions&quot;</span><span class="p">):</span>
+            <span class="n">instructions</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Total Instructions&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">instructions</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Warning: Total Instructions != Simulated Instructions</span>
+                <span class="n">mips</span> <span class="o">=</span> <span class="p">(</span><span class="n">instructions</span> <span class="o">/</span> <span class="n">wall</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;MIPS&quot;</span><span class="p">,</span> <span class="n">mips</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 
 
 <div class="viewcode-block" id="VicunaTarget.get_target_system">

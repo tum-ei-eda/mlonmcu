@@ -105,6 +105,7 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLIF Platform&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
@@ -174,7 +175,7 @@
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mlif.src_dir&quot;</span><span class="p">}</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -278,6 +279,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">llvm_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">srecord_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -434,6 +439,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">init_directory</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="MlifPlatform.prepare_environment">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.prepare_environment">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">srecord_dir</span><span class="p">:</span>
+            <span class="n">path_old</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+            <span class="n">path_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">srecord_dir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">path_old</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_new</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+
+
 <div class="viewcode-block" id="MlifPlatform.configure">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.configure">[docs]</a>
     <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">_model</span><span class="p">):</span>
@@ -460,12 +476,14 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No validation data provided for model.&quot;</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">()</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mlif_dir</span><span class="p">,</span>
             <span class="o">*</span><span class="n">cmakeArgs</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span>
             <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
             <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 
@@ -477,11 +495,13 @@
         <span class="k">if</span> <span class="n">src</span><span class="p">:</span>
             <span class="n">configure_out</span><span class="p">,</span> <span class="n">artifacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="n">configure_out</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">()</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span>
             <span class="n">threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">,</span>
             <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 

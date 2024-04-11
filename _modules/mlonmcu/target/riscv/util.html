@@ -328,6 +328,8 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">minimal</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">fpu</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">minimal</span><span class="p">:</span>
             <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zicsr&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vext</span> <span class="ow">or</span> <span class="n">embedded_vext</span><span class="p">:</span>
+            <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zicsr&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">atomic</span> <span class="ow">and</span> <span class="n">multiply</span> <span class="ow">and</span> <span class="n">fpu</span> <span class="o">==</span> <span class="s2">&quot;double&quot;</span><span class="p">:</span>
             <span class="n">require</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zifencei&quot;</span><span class="p">)</span>
 

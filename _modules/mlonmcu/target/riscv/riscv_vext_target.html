@@ -108,6 +108,7 @@
 
 <span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">is_power_of_two</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
 <span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="n">RISCVTarget</span>
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">update_extensions</span>
@@ -127,8 +128,8 @@
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
-        <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span>
 
@@ -144,11 +145,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="s2">&quot;VLEN needs to be a power of 2.&quot;</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;VLEN &lt; 32 not allowed&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">128</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedded_vext</span><span class="p">,</span> <span class="s2">&quot;VLEN &lt; 128 imples embedded_vext=false&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedded_vext</span><span class="p">,</span> <span class="s2">&quot;ELEN=32 imples embedded_vext=true&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

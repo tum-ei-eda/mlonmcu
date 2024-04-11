@@ -533,8 +533,9 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>  <span class="c1"># 64 does not work with every toolchain</span>
-        <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>  <span class="c1"># some toolchains may generate auto-vectorized programs with elen 64</span>
+        <span class="c1"># None -&gt; use target setting</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># 64 does not work with every toolchain</span>
+        <span class="s2">&quot;elen&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># some toolchains may generate auto-vectorized programs with elen 64</span>
         <span class="c1"># use target-side settings by default</span>
         <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;embedded&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -545,11 +546,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vlen&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;elen&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -592,8 +595,8 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
             <span class="s2">&quot;tflmc.exe&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span>
+            <span class="c1"># &quot;riscv_gcc.install_dir&quot;: [&quot;vext&quot;],</span>
+            <span class="c1"># &quot;riscv_gcc.name&quot;: [&quot;vext&quot;],</span>
         <span class="p">}</span>
 
 
@@ -881,6 +884,40 @@
         <span class="p">)</span>  <span class="c1"># In recent TVM versions USMP will have it&#39;s own arena.</span>
 
     <span class="c1"># -&gt; enable this via backend</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;fuse_ops&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">FuseOps</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;fuse_ops&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="c1"># assert backend in [&quot;tvmaot&quot;], f&quot;Unsupported feature &#39;{self.name}&#39; for backend &#39;{backend}&#39;&quot;</span>
+        <span class="c1"># TODO: tvm only</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s2">&quot;extra_pass_config&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_pass_config&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="kn">import</span> <span class="nn">ast</span>
+
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="s2">&quot;relay.FuseOps.max_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_pass_config&quot;</span><span class="p">:</span> <span class="n">tmp</span><span class="p">})</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;moiopt&quot;</span><span class="p">)</span>

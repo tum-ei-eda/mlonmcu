@@ -472,6 +472,7 @@ class Run:
         assert context is not None, "Please supply a context"
         assert len(self.frontends) > 0, "Add a frontend to the run before adding a model"
         model = None
+        reasons = {}
         for frontend in self.frontends:
             if model is not None:
                 break

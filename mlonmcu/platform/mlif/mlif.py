@@ -88,9 +88,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     OPTIONAL = {"llvm.install_dir", "srecord.install_dir"}
 
     def __init__(self, features=None, config=None):
-        print("Mlif.__init__", self)
-        import traceback
-        traceback.print_stack()
         super().__init__(
             "mlif",
             features=features,
@@ -142,21 +139,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
 
     def init_directory(self, path=None, context=None):
-        print("mlif.init_directory", path, context)
         if self.build_dir is not None:
-            print("A1")
             self.build_dir.mkdir(exist_ok=True)
             logger.debug("Build directory already initialized")
             return
         dir_name = self.name
         if path is not None:
-            print("A2")
             self.build_dir = Path(path)
         elif self.config["build_dir"]:
-            print("A3")
             self.build_dir = Path(self.config["build_dir"])
         else:
-            print("A4")
             if context:
                 assert "temp" in context.environment.paths
                 self.build_dir = (
@@ -170,11 +162,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 self.tempdir = tempfile.TemporaryDirectory()
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
-        print("X")
         self.build_dir.mkdir(exist_ok=True)
 
     def create_target(self, name):
-        print("create_target", name)
         assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
         targets = get_targets()
         if name in targets:
@@ -366,7 +356,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 artifacts.append(data_artifact)
             else:
                 logger.warning("No validation data provided for model.")
-        print("self.build_dir", self.build_dir)
         utils.mkdirs(self.build_dir)
         env = self.prepare_environment()
         out = utils.cmake(

@@ -54,16 +54,11 @@ def _handle(args, context):
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        print("run1", run)
-        print("run.target", run.target)
-        input("312")
         if run.target is None:
             # assert run.compile_platform is None
             targets_ = targets
         else:
             targets_ = [None]
-        print("targets_", targets_)
-        input("!!??")
         for target_name in targets_:
             new_run = run.copy()
             if target_name is not None:
@@ -73,12 +68,8 @@ def _handle(args, context):
                     if target_name in candidates:
                         platform_name = platform
                 new_run.add_platform_by_name(platform_name, context=context)
-                print("new_run.platforms", new_run.platforms)
                 new_run.add_target_by_name(target_name, context=context)
-                print("new_run.target.platform", new_run.target.platform)
-                input("123")
             new_runs.append(new_run)
-        input("!!?? 2")
     session.runs = new_runs
 
 

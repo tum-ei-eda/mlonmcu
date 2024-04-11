@@ -39,7 +39,6 @@ class MlifExitCode(IntEnum):
 
 
 def create_mlif_platform_target(name, platform, base=Target):
-    print("create_mlif_platform_target", name, platform, base)
     class MlifPlatformTarget(base):
         DEFAULTS = {
             **base.DEFAULTS,

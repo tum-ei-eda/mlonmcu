@@ -74,7 +74,7 @@ class HostX86Target(Target):
                 comm = f"127.0.0.1:{self.gdbserver_port}"
                 return execute(self.gdb_server_path, comm, program, *args, **kwargs)
 
-        return execute(program, *args, **kwargs)
+        return execute(program, *args, **kwargs), []
 
     def get_arch(self):
         return "x86"

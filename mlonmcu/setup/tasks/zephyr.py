@@ -86,9 +86,7 @@ def install_zephyr(
                 live=verbose,
             )
         extra = zephyrInstallDir / "zephyr" / "scripts" / "requirements.txt"
-        utils.exec_getout(
-            f". {zephyrVenvScript} && pip install -r {extra}", shell=True, live=verbose
-        )
+        utils.exec_getout(f". {zephyrVenvScript} && pip install -r {extra}", shell=True, live=verbose)
         env = os.environ.copy()
         env["ZEPHYR_BASE"] = str(zephyrInstallDir / "zephyr")
         utils.exec_getout(f". {zephyrVenvScript} && west update", shell=True, live=verbose, env=env)
@@ -103,7 +101,7 @@ def install_zephyr(
             utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir, progress=verbose)
         sdkScript = zephyrSdkDir / "setup.sh"
         # TODO: allow to limit installed toolchains
-        utils.exec_getout(sdkScript, "-t", "all", "-h",  live=verbose)
+        utils.exec_getout(sdkScript, "-t", "all", "-h", live=verbose)
         # Apply patch to fix esp32c3 support
         patchFile = Path(
             pkg_resources.resource_filename(

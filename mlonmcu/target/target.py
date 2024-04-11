@@ -146,6 +146,7 @@ class Target:
             if handle_exit is not None:
                 temp = handle_exit(temp, out=out)
             return temp
+
         if self.print_outputs:
             out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:

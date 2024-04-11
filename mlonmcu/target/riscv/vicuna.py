@@ -307,6 +307,7 @@ class VicunaTarget(RVVTarget):
             if handle_exit is not None:
                 temp = handle_exit(temp, out=out)
             return temp
+
         if self.print_outputs:
             self.prepare_simulator(cwd=directory, live=True)
         else:

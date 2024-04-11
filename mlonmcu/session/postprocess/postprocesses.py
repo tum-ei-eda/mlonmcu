@@ -952,12 +952,11 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                     return "XCV?"
                 else:
                     return "Other"
+
             names_ = list(map(apply_mapping, names))
             cv_ext_counts, cv_ext_probs = _helper(names_, top=self.top)
             corev_csv = _gen_csv("Set", cv_ext_counts, cv_ext_probs)
-            artifact = Artifact(
-                f"analyse_instructions_corev.csv", content=corev_csv, fmt=ArtifactFormat.TEXT
-            )
+            artifact = Artifact(f"analyse_instructions_corev.csv", content=corev_csv, fmt=ArtifactFormat.TEXT)
             if self.to_file:
                 ret_artifacts.append(artifact)
             if self.to_df:

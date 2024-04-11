@@ -1342,9 +1342,9 @@ class ValidateOutputsPostprocess(RunPostprocess):
                                 # need to dequantize here
                                 assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                                 assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
-                                out_ref_data_quant = np.around(
-                                    (out_ref_data / quant_scale) + quant_zero_point
-                                ).astype("int8")
+                                out_ref_data_quant = np.around((out_ref_data / quant_scale) + quant_zero_point).astype(
+                                    "int8"
+                                )
                                 for vm in validate_metrics:
                                     vm.process(out_data, out_ref_data_quant, quant=True)
                                 out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale

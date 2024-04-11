@@ -2,7 +2,7 @@
 
 [![pypi package](https://badge.fury.io/py/mlonmcu.svg)](https://pypi.org/project/mlonmcu)
 [![readthedocs](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
-![coveragae](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
+![coverage](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
 
 [![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)

@@ -424,7 +424,7 @@ class EtissTarget(RISCVTarget):
                 cwd=cwd,
                 **kwargs,
             )
-        return ret
+        return ret, []
 
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
@@ -478,12 +478,18 @@ class EtissTarget(RISCVTarget):
                 temp = handle_exit(temp, out=out)
             return temp
 
+        artifacts = []
+
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out_, artifacts_ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out += out_
+            artifacts += artifacts_
         else:
-            out += self.exec(
+            out_, artifacts_ = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
+            out += out_
+            artifacts += artifacts_
         # TODO: get exit code
         exit_code = 0
         metrics = Metrics()
@@ -555,7 +561,6 @@ class EtissTarget(RISCVTarget):
                 metrics.add("RAM stack", ram_stack)
                 metrics.add("RAM heap", ram_heap)
 
-        artifacts = []
         ini_content = open(etiss_ini, "r").read()
         ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
         artifacts.append(ini_artifact)

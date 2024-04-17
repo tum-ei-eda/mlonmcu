@@ -464,8 +464,9 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert is_power_of_two(self.vlen)
-        assert self.vlen >= VEXT_MIN_ALLOWED_VLEN
+        if self.vlen is not None:
+            assert is_power_of_two(self.vlen)
+            assert self.vlen >= VEXT_MIN_ALLOWED_VLEN
         return filter_none(
             {
                 f"{target}.enable_vext": True,

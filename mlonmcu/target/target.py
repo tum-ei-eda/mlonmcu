@@ -63,6 +63,7 @@ class Target:
     DEFAULTS = {
         "print_outputs": False,
         "repeat": None,
+        "fclk": None,
     }
 
     REQUIRED = set()
@@ -100,6 +101,11 @@ class Target:
     @property
     def repeat(self):
         return self.config["repeat"]
+
+    @property
+    def fclk(self):
+        value = self.config["fclk"]
+        return int(float(value)) if value is not None else None
 
     def __repr__(self):
         return f"Target({self.name})"

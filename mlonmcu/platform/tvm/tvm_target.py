@@ -31,6 +31,19 @@ def name2device(name):
     return name.replace("tvm_", "")
 
 
+TVM_PLATFORM_TARGET_REGISTRY = {}
+
+def register_tvm_platform_target(target_name, t, override=False):
+    global TVM_PLATFORM_TARGET_REGISTRY
+
+    if target_name in TVM_PLATFORM_TARGET_REGISTRY and not override:
+        raise RuntimeError(f"TVM platform target {target_name} is already registered")
+    TVM_PLATFORM_TARGET_REGISTRY[target_name] = t
+
+def get_tvm_platform_targets():
+    return TVM_PLATFORM_TARGET_REGISTRY
+
+
 def create_tvm_platform_target(name, platform, base=Target):
     class TvmPlatformTarget(base):
         DEFAULTS = {

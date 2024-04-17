@@ -63,6 +63,7 @@ class TVMBackend(Backend):
         "target_mattr": None,
         "target_keys": None,
         "target_num_cores": None,
+        "cross_compiler": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
         "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
@@ -200,6 +201,10 @@ class TVMBackend(Backend):
     @property
     def target_num_cores(self):
         return self.config["target_num_cores"]
+
+    @property
+    def cross_compiler(self):
+        return self.config["cross_compiler"]
 
     # TODO:
     # "target_device": ?,
@@ -380,6 +385,7 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
+            *(["--cross-compiler", self.cross_compiler] if self.cross_compiler else []),
         ]
         return args
 

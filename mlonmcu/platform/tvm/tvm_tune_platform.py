@@ -200,10 +200,18 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             return cnt
 
         def get_max_flops(out, prefix="M"):
-            res = re.compile(r"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
+            SI_LOOKUP = {
+                "M": 1e6,
+                "G": 1e9,
+            }
+            mult = SI_LOOKUP.get(prefix, None)
+            assert mult is not None, f"Unsupported SI prefix: {prefix}"
+            res = re.compile(fr"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
             if len(res) > 0:
-                return res[-1]
-            return -1
+                flops = float(res[-1])
+                return flops * mult, prefix
+            # TODO: warning
+            return -1, prefix
 
         # pick best records
         def _pick_best(backend, records, verbose=False):
@@ -356,7 +364,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
-                                max_flops = get_max_flops(out)
+                                self.flop_prefix = "G"
+                                max_flops, _ = get_max_flops(out, prefix=self.flop_prefix)
                                 t1 = time.time()
                             return (
                                 out,
@@ -385,7 +394,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         metrics_.add("Config Space Size", size, True)
                         metrics_.add("Total Trials", tuned, True)
                         metrics_.add("Failed Trials", failed, True)
-                        metrics_.add("Max. MFLOPS", max_flops, True)
+                        metrics_.add("Max. FLOPS", max_flops, True)
                         metrics_.add("Tune Duration [s]", duration, True)
                         metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
                         if early_stopping < trials_single:

@@ -56,7 +56,6 @@ def name2device(name):
 
 
 def create_tvm_platform_target(name, platform, base=Target, device: Optional[str] = None):
-    print("create_tvm_platform_target", name, platform, base, device)
 
     class TvmPlatformTarget(base):
         DEFAULTS = {

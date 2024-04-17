@@ -31,6 +31,9 @@ from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
+from .tvm_canmv_k230_target import CanMvK230TvmPlatformTarget
+from .tvm_licheerv_d1_target import LicheeRvD1TvmPlatformTarget
+
 
 TVM_PLATFORM_TARGET_REGISTRY = {}
 
@@ -47,8 +50,12 @@ def get_tvm_platform_targets():
     return TVM_PLATFORM_TARGET_REGISTRY
 
 
+# MLIF (SSH) Targets
 register_tvm_platform_target("tvm_cpu", HostX86Target)
 register_tvm_platform_target("tvm_muse_pi_pro", MusePiProSSHTarget)
+# Non-MLIF Targets
+register_tvm_platform_target("tvm_canmv_k230", CanMvK230TvmPlatformTarget)
+register_tvm_platform_target("tvm_licheerv_d1", LicheeRvD1TvmPlatformTarget)
 
 
 def name2device(name):
@@ -56,7 +63,6 @@ def name2device(name):
 
 
 def create_tvm_platform_target(name, platform, base=Target, device: Optional[str] = None):
-
     class TvmPlatformTarget(base):
         DEFAULTS = {
             **base.DEFAULTS,

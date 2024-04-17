@@ -26,6 +26,9 @@ from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
+from .tvm_canmv_k230_target import CanMvK230TvmPlatformTarget
+from .tvm_licheerv_d1_target import LicheeRvD1TvmPlatformTarget
+
 
 def name2device(name):
     return name.replace("tvm_", "")
@@ -42,6 +45,10 @@ def register_tvm_platform_target(target_name, t, override=False):
 
 def get_tvm_platform_targets():
     return TVM_PLATFORM_TARGET_REGISTRY
+
+
+register_tvm_platform_target("tvm_canmv_k230", CanMvK230TvmPlatformTarget)
+register_tvm_platform_target("tvm_licheerv_d1", LicheeRvD1TvmPlatformTarget)
 
 
 def create_tvm_platform_target(name, platform, base=Target):

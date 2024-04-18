@@ -60,6 +60,9 @@ class Backend(ABC):
         name = type(self).name
         return f"Backend({name})"
 
+    def reconfigure(self):
+        pass
+
     def process_features(self, features):
         # Filter out non-backend features
         if features is None:

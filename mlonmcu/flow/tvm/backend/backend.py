@@ -147,6 +147,14 @@ class TVMBackend(Backend):
                     tuner_name = list(self._tuning_records.keys())[0]
         return self._tuning_records.get(tuner_name, None)
 
+    def reconfigure(self):
+        # super().reconfigure()
+        self.config.update(
+            {
+                "final_pass_config": self.pass_config,
+            }
+        )
+
     @property
     def disable_vectorize(self):
         temp = self.config["disable_vectorize"]

@@ -393,7 +393,7 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
-            *(["--cross-compiler", self.cross_compiler] if self.cross_compiler else []),
+            *(["--cross-compiler", self.cross_compiler] if self.cross_compiler and self.fmt != "mlf" else []),
         ]
         return args
 

@@ -322,3 +322,29 @@ class EtissPerfMicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
     @property
     def etiss_script(self):
         return Path(self.config["etiss_perf.script"])
+
+
+class EtissRV32MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {
+        **EtissMicroTvmPlatformTarget.DEFAULTS,
+        "xlen": 32,
+    }
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+
+
+class EtissRV64MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {
+        **EtissMicroTvmPlatformTarget.DEFAULTS,
+        "xlen": 64,
+    }
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)

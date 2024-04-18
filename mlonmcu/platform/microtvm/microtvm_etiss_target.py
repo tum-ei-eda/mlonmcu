@@ -305,3 +305,28 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         # to support accepting user-vars
         new = {key: value for key, value in new.items() if config.get(key, None) is None}
         config.update(new)
+
+class EtissRV32MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {
+        **EtissMicroTvmPlatformTarget.DEFAULTS,
+        "xlen": 32,
+    }
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+
+
+class EtissRV64MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {
+        **EtissMicroTvmPlatformTarget.DEFAULTS,
+        "xlen": 64,
+    }
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)

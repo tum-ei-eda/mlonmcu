@@ -28,8 +28,8 @@ from .microtvm_zephyr_target import ZephyrMicroTvmPlatformTarget
 from .microtvm_arduino_target import ArduinoMicroTvmPlatformTarget
 from .microtvm_espidf_target import EspidfMicroTvmPlatformTarget
 from .microtvm_host_target import HostMicroTvmPlatformTarget
-from .microtvm_etiss_target import EtissMicroTvmPlatformTarget
-from .microtvm_spike_target import SpikeMicroTvmPlatformTarget
+from .microtvm_etiss_target import EtissMicroTvmPlatformTarget, EtissRV32MicroTvmPlatformTarget, EtissRV64MicroTvmPlatformTarget
+from .microtvm_spike_target import SpikeMicroTvmPlatformTarget, SpikeRV32MicroTvmPlatformTarget, SpikeRV64MicroTvmPlatformTarget
 from .microtvm_corev_ovpsim_target import CoreVOVPSimMicroTvmPlatformTarget
 from .microtvm_mlonmcu_target import MlonmcuMicroTvmPlatformTarget
 
@@ -59,8 +59,12 @@ register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarge
 register_microtvm_platform_target("microtvm_arduino", ArduinoMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_etiss", EtissMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_etiss_rv32", EtissRV32MicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_etiss_rv64", EtissRV64MicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_espidf", EspidfMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_spike_rv32", SpikeRV32MicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_spike_rv64", SpikeRV64MicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_corev_ovpsim", CoreVOVPSimMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_mlonmcu", MlonmcuMicroTvmPlatformTarget)
 

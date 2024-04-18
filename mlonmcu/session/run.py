@@ -1456,6 +1456,7 @@ class Run:
         for frontend in self.frontends:
             ret.update(config_helper(frontend))
         if self.backend:
+            self.backend.reconfigure()
             ret.update(config_helper(self.backend))
         if self.framework:
             ret.update(config_helper(self.framework))

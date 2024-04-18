@@ -38,6 +38,7 @@ from mlonmcu.flow.tvm.backend.tuner import (
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_rpc_tvmc_args,
     get_target_tvmc_args,
+    get_pass_config_tvmc_args,
     get_disabled_pass_tvmc_args,
     get_desired_layout_args,
 )
@@ -60,6 +61,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         **TvmTargetPlatform.DEFAULTS,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
+        "experimental_tvmc_tune_pass_config": False,
         # "experimental_tvmc_tune_wandb": False,  # TODO
         "enable_wandb": False,
         "min_repeat_ms": 0,
@@ -85,6 +87,11 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     def experimental_tvmc_tune_visualize(self):
         value = self.config["experimental_tvmc_tune_visualize"]
         return str2bool(value)
+
+    @property
+    def experimental_tvmc_tune_pass_config(self):
+        value = self.config["experimental_tvmc_tune_pass_config"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def enable_wandb(self):
@@ -130,6 +137,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
         ]
+        if self.experimental_tvmc_tune_pass_config:
+            ret.extend(get_pass_config_tvmc_args(backend.pass_config))
         if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])

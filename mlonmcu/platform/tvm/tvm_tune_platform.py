@@ -19,6 +19,8 @@
 """TVM Tune Platform"""
 import re
 import os
+import json
+import numpy as np
 from mlonmcu.config import str2bool
 import time
 import tempfile
@@ -375,6 +377,37 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 sub_failed_trials = count_failed_trials(content)
                                 self.flop_prefix = "G"
                                 max_flops, _ = get_max_flops(out, prefix=self.flop_prefix)
+                                def parse_tuning_logs(content, max_flops):
+                                    def extract(d):
+                                        inp = d["input"]
+                                        res = d["result"]
+                                        return res[0][0], inp[0], inp[1], inp[2]
+                                    best_runtime = 1e9
+                                    best_runtimes = []
+                                    best_idx = -1
+                                    for trial_idx, line in enumerate(content.strip().splitlines()):
+                                        # if len(line.strip()) == 0:
+                                        #     continue
+                                        data = json.loads(line)
+                                        runtime, target_string, task_name, task_tensors = extract(data)
+                                        # print("runtime", runtime)
+                                        # best_runtime = min(best_runtime, runtime)
+                                        if runtime < best_runtime:
+                                            # print("if")
+                                            best_runtime = runtime
+                                            best_idx = trial_idx
+                                        # print("best_runtime", best_runtime)
+                                        best_runtimes.append(best_runtime)
+                                    # tmp
+                                    assert best_runtime < 1e9
+                                    # target_string = "c -abc"
+                                    # task_name = "foobar"
+                                    # task_tensors = "{?}"
+                                    num_flops = int(max_flops * best_runtime)
+                                    arr = np.array(best_runtimes)
+                                    confidences = {confidence: sum((1/arr) < ((1/min(arr))*confidence))+1 for confidence in [0.8, 0.9, 0.95, 0.99, 0.999]}
+                                    return best_runtime, target_string, task_name, str(task_tensors), num_flops, best_idx, confidences
+                                best_runtime, target_string, task_name, task_tensors, num_flops, best_idx, confidences = parse_tuning_logs(content, max_flops)
                                 t1 = time.time()
                             return (
                                 out,
@@ -385,6 +418,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 max_flops,
                                 t1 - t0,
                                 visualize_raw_task,
+                                best_runtime,
+                                target_string,
+                                task_name,
+                                task_tensors,
+                                num_flops,
+                                best_idx,
+                                confidences,
                             )
 
                         workers.append(executor.submit(do_work, i, content, task_len))
@@ -397,7 +437,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     try:
                         ret = w.result()
                         logger.debug(f"Worker {i}: done")
-                        out, content, size, tuned, failed, max_flops, duration, visualize_raw_task = ret
+                        out, content, size, tuned, failed, max_flops, duration, visualize_raw_task, best_runtime, target_string, task_name, task_tensors, num_flops, best_idx, confidences = ret
                         all_out += out
                         all_content += content
                         metrics_.add("Config Space Size", size, True)
@@ -406,6 +446,20 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         metrics_.add("Max. FLOPS", max_flops, True)
                         metrics_.add("Tune Duration [s]", duration, True)
                         metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
+                        # print("Best Runtime [s]", best_runtime)
+                        # print("Best Trial", best_idx)
+                        # print("Target String", target_string)
+                        # print("Task Name", task_name)
+                        # print("Task Tensors", task_tensors)
+                        # print("Task FLOPS", num_flops)
+                        metrics_.add("Best Runtime [s]", best_runtime, True)
+                        metrics_.add("Best Trial", best_idx, True)
+                        for c_level, c_trials in confidences.items():
+                            metrics_.add(f"{c_level*100}% Confidence", c_trials, True)
+                        metrics_.add("Target String", target_string, True)
+                        metrics_.add("Task Name", task_name, True)
+                        metrics_.add("Task Tensors", task_tensors, True)
+                        metrics_.add("Task FLOPS", num_flops, True)
                         if early_stopping < trials_single:
                             early = tuned + failed < min(trials_single, size)
                         else:

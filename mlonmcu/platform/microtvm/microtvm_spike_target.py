@@ -40,7 +40,9 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
         "verbose": False,
         "quiet": True,
         "workspace_size_bytes": None,
+        # "cpu_freq": None,
         "toolchain": "gcc",
+        "fclk": 100e6,
     }
     REQUIRED = (
         TemplateMicroTvmPlatformTarget.REQUIRED
@@ -62,6 +64,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
             "verbose",
             "quiet",
             "workspace_size_bytes",
+            # "cpu_freq",
             # TODO
         ]
 
@@ -101,6 +104,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
                 "abi": self.abi,
                 "vlen": self.vlen,
                 "elen": self.elen,
+                "cpu_freq": self.fclk,
             }
         )
         return ret

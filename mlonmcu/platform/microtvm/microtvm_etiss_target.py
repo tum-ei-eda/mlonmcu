@@ -58,6 +58,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevbitmanip": False,
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
+        "fclk": 100e6,
     }
     REQUIRED = Target.REQUIRED | {
         "microtvm_etiss.src_dir",
@@ -76,6 +77,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "verbose",
             "quiet",
             "workspace_size_bytes",
+            "cpu_freq",
             # "warning_as_error",
             # "compile_definitions",
             # "config_main_stack_size",
@@ -154,6 +156,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch,
                 **({"jit": self.jit} if self.jit is not None else {}),
+                "cpu_freq": self.fclk,
             }
         )
         return ret

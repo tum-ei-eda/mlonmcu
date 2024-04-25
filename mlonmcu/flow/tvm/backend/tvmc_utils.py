@@ -182,6 +182,9 @@ def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):
     else:
         if mode is not None:
             ret.extend(["--fill-mode", mode])
+        else:
+            # TODO: upstream!
+            ret.extend(["--fill-mode", "none"])
 
     if outs_file is not None:
         ret.extend(["--outputs", outs_file])

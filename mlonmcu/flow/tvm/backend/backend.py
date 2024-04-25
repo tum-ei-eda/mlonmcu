@@ -152,6 +152,7 @@ class TVMBackend(Backend):
         self.config.update(
             {
                 "final_pass_config": self.pass_config,
+                "final_tuning_records": self._tuning_records,
             }
         )
 

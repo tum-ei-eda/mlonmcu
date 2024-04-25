@@ -39,7 +39,8 @@ class LicheeRvD1TvmPlatformTarget(RISCVTarget):
         "atomic": True,
         "multiply": True,
         "fpu": "double",  # allowed: none, single, double
-        "fcpu": 1e9,
+        "fclk": 1e9,
+        "fcpu": 1e9,  # TODO: remove this!
     }
     REQUIRED = RISCVTarget.REQUIRED | set()
 

@@ -39,7 +39,8 @@ class CanMvK230TvmPlatformTarget(RVVTarget):
         "atomic": True,
         "multiply": True,
         "fpu": "double",  # allowed: none, single, double
-        "fcpu": 1.6e9,
+        "fclk": 1.6e9,
+        # "fcpu": 1.6e9,
     }
     REQUIRED = RVVTarget.REQUIRED | set()
 

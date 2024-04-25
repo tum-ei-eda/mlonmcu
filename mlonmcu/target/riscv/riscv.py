@@ -250,7 +250,7 @@ class RISCVTarget(Target):
     @property
     def attr(self):
         attrs = self.attrs
-        return ",".join(attrs)
+        return ",".join(sorted(attrs))
 
     @property
     def extra_args(self):

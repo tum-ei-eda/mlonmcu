@@ -30,6 +30,7 @@ class MicroTvmTunePlatform(TvmTunePlatform, MicroTvmTargetPlatform):
     DEFAULTS = {
         **TvmTunePlatform.DEFAULTS,
         **MicroTvmTargetPlatform.DEFAULTS,
+        "flop_prefix": "M",  # TODO: pass to tvmc tune!
     }
 
     REQUIRED = TvmTunePlatform.REQUIRED | MicroTvmTargetPlatform.REQUIRED

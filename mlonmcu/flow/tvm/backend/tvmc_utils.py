@@ -231,6 +231,11 @@ def get_desired_layout_args(layouts, ops, mapping):
 
     if layouts and ops:
         assert len(layouts) == len(ops) or len(layouts) == 1
+    elif layouts:
+        assert len(ops) == 0
+        assert len(layouts) == 1
+        if layouts[0] == "default":
+            layouts = []
 
     ret = []
     if layouts:

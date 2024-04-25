@@ -119,9 +119,6 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         max_parallel = int(self.config.get("autotuning_max_parallel", 1))
         timeout = int(self.config.get("autotuning_timeout", 1000))
         results_file = self.config.get("autotuning_results_file", None)
-        desired_layout = str2list(backend.config.get("desired_layout", None), allow_none=True)
-        desired_layout_ops = str2list(backend.config.get("desired_layout_ops", None), allow_none=True)
-        desired_layout_map = str2dict(backend.config.get("desired_layout_map", None), allow_none=True)
         ret = [
             *get_target_tvmc_args(
                 backend.target,
@@ -131,10 +128,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 bool_as_int=backend.bool_as_int,
             ),
             *(["--executor-graph-link-params", str(int(backend.link_params))] if backend.executor == "graph" else []),
-            # *(["--desired-layout", desired_layout] if desired_layout is not None else []),
-            *get_desired_layout_args(desired_layout, desired_layout_ops, desired_layout_map),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
             *get_disabled_pass_tvmc_args(backend.disabled_passes),
+            *get_desired_layout_args(backend.desired_layout, backend.desired_layout_ops, backend.desired_layout_map),
             # TODO: missing: pass config etc.
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
             *["--parallel", str(max_parallel)],

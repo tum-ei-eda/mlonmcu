@@ -257,7 +257,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 continue
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
-        return ",".join(attrs)
+        return ",".join(sorted(attrs))
 
     @property
     def cpu_arch(self):

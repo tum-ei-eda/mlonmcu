@@ -41,6 +41,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_target_tvmc_args,
     get_pass_config_tvmc_args,
     get_disabled_pass_tvmc_args,
+    get_desired_layout_args,
 )
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.target.metrics import Metrics
@@ -65,6 +66,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         # "experimental_tvmc_tune_wandb": False,  # TODO
         "enable_wandb": False,
         "min_repeat_ms": 0,
+        "flop_prefix": "G",  # TODO: pass to tvmc tune!
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
@@ -102,6 +104,12 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     def min_repeat_ms(self):
         value = self.config["min_repeat_ms"]
         return int(value)
+
+    @property
+    def flop_prefix(self):
+        value = self.config["flop_prefix"]
+        assert value in ["M", "G", "T"]
+        return value
 
     def invoke_tvmc_tune(self, *args, target=None, **kwargs):
         return self.invoke_tvmc("tune", *args, target=target, **kwargs)
@@ -362,6 +370,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target, cwd=tmp_dir)
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
+
                                 visualize_raw_task = None
                                 if self.config["autotuning_visualize"]:
                                     to_file = self.config["autotuning_visualize_file"]
@@ -375,7 +384,6 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
-                                self.flop_prefix = "G"
                                 max_flops, _ = get_max_flops(out, prefix=self.flop_prefix)
                                 def parse_tuning_logs(content, max_flops):
                                     def extract(d):

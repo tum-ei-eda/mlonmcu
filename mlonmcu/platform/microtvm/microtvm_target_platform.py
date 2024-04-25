@@ -26,7 +26,7 @@ from .microtvm_base_platform import (
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_bench_tvmc_args,
     get_data_tvmc_args,
-    # get_rpc_tvmc_args,
+    get_rpc_tvmc_args,
 )
 from mlonmcu.logging import get_logger
 
@@ -85,7 +85,8 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
 
     def get_tvmc_run_args(self):
         if self.use_rpc:
-            raise RuntimeError("RPC is only supported for tuning with microtvm platform")
+            pass
+            # raise RuntimeError("RPC is only supported for tuning with microtvm platform")
         if self.profile:
             assert (
                 self.experimental_tvmc_print_time
@@ -101,7 +102,7 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
                 repeat=self.repeat if self.experimental_tvmc_print_time else None,
                 number=self.number if self.experimental_tvmc_print_time else None,
             ),
-            # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
+            *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
         return ret
 

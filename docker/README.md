@@ -51,7 +51,7 @@ All images are versioned by date. The `latest` tag is added to the most recent i
 
   Note: none-default branches are added as a suffix to the tag.
 
-  - Branch: `default` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu/latest)
+  - Branch: `main` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu/latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu/latest)
 
 
@@ -66,7 +66,7 @@ All images are versioned by date. The `latest` tag is added to the most recent i
 
   Notes: These images are refreshed **weekly**. There also exist **daily** incremental builds with the sufffix `-updated` (i.e. `tumeda/mlonmcu-bench:dev-develop-latest-updated`). Non-default envionments are added as a prefix to the tag.
 
-  - Branch: `default` , Environment: `dev` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/latest)
+  - Branch: `main` , Environment: `dev` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu-bench/latest)
   
     Command: `docker pull tumeda/mlonmcu-bench:latest`

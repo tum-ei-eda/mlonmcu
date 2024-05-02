@@ -173,13 +173,13 @@ class Session:
         assert num_workers > 0, "num_workers can not be < 1"
         workers = []
         # results = []
-        workers = []
         pbar = None  # Outer progress bar
         pbar2 = None  # Inner progress bar
         num_runs = len(self.runs)
         num_failures = 0
         stage_failures = {}
-        worker_run_idx = []
+        # worker_run_idx = []
+        worker_run_idx = {}
 
         def _init_progress(total, msg="Processing..."):
             """Helper function to initialize a progress bar for the session."""
@@ -210,13 +210,15 @@ class Session:
             """Helper function to collect all worker threads."""
             nonlocal num_failures
             results = []
-            for i, w in enumerate(workers):
+            # for i, w in enumerate(workers):
+            for w in concurrent.futures.as_completed(workers):
                 try:
                     results.append(w.result())
                 except Exception as e:
                     logger.exception(e)
                     logger.error("An exception was thrown by a worker during simulation")
-                run_index = worker_run_idx[i]
+                # run_index = worker_run_idx[i]
+                run_index = worker_run_idx[w]
                 run = self.runs[run_index]
                 if run.failing:
                     num_failures += 1
@@ -270,11 +272,12 @@ class Session:
                         if run.failing:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
-                            worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages))
+                            w = executor.submit(_process, pbar, run, until=stage, skip=skipped_stages)
+                            workers.append(w)
+                            worker_run_idx[w] = i
                     _join_workers(workers)
                     workers = []
-                    worker_run_idx = []
+                    worker_run_idx = {}
                     if progress:
                         _update_progress(pbar2)
                 if progress:
@@ -306,8 +309,9 @@ class Session:
                                 total_threads,
                                 cpu_count,
                             )
-                    worker_run_idx.append(i)
-                    workers.append(executor.submit(_process, pbar, run, until=until, skip=skipped_stages))
+                    w = executor.submit(_process, pbar, run, until=until, skip=skipped_stages)
+                    workers.append(w)
+                    worker_run_idx[w] = i
                 _join_workers(workers)
         if num_failures == 0:
             logger.info("All runs completed successfuly!")

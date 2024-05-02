@@ -203,20 +203,21 @@ class Session:
         def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
-            if progress:
-                _update_progress(pbar)
 
-        def _join_workers(workers):
+        def _join_workers(pbar, workers):
             """Helper function to collect all worker threads."""
             nonlocal num_failures
             results = []
             # for i, w in enumerate(workers):
+            # for w in workers:
             for w in concurrent.futures.as_completed(workers):
                 try:
                     results.append(w.result())
                 except Exception as e:
                     logger.exception(e)
                     logger.error("An exception was thrown by a worker during simulation")
+                if progress:
+                    _update_progress(pbar)
                 # run_index = worker_run_idx[i]
                 run_index = worker_run_idx[w]
                 run = self.runs[run_index]
@@ -275,7 +276,7 @@ class Session:
                             w = executor.submit(_process, pbar, run, until=stage, skip=skipped_stages)
                             workers.append(w)
                             worker_run_idx[w] = i
-                    _join_workers(workers)
+                    _join_workers(pbar, workers)
                     workers = []
                     worker_run_idx = {}
                     if progress:

@@ -81,6 +81,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "garbage_collect": True,
         "fuse_ld": None,
         "strip_strings": False,
+        "unroll_loops": None,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
     }
 
@@ -272,6 +273,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["strip_strings"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def unroll_loops(self):
+        value = self.config["unroll_loops"]
+        if value is None:
+            return None
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -310,6 +318,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["FUSE_LD"] = self.fuse_ld
         if self.strip_strings is not None:
             definitions["STRIP_STRINGS"] = self.strip_strings
+        if self.unroll_loops is not None:
+            definitions["UNROLL_LOOPS"] = self.unroll_loops
 
         return definitions
 

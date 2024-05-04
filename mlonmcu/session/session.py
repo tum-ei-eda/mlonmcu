@@ -36,6 +36,7 @@ from mlonmcu.config import filter_config
 
 from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage
+from .progress import init_progress, update_progress, close_progress
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
@@ -181,25 +182,6 @@ class Session:
         # worker_run_idx = []
         worker_run_idx = {}
 
-        def _init_progress(total, msg="Processing..."):
-            """Helper function to initialize a progress bar for the session."""
-            return tqdm(
-                total=total,
-                desc=msg,
-                ncols=100,
-                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
-                leave=None,
-            )
-
-        def _update_progress(pbar, count=1):
-            """Helper function to update the progress bar for the session."""
-            pbar.update(count)
-
-        def _close_progress(pbar):
-            """Helper function to close the session progressbar, if available."""
-            if pbar:
-                pbar.close()
-
         def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
@@ -217,7 +199,7 @@ class Session:
                     logger.exception(e)
                     logger.error("An exception was thrown by a worker during simulation")
                 if progress:
-                    _update_progress(pbar)
+                    update_progress(pbar)
                 # run_index = worker_run_idx[i]
                 run_index = worker_run_idx[w]
                 run = self.runs[run_index]
@@ -229,7 +211,7 @@ class Session:
                     else:
                         stage_failures[failed_stage] = [run_index]
             if progress:
-                _close_progress(pbar)
+                close_progress(pbar)
             return results
 
         def _used_stages(runs, until):
@@ -247,11 +229,11 @@ class Session:
         with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
             if per_stage:
                 if progress:
-                    pbar2 = _init_progress(len(used_stages), msg="Processing stages")
+                    pbar2 = init_progress(len(used_stages), msg="Processing stages")
                 for stage in used_stages:
                     run_stage = RunStage(stage).name
                     if progress:
-                        pbar = _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
+                        pbar = init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
                     else:
                         logger.info("%s Processing stage %s", self.prefix, run_stage)
                     for i, run in enumerate(self.runs):
@@ -280,12 +262,12 @@ class Session:
                     workers = []
                     worker_run_idx = {}
                     if progress:
-                        _update_progress(pbar2)
+                        update_progress(pbar2)
                 if progress:
-                    _close_progress(pbar2)
+                    close_progress(pbar2)
             else:
                 if progress:
-                    pbar = _init_progress(len(self.runs), msg="Processing all runs")
+                    pbar = init_progress(len(self.runs), msg="Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
                 for i, run in enumerate(self.runs):

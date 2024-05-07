@@ -24,9 +24,10 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.setup.utils import execute
 from mlonmcu.config import str2bool
 from mlonmcu.target import Target
-from mlonmcu.target.common import cli, execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from .util import resolve_cpu_features
 

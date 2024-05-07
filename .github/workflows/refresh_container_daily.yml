@@ -101,10 +101,10 @@ jobs:
           file: docker/Dockerfile2
           push: true
           build-args: |
-            BASE_IMAGE=tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            BASE_IMAGE=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           tags: |
-            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
   refresh_cron:
     name: Refresh large image for benchmarking
     if: (github.event_name == 'schedule')
@@ -176,7 +176,7 @@ jobs:
           file: docker/Dockerfile2
           push: true
           build-args: |
-            BASE_IMAGE=tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            BASE_IMAGE=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             MLONMCU_TEMPLATE=${{ matrix.config.template }}
           tags: |
-            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated

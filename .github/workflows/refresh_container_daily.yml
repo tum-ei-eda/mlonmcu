@@ -60,8 +60,6 @@ jobs:
           else
               echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
           fi
-      - name: A
-        run: df -h
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
@@ -71,8 +69,6 @@ jobs:
           remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
-      - name: B
-        run: df -h
       - name: Checkout
         uses: actions/checkout@v3
         with:

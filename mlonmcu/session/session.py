@@ -176,7 +176,7 @@ class Session:
         executor = "thread_pool"
         scheduler = SessionScheduler(self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers)
         self.runs = scheduler.process(export=export, context=context)
-        report = self.get_reports
+        report = self.get_reports()
         scheduler.print_summary()
         report = scheduler.postprocess(report, dest=self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"

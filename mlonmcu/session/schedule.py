@@ -203,10 +203,10 @@ class SessionScheduler:
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)
+        return self.runs
         # return num_failures == 0
 
-    def postprocess(self, dest):
-        report = self.get_reports()
+    def postprocess(self, report, dest):
         logger.info("Postprocessing session report")
         # Warning: currently we only support one instance of the same type of postprocess,
         # also it will be applied to all rows!
@@ -234,6 +234,7 @@ class SessionScheduler:
                     artifact.export(dest)
         if self.progress:
             close_progress(pbar)
+        return report
 
     def print_summary(self):
         if self.num_failures == 0:

@@ -35,6 +35,16 @@ jobs:
     runs-on: ubuntu-latest
     container: "${{ github.event.inputs.bench_image }}"
     steps:
+    - name: Maximize build space
+      # if: runner.os == 'Linux'
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 32768
+        temp-reserve-mb: 1024
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'
     - name: Run Benchmark command in container
       run: python3 -m mlonmcu.cli.main ${{ github.event.inputs.bench_cmd }}
     - name: Store cmdline

@@ -175,7 +175,7 @@ jobs:
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/mlonmcu:${{ github.event.inputs.version }}
+          tags: ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu:${{ github.event.inputs.version }}
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -249,4 +249,4 @@ jobs:
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ github.event.inputs.version }}
           cache-to: type=inline
-          tags: ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/mlonmcu-bench:${{ github.event.inputs.template }}-${{ github.event.inputs.version }}
+          tags: ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ github.event.inputs.template }}-${{ github.event.inputs.version }}

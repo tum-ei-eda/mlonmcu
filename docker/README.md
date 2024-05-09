@@ -40,11 +40,11 @@ Due to their large size, all other images are hosted on Docker Hub.
 All images are versioned by date. The `latest` tag is added to the most recent images.
 
 #### [Cmake Image](https://github.com/tum-ei-eda/mlonmcu/pkgs/container/mlonmcu-cmake)
-  
+
   Command: `docker pull ghcr.io/tum-ei-eda/mlonmcu-cmake:latest`
 
 #### [Minimal/CI Image](https://github.com/tum-ei-eda/mlonmcu/pkgs/container/mlonmcu-ci)
-  
+
   Command: `docker pull ghcr.io/tum-ei-eda/mlonmcu-ci:develop-20240420`
 
 #### [Default/User Image](https://hub.docker.com/r/tumeda/mlonmcu)
@@ -55,7 +55,7 @@ All images are versioned by date. The `latest` tag is added to the most recent i
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu/latest)
 
 
-    Command: `docker pull tumeda/mlonmcu:latest` 
+    Command: `docker pull tumeda/mlonmcu:latest`
 
   - Branch: `develop`  ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu/develop-latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu/develop-latest)
@@ -68,27 +68,27 @@ All images are versioned by date. The `latest` tag is added to the most recent i
 
   - Branch: `main` , Environment: `dev` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu-bench/latest)
-  
+
     Command: `docker pull tumeda/mlonmcu-bench:latest`
 
   - Branch: `default` , Environment: `dev` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/dev-develop-latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu-bench/dev-develop-latest)
-  
+
     Command: `docker pull tumeda/mlonmcu:develop-latest`
 
   - Branch: `develop`, Environment: `vicuna` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/vicuna-develop-latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu-bench/vicuna-develop-latest)
-  
+
     Command: `docker pull tumeda/mlonmcu-bench:vicuna-develop-latest`
 
   - Branch: `develop`, Environment: `ara` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/ara-develop-latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu-bench/ara-develop-latest)
-  
+
     Command: `docker pull tumeda/mlonmcu-bench:ara-develop-latest`
 
   - Branch: `develop`, Environment: `corev` ![Docker Image Version (tag)](https://img.shields.io/docker/v/tumeda/mlonmcu-bench/corev-develop-latest)
  ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/tumeda/mlonmcu-bench/corev-develop-latest)
-  
+
     Command: `docker pull tumeda/mlonmcu-bench:corev-develop-latest`
 
 
@@ -154,7 +154,9 @@ schedule:
 If you want to use the actions on a fork, they will fail due to missing docker credentials. Please export the followinf variables via `Settings -> Secrets -> Actions` to tell the jobs about your username and password:
 
 - `DOCKER_PASSWORD`
-- `DOCKER_USERNAME`
+- `DOCKER_USERNAME` (i.e. `tumeda`)
+- `DOCKER_REGISTRY` (i.e. `docker.io`, `ghcr.io`)
+- `DOCKER_NAMESPACE` (i.e. `tumeda`, `path/to/container`)
 
 ### Running the Images in Docker Containers
 

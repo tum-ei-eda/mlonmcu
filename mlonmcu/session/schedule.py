@@ -56,6 +56,8 @@ def _process(pbar, run, until, skip, export):
     """Helper function to invoke the run."""
     run.process(until=until, skip=skip, export=export)
 
+# TODO: alternative _process functions
+
 
 def _used_stages(runs, until):
     """Determines the stages which are used by at least one run."""

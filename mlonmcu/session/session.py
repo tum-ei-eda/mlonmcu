@@ -174,7 +174,9 @@ class Session:
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
         executor = "thread_pool"
-        scheduler = SessionScheduler(self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers)
+        scheduler = SessionScheduler(
+            self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers
+        )
         self.runs = scheduler.process(export=export, context=context)
         report = self.get_reports()
         scheduler.print_summary()

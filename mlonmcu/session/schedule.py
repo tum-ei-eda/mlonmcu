@@ -56,6 +56,7 @@ def _process(pbar, run, until, skip, export):
     """Helper function to invoke the run."""
     run.process(until=until, skip=skip, export=export)
 
+
 # TODO: alternative _process functions
 
 
@@ -68,10 +69,19 @@ def _used_stages(runs, until):
             used.append(stage)
     return used
 
+
 class SessionScheduler:
     """TODO"""
 
-    def __init__(self, runs: List[Run], until: RunStage = RunStage.DONE, per_stage: bool = False, progress: bool = False, executor: str = "thread_pool", num_workers: int = 1):
+    def __init__(
+        self,
+        runs: List[Run],
+        until: RunStage = RunStage.DONE,
+        per_stage: bool = False,
+        progress: bool = False,
+        executor: str = "thread_pool",
+        num_workers: int = 1,
+    ):
         self.runs = runs
         self.until = until
         self.per_stage = per_stage
@@ -164,7 +174,9 @@ class SessionScheduler:
                         if run.failing:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
-                            f = executor.submit(_process, pbar, run, until=stage, skip=self.skipped_stages, export=export)
+                            f = executor.submit(
+                                _process, pbar, run, until=stage, skip=self.skipped_stages, export=export
+                            )
                             self._futures.append(f)
                             self._future_run_idx[f] = i
                     self._join_futures(pbar)

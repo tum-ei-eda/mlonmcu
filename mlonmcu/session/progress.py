@@ -34,9 +34,11 @@ def init_progress(total, msg="Processing..."):
         leave=None,
     )
 
+
 def update_progress(pbar, count=1):
     """Helper function to update the progress bar for the session."""
     pbar.update(count)
+
 
 def close_progress(pbar):
     """Helper function to close the session progressbar, if available."""

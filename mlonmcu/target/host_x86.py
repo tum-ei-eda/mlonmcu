@@ -22,7 +22,8 @@ import stat
 from pathlib import Path
 
 from mlonmcu.config import str2bool
-from .common import cli, execute
+from mlonmcu.setup.utils import execute
+from .common import cli
 from .target import Target
 
 

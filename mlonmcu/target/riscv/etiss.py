@@ -28,7 +28,8 @@ from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 from .riscv import RISCVTarget

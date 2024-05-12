@@ -85,6 +85,10 @@ class ModelInfo:
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
 
+    def validate(self):
+        assert len(self.in_tensors) > 0, "Missing inputs"
+        assert len(self.out_tensors) > 0, "Missing outputs"
+
     @property
     def has_ins(self):
         return len(self.in_tensors) > 0

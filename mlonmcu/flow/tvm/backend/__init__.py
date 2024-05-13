@@ -22,5 +22,6 @@ from .tvmaotplus import TVMAOTPlusBackend
 from .tvmcg import TVMCGBackend
 from .tvmrt import TVMRTBackend
 from .tvmllvm import TVMLLVMBackend
+from .tvmaotllvm import TVMAOTLLVMBackend
 
 __all__ = ["TVMBackend", "TVMAOTBackend", "TVMAOTPlusBackend", "TVMCGBackend", "TVMRTBackend", "TVMLLVMBackend"]

@@ -20,6 +20,7 @@ from mlonmcu.logging import get_logger
 
 from mlonmcu.flow.tvm.backend.backend import TVMBackend
 from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend
+from mlonmcu.flow.tvm.backend.tvmaotllvm import TVMAOTLLVMBackend
 
 logger = get_logger()
 
@@ -39,6 +40,7 @@ def get_tvm_platform_backends():
 
 
 register_tvm_platform_backend("tvmllvm", TVMLLVMBackend)
+register_tvm_platform_backend("tvmaotllvm", TVMAOTLLVMBackend)
 
 
 def create_tvm_platform_backend(name, platform, base=TVMBackend):

@@ -80,7 +80,6 @@ def _process_pickable(run_initializer, until, skip, export, context):
     assert skip is None
     skip = [stage for stage in RunStage if stage not in used_stages]
     run.process(until=until, skip=skip, export=export)
-    run.process(until=until, skip=skip, export=export)
     ret = run.result()
     return ret
 
@@ -271,7 +270,7 @@ class SessionScheduler:
                                 total_threads,
                                 cpu_count,
                             )
-                    f = executor.submit(self._process, pbar, run, until=self.until, skip=self.skipped_stages, context=context_)
+                    f = executor.submit(self._process, run, until=self.until, skip=self.skipped_stages, export=export, context=context_)
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)

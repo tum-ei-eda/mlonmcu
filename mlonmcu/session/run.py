@@ -1433,4 +1433,21 @@ class Run:
         return RunResult(self)  # TODO: session?
 
 
-# TODO: implement close()? and use closing contextlib?
+
+class ArchivedRun(Run):
+
+    def __init__(self, TODO):
+        pass
+
+    @staticmethod
+    def from_file(path: Union[Path, str]):
+        # TODO: yml, yaml, txt, tar, zip
+        pass
+
+    @staticmethod
+    def from_dir(path: Union[Path, str]):
+        pass
+
+    @staticmethod
+    def restore(self):
+        pass

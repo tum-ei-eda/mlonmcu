@@ -28,7 +28,7 @@ import filelock
 
 from mlonmcu.utils import ask_user
 from mlonmcu.logging import get_logger, set_log_file
-from mlonmcu.session.run import Run
+from mlonmcu.session.run import Run, ArchivedRun
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
@@ -186,9 +186,9 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
             run_directory = runs_directory / str(rid)
             # run_file = run_directory / "run.txt"
             # run = Run.from_file(run_file)  # TODO: actually implement run restore
-            run = Run()  # TODO: fix
-            run.archived = True
-            run.dir = run_directory
+            run = ArchivedRun.from_dir(run_directory)
+            # run.archived = True
+            # run.dir = run_directory
             runs.append(run)
         session = Session(idx=sid, archived=True, dir=session_directory)
         session.runs = runs

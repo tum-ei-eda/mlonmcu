@@ -121,10 +121,11 @@ class TVMAOTLLVMBackend(TVMBackend):
                 api="c" if self.unpacked_api else "packed",
                 debug_arena=self.debug_arena,
             )
-        artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
-        header_src = generate_wrapper_header()
-        artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
-        metrics.add("Workspace Size [B]", workspace_size, True)
+            artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
+            header_src = generate_wrapper_header()
+            artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
+            metrics.add("Workspace Size [B]", workspace_size, True)
+            # TODO: export workspace_size if not self.generate_wrapper
         return {"default": artifacts}, {"default": metrics}
 
 

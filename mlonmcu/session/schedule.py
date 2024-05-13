@@ -30,8 +30,8 @@ from typing import List, Optional
 
 from tqdm import tqdm
 
-from mlonmcu.context import MlonMcuContext
-from mlonmcu.session.run import Run, RunInitializer
+# from mlonmcu.context.context import MlonMcuContext
+from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
 from mlonmcu.config import filter_config
@@ -43,7 +43,7 @@ from .progress import init_progress, update_progress, close_progress
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
 
-def handle_executor(name: str):
+def _handle_executor(name: str):
     # TODO: handle (thread_pool, process_pool, remote, hybrid)
     EXECUTOR_LOOKUP = {
         "thread_pool": concurrent.futures.ThreadPoolExecutor,
@@ -54,7 +54,7 @@ def handle_executor(name: str):
     return ret
 
 
-def handle_context(context: MlonMcuContext, allow_none: bool = False, minimal: bool = False):
+def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     # TODO: handle (thread_pool, process_pool, remote, hybrid)
     if context is None:
         assert allow_none, "Missing context"
@@ -109,14 +109,17 @@ class SessionScheduler:
         progress: bool = False,
         executor: str = "thread_pool",
         num_workers: int = 1,
+        prefix: str = "[session]",
     ):
         self.runs = runs
         self.until = until
         self.per_stage = per_stage
         self.progress = progress
-        self._executor_cls = handle_executor(executor)
+        self.executor = executor
+        self._executor_cls = _handle_executor(executor)
         self._executor_args = [num_workers]
         self.num_workers = num_workers
+        self.prefix = prefix
         self._futures = []
         # TODO: contextmanager?
         self.num_failures = 0
@@ -169,14 +172,14 @@ class SessionScheduler:
                 failing = True
                 logger.exception(e)
                 logger.error("An exception was thrown by a worker during simulation")
-            print("res", res, type(res))
+            # print("res", res, type(res))
             if self.progress:
                 update_progress(pbar)
             if res is not None:
                 assert isinstance(res, RunResult), "Expected RunResult type"
                 run_index = res.idx
                 # run = res
-                self.runs[run_index] = res
+                # self.runs[run_index] = res
             else:
                 run_index = self._future_run_idx[f]
             run = self.runs[run_index]
@@ -230,7 +233,7 @@ class SessionScheduler:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             f = executor.submit(
-                                self._process, pbar, run, until=stage, skip=self.skipped_stages, export=export
+                                self._process, run, until=stage, skip=self.skipped_stages, export=export, context=context_,
                             )
                             self._futures.append(f)
                             self._future_run_idx[f] = i

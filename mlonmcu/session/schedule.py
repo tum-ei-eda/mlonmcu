@@ -73,6 +73,39 @@ def _process_pickable(run_initializer, until, skip, export, context):
     return ret
 
 
+def _postprocess_default(runs, report, dest, progress=False):
+    session_postprocesses = []
+    num_failing = 0
+    for run in runs:
+        for postprocess in run.postprocesses:
+            if isinstance(postprocess, SessionPostprocess):
+                if postprocess.name not in [p.name for p in session_postprocesses]:
+                    session_postprocesses.append(postprocess)
+    if progress:
+        pbar = init_progress(len(session_postprocesses), msg="Postprocessing session")
+    for postprocess in session_postprocesses:
+        try:
+            artifacts = postprocess.post_session(report)
+        except Exception as e:
+            logger.exception(e)
+            num_failing += 1
+            break
+        if progress:
+            update_progress(pbar)
+        if artifacts is not None:
+            for artifact in artifacts:
+                # Postprocess has an artifact: write to disk!
+                logger.debug("Writing postprocess artifact to disk: %s", artifact.name)
+                artifact.export(dest)
+    if progress:
+        close_progress(pbar)
+    return num_failing
+
+
+def _postprocess_pickable(runs, report, dest, progress=False):
+    raise NotImplementedError
+
+
 # TODO: alternative _process functions
 
 
@@ -116,15 +149,16 @@ class SessionScheduler:
         self._future_run_idx = {}
         self.used_stages, self.skipped_stages = self.prepare()
         self._check()
-        self._process = self._pick_process()
-
+        self._process, self._postprocess = self._pick_process()
 
     def _pick_process(self):
         ret = _process_default
+        ret2 = _postprocess_default
         needs_pickable = self.executor == "process_pool"
         if needs_pickable:
             ret = _process_pickable
-        return ret
+            ret2 = _postprocess_pickable
+        return ret, ret2
 
     def _check(self):
         if self.executor == "process_pool":
@@ -270,30 +304,8 @@ class SessionScheduler:
         logger.info("Postprocessing session report")
         # Warning: currently we only support one instance of the same type of postprocess,
         # also it will be applied to all rows!
-        session_postprocesses = []
-        for run in self.runs:
-            for postprocess in run.postprocesses:
-                if isinstance(postprocess, SessionPostprocess):
-                    if postprocess.name not in [p.name for p in session_postprocesses]:
-                        session_postprocesses.append(postprocess)
-        if self.progress:
-            pbar = init_progress(len(session_postprocesses), msg="Postprocessing session")
-        for postprocess in session_postprocesses:
-            try:
-                artifacts = postprocess.post_session(report)
-            except Exception as e:
-                logger.exception(e)
-                self.num_failing += 1
-                break
-            if self.progress:
-                update_progress(pbar)
-            if artifacts is not None:
-                for artifact in artifacts:
-                    # Postprocess has an artifact: write to disk!
-                    logger.debug("Writing postprocess artifact to disk: %s", artifact.name)
-                    artifact.export(dest)
-        if self.progress:
-            close_progress(pbar)
+        num_failing = self._postprocess(self.runs, report, dest, progress=self.progress)
+        self.num_failures += num_failing
         return report
 
     def print_summary(self):

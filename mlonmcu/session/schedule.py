@@ -164,7 +164,7 @@ class SessionScheduler:
 
     def _check(self):
         if self.executor == "process_pool":
-            assert not self.progress, "progress bar not supported if session.process_pool=1"
+            # assert not self.progress, "progress bar not supported if session.process_pool=1"
             assert not self.per_stage, "per stage not supported if session.process_pool=1"
             assert not self.use_init_stage, "use_init_stage not supported if session.process_pool=1"
 
@@ -210,7 +210,7 @@ class SessionScheduler:
             else:
                 run_index = self._future_run_idx[f]
             run = self.runs[run_index]
-            if failing or run.failing:
+            if failing or res.failing:
                 self.num_failures += 1
                 failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None  # TODO
                 if failed_stage in self.stage_failures:
@@ -251,6 +251,7 @@ class SessionScheduler:
 
         with self._executor_cls(*self._executor_args) as executor:
             if self.per_stage:
+                assert self.used_stages is not None
                 if self.progress:
                     pbar2 = init_progress(len(self.used_stages), msg="Processing stages")
                 for stage in self.used_stages:
@@ -308,8 +309,6 @@ class SessionScheduler:
                                 run.compile_platform.num_threads
                             )  # TODO: This should also be used for non-mlif platforms
                         if total_threads > 2 * cpu_count:
-                            if pbar2:
-                                print()
                             logger.warning(
                                 "The chosen configuration leads to a maximum of %d being processed which"
                                 + " heavily exceeds the available CPU resources (%d)."

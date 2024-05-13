@@ -450,7 +450,8 @@ class TVMBackend(Backend):
                     self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
                 else:
                     self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
-        self.model_info.validate()
+        if self.model_info:
+            self.model_info.validate()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None

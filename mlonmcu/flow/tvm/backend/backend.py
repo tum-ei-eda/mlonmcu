@@ -394,9 +394,7 @@ class TVMBackend(Backend):
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
-            return utils.exec_getout(
-                *pre, command, *args, live=self.print_outputs, env=env, cwd=cwd
-            )
+            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
         else:
             if self.tvmc_custom_script is None:
                 pre = ["-m", "tvm.driver.tvmc"]
@@ -445,8 +443,14 @@ class TVMBackend(Backend):
                 else:
                     raise e
 
-            if self.model_info and not self.input_shapes:
-                self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+            if self.model_info:
+                # TODO: also handle output_shapes
+                # TODO: take care of refresh_model_info
+                if input_shapes:
+                    self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
+                else:
+                    self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+        self.model_info.validate()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None

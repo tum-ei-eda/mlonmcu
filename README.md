@@ -2,7 +2,7 @@
 
 [![pypi package](https://badge.fury.io/py/mlonmcu.svg)](https://pypi.org/project/mlonmcu)
 [![readthedocs](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
-![coveragae](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
+![coverage](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
 
 [![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
@@ -152,10 +152,6 @@ Documentation is mainly generated automatically from doctrings (triggered via `m
 
 Regarding coding style, it is recommended to run `black` before every commit. The default line length should be given in the `setup.cfg` file.
 
-## Credits
-
-This is a research project proposed by the Chair of Design Automation of the Technical University of Munich.
-
 ### Developers
 
 - Rafael Stahl (TUM) [@rafzi]
@@ -172,3 +168,11 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 - **Cookiecutter:** https://github.com/audreyr/cookiecutter
 - **`audreyr/cookiecutter-pypackage`:** https://github.com/audreyr/cookiecutter-pypackage
+
+
+## Acknowledgment
+
+<img src="./BMBF_gefoerdert_2017_en.jpg" alt="drawing" height="75" align="left" >
+
+This research is partially funded by the German Federal Ministry of Education and Research (BMBF) within
+the project [Scale4Edge](https://www.edacentrum.de/scale4edge/) (grant number 16ME0465).

@@ -27,7 +27,8 @@ import time
 from mlonmcu.logging import get_logger
 
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 from mlonmcu.setup import utils
@@ -307,6 +308,7 @@ class VicunaTarget(RVVTarget):
             if handle_exit is not None:
                 temp = handle_exit(temp, out=out)
             return temp
+
         if self.print_outputs:
             self.prepare_simulator(cwd=directory, live=True)
         else:

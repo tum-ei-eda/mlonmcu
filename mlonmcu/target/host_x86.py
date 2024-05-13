@@ -22,7 +22,8 @@ import stat
 from pathlib import Path
 
 from mlonmcu.config import str2bool
-from .common import cli, execute
+from mlonmcu.setup.utils import execute
+from .common import cli
 from .target import Target
 
 
@@ -74,7 +75,7 @@ class HostX86Target(Target):
                 comm = f"127.0.0.1:{self.gdbserver_port}"
                 return execute(self.gdb_server_path, comm, program, *args, **kwargs)
 
-        return execute(program, *args, **kwargs)
+        return execute(program, *args, **kwargs), []
 
     def get_arch(self):
         return "x86"

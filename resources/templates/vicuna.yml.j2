@@ -47,9 +47,6 @@ repos:
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
     ref: bc60b2d2f541e1fee6352b9c9ab7cb442ff59bf4
-  tflite_pack:
-    url: "https://github.com/tum-ei-eda/tflite-pack.git"
-    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
@@ -68,7 +65,7 @@ repos:
     ref: ffeca904368926d60caeb2d97858215626892f35
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: bc89dea740f395117da591435de4be7d514a8d0b
+    ref: 5914b4a76218816b5f21539ba7ad72ac1979525b
   microtvm_spike:
     url: "https://github.com/PhilippvK/microtvm-spike-template.git"
     ref: ddaaf4554aaafb0a509cd4d9db3397e07b512d9d
@@ -109,8 +106,6 @@ frameworks:
     enabled: true
     backends:
       default: tflmi
-      # tflmc:
-      #   enabled: true
       tflmi:
         enabled: true
         features:
@@ -148,13 +143,6 @@ frameworks:
           debug_arena: true
           disable_legalize: false
           autotuned: true
-      # tvmcg:
-      #   enabled: true
-      #   features:
-      #     debug_arena: true
-      #     disable_legalize: false
-      #     autotune: true
-      #     autotuned: true
     features: []
     # features:
     #   muriscvnnbyoc: true
@@ -173,18 +161,6 @@ frontends:
     enabled: true
     features:
       relayviz: true
-  # packed:
-  #   enabled: false
-  #   features:
-  #     packing: true
-  #     packed: true
-  # onnx:
-  #   enabled: true
-  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
-  pb:
-    enabled: true
-  paddle:
-    enabled: true
   example:
     enabled: true
   embench:
@@ -270,6 +246,4 @@ vars:
   etiss.keep_build_dir: false
   spikepk.default_arch: rv32im_zicsr_zifencei
   spikepk.default_abi: ilp32
-flags:
-  tflmc.exe:
-  - x86
+flags: {}

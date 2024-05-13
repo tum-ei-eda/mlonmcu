@@ -817,9 +817,7 @@ class FuseOps(BackendFeature):
             tmp = ast.literal_eval(tmp)
         assert isinstance(tmp, dict)
         tmp["relay.FuseOps.max_depth"] = self.max_depth
-        config.update(
-            {f"{backend}.extra_pass_config": tmp}
-        )
+        config.update({f"{backend}.extra_pass_config": tmp})
 
 
 @register_feature("moiopt")

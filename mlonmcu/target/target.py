@@ -35,8 +35,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.config import str2bool
 
 
-# TODO: class TargetFactory:
-from .common import execute
+from mlonmcu.setup.utils import execute
 from .metrics import Metrics
 
 
@@ -146,10 +145,11 @@ class Target:
             if handle_exit is not None:
                 temp = handle_exit(temp, out=out)
             return temp
+
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out = self.exec(
+            out, artifacts = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
@@ -159,7 +159,7 @@ class Target:
         metrics = Metrics()
         metrics.add("Runtime [s]", diff)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def generate(self, elf) -> Tuple[dict, dict]:
         artifacts = []

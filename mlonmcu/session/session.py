@@ -37,31 +37,10 @@ from mlonmcu.config import str2bool
 
 from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage
+from .progress import init_progress, update_progress, close_progress
+from .schedule import SessionScheduler
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
-
-
-def _process2(pbar, run_initializer, until, skip, export, context):
-    """Helper function to invoke the run."""
-    run = run_initializer.realize(context=context)
-    session = None  # TODO
-    run.init_directory(session=session)
-    used_stages = get_used_stages([run], until)
-    assert skip is None
-    skip = [stage for stage in RunStage if stage not in used_stages]
-    run.process(until=until, skip=skip, export=export)
-    ret = run.result()
-    return ret
-
-
-def get_used_stages(runs, until):
-    """Determines the stages which are used by at least one run."""
-    used = []
-    for stage_index in list(range(RunStage.LOAD, until + 1)) + [RunStage.POSTPROCESS]:
-        stage = RunStage(stage_index)
-        if any(run.has_stage(stage) for run in runs):
-            used.append(stage)
-    return used
 
 
 class SessionStatus(Enum):  # TODO: remove?
@@ -209,190 +188,14 @@ class Session:
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
-        workers = []
-        # results = []
-        workers = []
-        pbar = None  # Outer progress bar
-        pbar2 = None  # Inner progress bar
-        num_runs = len(self.runs)
-        num_failures = 0
-        stage_failures = {}
-        worker_run_idx = []
-
-        def _init_progress(total, msg="Processing..."):
-            """Helper function to initialize a progress bar for the session."""
-            return tqdm(
-                total=total,
-                desc=msg,
-                ncols=100,
-                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
-                leave=None,
-            )
-
-        def _update_progress(pbar, count=1):
-            """Helper function to update the progress bar for the session."""
-            pbar.update(count)
-
-        def _close_progress(pbar):
-            """Helper function to close the session progressbar, if available."""
-            if pbar:
-                pbar.close()
-
-        def _process(pbar, run, until, skip, export, context=None):
-            """Helper function to invoke the run."""
-            run.process(until=until, skip=skip, export=export)
-            if progress:
-                _update_progress(pbar)
-
-        def _join_workers(workers):
-            """Helper function to collect all worker threads."""
-            nonlocal num_failures
-            results = []
-            for i, w in enumerate(workers):
-                res = None
-                failing = False
-                try:
-                    res = w.result()
-                    results.append(res)
-                except Exception as e:
-                    failing = True
-                    logger.exception(e)
-                    logger.error("An exception was thrown by a worker during simulation")
-                print("res", res, type(res))
-                input("111")
-                if res is not None:
-                    assert isinstance(res, RunResult), "Expected RunResult type"
-                    run_index = res.idx
-                    # run = res
-                    self.runs[run_index] = res
-                else:
-                    run_index = worker_run_idx[i]
-                run = self.runs[run_index]
-                if failing or run.failing:
-                    num_failures += 1
-                    failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None
-                    if failed_stage in stage_failures:
-                        stage_failures[failed_stage].append(run_index)
-                    else:
-                        stage_failures[failed_stage] = [run_index]
-            if progress:
-                _close_progress(pbar)
-            return results
-
-        if self.process_pool:
-            assert not progress, "progress bar not supported if session.process_pool=1"
-            assert not per_stage, "per stage not supported if session.process_pool=1"
-        executor_cls = concurrent.futures.ProcessPoolExecutor if self.process_pool else concurrent.futures.ThreadPoolExecutor
-        with executor_cls(num_workers) as executor:
-            if per_stage:
-                used_stages = get_used_stages(self.runs, until)
-                skipped_stages = [stage for stage in RunStage if stage not in used_stages]
-                if progress:
-                    pbar2 = _init_progress(len(used_stages), msg="Processing stages")
-
-                for stage in used_stages:
-                    run_stage = RunStage(stage).name
-                    if progress:
-                        pbar = _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
-                    else:
-                        logger.info("%s Processing stage %s", self.prefix, run_stage)
-                    for i, run in enumerate(self.runs):
-                        if i == 0:
-                            total_threads = min(len(self.runs), num_workers)
-                            cpu_count = multiprocessing.cpu_count()
-                            if (stage == RunStage.COMPILE) and run.compile_platform:
-                                total_threads *= run.compile_platform.num_threads
-                            if total_threads > 2 * cpu_count:
-                                if pbar2:
-                                    print()
-                                logger.warning(
-                                    "The chosen configuration leads to a maximum of %d threads being"
-                                    + " processed which heavily exceeds the available CPU resources (%d)."
-                                    + " It is recommended to lower the value of 'mlif.num_threads'!",
-                                    total_threads,
-                                    cpu_count,
-                                )
-                        if run.failing:
-                            logger.warning("Skiping stage '%s' for failed run", run_stage)
-                        else:
-                            worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages, export=export))
-                    _join_workers(workers)
-                    workers = []
-                    worker_run_idx = []
-                    if progress:
-                        _update_progress(pbar2)
-                if progress:
-                    _close_progress(pbar2)
-            else:
-                if progress:
-                    pbar = _init_progress(len(self.runs), msg="Processing all runs")
-                else:
-                    logger.info(self.prefix + "Processing all stages")
-                for i, run in enumerate(self.runs):
-                    if i == 0 and not isinstance(run, RunInitializer):
-                        total_threads = min(len(self.runs), num_workers)
-                        cpu_count = multiprocessing.cpu_count()
-                        if (
-                            (until >= RunStage.COMPILE)
-                            and run.compile_platform is not None
-                            and run.compile_platform.name == "mlif"
-                        ):
-                            total_threads *= (
-                                run.compile_platform.num_threads
-                            )  # TODO: This should also be used for non-mlif platforms
-                        if total_threads > 2 * cpu_count:
-                            if pbar2:
-                                print()
-                            logger.warning(
-                                "The chosen configuration leads to a maximum of %d being processed which"
-                                + " heavily exceeds the available CPU resources (%d)."
-                                + " It is recommended to lower the value of 'mlif.num_threads'!",
-                                total_threads,
-                                cpu_count,
-                            )
-                    worker_run_idx.append(i)
-                    context_minimal = context.get_read_only_context()
-                    workers.append(executor.submit(_process2 if self.process_pool else _process, pbar, run, until=until, skip=None, export=export, context=context_minimal))
-                _join_workers(workers)
-        if num_failures == 0:
-            logger.info("All runs completed successfuly!")
-        elif num_failures == num_runs:
-            logger.error("All runs have failed to complete!")
-        else:
-            num_success = num_runs - num_failures
-            logger.warning("%d out or %d runs completed successfully!", num_success, num_runs)
-            summary = "\n".join(
-                [
-                    f"\t{stage}: \t{len(failed)} failed run(s): " + " ".join([str(idx) for idx in failed])
-                    for stage, failed in stage_failures.items()
-                    if len(failed) > 0
-                ]
-            )
-            logger.info("Summary:\n%s", summary)
-
+        executor = "process_pool" if self.process_pool else "thread_pool"
+        scheduler = SessionScheduler(
+            self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers
+        )
+        self.runs = scheduler.process(export=export, context=context)
         report = self.get_reports()
-        logger.info("Postprocessing session report")
-        # Warning: currently we only support one instance of the same type of postprocess,
-        # also it will be applied to all rows!
-        session_postprocesses = []
-        for run in self.runs:
-            if isinstance(run, RunInitializer):
-                continue
-            if isinstance(run, RunResult):
-                # TODO: fix
-                run.postprocesses = []
-            for postprocess in run.postprocesses:
-                if isinstance(postprocess, SessionPostprocess):
-                    if postprocess.name not in [p.name for p in session_postprocesses]:
-                        session_postprocesses.append(postprocess)
-        for postprocess in session_postprocesses:
-            artifacts = postprocess.post_session(report)
-            if artifacts is not None:
-                for artifact in artifacts:
-                    # Postprocess has an artifact: write to disk!
-                    logger.debug("Writting postprocess artifact to disk: %s", artifact.name)
-                    artifact.export(self.dir)
+        scheduler.print_summary()
+        report = scheduler.postprocess(report, dest=self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
@@ -403,7 +206,7 @@ class Session:
         if print_report:
             logger.info("Report:\n%s", str(report.df))
 
-        return num_failures == 0
+        return scheduler.num_failures == 0
 
     def discard(self):
         """Discard a run and remove its directory."""

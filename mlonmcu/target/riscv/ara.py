@@ -30,7 +30,8 @@ from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
 
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 from .riscv_vext_target import RVVTarget
@@ -197,7 +198,7 @@ class AraTarget(RVVTarget):
         return exit_code
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        add_bench_metrics(out, metrics, exit_code != 0)
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         """
         Expected output looks like this:
 

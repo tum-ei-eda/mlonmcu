@@ -1437,6 +1437,20 @@ class Run:
     def result(self):
         return RunResult(self)  # TODO: session?
 
+    def initializer(self):
+        return RunInitializer(
+            idx=self.idx,
+            model_name=self.model.name,
+            framework_name=self.framework.name,
+            frontend_names=[frontend.name for frontend in self.frontends],
+            backend_name=self.backend.name,
+            target_name=self.target.name,
+            platform_names=[platform.name for platform in self.platforms],
+            feature_names=[feature.name for feature in self.features],
+            config={**self.config},
+            postprocess_names=[postprocess.name for postprocess in self.postprocesses],
+            comment=self.comment,
+        )
 
 
 class ArchivedRun(Run):

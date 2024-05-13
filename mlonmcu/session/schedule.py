@@ -131,6 +131,7 @@ class SessionScheduler:
         executor: str = "thread_pool",
         num_workers: int = 1,
         prefix: str = "[session]",
+        use_init_stage: bool = False,
     ):
         self.runs = runs
         self.until = until
@@ -141,6 +142,7 @@ class SessionScheduler:
         self._executor_args = [num_workers]
         self.num_workers = num_workers
         self.prefix = prefix
+        self.use_init_stage = use_init_stage
         self._futures = []
         # TODO: contextmanager?
         self.num_failures = 0
@@ -164,8 +166,11 @@ class SessionScheduler:
         if self.executor == "process_pool":
             assert not self.progress, "progress bar not supported if session.process_pool=1"
             assert not self.per_stage, "per stage not supported if session.process_pool=1"
+            assert not self.use_init_stage, "use_init_stage not supported if session.process_pool=1"
 
     def prepare(self):
+        if self.executor == "process_pool" or self.use_init_stage:
+            return None, None  # TODO
         used_stages = _used_stages(self.runs, self.until)
         skipped_stages = [stage for stage in RunStage if stage not in used_stages]
         return used_stages, skipped_stages
@@ -216,6 +221,22 @@ class SessionScheduler:
             close_progress(pbar)
         return results
 
+    def initialize(self, context):
+        runs = []
+        if self.progress:
+            pbar = init_progress(self.num_runs, msg="Initializing all runs")
+        for run_initializer in self.runs:
+            assert isinstance(run_initializer, RunInitializer)
+            run = run_initializer.realize(context=context)
+            session = None  # TODO
+            run.init_directory(session=session)
+            runs.append(run)
+            if self.progress:
+                update_progress(pbar)
+        self.runs = runs
+        if self.progress:
+            close_progress(pbar)
+
     def process(
         self,
         export=False,
@@ -224,6 +245,9 @@ class SessionScheduler:
         pbar = None  # Outer progress bar
         pbar2 = None  # Inner progress bar
         context_ = _handle_context(context, minimal=True)
+
+        if self.use_init_stage:
+            self.initialize(context)
 
         with self._executor_cls(*self._executor_args) as executor:
             if self.per_stage:

@@ -58,6 +58,7 @@ class Session:
     DEFAULTS = {
         "report_fmt": "csv",
         "process_pool": False,
+        "use_init_stage": False,
     }
 
     def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
@@ -110,11 +111,17 @@ class Session:
         value = self.config["process_pool"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def use_init_stage(self):
+        """get use_init_stage property."""
+        value = self.config["use_init_stage"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
         idx = len(self.runs)
         logger.debug("Creating a new run with id %s", idx)
-        if self.process_pool:
+        if self.process_pool or self.use_init_stage:
             run = RunInitializer(*args, idx=idx, **kwargs)
         else:
             run = Run(*args, idx=idx, **kwargs)
@@ -190,7 +197,7 @@ class Session:
         assert num_workers > 0, "num_workers can not be < 1"
         executor = "process_pool" if self.process_pool else "thread_pool"
         scheduler = SessionScheduler(
-            self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers
+            self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, prefix=self.prefix
         )
         self.runs = scheduler.process(export=export, context=context)
         report = self.get_reports()

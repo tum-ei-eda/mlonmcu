@@ -21,6 +21,7 @@ import itertools
 import os
 import copy
 import tempfile
+from typing import Union
 from pathlib import Path
 from enum import IntEnum
 from collections import defaultdict
@@ -86,7 +87,7 @@ class RunInitializer:
         config=None,
         postprocess_names=None,
         comment=None,
-        from_stage=None,
+        # from_stage=None,
     ):
         self.idx = idx
         self.model_name = model_name
@@ -186,9 +187,16 @@ class RunResult:
     # def __init__(self, run: "Run", session: "Session"):
     def __init__(self, run: "Run"):
         self.idx = run.idx
+        self.dir = run.dir
         self.failing = run.failing
+        self.failed_stage = run.failed_stage
+        self.reason = run.reason
         # self.report = run.get_report(session=session)
         self.report = run.get_report()
+        # self.artifacts_per_stage = {}
+        # self.stage = RunStage.NOP  # max executed stage
+        # self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
+        # self.directories = {}
 
     def get_report(self, session=None):
         # TODO: read only?!

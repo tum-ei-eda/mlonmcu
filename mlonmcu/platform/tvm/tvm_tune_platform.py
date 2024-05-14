@@ -67,6 +67,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         "enable_wandb": False,
         "min_repeat_ms": 0,
         "flop_prefix": "G",  # TODO: pass to tvmc tune!
+        "split_artifacts_per_task": False,
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
@@ -98,6 +99,11 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     @property
     def enable_wandb(self):
         value = self.config["enable_wandb"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def split_artifacts_per_task(self):
+        value = self.config["split_artifacts_per_task"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -278,6 +284,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             assert not append, "append not supported by MetaScheduler"
             assert num_workers is None or int(num_workers) == 0, "num_workers > 0 not supported by MetaScheduler"
             assert not self.config["autotuning_visualize"], "autotuning_visualize not supported by MetaScheduler"
+            assert not self.split_artifacts_per_task, "split_artifacts_per_task not supported my MetaScheduler"
 
             sub_metrics = {}
             sub_artifacts = {}
@@ -299,6 +306,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     "work_dir.tar", raw=raw, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"]
                 )
         elif autotvm_enable or autoscheduler_enable:
+            assert autotvm_enable or not self.split_artifacts_per_task, "split_artifacts_per_task not supported my AutoScheduler"
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -446,6 +454,24 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         ret = w.result()
                         logger.debug(f"Worker {i}: done")
                         out, content, size, tuned, failed, max_flops, duration, visualize_raw_task, best_runtime, target_string, task_name, task_tensors, num_flops, best_idx, confidences = ret
+                        if self.split_artifacts_per_task:
+                            stdout_artifact = Artifact(
+                                "tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
+                            )
+                            artifacts_.append(stdout_artifact)
+                            flag = "autotvm" if not autoscheduler_enable else "autoscheduler"
+                            artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
+                            artifacts_.append(artifact)
+
+                            content_best = _pick_best(backend, content, verbose=verbose)
+
+                            failed_trials = count_failed_trials(content)
+                            if len(content_best) > 0:
+                                artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
+                                artifacts_.append(artifact_)
+                            else:
+                                artifact_ = Artifact("best_tuning_results.log.txt", content="", fmt=ArtifactFormat.TEXT)
+                                artifacts_.append(artifact_)
                         all_out += out
                         all_content += content
                         metrics_.add("Config Space Size", size, True)

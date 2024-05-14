@@ -68,6 +68,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         "min_repeat_ms": 0,
         "flop_prefix": "G",  # TODO: pass to tvmc tune!
         "split_artifacts_per_task": False,
+        "confidence_levels": [],
+        # "confidence_levels": [0.8, 0.9, 0.95, 0.99, 0.999],
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
@@ -115,6 +117,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     def flop_prefix(self):
         value = self.config["flop_prefix"]
         assert value in ["M", "G", "T"]
+        return value
+
+    @property
+    def confidence_levels(self):
+        # TODO: move confidence calc to postprocess depending on splitted task artifacts
+        value = self.config["confidence_levels"]
+        assert isinstance(value, list), "TODO: implement str2list of floats"
         return value
 
     def invoke_tvmc_tune(self, *args, target=None, **kwargs):
@@ -421,7 +430,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                     # task_tensors = "{?}"
                                     num_flops = int(max_flops * best_runtime)
                                     arr = np.array(best_runtimes)
-                                    confidences = {confidence: sum((1/arr) < ((1/min(arr))*confidence))+1 for confidence in [0.8, 0.9, 0.95, 0.99, 0.999]}
+
+                                    confidences = {confidence: sum((1/arr) < ((1/min(arr))*confidence))+1 for confidence in self.confidence_levels}
                                     return best_runtime, target_string, task_name, str(task_tensors), num_flops, best_idx, confidences
                                 best_runtime, target_string, task_name, task_tensors, num_flops, best_idx, confidences = parse_tuning_logs(content, max_flops)
                                 t1 = time.time()

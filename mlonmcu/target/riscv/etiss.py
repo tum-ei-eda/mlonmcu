@@ -87,6 +87,7 @@ class EtissTarget(RISCVTarget):
         "extra_bool_config": {},
         "extra_string_config": {},
         "extra_plugin_config": {},
+        "fclk": 100e6,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script"}
 

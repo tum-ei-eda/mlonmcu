@@ -222,7 +222,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def optimize(self):
-        return self.config["optimize"]
+        value = self.config["optimize"]
+        if value.lower().strip() in ["", "auto"]:
+            value = None
+        return value
 
     @property
     def input_data_path(self):

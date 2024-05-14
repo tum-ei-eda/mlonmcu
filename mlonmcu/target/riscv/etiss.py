@@ -98,6 +98,7 @@ class EtissTarget(RISCVTarget):
         "jit_verify": False,
         "jit_debug": False,
         "load_integrated_libraries": True,
+        "fclk": 100e6,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
 

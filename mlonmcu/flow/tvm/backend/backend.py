@@ -69,7 +69,8 @@ class TVMBackend(Backend):
         "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
         "desired_layout_ops": None,  # optional: conv2d, max_pool2d,...
         "desired_layout_map": None,  # optional, conv2d=NCHW, ...
-        "disabled_passes": [],  # i.e. AlterOpLayout
+        "disabled_passes": [],  # i.e. AlterOpLayout, FuseOps, FoldScaleAxis,
+                                # qnn.Legalize, QnnCanonicalize, tir.CommonSubexprElimTIR
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!

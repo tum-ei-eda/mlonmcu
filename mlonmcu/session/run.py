@@ -579,6 +579,7 @@ class Run:
 
     def add_model(self, model):
         """Setter for the model instance."""
+        assert model is not None
         self.model = model
         assert model is not None
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())

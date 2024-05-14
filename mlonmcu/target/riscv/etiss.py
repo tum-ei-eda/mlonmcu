@@ -677,6 +677,11 @@ class EtissTarget(RISCVTarget):
         exit_code = 0
         metrics = Metrics()
         self.parse_stdout(out, metrics, exit_code=exit_code)
+        if not metrics.has("Runtime [s]") and self.fclk:
+            if metrics.has("Total Cycles"):
+                cycles = metrics.get("Total Cycles")
+                if cycles > 0:
+                    metrics.add("Runtime [s]", cycles / self.fclk, True)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")

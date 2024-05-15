@@ -129,32 +129,32 @@ size_t {prefix}_outputs();
         reporter=True,
     ):
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
-        if len(ops) > 0:
 
-            def convert_op_name(op):
-                new_name = ""
-                prev = None
-                for i, c in enumerate(op):
-                    if c == "_":
-                        prev = c
-                        continue
-                    elif prev is None:
-                        new_name += c
-                    elif (prev == "_") or prev.isdigit():
-                        new_name += c
-                    elif prev.isupper():
-                        new_name += c.lower()
-                    elif c.islower():
-                        new_name += c
+        def convert_op_name(op):
+            new_name = ""
+            prev = None
+            for i, c in enumerate(op):
+                if c == "_":
                     prev = c
-                # workarounds for strange op names
-                MAPPINGS = {
-                    "Lstm": "LSTM",
-                }
-                for key, value in MAPPINGS.items():
-                    new_name = new_name.replace(key, value)
-                return new_name
+                    continue
+                elif prev is None:
+                    new_name += c
+                elif (prev == "_") or prev.isdigit():
+                    new_name += c
+                elif prev.isupper():
+                    new_name += c.lower()
+                elif c.islower():
+                    new_name += c
+                prev = c
+            # workarounds for strange op names
+            MAPPINGS = {
+                "Lstm": "LSTM",
+            }
+            for key, value in MAPPINGS.items():
+                new_name = new_name.replace(key, value)
+            return new_name
 
+        if len(ops) > 0:
             op_names = list(map(convert_op_name, ops))
 
             ops = op_names
@@ -162,8 +162,34 @@ size_t {prefix}_outputs();
             raise NotImplementedError
         if len(registrations) > 0:
             raise NotImplementedError
-        if ops_resolver != "mutable":
-            raise NotImplementedError
+        if ops_resolver == "mutable":
+            assert len(ops) > 0, ("No ops specified for ops_resolver=mutable!"
+                                  "Set model ops in definition.yml or use ops_resolver=all")
+        elif ops_resolver == "all":
+            raise RuntimeError("AllOpsResolver was removed from TFLM!"
+                               "Use ops_resolver=mutable or ops_resolver=fallback")
+        elif ops_resolver == "fallback":
+            ops_resolver = "mutable"
+            # Defines common operators which are used in many models
+            default_ops = [
+                "ADD",
+                "AVERAGE_POOL_2D",
+                "CONCATENATION",
+                "CONV_2D",
+                "DEPTHWISE_CONV_2D",
+                "FULLY_CONNECTED",
+                # "GATHER",
+                # "LOGISTIC",
+                "MAX_POOL_2D",
+                # "MEAN",
+                # "REDUCE_MAX",
+                "RESHAPE",
+                "SOFTMAX",
+            ]
+            default_ops = list(map(convert_op_name, default_ops))
+            ops = list(set(ops + default_ops))  # remove duplicates
+        else:
+            raise ValueError(f"Unsupported ops_resolver: {ops_resolver}")
 
         model_data = None
         with open(model, "rb") as model_buf:
@@ -271,14 +297,17 @@ private:
         wrapper_content += """
     return 1;
   }
-
-  // This pulls in all the operation implementations we need.
-  // NOLINTNEXTLINE(runtime-global-variables)
-  // static tflite::ops::micro::AllOpsResolver resolver;
-
 """
 
-        wrapper_content += self.make_op_registrations(ops, custom_ops, reporter=reporter)
+        if ops_resolver == "mutable":
+            wrapper_content += self.make_op_registrations(ops, custom_ops, reporter=reporter)
+        elif ops_resolver == "all":
+            wrapper_content += """
+  // This pulls in all the operation implementations we need.
+  // NOLINTNEXTLINE(runtime-global-variables)
+  static tflite::ops::micro::AllOpsResolver resolver;
+"""
+
         if reporter:
             wrapper_content += """
 

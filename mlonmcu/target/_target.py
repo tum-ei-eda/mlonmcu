@@ -21,6 +21,8 @@ from .riscv import (
     RiscvQemuTarget,
     GvsocPulpTarget,
     EtissTarget,
+    EtissRV32Target,
+    EtissRV64Target,
     AraTarget,
     AraRtlTarget,
     CV32E40PTarget,
@@ -48,6 +50,8 @@ def get_targets():
 
 register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
+register_target("etiss_rv32", EtissRV32Target)
+register_target("etiss_rv64", EtissRV64Target)
 register_target("host_x86", HostX86Target)
 register_target("host_x86_ssh", HostX86SSHTarget)
 register_target("corstone300", Corstone300Target)

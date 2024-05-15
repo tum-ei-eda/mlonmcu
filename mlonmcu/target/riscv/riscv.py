@@ -330,7 +330,7 @@ class RISCVTarget(Target):
         ret["RISCV_MCPU"] = self.cpu
         # llvm/clang only!
         ret["RISCV_ATTR"] = self.attr
-        ret["RISCV_LINUX"] = not self.is_bare  # TODO: add -static if linux gcc is used
+        ret["RISCV_LINUX"] = not self.is_bare
 
         def feature_helper(attrs):
             # TODO

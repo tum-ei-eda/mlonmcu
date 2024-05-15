@@ -171,9 +171,9 @@ class EtissTarget(RISCVTarget):
         if self.config.get("cpu_arch", None):
             return self.config["cpu_arch"]
         elif self.enable_pext or self.enable_vext:
-            return "RV32IMACFDPV"
+            return f"RV{self.xlen}IMACFDPV"
         else:
-            return "RV32IMACFD"
+            return f"RV{self.xlen}IMACFD"
 
     @property
     def enable_vext(self):
@@ -612,7 +612,7 @@ class EtissTarget(RISCVTarget):
         return metrics, out, artifacts
 
     def get_target_system(self):
-        return self.name
+        return "etiss"
 
     def get_platform_defs(self, platform):
         assert platform == "mlif"
@@ -647,6 +647,34 @@ class EtissTarget(RISCVTarget):
                         }
                     )
         return ret
+
+
+class EtissRV32Target(EtissTarget):
+    """32-bit version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 32,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
+    }
+
+    def __init__(self, name="etiss_rv32", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
+class EtissRV64Target(EtissTarget):
+    """64-bit version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 64,
+        "vlen": 0,  # vectorization=off
+        "elen": 64,
+    }
+
+    def __init__(self, name="etiss_rv64", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
 
 if __name__ == "__main__":

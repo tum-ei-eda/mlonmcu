@@ -53,6 +53,9 @@ class EtissPulpinoTarget(EtissTarget):
         ret["PULPINO_RAM_SIZE"] = self.ram_size
         return ret
 
+    def get_target_system(self):
+        return "etiss_pulpino"
+
 
 if __name__ == "__main__":
     cli(target=EtissPulpinoTarget)

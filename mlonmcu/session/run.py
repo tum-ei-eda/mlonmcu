@@ -18,10 +18,10 @@
 #
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
 import itertools
-import os
 import copy
+import shutil
 import tempfile
-from typing import Union
+from typing import Union, Optional
 from pathlib import Path
 from enum import IntEnum
 from collections import defaultdict
@@ -100,6 +100,42 @@ class RunInitializer:
         self.target_name = target_name
         self.config = config
         self.feature_names = feature_names
+
+    def _serialize(self):
+        return {
+            "runs": [
+                {
+                    "idx": self.idx,
+                    "model_name": self.model_name,
+                    "frontend_names": self.frontend_names,
+                    "framework_name": self.framework_name,
+                    "backend_name": self.backend_name,
+                    "platform_names": self.platform_names,
+                    "postprocess_names": self.postprocess_names,
+                    "comment": self.comment,
+                    "target_name": self.target_name,
+                    "config": self.config,
+                    "feature_names": self.feature_names,
+                }
+            ]
+        }
+
+    def save(self, dest: Union[str, Path], fmt: Optional[str] = None):
+        if not isinstance(dest, Path):
+            assert isinstance(dest, str)
+            dest = Path(dest)
+        data = self._serialize()
+        if fmt is None:
+            fmt = dest.suffix
+            assert fmt
+            if fmt[0] == ".":
+                fmt = fmt[1:]
+        if fmt.lower() in ["yml", "yaml"]:
+            import yaml
+            with open(dest, "w") as f:
+                yaml.dump(data, f, allow_unicode=True)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
 
     def realize(self, context=None):
         assert context is not None
@@ -1436,6 +1472,84 @@ class Run:
 
     def result(self):
         return RunResult(self)  # TODO: session?
+
+    # Everything in Run is serializable except PlatformTargets and PlatformBackends...
+    # def __getstate__(self):
+    #     state = self.__dict__.copy()
+    #     print("state", state)
+    #     # Don't pickle baz
+    #     # del state["baz"]
+    #     # del state["platforms"]
+    #     del state["target"]
+    #     return state
+
+    # def __setstate__(self, state):
+    #     self.__dict__.update(state)
+    #     # Add baz back since it doesn't exist in the pickle
+    #     # self.baz = 0
+
+    def save(self, dest: Union[str, Path], fmt: Optional[str] = None):
+        raise NotImplementedError
+        # if not isinstance(dest, Path):
+        #     assert isinstance(dest, str)
+        #     dest = Path(dest)
+        # # data = self._serialize()
+        # if fmt is None:
+        #     fmt = dest.suffix
+        #     assert fmt
+        #     if fmt[0] == ".":
+        #         fmt = fmt[1:]
+        # if fmt.lower() in ["pkl", "pickle"]:
+        #     import pickle
+        #     with open(dest, "wb") as f:
+        #         pickle.dump(self, f)
+        # else:
+        #     raise ValueError(f"Unsupported format: {fmt}")
+
+    def save_artifacts(self, dest: Union[str, Path], fmt: Optional[str] = None):
+        if not isinstance(dest, Path):
+            assert isinstance(dest, str)
+            dest = Path(dest)
+        artifacts = self.artifacts
+        if fmt is None:
+            fmt = dest.suffix
+            assert fmt
+            if fmt[0] == ".":
+                fmt = fmt[1:]
+        if fmt.lower() in ["pkl", "pickle"]:
+            data = {"artifacts": artifacts}
+            import pickle
+            with open(dest, "wb") as f:
+                pickle.dump(data, f)
+        elif fmt.lower() in ["yml", "yaml"]:
+            data = {"artifacts": [artifact.serialize() for artifact in artifacts]}
+            import yaml
+            with open(dest, "w") as f:
+                yaml.dump(data, f, allow_unicode=True)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+
+    def cleanup_artifacts(self, dirs: bool = False):
+        artifacts = self.artifacts
+        for artifact in artifacts:
+            if artifact.fmt in [ArtifactFormat.ARCHIVE]:
+                logger.warning("Can not cleanup unzipped archives!")
+            if not artifact.exported:
+                continue
+            assert artifact.path.is_absolute()
+            if artifact.path.is_file():
+                artifact.path.unlink()
+            elif artifact.path.is_dir() and dirs:
+                shutil.rmtree(artifact.path)
+            else:
+                assert False
+
+    def cleanup_directories(self):
+        for directory in self.directories.values():
+            assert directory.is_absolute()
+            if not directory.is_dir():
+                continue
+            shutil.rmtree(directory)
 
     def initializer(self):
         return RunInitializer(

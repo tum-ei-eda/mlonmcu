@@ -57,6 +57,15 @@ def _process_default(run, until, skip, export, context, runs_dir):
     """Helper function to invoke the run."""
     run.process(until=until, skip=skip, export=export)
     ret = run.result()
+    save = True
+    if save:
+        # run.save(run.dir / "run.pkl")
+        # run.save_artifacts(run.dir / "artifacts.pkl")
+        run.save_artifacts(run.dir / "artifacts.yml")
+    cleanup = True
+    if cleanup:
+        run.cleanup_artifacts(dirs=True)
+        run.cleanup_directories()
     return ret
 
 
@@ -64,11 +73,21 @@ def _process_pickable(run_initializer, until, skip, export, context, runs_dir):
     """Helper function to invoke the run."""
     run = run_initializer.realize(context=context)
     run.init_directory(parent=runs_dir)
+    run_initializer.save(run.dir / "initializer.yml")
     used_stages = _used_stages([run], until)
     assert skip is None
     skip = [stage for stage in RunStage if stage not in used_stages]
     run.process(until=until, skip=skip, export=export)
     ret = run.result()
+    save = True
+    if save:
+        # run.save(run.dir / "run.pkl")
+        # run.save_artifacts(run.dir / "artifacts.pkl")
+        run.save_artifacts(run.dir / "artifacts.yml")
+    cleanup = True
+    if cleanup:
+        run.cleanup_artifacts(dirs=True)
+        run.cleanup_directories()
     return ret
 
 
@@ -235,6 +254,7 @@ class SessionScheduler:
             assert isinstance(run_initializer, RunInitializer)
             run = run_initializer.realize(context=context)
             run.init_directory(parent=self.runs_dir)
+            run_initializer.save(run.dir / "initializer.yml")
             runs.append(run)
             if self.progress:
                 update_progress(pbar)

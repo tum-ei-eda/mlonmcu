@@ -155,6 +155,7 @@ class SessionScheduler:
         session=None,  # TODO: typing
     ):
         self.runs = runs
+        self.results = [None] * len(runs)
         self.until = until
         self.per_stage = per_stage
         self.progress = progress
@@ -233,6 +234,7 @@ class SessionScheduler:
                 run_index = res.idx
                 # run = res
                 # self.runs[run_index] = res
+                self.results[run_index] = res
             else:
                 run_index = self._future_run_idx[f]
             run = self.runs[run_index]
@@ -346,7 +348,7 @@ class SessionScheduler:
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)
-        return self.runs
+        return self.runs, self.results
         # return num_failures == 0
 
     def postprocess(self, report, dest):

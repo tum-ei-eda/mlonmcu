@@ -200,8 +200,8 @@ class Session:
         scheduler = SessionScheduler(
             self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, prefix=self.prefix
         )
-        self.runs = scheduler.process(export=export, context=context)
-        report = self.get_reports()
+        self.runs, results = scheduler.process(export=export, context=context)
+        report = self.get_reports(results=results)
         scheduler.print_summary()
         report = scheduler.postprocess(report, dest=self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"

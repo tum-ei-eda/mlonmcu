@@ -53,18 +53,17 @@ def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     return context
 
 
-def _process_default(run, until, skip, export, context):
+def _process_default(run, until, skip, export, context, runs_dir):
     """Helper function to invoke the run."""
     run.process(until=until, skip=skip, export=export)
     ret = run.result()
     return ret
 
 
-def _process_pickable(run_initializer, until, skip, export, context):
+def _process_pickable(run_initializer, until, skip, export, context, runs_dir):
     """Helper function to invoke the run."""
     run = run_initializer.realize(context=context)
-    session = None  # TODO
-    run.init_directory(session=session)
+    run.init_directory(parent=runs_dir)
     used_stages = _used_stages([run], until)
     assert skip is None
     skip = [stage for stage in RunStage if stage not in used_stages]
@@ -130,8 +129,10 @@ class SessionScheduler:
         progress: bool = False,
         executor: str = "thread_pool",
         num_workers: int = 1,
-        prefix: str = "[session]",
         use_init_stage: bool = False,
+        prefix: Optional[str] = None,
+        runs_dir: Optional[Path] = None,
+        session=None,  # TODO: typing
     ):
         self.runs = runs
         self.until = until
@@ -141,7 +142,8 @@ class SessionScheduler:
         self._executor_cls = _handle_executor(executor)
         self._executor_args = [num_workers]
         self.num_workers = num_workers
-        self.prefix = prefix
+        self.prefix = session.prefix if session is not None else prefix
+        self.runs_dir = session.runs_dir if session is not None else runs_dir
         self.use_init_stage = use_init_stage
         self._futures = []
         # TODO: contextmanager?
@@ -152,6 +154,10 @@ class SessionScheduler:
         self.used_stages, self.skipped_stages = self.prepare()
         self._check()
         self._process, self._postprocess = self._pick_process()
+
+    @property
+    def _prefix(self):
+        return f"{self.prefix} " if self.prefix else ""
 
     def _pick_process(self):
         ret = _process_default
@@ -228,8 +234,7 @@ class SessionScheduler:
         for run_initializer in self.runs:
             assert isinstance(run_initializer, RunInitializer)
             run = run_initializer.realize(context=context)
-            session = None  # TODO
-            run.init_directory(session=session)
+            run.init_directory(parent=self.runs_dir)
             runs.append(run)
             if self.progress:
                 update_progress(pbar)
@@ -259,7 +264,7 @@ class SessionScheduler:
                     if self.progress:
                         pbar = init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
                     else:
-                        logger.info("%s Processing stage %s", self.prefix, run_stage)
+                        logger.info("%sProcessing stage %s", self._prefix, run_stage)
                     for i, run in enumerate(self.runs):
                         if i == 0:
                             total_threads = min(self.num_runs, self.num_workers)
@@ -280,7 +285,7 @@ class SessionScheduler:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             f = executor.submit(
-                                self._process, run, until=stage, skip=self.skipped_stages, export=export, context=context_,
+                                self._process, run, until=stage, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir
                             )
                             self._futures.append(f)
                             self._future_run_idx[f] = i
@@ -316,7 +321,7 @@ class SessionScheduler:
                                 total_threads,
                                 cpu_count,
                             )
-                    f = executor.submit(self._process, run, until=self.until, skip=self.skipped_stages, export=export, context=context_)
+                    f = executor.submit(self._process, run, until=self.until, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir)
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)

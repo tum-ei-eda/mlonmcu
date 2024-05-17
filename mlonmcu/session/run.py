@@ -460,17 +460,24 @@ class Run:
         # self.lock.release()
         self.locked = False
 
-    def init_directory(self, session=None):
+    def init_directory(self, session=None, parent=None):
         """Initialize the temporary directory for this run."""
-        if session is None:
+        if parent is not None:
+            if not isinstance(parent, Path):
+                assert isinstance(parent, str)
+                parent = Path(parent)
+            assert parent.is_dir()
+            self.tempdir = None
+            self.dir = parent / str(self.idx)
+        elif session is not None:
+            logger.warning("session argument of run.init_directory is deprecated. Please use parent argument in the future.")
+            self.tempdir = None
+            self.dir = session.runs_dir / str(self.idx)
+        else:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)
-        else:
-            self.tempdir = None
-            self.dir = session.runs_dir / str(self.idx)
-            if not self.dir.is_dir():
-                os.mkdir(self.dir)
+        self.dir.mkdir(exist_ok=True)
         # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
         # A solution would be to split up the framework runtime libs from the mlif...
         for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)

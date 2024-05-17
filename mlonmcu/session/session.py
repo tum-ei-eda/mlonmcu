@@ -157,7 +157,8 @@ class Session:
                 last_run_idx = run.idx
             elif not run.archived:
                 run.idx = run_idx
-                run.init_directory(session=self)
+                # run.init_directory(session=self)
+                run.init_directory(parent=self.runs_dir)
                 run_idx += 1
                 last_run_idx = run.idx
         self.next_run_idx = run_idx

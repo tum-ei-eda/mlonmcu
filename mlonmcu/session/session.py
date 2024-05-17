@@ -57,7 +57,8 @@ class Session:
 
     DEFAULTS = {
         "report_fmt": "csv",
-        "process_pool": False,
+        # "process_pool": False,
+        "executor": "thread_pool",
         "use_init_stage": False,
     }
 
@@ -105,11 +106,16 @@ class Session:
         """get report_fmt property."""
         return str(self.config["report_fmt"])
 
+    # @property
+    # def process_pool(self):
+    #     """get process_pool property."""
+    #     value = self.config["process_pool"]
+    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
+
     @property
-    def process_pool(self):
-        """get process_pool property."""
-        value = self.config["process_pool"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+    def executor(self):
+        """get executor property."""
+        return str(self.config["executor"])
 
     @property
     def use_init_stage(self):
@@ -117,11 +123,16 @@ class Session:
         value = self.config["use_init_stage"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
+    def needs_initializer(self):
+        """TODO"""
+        return self.executor == "process_pool" or self.use_init_stage
+
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
         idx = len(self.runs)
         logger.debug("Creating a new run with id %s", idx)
-        if self.process_pool or self.use_init_stage:
+        if self.needs_initializer:
             run = RunInitializer(*args, idx=idx, **kwargs)
         else:
             run = Run(*args, idx=idx, **kwargs)
@@ -196,9 +207,8 @@ class Session:
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
-        executor = "process_pool" if self.process_pool else "thread_pool"
         scheduler = SessionScheduler(
-            self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, prefix=self.prefix
+            self.runs, until, executor=self.executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, session=self,
         )
         self.runs, results = scheduler.process(export=export, context=context)
         report = self.get_reports(results=results)

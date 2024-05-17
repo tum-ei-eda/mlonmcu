@@ -37,6 +37,8 @@ def _handle_executor(name: str):
     EXECUTOR_LOOKUP = {
         "thread_pool": concurrent.futures.ThreadPoolExecutor,
         "process_pool": concurrent.futures.ProcessPoolExecutor,
+        "popen_pool": None,  # TODO
+        "cmdline": None,  #
     }
     ret = EXECUTOR_LOOKUP.get(name, None)
     assert ret is not None, f"Executor not found: {name}"

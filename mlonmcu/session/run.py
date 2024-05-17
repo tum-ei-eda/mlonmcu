@@ -675,8 +675,7 @@ class Run:
         if model is None:
             if reasons:
                 logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
-            else:
-                raise RuntimeError(f"Model with name '{model_name}' not found.")
+            raise RuntimeError(f"Model with name '{model_name}' not found.")
         self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):

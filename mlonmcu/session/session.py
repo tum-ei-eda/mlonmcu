@@ -21,13 +21,10 @@ import os
 import shutil
 import filelock
 import tempfile
-import multiprocessing
+from typing import Optional
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-import concurrent.futures
-
-from tqdm import tqdm
 
 from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
@@ -35,9 +32,7 @@ from mlonmcu.report import Report
 from mlonmcu.config import filter_config
 from mlonmcu.config import str2bool
 
-from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage
-from .progress import init_progress, update_progress, close_progress
 from .schedule import SessionScheduler
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger

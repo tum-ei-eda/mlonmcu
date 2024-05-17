@@ -19,7 +19,8 @@
 """Definition of MLonMCU session schedulers."""
 import multiprocessing
 import concurrent.futures
-from typing import List
+from pathlib import Path
+from typing import List, Optional
 
 # from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import Run, RunInitializer, RunResult

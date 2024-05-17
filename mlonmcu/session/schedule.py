@@ -121,7 +121,8 @@ def _postprocess_default(runs, report, dest, progress=False):
 
 
 def _postprocess_pickable(runs, report, dest, progress=False):
-    raise NotImplementedError
+    logger.error("Session Postprocesses are not supported in pickable mode!")
+    return 0
 
 
 # TODO: alternative _process functions

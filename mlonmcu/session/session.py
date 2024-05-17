@@ -205,6 +205,7 @@ class Session:
         # TODO: Add configurable callbacks for stage/run complete
         assert self.active, "Session needs to be opened first"
 
+        assert len(self.runs), "List of runs is empty"
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"

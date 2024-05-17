@@ -142,12 +142,18 @@ class Session:
     #  def update_run(self): # TODO TODO
     #      pass
 
-    def get_reports(self):
+    def get_reports(self, results: Optional[RunResult] = None):
         """Returns a full report which includes all runs in this session."""
         if self.report:
             return self.report
 
-        reports = [run.get_report(session=self) for run in self.runs if not isinstance(run, RunInitializer)]
+        if results is None:
+            logger.warning("Use of session.get_reports without args is deprecated. Please pass list of RunResults!")
+
+            reports = [run.get_report(session=self) for run in self.runs if not isinstance(run, RunInitializer)]
+        else:
+            reports = [res.get_report(session=self) for res in results]
+
         merged = Report()
         merged.add(reports)
         return merged

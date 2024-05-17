@@ -67,6 +67,8 @@ def _handle(args, context):
     session = context.get_session(label=args.label, resume=args.resume, config=config)
     models = apply_modelgroups(args.models, context=context)
     for model in models:
+        if model == "_":
+            continue
         for f in gen_features:
             for c in gen_config:
                 all_config = {**config, **c}

@@ -176,8 +176,8 @@ class SessionScheduler:
         self.stage_failures = {}
         # worker_run_idx = []
         self._future_run_idx = {}
-        self.used_stages, self.skipped_stages = self.prepare()
         self._check()
+        self.used_stages, self.skipped_stages = self.prepare()
         self._process, self._postprocess = self._pick_process()
 
     @property
@@ -194,6 +194,14 @@ class SessionScheduler:
         return ret, ret2
 
     def _check(self):
+        has_initializer = False
+        for run in self.runs:
+            if isinstance(run, RunInitializer):
+                has_initializer = True
+                break
+        if has_initializer:
+            assert self.executor == "process_pool" or self.use_init_stage
+            # raise RuntimeError("RunInitializer needs init stage or process_pool executor")  # TODO: change default
         if self.executor == "process_pool":
             # assert not self.progress, "progress bar not supported if session.process_pool=1"
             assert not self.per_stage, "per stage not supported if session.process_pool=1"
@@ -266,6 +274,10 @@ class SessionScheduler:
             if self.progress:
                 update_progress(pbar)
         self.runs = runs
+        if self.used_stages is None:
+            assert self.skipped_stages is None
+            self.used_stages = _used_stages(self.runs, self.until)
+            self.skipped_stages = [stage for stage in RunStage if stage not in self.used_stages]
         if self.progress:
             close_progress(pbar)
 

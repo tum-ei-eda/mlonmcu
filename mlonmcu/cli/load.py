@@ -18,6 +18,8 @@
 #
 """Command line subcommand for the load stage."""
 
+from pathlib import Path
+
 from mlonmcu.cli.common import (
     add_common_options,
     add_context_options,
@@ -30,7 +32,7 @@ from .helper.parse import extract_config_and_feature_names, extract_frontend_nam
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.models import SUPPORTED_FRONTENDS
 from mlonmcu.models.lookup import apply_modelgroups
-from mlonmcu.session.run import RunStage
+from mlonmcu.session.run import RunStage, RunInitializer
 
 
 def add_load_options(parser):
@@ -62,9 +64,15 @@ def _handle(args, context):
     config = context.environment.vars
     new_config, features, gen_config, gen_features = extract_config_and_feature_names(args, context=context)
     config.update(new_config)
+    session = context.get_session(label=args.label, resume=args.resume, config=config)
+    initializers = args.initializer
+    if initializers is not None:
+        for initializer_file in initializers:
+            initializer_file = Path(initializer_file).resolve()
+            initializer = RunInitializer.from_file(initializer_file)
+            session.add_run(initializer, ignore_idx=True)
     frontends = extract_frontend_names(args, context=context)
     postprocesses = extract_postprocess_names(args, context=context)
-    session = context.get_session(label=args.label, resume=args.resume, config=config)
     models = apply_modelgroups(args.models, context=context)
     for model in models:
         if model == "_":

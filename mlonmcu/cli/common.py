@@ -95,6 +95,14 @@ def add_flow_options(parser):
         help="Enabled features for target/framework/backend (choices: %(choices)s)",
     )
     flow_parser.add_argument(
+        "--initializer",
+        type=str,
+        metavar="INITIALIZER",
+        nargs="+",
+        # action="append",
+        help="List of yml files for initializing runs",
+    )
+    flow_parser.add_argument(
         "-c",
         "--config",
         metavar="KEY=VALUE",

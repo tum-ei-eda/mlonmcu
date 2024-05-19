@@ -74,6 +74,32 @@ def add_any(new, base=None, append=True):
 
 class RunInitializer:
 
+    @staticmethod
+    def from_file(src: Union[str, Path]):
+        if not isinstance(src, Path):
+            assert isinstance(src, str)
+            src = Path(src)
+        fmt = src.suffix
+        assert len(fmt) > 0
+        fmt = fmt[1:].lower()
+        if fmt in ["yml", "yaml"]:
+            import yaml
+            with open(src, "r") as f:
+                data = yaml.safe_load(f)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+        assert "runs" in data
+        runs = data["runs"]
+        if len(runs) == 0:
+            raise RuntimeError("Empty run initalizer")
+        elif len(runs) == 1:
+            run = runs[0]
+        else:
+            raise NotImplementedError("multiple runs per initializer not supported")
+        initializer = RunInitializer(**run)
+        initializer.frozen = True
+        return initializer
+
     def __init__(
         self,
         idx=None,
@@ -88,6 +114,7 @@ class RunInitializer:
         postprocess_names=None,
         comment=None,
         # from_stage=None,
+        # frozen=False,
     ):
         self.idx = idx
         self.model_name = model_name
@@ -100,6 +127,7 @@ class RunInitializer:
         self.target_name = target_name
         self.config = config
         self.feature_names = feature_names
+        self.frozen = False
 
     def _serialize(self):
         return {
@@ -116,6 +144,7 @@ class RunInitializer:
                     "target_name": self.target_name,
                     "config": self.config,
                     "feature_names": self.feature_names,
+                    # not: frozen
                 }
             ]
         }

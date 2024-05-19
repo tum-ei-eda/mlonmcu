@@ -332,7 +332,15 @@ class SessionScheduler:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             f = executor.submit(
-                                self._process, run, until=stage, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir, save=save, cleanup=cleanup
+                                self._process,
+                                run,
+                                until=stage,
+                                skip=self.skipped_stages,
+                                export=export,
+                                context=context_,
+                                runs_dir=self.runs_dir,
+                                save=save,
+                                cleanup=cleanup,
                             )
                             self._futures.append(f)
                             self._future_run_idx[f] = i
@@ -369,7 +377,17 @@ class SessionScheduler:
                                 total_threads,
                                 cpu_count,
                             )
-                    f = executor.submit(self._process, run, until=self.until, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir, save=save, cleanup=cleanup)
+                    f = executor.submit(
+                        self._process,
+                        run,
+                        until=self.until,
+                        skip=self.skipped_stages,
+                        export=export,
+                        context=context_,
+                        runs_dir=self.runs_dir,
+                        save=save,
+                        cleanup=cleanup,
+                    )
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)

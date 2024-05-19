@@ -84,6 +84,7 @@ class RunInitializer:
         fmt = fmt[1:].lower()
         if fmt in ["yml", "yaml"]:
             import yaml
+
             with open(src, "r") as f:
                 data = yaml.safe_load(f)
         else:
@@ -161,6 +162,7 @@ class RunInitializer:
                 fmt = fmt[1:]
         if fmt.lower() in ["yml", "yaml"]:
             import yaml
+
             with open(dest, "w") as f:
                 yaml.dump(data, f, allow_unicode=True)
         else:
@@ -499,7 +501,9 @@ class Run:
             self.tempdir = None
             self.dir = parent / str(self.idx)
         elif session is not None:
-            logger.warning("session argument of run.init_directory is deprecated. Please use parent argument in the future.")
+            logger.warning(
+                "session argument of run.init_directory is deprecated. Please use parent argument in the future."
+            )
             self.tempdir = None
             self.dir = session.runs_dir / str(self.idx)
         else:
@@ -1554,11 +1558,13 @@ class Run:
         if fmt.lower() in ["pkl", "pickle"]:
             data = {"artifacts": artifacts}
             import pickle
+
             with open(dest, "wb") as f:
                 pickle.dump(data, f)
         elif fmt.lower() in ["yml", "yaml"]:
             data = {"artifacts": [artifact.serialize() for artifact in artifacts]}
             import yaml
+
             with open(dest, "w") as f:
                 yaml.dump(data, f, allow_unicode=True)
         else:

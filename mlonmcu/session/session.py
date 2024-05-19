@@ -232,7 +232,15 @@ class Session:
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
         scheduler = SessionScheduler(
-            self.runs, until, executor=self.executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, session=self, shuffle=self.shuffle,
+            self.runs,
+            until,
+            executor=self.executor,
+            per_stage=per_stage,
+            progress=progress,
+            num_workers=num_workers,
+            use_init_stage=self.use_init_stage,
+            session=self,
+            shuffle=self.shuffle,
         )
         if noop:
             logger.info(self.prefix + "Skipping processing of runs")

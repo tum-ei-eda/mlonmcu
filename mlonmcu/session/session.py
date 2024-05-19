@@ -56,6 +56,7 @@ class Session:
         "executor": "thread_pool",
         "use_init_stage": False,
         "shuffle": False,
+        "batch_size": 1,  # TODO: auto
     }
 
     def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
@@ -124,6 +125,11 @@ class Session:
         """get shuffle property."""
         value = self.config["shuffle"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def batch_size(self):
+        """get batch_size property."""
+        return int(self.config["batch_size"])
 
     @property
     def needs_initializer(self):
@@ -241,6 +247,7 @@ class Session:
             use_init_stage=self.use_init_stage,
             session=self,
             shuffle=self.shuffle,
+            batch_size=self.batch_size,
         )
         if noop:
             logger.info(self.prefix + "Skipping processing of runs")

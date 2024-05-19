@@ -34,6 +34,12 @@ from .progress import init_progress, update_progress, close_progress
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
 def _handle_executor(name: str):
     # TODO: handle (thread_pool, process_pool, remote, hybrid)
     EXECUTOR_LOOKUP = {
@@ -57,18 +63,22 @@ def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     return context
 
 
-def _process_default(run, until, skip, export, context, runs_dir, save, cleanup):
+def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup):
     """Helper function to invoke the run."""
-    run.process(until=until, skip=skip, export=export)
-    ret = run.result()
-    if save:
-        # run.save(run.dir / "run.pkl")
-        # run.save_artifacts(run.dir / "artifacts.pkl")
-        run.save_artifacts(run.dir / "artifacts.yml")
-    if cleanup:
-        run.cleanup_artifacts(dirs=True)
-        run.cleanup_directories()
-    return ret
+    assert isinstance(runs, list)
+    rets = []
+    for run in runs:
+        run.process(until=until, skip=skip, export=export)
+        ret = run.result()
+        rets.append(ret)
+        if save:
+            # run.save(run.dir / "run.pkl")
+            # run.save_artifacts(run.dir / "artifacts.pkl")
+            run.save_artifacts(run.dir / "artifacts.yml")
+        if cleanup:
+            run.cleanup_artifacts(dirs=True)
+            run.cleanup_directories()
+    return rets
 
 
 def _process_pickable(run_initializer, until, skip, export, context, runs_dir, save, cleanup):
@@ -152,6 +162,7 @@ class SessionScheduler:
         executor: str = "thread_pool",
         num_workers: int = 1,
         shuffle: bool = False,
+        batch_size: int = 1,
         use_init_stage: bool = False,
         prefix: Optional[str] = None,
         runs_dir: Optional[Path] = None,
@@ -167,6 +178,7 @@ class SessionScheduler:
         self._executor_args = [num_workers]
         self.num_workers = num_workers
         self.shuffle = shuffle
+        self.batch_size = batch_size
         self.prefix = session.prefix if session is not None else prefix
         self.runs_dir = session.runs_dir if session is not None else runs_dir
         self.use_init_stage = use_init_stage
@@ -175,14 +187,27 @@ class SessionScheduler:
         self.num_failures = 0
         self.stage_failures = {}
         # worker_run_idx = []
-        self._future_run_idx = {}
+        # self._future_run_idx = {}
+        self._future_batch_idx = {}
+        self._batch_run_idxs = {}
         self._check()
         self.used_stages, self.skipped_stages = self.prepare()
         self._process, self._postprocess = self._pick_process()
 
+    def _reset_futures(self):
+        self._futures = []
+        # self._future_run_idx = {}
+        self._future_batch_idx = {}
+        self._batch_run_idxs = {}
+
+
     @property
     def _prefix(self):
         return f"{self.prefix} " if self.prefix else ""
+
+    @property
+    def use_batches(self):
+        return self.batch_size > 1
 
     def _pick_process(self):
         ret = _process_default
@@ -227,39 +252,43 @@ class SessionScheduler:
 
     def _join_futures(self, pbar):
         """Helper function to collect all worker threads."""
-        results = []
         for f in concurrent.futures.as_completed(self._futures):
             res = None
             failing = False
             try:
-                res = f.result()
-                results.append(res)
+                batch_res = f.result()
+                assert isinstance(batch_res, list)
             except Exception as e:
                 failing = True
                 logger.exception(e)
                 logger.error("An exception was thrown by a worker during simulation")
-            # print("res", res, type(res))
             if self.progress:
                 update_progress(pbar)
-            if res is not None:
-                assert isinstance(res, RunResult), "Expected RunResult type"
-                run_index = res.idx
-                # run = res
-                # self.runs[run_index] = res
-                self.results[run_index] = res
-            else:
-                run_index = self._future_run_idx[f]
-            run = self.runs[run_index]
-            if failing or res.failing:
-                self.num_failures += 1
-                failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None  # TODO
-                if failed_stage in self.stage_failures:
-                    self.stage_failures[failed_stage].append(run_index)
+            batch_index = self._future_batch_idx[f]
+            run_idxs = self._batch_run_idxs[batch_index]
+            assert len(batch_res) == len(run_idxs)
+            for res_idx, res in enumerate(batch_res):
+                if res is not None:
+                    assert isinstance(res, RunResult), "Expected RunResult type"
+                    run_index = res.idx
+                    assert run_index == run_idxs[res_idx]
+                    # run = res
+                    # self.runs[run_index] = res
+                    self.results[run_index] = res
                 else:
-                    self.stage_failures[failed_stage] = [run_index]
+                    assert False, "Should not be used?"
+                    # run_index = self._future_run_idx[f]
+                run = self.runs[run_index]
+                if failing or res.failing:
+                    self.num_failures += 1
+                    failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None  # TODO
+                    if failed_stage in self.stage_failures:
+                        self.stage_failures[failed_stage].append(run_index)
+                    else:
+                        self.stage_failures[failed_stage] = [run_index]
+        self._reset_futures()
         if self.progress:
             close_progress(pbar)
-        return results
 
     def initialize(self, context):
         runs = []
@@ -297,9 +326,11 @@ class SessionScheduler:
         if self.use_init_stage:
             self.initialize(context)
 
-        run_it = list(enumerate(self.runs))
+        run_it = [*self.runs]
         if self.shuffle:
             run_it = sorted(run_it, key=lambda _: random.random())
+        batches = list(chunks(run_it, self.batch_size))
+        # TODO: per stage batching?
         with self._executor_cls(*self._executor_args) as executor:
             if self.per_stage:
                 assert self.used_stages is not None
@@ -308,32 +339,19 @@ class SessionScheduler:
                 for stage in self.used_stages:
                     run_stage = RunStage(stage).name
                     if self.progress:
-                        pbar = init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
+                        pbar = init_progress(len(batches), msg=f"Processing stage {run_stage}")
                     else:
                         logger.info("%sProcessing stage %s", self._prefix, run_stage)
-                    for j, idx_run in enumerate(run_it):
-                        i, run = idx_run
-                        if j == 0:
-                            total_threads = min(self.num_runs, self.num_workers)
-                            cpu_count = multiprocessing.cpu_count()
-                            if (stage == RunStage.COMPILE) and run.compile_platform:
-                                total_threads *= run.compile_platform.num_threads
-                            if total_threads > 2 * cpu_count:
-                                if pbar2:
-                                    print()
-                                logger.warning(
-                                    "The chosen configuration leads to a maximum of %d threads being"
-                                    + " processed which heavily exceeds the available CPU resources (%d)."
-                                    + " It is recommended to lower the value of 'mlif.num_threads'!",
-                                    total_threads,
-                                    cpu_count,
-                                )
-                        if run.failing:
+                    for b, runs in enumerate(batches):
+                        runs_ = [run for run in runs if not run.failing]
+                        idxs = [run.idx for run in runs_]
+                        assert len(runs) > 0
+                        if len(runs_) < len(runs):
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             f = executor.submit(
                                 self._process,
-                                run,
+                                runs_,
                                 until=stage,
                                 skip=self.skipped_stages,
                                 export=export,
@@ -343,43 +361,25 @@ class SessionScheduler:
                                 cleanup=cleanup,
                             )
                             self._futures.append(f)
-                            self._future_run_idx[f] = i
+                            # self._future_run_idx[f] = i
+                            self._future_batch_idx[f] = b
+                            self._batch_run_idxs[b] = idxs
                     self._join_futures(pbar)
-                    self._futures = []
-                    self._future_run_idx = {}
                     if self.progress:
                         update_progress(pbar2)
                 if self.progress:
                     close_progress(pbar2)
             else:
                 if self.progress:
-                    pbar = init_progress(self.num_runs, msg="Processing all runs")
+                    pbar = init_progress(len(batches), msg="Processing batches" if self.use_batches else "Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
-                for j, idx_run in enumerate(run_it):
-                    i, run = idx_run
-                    if j == 0 and not isinstance(run, RunInitializer):  # TODO
-                        total_threads = min(len(self.runs), self.num_workers)
-                        cpu_count = multiprocessing.cpu_count()
-                        if (
-                            (self.until >= RunStage.COMPILE)
-                            and run.compile_platform is not None
-                            and run.compile_platform.name == "mlif"
-                        ):
-                            total_threads *= (
-                                run.compile_platform.num_threads
-                            )  # TODO: This should also be used for non-mlif platforms
-                        if total_threads > 2 * cpu_count:
-                            logger.warning(
-                                "The chosen configuration leads to a maximum of %d being processed which"
-                                + " heavily exceeds the available CPU resources (%d)."
-                                + " It is recommended to lower the value of 'mlif.num_threads'!",
-                                total_threads,
-                                cpu_count,
-                            )
+                for b, runs in enumerate(batches):
+                    idxs = [run.idx for run in runs]
+                    assert len(runs) > 0
                     f = executor.submit(
                         self._process,
-                        run,
+                        runs,
                         until=self.until,
                         skip=self.skipped_stages,
                         export=export,
@@ -389,7 +389,9 @@ class SessionScheduler:
                         cleanup=cleanup,
                     )
                     self._futures.append(f)
-                    self._future_run_idx[f] = i
+                    # self._future_run_idx[f] = i
+                    self._future_batch_idx[f] = b
+                    self._batch_run_idxs[b] = idxs
                 self._join_futures(pbar)
         return self.runs, self.results
         # return num_failures == 0

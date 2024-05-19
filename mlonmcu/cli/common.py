@@ -164,6 +164,11 @@ def add_flow_options(parser):
         help="Display progress bar (default: %(default)s)",
     )
     flow_parser.add_argument(
+        "--noop",
+        action="store_true",
+        help="Skip processing of runs, just initialize (default: %(default)s)",
+    )
+    flow_parser.add_argument(
         "--resume",
         action="store_true",
         help="Try to resume the latest session (default: %(default)s)",
@@ -249,6 +254,7 @@ def kickoff_runs(args, until, context):
             progress=args.progress,
             context=context,
             export=True,
+            noop=args.noop,
         )
     if not success:
         logger.error("At least one error occured!")

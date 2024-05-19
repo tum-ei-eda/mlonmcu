@@ -199,6 +199,7 @@ class Session:
         progress=False,
         export=False,
         context=None,
+        noop=False,
     ):
         """Process a runs in this session until a given stage."""
 
@@ -212,6 +213,11 @@ class Session:
         scheduler = SessionScheduler(
             self.runs, until, executor=self.executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, session=self,
         )
+        if noop:
+            logger.info(self.prefix + "Skipping processing of runs")
+            scheduler.initialize(context=context)
+            return 0
+
         self.runs, results = scheduler.process(export=export, context=context)
         report = self.get_reports(results=results)
         scheduler.print_summary()

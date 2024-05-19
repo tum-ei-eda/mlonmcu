@@ -57,23 +57,21 @@ def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     return context
 
 
-def _process_default(run, until, skip, export, context, runs_dir):
+def _process_default(run, until, skip, export, context, runs_dir, save, cleanup):
     """Helper function to invoke the run."""
     run.process(until=until, skip=skip, export=export)
     ret = run.result()
-    save = True
     if save:
         # run.save(run.dir / "run.pkl")
         # run.save_artifacts(run.dir / "artifacts.pkl")
         run.save_artifacts(run.dir / "artifacts.yml")
-    cleanup = True
     if cleanup:
         run.cleanup_artifacts(dirs=True)
         run.cleanup_directories()
     return ret
 
 
-def _process_pickable(run_initializer, until, skip, export, context, runs_dir):
+def _process_pickable(run_initializer, until, skip, export, context, runs_dir, save, cleanup):
     """Helper function to invoke the run."""
     run = run_initializer.realize(context=context)
     run.init_directory(parent=runs_dir)
@@ -280,6 +278,10 @@ class SessionScheduler:
         pbar2 = None  # Inner progress bar
         context_ = _handle_context(context, minimal=True)
 
+        # TODO: expose
+        save = True
+        cleanup = False  # incompatible with per_stage
+
         if self.use_init_stage:
             self.initialize(context)
 
@@ -318,7 +320,7 @@ class SessionScheduler:
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
                             f = executor.submit(
-                                self._process, run, until=stage, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir
+                                self._process, run, until=stage, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir, save=save, cleanup=cleanup
                             )
                             self._futures.append(f)
                             self._future_run_idx[f] = i
@@ -355,7 +357,7 @@ class SessionScheduler:
                                 total_threads,
                                 cpu_count,
                             )
-                    f = executor.submit(self._process, run, until=self.until, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir)
+                    f = executor.submit(self._process, run, until=self.until, skip=self.skipped_stages, export=export, context=context_, runs_dir=self.runs_dir, save=save, cleanup=cleanup)
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)

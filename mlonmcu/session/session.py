@@ -141,6 +141,20 @@ class Session:
         self.runs.append(run)
         return run
 
+    def add_run(self, run: Union[Run, RunInitializer], ignore_idx: bool = True):
+        """TODO."""
+        if ignore_idx:
+            idx = len(self.runs)
+        else:
+            raise NotImplementedError
+        if isinstance(run, RunInitializer):
+            self.runs.append(run)
+        elif isinstance(run, Run):
+            raise NotImplementedError
+        else:
+            assert False
+        logger.debug("Importing run with id %s", idx)
+
     #  def update_run(self): # TODO TODO
     #      pass
 

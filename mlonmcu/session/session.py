@@ -21,7 +21,7 @@ import os
 import shutil
 import filelock
 import tempfile
-from typing import Optional
+from typing import Optional, Union
 from datetime import datetime
 from enum import Enum
 from pathlib import Path

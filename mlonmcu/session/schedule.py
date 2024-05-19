@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of MLonMCU session schedulers."""
+import random
 import multiprocessing
 import concurrent.futures
 from pathlib import Path
@@ -152,6 +153,7 @@ class SessionScheduler:
         progress: bool = False,
         executor: str = "thread_pool",
         num_workers: int = 1,
+        shuffle: bool = False,
         use_init_stage: bool = False,
         prefix: Optional[str] = None,
         runs_dir: Optional[Path] = None,
@@ -166,6 +168,7 @@ class SessionScheduler:
         self._executor_cls = _handle_executor(executor)
         self._executor_args = [num_workers]
         self.num_workers = num_workers
+        self.shuffle = shuffle
         self.prefix = session.prefix if session is not None else prefix
         self.runs_dir = session.runs_dir if session is not None else runs_dir
         self.use_init_stage = use_init_stage
@@ -280,6 +283,9 @@ class SessionScheduler:
         if self.use_init_stage:
             self.initialize(context)
 
+        run_it = list(enumerate(self.runs))
+        if self.shuffle:
+            run_it = sorted(run_it, key=lambda _: random.random())
         with self._executor_cls(*self._executor_args) as executor:
             if self.per_stage:
                 assert self.used_stages is not None
@@ -291,8 +297,9 @@ class SessionScheduler:
                         pbar = init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
                     else:
                         logger.info("%sProcessing stage %s", self._prefix, run_stage)
-                    for i, run in enumerate(self.runs):
-                        if i == 0:
+                    for j, idx_run in enumerate(run_it):
+                        i, run = idx_run
+                        if j == 0:
                             total_threads = min(self.num_runs, self.num_workers)
                             cpu_count = multiprocessing.cpu_count()
                             if (stage == RunStage.COMPILE) and run.compile_platform:
@@ -327,8 +334,9 @@ class SessionScheduler:
                     pbar = init_progress(self.num_runs, msg="Processing all runs")
                 else:
                     logger.info(self.prefix + "Processing all stages")
-                for i, run in enumerate(self.runs):
-                    if i == 0 and not isinstance(run, RunInitializer):  # TODO
+                for j, idx_run in enumerate(run_it):
+                    i, run = idx_run
+                    if j == 0 and not isinstance(run, RunInitializer):  # TODO
                         total_threads = min(len(self.runs), self.num_workers)
                         cpu_count = multiprocessing.cpu_count()
                         if (

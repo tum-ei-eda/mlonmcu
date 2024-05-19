@@ -55,6 +55,7 @@ class Session:
         # "process_pool": False,
         "executor": "thread_pool",
         "use_init_stage": False,
+        "shuffle": False,
     }
 
     def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
@@ -116,6 +117,12 @@ class Session:
     def use_init_stage(self):
         """get use_init_stage property."""
         value = self.config["use_init_stage"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def shuffle(self):
+        """get shuffle property."""
+        value = self.config["shuffle"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -211,7 +218,7 @@ class Session:
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
         scheduler = SessionScheduler(
-            self.runs, until, executor=self.executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, session=self,
+            self.runs, until, executor=self.executor, per_stage=per_stage, progress=progress, num_workers=num_workers, use_init_stage=self.use_init_stage, session=self, shuffle=self.shuffle,
         )
         if noop:
             logger.info(self.prefix + "Skipping processing of runs")

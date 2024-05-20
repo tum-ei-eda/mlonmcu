@@ -57,6 +57,7 @@ class Session:
         "use_init_stage": False,
         "shuffle": False,
         "batch_size": 1,  # TODO: auto
+        "parallel_jobs": 1,
     }
 
     def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
@@ -132,9 +133,14 @@ class Session:
         return int(self.config["batch_size"])
 
     @property
+    def parallel_jobs(self):
+        """get parallel_jobs property."""
+        return int(self.config["parallel_jobs"])
+
+    @property
     def needs_initializer(self):
         """TODO"""
-        return self.executor == "process_pool" or self.use_init_stage
+        return self.executor in ["process_pool", "cmdline"] or self.use_init_stage
 
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
@@ -248,6 +254,7 @@ class Session:
             session=self,
             shuffle=self.shuffle,
             batch_size=self.batch_size,
+            parallel_jobs=self.parallel_jobs,
         )
         if noop:
             logger.info(self.prefix + "Skipping processing of runs")

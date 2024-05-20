@@ -293,6 +293,7 @@ class SessionScheduler:
         for f in concurrent.futures.as_completed(self._futures):
             res = None
             failing = False
+            batch_res = None
             try:
                 batch_res = f.result()
                 assert isinstance(batch_res, list)
@@ -304,26 +305,34 @@ class SessionScheduler:
                 update_progress(pbar)
             batch_index = self._future_batch_idx[f]
             run_idxs = self._batch_run_idxs[batch_index]
-            assert len(batch_res) == len(run_idxs)
-            for res_idx, res in enumerate(batch_res):
-                if res is not None:
-                    assert isinstance(res, RunResult), "Expected RunResult type"
-                    run_index = res.idx
-                    assert run_index == run_idxs[res_idx]
-                    # run = res
-                    # self.runs[run_index] = res
-                    self.results[run_index] = res
+            if failing:
+                assert batch_res is None
+                self.num_failures += len(run_idxs)
+                failed_stage = None
+                if failed_stage in self.stage_failures:
+                    self.stage_failures[failed_stage] += run_idxs
                 else:
-                    assert False, "Should not be used?"
-                    # run_index = self._future_run_idx[f]
-                run = self.runs[run_index]
-                if failing or res.failing:
-                    self.num_failures += 1
-                    failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None  # TODO
-                    if failed_stage in self.stage_failures:
-                        self.stage_failures[failed_stage].append(run_index)
+                    self.stage_failures[failed_stage] = [*run_idxs]
+            else:
+                assert len(batch_res) == len(run_idxs)
+                for res_idx, res in enumerate(batch_res):
+                    if res is not None:
+                        assert isinstance(res, RunResult), "Expected RunResult type"
+                        run_index = res.idx
+                        assert run_index == run_idxs[res_idx]
+                        # run = res
+                        # self.runs[run_index] = res
+                        self.results[run_index] = res
                     else:
-                        self.stage_failures[failed_stage] = [run_index]
+                        assert False, "Should not be used?"
+                    run = self.runs[run_index]
+                    if res.failing:
+                        self.num_failures += 1
+                        failed_stage = RunStage(run.next_stage).name if isinstance(run, Run) else None  # TODO
+                        if failed_stage in self.stage_failures:
+                            self.stage_failures[failed_stage].append(run_index)
+                        else:
+                            self.stage_failures[failed_stage] = [run_index]
         self._reset_futures()
         if self.progress:
             close_progress(pbar)

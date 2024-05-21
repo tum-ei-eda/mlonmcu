@@ -140,7 +140,7 @@ class Session:
     @property
     def needs_initializer(self):
         """TODO"""
-        return self.executor in ["process_pool", "cmdline"] or self.use_init_stage
+        return self.executor in ["process_pool", "cmdline", "context"] or self.use_init_stage
 
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""

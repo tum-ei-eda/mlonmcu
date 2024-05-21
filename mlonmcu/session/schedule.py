@@ -41,7 +41,75 @@ def chunks(lst, n):
         yield lst[i:i + n]
 
 
-class CmdlineExecutor(concurrent.futures.ProcessPoolExecutor):
+# class SessionExecutor(ABC):
+#     def submit_runs(self, ?):
+#         raise NotImplementedError
+
+
+class ProcessPoolSessionExecutor(concurrent.futures.ProcessPoolExecutor):
+
+    def __init__(self, max_workers: Optional[int] = None):
+        super().__init__(max_workers)
+
+    def submit_runs(
+        self,
+        runs,
+        until=None,
+        skip=None,
+        export=False,
+        context=None,
+        runs_dir=None,
+        save=True,
+        cleanup=False,
+    ):
+        fn = _process_pickable
+        args = [
+            runs,
+        ]
+        kwargs = {
+            "until": until,
+            "skip": skip,
+            "export": export,
+            "context": context,
+            "runs_dir": runs_dir,
+            "save": save,
+            "cleanup": cleanup,
+        }
+        return self.submit(fn, *args, **kwargs)
+
+
+class ThreadPoolSessionExecutor(concurrent.futures.ThreadPoolExecutor):
+    def __init__(self, max_workers: Optional[int] = None):
+        super().__init__(max_workers)
+
+    def submit_runs(
+        self,
+        runs,
+        until=None,
+        skip=None,
+        export=False,
+        context=None,
+        runs_dir=None,
+        save=True,
+        cleanup=False,
+    ):
+        fn = _process_default
+        args = [
+            runs,
+        ]
+        kwargs = {
+            "until": until,
+            "skip": skip,
+            "export": export,
+            "context": context,
+            "runs_dir": runs_dir,
+            "save": save,
+            "cleanup": cleanup,
+        }
+        return self.submit(fn, *args, **kwargs)
+
+
+class CmdlineSessionExecutor(concurrent.futures.ProcessPoolExecutor):
 
     def __init__(self, max_workers: Optional[int] = None, parallel_jobs: int = 1):
         super().__init__(max_workers)
@@ -51,6 +119,67 @@ class CmdlineExecutor(concurrent.futures.ProcessPoolExecutor):
     #    fn =
     # def get_process(self):
         # TODO: move args
+    def submit_runs(
+        self,
+        runs,
+        until=None,
+        skip=None,
+        export=False,
+        context=None,
+        runs_dir=None,
+        save=True,
+        cleanup=False,
+    ):
+        fn = _process_cmdline
+        args = [
+            runs,
+        ]
+        kwargs = {
+            "until": until,
+            "skip": skip,
+            "export": export,
+            "context": context,
+            "runs_dir": runs_dir,
+            "save": save,
+            "cleanup": cleanup,
+            "parallel_jobs": self.parallel_jobs,
+        }
+        return self.submit(fn, *args, **kwargs)
+
+
+class ContextSessionExecutor(concurrent.futures.ProcessPoolExecutor):
+
+    def __init__(self, max_workers: Optional[int] = None, parallel_jobs: int = 1):
+        super().__init__(max_workers)
+        self.parallel_jobs = parallel_jobs
+
+    def submit_runs(
+        self,
+        runs,
+        until=None,
+        skip=None,
+        export=False,
+        context=None,
+        runs_dir=None,
+        save=True,
+        cleanup=False,
+    ):
+        fn = _process_context
+        # TODO: do not realize jobs (just dump initializer)
+        args = [
+            runs,
+        ]
+        kwargs = {
+            "until": until,
+            "skip": skip,
+            "export": export,
+            # "context": context,
+            "runs_dir": runs_dir,
+            "save": save,
+            "cleanup": cleanup,
+            "parallel_jobs": self.parallel_jobs,
+        }
+        return self.submit(fn, *args, **kwargs)
 
 
 def _handle_context(context, allow_none: bool = False, minimal: bool = False):
@@ -119,6 +248,29 @@ def _process_cmdline(run_initializers, until, skip, export, context, runs_dir, s
         res = None  # TODO
         rets.append(res)
     out = utils.python(*args)
+    return rets
+
+
+def _process_context(run_initializers, until, skip, export, runs_dir, save, cleanup, parallel_jobs):
+    """Helper function to invoke the run."""
+    rets = []
+    # TODO: allow overriding home
+    from mlonmcu.context.context import MlonMcuContext
+    with MlonMcuContext(deps_lock="read") as context:
+        with context.get_session(resume=False) as session:
+            for run_initializer in run_initializers:
+                session.add_run(run_initializer, ignore_idx=True)
+                rets.append(None)
+            success = session.process_runs(
+                until=until,
+                per_stage=False,
+                print_report=False,
+                num_workers=parallel_jobs,
+                progress=False,
+                context=context,
+                export=True,
+            )
+        assert success
     return rets
 
 
@@ -212,7 +364,8 @@ class SessionScheduler:
         self._batch_run_idxs = {}
         self._check()
         self.used_stages, self.skipped_stages = self.prepare()
-        self._process, self._postprocess = self._pick_process()
+        # self._process, self._postprocess = self._pick_process()
+        _, self._postprocess = self._pick_process()
 
     def _reset_futures(self):
         self._futures = []
@@ -223,15 +376,16 @@ class SessionScheduler:
     def _handle_executor(self, name: str):
         # TODO: handle (thread_pool, process_pool, remote, hybrid)
         EXECUTOR_LOOKUP = {
-            "thread_pool": concurrent.futures.ThreadPoolExecutor,
-            "process_pool": concurrent.futures.ProcessPoolExecutor,
+            "thread_pool": ThreadPoolSessionExecutor,
+            "process_pool": ProcessPoolSessionExecutor,
             "popen_pool": None,  # TODO
-            "cmdline": CmdlineExecutor,
+            "cmdline": CmdlineSessionExecutor,
+            "context": ContextSessionExecutor,
         }
         ret = EXECUTOR_LOOKUP.get(name, None)
         assert ret is not None, f"Executor not found: {name}"
         args = [self.num_workers]
-        if name == "cmdline":
+        if name in ["cmdline", "context"]:
             args += [self.parallel_jobs]
         else:
             assert self.parallel_jobs == 1
@@ -246,14 +400,14 @@ class SessionScheduler:
         return self.batch_size > 1
 
     def _pick_process(self):
-        ret = _process_default
+        ret = None
         ret2 = _postprocess_default
-        needs_pickable = self.executor == "process_pool"
+        needs_pickable = self.executor in ["process_pool", "cmdline", "context"]
         if needs_pickable:
-            ret = _process_pickable
+            # ret = _process_pickable
             ret2 = _postprocess_pickable
-        elif self.executor == "cmdline":
-            ret = _process_cmdline
+        # elif self.executor == "cmdline":
+        #     ret = _process_cmdline
         return ret, ret2
 
     def _check(self):
@@ -263,15 +417,15 @@ class SessionScheduler:
                 has_initializer = True
                 break
         if has_initializer:
-            assert self.executor in ["process_pool", "cmdline"] or self.use_init_stage
+            assert self.executor in ["process_pool", "cmdline", "context"] or self.use_init_stage
             # raise RuntimeError("RunInitializer needs init stage or process_pool executor")  # TODO: change default
-        if self.executor in ["process_pool", "cmdline"]:
+        if self.executor in ["process_pool", "cmdline", "context"]:
             # assert not self.progress, "progress bar not supported if session.process_pool=1"
             assert not self.per_stage, "per stage not supported if session.process_pool=1"
             assert not self.use_init_stage, "use_init_stage not supported if session.process_pool=1"
 
     def prepare(self):
-        if self.executor in ["process_pool", "cmdline"] or self.use_init_stage:
+        if self.executor in ["process_pool", "cmdline", "context"] or self.use_init_stage:
             return None, None  # TODO
         used_stages = _used_stages(self.runs, self.until)
         skipped_stages = [stage for stage in RunStage if stage not in used_stages]
@@ -396,8 +550,7 @@ class SessionScheduler:
                         if len(runs_) < len(runs):
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
-                            f = executor.submit(
-                                self._process,
+                            f = executor.submit_runs(
                                 runs_,
                                 until=stage,
                                 skip=self.skipped_stages,
@@ -424,8 +577,7 @@ class SessionScheduler:
                 for b, runs in enumerate(batches):
                     idxs = [run.idx for run in runs]
                     assert len(runs) > 0
-                    f = executor.submit(
-                        self._process,
+                    f = executor.submit_runs(
                         runs,
                         until=self.until,
                         skip=self.skipped_stages,
@@ -434,7 +586,6 @@ class SessionScheduler:
                         runs_dir=self.runs_dir,
                         save=save,
                         cleanup=cleanup,
-                        **({"parallel_jobs": executor.parallel_jobs} if isinstance(executor, CmdlineExecutor) else {}),
                     )
                     self._futures.append(f)
                     # self._future_run_idx[f] = i

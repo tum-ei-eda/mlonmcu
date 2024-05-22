@@ -1,5 +1,20 @@
 #!/bin/bash
 
+myPid="none"
+
+control_c() {
+    echo "Handling keyboardinterrupt!"
+    if [[ "$myPid" != "none" ]]
+    then
+        echo "Killing $myPid"
+        # kill -9 $myPid
+        pkill -TERM -P $myPid
+        exit
+    fi
+}
+
+trap control_c SIGINT
+
 function monitor() {
     # DEST=$1
     INTERVAL=5
@@ -7,7 +22,7 @@ function monitor() {
     myPid=$!
     OUT=./$myPid.metrics.csv
     echo "TS;MEM;CPU;DISK;1M;5M;10M" > $OUT
-    while kill -0 "$myPid"
+    while kill -0 "$myPid" 2> /dev/null
     do
         TS=$(date +%s)
         MEM=$(free | grep Mem | tr -s ' ' |  cut -d' ' -f3)
@@ -49,24 +64,61 @@ function run_mlonmcu() {
     EXECUTOR=$1
     P=$2
     N=$3
-    monitor time python3 -m mlonmcu.cli.main flow run aww --target etiss --backend tvmaot --platform mlif --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ -c session.use_init_stage=0 -c runs_per_stage=0 --progress --parallel $P -c mlif.num_threads=$N -c tvmaot.num_threads=$N -c session.executor=$EXECUTOR
+    MULTIPLIER=$4
+    shift 4
+    ARGS=$@
+    SESSION_ARGS="-c session.use_init_stage=0 -c print_report=0 -c runs_per_stage=0 --parallel $P -c mlif.num_threads=$N -c tvmaot.num_threads=$N -c session.executor=$EXECUTOR --progress"
+    HOST=$(hostname -f)
+    CMD="python3 -m mlonmcu.cli.main $ARGS $SESSION_ARGS"
+    CORES=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+    THREADS=$(grep -c ^processor /proc/cpuinfo)
+    RAM=$(grep MemTotal /proc/meminfo | awk '{print $2 / 1024 / 1024, "GiB"}')
+    for i in $(eval echo "{1..$MULTIPLIER}")
+    do
+        CMD="$CMD --config-gen _"
+    done
+    echo "======================"
+    echo "Host: $HOST (${CORES}C${THREADS}T) RAM: $RAM"
+    echo "Scenario: EXECUTOR=$EXECUTOR MULTIPLIER=$MULTIPLIER ARGS=$ARGS"
+    echo "Config: P=$P N=$N"
+    echo "> $CMD"
+    monitor $CMD
+    echo "----------------------"
+
+    # --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _
     # monitor python3 -m mlonmcu.cli.main flow run aww --target etiss --backend tvmaot --platform mlif --config-gen _ --config-gen _ -c session.use_init_stage=0 -c runs_per_stage=0 --progress --parallel $P -c mlif.num_threads=$N -c tvmaot.num_threads=$N -c session.executor=$EXECUTOR
 
 }
 
-# run_mlonmcu process_pool 1 1
-# run_mlonmcu process_pool 1 2
-# run_mlonmcu process_pool 1 4
-# run_mlonmcu process_pool 1 8
-# run_mlonmcu process_pool 2 1
-# run_mlonmcu process_pool 2 2
-# run_mlonmcu process_pool 2 4
-# run_mlonmcu process_pool 2 8
-# run_mlonmcu process_pool 4 1
-# run_mlonmcu process_pool 4 2
-# run_mlonmcu process_pool 4 4
-# run_mlonmcu process_pool 4 8
-# run_mlonmcu process_pool 8 1
-# run_mlonmcu process_pool 8 2
-# run_mlonmcu process_pool 8 4
-run_mlonmcu process_pool 8 8
+# run_mlonmcu process_pool 1 1 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 2 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 4 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 8 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 1 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 2 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 4 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 8 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 1 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 2 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 4 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 8 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 1 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 2 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 4 8 flow run aww --target etiss --backend tvmaot --platform mlif
+run_mlonmcu process_pool 8 8 8 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 1 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 2 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 4 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
+# run_mlonmcu process_pool 8 8 64 flow run aww --target etiss --backend tvmaot --platform mlif

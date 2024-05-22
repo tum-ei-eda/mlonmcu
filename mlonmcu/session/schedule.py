@@ -389,6 +389,7 @@ class SessionScheduler:
         shuffle: bool = False,
         batch_size: int = 1,
         parallel_jobs: int = 1,
+        remote_config: Optional[RemoteConfig] = None,
         use_init_stage: bool = False,
         prefix: Optional[str] = None,
         runs_dir: Optional[Path] = None,
@@ -402,7 +403,7 @@ class SessionScheduler:
         self.executor = executor
         self.num_workers = num_workers
         self.parallel_jobs = parallel_jobs
-        self._executor_cls, self._executor_args = self._handle_executor(executor)
+        self._executor_cls, self._executor_kwargs = self._handle_executor(executor, remote_config)
         self.shuffle = shuffle
         self.batch_size = batch_size
         self.prefix = session.prefix if session is not None else prefix
@@ -427,7 +428,7 @@ class SessionScheduler:
         self._future_batch_idx = {}
         self._batch_run_idxs = {}
 
-    def _handle_executor(self, name: str):
+    def _handle_executor(self, name: str, remote_config: Optional[RemoteConfig] = None):
         # TODO: handle (thread_pool, process_pool, remote, hybrid)
         EXECUTOR_LOOKUP = {
             "thread_pool": ThreadPoolSessionExecutor,
@@ -435,15 +436,19 @@ class SessionScheduler:
             "popen_pool": None,  # TODO
             "cmdline": CmdlineSessionExecutor,
             "context": ContextSessionExecutor,
+            "rpc": RPCSessionExecutor,
         }
         ret = EXECUTOR_LOOKUP.get(name, None)
         assert ret is not None, f"Executor not found: {name}"
-        args = [self.num_workers]
-        if name in ["cmdline", "context"]:
-            args += [self.parallel_jobs]
+        kwargs = {"max_workers": self.num_workers}
+        if name in ["cmdline", "context", "rpc"]:
+            kwargs["parallel_jobs"] = self.parallel_jobs
+        if name in ["rpc"]:
+            kwargs["blocking"] = True
+            kwargs["remote_config"] = remote_config
         else:
             assert self.parallel_jobs == 1
-        return ret, args
+        return ret, kwargs
 
     @property
     def _prefix(self):
@@ -586,7 +591,7 @@ class SessionScheduler:
             run_it = sorted(run_it, key=lambda _: random.random())
         batches = list(chunks(run_it, self.batch_size))
         # TODO: per stage batching?
-        with self._executor_cls(*self._executor_args) as executor:
+        with self._executor_cls(**self._executor_kwargs) as executor:
             if self.per_stage:
                 assert self.used_stages is not None
                 if self.progress:

@@ -18,19 +18,18 @@
 #
 """Definition of MLonMCU session schedulers."""
 import random
-import multiprocessing
 import concurrent.futures
 from pathlib import Path
 from typing import List, Optional
 
 # from mlonmcu.context.context import MlonMcuContext
-from mlonmcu.session.run import Run, RunInitializer, RunResult
+from mlonmcu.session.run import Run, RunInitializer, RunResult, RunStage
 from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
 
 from .postprocess.postprocess import SessionPostprocess
-from .run import RunStage
 from .progress import init_progress, update_progress, close_progress
+from .rpc import connect_tracker, RemoteConfig
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 

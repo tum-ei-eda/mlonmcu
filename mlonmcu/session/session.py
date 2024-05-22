@@ -311,7 +311,7 @@ class Session:
         return False
 
     def open(self):
-        """Open this run."""
+        """Open this session."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
         if dir is None:

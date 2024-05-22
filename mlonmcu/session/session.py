@@ -56,6 +56,7 @@ class Session:
         # "process_pool": False,
         "executor": "thread_pool",
         "use_init_stage": False,
+        # "cleanup_runs": False,
         "shuffle": False,
         "batch_size": 1,  # TODO: auto
         "parallel_jobs": 1,

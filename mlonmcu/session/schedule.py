@@ -290,7 +290,10 @@ def _process_cmdline(run_initializers, until, skip, export, context, runs_dir, s
         args.append(run.dir / "initializer.yml")
         res = None  # TODO
         rets.append(res)
-    out = utils.python(*args)
+    # print("args", args)
+    # out = utils.python(*args)
+    _ = utils.python(*args)
+    # print("out", out)
     return rets
 
 
@@ -319,15 +322,15 @@ def _process_context(run_initializers, until, skip, export, runs_dir, save, clea
 
 def _process_rpc(run_initializers, until, parallel_jobs, rpc_config):
     """Helper function to invoke the run."""
-    print("_process_rpc")
+    # print("_process_rpc")
     # TODO: allow overriding home
     assert rpc_config.key is not None
     tracker = connect_tracker(rpc_config.tracker_host, rpc_config.tracker_port, check=True)
-    print("tracker", tracker)
+    # print("tracker", tracker)
     server = tracker.request_server(key=rpc_config.key)
-    print("server", server)
+    # print("server", server)
     results = server.execute(run_initializers=run_initializers, until=until, parallel=parallel_jobs)
-    print("results", results)
+    # print("results", results)
     tracker.free_server(server)
     # -> msg: {"action": "execute", "initializers": run_initializers, "until": until, "parallel": parallel_jobs}
     # <- msg: {"action": "response", "results": results}

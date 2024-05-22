@@ -51,15 +51,15 @@ class RPCSession(object):
     #     self._sess = sess
     def __init__(self, url, port, key="", session_timeout=0):
         # self._sess = sess
-        print("__init__")
+        # print("__init__")
         self.url = url
         self.port = port
         self.key = key
         self.session_timeout = session_timeout
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("_sock.connect")
+        # print("_sock.connect")
         self._sock.connect((url, port))
-        print("_sock.connected")
+        # print("_sock.connected")
 
     def __del__(self):
         self.close()
@@ -71,30 +71,30 @@ class RPCSession(object):
             self._sock = None
 
     def execute(self, run_initializers: List[RunInitializer], until: RunStage, parallel: int = 1) -> RunResult:
-        print("execute")
+        # print("execute")
         # TODO: move imports
         import codecs
         import pickle
         import cloudpickle  # TODO: update requirements.txt
         run_initializers = [codecs.encode(cloudpickle.dumps(x), "base64").decode("utf8") for x in run_initializers]
         msg = {"operation": "execute", "run_initializers": run_initializers, "until": until, "parallel": parallel}
-        print("msg", msg)
+        # print("msg", msg)
         assert self._sock is not None
         # TODO: pickle?
         base.sendjson(self._sock, msg)
         response = base.recvjson(self._sock)
-        print("response", response)
+        # print("response", response)
         # <- {"results": [result0,...]}
         assert response is not None
         success = response.get("success", None)
         assert success is not None
         results = response.get("results", None)
         assert results is not None
-        print("success", success)
+        # print("success", success)
         assert success, "Session failed!"
-        print("r", results)
+        # print("r", results)
         results = [pickle.loads(codecs.decode(x.encode("utf-8"), "base64")) for x in results]
-        print("results", results)
+        # print("results", results)
         return results
 
     def upload(self, data, target=None):
@@ -196,7 +196,7 @@ class TrackerSession:
     def request_server(
         self, key, priority=1, session_timeout=0, max_retry=5
     ):
-        print("request_server", key, priority, session_timeout, max_retry)
+        # print("request_server", key, priority, session_timeout, max_retry)
         # TODO: implement priority
         """Request a new connection from the tracker.
 
@@ -217,29 +217,29 @@ class TrackerSession:
             Maximum number of times to retry before give up.
         """
         last_err = None
-        print("for")
+        # print("for")
         for _ in range(max_retry):
-            print("try")
+            # print("try")
             try:
                 if self._sock is None:
-                    print("_connect")
+                    # print("_connect")
                     self._connect()
-                print("connected")
+                # print("connected")
                 # base.sendjson(self._sock, [base.TrackerCode.REQUEST, key, "", priority])
                 base.sendjson(self._sock, {'action': 'request_server', 'key': key})
-                print("requested")
+                # print("requested")
                 # value = base.recvjson(self._sock)
                 server_info = base.recvjson(self._sock)
-                print("received")
+                # print("received")
                 assert server_info
                 # if value[0] != base.TrackerCode.SUCCESS:
                 #     raise RuntimeError(f"Invalid return value {str(value)}")
                 # url, port, matchkey = value[1]
                 server_address = server_info.get('server_address')
-                print("server_address", server_address)
+                # print("server_address", server_address)
                 assert server_address
                 url, port = server_address
-                print("connect to server")
+                # print("connect to server")
                 return connect(
                     url,
                     port,
@@ -294,7 +294,7 @@ def connect(
     # sess = _ffi_api.Connect(url, port, key, enable_logging, *session_constructor_args)
     # sess = None  # TODO
     # return RPCSession(sess)
-    print("connect", url, port, key)
+    # print("connect", url, port, key)
     return RPCSession(url, port, key=key, session_timeout=session_timeout)
 
 

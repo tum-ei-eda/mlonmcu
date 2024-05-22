@@ -181,6 +181,50 @@ class ContextSessionExecutor(concurrent.futures.ProcessPoolExecutor):
         return self.submit(fn, *args, **kwargs)
 
 
+class RPCSessionExecutor(concurrent.futures.ProcessPoolExecutor):
+
+    def __init__(
+        self,
+        max_workers: Optional[int] = None,
+        remote_config: Optional[RemoteConfig] = None,
+        blocking: bool = True,
+        # batch_size?
+        parallel_jobs: int = 1
+    ):
+        super().__init__(max_workers)
+        self.remote_config = remote_config
+        self.blocking = blocking
+        self.parallel_jobs = parallel_jobs
+
+    def submit_runs(
+        self,
+        runs,
+        until=None,
+        skip=None,
+        export=False,
+        context=None,
+        runs_dir=None,
+        save=True,
+        cleanup=False,
+    ):
+        fn = _process_rpc
+        args = [
+            runs,
+        ]
+        kwargs = {
+            "until": until,
+            # "skip": skip,
+            # "export": export,
+            # "context": context,
+            # "runs_dir": runs_dir,
+            # "save": save,
+            # "cleanup": cleanup,
+            "parallel_jobs": self.parallel_jobs,
+            "rpc_config": self.remote_config,
+        }
+        return self.submit(fn, *args, **kwargs)
+
+
 def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     # TODO: handle (thread_pool, process_pool, remote, hybrid)
     if context is None:
@@ -271,6 +315,17 @@ def _process_context(run_initializers, until, skip, export, runs_dir, save, clea
             )
         assert success
     return rets
+
+
+def _process_rpc(run_initializers, until, parallel_jobs, rpc_config):
+    """Helper function to invoke the run."""
+    # TODO: allow overriding home
+    tracker = connect_tracker(rpc_config.tracker_host, rpc_config.tracker_port, check=True)
+    server = tracker.request_server(key=rpc_config.key)
+    results = server.execute(initializers=run_initializers, until=until, parallel=parallel_jobs)
+    # -> msg: {"action": "execute", "initializers": run_initializers, "until": until, "parallel": parallel_jobs}
+    # <- msg: {"action": "response", "results": results}
+    return results
 
 
 def _postprocess_default(runs, report, dest, progress=False):

@@ -72,6 +72,7 @@ class Session:
         self.opened_at = None
         self.closed_at = None
         self.runs = []
+        self.results = []
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
@@ -180,6 +181,9 @@ class Session:
 
             reports = [run.get_report(session=self) for run in self.runs if not isinstance(run, RunInitializer)]
         else:
+            assert isinstance(results, list)
+            if len(results) == 0:
+                logger.warning("The session results are empty")
             reports = [res.get_report(session=self) for res in results]
 
         merged = Report()
@@ -261,8 +265,8 @@ class Session:
             scheduler.initialize(context=context)
             return 0
 
-        self.runs, results = scheduler.process(export=export, context=context)
-        report = self.get_reports(results=results)
+        self.runs, self.results = scheduler.process(export=export, context=context)
+        report = self.get_reports(results=self.results)
         scheduler.print_summary()
         report = scheduler.postprocess(report, dest=self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"

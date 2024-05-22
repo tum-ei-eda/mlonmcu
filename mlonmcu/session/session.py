@@ -33,6 +33,7 @@ from mlonmcu.config import filter_config
 from mlonmcu.config import str2bool
 
 from .run import RunStage
+from .rpc import RemoteConfig
 from .schedule import SessionScheduler
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
@@ -58,6 +59,8 @@ class Session:
         "shuffle": False,
         "batch_size": 1,  # TODO: auto
         "parallel_jobs": 1,
+        "rpc_tracker": None,
+        "rpc_key": None,
     }
 
     def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
@@ -139,9 +142,19 @@ class Session:
         return int(self.config["parallel_jobs"])
 
     @property
+    def rpc_tracker(self):
+        """get rpc_tracker property."""
+        return self.config["rpc_tracker"]
+
+    @property
+    def rpc_key(self):
+        """get rpc_key property."""
+        return self.config["rpc_key"]
+
+    @property
     def needs_initializer(self):
         """TODO"""
-        return self.executor in ["process_pool", "cmdline", "context"] or self.use_init_stage
+        return self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage
 
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
@@ -184,7 +197,8 @@ class Session:
             assert isinstance(results, list)
             if len(results) == 0:
                 logger.warning("The session results are empty")
-            reports = [res.get_report(session=self) for res in results]
+            # TODO: warn if None!
+            reports = [res.get_report(session=self) for res in results if res is not None]
 
         merged = Report()
         merged.add(reports)
@@ -247,6 +261,15 @@ class Session:
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
+        remote_config = None
+        if self.rpc_tracker:
+            assert self.executor == "rpc"
+            remote_config = RemoteConfig(
+                self.rpc_tracker,
+                self.rpc_key
+            )
+        else:
+            assert self.executor != "rpc"
         scheduler = SessionScheduler(
             self.runs,
             until,
@@ -259,6 +282,7 @@ class Session:
             shuffle=self.shuffle,
             batch_size=self.batch_size,
             parallel_jobs=self.parallel_jobs,
+            remote_config=remote_config,
         )
         if noop:
             logger.info(self.prefix + "Skipping processing of runs")

@@ -319,10 +319,16 @@ def _process_context(run_initializers, until, skip, export, runs_dir, save, clea
 
 def _process_rpc(run_initializers, until, parallel_jobs, rpc_config):
     """Helper function to invoke the run."""
+    print("_process_rpc")
     # TODO: allow overriding home
+    assert rpc_config.key is not None
     tracker = connect_tracker(rpc_config.tracker_host, rpc_config.tracker_port, check=True)
+    print("tracker", tracker)
     server = tracker.request_server(key=rpc_config.key)
-    results = server.execute(initializers=run_initializers, until=until, parallel=parallel_jobs)
+    print("server", server)
+    results = server.execute(run_initializers=run_initializers, until=until, parallel=parallel_jobs)
+    print("results", results)
+    tracker.free_server(server)
     # -> msg: {"action": "execute", "initializers": run_initializers, "until": until, "parallel": parallel_jobs}
     # <- msg: {"action": "response", "results": results}
     return results
@@ -461,7 +467,7 @@ class SessionScheduler:
     def _pick_process(self):
         ret = None
         ret2 = _postprocess_default
-        needs_pickable = self.executor in ["process_pool", "cmdline", "context"]
+        needs_pickable = self.executor in ["process_pool", "cmdline", "context", "rpc"]
         if needs_pickable:
             # ret = _process_pickable
             ret2 = _postprocess_pickable
@@ -476,15 +482,15 @@ class SessionScheduler:
                 has_initializer = True
                 break
         if has_initializer:
-            assert self.executor in ["process_pool", "cmdline", "context"] or self.use_init_stage
+            assert self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage
             # raise RuntimeError("RunInitializer needs init stage or process_pool executor")  # TODO: change default
-        if self.executor in ["process_pool", "cmdline", "context"]:
+        if self.executor in ["process_pool", "cmdline", "context", "rpc"]:
             # assert not self.progress, "progress bar not supported if session.process_pool=1"
             assert not self.per_stage, "per stage not supported if session.process_pool=1"
             assert not self.use_init_stage, "use_init_stage not supported if session.process_pool=1"
 
     def prepare(self):
-        if self.executor in ["process_pool", "cmdline", "context"] or self.use_init_stage:
+        if self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage:
             return None, None  # TODO
         used_stages = _used_stages(self.runs, self.until)
         skipped_stages = [stage for stage in RunStage if stage not in used_stages]
@@ -531,8 +537,12 @@ class SessionScheduler:
                 for res_idx, res in enumerate(batch_res):
                     if res is not None:
                         assert isinstance(res, RunResult), "Expected RunResult type"
-                        run_index = res.idx
-                        assert run_index == run_idxs[res_idx]
+                        if False:  # Does not work if offloaded
+                            run_index = res.idx
+                            assert run_index == run_idxs[res_idx]
+                        else:
+                            run_index = run_idxs[res_idx]
+                            res.idx = run_index
                         # run = res
                         # self.runs[run_index] = res
                         self.results[run_index] = res

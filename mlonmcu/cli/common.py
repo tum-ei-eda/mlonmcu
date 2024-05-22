@@ -242,7 +242,8 @@ def kickoff_runs(args, until, context):
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])
     if "print_report" in config:
-        print_report = bool(config["print_report"])
+        value = config["print_report"]
+        print_report = str2bool(value) if isinstance(value, str) else value
     elif "print_report" in context.environment.vars:
         print_report = bool(context.environment.vars["print_report"])
     with session:

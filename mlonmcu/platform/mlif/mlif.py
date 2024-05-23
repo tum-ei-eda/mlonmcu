@@ -457,8 +457,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return artifacts
 
     def configure(self, target, src, _model):
+        artifacts = []
         if self.needs_model_support:
-            artifacts = self.generate_model_support(target)
+            artifacts.extend(self.generate_model_support(target))
             if len(artifacts) > 0:
                 assert len(artifacts) == 1
                 model_support_artifact = artifacts[0]

@@ -1593,3 +1593,137 @@ class ValidateOutputsPostprocess(RunPostprocess):
             res = vm.get_summary()
             report.post_df[f"{vm.name}"] = res
         return []
+
+
+class ExportOutputsPostprocess(RunPostprocess):
+    """Postprocess for writing model outputs to a directory."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "dest": None,  # if none: export as artifact
+        "use_ref": False,
+        "skip_dequant": False,
+        "fmt": "bin",
+        "archive_fmt": None,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("export_outputs", features=features, config=config)
+
+    @property
+    def dest(self):
+        """Get dest property."""
+        value = self.config["validate_metrics"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
+
+    def use_ref(self):
+        """Get use_ref property."""
+        value = self.config["use_ref"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def skip_dequant(self):
+        """Get skip_dequant property."""
+        value = self.config["skip_dequant"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def fmt(self):
+        """Get fmt property."""
+        return self.config["fmt"]
+
+    def archive_fmt(self):
+        """Get archive_fmt property."""
+        return self.config["archive_fmt"]
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        # print("model_info_data", model_info_data)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        if self.use_ref:
+            outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
+            assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
+            outputs_ref_artifact = outputs_ref_artifact[0]
+            import numpy as np
+            outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
+            outputs = outputs_ref
+        else:
+            outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+            assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+            outputs_artifact = outputs_artifact[0]
+            outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        if dest is None:
+            temp_dir = tempfile.TemporaryDirectory()
+            dest = Path(temp_dir.name)
+        else:
+            temp_dir = None
+            assert dest.is_dir(), f"Not a directory: {dest}"
+            dest_ = dest
+        assert self.fmt in ["bin", "npy"], f"Invalid format: {self.fmt}"
+        filenames = []
+        for i, output in enumerate(outputs):
+            if isinstance(output, dict):  # name based lookup
+                pass
+            else:  # index based lookup
+                assert isinstance(output, (list, np.array)), "expected dict, list or np.array"
+                output_names = model_info_data["output_names"]
+                assert len(output) == len(output_names)
+                output = {output_names[idx]: out for idx, out in enumerate(output)}
+            quant = model_info_data.get("output_quant_details", None)
+            if quant and not self.skip_dequant:
+                def dequant_helper(quant, data):
+                    if quant is None:
+                        return data
+                    quant_scale, quant_zero_point, quant_dtype = quant
+                    if quant_dtype is None or out_data.dtype.name == quant_dtype:
+                        return data
+                    assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                    assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                    return (out_data.astype("float32") - quant_zero_point) * quant_scale
+                output = {out_name: dequant_helper(quant[j], outputs[out_name]) for j, out_name in enumerate(output.keys())}
+            if self.fmt == "npy":
+                raise NotImplementedError("npy export")
+            elif self.fmt == "bin":
+                assert len(output.keys()) == 1, "Multi-outputs not supported"
+                output_data = list(output.values())[0]
+                data = output_data.tobytes(order="C")
+                file_name = f"{i}.bin"
+                file_dest = dest_ / file_name
+                filenames.append(file_dest)
+                with open(dest, "wb") as f:
+                    f.write(data)
+            else:
+                assert False, f"fmt not supported: {self.fmt}"
+        artifacts = []
+        archive_fmt = self.archive_fmt
+        create_artifact = self.dest is None or archive_fmt is not None
+        if create_artifact:
+            if archive_fmt is None:
+                assert self.dest is None
+                archive_fmt = "tar.gz"  # Default fallback
+            assert self.archive_fmt in ["tar.xz", "tar.gz", "zip"]
+            archive_name = f"output_data.{archive_fmt}"
+            archive_path = f"{dest_}.{archive_fmt}"
+            if archive_fmt == "tar.gz":
+                import tarfile
+                with tarfile.open(archive_path, "w:gz") as tar:
+                    for filename in filesnames:
+                        tar.add(filename, arc=dest_)
+            else:
+                raise NotImplementedError(f"archive_fmt={archive_fmt}")
+            with open(archive_path, "rb") as f:
+                raw = f.read()
+            artifact = Artifact(archive_name, raw=raw, fmt=ArtifactFormat.BIN)
+            artifacts.append(artifact)
+        if temp_dir:
+            temp_dir.cleanup()
+        return artifacts

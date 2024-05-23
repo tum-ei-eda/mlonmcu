@@ -1549,21 +1549,33 @@ class ValidateOutputsPostprocess(RunPostprocess):
 
                 quant = model_info_data.get("output_quant_details", None)
                 if quant:
-                    assert ii < len(quant)
-                    quant = quant[ii]
-                    if quant:
+                    def ref_quant_helper(quant, ref_data):  # TODO: move somewhere else
+                        if quant is None:
+                            return data
                         quant_scale, quant_zero_point, quant_dtype = quant
-                        if quant_dtype:
-                            if out_data.dtype.name != quant_dtype:
-                                # need to dequantize here
-                                assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
-                                assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
-                                out_ref_data_quant = np.around((out_ref_data / quant_scale) + quant_zero_point).astype(
-                                    "int8"
-                                )
-                                for vm in validate_metrics:
-                                    vm.process(out_data, out_ref_data_quant, quant=True)
-                                out_data = (out_data.astype("float32") - quant_zero_point) * quant_scale
+                        if quant_dtype is None or ref_data.dtype.name == quant_dtype:
+                            return data
+                        assert out_data.dtype.name in ["float32"], "Quantization only supported for float32 input"
+                        assert quant_dtype in ["int8"], "Quantization only supported for int8 output"
+                        return  np.around((out_ref_data / quant_scale) + quant_zero_point).astype(
+                            "int8"
+                        )
+                    def dequant_helper(quant, data):  # TODO: move somewhere else
+                        if quant is None:
+                            return data
+                        quant_scale, quant_zero_point, quant_dtype = quant
+                        if quant_dtype is None or out_data.dtype.name == quant_dtype:
+                            return data
+                        assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                        assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                        return (out_data.astype("float32") - quant_zero_point) * quant_scale
+                    assert ii < len(quant)
+                    quant_ = quant[ii]
+                    if quant_ is not None:
+                        ref_data_qaunt = ref_quant_helper(quant_, out_ref_data)
+                        for vm in validate_metrics:
+                            vm.process(out_data, out_ref_data_quant, quant=True)
+                        out_data = dequant_helper(quant_, out_data)
                 # print("out_data", out_data)
                 # print("sum(out_data)", np.sum(out_data))
                 # print("out_ref_data", out_ref_data)

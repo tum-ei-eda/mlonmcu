@@ -253,7 +253,9 @@ def execute(
                 for line in process.stdout:
                     if encoding:
                         line = line.decode(encoding, errors="replace")
-                    new_line = prefix + line
+                        new_line = prefix + line
+                    else:
+                        new_line = line
                     out_str = out_str + new_line
                     print_func(new_line.replace("\n", ""))
                 exit_code = None
@@ -273,14 +275,15 @@ def execute(
                 os.kill(pid, signal.SIGINT)
     else:
         try:
-            p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p = subprocess.Popen(
+                [i for i in args], **kwargs, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
             if stdin_data:
                 out_str = p.communicate(input=stdin_data)[0]
             else:
                 out_str = p.communicate()[0]
             if encoding:
                 out_str = out_str.decode(encoding, errors="replace")
-            out_str = prefix + out_str
+                out_str = prefix + out_str
             exit_code = p.poll()
             # print_func(out_str)
             if handle_exit is not None:

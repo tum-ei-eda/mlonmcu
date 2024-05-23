@@ -26,23 +26,6 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
-"""
-        metrics = {
-            "allclose(atol=0.0,rtol=0.0)": None,
-            "allclose(atol=0.05,rtol=0.05)": None,
-            "allclose(atol=0.1,rtol=0.1)": None,
-            "topk(n=1)": None,
-            "topk(n=2)": None,
-            "topk(n=inf)": None,
-            "toy": None,
-            "mse(thr=0.1)": None,
-            "mse(thr=0.05)": None,
-            "mse(thr=0.01)": None,
-            "+-1": None,
-        }
-"""
-
-
 class ValidationMetric:
 
     def __init__(self, name, **cfg):
@@ -150,7 +133,6 @@ class MSEMetric(ValidationMetric):
 
     def process_(self, out_data, out_data_ref, quant: bool = False):
         mse = ((out_data - out_data_ref) ** 2).mean()
-        print("mse", mse)
         return mse < self.thr
 
 
@@ -189,7 +171,7 @@ class PlusMinusOneMetric(ValidationMetric):
         super().__init__(name)
 
     def check(self, out_data, out_data_ref, quant: bool = False):
-        return "int" in out_data.dtype
+        return "int" in out_data.dtype.str
 
     def process_(self, out_data, out_data_ref, quant: bool = False):
         data_ = out_data.flatten().tolist()

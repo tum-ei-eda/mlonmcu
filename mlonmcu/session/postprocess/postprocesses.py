@@ -21,9 +21,11 @@
 import re
 import ast
 import tempfile
+import tarfile
 from pathlib import Path
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
@@ -1549,30 +1551,30 @@ class ValidateOutputsPostprocess(RunPostprocess):
 
                 quant = model_info_data.get("output_quant_details", None)
                 if quant:
-                    def ref_quant_helper(quant, ref_data):  # TODO: move somewhere else
+                    def ref_quant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
                             return data
                         quant_scale, quant_zero_point, quant_dtype = quant
-                        if quant_dtype is None or ref_data.dtype.name == quant_dtype:
+                        if quant_dtype is None or data.dtype.name == quant_dtype:
                             return data
-                        assert out_data.dtype.name in ["float32"], "Quantization only supported for float32 input"
+                        assert data.dtype.name in ["float32"], "Quantization only supported for float32 input"
                         assert quant_dtype in ["int8"], "Quantization only supported for int8 output"
-                        return  np.around((out_ref_data / quant_scale) + quant_zero_point).astype(
+                        return  np.around((data / quant_scale) + quant_zero_point).astype(
                             "int8"
                         )
                     def dequant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
                             return data
                         quant_scale, quant_zero_point, quant_dtype = quant
-                        if quant_dtype is None or out_data.dtype.name == quant_dtype:
+                        if quant_dtype is None or data.dtype.name == quant_dtype:
                             return data
-                        assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                        assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                         assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
-                        return (out_data.astype("float32") - quant_zero_point) * quant_scale
+                        return (data.astype("float32") - quant_zero_point) * quant_scale
                     assert ii < len(quant)
                     quant_ = quant[ii]
                     if quant_ is not None:
-                        ref_data_qaunt = ref_quant_helper(quant_, out_ref_data)
+                        out_ref_data_quant = ref_quant_helper(quant_, out_ref_data)
                         for vm in validate_metrics:
                             vm.process(out_data, out_ref_data_quant, quant=True)
                         out_data = dequant_helper(quant_, out_data)
@@ -1585,7 +1587,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 assert out_data.shape == out_ref_data.shape, "shape missmatch"
 
                 for vm in validate_metrics:
-                    vm.process(out_data, out_ref_data_quant, quant=False)
+                    vm.process(out_data, out_ref_data, quant=False)
                 ii += 1
         if self.report:
             raise NotImplementedError
@@ -1613,27 +1615,31 @@ class ExportOutputsPostprocess(RunPostprocess):
     @property
     def dest(self):
         """Get dest property."""
-        value = self.config["validate_metrics"]
+        value = self.config["dest"]
         if value is not None:
             if not isinstance(value, Path):
                 assert isinstance(value, str)
                 value = Path(value)
         return value
 
+    @property
     def use_ref(self):
         """Get use_ref property."""
         value = self.config["use_ref"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
     def skip_dequant(self):
         """Get skip_dequant property."""
         value = self.config["skip_dequant"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
+    @property
     def fmt(self):
         """Get fmt property."""
         return self.config["fmt"]
 
+    @property
     def archive_fmt(self):
         """Get archive_fmt property."""
         return self.config["archive_fmt"]
@@ -1653,7 +1659,6 @@ class ExportOutputsPostprocess(RunPostprocess):
             outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
             assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
             outputs_ref_artifact = outputs_ref_artifact[0]
-            import numpy as np
             outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
             outputs = outputs_ref
         else:
@@ -1661,9 +1666,9 @@ class ExportOutputsPostprocess(RunPostprocess):
             assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
             outputs_artifact = outputs_artifact[0]
             outputs = np.load(outputs_artifact.path, allow_pickle=True)
-        if dest is None:
+        if self.dest is None:
             temp_dir = tempfile.TemporaryDirectory()
-            dest = Path(temp_dir.name)
+            dest_ = Path(temp_dir.name)
         else:
             temp_dir = None
             assert dest.is_dir(), f"Not a directory: {dest}"
@@ -1684,12 +1689,12 @@ class ExportOutputsPostprocess(RunPostprocess):
                     if quant is None:
                         return data
                     quant_scale, quant_zero_point, quant_dtype = quant
-                    if quant_dtype is None or out_data.dtype.name == quant_dtype:
+                    if quant_dtype is None or data.dtype.name == quant_dtype:
                         return data
-                    assert out_data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                    assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                     assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
-                    return (out_data.astype("float32") - quant_zero_point) * quant_scale
-                output = {out_name: dequant_helper(quant[j], outputs[out_name]) for j, out_name in enumerate(output.keys())}
+                    return (data.astype("float32") - quant_zero_point) * quant_scale
+                output = {out_name: dequant_helper(quant[j], output[out_name]) for j, out_name in enumerate(output.keys())}
             if self.fmt == "npy":
                 raise NotImplementedError("npy export")
             elif self.fmt == "bin":
@@ -1699,7 +1704,7 @@ class ExportOutputsPostprocess(RunPostprocess):
                 file_name = f"{i}.bin"
                 file_dest = dest_ / file_name
                 filenames.append(file_dest)
-                with open(dest, "wb") as f:
+                with open(file_dest, "wb") as f:
                     f.write(data)
             else:
                 assert False, f"fmt not supported: {self.fmt}"
@@ -1710,14 +1715,14 @@ class ExportOutputsPostprocess(RunPostprocess):
             if archive_fmt is None:
                 assert self.dest is None
                 archive_fmt = "tar.gz"  # Default fallback
-            assert self.archive_fmt in ["tar.xz", "tar.gz", "zip"]
+            assert archive_fmt in ["tar.xz", "tar.gz", "zip"]
             archive_name = f"output_data.{archive_fmt}"
             archive_path = f"{dest_}.{archive_fmt}"
             if archive_fmt == "tar.gz":
                 import tarfile
                 with tarfile.open(archive_path, "w:gz") as tar:
-                    for filename in filesnames:
-                        tar.add(filename, arc=dest_)
+                    for filename in filenames:
+                        tar.add(filename, arcname=dest_)
             else:
                 raise NotImplementedError(f"archive_fmt={archive_fmt}")
             with open(archive_path, "rb") as f:

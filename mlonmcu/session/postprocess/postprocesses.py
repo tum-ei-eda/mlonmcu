@@ -1539,7 +1539,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         # fallback for custom name-based npy dict
                         out_data = list(output.values())[ii]
                     else:  # fallback for index-based npy array
-                        assert isinstance(output, (list, np.array)), "expected dict, list of np.array type"
+                        assert isinstance(output, (list, np.array)), "expected dict, list or np.array type"
                         out_data = output[ii]
                 else:
                     RuntimeError(f"Output not found: {out_name}")

@@ -1,0 +1,49 @@
+======================
+Host: return.eda.cit.tum.de (18C36T) RAM: 125.515 GiB
+Scenario: EXECUTOR=rpc MULTIPLIER=64 ARGS=flow run aww --target etiss --backend tvmaot --platform mlif
+Config: P=36 P_=8 B=8 N=1
+> python3 -m mlonmcu.cli.main flow run aww --target etiss --backend tvmaot --platform mlif -c session.use_init_stage=0 -c print_report=0 -c runs_per_stage=0 --parallel 36 -c mlif.num_threads=1 -c tvmaot.num_threads=1 -c session.executor=rpc -c session.batch_size=8 --progress -c session.rpc_tracker=gpu2.eda.cit.tum.de:9000 -c session.rpc_key=default -c session.parallel_jobs=8 --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _
+INFO - Loading environment cache from file
+INFO - Successfully initialized cache
+Processing batches:   0%|                                                             | 0/8 [00:00s]Processing batches:  12%|███████▋                                                     | 1/8 [00:25s]Processing batches:  25%|███████████████▎                                             | 2/8 [00:25s]Processing batches:  38%|██████████████████████▉                                      | 3/8 [00:49s]Processing batches:  50%|██████████████████████████████▌                              | 4/8 [00:50s]Processing batches:  62%|██████████████████████████████████████▏                      | 5/8 [01:14s]Processing batches:  75%|█████████████████████████████████████████████▊               | 6/8 [01:15s]Processing batches:  88%|█████████████████████████████████████████████████████▍       | 7/8 [01:39s]Processing batches: 100%|█████████████████████████████████████████████████████████████| 8/8 [01:41s]Processing batches: 100%|█████████████████████████████████████████████████████████████| 8/8 [01:41s]INFO - All runs completed successfuly!
+INFO - Postprocessing session report
+ERROR - Session Postprocesses are not supported in pickable mode!
+INFO - [session-75] Done processing runs
+
+Elapsed:1:41.75, CPU: 4%
+Monitoring Results:
+TS;MEM;CPU;DISK;1M;5M;10M
+1716389080;8327268;4.1;881662864;0.15;0.18;0.18
+1716389085;8496304;74.5;881662868;0.14;0.18;0.18
+1716389090;8493660;39.3;881662868;0.13;0.18;0.18
+1716389095;8494604;27.1;881662868;0.12;0.17;0.18
+1716389100;8497140;21.4;881662868;0.11;0.17;0.17
+1716389105;8496784;17.9;881662868;0.10;0.17;0.17
+1716389110;8507376;15.8;881662868;0.09;0.16;0.17
+1716389115;8510644;14.0;881662868;0.08;0.16;0.17
+1716389120;8512752;12.8;881662868;0.08;0.16;0.17
+1716389126;8513352;11.8;881662868;0.07;0.16;0.17
+1716389131;8517492;11.0;881662868;0.07;0.15;0.17
+1716389136;8523776;10.4;881662868;0.14;0.17;0.17
+1716389141;8524160;9.9;881662868;0.13;0.16;0.17
+1716389146;8523816;9.4;881662868;0.12;0.16;0.17
+1716389151;8522384;9.1;881662868;0.11;0.16;0.17
+1716389156;8525528;8.7;881662868;0.17;0.17;0.17
+1716389161;8533328;8.4;881662868;0.15;0.17;0.17
+1716389166;8531592;8.1;881662868;0.14;0.16;0.17
+1716389171;8533124;7.9;881662868;0.29;0.19;0.18
+1716389176;8542760;7.7;881662868;0.27;0.19;0.18
+1716389181;8534960;7.5;881662868;0.24;0.19;0.18
+Max. MEM: 8542760
+Min. MEM: 8327268
+Avg. MEM: 8.50775e+06
+Max. CPU: 74.5
+Min. CPU: 4.1
+Avg. CPU: 16.0381
+Max. DISK: 881662868
+Min. DISK: 881662864
+Max. 1M: 0.29
+Max. 5M: 0.19
+Max. 10M: 0.18
+Cooldown...
+----------------------

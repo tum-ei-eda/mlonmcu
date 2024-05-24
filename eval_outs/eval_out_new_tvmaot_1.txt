@@ -1,0 +1,655 @@
+======================
+Host: return.eda.cit.tum.de (18C36T) RAM: 125.515 GiB
+Scenario: EXECUTOR=process_pool MULTIPLIER=8 ARGS=flow run aww --target etiss --backend tvmaot --platform mlif
+Config: P=1 P_=0 B=1 N=1
+> python3 -m mlonmcu.cli.main flow run aww --target etiss --backend tvmaot --platform mlif -c session.use_init_stage=0 -c print_report=1 -c runs_per_stage=0 --parallel 1 -c mlif.num_threads=1 -c tvmaot.num_threads=1 -c session.executor=process_pool -c session.batch_size=1 --progress -c run.export_optional=1 -v  --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _
+DEBUG - Cleaning up old sessions automaticaly
+DEBUG - Restored 51 recent sessions
+DEBUG - Enter MlonMcuContext
+DEBUG - Locking context
+INFO - Loading environment cache from file
+INFO - Successfully initialized cache
+DEBUG - Creating a new session with idx 110
+DEBUG - Found match. Ignoring other files
+DEBUG - Creating a new run with id 0
+DEBUG - Creating a new run with id 1
+DEBUG - Creating a new run with id 2
+DEBUG - Creating a new run with id 3
+DEBUG - Creating a new run with id 4
+DEBUG - Creating a new run with id 5
+DEBUG - Creating a new run with id 6
+DEBUG - Creating a new run with id 7
+Processing all runs:   0%|                                                            | 0/8 [00:00s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0/mlif
+DEBUG - [run-0] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-0] Processing stage LOAD
+DEBUG - [run-0] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp34szvp2h/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp34szvp2h
+DEBUG - [run-0] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0/mlif
+DEBUG - [run-0] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/0/generic_mlonmcu'), '-i/tmp/tmpw97ompb2/custom.ini')
+DEBUG - - CWD: /tmp/tmpw97ompb2
+DEBUG - [run-0] Exporting run to disk
+DEBUG - [run-0] Writing run file
+Processing all runs:  12%|███████▌                                                    | 1/8 [00:12s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1/mlif
+DEBUG - [run-1] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-1] Processing stage LOAD
+DEBUG - [run-1] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp4nl7z59a/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp4nl7z59a
+DEBUG - [run-1] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1/mlif
+DEBUG - [run-1] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/1/generic_mlonmcu'), '-i/tmp/tmpt4fl60_r/custom.ini')
+DEBUG - - CWD: /tmp/tmpt4fl60_r
+DEBUG - [run-1] Exporting run to disk
+DEBUG - [run-1] Writing run file
+Processing all runs:  25%|███████████████                                             | 2/8 [00:25s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2/mlif
+DEBUG - [run-2] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-2] Processing stage LOAD
+DEBUG - [run-2] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpuvc50qc3/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpuvc50qc3
+DEBUG - [run-2] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2/mlif
+DEBUG - [run-2] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/2/generic_mlonmcu'), '-i/tmp/tmp8ihm04cl/custom.ini')
+DEBUG - - CWD: /tmp/tmp8ihm04cl
+DEBUG - [run-2] Exporting run to disk
+DEBUG - [run-2] Writing run file
+Processing all runs:  38%|██████████████████████▌                                     | 3/8 [00:37s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3/mlif
+DEBUG - [run-3] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-3] Processing stage LOAD
+DEBUG - [run-3] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpgkr410qb/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpgkr410qb
+DEBUG - [run-3] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3/mlif
+DEBUG - [run-3] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/3/generic_mlonmcu'), '-i/tmp/tmpm4p_7mmk/custom.ini')
+DEBUG - - CWD: /tmp/tmpm4p_7mmk
+DEBUG - [run-3] Exporting run to disk
+DEBUG - [run-3] Writing run file
+Processing all runs:  50%|██████████████████████████████                              | 4/8 [00:50s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4/mlif
+DEBUG - [run-4] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-4] Processing stage LOAD
+DEBUG - [run-4] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpdrq_0981/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpdrq_0981
+DEBUG - [run-4] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4/mlif
+DEBUG - [run-4] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/4/generic_mlonmcu'), '-i/tmp/tmp9hh4mzep/custom.ini')
+DEBUG - - CWD: /tmp/tmp9hh4mzep
+DEBUG - [run-4] Exporting run to disk
+DEBUG - [run-4] Writing run file
+Processing all runs:  62%|█████████████████████████████████████▌                      | 5/8 [01:02s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5/mlif
+DEBUG - [run-5] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-5] Processing stage LOAD
+DEBUG - [run-5] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpli2nbnu9/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpli2nbnu9
+DEBUG - [run-5] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5/mlif
+DEBUG - [run-5] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/5/generic_mlonmcu'), '-i/tmp/tmp2_vbt55h/custom.ini')
+DEBUG - - CWD: /tmp/tmp2_vbt55h
+DEBUG - [run-5] Exporting run to disk
+DEBUG - [run-5] Writing run file
+Processing all runs:  75%|█████████████████████████████████████████████               | 6/8 [01:14s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6/mlif
+DEBUG - [run-6] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-6] Processing stage LOAD
+DEBUG - [run-6] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpxl0vf0gh/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpxl0vf0gh
+DEBUG - [run-6] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6/mlif
+DEBUG - [run-6] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/6/generic_mlonmcu'), '-i/tmp/tmp3o2aqilq/custom.ini')
+DEBUG - - CWD: /tmp/tmp3o2aqilq
+DEBUG - [run-6] Exporting run to disk
+DEBUG - [run-6] Writing run file
+Processing all runs:  88%|████████████████████████████████████████████████████▌       | 7/8 [01:27s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7/mlif
+DEBUG - [run-7] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-7] Processing stage LOAD
+DEBUG - [run-7] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp6ozo92x1/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp6ozo92x1
+DEBUG - [run-7] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=1', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7/mlif
+DEBUG - - Executing: ('make', '-j1', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7/mlif
+DEBUG - [run-7] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/110/runs/7/generic_mlonmcu'), '-i/tmp/tmpzs519c1w/custom.ini')
+DEBUG - - CWD: /tmp/tmpzs519c1w
+DEBUG - [run-7] Exporting run to disk
+DEBUG - [run-7] Writing run file
+Processing all runs: 100%|████████████████████████████████████████████████████████████| 8/8 [01:39s]Processing all runs: 100%|████████████████████████████████████████████████████████████| 8/8 [01:39s]INFO - All runs completed successfuly!
+INFO - Postprocessing session report
+ERROR - Session Postprocesses are not supported in pickable mode!
+INFO - [session-110] Done processing runs
+INFO - Report:
+   Run Model Frontend Framework Backend Platform Target  Setup Cycles  Setup Instructions  Run Cycles  Run Instructions  Total Cycles  Total Instructions  Setup CPI  Run CPI  Total CPI  Simulated Instructions     MIPS  Validation  Run Stage Time [s]  Total ROM  Total RAM  ROM read-only  ROM code  ROM misc  RAM data  RAM zero-init data  Compile Stage Time [s]  Workspace Size [B]  Build Stage Time [s]  Load Stage Time [s] Features                                             Config Postprocesses Comment
+0    0   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  39.9945        True            0.674837     107098     108600          53944     53134        20      1720              106880                2.800503              105360              5.569072             0.000199       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+1    1   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.1657        True            0.677234     107098     108600          53944     53134        20      1720              106880                2.775805              105360              5.518180             0.000065       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+2    2   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  38.8004        True            0.689943     107098     108600          53944     53134        20      1720              106880                2.757527              105360              5.518029             0.000060       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+3    3   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.7523        True            0.661412     107098     108600          53944     53134        20      1720              106880                2.748092              105360              5.495634             0.000066       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+4    4   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  39.6207        True            0.679595     107098     108600          53944     53134        20      1720              106880                2.671784              105360              5.530571             0.000065       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+5    5   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  36.9325        True            0.722409     107098     108600          53944     53134        20      1720              106880                2.686452              105360              5.535659             0.000064       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+6    6   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  39.0893        True            0.688969     107098     108600          53944     53134        20      1720              106880                2.725798              105360              5.550160             0.000061       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+7    7   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  39.1289        True            0.689206     107098     108600          53944     53134        20      1720              106880                2.703912              105360              5.440680             0.000067       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+DEBUG - Exit MlonMcuContext
+DEBUG - Cleaning up active sessions
+DEBUG - Releasing lock on context
+
+Elapsed:1:40.41, CPU: 148%
+Monitoring Results:
+TS;MEM;CPU;DISK;1M;5M;10M
+1716412767;8744608;9.9;882761712;2.24;3.91;7.11
+1716412772;8919368;329.6;882761828;2.30;3.89;7.09
+1716412777;8758288;47.9;882771600;2.36;3.88;7.07
+1716412782;8900056;823.9;882776416;2.41;3.86;7.04
+1716412787;9025112;202.9;882781508;2.46;3.85;7.02
+1716412792;9267512;178.8;882789840;2.50;3.83;7.00
+1716412797;9345096;393.9;882791180;2.54;3.82;6.98
+1716412802;9192520;189.4;882800940;2.58;3.81;6.96
+1716412807;9296960;600.5;882805804;2.61;3.79;6.94
+1716412812;9051268;211.1;882811152;2.80;3.81;6.93
+1716412817;9201464;195.0;882820056;2.82;3.80;6.90
+1716412822;9375704;445.7;882820696;2.83;3.79;6.88
+1716412827;9267948;252.7;882830464;3.01;3.81;6.87
+1716412832;9195792;410.3;882835412;3.01;3.79;6.85
+1716412837;9325924;225.1;882840748;3.09;3.80;6.84
+1716412842;9344372;224.7;882850012;3.16;3.80;6.82
+1716412847;9477300;438.1;882850184;3.15;3.79;6.80
+1716412852;9276844;291.4;882862196;3.29;3.81;6.79
+1716412857;8966728;324.2;882874260;3.27;3.79;6.77
+1716412862;9102372;145.6;882871936;3.33;3.80;6.75
+Max. MEM: 9477300
+Min. MEM: 8744608
+Avg. MEM: 9.15176e+06
+Max. CPU: 823.9
+Min. CPU: 9.9
+Avg. CPU: 297.035
+Max. DISK: 882874260
+Min. DISK: 882761712
+Max. 1M: 3.33
+Max. 5M: 3.91
+Max. 10M: 7.11
+Cooldown...
+----------------------
+======================
+Host: return.eda.cit.tum.de (18C36T) RAM: 125.515 GiB
+Scenario: EXECUTOR=process_pool MULTIPLIER=8 ARGS=flow run aww --target etiss --backend tvmaot --platform mlif
+Config: P=1 P_=0 B=1 N=4
+> python3 -m mlonmcu.cli.main flow run aww --target etiss --backend tvmaot --platform mlif -c session.use_init_stage=0 -c print_report=1 -c runs_per_stage=0 --parallel 1 -c mlif.num_threads=4 -c tvmaot.num_threads=4 -c session.executor=process_pool -c session.batch_size=1 --progress -c run.export_optional=1 -v  --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _
+DEBUG - Cleaning up old sessions automaticaly
+DEBUG - Restored 51 recent sessions
+DEBUG - Enter MlonMcuContext
+DEBUG - Locking context
+INFO - Loading environment cache from file
+INFO - Successfully initialized cache
+DEBUG - Creating a new session with idx 111
+DEBUG - Found match. Ignoring other files
+DEBUG - Creating a new run with id 0
+DEBUG - Creating a new run with id 1
+DEBUG - Creating a new run with id 2
+DEBUG - Creating a new run with id 3
+DEBUG - Creating a new run with id 4
+DEBUG - Creating a new run with id 5
+DEBUG - Creating a new run with id 6
+DEBUG - Creating a new run with id 7
+Processing all runs:   0%|                                                            | 0/8 [00:00s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0/mlif
+DEBUG - [run-0] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-0] Processing stage LOAD
+DEBUG - [run-0] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp2zmqerid/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp2zmqerid
+DEBUG - [run-0] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0/mlif
+DEBUG - [run-0] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/0/generic_mlonmcu'), '-i/tmp/tmpqk1t_j08/custom.ini')
+DEBUG - - CWD: /tmp/tmpqk1t_j08
+DEBUG - [run-0] Exporting run to disk
+DEBUG - [run-0] Writing run file
+Processing all runs:  12%|███████▌                                                    | 1/8 [00:12s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1/mlif
+DEBUG - [run-1] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-1] Processing stage LOAD
+DEBUG - [run-1] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmphxji9ob1/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmphxji9ob1
+DEBUG - [run-1] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1/mlif
+DEBUG - [run-1] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/1/generic_mlonmcu'), '-i/tmp/tmpj_ypqkhb/custom.ini')
+DEBUG - - CWD: /tmp/tmpj_ypqkhb
+DEBUG - [run-1] Exporting run to disk
+DEBUG - [run-1] Writing run file
+Processing all runs:  25%|███████████████                                             | 2/8 [00:23s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2/mlif
+DEBUG - [run-2] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-2] Processing stage LOAD
+DEBUG - [run-2] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp5wy7cp5n/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp5wy7cp5n
+DEBUG - [run-2] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2/mlif
+DEBUG - [run-2] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/2/generic_mlonmcu'), '-i/tmp/tmpwepkcc4q/custom.ini')
+DEBUG - - CWD: /tmp/tmpwepkcc4q
+DEBUG - [run-2] Exporting run to disk
+DEBUG - [run-2] Writing run file
+Processing all runs:  38%|██████████████████████▌                                     | 3/8 [00:35s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3/mlif
+DEBUG - [run-3] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-3] Processing stage LOAD
+DEBUG - [run-3] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp6yjap_tm/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp6yjap_tm
+DEBUG - [run-3] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3/mlif
+DEBUG - [run-3] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/3/generic_mlonmcu'), '-i/tmp/tmpcv803ppt/custom.ini')
+DEBUG - - CWD: /tmp/tmpcv803ppt
+DEBUG - [run-3] Exporting run to disk
+DEBUG - [run-3] Writing run file
+Processing all runs:  50%|██████████████████████████████                              | 4/8 [00:47s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4/mlif
+DEBUG - [run-4] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-4] Processing stage LOAD
+DEBUG - [run-4] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpz6_itlpc/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpz6_itlpc
+DEBUG - [run-4] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4/mlif
+DEBUG - [run-4] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/4/generic_mlonmcu'), '-i/tmp/tmpfkbx98_f/custom.ini')
+DEBUG - - CWD: /tmp/tmpfkbx98_f
+DEBUG - [run-4] Exporting run to disk
+DEBUG - [run-4] Writing run file
+Processing all runs:  62%|█████████████████████████████████████▌                      | 5/8 [00:59s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5/mlif
+DEBUG - [run-5] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-5] Processing stage LOAD
+DEBUG - [run-5] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpxhuqtpgf/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpxhuqtpgf
+DEBUG - [run-5] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5/mlif
+DEBUG - [run-5] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/5/generic_mlonmcu'), '-i/tmp/tmpspu6neo6/custom.ini')
+DEBUG - - CWD: /tmp/tmpspu6neo6
+DEBUG - [run-5] Exporting run to disk
+DEBUG - [run-5] Writing run file
+Processing all runs:  75%|█████████████████████████████████████████████               | 6/8 [01:11s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6/mlif
+DEBUG - [run-6] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-6] Processing stage LOAD
+DEBUG - [run-6] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpn995unk1/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpn995unk1
+DEBUG - [run-6] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6/mlif
+DEBUG - [run-6] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/6/generic_mlonmcu'), '-i/tmp/tmp7g1ejz76/custom.ini')
+DEBUG - - CWD: /tmp/tmp7g1ejz76
+DEBUG - [run-6] Exporting run to disk
+DEBUG - [run-6] Writing run file
+Processing all runs:  88%|████████████████████████████████████████████████████▌       | 7/8 [01:22s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7/mlif
+DEBUG - [run-7] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-7] Processing stage LOAD
+DEBUG - [run-7] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp28xp9_q1/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp28xp9_q1
+DEBUG - [run-7] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=4', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7/mlif
+DEBUG - - Executing: ('make', '-j4', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7/mlif
+DEBUG - [run-7] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/111/runs/7/generic_mlonmcu'), '-i/tmp/tmpwu3yhbex/custom.ini')
+DEBUG - - CWD: /tmp/tmpwu3yhbex
+DEBUG - [run-7] Exporting run to disk
+DEBUG - [run-7] Writing run file
+Processing all runs: 100%|████████████████████████████████████████████████████████████| 8/8 [01:34s]Processing all runs: 100%|████████████████████████████████████████████████████████████| 8/8 [01:34s]INFO - All runs completed successfuly!
+INFO - Postprocessing session report
+ERROR - Session Postprocesses are not supported in pickable mode!
+INFO - [session-111] Done processing runs
+INFO - Report:
+   Run Model Frontend Framework Backend Platform Target  Setup Cycles  Setup Instructions  Run Cycles  Run Instructions  Total Cycles  Total Instructions  Setup CPI  Run CPI  Total CPI  Simulated Instructions     MIPS  Validation  Run Stage Time [s]  Total ROM  Total RAM  ROM read-only  ROM code  ROM misc  RAM data  RAM zero-init data  Compile Stage Time [s]  Workspace Size [B]  Build Stage Time [s]  Load Stage Time [s] Features                                             Config Postprocesses Comment
+0    0   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.7914        True            0.660982     107098     108600          53944     53134        20      1720              106880                2.170506              105360              5.488744             0.000110       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+1    1   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.4794        True            0.666735     107098     108600          53944     53134        20      1720              106880                2.039747              105360              5.509352             0.000068       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+2    2   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.6072        True            0.666141     107098     108600          53944     53134        20      1720              106880                2.047908              105360              5.493436             0.000063       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+3    3   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.5504        True            0.665020     107098     108600          53944     53134        20      1720              106880                2.060099              105360              5.493425             0.000061       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+4    4   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.3495        True            0.669356     107098     108600          53944     53134        20      1720              106880                2.063914              105360              5.498872             0.000061       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+5    5   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  38.7601        True            0.694822     107098     108600          53944     53134        20      1720              106880                2.067680              105360              5.552717             0.000065       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+6    6   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.2106        True            0.670811     107098     108600          53944     53134        20      1720              106880                2.067701              105360              5.489538             0.000068       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+7    7   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.4690        True            0.666445     107098     108600          53944     53134        20      1720              106880                2.035119              105360              5.543866             0.000084       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+DEBUG - Exit MlonMcuContext
+DEBUG - Cleaning up active sessions
+DEBUG - Releasing lock on context
+
+Elapsed:1:35.48, CPU: 171%
+Monitoring Results:
+TS;MEM;CPU;DISK;1M;5M;10M
+1716412898;9175656;234.2;882881716;2.87;3.63;6.59
+1716412903;9094204;571.3;882890216;3.12;3.67;6.58
+1716412908;8895328;62.6;882892536;3.19;3.67;6.57
+1716412913;9346848;685.8;882897324;3.18;3.66;6.55
+1716412918;9200416;170.4;882904980;3.16;3.65;6.53
+1716412923;9256260;249.6;882911928;3.23;3.66;6.52
+1716412928;9148232;201.9;882915476;3.29;3.66;6.50
+1716412933;9143136;200.9;882925120;3.27;3.65;6.48
+1716412938;9428628;511.9;882926728;3.33;3.66;6.47
+1716412943;9197600;216.7;882936536;3.30;3.65;6.45
+1716412948;9375188;511.2;882941356;3.28;3.64;6.43
+1716412953;9145448;188.7;882947728;3.33;3.64;6.42
+1716412958;9168844;818.8;882955920;3.39;3.65;6.41
+1716412963;9121108;179.3;882959304;3.36;3.64;6.39
+1716412968;8917940;115.4;882968900;3.33;3.63;6.37
+1716412973;9055048;388.6;882970704;3.30;3.62;6.35
+1716412978;8900476;116.0;882980472;3.28;3.61;6.33
+1716412983;9294860;609.1;882985324;3.25;3.60;6.31
+1716412988;9066748;157.0;882990728;3.23;3.59;6.30
+Max. MEM: 9428628
+Min. MEM: 8895328
+Avg. MEM: 9.15431e+06
+Max. CPU: 818.8
+Min. CPU: 62.6
+Avg. CPU: 325.758
+Max. DISK: 882990728
+Min. DISK: 882881716
+Max. 1M: 3.39
+Max. 5M: 3.67
+Max. 10M: 6.59
+Cooldown...
+----------------------
+======================
+Host: return.eda.cit.tum.de (18C36T) RAM: 125.515 GiB
+Scenario: EXECUTOR=process_pool MULTIPLIER=8 ARGS=flow run aww --target etiss --backend tvmaot --platform mlif
+Config: P=1 P_=0 B=1 N=32
+> python3 -m mlonmcu.cli.main flow run aww --target etiss --backend tvmaot --platform mlif -c session.use_init_stage=0 -c print_report=1 -c runs_per_stage=0 --parallel 1 -c mlif.num_threads=32 -c tvmaot.num_threads=32 -c session.executor=process_pool -c session.batch_size=1 --progress -c run.export_optional=1 -v  --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _ --config-gen _
+DEBUG - Cleaning up old sessions automaticaly
+DEBUG - Restored 51 recent sessions
+DEBUG - Enter MlonMcuContext
+DEBUG - Locking context
+INFO - Loading environment cache from file
+INFO - Successfully initialized cache
+DEBUG - Creating a new session with idx 112
+DEBUG - Found match. Ignoring other files
+DEBUG - Creating a new run with id 0
+DEBUG - Creating a new run with id 1
+DEBUG - Creating a new run with id 2
+DEBUG - Creating a new run with id 3
+DEBUG - Creating a new run with id 4
+DEBUG - Creating a new run with id 5
+DEBUG - Creating a new run with id 6
+DEBUG - Creating a new run with id 7
+Processing all runs:   0%|                                                            | 0/8 [00:00s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0/mlif
+DEBUG - [run-0] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-0] Processing stage LOAD
+DEBUG - [run-0] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpz1qq3gr6/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpz1qq3gr6
+DEBUG - [run-0] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0/mlif
+DEBUG - [run-0] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/0/generic_mlonmcu'), '-i/tmp/tmpgkb1snx1/custom.ini')
+DEBUG - - CWD: /tmp/tmpgkb1snx1
+DEBUG - [run-0] Exporting run to disk
+DEBUG - [run-0] Writing run file
+Processing all runs:  12%|███████▌                                                    | 1/8 [00:12s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1/mlif
+DEBUG - [run-1] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-1] Processing stage LOAD
+DEBUG - [run-1] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpxamnt3ah/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpxamnt3ah
+DEBUG - [run-1] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1/mlif
+DEBUG - [run-1] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/1/generic_mlonmcu'), '-i/tmp/tmpqx_np7ki/custom.ini')
+DEBUG - - CWD: /tmp/tmpqx_np7ki
+DEBUG - [run-1] Exporting run to disk
+DEBUG - [run-1] Writing run file
+Processing all runs:  25%|███████████████                                             | 2/8 [00:23s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2/mlif
+DEBUG - [run-2] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-2] Processing stage LOAD
+DEBUG - [run-2] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmp1yet5h_o/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmp1yet5h_o
+DEBUG - [run-2] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2/mlif
+DEBUG - [run-2] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/2/generic_mlonmcu'), '-i/tmp/tmpc5rv_tzn/custom.ini')
+DEBUG - - CWD: /tmp/tmpc5rv_tzn
+DEBUG - [run-2] Exporting run to disk
+DEBUG - [run-2] Writing run file
+Processing all runs:  38%|██████████████████████▌                                     | 3/8 [00:35s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3/mlif
+DEBUG - [run-3] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-3] Processing stage LOAD
+DEBUG - [run-3] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpfv7updol/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpfv7updol
+DEBUG - [run-3] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3/mlif
+DEBUG - [run-3] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/3/generic_mlonmcu'), '-i/tmp/tmpl90c4ggb/custom.ini')
+DEBUG - - CWD: /tmp/tmpl90c4ggb
+DEBUG - [run-3] Exporting run to disk
+DEBUG - [run-3] Writing run file
+Processing all runs:  50%|██████████████████████████████                              | 4/8 [00:47s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4/mlif
+DEBUG - [run-4] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-4] Processing stage LOAD
+DEBUG - [run-4] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpsgx8sjcv/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpsgx8sjcv
+DEBUG - [run-4] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4/mlif
+DEBUG - [run-4] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/4/generic_mlonmcu'), '-i/tmp/tmpk_lyi4ba/custom.ini')
+DEBUG - - CWD: /tmp/tmpk_lyi4ba
+DEBUG - [run-4] Exporting run to disk
+DEBUG - [run-4] Writing run file
+Processing all runs:  62%|█████████████████████████████████████▌                      | 5/8 [00:59s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5/mlif
+DEBUG - [run-5] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-5] Processing stage LOAD
+DEBUG - [run-5] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpjxcvoo23/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpjxcvoo23
+DEBUG - [run-5] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5/mlif
+DEBUG - [run-5] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/5/generic_mlonmcu'), '-i/tmp/tmpf28fwmuz/custom.ini')
+DEBUG - - CWD: /tmp/tmpf28fwmuz
+DEBUG - [run-5] Exporting run to disk
+DEBUG - [run-5] Writing run file
+Processing all runs:  75%|█████████████████████████████████████████████               | 6/8 [01:11s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6/mlif
+DEBUG - [run-6] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-6] Processing stage LOAD
+DEBUG - [run-6] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpxn68a7yk/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpxn68a7yk
+DEBUG - [run-6] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6/mlif
+DEBUG - [run-6] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/6/generic_mlonmcu'), '-i/tmp/tmpfs2r844s/custom.ini')
+DEBUG - - CWD: /tmp/tmpfs2r844s
+DEBUG - [run-6] Exporting run to disk
+DEBUG - [run-6] Writing run file
+Processing all runs:  88%|████████████████████████████████████████████████████▌       | 7/8 [01:23s]DEBUG - Found match. Ignoring other files
+mlif.init_directory /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7/mlif None
+-> /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7/mlif
+DEBUG - [run-7] Continuing run from stage LOAD until stage RUN
+DEBUG - [run-7] Processing stage LOAD
+DEBUG - [run-7] Processing stage BUILD
+DEBUG - - Executing: ('/work/git/mlonmcu/mlonmcu/venv/bin/python3', '-m', 'tvm.driver.tvmc', 'compile', PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7/aww.tflite'), '--target', 'c', '--target-c-mcpu', 'generic-rv32', '--target-c-model', 'etiss-rv32gc', '--runtime', 'crt', '--executor', 'aot', '--pass-config', 'tir.disable_vectorize=True', '--pass-config', 'tir.usmp.enable=False', '--input-shapes', 'input_1:[1,49,10,1]', '--opt-level', '3', '--output', '/tmp/tmpsus6m77l/default.tar', '-f', 'mlf', '--model-format', 'tflite', '--runtime-crt-system-lib', '0', '--executor-aot-unpacked-api', '0', '--executor-aot-interface-api', 'packed', '--target-c-constants-byte-alignment', '16', '--target-c-workspace-byte-alignment', '16')
+DEBUG - - CWD: /tmp/tmpsus6m77l
+DEBUG - [run-7] Processing stage COMPILE
+DEBUG - - Executing: ('cmake', '/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/mlif', '-DCMAKE_BUILD_TYPE=Release', '-DMLONMCU_BACKEND=tvmaot', '-DMLONMCU_FRAMEWORK=tvm', '-DTVM_CRT_CONFIG_DIR=/work/git/mlonmcu/mlonmcu/mlonmcu/../resources/frameworks/tvm/crt_config', '-DTVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/src/tvm', '-DRISCV_ELF_GCC_PREFIX=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/riscv_gcc', '-DRISCV_ELF_GCC_BASENAME=riscv32-unknown-elf', '-DRISCV_ARCH=rv32gc_zicsr', '-DRISCV_ABI=ilp32d', '-DRISCV_MCPU=generic-rv32', '-DRISCV_ATTR=+m,+a,+f,+d,+c', '-DRISCV_FEATURES=', '-DMEM_ROM_ORIGIN=0', '-DMEM_ROM_LENGTH=8388608', '-DMEM_RAM_ORIGIN=8388608', '-DMEM_RAM_LENGTH=67108864', '-DTARGET_SYSTEM=etiss', '-DTEMPLATE=ml_interface', '-DTOOLCHAIN=gcc', '-DQUIET=OFF', '-DSKIP_CHECK=OFF', '-DSUBPROJECT_THREADS=32', '-DLLVM_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/llvm', '-DDEBUG_SYMBOLS=OFF', '-DCMAKE_VERBOSE_MAKEFILE=OFF', '-DENABLE_LTO=OFF', '-DENABLE_GC=ON', '-DSLIM_CPP=ON', '-DMODEL_SUPPORT_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/models/aww/support', '-DSTRIP_STRINGS=OFF', '-DSRC_DIR=/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7', '-DDATA_SRC=')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7/mlif
+DEBUG - - Executing: ('make', '-j32', 'generic_mlonmcu')
+DEBUG - - CWD: /work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7/mlif
+DEBUG - [run-7] Processing stage RUN
+DEBUG - - Executing: (PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/deps/install/etiss/bin/run_helper.sh'), PosixPath('/work/git/mlonmcu/mlonmcu/workspace_default/temp/sessions/112/runs/7/generic_mlonmcu'), '-i/tmp/tmpchdnvfbl/custom.ini')
+DEBUG - - CWD: /tmp/tmpchdnvfbl
+DEBUG - [run-7] Exporting run to disk
+DEBUG - [run-7] Writing run file
+Processing all runs: 100%|████████████████████████████████████████████████████████████| 8/8 [01:34s]Processing all runs: 100%|████████████████████████████████████████████████████████████| 8/8 [01:34s]INFO - All runs completed successfuly!
+INFO - Postprocessing session report
+ERROR - Session Postprocesses are not supported in pickable mode!
+INFO - [session-112] Done processing runs
+INFO - Report:
+   Run Model Frontend Framework Backend Platform Target  Setup Cycles  Setup Instructions  Run Cycles  Run Instructions  Total Cycles  Total Instructions  Setup CPI  Run CPI  Total CPI  Simulated Instructions     MIPS  Validation  Run Stage Time [s]  Total ROM  Total RAM  ROM read-only  ROM code  ROM misc  RAM data  RAM zero-init data  Compile Stage Time [s]  Workspace Size [B]  Build Stage Time [s]  Load Stage Time [s] Features                                             Config Postprocesses Comment
+0    0   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  38.3189        True            0.704313     107098     108600          53944     53134        20      1720              106880                2.103555              105360              5.550816             0.000115       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+1    1   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.4193        True            0.668895     107098     108600          53944     53134        20      1720              106880                2.055450              105360              5.597357             0.000063       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+2    2   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.6892        True            0.662356     107098     108600          53944     53134        20      1720              106880                2.094726              105360              5.609067             0.000070       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+3    3   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.8478        True            0.662355     107098     108600          53944     53134        20      1720              106880                2.054243              105360              5.539067             0.000063       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+4    4   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  39.3621        True            0.683690     107098     108600          53944     53134        20      1720              106880                2.063020              105360              5.629267             0.000064       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+5    5   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.3004        True            0.666112     107098     108600          53944     53134        20      1720              106880                2.002994              105360              5.547374             0.000069       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+6    6   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.8772        True            0.658675     107098     108600          53944     53134        20      1720              106880                1.990292              105360              5.595127             0.000066       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+7    7   aww   tflite       tvm  tvmaot     mlif  etiss            61                  61    25328386          25328386      25328638            25328638        1.0      1.0        1.0                25382300  40.1808        True            0.671711     107098     108600          53944     53134        20      1720              106880                2.045168              105360              5.574654             0.000065       []  {'aww.output_shapes': {'Identity': [1, 12]}, '...            []       -
+DEBUG - Exit MlonMcuContext
+DEBUG - Cleaning up active sessions
+DEBUG - Releasing lock on context
+
+Elapsed:1:35.55, CPU: 211%
+Monitoring Results:
+TS;MEM;CPU;DISK;1M;5M;10M
+1716413024;9106440;258.2;883001084;2.81;3.44;6.15
+1716413029;9291936;658.4;883001112;2.82;3.43;6.13
+1716413034;9272520;164.5;883011036;2.92;3.44;6.12
+1716413039;9323824;909.9;883015824;2.93;3.43;6.10
+1716413044;9144556;170.7;883022996;2.93;3.43;6.08
+1716413049;9182616;153.4;883031412;2.94;3.42;6.07
+1716413054;8752952;46.7;883042360;2.94;3.41;6.05
+1716413059;9076104;160.0;883044620;2.95;3.41;6.03
+1716413064;9176536;507.1;883046336;2.95;3.40;6.02
+1716413069;9357192;205.9;883056092;2.96;3.39;6.00
+1716413074;9485164;669.3;883060924;3.04;3.40;5.99
+1716413079;9108508;170.1;883066496;3.04;3.40;5.97
+1716413084;9356276;879.0;883075684;3.03;3.39;5.96
+1716413089;9460720;558.7;883077364;3.03;3.38;5.94
+1716413094;9266312;251.9;883088468;3.11;3.39;5.93
+1716413099;9389712;626.7;883091548;3.10;3.39;5.91
+1716413104;8882236;123.3;883110700;3.09;3.38;5.90
+1716413109;9330492;846.4;883105996;3.08;3.37;5.88
+1716413114;9169024;229.1;883111416;3.08;3.37;5.87
+Max. MEM: 9485164
+Min. MEM: 8752952
+Avg. MEM: 9.21753e+06
+Max. CPU: 909.9
+Min. CPU: 46.7
+Avg. CPU: 399.437
+Max. DISK: 883111416
+Min. DISK: 883001084
+Max. 1M: 3.11
+Max. 5M: 3.44
+Max. 10M: 6.15
+Cooldown...
+----------------------

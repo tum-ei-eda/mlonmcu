@@ -115,23 +115,6 @@ function run_mlonmcu() {
 # run_mlonmcu process_pool 2 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu process_pool 4 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu process_pool 4 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
-run_mlonmcu process_pool 4 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 4 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 8 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 8 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 8 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 8 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
-
-# run_mlonmcu process_pool 1 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 1 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 1 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 1 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 2 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 2 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 2 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 2 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 4 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu process_pool 4 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu process_pool 4 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu process_pool 4 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu process_pool 8 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
@@ -149,7 +132,7 @@ run_mlonmcu process_pool 4 4 64 flow run aww --target etiss --backend tvmaot --p
 # run_mlonmcu rpc 2 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu rpc 4 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu rpc 4 2 64 flow run aww --target etiss --backend tvmaot --platform mlif
-# run_mlonmcu rpc 4 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
+run_mlonmcu rpc 4 4 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu rpc 4 8 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu rpc 8 1 64 flow run aww --target etiss --backend tvmaot --platform mlif
 # run_mlonmcu rpc 8 2 64 flow run aww --target etiss --backend tvmaot --platform mlif

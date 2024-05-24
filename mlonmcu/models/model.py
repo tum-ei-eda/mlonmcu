@@ -221,17 +221,32 @@ class Model(Workload):
 
     @property
     def support_path(self):
-        return self.config["support_path"]
+        value = self.config["support_path"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
 
     @property
     def inputs_path(self):
         # TODO: fall back to metadata
-        return self.config["inputs_path"]
+        value = self.config["inputs_path"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
 
     @property
     def outputs_path(self):
         # TODO: fall back to metadata
-        return self.config["outputs_path"]
+        value = self.config["outputs_path"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
 
     @property
     def skip_check(self):

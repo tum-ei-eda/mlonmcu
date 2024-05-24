@@ -1671,8 +1671,8 @@ class ExportOutputsPostprocess(RunPostprocess):
             dest_ = Path(temp_dir.name)
         else:
             temp_dir = None
-            assert dest.is_dir(), f"Not a directory: {dest}"
-            dest_ = dest
+            assert self.dest.is_dir(), f"Not a directory: {self.dest}"
+            dest_ = self.dest
         assert self.fmt in ["bin", "npy"], f"Invalid format: {self.fmt}"
         filenames = []
         for i, output in enumerate(outputs):
@@ -1722,7 +1722,7 @@ class ExportOutputsPostprocess(RunPostprocess):
                 import tarfile
                 with tarfile.open(archive_path, "w:gz") as tar:
                     for filename in filenames:
-                        tar.add(filename, arcname=dest_)
+                        tar.add(filename, arcname=filename.name)
             else:
                 raise NotImplementedError(f"archive_fmt={archive_fmt}")
             with open(archive_path, "rb") as f:

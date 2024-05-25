@@ -343,6 +343,9 @@ class EtissTarget(RISCVTarget):
     def get_ini_string_config(self):
         ret = {
             "arch.cpu": self.cpu_arch,
+            # Mode will be overwritten by elf...
+            # "simple_mem_system.memseg_mode_00": "RX",
+            # "simple_mem_system.memseg_mode_01": "RWX",
         }
         if self.jit is not None:
             ret["jit.type"] = f"{self.jit}JIT"

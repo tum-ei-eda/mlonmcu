@@ -335,6 +335,7 @@ class EtissTarget(RISCVTarget):
     def get_ini_bool_config(self):
         ret = {
             "arch.enable_semihosting": True,
+            "simple_mem_system.error_on_invalid_access": not self.allow_error,
         }
         ret.update(self.extra_string_config)
         return ret

@@ -62,9 +62,9 @@ class EtissTarget(RISCVTarget):
         "plugins": [],
         "verbose": False,
         "cpu_arch": None,
-        "rom_start": 0x0,
+        "rom_start": 0x1000000,
         "rom_size": 0x800000,  # 8 MB
-        "ram_start": 0x800000,
+        "ram_start": 0x1000000 + 0x800000,
         "ram_size": 0x4000000,  # 64 MB
         "cycle_time_ps": 31250,  # 32 MHz
         "enable_vext": False,

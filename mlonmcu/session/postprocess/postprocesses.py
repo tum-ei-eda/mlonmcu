@@ -33,7 +33,7 @@ from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
-from .validate_metrics import parse_validate_metrics
+from .validate_metrics import parse_validate_metrics, parse_classify_metrics
 
 logger = get_logger()
 

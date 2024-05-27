@@ -163,6 +163,7 @@ class Model(Workload):
         "support_path": None,
         "inputs_path": None,
         "outputs_path": None,
+        "output_labels_path": None,
     }
 
     def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
@@ -242,6 +243,16 @@ class Model(Workload):
     def outputs_path(self):
         # TODO: fall back to metadata
         value = self.config["outputs_path"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
+
+    @property
+    def output_labels_path(self):
+        # TODO: fall back to metadata
+        value = self.config["output_labels_path"]
         if value is not None:
             if not isinstance(value, Path):
                 assert isinstance(value, str)

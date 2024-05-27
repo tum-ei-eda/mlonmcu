@@ -2307,6 +2307,47 @@ class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
         }
 
 
+@register_feature("gen_ref_labels", depends=["gen_data"])
+class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """TODO"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mode": "file",  # Allowed: file, model
+        "file": "auto",  # Only relevant if mode=file
+        "fmt": "npy",  # Allowed: npy, npz, txt
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_ref_labels", features=features, config=config)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_ref_labels": self.enabled,
+            f"{frontend}.gen_ref_labels_mode": self.mode,
+            f"{frontend}.gen_ref_labels_file": self.file,
+            f"{frontend}.gen_ref_labels_fmt": self.fmt,
+        }
+
+
 @register_feature("set_inputs")
 class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
     """TODO"""

@@ -266,7 +266,7 @@ class Frontend(ABC):
                 inputs_data.append(data)
         elif self.gen_data_fill_mode == "file":
             if self.gen_data_file == "auto":
-                len(in_paths) > 0
+                assert len(in_paths) > 0, "in_paths is empty"
                 if len(in_paths) == 1:
                     if in_paths[0].is_dir():
                         files = list(in_paths[0].iterdir())
@@ -360,6 +360,7 @@ class Frontend(ABC):
                 else:
                     files = out_paths
                 temp = {}
+                assert len(inputs_data) <= len(files), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
                 for file in files:
                     if not isinstance(file, Path):
                         file = Path(file)

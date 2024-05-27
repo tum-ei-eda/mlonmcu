@@ -339,8 +339,8 @@ class Frontend(ABC):
                         rng = input_ranges.get(input_name, None)
                         gen_dtype = dtype
                         if quant:
-                            _, _, ty = quant
-                            assert "float" in ty, "Input already quantized?"
+                            _, _, ty, _ = quant
+                            # assert "float" in ty, "Input already quantized?"
                             if NEW:
                                 gen_dtype = ty
                         arr = np.frombuffer(temp[i][ii], dtype=gen_dtype)
@@ -348,7 +348,8 @@ class Frontend(ABC):
                         shape = input_shapes[input_name]
                         arr = np.reshape(arr, shape)
                         # Quantize if required
-                        if gen_dtype != dtype:
+                        # if gen_dtype != dtype:
+                        if True:
                             assert "int" in dtype
                             # assert quant
                             scale, shift, ty, qrng = quant
@@ -446,7 +447,7 @@ class Frontend(ABC):
                         dtype = output_types[output_name]
                         dequant = output_quant_details.get(output_name, None)
                         if dequant:
-                            _, _, ty = dequant
+                            _, _, ty, _ = dequant
                             dtype = ty
                         arr = np.frombuffer(temp[i][ii], dtype=dtype)
                         assert output_name in output_shapes, f"Unknown shape for output: {output_name}"
@@ -482,8 +483,6 @@ class Frontend(ABC):
                 assert len(out_labels_paths) > 0, "labels_paths is empty"
                 assert len(out_labels_paths) == 1
                 file = Path(out_labels_paths[0])
-                # file = f"{out_paths[0]}_labels.csv"
-                print("file", file)
             else:
                 assert self.gen_ref_labels_file is not None, "Missing value for gen_ref_labels_file"
                 file = Path(self.gen_ref_labels_file)
@@ -496,8 +495,6 @@ class Frontend(ABC):
                 labels_df = pd.read_csv(file, sep=",")
                 assert "i" in labels_df.columns
                 assert "label_idx" in labels_df.columns
-                print("len(inputs_data)", len(inputs_data))
-                print("len(labels_df)", len(labels_df))
                 assert len(inputs_data) <= len(labels_df)
                 labels_df.sort_values("i", inplace=True)
                 labels = list(labels_df["label_idx"].astype(int))[:len(inputs_data)]

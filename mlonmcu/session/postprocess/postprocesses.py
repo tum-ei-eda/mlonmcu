@@ -1492,7 +1492,6 @@ class ValidateOutputsPostprocess(RunPostprocess):
         import yaml
 
         model_info_data = yaml.safe_load(model_info_artifact.content)
-        print("model_info_data", model_info_data)
         if len(model_info_data["output_names"]) > 1:
             raise NotImplementedError("Multi-outputs not yet supported.")
         outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)

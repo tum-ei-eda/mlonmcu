@@ -1467,6 +1467,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         **RunPostprocess.DEFAULTS,
         "report": False,
         "validate_metrics": "topk(n=1);topk(n=2)",
+        "validate_range": True,
     }
 
     def __init__(self, features=None, config=None):
@@ -1482,6 +1483,12 @@ class ValidateOutputsPostprocess(RunPostprocess):
     def report(self):
         """Get report property."""
         value = self.config["report"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def validate_range(self):
+        """Get validate_range property."""
+        value = self.config["validate_range"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def post_run(self, report, artifacts):
@@ -1549,27 +1556,56 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 # print("sum(out_data_before_quant", np.sum(out_data))
 
                 quant = model_info_data.get("output_quant_details", None)
+                rng = model_info_data.get("output_ranges", None)
                 if quant:
                     def ref_quant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
                             return data
-                        quant_scale, quant_zero_point, quant_dtype = quant
+                        quant_scale, quant_zero_point, quant_dtype, quant_range = quant
                         if quant_dtype is None or data.dtype.name == quant_dtype:
                             return data
                         assert data.dtype.name in ["float32"], "Quantization only supported for float32 input"
                         assert quant_dtype in ["int8"], "Quantization only supported for int8 output"
+                        if quant_range and self.validate_range:
+                            assert len(quant_range) == 2, "Range should be a tuple (lower, upper)"
+                            lower, upper = quant_range
+                            # print("quant_range", quant_range)
+                            # print("np.min(data)", np.min(data))
+                            # print("np.max(data)", np.max(data))
+                            assert lower <= upper
+                            assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
+
                         return  np.around((data / quant_scale) + quant_zero_point).astype(
                             "int8"
                         )
                     def dequant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
                             return data
-                        quant_scale, quant_zero_point, quant_dtype = quant
+                        quant_scale, quant_zero_point, quant_dtype, quant_range = quant
                         if quant_dtype is None or data.dtype.name == quant_dtype:
                             return data
                         assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                         assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
-                        return (data.astype("float32") - quant_zero_point) * quant_scale
+                        ret = (data.astype("float32") - quant_zero_point) * quant_scale
+                        if quant_range and self.validate_range:
+                            assert len(quant_range) == 2, "Range should be a tuple (lower, upper)"
+                            # print("quant_range", quant_range)
+                            # print("np.min(ret)", np.min(ret))
+                            # print("np.max(ret)", np.max(ret))
+                            lower, upper = quant_range
+                            assert lower <= upper
+                            assert np.min(ret) >= lower and np.max(ret) <= upper, "Range missmatch"
+                        return ret
+                    assert ii < len(rng)
+                    rng_ = rng[ii]
+                    if rng_ and self.validate_range:
+                        assert len(rng_) == 2, "Range should be a tuple (lower, upper)"
+                        lower, upper = rng_
+                        assert lower <= upper
+                        # print("rng_", rng_)
+                        # print("np.min(out_data)", np.min(out_data))
+                        # print("np.max(out_data)", np.max(out_data))
+                        assert np.min(out_data) >= lower and np.max(out_data) <= upper, "Range missmatch"
                     assert ii < len(quant)
                     quant_ = quant[ii]
                     if quant_ is not None:
@@ -1758,7 +1794,7 @@ class ExportOutputsPostprocess(RunPostprocess):
                 def dequant_helper(quant, data):
                     if quant is None:
                         return data
-                    quant_scale, quant_zero_point, quant_dtype = quant
+                    quant_scale, quant_zero_point, quant_dtype, quant_range = quant
                     if quant_dtype is None or data.dtype.name == quant_dtype:
                         return data
                     assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"

@@ -1596,6 +1596,77 @@ class ValidateOutputsPostprocess(RunPostprocess):
         return []
 
 
+class ValidateLabelsPostprocess(RunPostprocess):
+    """Postprocess for comparing model outputs with golden reference."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "report": False,
+        "classify_metrics": "topk_label(n=1);topk_label(n=2)",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_labels", features=features, config=config)
+
+    @property
+    def classify_metrics(self):
+        """Get classify_metrics property."""
+        value = self.config["classify_metrics"]
+        return value
+
+    @property
+    def report(self):
+        """Get report property."""
+        value = self.config["report"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        labels_ref_artifact = lookup_artifacts(artifacts, name="labels_ref.npy", first_only=True)
+        assert len(labels_ref_artifact) == 1, "Could not find artifact: labels_ref.npy (Run classify_labels postprocess first!)"
+        labels_ref_artifact = labels_ref_artifact[0]
+        import numpy as np
+
+        labels_ref = np.load(labels_ref_artifact.path, allow_pickle=True)
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        missing = 0
+        classify_metrics_str = self.classify_metrics
+        classify_metrics = parse_classify_metrics(classify_metrics_str)
+        for i, output in enumerate(outputs):
+            if isinstance(output, dict):  # name based lookup
+                pass
+            else:  # index based lookup
+                assert isinstance(output, (list, np.array)), "expected dict, list or np.array"
+                output_names = model_info_data["output_names"]
+                assert len(output) == len(output_names)
+                output = {output_names[idx]: out for idx, out in enumerate(output)}
+            assert len(output) == 1, "Only supporting single-output models"
+            out_data = output[list(output.keys())[0]]
+            # print("out_data", out_data)
+            assert i < len(labels_ref), "Missing reference labels"
+            label_ref = labels_ref[i]
+            # print("label_ref", label_ref)
+            for cm in classify_metrics:
+                cm.process(out_data, label_ref, quant=False)
+        if self.report:
+            raise NotImplementedError
+        for cm in classify_metrics:
+            res = cm.get_summary()
+            report.post_df[f"{cm.name}"] = res
+        return []
+
+
 class ExportOutputsPostprocess(RunPostprocess):
     """Postprocess for writing model outputs to a directory."""
 

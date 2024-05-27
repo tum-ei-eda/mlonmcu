@@ -406,7 +406,7 @@ class Frontend(ABC):
 
         elif self.gen_ref_data_mode == "file":
             if self.gen_ref_data_file == "auto":
-                len(out_paths) > 0
+                assert len(out_paths) > 0, "out_paths is empty"
                 if len(out_paths) == 1:
                     if out_paths[0].is_dir():
                         files = list(out_paths[0].iterdir())

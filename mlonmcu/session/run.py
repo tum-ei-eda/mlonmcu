@@ -505,15 +505,22 @@ class Run:
     def add_frontends_by_name(self, frontend_names, context=None):
         """Helper function to initialize and configure frontends by their names."""
         frontends = []
+        reasons = {}
         for name in frontend_names:
             try:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
                 frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
-            except Exception:
+            except Exception as e:
+                reasons[name] = str(e)
                 continue
         assert len(frontends) > 0, "No compatible frontend was found"
+        if len(frontends) == 0:
+            if reasons:
+                logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
+            else:
+                raise RuntimeError(f"No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):

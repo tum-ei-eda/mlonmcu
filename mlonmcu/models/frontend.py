@@ -213,7 +213,7 @@ class Frontend(ABC):
     def produce_artifacts(self, model):
         pass
 
-    def generate_input_data(self, input_names, input_types, input_shapes, input_quant_details, in_paths):
+    def generate_input_data(self, input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths):
         # TODO: drop self and move method out of frontends.py, support non-tflite models
         assert self.gen_data
         inputs_data = []
@@ -225,6 +225,7 @@ class Frontend(ABC):
                     assert input_name in input_types, f"Unknown dtype for input: {input_name}"
                     dtype = input_types[input_name]
                     quant = input_quant_details.get(input_name, None)
+                    rng = input_ranges.get(input_name, None)
                     gen_dtype = dtype
                     if quant:
                         _, _, ty = quant
@@ -240,8 +241,11 @@ class Frontend(ABC):
                     elif self.gen_data_fill_mode == "random":
                         DIST = "uniform"
                         if DIST == "uniform":
-                            UPPER = None  # TODO: config
-                            LOWER = None  # TODO: config
+                            UPPER = None
+                            LOWER = None
+                            if rng is not None:
+                                assert len(rng) == 2, "Range should be a tuple (lower, upper)"
+                                LOWER, UPPER = rng
                             if "float" in gen_dtype:
                                 if UPPER is None:
                                     # UPPER = 1.0
@@ -261,6 +265,7 @@ class Frontend(ABC):
                                     assert LOWER >= dtype_info.min, "Out of dtype bound"
                             else:
                                 raise RuntimeError(f"Unsupported dtype: {gen_dtype}")
+                            assert LOWER <= UPPER
                             RANGE = UPPER - LOWER
                             assert RANGE > 0
                             arr = np.random.uniform(LOWER, UPPER, shape)
@@ -274,9 +279,10 @@ class Frontend(ABC):
                             # else:
                             #     assert False
                         # Quantize if required
-                        if gen_dtype != dtype:
+                        # if gen_dtype != dtype:
+                        if quant:
                             assert "int" in dtype
-                            assert quant
+                            # assert quant
                             scale, shift, ty = quant
                             arr = (arr / scale) + shift
                             arr = np.around(arr)
@@ -330,6 +336,7 @@ class Frontend(ABC):
                         assert input_name in input_types, f"Unknown dtype for input: {input_name}"
                         dtype = input_types[input_name]
                         quant = input_quant_details.get(input_name, None)
+                        rng = input_ranges.get(input_name, None)
                         gen_dtype = dtype
                         if quant:
                             _, _, ty = quant
@@ -343,12 +350,33 @@ class Frontend(ABC):
                         # Quantize if required
                         if gen_dtype != dtype:
                             assert "int" in dtype
-                            assert quant
-                            scale, shift, ty = quant
+                            # assert quant
+                            scale, shift, ty, qrng = quant
+                            if qrng is not None:
+                                assert len(qrng) == 2, "Range should be a tuple (lower, upper)"
+                                lower, upper = qrng
+                                assert lower <= upper
+                                CLIP_INPUTS = True
+                                if CLIP_INPUTS:
+                                    arr = np.clip(arr, lower, upper)
+                                else:
+                                    assert np.min(arr) >= lower or np.isclose(np.min(arr), lower), "Range missmatch (lower)"
+                                    assert np.max(arr) <= upper or np.isclose(np.max(arr), upper), "Range missmatch (upper)"
                             arr = (arr / scale) + shift
                             arr = np.around(arr)
                             arr = arr.astype(dtype)
                             # input("!=")
+                        if rng is not None:
+                            # TODO: Move shared code!
+                            assert len(rng) == 2, "Range should be a tuple (lower, upper)"
+                            lower, upper = rng
+                            assert lower <= upper
+                            CLIP_INPUTS = True
+                            if CLIP_INPUTS:
+                                arr = np.clip(arr, lower, upper)
+                            else:
+                                assert np.min(arr) >= lower or np.isclose(np.min(arr), lower), "Range missmatch (lower)"
+                                assert np.max(arr) <= upper or np.isclose(np.max(arr), upper), "Range missmatch (upper)"
                         data[input_name] = arr
                     inputs_data.append(data)
             else:
@@ -487,6 +515,8 @@ class Frontend(ABC):
         output_shapes,
         input_types,
         output_types,
+        input_ranges,
+        output_ranges,
         input_quant_details,
         output_quant_details,
     ):
@@ -497,6 +527,8 @@ class Frontend(ABC):
             "output_shapes": list(output_shapes.values()),
             "input_types": list(input_types.values()),
             "output_types": list(output_types.values()),
+            "input_ranges": list(input_ranges.values()),
+            "output_ranges": list(output_ranges.values()),
             "input_quant_details": list(input_quant_details.values()),
             "output_quant_details": list(output_quant_details.values()),
         }
@@ -529,6 +561,8 @@ class Frontend(ABC):
         output_shapes = {}
         input_types = {}
         output_types = {}
+        input_ranges = {}
+        output_ranges = {}
         input_quant_details = {}
         output_quant_details = {}
         if metadata is not None and "network_parameters" in metadata:
@@ -541,16 +575,20 @@ class Frontend(ABC):
                 ty = inp.get("dtype", None)
                 if ty is None:
                     ty = inp.get("type", None)  # legacy
+                rng = inp.get("range", None)
                 quantize = inp.get("quantize", None)
                 if name and shape:
                     input_shapes[name] = shape
                 if name and ty:
                     input_types[name] = ty
+                if name and rng:
+                    input_ranges[name] = rng
                 if name and quantize:
                     quant_scale = quantize.get("scale", None)
                     quant_zero_shift = quantize.get("zero_shift", None)
                     quant_dtype = quantize.get("dtype", None)
-                    quant_details = [quant_scale, quant_zero_shift, quant_dtype]
+                    quant_range = quantize.get("range", None)
+                    quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
                     input_quant_details[name] = quant_details
                 if self.use_inout_data or (
                     self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"
@@ -571,16 +609,20 @@ class Frontend(ABC):
                 ty = outp.get("dtype", None)
                 if ty is None:
                     ty = outp.get("type", None)  # legacy
+                rng = outp.get("range", None)
                 dequantize = outp.get("dequantize", None)
                 if name and shape:
                     output_shapes[name] = shape
                 if name and ty:
                     output_types[name] = ty
+                if name and rng:
+                    output_ranges[name] = rng
                 if name and dequantize:
                     quant_scale = dequantize.get("scale", None)
                     quant_zero_shift = dequantize.get("zero_shift", None)
                     quant_dtype = dequantize.get("dtype", None)
-                    quant_details = [quant_scale, quant_zero_shift, quant_dtype]
+                    quant_range = dequantize.get("range", None)
+                    quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
                     output_quant_details[name] = quant_details
                 if self.use_inout_data or (
                     self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"
@@ -700,6 +742,8 @@ class Frontend(ABC):
                 output_shapes,
                 input_types,
                 output_types,
+                input_ranges,
+                output_ranges,
                 input_quant_details,
                 output_quant_details,
             )
@@ -712,7 +756,7 @@ class Frontend(ABC):
             artifacts.append(model_info_artifact)
         if self.gen_data:
             inputs_data = self.generate_input_data(
-                input_names, input_types, input_shapes, input_quant_details, in_paths
+                input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths
             )
             fmt = self.gen_data_fmt
             if fmt == "npy":
@@ -729,14 +773,14 @@ class Frontend(ABC):
             inputs_data_artifact = Artifact(f"inputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("inputs", fmt))
             artifacts.append(inputs_data_artifact)
         if self.gen_ref_data:
-            outputs_data = self.generate_output_ref_data(
+            outputs_ref_data = self.generate_output_ref_data(
                 inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
             )
             fmt = self.gen_data_fmt
             if fmt == "npy":
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     tempfilename = Path(tmpdirname) / "outputs_ref.npy"
-                    np.save(tempfilename, outputs_data)
+                    np.save(tempfilename, outputs_ref_data)
                     with open(tempfilename, "rb") as f:
                         raw = f.read()
             elif fmt == "npz":

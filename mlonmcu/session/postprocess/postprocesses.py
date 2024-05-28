@@ -1514,6 +1514,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        in_data = None
         # compared = 0
         # matching = 0
         missing = 0
@@ -1611,7 +1612,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                     if quant_ is not None:
                         out_ref_data_quant = ref_quant_helper(quant_, out_ref_data)
                         for vm in validate_metrics:
-                            vm.process(out_data, out_ref_data_quant, quant=True)
+                            vm.process(out_data, out_ref_data_quant, in_data=in_data, quant=True)
                         out_data = dequant_helper(quant_, out_data)
                 # print("out_data", out_data)
                 # print("sum(out_data)", np.sum(out_data))
@@ -1622,7 +1623,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 assert out_data.shape == out_ref_data.shape, "shape missmatch"
 
                 for vm in validate_metrics:
-                    vm.process(out_data, out_ref_data, quant=False)
+                    vm.process(out_data, out_ref_data, in_data=in_data, quant=False)
                 ii += 1
         if self.report:
             raise NotImplementedError

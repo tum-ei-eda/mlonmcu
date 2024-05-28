@@ -20,6 +20,7 @@
 
 import ast
 import numpy as np
+from typing import Optional
 
 from mlonmcu.logging import get_logger
 
@@ -33,13 +34,13 @@ class ValidationMetric:
         self.num_total = 0
         self.num_correct = 0
 
-    def process_(self, out_data, out_data_ref, quant: bool = False):
+    def process_(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
         raise NotImplementedError
 
     def check(self, out_data, out_data_ref, quant: bool = False):
         return out_data.dtype == out_data_ref.dtype
 
-    def process(self, out_data, out_data_ref, quant: bool = False):
+    def process(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
         if not self.check(out_data, out_data_ref, quant=quant):
             return
         self.num_total += 1
@@ -90,7 +91,7 @@ class AllCloseMetric(ValidationMetric):
     def check(self, out_data, out_data_ref, quant: bool = False):
         return not quant
 
-    def process_(self, out_data, out_data_ref, quant: bool = False):
+    def process_(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
         return np.allclose(out_data, out_data_ref, rtol=self.rtol, atol=self.atol)
 
 
@@ -106,7 +107,7 @@ class TopKMetric(ValidationMetric):
         # Probably no classification
         return data_len < 25 and not quant
 
-    def process_(self, out_data, out_data_ref, quant: bool = False):
+    def process_(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
         # TODO: only for classification models!
         # TODO: support multi_outputs?
         data_sorted_idx = list(reversed(np.argsort(out_data).tolist()[0]))
@@ -220,7 +221,7 @@ class MSEMetric(ValidationMetric):
         assert thr >= 0
         self.thr = thr
 
-    def process_(self, out_data, out_data_ref, quant: bool = False):
+    def process_(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
         mse = ((out_data - out_data_ref) ** 2).mean()
         return mse < self.thr
 
@@ -238,15 +239,19 @@ class ToyScoreMetric(ValidationMetric):
         data_len = len(out_data.flatten().tolist())
         return data_len == 640 and not quant
 
-    def process_(self, out_data, out_data_ref, quant: bool = False):
-        data_flat = out_data.flatten().tolist()
-        ref_data_flat = out_data_ref.flatten().tolist()
+    def process_(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
+        assert in_data is not None
+        in_data_flat = in_data.flatten().tolist()
+        out_data_flat = out_data.flatten().tolist()
+        ref_out_data_flat = out_data_ref.flatten().tolist()
         res = 0
         ref_res = 0
-        length = len(data_flat)
+        length = len(out_data_flat)
         for jjj in range(length):
-            res += data_flat[jjj] ** 2
-            ref_res += ref_data_flat[jjj] ** 2
+            res = (in_data_flat[jjj] - out_data_flat[jjj])
+            res += res ** 2
+            ref_res = (in_data_flat[jjj] - ref_out_data_flat[jjj])
+            ref_res += ref_res ** 2
         res /= length
         ref_res /= length
         print("res", res)
@@ -262,7 +267,7 @@ class PlusMinusOneMetric(ValidationMetric):
     def check(self, out_data, out_data_ref, quant: bool = False):
         return "int" in out_data.dtype.str
 
-    def process_(self, out_data, out_data_ref, quant: bool = False):
+    def process_(self, out_data, out_data_ref, in_data: Optional[np.array] = None, quant: bool = False):
         data_ = out_data.flatten().tolist()
         ref_data_ = out_data_ref.flatten().tolist()
 

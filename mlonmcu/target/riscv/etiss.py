@@ -89,8 +89,17 @@ class EtissTarget(RISCVTarget):
         "extra_string_config": {},
         "extra_plugin_config": {},
         "use_run_helper": True,
+        "exit_on_loop": False,
+        "log_pc": False,
+        "log_level": None,
+        "enable_semihosting": True,
+        "output_path_prefix": "",
+        "jit_gcc_cleanup": True,
+        "jit_verify": False,
+        "jit_debug": False,
+        "load_integrated_libraries": True,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script"}
+    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -108,6 +117,10 @@ class EtissTarget(RISCVTarget):
     @property
     def etiss_script(self):
         return self.config["etissvp.script"]
+
+    @property
+    def etiss_exe(self):
+        return self.config["etissvp.exe"]
 
     @property
     def gdbserver_enable(self):
@@ -134,9 +147,20 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def enable_dmi(self):
+        return False
+        # return not self.trace_memory
+
+    @property
     def plugins(self):
         value = self.config["plugins"]
         return str2list(value) if isinstance(value, str) else value
+
+    def get_plugin_names(self):
+        ret = self.plugins
+        if self.gdbserver_enable:
+            ret.append("gdbserver")
+        return list(set(ret))
 
     @property
     def verbose(self):
@@ -319,6 +343,52 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def exit_on_loop(self):
+        value = self.config["exit_on_loop"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def log_pc(self):
+        value = self.config["log_pc"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def log_level(self):
+        value = self.config["log_level"]
+        if isinstance(value, str):
+            value = int(value)
+        return value
+
+    @property
+    def enable_semihosting(self):
+        value = self.config["enable_semihosting"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def output_path_prefix(self):
+        return self.config["output_path_prefix"]
+
+    @property
+    def jit_gcc_cleanup(self):
+        value = self.config["jit_gcc_cleanup"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def jit_verify(self):
+        value = self.config["jit_verify"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def jit_debug(self):
+        value = self.config["jit_debug"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def load_integrated_libraries(self):
+        value = self.config["load_integrated_libraries"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vext_spec(self):
         return float(self.config["vext_spec"])
 
@@ -338,27 +408,46 @@ class EtissTarget(RISCVTarget):
             value = int(value)
         return value
 
-    def get_ini_bool_config(self):
+    def get_ini_bool_config(self, override=None):
+        override = {k: v for k, v in override.items() if isinstance(v, bool)}
+
         ret = {
-            "arch.enable_semihosting": True,
+            "arch.enable_semihosting": self.enable_semihosting,
             "simple_mem_system.error_on_invalid_access": not self.allow_error,
+            "jit.verify": self.jit_verify,
+            "jit.debug": self.jit_debug,
+            "etiss.load_integrated_libraries": self.load_integrated_libraries,
         }
-        ret.update(self.extra_string_config)
+        if not self.use_run_helper:
+            ret["simple_mem_system.print_dbus_access"] = self.trace_memory
+            ret["simple_mem_system.print_to_file"] = self.trace_memory
+            ret["etiss.exit_on_loop"] = self.exit_on_loop
+            ret["etiss.log_pc"] = self.log_pc
+            ret["etiss.enable_dmi"] = self.enable_dmi
+        if self.jit == "GCC":
+            ret["jit.gcc.cleanup"] = self.jit_gcc_cleanup
+
+        ret.update(self.extra_bool_config)
+        ret.update(override)
         return ret
 
-    def get_ini_string_config(self):
+    def get_ini_string_config(self, override=None):
+        override = {k: v for k, v in override.items() if isinstance(v, (str, Path))}
         ret = {
             "arch.cpu": self.cpu_arch,
             # Mode will be overwritten by elf...
             # "simple_mem_system.memseg_mode_00": "RX",
             # "simple_mem_system.memseg_mode_01": "RWX",
+            "etiss.output_path_prefix": self.output_path_prefix,
         }
         if self.jit is not None:
             ret["jit.type"] = f"{self.jit}JIT"
         ret.update(self.extra_string_config)
+        ret.update(override)
         return ret
 
-    def get_ini_int_config(self):
+    def get_ini_int_config(self, override=None):
+        override = {k: v for k, v in override.items() if isinstance(v, int)}
         ret = {
             "simple_mem_system.memseg_origin_00": self.rom_start,
             "simple_mem_system.memseg_length_00": self.rom_size,
@@ -378,105 +467,146 @@ class EtissTarget(RISCVTarget):
                 ret["arch.rv32imacfdpv.vlen"] = self.vlen
             if self.elen > 0:
                 ret["arch.rv32imacfdpv.elen"] = self.elen
+        log_level = self.log_level
+        if log_level is None and not self.use_run_helper:
+            log_level = 5 if self.verbose else 4
+        if log_level is not None:
+            ret["etiss.loglevel"] = log_level
+        # TODO
+        # ETISS::CPU_quantum_ps=100000
+        # ETISS::write_pc_trace_from_time_us=0
+        # ETISS::write_pc_trace_until_time_us=3000000
+        # ETISS::sim_mode=0
+        # vp::simulation_time_us=20000000
         ret.update(self.extra_int_config)
+        ret.update(override)
         return ret
 
     def get_ini_plugin_config(self):
         ret = {}
         if self.gdbserver_enable:
-            # This could also be accomplished using `--plugin.gdbserver.port` on the cmdline
-            ret["gdbserver"] = {
-                "port": self.gdbserver_port,
-            }
+            if not self.use_run_helper:
+                ret["gdbserver"] = {
+                    "port": self.gdbserver_port,
+                }
         ret.update(self.extra_plugin_config)  # TODO: merge nested dict instead of overriding
         return ret
 
-    def write_ini(self, path):
+    def write_ini(self, path, override=None):
         # TODO: Either create artifact for ini or prefer to use cmdline args.
         with open(path, "w") as f:
-            ini_bool = self.get_ini_bool_config()
+            ini_bool = self.get_ini_bool_config(override=override)
             if len(ini_bool) > 0:
                 f.write("[BoolConfigurations]\n")
                 for key, value in ini_bool.items():
                     assert isinstance(value, bool)
                     val = "true" if value else "false"
                     f.write(f"{key}={val}\n")
-            ini_string = self.get_ini_string_config()
+            ini_string = self.get_ini_string_config(override=override)
             if len(ini_string) > 0:
                 f.write("[StringConfigurations]\n")
                 for key, value in ini_string.items():
+                    if isinstance(value, Path):
+                        value = str(value)
                     assert isinstance(value, str)
                     f.write(f"{key}={value}\n")
-            ini_int = self.get_ini_int_config()
+            ini_int = self.get_ini_int_config(override=override)
             if len(ini_int) > 0:
                 f.write("[IntConfigurations]\n")
                 for key, value in ini_int.items():
                     assert isinstance(value, int)
                     f.write(f"{key}={value}\n")
             ini_plugin = self.get_ini_plugin_config()
-            if len(ini_plugin) > 0:
-                for name, cfg in ini_plugin.items():
-                    f.write(f"[Plugin {name}]\n")
-                    for key, value in cfg.items():
-                        if isinstance(value, bool):
-                            val = "true" if value else "false"
-                        else:
-                            val = value
-                        f.write(f"plugin.{name}.{key}={val}\n")
+            for plugin_name in self.get_plugin_names():
+                f.write(f"[Plugin {plugin_name}]\n")
+                cfg = ini_plugin.pop(plugin_name, {})
+                for key, value in cfg.items():
+                    if isinstance(value, bool):
+                        val = "true" if value else "false"
+                    else:
+                        val = value
+                    f.write(f"plugin.{plugin_name}.{key}={val}\n")
+            # Check for remaining configs
+            for plugin_name, cfg in ini_plugin.items():
+                if len(cfg) == 0:
+                    continue
+                logger.warning("Skipping config %s for disabled plugin %s", cfg, plugin_name)
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
-        if self.use_run_helper:
-            etiss_script_args = []
-            if len(self.extra_args) > 0:
-                etiss_script_args.extend(self.extra_args.split(" "))
+        etiss_script_args = []
+        if len(self.extra_args) > 0:
+            if not self.use_run_helper:
+                raise NotImplementedError("etiss.extra_args requires etiss.use_run_helper=1")
+            etiss_script_args.extend(self.extra_args.split(" "))
 
-            # TODO: this is outdated
-            # TODO: validate features (attach xor noattach!)
-            if self.debug_etiss:
+        # TODO: this is outdated
+        # TODO: validate features (attach xor noattach!)
+        if self.debug_etiss:
+            if self.use_run_helper:
                 etiss_script_args.append("gdb")
-            if self.gdbserver_enable:
+            else:
+                raise NotImplementedError("etiss.debug_etiss requires etiss.use_run_helper=1")
+        if self.gdbserver_enable:
+            if self.use_run_helper:
                 etiss_script_args.append("tgdb")
                 if not self.gdbserver_attach:
                     etiss_script_args.append("noattach")
-            if self.trace_memory:
+                etiss_script_args.append("--plugin.gdbserver.port={self.gdbserver_port}")
+                if self.gdbserver_attach:
+                    raise NotImplementedError("etiss.gdbserver_attach requires etiss.use_run_helper=1")
+        if self.trace_memory:
+            if self.use_run_helper:
                 etiss_script_args.append("trace")
                 etiss_script_args.append("nodmi")
-            if self.verbose:
-                etiss_script_args.append("v")
-            # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
-
-            # TODO: working directory?
-            etiss_ini = os.path.join(cwd, "custom.ini")
-            self.write_ini(etiss_ini)
-            etiss_script_args.append("-i" + etiss_ini)
-            for plugin in self.plugins:
+        if self.exit_on_loop:
+            if self.use_run_helper:
+                etiss_script_args.append("noloop")
+        if self.log_pc:
+            if self.use_run_helper:
+                etiss_script_args.append("logpc")
+        if not self.enable_dmi:
+            if self.use_run_helper:
+                etiss_script_args.append("nodmi")
+        if self.verbose:
+            etiss_script_args.append("v")
+        # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
+        if self.use_run_helper:
+            for plugin in self.get_plugin_names():
                 etiss_script_args.extend(["-p", plugin])
 
-            # if self.timeout_sec > 0:
-            if False:
-                ret = exec_timeout(
-                    self.timeout_sec,
-                    execute,
-                    Path(self.etiss_script).resolve(),
-                    program,
-                    *etiss_script_args,
-                    *args,
-                    cwd=cwd,
-                    **kwargs,
-                )
-            else:
-                ret = execute(
-                    Path(self.etiss_script).resolve(),
-                    program,
-                    *etiss_script_args,
-                    *args,
-                    cwd=cwd,
-                    **kwargs,
-                )
-            return ret, []
+        # TODO: working directory?
+        ini_override = {}
+        if self.use_run_helper:
+            etiss_script_args.insert(0, program)
         else:
-            raise NotImplementedError
+            ini_override["vp.elf_file"] = program
+        etiss_ini = os.path.join(cwd, "custom.ini")
+        self.write_ini(etiss_ini, override=ini_override)
+        etiss_script_args.append("-i" + etiss_ini)
+
+        # if self.timeout_sec > 0:
+        script = self.etiss_script if self.use_run_helper else self.etiss_exe
+        script = Path(script).resolve()
+        if False:
+            ret = exec_timeout(
+                self.timeout_sec,
+                execute,
+                script,
+                *etiss_script_args,
+                *args,
+                cwd=cwd,
+                **kwargs,
+            )
+        else:
+            ret = execute(
+                script,
+                *etiss_script_args,
+                *args,
+                cwd=cwd,
+                **kwargs,
+            )
+        return ret, []
 
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
@@ -620,6 +750,8 @@ class EtissTarget(RISCVTarget):
         return metrics, out, artifacts
 
     def get_target_system(self):
+        if not self.enable_semihosting:
+            raise NotImplementedError("etiss.enable_semihosting=0 is not supported anymore")
         return self.name
 
     def get_platform_defs(self, platform):

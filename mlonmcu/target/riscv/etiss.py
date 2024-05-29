@@ -88,6 +88,7 @@ class EtissTarget(RISCVTarget):
         "extra_bool_config": {},
         "extra_string_config": {},
         "extra_plugin_config": {},
+        "use_run_helper": True,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.script"}
 
@@ -313,6 +314,11 @@ class EtissTarget(RISCVTarget):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def use_run_helper(self):
+        value = self.config["use_run_helper"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def vext_spec(self):
         return float(self.config["vext_spec"])
 
@@ -420,54 +426,57 @@ class EtissTarget(RISCVTarget):
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
-        etiss_script_args = []
-        if len(self.extra_args) > 0:
-            etiss_script_args.extend(self.extra_args.split(" "))
+        if self.use_run_helper:
+            etiss_script_args = []
+            if len(self.extra_args) > 0:
+                etiss_script_args.extend(self.extra_args.split(" "))
 
-        # TODO: this is outdated
-        # TODO: validate features (attach xor noattach!)
-        if self.debug_etiss:
-            etiss_script_args.append("gdb")
-        if self.gdbserver_enable:
-            etiss_script_args.append("tgdb")
-            if not self.gdbserver_attach:
-                etiss_script_args.append("noattach")
-        if self.trace_memory:
-            etiss_script_args.append("trace")
-            etiss_script_args.append("nodmi")
-        if self.verbose:
-            etiss_script_args.append("v")
-        # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
+            # TODO: this is outdated
+            # TODO: validate features (attach xor noattach!)
+            if self.debug_etiss:
+                etiss_script_args.append("gdb")
+            if self.gdbserver_enable:
+                etiss_script_args.append("tgdb")
+                if not self.gdbserver_attach:
+                    etiss_script_args.append("noattach")
+            if self.trace_memory:
+                etiss_script_args.append("trace")
+                etiss_script_args.append("nodmi")
+            if self.verbose:
+                etiss_script_args.append("v")
+            # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
 
-        # TODO: working directory?
-        etiss_ini = os.path.join(cwd, "custom.ini")
-        self.write_ini(etiss_ini)
-        etiss_script_args.append("-i" + etiss_ini)
-        for plugin in self.plugins:
-            etiss_script_args.extend(["-p", plugin])
+            # TODO: working directory?
+            etiss_ini = os.path.join(cwd, "custom.ini")
+            self.write_ini(etiss_ini)
+            etiss_script_args.append("-i" + etiss_ini)
+            for plugin in self.plugins:
+                etiss_script_args.extend(["-p", plugin])
 
-        # if self.timeout_sec > 0:
-        if False:
-            ret = exec_timeout(
-                self.timeout_sec,
-                execute,
-                Path(self.etiss_script).resolve(),
-                program,
-                *etiss_script_args,
-                *args,
-                cwd=cwd,
-                **kwargs,
-            )
+            # if self.timeout_sec > 0:
+            if False:
+                ret = exec_timeout(
+                    self.timeout_sec,
+                    execute,
+                    Path(self.etiss_script).resolve(),
+                    program,
+                    *etiss_script_args,
+                    *args,
+                    cwd=cwd,
+                    **kwargs,
+                )
+            else:
+                ret = execute(
+                    Path(self.etiss_script).resolve(),
+                    program,
+                    *etiss_script_args,
+                    *args,
+                    cwd=cwd,
+                    **kwargs,
+                )
+            return ret, []
         else:
-            ret = execute(
-                Path(self.etiss_script).resolve(),
-                program,
-                *etiss_script_args,
-                *args,
-                cwd=cwd,
-                **kwargs,
-            )
-        return ret, []
+            raise NotImplementedError
 
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)

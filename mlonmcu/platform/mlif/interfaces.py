@@ -160,7 +160,6 @@ def get_process_outputs_stdout_raw():
 
 
 class ModelSupport:
-
     def __init__(self, in_interface, out_interface, model_info, target=None, batch_size=None, inputs_data=None):
         self.model_info = model_info
         self.target = target

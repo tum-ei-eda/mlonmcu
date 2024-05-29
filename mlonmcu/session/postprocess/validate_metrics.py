@@ -28,7 +28,6 @@ logger = get_logger()
 
 
 class ValidationMetric:
-
     def __init__(self, name, **cfg):
         self.name = name
         self.num_total = 0
@@ -54,7 +53,6 @@ class ValidationMetric:
 
 
 class ClassifyMetric:
-
     def __init__(self, name, **cfg):
         self.name = name
         self.num_total = 0
@@ -80,7 +78,6 @@ class ClassifyMetric:
 
 
 class AllCloseMetric(ValidationMetric):
-
     def __init__(self, name: str, atol: float = 0.0, rtol: float = 0.0):
         super().__init__(name)
         assert atol >= 0
@@ -96,7 +93,6 @@ class AllCloseMetric(ValidationMetric):
 
 
 class TopKMetric(ValidationMetric):
-
     def __init__(self, name: str, n: int = 2):
         super().__init__(name)
         assert n >= 1
@@ -134,7 +130,6 @@ class TopKMetric(ValidationMetric):
 
 
 class TopKLabelsMetric(ClassifyMetric):
-
     def __init__(self, name: str, n: int = 2):
         super().__init__(name)
         assert n >= 1
@@ -151,7 +146,7 @@ class TopKLabelsMetric(ClassifyMetric):
         # print("label_ref", label_ref)
         data_sorted_idx = list(reversed(np.argsort(out_data).tolist()[0]))
         # print("data_sorted_idx", data_sorted_idx)
-        data_sorted_idx_trunc = data_sorted_idx[:self.n]
+        data_sorted_idx_trunc = data_sorted_idx[: self.n]
         # print("data_sorted_idx_trunc", data_sorted_idx_trunc)
         res = label_ref in data_sorted_idx_trunc
         # print("res", res)
@@ -161,7 +156,6 @@ class TopKLabelsMetric(ClassifyMetric):
 
 
 class ConfusionMatrixMetric(ValidationMetric):
-
     def __init__(self, name: str):
         super().__init__(name)
         self.temp = {}
@@ -203,19 +197,16 @@ class ConfusionMatrixMetric(ValidationMetric):
 
 
 class AccuracyMetric(TopKMetric):
-
     def __init__(self, name: str):
         super().__init__(name, n=1)
 
 
 class AccuracyLabelsMetric(TopKLabelsMetric):
-
     def __init__(self, name: str):
         super().__init__(name, n=1)
 
 
 class MSEMetric(ValidationMetric):
-
     def __init__(self, name: str, thr: int = 0.5):
         super().__init__(name)
         assert thr >= 0
@@ -227,7 +218,6 @@ class MSEMetric(ValidationMetric):
 
 
 class ToyScoreMetric(ValidationMetric):
-
     def __init__(self, name: str, atol: float = 0.1, rtol: float = 0.1):
         super().__init__(name)
         assert atol >= 0
@@ -248,10 +238,10 @@ class ToyScoreMetric(ValidationMetric):
         ref_res = 0
         length = len(out_data_flat)
         for jjj in range(length):
-            res = (in_data_flat[jjj] - out_data_flat[jjj])
-            res += res ** 2
-            ref_res = (in_data_flat[jjj] - ref_out_data_flat[jjj])
-            ref_res += ref_res ** 2
+            res = in_data_flat[jjj] - out_data_flat[jjj]
+            res += res**2
+            ref_res = in_data_flat[jjj] - ref_out_data_flat[jjj]
+            ref_res += ref_res**2
         res /= length
         ref_res /= length
         print("res", res)
@@ -260,7 +250,6 @@ class ToyScoreMetric(ValidationMetric):
 
 
 class PlusMinusOneMetric(ValidationMetric):
-
     def __init__(self, name: str):
         super().__init__(name)
 

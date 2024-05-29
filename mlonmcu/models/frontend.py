@@ -361,8 +361,12 @@ class Frontend(ABC):
                                 if CLIP_INPUTS:
                                     arr = np.clip(arr, lower, upper)
                                 else:
-                                    assert np.min(arr) >= lower or np.isclose(np.min(arr), lower), "Range missmatch (lower)"
-                                    assert np.max(arr) <= upper or np.isclose(np.max(arr), upper), "Range missmatch (upper)"
+                                    assert np.min(arr) >= lower or np.isclose(
+                                        np.min(arr), lower
+                                    ), "Range missmatch (lower)"
+                                    assert np.max(arr) <= upper or np.isclose(
+                                        np.max(arr), upper
+                                    ), "Range missmatch (upper)"
                             arr = (arr / scale) + shift
                             arr = np.around(arr)
                             arr = arr.astype(dtype)
@@ -414,7 +418,9 @@ class Frontend(ABC):
                 else:
                     files = out_paths
                 temp = {}
-                assert len(inputs_data) <= len(files), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
+                assert len(inputs_data) <= len(
+                    files
+                ), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
                 for file in files:
                     if not isinstance(file, Path):
                         file = Path(file)
@@ -492,12 +498,13 @@ class Frontend(ABC):
             fmt = ext[1:].lower()
             if fmt == "csv":
                 import pandas as pd
+
                 labels_df = pd.read_csv(file, sep=",")
                 assert "i" in labels_df.columns
                 assert "label_idx" in labels_df.columns
                 assert len(inputs_data) <= len(labels_df)
                 labels_df.sort_values("i", inplace=True)
-                labels = list(labels_df["label_idx"].astype(int))[:len(inputs_data)]
+                labels = list(labels_df["label_idx"].astype(int))[: len(inputs_data)]
             else:
                 raise NotImplementedError(f"Fmt not supported: {fmt}")
         else:
@@ -914,7 +921,14 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES | {"visualize", "split_layers", "tflite_analyze", "gen_data", "gen_ref_data", "gen_ref_labels"}
+    FEATURES = Frontend.FEATURES | {
+        "visualize",
+        "split_layers",
+        "tflite_analyze",
+        "gen_data",
+        "gen_ref_data",
+        "gen_ref_labels",
+    }
 
     DEFAULTS = {
         **Frontend.DEFAULTS,

@@ -276,7 +276,8 @@ def execute(
     else:
         try:
             p = subprocess.Popen(
-                [i for i in args], **kwargs, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+                [i for i in args], **kwargs, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
             if stdin_data:
                 out_str = p.communicate(input=stdin_data)[0]
             else:

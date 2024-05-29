@@ -1559,6 +1559,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                 quant = model_info_data.get("output_quant_details", None)
                 rng = model_info_data.get("output_ranges", None)
                 if quant:
+
                     def ref_quant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
                             return data
@@ -1576,9 +1577,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
                             assert lower <= upper
                             assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
 
-                        return  np.around((data / quant_scale) + quant_zero_point).astype(
-                            "int8"
-                        )
+                        return np.around((data / quant_scale) + quant_zero_point).astype("int8")
+
                     def dequant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
                             return data
@@ -1597,6 +1597,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                             assert lower <= upper
                             assert np.min(ret) >= lower and np.max(ret) <= upper, "Range missmatch"
                         return ret
+
                     assert ii < len(rng)
                     rng_ = rng[ii]
                     if rng_ and self.validate_range:
@@ -1668,7 +1669,9 @@ class ValidateLabelsPostprocess(RunPostprocess):
         if len(model_info_data["output_names"]) > 1:
             raise NotImplementedError("Multi-outputs not yet supported.")
         labels_ref_artifact = lookup_artifacts(artifacts, name="labels_ref.npy", first_only=True)
-        assert len(labels_ref_artifact) == 1, "Could not find artifact: labels_ref.npy (Run classify_labels postprocess first!)"
+        assert (
+            len(labels_ref_artifact) == 1
+        ), "Could not find artifact: labels_ref.npy (Run classify_labels postprocess first!)"
         labels_ref_artifact = labels_ref_artifact[0]
         import numpy as np
 
@@ -1792,6 +1795,7 @@ class ExportOutputsPostprocess(RunPostprocess):
                 output = {output_names[idx]: out for idx, out in enumerate(output)}
             quant = model_info_data.get("output_quant_details", None)
             if quant and not self.skip_dequant:
+
                 def dequant_helper(quant, data):
                     if quant is None:
                         return data
@@ -1801,7 +1805,10 @@ class ExportOutputsPostprocess(RunPostprocess):
                     assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
                     assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
                     return (data.astype("float32") - quant_zero_point) * quant_scale
-                output = {out_name: dequant_helper(quant[j], output[out_name]) for j, out_name in enumerate(output.keys())}
+
+                output = {
+                    out_name: dequant_helper(quant[j], output[out_name]) for j, out_name in enumerate(output.keys())
+                }
             if self.fmt == "npy":
                 raise NotImplementedError("npy export")
             elif self.fmt == "bin":
@@ -1827,6 +1834,7 @@ class ExportOutputsPostprocess(RunPostprocess):
             archive_path = f"{dest_}.{archive_fmt}"
             if archive_fmt == "tar.gz":
                 import tarfile
+
                 with tarfile.open(archive_path, "w:gz") as tar:
                     for filename in filenames:
                         tar.add(filename, arcname=filename.name)

@@ -307,7 +307,12 @@ class MlonMcuContext:
         self.cache = TaskCache()
         self.export_paths = set()
 
-    def create_session(self, label="", config=None):
+    def create_session(self, label="", config=None, custom_dir=None):
+        if custom_dir is not None:
+            logger.debug("Creating a new session with idx %s", idx)
+            session_dir = Path(custom_dir)
+            session = Session(idx=None, label=label, dir=session_dir, config=config)
+            return session
         try:
             lock = self.latest_session_link_lock.acquire(timeout=10)
         except filelock.Timeout as err:

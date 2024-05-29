@@ -21,7 +21,6 @@
 import re
 import ast
 import tempfile
-import tarfile
 from pathlib import Path
 from io import StringIO
 
@@ -1517,7 +1516,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         in_data = None
         # compared = 0
         # matching = 0
-        missing = 0
+        # missing = 0
         # metrics = {
         #     "allclose(atol=0.0,rtol=0.0)": None,
         #     "allclose(atol=0.05,rtol=0.05)": None,
@@ -1536,7 +1535,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
         for i, output_ref in enumerate(outputs_ref):
             if i >= len(outputs):
                 logger.warning("Missing output sample")
-                missing += 1
+                # missing += 1
                 break
             output = outputs[i]
             ii = 0
@@ -1680,7 +1679,7 @@ class ValidateLabelsPostprocess(RunPostprocess):
         assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
-        missing = 0
+        # missing = 0
         classify_metrics_str = self.classify_metrics
         classify_metrics = parse_classify_metrics(classify_metrics_str)
         for i, output in enumerate(outputs):

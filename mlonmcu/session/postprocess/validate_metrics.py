@@ -62,7 +62,7 @@ class ClassifyMetric:
         raise NotImplementedError
 
     def check(self, out_data, label_ref, quant: bool = False):
-        return out_data.dtype == out_data_ref.dtype
+        return True
 
     def process(self, out_data, label_ref, quant: bool = False):
         if not self.check(out_data, label_ref, quant=quant):

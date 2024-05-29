@@ -35,8 +35,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.config import str2bool
 
 
-# TODO: class TargetFactory:
-from .common import execute
+from mlonmcu.setup.utils import execute
 from .metrics import Metrics
 
 

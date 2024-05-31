@@ -175,4 +175,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 <img src="./BMBF_gefoerdert_2017_en.jpg" alt="drawing" height="75" align="left" >
 
 This research is partially funded by the German Federal Ministry of Education and Research (BMBF) within
-the project [Scale4Edge](https://www.edacentrum.de/scale4edge/) (grant number 16ME0465).
+the projects [Scale4Edge](https://www.edacentrum.de/scale4edge/) (grant number 16ME0127) and [MANNHEIM-FlexKI](https://www.edacentrum.de/projekte/MANNHEIM-FlexKI) (grant number 01IS22086L).

@@ -24,7 +24,8 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
 from .util import update_extensions_pulp

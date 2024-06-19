@@ -20,7 +20,10 @@
 import importlib
 
 
-def process_extensions(file):
-    spec = importlib.util.spec_from_file_location("plugins.extensions", file)
+def process_extensions(file, desc=None):
+    mod_name = "mlonmcu.extensions"
+    if desc:
+        mod_name += f".{desc}"
+    spec = importlib.util.spec_from_file_location(mod_name, file)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

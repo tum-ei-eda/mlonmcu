@@ -357,7 +357,7 @@ class MlonMcuContext:
                 extensions_file = plugins_dir / "extensions.py"
                 if extensions_file.is_file():
                     logger.info(f"Loading extensions.py ({hint})")
-                    process_extensions(extensions_file)
+                    process_extensions(extensions_file, desc=hint.lower())
 
         # global (user)
         plugins_dir = Path(get_plugins_dir())

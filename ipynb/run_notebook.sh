@@ -95,6 +95,7 @@ NAME=$(basename $NOTEBOOK | cut -d. -f1)
 DIRECTORY=$(dirname $NOTEBOOK)
 YAML=$DIRECTORY/environment.yml.j2
 REQUIREMENTS=$DIRECTORY/requirements.txt
+PLUGINS_DIR=$DIRECTORY/plugins
 TEMPDIR=$(mktemp -d -t $NAME-XXXX)
 if [[ "$HOME_" != "" ]]
 then
@@ -147,6 +148,11 @@ then
         else
             echo "(No template found. Falling back to default...)"
             python3 -m mlonmcu.cli.main init -t default $WORKSPACE --non-interactive --clone-models --allow-exists
+        fi
+        if [[ -d $PLUGINS_DIR ]]
+        then
+            echo "Adding plugins to workspace"
+            cp -r $PLUGINS_DIR/* $WORKSPACE/plugins/
         fi
         echo "Setting up MLonMCU environment..."
         python3 -m mlonmcu.cli.main setup -v

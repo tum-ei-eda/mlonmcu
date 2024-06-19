@@ -17,7 +17,7 @@ class ABCTarget(RISCVTarget):
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"abc.exe"}
+    REQUIRED = RISCVTarget.REQUIRED | {"abc.exe", "abc.sw_dir"}
 
     def __init__(self, name="abc", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -26,9 +26,13 @@ class ABCTarget(RISCVTarget):
     def abc_exe(self):
         return Path(self.config["abc.exe"])
 
+    @property
+    def sw_dir(self):
+        return Path(self.config["abc.sw_dir"])
+
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         ret = execute(
-            self.tgc_exe.abc(),
+            self.abc_exe.resolve(),
             program,
             *args,
             **kwargs,
@@ -60,6 +64,8 @@ class ABCTarget(RISCVTarget):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        ret["TOOLCHAIN_FILE"] = self.sw_dir / "toolchain.cmake"
+        ret["TARGET_SYSTEM_FILE"] = self.sw_dir / "ABCTarget.cmake"
 
         return ret
 

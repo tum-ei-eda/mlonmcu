@@ -58,7 +58,7 @@ class Platform:
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.artifacts = []
 
-    def init_directory(self, path=None, context=None):
+    def init_directory(self, path=None, context=None) -> Path:
         raise NotImplementedError
 
     @property

@@ -62,6 +62,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "xpulp",
             "set_inputs",
             "get_outputs",
+            "memgraph_llvm_cdfg",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 

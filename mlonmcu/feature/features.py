@@ -2227,6 +2227,7 @@ class MemgraphLlvmCdfg(PlatformFeature):
         super().__init__("memgraph_llvm_cdfg", features=features, config=config)
 
     def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
         return filter_none({
             "MEMGRAPH_LLVM_CDFG": self.enabled,
             "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO

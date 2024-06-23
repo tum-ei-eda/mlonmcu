@@ -63,6 +63,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "set_inputs",
             "get_outputs",
             "memgraph_llvm_cdfg",
+            "global_isel",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 

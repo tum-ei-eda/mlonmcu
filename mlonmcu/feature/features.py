@@ -2234,3 +2234,17 @@ class MemgraphLlvmCdfg(PlatformFeature):
             "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
             "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
         })
+
+
+@register_feature("global_isel")
+class GlobalIsel(PlatformFeature):
+    """TODO"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("global_isel", features=features, config=config)
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none({
+            "GLOBAL_ISEL": self.enabled,
+        })

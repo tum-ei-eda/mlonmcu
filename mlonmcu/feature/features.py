@@ -2634,3 +2634,19 @@ class PerfSim(TargetFeature):
 
             return None, metrics_callback
         return None, None
+
+
+@register_feature("memgraph_llvm_cdfg")
+class MemgraphLlvmCdfg(PlatformFeature):
+    """TODO"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("memgraph_llvm_cdfg", features=features, config=config)
+
+    def get_platform_defs(self, platform):
+        return filter_none({
+            "MEMGRAPH_LLVM_CDFG": self.enabled,
+            "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
+            "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
+            "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
+        })

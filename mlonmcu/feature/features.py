@@ -2217,3 +2217,19 @@ class VanillaAccelerator(TargetFeature):
             assert self.name not in extra_plugin_config
             extra_plugin_config[self.name]["baseaddr"] = self.base_addr
             config.update({f"{target}.extra_plugin_config": extra_plugin_config})
+
+
+@register_feature("memgraph_llvm_cdfg")
+class MemgraphLlvmCdfg(PlatformFeature):
+    """TODO"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("memgraph_llvm_cdfg", features=features, config=config)
+
+    def get_platform_defs(self, platform):
+        return filter_none({
+            "MEMGRAPH_LLVM_CDFG": self.enabled,
+            "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
+            "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
+            "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
+        })

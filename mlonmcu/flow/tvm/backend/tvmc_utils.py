@@ -30,10 +30,8 @@ def get_pass_config_tvmc_args(pass_config):
 
 
 def get_disabled_pass_tvmc_args(disabled_passes):
-    args = []
-    for item in disabled_passes:
-        args.extend(["--disabled-pass", item])
-    return args
+    arg = ",".join(disabled_passes)
+    return ["--disabled-pass", arg]
 
 
 def get_input_shapes_tvmc_args(input_shapes):

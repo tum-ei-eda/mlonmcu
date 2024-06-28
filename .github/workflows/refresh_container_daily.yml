@@ -60,8 +60,6 @@ jobs:
           else
               echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
           fi
-      - name: A
-        run: df -h
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
@@ -71,8 +69,6 @@ jobs:
           remove-android: 'true'
           remove-haskell: 'true'
           remove-codeql: 'true'
-      - name: B
-        run: df -h
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -91,6 +87,7 @@ jobs:
         uses: docker/login-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
         with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push to Docker Hub
@@ -101,10 +98,10 @@ jobs:
           file: docker/Dockerfile2
           push: true
           build-args: |
-            BASE_IMAGE=tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            BASE_IMAGE=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           tags: |
-            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
   refresh_cron:
     name: Refresh large image for benchmarking
     if: (github.event_name == 'schedule')
@@ -166,6 +163,7 @@ jobs:
         uses: docker/login-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
         with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push to Docker Hub
@@ -176,7 +174,7 @@ jobs:
           file: docker/Dockerfile2
           push: true
           build-args: |
-            BASE_IMAGE=tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            BASE_IMAGE=${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             MLONMCU_TEMPLATE=${{ matrix.config.template }}
           tags: |
-            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated

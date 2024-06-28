@@ -85,6 +85,10 @@ class ModelInfo:
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
 
+    def validate(self):
+        assert len(self.in_tensors) > 0, "Missing inputs"
+        assert len(self.out_tensors) > 0, "Missing outputs"
+
     @property
     def has_ins(self):
         return len(self.in_tensors) > 0
@@ -243,8 +247,11 @@ class ONNXModelInfo(ModelInfo):
         out_tensors = _helper(model.graph.output)
 
         # TVM seems to ignore the original output names for ONNX models
-        for i, t in enumerate(out_tensors):
-            t.name = f"output{i}"
+        if len(out_tensors) == 1:
+            out_tensors[0].name = "output"
+        else:
+            for i, t in enumerate(out_tensors):
+                t.name = f"output{i}"
         super().__init__(in_tensors, out_tensors)
 
 

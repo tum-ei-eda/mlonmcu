@@ -133,6 +133,14 @@ with mlonmcu.context.MlonMcuContext() as context:
     pass
 ```
 
+## List of interesting MLonMCU forks
+
+- MINRES TGC support: https://github.com/Minres/mlonmcu/tree/develop
+
+## List of existing MLonMCU extensions/plugins
+
+- ABC Example Plugin: coming soon!
+- MINRES TGC Support: coming soon!
 
 ## Development
 

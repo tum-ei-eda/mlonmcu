@@ -95,13 +95,13 @@ mlonmcu setup
 ```
 Now you are ready to go. For Usage it is best to checkout the Demo Jupyter notebook. The general flow will be described here.
 
-An mlonmcu environment comes with a model zoo. If you want to implement your own model you can add it to the model directory of your environment. 
+An mlonmcu environment comes with a model zoo. If you want to implement your own model you can add it to the model directory of your environment.
 Be careful for each model that you add you need a single repository that is called the same as your .tflite model or the mlonmcu framework won't see your model
 ```bash
 cd $MLONMCU_HOME/models # navigate to your environment model directory
 mkdir <your_model_name>
 cp <path_to_your_model>/<your_model_name>.tflite $MLONMCU_HOME/model/<your_model_name>/<your_model_name>.tflite #
-mlonmcu models # to list all available models 
+mlonmcu models # to list all available models
 ```
 
 The general flow of a mlonmcu run looks like this. This is just a simple run that takes runs with self generated data

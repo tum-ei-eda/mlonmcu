@@ -31,7 +31,7 @@ from .riscv import RISCVTarget
 logger = get_logger()
 
 class TGCTarget(RISCVTarget):
-    
+
     isa_dict = {
         "tgc5a": ["e"],
         "tgc5b": ["i"],

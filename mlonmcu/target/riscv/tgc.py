@@ -48,7 +48,7 @@ class TGCTarget(RISCVTarget):
         "isa": "tgc5c",
         "backend": "interp"
     }
-    REQUIRED = ["tgc.exe"]
+    REQUIRED = RISCVTarget.REQUIRED + ["tgc.exe"]
 
     def __init__(self, name="tgc", features = None, config=None):
         super().__init__(name, features=features, config=config)

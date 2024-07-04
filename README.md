@@ -6,9 +6,10 @@
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
 
 [![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
+[![lint workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/style.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/style.yml)
 [![demo workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml)
-[![container workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml)
 [![bench workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml)
+
 
 This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.
 

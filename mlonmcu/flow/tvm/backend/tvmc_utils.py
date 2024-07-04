@@ -30,10 +30,8 @@ def get_pass_config_tvmc_args(pass_config):
 
 
 def get_disabled_pass_tvmc_args(disabled_passes):
-    args = []
-    for item in disabled_passes:
-        args.extend(["--disabled-pass", item])
-    return args
+    arg = ",".join(disabled_passes)
+    return ["--disabled-pass", arg]
 
 
 def get_input_shapes_tvmc_args(input_shapes):
@@ -63,6 +61,7 @@ def check_allowed(target, name):
                 "fast-math-arcp",
                 "fast-math-reassoc",
                 "mabi",
+                "num_cores",
             ]
             + common
         )
@@ -72,26 +71,46 @@ def check_allowed(target, name):
 
 
 def gen_target_details_args(target, target_details):
+    def helper(value):
+        if isinstance(value, (bool, int)):
+            # value = "true" if value else "false"
+            value = str(int(value))
+        return value
+
     return sum(
-        [[f"--target-{target}-{key}", value] for key, value in target_details.items() if check_allowed(target, key)], []
+        [
+            [f"--target-{target}-{key}", helper(value)]
+            for key, value in target_details.items()
+            if check_allowed(target, key)
+        ],
+        [],
     )
 
 
-def get_target_tvmc_args(target="c", extra_target=None, target_details={}, extra_target_details=None):
-    if extra_target:
-        if isinstance(extra_target, str):
-            if "," in extra_target:
-                extra_target = extra_target.split(",")
-            else:
-                extra_target = [extra_target]
-        # TODO: support multiple ones, currently only single one...
-        assert len(extra_target) == 1
+def gen_extra_target_details_args(extra_target_details):
+    ret = []
+    for extra_target, target_details in extra_target_details.items():
+        if target_details:
+            ret.append(gen_target_details_args(extra_target, target_details))
+    return sum(ret, [])
+
+
+def get_target_tvmc_args(target="c", extra_targets=[], target_details={}, extra_target_details={}):
+    if extra_targets:
+        assert isinstance(extra_targets, list)
+    else:
+        extra_targets = []
+    if extra_target_details:
+        assert isinstance(extra_target_details, dict)
+    else:
+        extra_target_details = {}
+
     return [
         "--target",
-        ",".join((extra_target if extra_target else []) + [target]),
+        ",".join(extra_targets + [target]),
         # TODO: provide a feature which sets these automatically depending on the chosen target
         *gen_target_details_args(target, target_details),
-        *(gen_target_details_args(extra_target[0], extra_target_details) if extra_target is not None else []),
+        *(gen_extra_target_details_args(extra_target_details)),
     ]
 
 
@@ -116,21 +135,30 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
     )
 
 
-def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api):
-    return [
-        *["--runtime-crt-system-lib", str(0)],
-        *["--target-c-constants-byte-alignment", str(alignment_bytes)],
-        *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
+def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c", system_lib=False):
+    ret = []
+    if runtime == "crt":
+        if unpacked_api:
+            assert not system_lib, "Unpacked API is incompatible with system lib"
+        ret += ["--runtime-crt-system-lib", str(int(system_lib))]
+
+    ret += [
         *["--executor-aot-unpacked-api", str(int(unpacked_api))],
         *["--executor-aot-interface-api", "c" if unpacked_api else "packed"],
     ]
+    if target == "c":
+        ret += [
+            *["--target-c-constants-byte-alignment", str(alignment_bytes)],
+            *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
+        ]
+    return ret
 
 
-def get_tvmrt_tvmc_args(runtime="crt"):
+def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True):
     ret = []
     if runtime == "crt":
-        ret.extend(["--runtime-crt-system-lib", str(1)])
-    ret.extend(["--executor-graph-link-params", str(1)])
+        ret += ["--runtime-crt-system-lib", str(int(system_lib))]
+    ret += ["--executor-graph-link-params", str(int(link_params))]
     return ret
 
 
@@ -139,8 +167,8 @@ def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=10):
     if ins_file is not None:
         ret.extend(["--inputs", ins_file])
     else:
-        assert mode is not None
-        ret.extend(["--fill-mode", mode])
+        if mode is not None:
+            ret.extend(["--fill-mode", mode])
 
     if outs_file is not None:
         ret.extend(["--outputs", outs_file])
@@ -168,5 +196,31 @@ def get_bench_tvmc_args(print_time=False, profile=False, end_to_end=False, repea
 
     if number:
         ret.extend(["--number", str(number)])
+
+    return ret
+
+
+def get_desired_layout_args(layouts, ops, mapping):
+    if mapping:
+        assert layouts is None, "desired_layout not allowed when using desired_layouts_map"
+        assert ops is None, "desired_layout_ops not allowed when using desired_layouts_map"
+        layouts = mapping.values()
+        ops = mapping.keys()
+
+    if layouts is None:
+        layouts = []
+
+    if ops is None:
+        ops = []
+
+    if layouts and ops:
+        assert len(layouts) == len(ops) or len(layouts) == 1
+
+    ret = []
+    if layouts:
+        ret.extend(["--desired-layout", *layouts])
+
+    if ops:
+        ret.extend(["--desired-layout-ops", *ops])
 
     return ret

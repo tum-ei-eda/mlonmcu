@@ -22,26 +22,31 @@ import os
 import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import time
+
+# import time
+import multiprocessing
 
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+
+# from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
-from .riscv import RISCVTarget
+from mlonmcu.target.bench import add_bench_metrics
+from .riscv_vext_target import RVVTarget
 from .util import update_extensions
 
 logger = get_logger()
 
 
-class AraTarget(RISCVTarget):
+class AraTarget(RVVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["log_instrs", "vext"]
+    FEATURES = RVVTarget.FEATURES | {"log_instrs", "vext"}
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
+        **RVVTarget.DEFAULTS,
         "xlen": 64,
         "nr_lanes": 4,
         "vlen": 4096,  # default value for hardware compilation, will be overwritten by -c vext.vlen
@@ -49,16 +54,22 @@ class AraTarget(RISCVTarget):
         "vext_spec": 1.0,
         "embedded_vext": False,
         "elen": 64,
+        "num_threads": multiprocessing.cpu_count(),
+        "limit_cycles": 10000000,
     }
 
-    REQUIRED = RISCVTarget.REQUIRED + [
+    REQUIRED = RVVTarget.REQUIRED | {
         "ara.src_dir",  # for the bsp package
         "verilator.install_dir",  # for simulation
-    ]
+    }
+
+    OPTIONAL = RVVTarget.OPTIONAL | {
+        "ara.verilator_tb",
+    }
 
     def __init__(self, name="ara", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        assert self.config["xlen"] == str(64), 'ARA target must has xlen equal 64, try "-c ara.xlen=64"'
+        assert self.config["xlen"] == 64, 'ARA target must has xlen equal 64, try "-c ara.xlen=64"'
 
     @property
     def ara_apps_dir(self):
@@ -73,6 +84,11 @@ class AraTarget(RISCVTarget):
         return Path(self.config["verilator.install_dir"])
 
     @property
+    def ara_verilator_tb(self):
+        value = self.config.get("ara.verilator_tb", None)
+        return Path(value) if value is not None else None
+
+    @property
     def nr_lanes(self):
         value = self.config["nr_lanes"]
         return value
@@ -81,6 +97,11 @@ class AraTarget(RISCVTarget):
     def vlen(self):
         value = self.config["vlen"]
         return value
+
+    @property
+    def limit_cycles(self):
+        value = self.config["limit_cycles"]
+        return int(value) if value is not None else None
 
     @property
     def enable_vext(self):
@@ -105,28 +126,34 @@ class AraTarget(RISCVTarget):
         exts = super().extensions
         return update_extensions(
             exts,
-            vext=self.enable_vext,
-            elen=self.elen,
-            embedded=self.embedded_vext,
-            fpu=self.fpu,
-            variant=self.gcc_variant,
         )
 
-    def prepare_simulator(self, program, *args, cwd=os.getcwd(), **kwargs):
+    @property
+    def num_threads(self):
+        return self.config["num_threads"]
+
+    def prepare_simulator(self, program, *_, cwd=os.getcwd(), **kwargs):
         # populate the ara verilator testbench directory
         self.tb_ara_verilator_build_dir = TemporaryDirectory()
-        env = os.environ.copy()
-        env["ROOT_DIR"] = str(self.ara_hardware_dir)
-        env["veril_library"] = self.tb_ara_verilator_build_dir.name
-        env["veril_path"] = str(self.verilator_install_dir / "bin")
-        env["nr_lanes"] = str(self.nr_lanes)
-        env["vlen"] = str(self.vlen)
-        env["bender_defs"] = f"--define NR_LANES={self.nr_lanes} --define VLEN={self.vlen} --define RVV_ARIANE=1"
+        # self.tb_ara_verilator_build_dir = Path("/tmp/tmpd7kz4i6z")
+        # env = os.environ.copy()
+        # env["ROOT_DIR"] = str(self.ara_hardware_dir)
+        # env["veril_library"] = self.tb_ara_verilator_build_dir.name
+        # env["veril_path"] = str(self.verilator_install_dir / "bin")
+        # env["nr_lanes"] = str(self.nr_lanes)
+        # env["vlen"] = str(self.vlen)
+        # env["bender_defs"] = f"--define NR_LANES={self.nr_lanes} --define VLEN={self.vlen} --define RVV_ARIANE=1"
+        args = []
+        args.append(f"ROOT_DIR={self.ara_hardware_dir}")
+        args.append(f"veril_library={self.tb_ara_verilator_build_dir.name}")
+        args.append(f"veril_path={self.verilator_install_dir}/bin")
+        args.append(f"nr_lanes={self.nr_lanes}")
+        args.append(f"vlen={self.vlen}")
         compile_verilator_tb_ret = execute(
             "make",
             "verilate",
-            "-i",  # the origin Makefile will check the path of QuestaSim in line 80. This error should be ignored
-            env=env,
+            f"JOBS={self.num_threads}",
+            # env=env,
             cwd=self.ara_hardware_dir,
             *args,
             **kwargs,
@@ -137,67 +164,99 @@ class AraTarget(RISCVTarget):
         """Use target to execute an executable with given arguments"""
         # run simulation
         # to add trace: https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L201
-        ara_verilator_args = ["-l", f"ram,{program}"]
-        if len(self.extra_args) > 0:
-            if isinstance(self.extra_args, str):
-                extra_args = self.extra_args.split(" ")
-            else:
-                extra_args = self.extra_args
-            ara_verilator_args.extend(extra_args)
+        ara_verilator_args = []
+        limit_cycles = self.limit_cycles
+        if limit_cycles is not None:
+            ara_verilator_args.extend(["-c", str(limit_cycles)])
+        ara_verilator_args.extend(["-l", f"ram,{program}"])
+        assert len(self.extra_args) == 0
 
-        assert (
-            self.tb_ara_verilator_build_dir is not None
-        ), "A folder containing Vara_tb_verilator should be generated by the function prepare_simulator"
-        env = os.environ.copy()
+        if self.ara_verilator_tb:
+            exe = self.ara_verilator_tb
+        else:
+            assert (
+                self.tb_ara_verilator_build_dir is not None
+            ), "A folder containing Vara_tb_verilator should be generated by the function prepare_simulator"
+            exe = Path(self.tb_ara_verilator_build_dir.name) / "Vara_tb_verilator"
         simulation_ret = execute(
-            str(Path(self.tb_ara_verilator_build_dir.name) / "Vara_tb_verilator"),
+            str(exe),
             *ara_verilator_args,
-            env=env,
+            # env=env,
             cwd=cwd,
             *args,
             **kwargs,
         )
-        self.tb_ara_verilator_build_dir.cleanup()
+        if not self.ara_verilator_tb:
+            self.tb_ara_verilator_build_dir.cleanup()
         return simulation_ret
 
-    def parse_stdout(self, out):
-        cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-        if not cpu_cycles:
-            logger.warning("unexpected script output (cycles)")
-            cycles = None
-        else:
-            cycles = int(float(cpu_cycles.group(1)))
+    def parse_exit(self, out):
+        exit_code = super().parse_exit(out)
+        if exit_code is None:
+            if "Simulation timeout of" in out:
+                exit_code = -1
+        return exit_code
 
-        cpu_instructions = re.search(r"Total Instructions: (.*)", out)
-        if not cpu_instructions:
-            logger.warning("unexpected script output (instructions)")
-            cpu_instructions = None
-        else:
-            cpu_instructions = int(float(cpu_instructions.group(1)))
-        return cycles, cpu_instructions
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
+        """
+        Expected output looks like this:
+
+        Simulation statistics
+        =====================
+        Executed cycles:  5e437
+        Wallclock time:   150.173 s
+        Simulation speed: 2571.05 cycles/s (2.57105 kHz)
+        """
+        sim_insns = re.search(r"Executed cycles:\s+([0-9a-f]+)", out)
+        if sim_insns:
+            sim_insns = int(sim_insns.group(1), 16)
+            metrics.add("Simulated Instructions", sim_insns, True)
+        wall = re.search(r"Wallclock time:\s+(\d*.?\d*)\ss", out)
+        if wall:
+            wall = float(wall.group(1))
+            metrics.add("Wallclock time", wall, True)
+        speed = re.search(r"Simulation speed: (\d*\.?\d*) cycles\/s", out)
+        if speed:
+            speed = int(float(speed.group(1)))
+            metrics.add("MIPS", speed / 1e6, True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
+        if not self.ara_verilator_tb:
+            if self.print_outputs:
+                self.prepare_simulator(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            else:
+                self.prepare_simulator(
+                    elf,
+                    *args,
+                    cwd=directory,
+                    live=False,
+                    print_func=lambda *args, **kwargs: None,
+                    handle_exit=handle_exit,
+                )
+
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
+        # simulation_start = time.time()
         if self.print_outputs:
-            self.prepare_simulator(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
-        else:
-            self.prepare_simulator(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
-            )
-        simulation_start = time.time()
-        if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
             out += self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
-        simulation_end = time.time()
-        cycles, instructions = self.parse_stdout(out)
+        # simulation_end = time.time()
+        exit_code = 0
         metrics = Metrics()
-        metrics.add("Cycles", cycles)
-        metrics.add("Instructions", instructions)
-        metrics.add("CPI", cycles / instructions)
-        metrics.add("finished_in_sec", simulation_end - simulation_start)
+        self.parse_stdout(out, metrics, exit_code=exit_code)
         return metrics, out, []
 
     def get_target_system(self):
@@ -215,10 +274,10 @@ class AraTarget(RISCVTarget):
         ret["CMAKE_VERBOSE_MAKEFILE"] = "BOOL=OFF"
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
-        if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_mabi": self.abi})
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
         return ret
 
 

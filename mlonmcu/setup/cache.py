@@ -50,6 +50,10 @@ class TaskCache:
         self._vars[name[0]] = value  # Holds latest value
         self._vars[name] = value
 
+    def __delitem__(self, name):
+        name = convert_key(name)
+        del self._vars[name]
+
     def __getitem__(self, name):
         name = convert_key(name)
         return self._vars[name]

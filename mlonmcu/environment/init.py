@@ -17,7 +17,6 @@
 # limitations under the License.
 #
 import sys
-import git
 from pathlib import Path
 import venv
 import os
@@ -32,6 +31,7 @@ from .config import (
 )
 from .templates import write_environment_yaml_from_template
 from mlonmcu.utils import in_virtualenv, ask_user
+from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 logger = get_logger()
@@ -46,10 +46,10 @@ def create_environment_directories(path, directories):
         (path / directory).mkdir(parents=True, exist_ok=True)
 
 
-def clone_models_repo(
-    dest, url="https://github.com/tum-ei-eda/mlonmcu-models.git"
-):  # TODO: how to get submodule url/ref
-    git.Repo.clone_from(url, dest)
+def clone_models_repo(dest, url=None, ref=None, refresh=False, recursive=False):
+    if url is None:
+        url = "https://github.com/tum-ei-eda/mlonmcu-models.git"
+    utils.clone(url, dest, ref, refresh=refresh, recursive=False)
 
 
 def create_venv_directory(base, hidden=True):
@@ -157,7 +157,11 @@ def initialize_environment(
                 interactive=interactive,
             )
         ):
-            clone_models_repo(models_subdir)
+            custom_url = None
+            custom_ref = None
+            custom_url = config.get("models.clone_url", None)
+            custom_ref = config.get("models.clone_ref", None)
+            clone_models_repo(models_subdir, url=custom_url, ref=custom_ref)
         else:
             subdirs.append("models")
 

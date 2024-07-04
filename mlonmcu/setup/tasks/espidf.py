@@ -52,7 +52,7 @@ def clone_espidf(
         return False
     if rebuild or not utils.is_populated(espidfSrcDir):
         espidfRepo = context.environment.repos["espidf"]
-        utils.clone(espidfRepo.url, espidfSrcDir, branch=espidfRepo.ref, refresh=rebuild, recursive=True)
+        utils.clone_wrapper(espidfRepo, espidfSrcDir, refresh=rebuild)
     context.cache["espidf.src_dir"] = espidfSrcDir
 
 
@@ -83,5 +83,5 @@ def install_espidf(
         espidfInstallArgs = ["install", f"--targets={boards}"]
         env = os.environ.copy()
         env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
-        utils.python(espidfInstallScript, *espidfInstallArgs, print_output=False, live=verbose, env=env)
+        utils.python(espidfInstallScript, *espidfInstallArgs, live=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir

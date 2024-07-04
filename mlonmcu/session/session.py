@@ -19,6 +19,7 @@
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
 import os
 import shutil
+import filelock
 import tempfile
 import multiprocessing
 from datetime import datetime
@@ -62,7 +63,7 @@ class Session:
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.config = config if config else {}
-        self.config = filter_config(self.config, "session", self.DEFAULTS, [], [])
+        self.config = filter_config(self.config, "session", self.DEFAULTS, set(), set())
         self.status = SessionStatus.CREATED
         self.opened_at = None
         self.closed_at = None
@@ -70,20 +71,24 @@ class Session:
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
-        if dir is None:
-            assert not self.archived
-            self.tempdir = tempfile.TemporaryDirectory()
-            self.dir = Path(self.tempdir.name)
+        self.dir = dir
+        self.tempdir = None
+        self.session_lock = None
+
+    @property
+    def runs_dir(self):
+        return None if self.dir is None else (self.dir / "runs")
+
+    def __enter__(self):
+        if self.archived:
+            logger.warning("Opening an already archived session is not recommended")
         else:
-            self.tempdir = None
-            self.dir = dir
-            if not self.dir.is_dir():
-                self.dir.mkdir(parents=True)
-        self.runs_dir = self.dir / "runs"
-        if not os.path.exists(self.runs_dir):
-            os.mkdir(self.runs_dir)
-        if not self.archived:
             self.open()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.active:
+            self.close()
 
     @property
     def prefix(self):
@@ -101,11 +106,6 @@ class Session:
         logger.debug("Creating a new run with id %s", idx)
         run = Run(*args, idx=idx, session=self, **kwargs)
         self.runs.append(run)
-        # TODO: move this to a helper function
-        run_link = run.dir.parent / "latest"  # TODO: Create relative symlink using os.path.relpath for portability
-        if os.path.islink(run_link):
-            os.unlink(run_link)
-        os.symlink(run.dir, run_link)
         return run
 
     #  def update_run(self): # TODO TODO
@@ -129,12 +129,22 @@ class Session:
             if run.archived:
                 max_idx = max(max_idx, run.idx)
         run_idx = max_idx + 1
+        last_run_idx = None
         for run in self.runs:
             if not run.archived:
                 run.idx = run_idx
                 run.init_directory()
                 run_idx += 1
+                last_run_idx = run.idx
         self.next_run_idx = run_idx
+        if last_run_idx is not None:
+            self.update_latest_run_symlink(last_run_idx)
+
+    def update_latest_run_symlink(self, latest_run_idx):
+        run_link = self.runs_dir / "latest"  # TODO: Create relative symlink using os.path.relpath for portability
+        if os.path.islink(run_link):
+            os.unlink(run_link)
+        os.symlink(self.runs_dir / str(latest_run_idx), run_link)
 
     def request_run_idx(self):
         """Return next free run index."""
@@ -156,6 +166,7 @@ class Session:
         """Process a runs in this session until a given stage."""
 
         # TODO: Add configurable callbacks for stage/run complete
+        assert self.active, "Session needs to be opened first"
 
         self.enumerate_runs()
         self.report = None
@@ -358,10 +369,42 @@ class Session:
         """Get active property."""
         return self.status == SessionStatus.OPEN
 
+    @property
+    def failing(self):
+        """Get failng property."""
+
+        # via report
+        if self.report:
+            df = self.report.df
+            if "Failing" in df.columns:
+                if df["Failing"].any():
+                    return True
+        # via runs
+        if len(self.runs) > 0:
+            for run in self.runs:
+                if run.failing:
+                    return True
+
+        return False
+
     def open(self):
         """Open this run."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
+        if dir is None:
+            assert not self.archived
+            self.tempdir = tempfile.TemporaryDirectory()
+            self.dir = Path(self.tempdir.name)
+        else:
+            if not self.dir.is_dir():
+                self.dir.mkdir(parents=True)
+        self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
+        try:
+            self.session_lock.acquire(timeout=10)
+        except filelock.Timeout as err:
+            raise RuntimeError("Lock on session could not be aquired.") from err
+        if not os.path.exists(self.runs_dir):
+            os.mkdir(self.runs_dir)
 
     def close(self, err=None):
         """Close this run."""
@@ -370,8 +413,7 @@ class Session:
         else:
             self.status = SessionStatus.CLOSED
         self.closed_at = datetime.now()
+        self.session_lock.release()
+        os.remove(self.session_lock.lock_file)
         if self.tempdir:
             self.tempdir.cleanup()
-
-
-# TODO: implement close()? and use closing contextlib? for tempdir

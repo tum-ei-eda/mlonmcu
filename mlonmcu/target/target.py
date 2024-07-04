@@ -19,6 +19,7 @@
 """MLonMCU Target definitions"""
 
 import os
+import re
 import tempfile
 import time
 from pathlib import Path
@@ -26,6 +27,7 @@ from typing import List, Tuple
 
 
 from mlonmcu.config import filter_config
+from mlonmcu.utils import filter_none
 from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
@@ -33,8 +35,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.config import str2bool
 
 
-# TODO: class TargetFactory:
-from .common import execute
+from mlonmcu.setup.utils import execute
 from .metrics import Metrics
 
 
@@ -57,14 +58,14 @@ class Target:
         Optinal map of environment variables
     """
 
-    FEATURES = ["benchmark"]
+    FEATURES = {"benchmark"}
     DEFAULTS = {
         "print_outputs": False,
         "repeat": None,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(
         self,
@@ -82,6 +83,13 @@ class Target:
         self.inspect_program_args = ["--all"]
         self.env = os.environ
         self.artifacts = []
+        self.dir = None
+
+    # def init_directory(self, path=None, context=None):
+    #     # return False
+    #     assert path is not None
+    #         self.dir = Path(path)
+    #     self.dir.mkdir(exist_ok=True)
 
     @property
     def print_outputs(self):
@@ -106,6 +114,9 @@ class Target:
             feature.add_target_callbacks(self.name, self.pre_callbacks, self.post_callbacks)
         return features
 
+    def reconfigure(self):
+        pass
+
     def exec(self, program: Path, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
         raise NotImplementedError
@@ -114,14 +125,32 @@ class Target:
         """Use target to inspect a executable"""
         return execute(self.inspect_program, program, *self.inspect_program_args, *args, **kwargs)
 
+    def parse_exit(self, out):
+        exit_code = None
+        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+        if exit_match:
+            exit_code = int(exit_match.group(1))
+        return exit_code
+
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
+
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out = self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+            out, artifacts = self.exec(
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
         end_time = time.time()
@@ -130,7 +159,7 @@ class Target:
         metrics = Metrics()
         metrics.add("Runtime [s]", diff)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def generate(self, elf) -> Tuple[dict, dict]:
         artifacts = []
@@ -139,15 +168,22 @@ class Target:
         # We only save the stdout and artifacts of the last execution
         # Callect metrics from all runs to aggregate them in a callback with high priority
         artifacts_ = []
-        for n in range(total):
-            with tempfile.TemporaryDirectory() as temp_dir:
+        # if self.dir is None:
+        #    self.dir = Path(
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for n in range(total):
                 args = []
                 for callback in self.pre_callbacks:
-                    callback(temp_dir, args)
-                metrics_, out, artifacts_ = self.get_metrics(elf, *args, temp_dir)
-            metrics.append(metrics_)
-        for callback in self.post_callbacks:
-            out = callback(out, metrics, artifacts_)
+                    callback(temp_dir, args, directory=temp_dir)
+                if n == total - 1:
+                    temp_dir_ = temp_dir
+                else:
+                    temp_dir_ = Path(temp_dir) / str(n)
+                    temp_dir_.mkdir()
+                metrics_, out, artifacts_ = self.get_metrics(elf, temp_dir, *args)
+                metrics.append(metrics_)
+            for callback in self.post_callbacks:
+                out = callback(out, metrics, artifacts_, directory=temp_dir)
         artifacts.extend(artifacts_)
         if len(metrics) > 1:
             raise RuntimeError("Collected target metrics for multiple runs. Please aggregate them in a callback!")
@@ -203,11 +239,42 @@ class Target:
     def get_arch(self):
         raise NotImplementedError
 
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
+
     def get_platform_defs(self, platform):
         return {}
 
     def add_platform_defs(self, platform, defs):
         defs.update(self.get_platform_defs(platform))
 
-    def get_backend_config(self, backend):
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         return {}
+
+    def add_backend_config(self, backend, config, optimized_layouts=False, optimized_schedules=False):
+        new = filter_none(
+            self.get_backend_config(
+                backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+            )
+        )
+
+        # only allow overwriting non-none values
+        # to support accepting user-vars
+        new = {key: value for key, value in new.items() if config.get(key, None) is None}
+        config.update(new)
+
+    def get_hardware_details(self):
+        return {
+            "num-cores": 1,  # TODO: overwrite for host_x86?
+            "cache-line-bytes": 64,  # TODO: disable?
+            "vector-unit-bytes": 64,  # TODO: disable?
+            # The following are GPU specific
+            "max-shared-memory-per-block": 0,
+            "max-local-memory-per-block": 0,
+            "max-threads-per-block": 0,
+            "max-vthread-extent": 0,
+            "warp-size": 0,
+        }

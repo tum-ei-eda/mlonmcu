@@ -45,5 +45,5 @@ def clone_mlif(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
     mlifSrcDir = context.environment.paths["deps"].path / "src" / mlifName
     if rebuild or not utils.is_populated(mlifSrcDir):
         mlifRepo = context.environment.repos["mlif"]
-        utils.clone(mlifRepo.url, mlifSrcDir, branch=mlifRepo.ref, refresh=rebuild)
+        utils.clone_wrapper(mlifRepo, mlifSrcDir, refresh=rebuild)
     context.cache["mlif.src_dir"] = mlifSrcDir

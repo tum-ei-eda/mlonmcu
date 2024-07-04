@@ -115,7 +115,7 @@ def test_wrapper_graph(model_info, workspace_size, debug_arena):
     expected_lines.extend(
         [
             "void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)",
-            "void TVMWrap_Init()",
+            "int TVMWrap_Init()",
         ]
     )
     expected_lines.extend(
@@ -131,7 +131,7 @@ def test_wrapper_graph(model_info, workspace_size, debug_arena):
     )
     expected_lines.extend(
         [
-            "void TVMWrap_Run()",
+            "int TVMWrap_Run()",
         ]
     )
     expected_lines.extend(
@@ -225,7 +225,7 @@ def test_wrapper_aot(model_info, workspace_size, mod_name, api, debug_arena):
         [
             "void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)",
             "TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)",
-            "void TVMWrap_Init()",
+            "int TVMWrap_Init()",
         ]
     )
     expected_lines.extend(
@@ -246,7 +246,7 @@ def test_wrapper_aot(model_info, workspace_size, mod_name, api, debug_arena):
                     f"int32_t tvmgen_{mod_name}_run(void* args, void* type_code, int num_args, void* out_value, void*"
                     " out_type_code, void* resource_handle);"
                 ),
-                "void TVMWrap_Run()",
+                "int TVMWrap_Run()",
                 "    static DLDevice fake_device = {kDLCPU, 0};",
                 "    static int64_t fake_dims = 0;",
                 "    static int64_t fake_shape = {0};",
@@ -267,7 +267,7 @@ def test_wrapper_aot(model_info, workspace_size, mod_name, api, debug_arena):
     elif api == "c":
         expected_lines.extend(
             [
-                "void TVMWrap_Run()",
+                "int TVMWrap_Run()",
                 f"    int ret_val = tvmgen_{mod_name}_run(&tvmgen_{mod_name}_inputs, &tvmgen_{mod_name}_outputs);",
             ]
         )

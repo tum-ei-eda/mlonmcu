@@ -79,7 +79,9 @@ def test_setup_install_dependencies(progress, print_output, rebuild, write_cache
     TestTaskFactory.registry["example_task2"] = mock.Mock(return_value=True)
     config = {"print_output": print_output}
     installer = Setup(config=config, context=fake_context, tasks_factory=TestTaskFactory)
-    result = installer.install_dependencies(progress=progress, write_cache=write_cache, write_env=write_env, rebuild=rebuild)
+    result = installer.install_dependencies(
+        progress=progress, write_cache=write_cache, write_env=write_env, rebuild=rebuild
+    )
     assert result
     # assert example_task1_mock.call_count == 3
     assert (

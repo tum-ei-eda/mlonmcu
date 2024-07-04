@@ -37,10 +37,10 @@ logger = get_logger()
 class Backend(ABC):
     name = None
 
-    FEATURES = []
+    FEATURES = set()
     DEFAULTS = {}
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(
         self,
@@ -72,7 +72,7 @@ class Backend(ABC):
         return features
 
     @abstractmethod
-    def load_model(self, model):
+    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         pass
 
     @abstractmethod
@@ -101,6 +101,10 @@ class Backend(ABC):
     @property
     def has_tuner(self):
         return self.tuner is not None
+
+    @property
+    def needs_target(self):
+        return False
 
     def set_tuning_records(self, filepath):
         if not self.has_tuner:
@@ -143,6 +147,12 @@ class Backend(ABC):
                 with open(dest, "w") as outfile:
                     logger.info(f"Exporting artifact: {artifact.name}")
                     outfile.write(artifact.content)
+
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
 
     def get_platform_defs(self, platform):
         if platform == "espidf":

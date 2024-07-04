@@ -28,17 +28,15 @@ logger = get_logger()
 
 
 class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = Target.FEATURES + []
-
     DEFAULTS = {
         **Target.DEFAULTS,
         "verbose": False,
     }
-    REQUIRED = Target.REQUIRED + ["tvm.build_dir"]
+    REQUIRED = Target.REQUIRED | {"tvm.build_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
-        self.template_path = self.tvm_build_dir / "standalone_crt" / "template" / "host"
+        self.template_path = self.tvm_build_dir / "microtvm_template_projects" / "crt"
         # self.option_names = ["verbose"]
 
     @property

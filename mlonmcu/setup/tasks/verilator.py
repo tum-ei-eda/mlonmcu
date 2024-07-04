@@ -27,6 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
+from .cv32e40p import _validate_cv32e40p
 
 logger = get_logger()
 Tasks = get_task_factory()
@@ -37,7 +38,12 @@ Tasks = get_task_factory()
 
 
 def _validate_verilator(context: MlonMcuContext, params=None):
-    return context.environment.has_target("ara")
+    return (
+        context.environment.has_target("ara")
+        or context.environment.has_target("ara_rtl")
+        or context.environment.has_target("vicuna")
+        or _validate_cv32e40p(context, params=params)
+    )
 
 
 @Tasks.provides(["verilator.src_dir"])
@@ -53,18 +59,18 @@ def clone_verilator(
     flags = utils.makeFlags()
     verilatorName = utils.makeDirName("verilator", flags=flags)
     verilatorSrcDir = context.environment.paths["deps"].path / "src" / verilatorName
-    if "ara.src_dir" in user_vars:  # TODO: also check command line flags?
+    if "verilator.src_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
         verilatorSrcDir = user_vars["verilator.src_dir"]
     else:
         if rebuild or not utils.is_populated(verilatorSrcDir):
             verilatorRepo = context.environment.repos["verilator"]
-            utils.clone(verilatorRepo.url, verilatorSrcDir, branch=verilatorRepo.ref)
+            utils.clone_wrapper(verilatorRepo, verilatorSrcDir, refresh=rebuild)
     context.cache["verilator.src_dir", flags] = verilatorSrcDir
 
 
 @Tasks.needs(["verilator.src_dir"])
-@Tasks.provides(["verilator.build_dir"])
+@Tasks.provides(["verilator.build_dir", "verilator.install_dir"])
 @Tasks.validate(_validate_verilator)
 @Tasks.register(category=TaskType.TARGET)
 def build_verilator(
@@ -99,10 +105,13 @@ def build_verilator(
                 f"--prefix={verilatorInstallDir}",
                 env=env,
                 cwd=verilatorBuildDir,
-                live=verbose,
+                # live=verbose,
+                live=False,
             )
             utils.make(cwd=verilatorBuildDir, threads=threads, live=verbose)
+            utils.make("install", cwd=verilatorBuildDir, threads=threads, live=verbose)
     context.cache["verilator.build_dir"] = verilatorBuildDir
+    context.cache["verilator.install_dir"] = verilatorInstallDir
 
 
 @Tasks.needs(["verilator.build_dir"])

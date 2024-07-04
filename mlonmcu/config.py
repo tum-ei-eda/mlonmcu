@@ -78,7 +78,14 @@ def filter_config(config, prefix, defaults, optionals, required_keys):
     ------
     AssertionError: If a required key is missing.
     """
-    cfg = remove_config_prefix(config, prefix, skip=required_keys + optionals)
+    if not isinstance(required_keys, set):
+        logger.warning(
+            "Deprecated: FEATURES, REQUIRED, OPTIONAL should now be sets, not lists for component %s", prefix
+        )
+        required_keys = set(required_keys)
+    if not isinstance(optionals, set):
+        optionals = set(optionals)
+    cfg = remove_config_prefix(config, prefix, skip=required_keys | optionals)
     for required in required_keys:
         value = None
         if required in cfg:
@@ -102,7 +109,7 @@ def filter_config(config, prefix, defaults, optionals, required_keys):
             cfg[key] = defaults[key]
 
     for key in cfg:
-        if key not in list(defaults.keys()) + required_keys:
+        if key not in set(defaults.keys()) | required_keys:
             # logger.warn("Component received an unknown config key: %s", key)
             pass
 

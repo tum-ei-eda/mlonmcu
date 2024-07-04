@@ -28,8 +28,6 @@ logger = get_logger()
 
 
 class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    FEATURES = TemplateMicroTvmPlatformTarget.FEATURES + []
-
     DEFAULTS = {
         **Target.DEFAULTS,
         "project_type": "host_driven",
@@ -38,7 +36,7 @@ class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "port": None,
         "baud": None,
     }
-    REQUIRED = Target.REQUIRED + ["microtvm_espidf.template", "espidf.src_dir", "espidf.install_dir"]
+    REQUIRED = Target.REQUIRED | {"microtvm_espidf.template", "espidf.src_dir", "espidf.install_dir"}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

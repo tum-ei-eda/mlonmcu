@@ -29,11 +29,12 @@ import shutil
 import tempfile
 import urllib.request
 from pathlib import Path
-from typing import Union
+from typing import Union, List, Callable, Optional
 from git import Repo
 from tqdm import tqdm
 
 from mlonmcu import logging
+from mlonmcu.environment.config import RepoConfig
 
 logger = logging.get_logger()
 
@@ -96,12 +97,21 @@ def exec(*args, **kwargs):
     ----------
     args
         The command to be executed.
+    kwargs
+        Parameters to be passed to subprocess
     """
-    logger.debug("- Executing: " + str(args))
-    subprocess.run([i for i in args], **kwargs, check=True)
+    logger.warning("DEPRECATED: Please use utils.execute(..., ignore_output=True) instead of utils.exec(...)")
+    # Original implementation
+    # logger.debug("- Executing: " + str(args))
+    # if "cwd" in kwargs:
+    #     logger.debug("- CWD: " + str(kwargs["cwd"]))
+    # subprocess.run([i for i in args], **kwargs, check=True)
+
+    # Call new implementation
+    _ = execute(*args, ignore_output=True, live=False, print_func=None, **kwargs)
 
 
-def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exit=None, prefix="", **kwargs) -> str:
+def exec_getout(*args, live: bool = False, print_output: bool = False, handle_exit=None, prefix="", **kwargs) -> str:
     """Execute a process with the given args and using the given kwards as Popen arguments and return the output.
 
     Parameters
@@ -118,40 +128,145 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exi
     output
         The text printed to the command line.
     """
-    logger.debug("- Executing: " + str(args))
-    outStr = ""
-    if live:
-        process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        try:
-            for line in process.stdout:
-                new_line = prefix + line.decode(errors="replace")
-                outStr = outStr + new_line
-                print(new_line.replace("\n", ""))
-            exit_code = None
-            while exit_code is None:
-                exit_code = process.poll()
-            if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
-            assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                exit_code, " ".join(list(map(str, args)))
-            )
-        except KeyboardInterrupt:
-            logger.debug("Interrupted subprocess. Sending SIGINT signal...")
-            pid = process.pid
-            os.kill(pid, signal.SIGINT)
+    logger.warning("DEPRECATED: Please use utils.execute(...) instead of utils.exec_getout(...)")
+    # Original implementation:
+    # logger.debug("- Executing: " + str(args))
+    # outStr = ""
+    # if live:
+    #     process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    #     try:
+    #         for line in process.stdout:
+    #             new_line = prefix + line.decode(errors="replace")
+    #             outStr = outStr + new_line
+    #             print(new_line.replace("\n", ""))
+    #         exit_code = None
+    #         while exit_code is None:
+    #             exit_code = process.poll()
+    #         if handle_exit is not None:
+    #             exit_code = handle_exit(exit_code)
+    #         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+    #             exit_code, " ".join(list(map(str, args)))
+    #         )
+    #     except KeyboardInterrupt:
+    #         logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+    #         pid = process.pid
+    #         os.kill(pid, signal.SIGINT)
 
+    # else:
+    #     try:
+    #         p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    #         outStr = p.communicate()[0].decode(errors="replace")
+    #         exit_code = p.poll()
+    #         # outStr = p.stdout.decode(errors="replace")
+    #         if print_output:
+    #             logger.debug(prefix + outStr)
+    #         if handle_exit is not None:
+    #             exit_code = handle_exit(exit_code)
+    #         if exit_code != 0:
+    #             logger.error(outStr)
+    #         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+    #             exit_code, " ".join(list(map(str, args)))
+    #         )
+    #     except KeyboardInterrupt:
+    #         logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+    #         pid = p.pid
+    #         os.kill(pid, signal.SIGINT)
+    #     except subprocess.CalledProcessError as e:
+    #         outStr = e.output.decode(errors="replace")
+    #         logger.error(outStr)
+    #         raise e
+    # return outStr
+    return execute(
+        *args,
+        ignore_output=False,
+        live=live,
+        # print_func=print,
+        handle_exit=handle_exit,
+        err_func=logger.error,
+        prefix=prefix,
+        **kwargs,
+    )
+
+
+def execute(
+    *args: List[str],
+    ignore_output: bool = False,
+    live: bool = False,
+    print_func: Callable = print,
+    handle_exit: Optional[Callable] = None,
+    err_func: Callable = logger.error,
+    prefix: str = "",
+    **kwargs,
+) -> str:
+    """Wrapper for running a program in a subprocess.
+
+    Parameters
+    ----------
+    args : list
+        The actual command.
+    ignore_output : bool
+        Do not get the stdout and stderr or the subprocess.
+    live : bool
+        Print the output line by line instead of only at the end.
+    print_func : Callable
+        Function which should be used to print sysout messages.
+    handle_exit: Callable
+        Handler for exit code.
+    err_func : Callable
+        Function which should be used to print errors.
+    kwargs: dict
+        Arbitrary keyword arguments passed through to the subprocess.
+
+    Returns
+    -------
+    out : str
+        The command line output of the command
+    """
+    # TODO: catch keyboardinterrupt
+    logger.debug("- Executing: %s", str(args))
+    if "cwd" in kwargs:
+        logger.debug("- CWD: %s", str(kwargs["cwd"]))
+    if ignore_output:
+        assert not live
+        subprocess.run(args, **kwargs, check=True)
+        return None
+
+    out_str = ""
+    if live:
+        with subprocess.Popen(
+            args,
+            **kwargs,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        ) as process:
+            try:
+                for line in process.stdout:
+                    new_line = prefix + line.decode(errors="replace")
+                    out_str = out_str + new_line
+                    print_func(new_line.replace("\n", ""))
+                exit_code = None
+                while exit_code is None:
+                    exit_code = process.poll()
+                if handle_exit is not None:
+                    exit_code = handle_exit(exit_code, out=out_str)
+                assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
+                    exit_code, " ".join(list(map(str, args)))
+                )
+            except KeyboardInterrupt:
+                logger.debug("Interrupted subprocess. Sending SIGINT signal...")
+                pid = process.pid
+                os.kill(pid, signal.SIGINT)
     else:
         try:
             p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            outStr = p.communicate()[0].decode(errors="replace")
+            out_str = p.communicate()[0].decode(errors="replace")
+            out_str = prefix + out_str
             exit_code = p.poll()
-            # outStr = p.stdout.decode(errors="replace")
-            if print_output:
-                logger.debug(prefix + outStr)
+            # print_func(out_str)
             if handle_exit is not None:
-                exit_code = handle_exit(exit_code)
+                exit_code = handle_exit(exit_code, out=out_str)
             if exit_code != 0:
-                logger.error(outStr)
+                err_func(out_str)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
                 exit_code, " ".join(list(map(str, args)))
             )
@@ -160,16 +275,16 @@ def exec_getout(*args, live: bool = False, print_output: bool = True, handle_exi
             pid = p.pid
             os.kill(pid, signal.SIGINT)
         except subprocess.CalledProcessError as e:
-            outStr = e.output.decode(errors="replace")
-            logger.error(outStr)
+            out_str = e.output.decode(errors="replace")
+            err_func(out_str)
             raise e
 
-    return outStr
+    return out_str
 
 
 def python(*args, **kwargs):
     """Run a python script with the current interpreter."""
-    return exec_getout(sys.executable, *args, **kwargs)
+    return execute(sys.executable, *args, **kwargs)
 
 
 # Makes sure all directories at the given path are created.
@@ -207,6 +322,15 @@ def clone(
     """
     mkdirs(dest)
 
+    def update_submodules():
+        if recursive:
+            if submodules:
+                for submodule in submodules:
+                    assert isinstance(submodule, str), f"Submodules should be a list of str. {submodule} is not str."
+                repo.git.submodule("update", "--init", "--recursive", "--", *submodules)
+            else:
+                repo.git.submodule("update", "--init", "--recursive")
+
     if is_populated(dest):
         if refresh:
             repo = Repo(dest)
@@ -215,21 +339,18 @@ def clone(
             repo.remotes.origin.fetch()
             repo.git.checkout(branch)
             repo.git.pull("origin", branch)  # This should also work for specific commits
+            update_submodules()
     else:
         if branch:
             repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
             repo.git.checkout(branch)
-            if recursive:
-                if submodules:
-                    for submodule in submodules:
-                        assert isinstance(
-                            submodule, str
-                        ), f"Submodules should be a list of str. {submodule} is not str."
-                    repo.git.submodule("update", "--init", "--recursive", "--", " ".join(submodules))
-                else:
-                    repo.git.submodule("update", "--init", "--recursive")
+            update_submodules()
         else:
             Repo.clone_from(url, dest, recursive=recursive)
+
+
+def clone_wrapper(cfg: RepoConfig, dest: Union[str, bytes, os.PathLike], refresh: bool = False):
+    clone(cfg.url, dest, branch=cfg.ref, submodules=cfg.submodules, recursive=cfg.recursive, refresh=refresh)
 
 
 def apply(
@@ -261,7 +382,7 @@ def make(*args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, 
     tool = "ninja" if use_ninja else "make"
     extraArgs.append("-j" + str(threads))
     cmd = [tool] + extraArgs + list(args)
-    return exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
+    return execute(*cmd, cwd=cwd, **kwargs)
 
 
 def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
@@ -275,7 +396,7 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
     if use_ninja:
         extraArgs.append("-GNinja")
     cmd = ["cmake", str(src)] + extraArgs + list(args)
-    return exec_getout(*cmd, cwd=cwd, print_output=False, **kwargs)
+    return execute(*cmd, cwd=cwd, **kwargs)
 
 
 # def move(a, b):  # TODO: make every utility compatible with Paths!
@@ -348,13 +469,17 @@ def copy(src, dest):
     shutil.copy(src, dest)
 
 
+def symlink(src, dest):
+    os.symlink(src, dest)
+
+
 def is_populated(path):
     if not isinstance(path, Path):
         path = Path(path)
     return path.is_dir() and os.listdir(path.resolve())
 
 
-def download_and_extract(url, archive, dest, progress=False):
+def download_and_extract(url, archive, dest, progress=False, force=True):
     if isinstance(dest, str):
         dest = Path(dest)
     assert isinstance(dest, Path)
@@ -377,6 +502,9 @@ def download_and_extract(url, archive, dest, progress=False):
                 tmp_dir_new = Path(tmp_dir) / contents[0]
                 if tmp_dir_new.is_dir():  # Archive contains a single subdirectory with a different name
                     tmp_dir = tmp_dir_new
+            if dest.is_dir():
+                assert force, f"Set force=True to replace destination {dest}"
+                shutil.rmtree(dest)
             move(tmp_dir, dest)
 
 

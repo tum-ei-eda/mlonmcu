@@ -24,7 +24,6 @@ from pathlib import Path
 import tarfile
 from typing import Tuple
 
-from .backend import TVMBackend
 from .tvmrt import TVMRTBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -34,11 +33,7 @@ from mlonmcu.setup import utils
 class TVMCGBackend(TVMRTBackend):
     name = "tvmcg"
 
-    FEATURES = [
-        *TVMBackend.FEATURES,
-    ]
-
-    REQUIRED = TVMRTBackend.REQUIRED + ["utvmcg.exe"]
+    REQUIRED = TVMRTBackend.REQUIRED | {"utvmcg.exe"}
 
     def get_max_workspace_size_from_metadata(self, metadata):
         max_workspace = 0
@@ -79,7 +74,7 @@ class TVMCGBackend(TVMRTBackend):
                     args.append(params_bin_file)
                     args.append(out_file)
                     args.append(str(max_workspace_size))
-                    out = utils.exec_getout(tvmcg_exe, *args, live=self.print_outputs, print_output=False)
+                    out = utils.exec_getout(tvmcg_exe, *args, live=self.print_outputs)
                     codegen_src = open(out_file, "r").read()
                     artifact = Artifact("staticrt.c", content=codegen_src, fmt=ArtifactFormat.SOURCE)
                     workspace_size_artifact = Artifact(

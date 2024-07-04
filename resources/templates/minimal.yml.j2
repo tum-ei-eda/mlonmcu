@@ -38,6 +38,8 @@ repos:
   tvm:
     url: "https://github.com/apache/tvm.git"
     ref: 76b9ce9b1f7d2b7e64b4b9c9d456a02b8a010473
+    options:
+      recursive: true
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -65,8 +67,10 @@ repos:
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etissvp:
-    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
+    options:
+      recursive: true
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: 41e591ea5479484154598fa74e3d7097ded3da86
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -206,7 +210,7 @@ targets:
       ethosu: false
       arm_mvei: false
       arm_dsp: false
-  microtvm_etissvp:
+  microtvm_etiss:
     enabled: true
   microtvm_espidf:
     enabled: false
@@ -226,9 +230,7 @@ vars:
   llvm.version: "11.1.0"
   llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiD9HnHYkb2V8kNbVQYv242m/rv32gc.tar.gz"
-  # riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiGp4r3f6SZaC5QyDi6QUiNQ/rv32gcv_new.tar.gz"
-  # riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiNvP4mzVQ8uDvgT9Yf2bqNk/rv32gcp.tar.xz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32gc_ilp32d.tar.xz"
 flags:
   tflmc.exe:
   - x86

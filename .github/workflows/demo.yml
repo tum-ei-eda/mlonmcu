@@ -24,12 +24,17 @@ name: Usage Demo
 on:
   workflow_dispatch:
     inputs:
+      # template:
+      #   type: choice
+      #   description: Environment Template
+      #   options:
+      #   - default
+      #   - minimal
+      #   required: true
       template:
-        type: choice
+        type: string
         description: Environment Template
-        options:
-        - default
-        - minimal
+        default: default
         required: true
       test:
         type: boolean
@@ -50,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
     steps:
     - uses: actions/checkout@v3
       with:

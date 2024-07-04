@@ -41,14 +41,14 @@ logger = get_logger()
 class Platform:
     """Abstract platform class."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {
         "print_outputs": False,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, features=None, config=None):
         self.name = name
@@ -106,15 +106,7 @@ class Platform:
 
 
 class BuildPlatform(Platform):
-    """Abstract backend platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
+    """Abstract build platform class."""
 
     @property
     def supports_build(self):
@@ -133,15 +125,7 @@ class BuildPlatform(Platform):
 
 
 class TunePlatform(Platform):
-    """Abstract backend platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
+    """Abstract tune platform class."""
 
     @property
     def supports_tune(self):
@@ -184,7 +168,7 @@ class TunePlatform(Platform):
 class CompilePlatform(Platform):
     """Abstract compile platform class."""
 
-    FEATURES = Platform.FEATURES + ["debug"]
+    FEATURES = Platform.FEATURES | {"debug"}
 
     DEFAULTS = {
         **Platform.DEFAULTS,
@@ -192,8 +176,6 @@ class CompilePlatform(Platform):
         "build_dir": None,
         "num_threads": multiprocessing.cpu_count(),
     }
-
-    REQUIRED = []
 
     @property
     def supports_compile(self):
@@ -206,7 +188,7 @@ class CompilePlatform(Platform):
 
     @property
     def num_threads(self):
-        return int(self.config["num_threads"])
+        return max(1, int(self.config["num_threads"]))
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)
@@ -254,14 +236,6 @@ class CompilePlatform(Platform):
 
 class TargetPlatform(Platform):
     """Abstract target platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
 
     def create_target(self, name):
         raise NotImplementedError

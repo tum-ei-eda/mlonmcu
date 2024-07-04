@@ -51,7 +51,7 @@ def get_project_template(name="project"):
 class EspIdfPlatform(CompilePlatform, TargetPlatform):
     """ESP-IDF Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
+    FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -65,7 +65,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "flash_only": False,
     }
 
-    REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
+    REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -148,7 +148,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.project_dir.mkdir(exist_ok=True)
 
     def get_supported_targets(self):
-        text = self.invoke_idf_exe("--list-targets", live=self.print_outputs, print_output=False)
+        text = self.invoke_idf_exe("--list-targets", live=self.print_outputs)
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = text.split("\n")

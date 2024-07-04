@@ -52,7 +52,7 @@ def get_project_template(name="project2"):  # Workaround which only support tvma
 class ZephyrPlatform(CompilePlatform, TargetPlatform):
     """Zephyr Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
+    FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -67,7 +67,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         "optimize": None,  # values: 0,1,2,3,s
     }
 
-    REQUIRED = ["zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"]
+    REQUIRED = {"zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -161,9 +161,7 @@ project(ProjectName)
             def _handle(code):
                 return 0
 
-            text = self.invoke_west(
-                "build", "-d", b, "-b", "help", temp, live=False, print_output=False, handle_exit=_handle
-            )
+            text = self.invoke_west("build", "-d", b, "-b", "help", temp, live=False, handle_exit=_handle)
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = re.compile(r"^  (\S+)$", re.MULTILINE).findall(text)

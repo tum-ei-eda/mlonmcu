@@ -35,7 +35,7 @@ logger = get_logger()
 class TFLMCBackend(TFLMBackend):
     name = "tflmc"
 
-    FEATURES = ["debug_arena"]
+    FEATURES = {"debug_arena"}
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
@@ -45,7 +45,7 @@ class TFLMCBackend(TFLMBackend):
         "debug_arena": False,
     }
 
-    REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
+    REQUIRED = TFLMBackend.REQUIRED | {"tflmc.exe"}
 
     @property
     def print_outputs(self):
@@ -106,7 +106,7 @@ size_t model_outputs();
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
-            out = utils.exec_getout(tflmc_exe, *args, live=self.print_outputs, print_output=False)
+            out = utils.exec_getout(tflmc_exe, *args, live=self.print_outputs)
             files = [f for f in os.listdir(tmpdirname) if os.path.isfile(os.path.join(tmpdirname, f))]
             # TODO: ensure that main file is processed first
             for filename in files:

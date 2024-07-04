@@ -23,14 +23,17 @@ on:
       branch:
         description: "Branch name"
         required: true
-        default: "staging-newer"
+        default: "develop"
       template:
         description: "Environment template"
         required: true
         default: "dev"
   schedule:
     - cron: "0 0 * * 6"  # main, default
-    - cron: "0 12 * * 6"  # staging-newer, dev
+    - cron: "0 6 * * 6"  # develop, corev
+    - cron: "0 12 * * 6"  # develop, dev
+    - cron: "0 18 * * 6"  # develop, ara
+    - cron: "0 20 * * 6"  # develop, vicuna
 
 jobs:
   minimal:
@@ -57,10 +60,22 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
-              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=ara" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 20 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=vicuna" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -86,7 +101,7 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 40960
+          root-reserve-mb: 32768
           temp-reserve-mb: 4096
           remove-dotnet: 'true'
           remove-android: 'true'
@@ -164,10 +179,22 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
-              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=ara" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 20 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=vicuna" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -193,7 +220,7 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 40960
+          root-reserve-mb: 32768
           temp-reserve-mb: 4096
           remove-dotnet: 'true'
           remove-android: 'true'
@@ -217,10 +244,9 @@ jobs:
         uses: docker/login-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
         with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Check disk 1
-        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v4
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -238,10 +264,8 @@ jobs:
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
           cache-to: type=inline
           tags: |
-            tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}latest
-            tumeda/mlonmcu:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
-      - name: Check disk 2
-        run: df -h
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu:${{ steps.branch_str.outputs.branch }}latest
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
   bench:
     name: Build large image for benchmarking
     runs-on: ubuntu-latest
@@ -267,10 +291,22 @@ jobs:
           then
               echo "branch=main" >> $GITHUB_OUTPUT
               echo "template=default" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 6 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=corev" >> $GITHUB_OUTPUT
           elif [[ "${{github.event.schedule}}" == "0 12 * * 6" ]]
           then
-              echo "branch=staging-newer" >> $GITHUB_OUTPUT
+              echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 18 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=ara" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 20 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=vicuna" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -296,7 +332,7 @@ jobs:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          root-reserve-mb: 40960
+          root-reserve-mb: 32768
           temp-reserve-mb: 4096
           remove-dotnet: 'true'
           remove-android: 'true'
@@ -320,10 +356,9 @@ jobs:
         uses: docker/login-action@v2
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
         with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Check disk 1
-        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v4
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -341,7 +376,5 @@ jobs:
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
           cache-to: type=inline
           tags: |
-            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
-            tumeda/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
-      - name: Check disk 2
-        run: df -h
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
+            ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}

@@ -66,46 +66,29 @@ def clone_tgc(
     if rebuild or not utils.is_populated(tgcSrcDir):
         logger.debug(context.environment.repos)
         tgcRepo = context.environment.repos["tgc"]
-        utils.clone(tgcRepo.url, tgcSrcDir, branch="develop", recursive=True)
-        #utils.move("/home/gabriel/.config/mlonmcu/environments/iss_gen/deps/src/tgc/dbt-rise-tgc/src-gen","/home/gabriel/.config/mlonmcu/environments/iss_gen/deps/src/tgc/dbt-rise-tgc/src-not-gen")
-        #shutil.copytree("/scratch/gabriel/TGC-ISS/dbt-rise-tgc/src-gen/","/home/gabriel/.config/mlonmcu/environments/iss_gen/deps/src/tgc/dbt-rise-tgc/src-gen")
-        if "tgc_gen" in context.environment.repos:
-            tgc_gen_src_dir = context.environment.paths["deps"].path / "src" / "tgc_gen"
-            tgc_repo_extra = context.environment.repos["tgc_gen"]
-            utils.clone(tgc_repo_extra.url, tgc_gen_src_dir, branch="develop", recursive=True )
-            context.cache["tgc.gen_src_dir"] = tgc_gen_src_dir
-    
+        utils.clone(tgcRepo.url, tgcSrcDir, branch="develop", recursive=True)  # TODO: use wrapper
+
     context.cache["tgc.src_dir"] = tgcSrcDir
 
-    
-"""
-@Tasks.needs(["tgc.gen_src_dir", "tgc.src_dir"])
+
+@Tasks.provides(["tgc.gen_src_dir"])
+@Tasks.validate(_validate_tgc_gen)
 @Tasks.register(category=TaskType.TARGET)
-def generate_tgc_cores(
-    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count() 
+def clone_tgc_gen(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    tgc_gen_dir = context.cache["tgc.gen_src_dir"]
-    tgc_src_dir = context.cache["tgc.src_dir"]
-    backends = ["interp", "asmjit"]
-    versions = ["TGC5A","TGC5B","TGC5C"]
+    """Clone the tgc generator."""
+    tgcGenName = utils.makeDirName("tgc_gen")
+    tgcGenSrcDir = context.environment.paths["deps"].path / "src" / tgcGenName
+    user_vars = context.environment.vars
+    if rebuild or not utils.is_populated(tgcGenSrcDir):
+        tgcGenRepo = context.environment.repos["tgc_gen"]
+        utils.clone(tgcGenRepo.url, tgcSrcDir, branch=tgcGenRepo.ref, recursive=True)  # TODO: use wrapper
+    context.cache["tgc.gen_src_dir"] = tgc_gen_src_dir
 
-    utils.exec_getout(
-            "direnv allow",
-            cwd=tgc_src_dir,
-            shell=True,
-            executable="/bin/bash",
-        )
 
-    for backend in backends:
-            for version in versions:
-                utils.exec_getout(
-                    f"direnv exec {tgc_src_dir} {tgc_src_dir}/../tgc_gen/scripts/generate_iss.sh -c {version} -o {tgc_src_dir}/dbt-rise-tgc/ -b {backend} {tgc_src_dir}/../tgc_gen/CoreDSL/{version}.core_desc",
-                    cwd=tgc_src_dir,
-                    live=False,
-                    print_output=True,
-                )
-"""
 @Tasks.needs(["tgc.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.optional(["tgc.gen_src_dir"])
 @Tasks.validate(_validate_tgc)
 @Tasks.provides(["tgc.build_dir", "tgc.exe"])
 @Tasks.register(category=TaskType.TARGET)
@@ -116,6 +99,7 @@ def build_tgc(
     if not params:
         params = {}
     user_vars = context.environment.vars
+    gen_enable = user_vars.get("tgc.gen_enable", False)
     if "tgc.exe" in user_vars:  # TODO: also check command line flags?
         return False
     tgcName = utils.makeDirName("tgc")
@@ -138,43 +122,23 @@ def build_tgc(
                 shell=True,
                 executable="/bin/bash",
             )
-            for backend in backends:
-                for version in versions:
-                    cmd = f'/bin/bash -c "source ~/.sdkman/bin/sdkman-init.sh && sdk use java 11.0.21-tem && java --version && {tgcSrcDir}/../tgc_gen/scripts/generate_iss.sh -c {version} -o dbt-rise-tgc/ -b {backend} {tgcSrcDir}/../tgc_gen/CoreDSL/{version}.core_desc"'
-                    utils.exec_getout(
-                        cmd,
-                        cwd=tgcSrcDir,
-                        print_output=True,
-                        shell=True,
-                    )
-        """
-        utils.exec_getout(
-            "direnv allow",
-            cwd=tgcSrcDir,
-            shell=True,
-            executable="/bin/bash",
-        )
-        for backend in backends:
-            for version in versions:
-                utils.exec_getout(
-                    f"{tgcSrcDir}/../tgc_gen/scripts/generate_iss.sh -c {version} -o {tgcSrcDir}/dbt-rise-tgc/ -b {backend} {tgcSrcDir}/../tgc_gen/CoreDSL/{version}.core_desc",
-                    cwd=tgcSrcDir,
-                    print_output=True,
-                )
-                
-                command = f"direnv exec {tgcSrcDir} sdk use java 11.0.21-tem && {tgcSrcDir}/../TGC-GEN/scripts/generate_iss.sh -c {version} -o {tgcSrcDir}/dbt-rise-tgc/ -b {backend} {tgcSrcDir}/../TGC-GEN/CoreDSL/{version}.core_desc"
-                output = subprocess.run(
-                    ["bash", "-l", "-c", command],
-                    cwd=tgcSrcDir,
-                    capture_output=True,                    
-                )
-                logger.debug(output)"""
+            if gen_enable:
+                tgcGenSrcDir = context.cache["tgc.gen_src_dir"]
+                for backend in backends:
+                    for version in versions:
+                        cmd = f'/bin/bash -c "source ~/.sdkman/bin/sdkman-init.sh && sdk use java 11.0.21-tem && java --version && {tgcSrcDir}/../tgc_gen/scripts/generate_iss.sh -c {version} -o dbt-rise-tgc/ -b {backend} {tgcSrcDir}/../tgc_gen/CoreDSL/{version}.core_desc"'
+                        utils.exec_getout(
+                            cmd,
+                            cwd=tgcSrcDir,
+                            print_output=True,
+                            shell=True,
+                        )
         utils.exec_getout(
             "cmake", "-S", tgcSrcDir, "-B", ".",
             cwd=tgcBuildDir,
             live=False,
             print_output=True,
-        )       
+        )
         utils.make(cwd=tgcBuildDir, threads=threads, live=verbose)
         # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)
         utils.mkdirs(tgcInstallDir)

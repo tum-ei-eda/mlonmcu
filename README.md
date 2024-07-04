@@ -1,5 +1,18 @@
 # ML on MCU
 
+#### Commands
+
+```sh
+curl -sfL https://direnv.net/install.sh | bash
+which direnv
+curl -s "https://get.sdkman.io" | bash
+source $HOME/.sdkman/bin/sdkman-init.sh
+sdk version
+sdk install java 11.0.21-tem
+pip3 install 'conan<2.0
+conan profile new --detect default
+conan remote add gitea https://git.minres.com/api/packages/Tooling/conan
+```
 
 ## Getting started
 

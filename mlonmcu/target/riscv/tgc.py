@@ -132,7 +132,7 @@ class TGCTarget(RISCVTarget):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        
+        ret["TGC_PREFIX"] = self.riscv_gcc_prefix / "bin" / f"{self.riscv_gcc_basename}-"
         return ret
 
 

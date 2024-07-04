@@ -52,7 +52,7 @@ class TGCTarget(RISCVTarget):
 
     def __init__(self, name="tgc", features = None, config=None):
         super().__init__(name, features=features, config=config)
-        if self.isa is not "tgc5c":
+        if self.isa != "tgc5c":
             self.config["extensions"] = self.isa_dict[self.isa]
         if "e" in self.config["extensions"]:
             self.config["abi"] = "ilp32e"
@@ -60,29 +60,29 @@ class TGCTarget(RISCVTarget):
     @property
     def tgc_exe(self):
         return Path(self.config["tgc.exe"])
-    
+
     @property
     def iss_args(self):
         return self.config["iss_args"]
-    
-    @property 
+
+    @property
     def isa(self):
         return self.config["isa"]
-    
+
     @property
     def backend(self):
         return self.config["backend"]
-    
+
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         #assert len(args) == 0, "at the moment no args supported"
         tgc_args = []
-        if self.iss_args: 
+        if self.iss_args:
             tgc_args.append(self.iss_args)
-        if self.isa is not "tgc5c":
+        if self.isa != "tgc5c":
             cmd = "--isa=" + self.isa
             tgc_args.append(cmd)
-        if self.backend is not "interp":
+        if self.backend != "interp":
             cmd = "--backend"
             tgc_args.append(cmd)
             tgc_args.append(self.backend)
@@ -97,9 +97,9 @@ class TGCTarget(RISCVTarget):
 
     def parse_stdout(self, out, handle_exit=None):
         pattern = r'(\d+) cycles during (\d+)ms resulting in ([\d.]+)MIPS'
-    
+
         match = re.search(pattern, out)
-    
+
         if match:
             cycles = int(match.group(1))
             duration = int(match.group(2))

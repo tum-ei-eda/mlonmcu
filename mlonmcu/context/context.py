@@ -350,6 +350,10 @@ class MlonMcuContext:
 
     def load_extensions(self):
         """If available load the extensions.py scripts in the plugin directories"""
+        if self.environment:
+            allow_extensions = self.environment.vars.get("allow_extensions", False)
+            if not allow_extensions:
+                return
 
         # TODO: check vars.enable_extensions before!
         def _load(plugins_dir, hint="Unknown"):

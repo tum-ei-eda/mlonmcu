@@ -42,6 +42,15 @@ def _validate_tgc(context: MlonMcuContext, params=None):
         assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
     return True
 
+
+def _validate_tgc_gen(context: MlonMcuContext, params=None):
+    if not _validate_tgc(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    enable = user_vars.get("tgc.gen_enable", False)
+    return enable
+
+
 @Tasks.provides(["tgc.src_dir"])
 @Tasks.validate(_validate_tgc)
 @Tasks.register(category=TaskType.TARGET)

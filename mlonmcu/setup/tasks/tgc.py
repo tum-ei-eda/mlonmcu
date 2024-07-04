@@ -54,9 +54,7 @@ def _validate_tgc_gen(context: MlonMcuContext, params=None):
 @Tasks.provides(["tgc.src_dir"])
 @Tasks.validate(_validate_tgc)
 @Tasks.register(category=TaskType.TARGET)
-def clone_tgc(
-    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
-):
+def clone_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
     """Clone the tgc simulator."""
     tgcName = utils.makeDirName("tgc")
     tgcSrcDir = context.environment.paths["deps"].path / "src" / tgcName
@@ -92,10 +90,8 @@ def clone_tgc_gen(
 @Tasks.validate(_validate_tgc)
 @Tasks.provides(["tgc.build_dir", "tgc.exe"])
 @Tasks.register(category=TaskType.TARGET)
-def build_tgc(
-    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
-):
-    #Build tgc simulator.
+def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
+    # Build tgc simulator.
     if not params:
         params = {}
     user_vars = context.environment.vars
@@ -109,7 +105,7 @@ def build_tgc(
     tgcExe = tgcInstallDir / "tgc-sim"
     user_vars = context.environment.vars
     backends = ["interp", "asmjit"]
-    versions = ["TGC5A","TGC5B"]
+    versions = ["TGC5A", "TGC5B"]
     if "tgc.exe" in user_vars:  # TODO: also check command line flags?
         return False
     if rebuild or not (utils.is_populated(tgcBuildDir) and tgcExe.is_file()):
@@ -134,7 +130,11 @@ def build_tgc(
                             shell=True,
                         )
         utils.exec_getout(
-            "cmake", "-S", tgcSrcDir, "-B", ".",
+            "cmake",
+            "-S",
+            tgcSrcDir,
+            "-B",
+            ".",
             cwd=tgcBuildDir,
             live=False,
             print_output=True,

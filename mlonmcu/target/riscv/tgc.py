@@ -30,27 +30,24 @@ from .riscv import RISCVTarget
 
 logger = get_logger()
 
+
 class TGCTarget(RISCVTarget):
 
-    isa_dict = {
-        "tgc5a": ["e"],
-        "tgc5b": ["i"],
-        "tgc5c": ["i","m","c"]
-    }
+    isa_dict = {"tgc5a": ["e"], "tgc5b": ["i"], "tgc5c": ["i", "m", "c"]}
 
     FEATURES = RISCVTarget.FEATURES + []
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
-        "extensions": ["i","m","c"],
+        "extensions": ["i", "m", "c"],
         "fpu": None,
         "iss_args": None,
         "isa": "tgc5c",
-        "backend": "interp"
+        "backend": "interp",
     }
     REQUIRED = RISCVTarget.REQUIRED + ["tgc.exe"]
 
-    def __init__(self, name="tgc", features = None, config=None):
+    def __init__(self, name="tgc", features=None, config=None):
         super().__init__(name, features=features, config=config)
         if self.isa != "tgc5c":
             self.config["extensions"] = self.isa_dict[self.isa]
@@ -73,9 +70,8 @@ class TGCTarget(RISCVTarget):
     def backend(self):
         return self.config["backend"]
 
-
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
-        #assert len(args) == 0, "at the moment no args supported"
+        # assert len(args) == 0, "at the moment no args supported"
         tgc_args = []
         if self.iss_args:
             tgc_args.append(self.iss_args)
@@ -96,7 +92,7 @@ class TGCTarget(RISCVTarget):
         return ret
 
     def parse_stdout(self, out, handle_exit=None):
-        pattern = r'(\d+) cycles during (\d+)ms resulting in ([\d.]+)MIPS'
+        pattern = r"(\d+) cycles during (\d+)ms resulting in ([\d.]+)MIPS"
 
         match = re.search(pattern, out)
 
@@ -134,7 +130,6 @@ class TGCTarget(RISCVTarget):
         ret = super().get_platform_defs(platform)
         ret["TGC_PREFIX"] = self.riscv_gcc_prefix / "bin" / f"{self.riscv_gcc_basename}-"
         return ret
-
 
 
 if __name__ == "__main__":

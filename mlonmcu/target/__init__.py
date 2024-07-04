@@ -34,5 +34,5 @@ __all__ = [
     "RiscvQemuTarget",
     "Corstone300Target",
     "HostX86Target",
-    "TGCTarget"
+    "TGCTarget",
 ]

@@ -33,6 +33,20 @@ This project contains research code related to the deployment of inference or le
 
 ## Getting started
 
+#### Connan Commands (MINRES only)
+
+```sh
+curl -sfL https://direnv.net/install.sh | bash
+which direnv
+curl -s "https://get.sdkman.io" | bash
+source $HOME/.sdkman/bin/sdkman-init.sh
+sdk version
+sdk install java 11.0.21-tem
+pip3 install 'conan<2.0
+conan profile new --detect default
+conan remote add gitea https://git.minres.com/api/packages/Tooling/conan
+```
+
 ### Prerequisites
 
 #### Ubuntu/Debian

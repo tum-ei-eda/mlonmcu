@@ -171,9 +171,9 @@ class EtissTarget(RISCVTarget):
         if self.config.get("cpu_arch", None):
             return self.config["cpu_arch"]
         elif self.enable_pext or self.enable_vext:
-            return "RV32IMACFDPV"
+            return f"RV{self.xlen}IMACFDPV"
         else:
-            return "RV32IMACFD"
+            return f"RV{self.xlen}IMACFD"
 
     @property
     def enable_vext(self):

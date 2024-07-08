@@ -60,7 +60,7 @@ jobs:
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
       with:
-        root-reserve-mb: 8192
+        root-reserve-mb: 16384
         temp-reserve-mb: 8192
         remove-dotnet: 'true'
         remove-android: 'true'
@@ -99,6 +99,8 @@ jobs:
       run: |
         source .venv/bin/activate
         mlonmcu setup -H home/ -v
+    - name: Check Disk
+      run: df
     - name: Install environment-specific Python packages
       run: |
         source .venv/bin/activate

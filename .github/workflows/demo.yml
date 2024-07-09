@@ -57,6 +57,15 @@ jobs:
       matrix:
         python-version: ["3.10"]
     steps:
+    - name: Maximize build space
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 16384
+        temp-reserve-mb: 8192
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'
     - uses: actions/checkout@v3
       with:
         submodules: recursive
@@ -90,6 +99,8 @@ jobs:
       run: |
         source .venv/bin/activate
         mlonmcu setup -H home/ -v
+    - name: Check Disk
+      run: df
     - name: Install environment-specific Python packages
       run: |
         source .venv/bin/activate

@@ -68,16 +68,16 @@ TARGETS = [
     "spike",
     "ovpsim",
     "host_x86",
-    "etiss_pulpino",
+    "etiss",
     "corstone300",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss_pulpino"]
+AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss"]
 
 DEFAULT_TARGETS = [
     "spike",
     # "host_x86",
-    # "etiss_pulpino",
+    # "etiss",
     "corstone300",
 ]
 
@@ -131,7 +131,7 @@ def get_target_features(target, enable_default=True, enable_muriscvnn=False, ena
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
         ],
-        "etiss_pulpino": [
+        "etiss": [
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
@@ -152,7 +152,7 @@ TARGET_ARCH = {
     "spike": "riscv",
     "ovpsim": "riscv",
     "x86": "x86",
-    "etiss_pulpino": "riscv",
+    "etiss": "riscv",
     "corstone300": "arm",
 }
 

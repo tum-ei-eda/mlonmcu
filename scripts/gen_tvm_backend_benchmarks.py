@@ -17,7 +17,7 @@ TARGETS = [
     "spike",
     "ovpsim",
     "host_x86",
-    "etiss_pulpino",
+    "etiss",
     "corstone300",
 ]
 
@@ -25,7 +25,7 @@ DEFAULT_TARGETS = [
     # "spike",
     # "ovpsim",
     # "host_x86",
-    "etiss_pulpino",
+    "etiss",
     "corstone300",
 ]
 
@@ -77,7 +77,7 @@ DEFAULT_CONFIG = {
 
 BACKEND_DEFAULT_CONFIG = {}
 TARGET_DEFAULT_FEATURES = {
-    "etiss_pulpino": ["trace"],
+    "etiss": ["trace"],
 }
 
 MODELS = [

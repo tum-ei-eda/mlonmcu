@@ -18,14 +18,14 @@ FRONTEND = "tflite"
 TARGETS = [
     "spike",
     "ovpsim",
-    "etiss_pulpino",
+    "etiss",
     "riscv_qemu",
 ]
 
 AUTOTUNED_TARGETS = [
     "spike",
     "ovpsim",
-    "etiss_pulpino",
+    "etiss",
     # "riscv_qemu",
     # "corstone300",
 ]
@@ -33,7 +33,7 @@ AUTOTUNED_TARGETS = [
 DEFAULT_TARGETS = [
     # "spike",
     "ovpsim",
-    # "etiss_pulpino",
+    # "etiss",
     # "riscv_qemu",
     # "corstone300",
 ]
@@ -123,11 +123,11 @@ POSTPROCESS_CONFIG = {
         "config_vext.vlen": "VLEN",
         "config_vext.elen": "ELEN",
         # "spike.vlen": "VLEN",
-        # "etiss_pulpino.vlen": "VLEN",
+        # "etiss.vlen": "VLEN",
         # "riscv_qemu.vlen": "VLEN",
         # "ovpsim.elen": "ELEN",
         # "spike.elen": "ELEN",
-        # "etiss_pulpino.elen": "ELEN",
+        # "etiss.elen": "ELEN",
         # "riscv_qemu.elen": "ELEN",
         "config_tvmaot.desired_layout": "Layout",
         "config_mlif.toolchain": "Toolchain",

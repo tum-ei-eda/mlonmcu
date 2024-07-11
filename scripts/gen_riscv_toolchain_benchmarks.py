@@ -58,7 +58,7 @@ TARGET_ARCH = {
     "spike": "riscv",
     "ovpsim": "riscv",
     "x86": "x86",
-    "etiss_pulpino": "riscv",
+    "etiss": "riscv",
     "corstone300": "arm",
 }
 

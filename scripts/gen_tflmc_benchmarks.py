@@ -41,7 +41,6 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "host_x86",
     "etiss",
     "corstone300",
@@ -49,7 +48,6 @@ TARGETS = [
 
 DEFAULT_TARGETS = [
     # "spike",
-    # "ovpsim",
     # "host_x86",
     "etiss",
     # "corstone300",

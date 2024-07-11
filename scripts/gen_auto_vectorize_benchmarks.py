@@ -17,22 +17,19 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "etiss",
     "riscv_qemu",
 ]
 
 AUTOTUNED_TARGETS = [
     "spike",
-    "ovpsim",
     "etiss",
     # "riscv_qemu",
     # "corstone300",
 ]
 
 DEFAULT_TARGETS = [
-    # "spike",
-    "ovpsim",
+    "spike",
     # "etiss",
     # "riscv_qemu",
     # "corstone300",
@@ -125,7 +122,6 @@ POSTPROCESS_CONFIG = {
         # "spike.vlen": "VLEN",
         # "etiss.vlen": "VLEN",
         # "riscv_qemu.vlen": "VLEN",
-        # "ovpsim.elen": "ELEN",
         # "spike.elen": "ELEN",
         # "etiss.elen": "ELEN",
         # "riscv_qemu.elen": "ELEN",

@@ -66,13 +66,12 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "host_x86",
     "etiss",
     "corstone300",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss"]
+AUTOTUNED_TARGETS = ["spike", "etiss"]
 
 DEFAULT_TARGETS = [
     "spike",
@@ -121,11 +120,6 @@ def get_target_features(target, enable_default=True, enable_muriscvnn=False, ena
             *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
         ],
-        "ovpsim": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
-        ],
         "host_x86": [
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
@@ -150,7 +144,6 @@ VALIDATE_FEATURES = ["validate", "debug"]
 
 TARGET_ARCH = {
     "spike": "riscv",
-    "ovpsim": "riscv",
     "x86": "x86",
     "etiss": "riscv",
     "corstone300": "arm",
@@ -253,7 +246,6 @@ POSTPROCESS_CONFIG = {
     ],
     "rename_cols.mapping": {
         "config_spike.vlen": "VLEN",
-        "config_ovpsim.vlen": "VLEN",
         "config_tvmaotplus.desired_layout": "Layout",
     },
     "filter_cols.drop_nan": True,

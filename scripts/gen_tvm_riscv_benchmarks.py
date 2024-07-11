@@ -60,21 +60,18 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "etiss",
     "riscv_qemu",
 ]
 
 AUTOTUNED_TARGETS = [
     "spike",
-    "ovpsim",
     "etiss",
     # "riscv_qemu",
 ]
 
 DEFAULT_TARGETS = [
-    # "spike",
-    "ovpsim",
+    "spike",
     # "etiss",
     # "riscv_qemu",
 ]
@@ -127,38 +124,6 @@ def get_target_features(
 ):
     TARGET_FEATURES = {
         "spike": [
-            *(
-                [
-                    [],
-                    *(
-                        ([["vext", "auto_vectorize"]] if enable_auto_vectorize and enable_vext else [["vext"]])
-                        if enable_vext
-                        else []
-                    ),
-                    *([["pext"]] if enable_pext else []),
-                ]
-                if enable_default
-                else []
-            ),
-            *(
-                [
-                    ["target_optimized"],
-                    *(
-                        (
-                            [["target_optimized", "vext", "auto_vectorize"]]
-                            if enable_auto_vectorize and enable_vext
-                            else [["target_optimized", "vext"]]
-                        )
-                        if enable_vext
-                        else []
-                    ),
-                    *([["target_optimized", "pext"]] if enable_pext else []),
-                ]
-                if enable_target_optimized
-                else []
-            ),
-        ],
-        "ovpsim": [
             *(
                 [
                     [],
@@ -342,7 +307,6 @@ POSTPROCESS_CONFIG = {
         # "spike.vlen": "VLEN",
         # "etiss.vlen": "VLEN",
         # "riscv_qemu.vlen": "VLEN",
-        # "ovpsim.elen": "ELEN",
         # "spike.elen": "ELEN",
         # "etiss.elen": "ELEN",
         # "riscv_qemu.elen": "ELEN",

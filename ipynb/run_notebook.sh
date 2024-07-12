@@ -14,6 +14,7 @@ SKIP=0
 CLEANUP=0
 CLEAR=0
 NOOP=0
+FAIL=0
 HTML=0
 PDF=0
 MILL=0
@@ -47,6 +48,10 @@ do
       ;;
     --noop )
       NOOP=1
+      shift
+      ;;
+    --fail )
+      FAIL=1
       shift
       ;;
     --html )
@@ -104,9 +109,7 @@ function __error_handing__(){
     if [[ $CLEANUP -eq 1 ]]
     then
         echo "Cleaning up after failure..."
-        df
         rm -rf $TEMPDIR
-        df
     fi
 }
 trap  '__error_handing__ $? $LINENO' ERR
@@ -168,6 +171,7 @@ then
     fi
 fi
 
+FAILING=0
 if [[ $NOOP -eq 0 ]]
 then
     echo "Executing notebook..."
@@ -175,9 +179,17 @@ then
     if [[ $MILL -eq 1 ]]
     then
         python3 -m pip install papermill
-        python3 -m papermill $NOTEBOOK $NOTEBOOK --cwd $DIRECTORY
+        python3 -m papermill $NOTEBOOK $NOTEBOOK --cwd $DIRECTORY 2>&1 | tee $TEMPDIR/out.txt
+        EXIT=$?
     else
-        python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace
+        python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace 2>&1 | tee $TEMPDIR/out.txt
+        EXIT=$?
+    fi
+    if [[ $EXIT -eq 0 ]]
+    then
+        (cat out.txt | grep -q "Traceback") && FAILING=1 || FAILING=0
+    else
+        FAILING=1
     fi
 else
     echo "Skipping execution of notebook..."
@@ -195,11 +207,22 @@ then
     python3 -m jupyter nbconvert --to pdf $NOTEBOOK
 fi
 
-
 if [[ $CLEAR -eq 1 ]]
 then
     echo "Clearing output cells..."
     python3 -m jupyter nbconvert --clear-output --inplace $NOTEBOOK
+fi
+
+if [[ $FAILING -eq 1 ]]
+then
+    echo "Errors occured during notebook execution..."
+    echo "Outputs:"
+    cat $TEMPDIR/out.txt
+    if [[ $FAIL -eq 1 ]]
+    then
+        echo "Aborting:"
+        exit 1
+    fi
 fi
 
 cd -

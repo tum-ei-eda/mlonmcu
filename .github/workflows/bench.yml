@@ -72,6 +72,7 @@ jobs:
     - name: Run Benchmark
       run: |
         source .venv/bin/activate
+        export MLONMCU_HOME=$(pwd)/home
         cd scripts/
         python bench.py ${{ github.event.inputs.benchmark }} out/
     - name: Archive reports

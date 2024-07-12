@@ -30,6 +30,8 @@ def get_pass_config_tvmc_args(pass_config):
 
 
 def get_disabled_pass_tvmc_args(disabled_passes):
+    if len(disabled_passes) == 0:
+        return []
     arg = ",".join(disabled_passes)
     return ["--disabled-pass", arg]
 

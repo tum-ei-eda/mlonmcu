@@ -27,4 +27,4 @@ args = data["args"].split(" ")
 
 args = ["python", script, *args, "--out", out_dir, *extra_args]
 print("Executing:", " ".join(args))
-subprocess.run(args)
+subprocess.run(args, check=True)

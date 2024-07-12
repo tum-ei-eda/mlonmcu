@@ -127,6 +127,8 @@
 <div class="viewcode-block" id="get_disabled_pass_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_disabled_pass_tvmc_args">[docs]</a>
 <span class="k">def</span> <span class="nf">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
     <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--disabled-pass&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
 

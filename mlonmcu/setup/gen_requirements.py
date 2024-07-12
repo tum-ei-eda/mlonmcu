@@ -224,7 +224,7 @@ CONSTRAINTS = [
     ("humanize", None),
     ("idf-component-manager", "~=1.0"),
     ("itsdangerous", "<2.1"),
-    ("jinja2", "<3.1"),
+    ("jinja2", ">=3.1.3"),
     ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),

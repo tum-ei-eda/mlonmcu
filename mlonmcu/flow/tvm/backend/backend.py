@@ -394,7 +394,7 @@ class TVMBackend(Backend):
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
-            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
+            return utils.execute(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
         else:
             if self.tvmc_custom_script is None:
                 pre = ["-m", "tvm.driver.tvmc"]

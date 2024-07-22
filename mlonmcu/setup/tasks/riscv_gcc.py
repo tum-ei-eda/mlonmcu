@@ -175,6 +175,14 @@ def install_riscv_gcc(
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(riscvInstallDir):
             utils.download_and_extract(riscvUrl, riscvArchive, riscvInstallDir, progress=verbose)
+        # workaround for gnu subdir ins tc downloads
+        gnu_dir = riscvInstallDir / "gnu"
+        if gnu_dir.is_dir():
+            import shutil
+
+            shutil.move(riscvInstallDir, riscvInstallDir.parent / f"{riscvInstallDir.name}.old")
+            shutil.move(riscvInstallDir.parent / f"{riscvInstallDir.name}.old" / "gnu", riscvInstallDir)
+
         multilib = user_vars.get("riscv_gcc.multilib", None)
         default_multilib = user_vars.get("riscv_gcc.default_multilib", None)
         multilibs = user_vars.get("riscv_gcc.multilibs", None)
@@ -182,7 +190,7 @@ def install_riscv_gcc(
     if "riscv_gcc.name" in user_vars:
         gccName = user_vars["riscv_gcc.name"]
     else:
-        gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf"]
+        gccNames = ["riscv64-unknown-elf", "riscv32-unknown-elf", "riscv64-unknown-linux-musl"]
         gccName = None
         for name in gccNames:
             if (Path(riscvInstallDir) / name).is_dir():

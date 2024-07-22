@@ -1722,7 +1722,9 @@ class Benchmark(PlatformFeature, TargetFeature):
                 elif self.aggregate == "none":
                     aggs = []
 
-                if len(aggs) == 0:
+                if len(df.columns) == 0:
+                    data = {}
+                elif len(aggs) == 0:
                     data = {}
                 else:
                     df_ = df.agg(aggs)

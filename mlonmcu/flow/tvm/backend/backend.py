@@ -430,6 +430,8 @@ class TVMBackend(Backend):
                 self.model_format, self.model_info = get_fallback_model_info(
                     model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name
                 )
+        else:
+            self.input_shapes = None  # Relevant for multiple subs using the same backend
         if need_model_info:
             try:
                 self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
@@ -446,7 +448,7 @@ class TVMBackend(Backend):
             if self.model_info:
                 # TODO: also handle output_shapes
                 # TODO: take care of refresh_model_info
-                if input_shapes:
+                if self.input_shapes:
                     self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
                 else:
                     self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}

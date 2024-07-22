@@ -885,10 +885,15 @@ class Run:
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
                     model_artifact.export(self.dir)
-                input_shapes = self.model.input_shapes
-                output_shapes = self.model.output_shapes
-                input_types = self.model.input_types
-                output_types = self.model.output_types
+                input_shapes = None
+                output_shapes = None
+                input_types = None
+                output_types = None
+                if model_artifact.name.split(".", 1)[0] == self.model.name:
+                    input_shapes = self.model.input_shapes
+                    output_shapes = self.model.output_shapes
+                    input_types = self.model.input_types
+                    output_types = self.model.output_types
                 self.backend.load_model(
                     model=model_artifact.path,
                     input_shapes=input_shapes,
@@ -910,10 +915,15 @@ class Run:
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
                     model_artifact.export(self.dir)
-                input_shapes = self.model.input_shapes
-                output_shapes = self.model.output_shapes
-                input_types = self.model.input_types
-                output_types = self.model.output_types
+                input_shapes = None
+                output_shapes = None
+                input_types = None
+                output_types = None
+                if model_artifact.name.split(".", 1)[0] == self.model.name:
+                    input_shapes = self.model.input_shapes
+                    output_shapes = self.model.output_shapes
+                    input_types = self.model.input_types
+                    output_types = self.model.output_types
                 self.backend.load_model(
                     model=model_artifact.path,
                     input_shapes=input_shapes,

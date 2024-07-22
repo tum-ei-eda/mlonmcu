@@ -44,11 +44,23 @@ def parse_bench_results(out, allow_missing=False, target_name=None):
     for mode in ["Setup", "Run", "Total"]:
         cycles = ret.get(f"{mode} Cycles", None)
         instructions = ret.get(f"{mode} Instructions", None)
-        if cycles is None or instructions is None:
-            continue
-        if cycles == 0 or instructions == 0:
-            continue
-        ret[f"{mode} CPI"] = cycles / instructions
+
+        def calc_cpi(cycles, instructions):
+            if cycles is None or instructions is None:
+                return None
+            if cycles == 0 or instructions == 0:
+                return None
+            return cycles / instructions
+
+        cpi = calc_cpi(cycles, instructions)
+        if cpi is not None:
+            ret[f"{mode} CPI"] = cpi
+
+        before = f"{mode} Runtime [us]"
+        after = f"{mode} Runtime [s]"
+        if before in ret.keys():
+            ret[after] = ret[before] / 1e6
+            del ret[before]
     return ret
 
 

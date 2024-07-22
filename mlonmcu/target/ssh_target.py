@@ -20,6 +20,7 @@
 
 import os
 import re
+
 # import tempfile
 # import time
 import socket
@@ -92,8 +93,7 @@ class SSHTarget(Target):
             ssh.connect(self.hostname, port=self.port, username=self.username, password=self.password)
             # TODO: key_filename=key_file)
             return True
-        except (BadHostKeyException, AuthenticationException,
-                SSHException, socket.error) as e:
+        except (BadHostKeyException, AuthenticationException, SSHException, socket.error) as e:
             print(e)  # TODO: remove
             return False
         raise NotImplementedError
@@ -165,5 +165,6 @@ class SSHTarget(Target):
             print("output", output)  # TODO: cleanup
         ssh.close()
         return output
+
 
 # TODO: logger

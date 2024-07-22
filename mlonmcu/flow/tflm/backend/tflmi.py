@@ -163,11 +163,13 @@ size_t {prefix}_outputs();
         if len(registrations) > 0:
             raise NotImplementedError
         if ops_resolver == "mutable":
-            assert len(ops) > 0, ("No ops specified for ops_resolver=mutable!"
-                                  "Set model ops in definition.yml or use ops_resolver=all")
+            assert len(ops) > 0, (
+                "No ops specified for ops_resolver=mutable!" "Set model ops in definition.yml or use ops_resolver=all"
+            )
         elif ops_resolver == "all":
-            raise RuntimeError("AllOpsResolver was removed from TFLM!"
-                               "Use ops_resolver=mutable or ops_resolver=fallback")
+            raise RuntimeError(
+                "AllOpsResolver was removed from TFLM!" "Use ops_resolver=mutable or ops_resolver=fallback"
+            )
         elif ops_resolver == "fallback":
             ops_resolver = "mutable"
             # Defines common operators which are used in many models

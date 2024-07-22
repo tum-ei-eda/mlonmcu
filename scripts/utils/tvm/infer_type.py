@@ -1,8 +1,10 @@
 import sys
 
 import tvm
+
 # from tvm.relay import transform
 from tvm import relay
+
 # from tvm import parser
 
 assert len(sys.argv) == 2, "Invalid number of arguments"

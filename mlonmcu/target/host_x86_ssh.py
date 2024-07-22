@@ -18,11 +18,6 @@
 #
 """MLonMCU Host/x86 Target definitions"""
 
-import stat
-from pathlib import Path
-
-from mlonmcu.config import str2bool
-from mlonmcu.setup.utils import execute
 from .common import cli
 from .ssh_target import SSHTarget
 from .host_x86 import HostX86Target
@@ -48,7 +43,6 @@ class HostX86SSHTarget(SSHTarget, HostX86Target):
         output = self.exec_via_ssh(program, *args, **kwargs)
         if handle_exit:
             exit_code = handle_exit(0, out=output)
-            print("exit_code", exit_code)
             assert exit_code == 0
         return output, []
 

@@ -23,4 +23,5 @@ __all__ = [
     "AraRtlTarget",
     "CV32E40PTarget",
     "VicunaTarget",
+    "CanMvK230SSHTarget",
 ]

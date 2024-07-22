@@ -24,7 +24,6 @@ import time
 # from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.ssh_target import SSHTarget
@@ -62,7 +61,6 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
         output = self.exec_via_ssh(program, *args, **kwargs)
         if handle_exit:
             exit_code = handle_exit(0, out=output)
-            print("exit_code", exit_code)
             assert exit_code == 0
         return output
 

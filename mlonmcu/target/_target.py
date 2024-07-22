@@ -28,6 +28,7 @@ from .riscv import (
 )
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
+from .host_x86_ssh import HostX86SSHTarget
 
 TARGET_REGISTRY = {}
 
@@ -47,6 +48,7 @@ def get_targets():
 register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
 register_target("host_x86", HostX86Target)
+register_target("host_x86_ssh", HostX86SSHTarget)
 register_target("corstone300", Corstone300Target)
 register_target("spike", SpikeTarget)
 register_target("ovpsim", OVPSimTarget)

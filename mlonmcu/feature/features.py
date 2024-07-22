@@ -1700,11 +1700,12 @@ class Benchmark(PlatformFeature, TargetFeature):
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.
+                candidates = ["cycle", "time", "instruction", "cpi"]  # TODO: allow overriding via config
                 data_ = [
                     {
                         key: (float(value) / self.num_runs) if self.num_runs > 1 else value
                         for key, value in m.data.items()
-                        if "cycle" in key.lower() or "time" in key.lower()
+                        if any(x in key.lower() for x in candidates)
                     }
                     for m in metrics_
                 ]

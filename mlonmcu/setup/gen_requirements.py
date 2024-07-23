@@ -246,7 +246,7 @@ CONSTRAINTS = [
     ("reedsolo", ">=1.5.3,<=1.5.4"),
     ("scipy", None),
     ("synr", None),
-    ("tensorflow", "~=2.17.0"),
+    ("tensorflow", "~=2.13.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
     ("typing_extensions", None),

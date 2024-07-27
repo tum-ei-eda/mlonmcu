@@ -131,7 +131,6 @@ class SSHTarget(Target):
         ssh.close()
 
     def parse_exit(self, out):
-        print("parse_exit (ssh_target)")
         exit_code = super().parse_exit(out)
         exit_match = re.search(r"SSH EXIT=(.*)", out)
         if exit_match:

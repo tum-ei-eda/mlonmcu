@@ -226,6 +226,8 @@ def execute(
     logger.debug("- Executing: %s", str(args))
     if "cwd" in kwargs:
         logger.debug("- CWD: %s", str(kwargs["cwd"]))
+    # if "env" in kwargs:
+    #     logger.debug("- ENV: %s", str(kwargs["env"]))
     if ignore_output:
         assert not live
         subprocess.run(args, **kwargs, check=True)

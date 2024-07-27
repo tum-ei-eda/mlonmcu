@@ -26,7 +26,6 @@ import re
 from pathlib import Path
 
 import paramiko
-from paramiko import BadHostKeyException, AuthenticationException, SSHException
 
 from mlonmcu.config import str2bool
 from .target import Target

@@ -456,6 +456,9 @@ class TVMBackend(Backend):
                 # TODO: take care of refresh_model_info
                 if self.input_shapes:
                     self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
+                    assert (
+                        len(self.model_info.in_tensors) > 0
+                    ), "Missmatch between provided input names and detected ones"
                 else:
                     self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
         if self.model_info:

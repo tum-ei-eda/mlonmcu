@@ -84,6 +84,7 @@ class TVMBackend(Backend):
         "relay_debug": None,  # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
         "refresh_model_info": False,
         "generate_wrapper": "auto",
+        "relax_mode": False,
     }
 
     REQUIRED = set()
@@ -248,6 +249,11 @@ class TVMBackend(Backend):
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
+    def relax_mode(self):
+        value = self.config["relax_mode"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def tvmc_extra_args(self):
         return self.config["tvmc_extra_args"]
 
@@ -381,6 +387,8 @@ class TVMBackend(Backend):
             *["-f", self.fmt],
             *["--model-format", self.model_format],
         ]
+        if self.relax_mode:
+            args.append("--relax")
         return args
 
     def invoke_tvmc(self, command, *args, cwd=None):

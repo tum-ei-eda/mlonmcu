@@ -154,14 +154,20 @@ class TVMBackend(Backend):
         return str2bool(temp)
 
     @property
-    def pass_config(self):
-        base = {"tir.disable_vectorize": self.disable_vectorize}
+    def extra_pass_config(self):
         extra = self.config["extra_pass_config"]
+        if extra is None:
+            extra = {}
         if isinstance(extra, str):
             import ast
-
             extra = ast.literal_eval(extra)
         assert isinstance(extra, dict)
+        return extra
+
+    @property
+    def pass_config(self):
+        base = {"tir.disable_vectorize": self.disable_vectorize}
+        extra = self.extra_pass_config
         base.update(extra)
         return base
 

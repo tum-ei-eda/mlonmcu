@@ -71,7 +71,6 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
         out = ""
 
         def _handle_exit(code, out=None):
-            print("_handle_exit (k230)", code)
             assert out is not None
             temp = self.parse_exit(out)
             # TODO: before or after?

@@ -611,6 +611,7 @@ class EtissTarget(RISCVTarget):
 
     def get_platform_defs(self, platform):
         assert platform == "mlif"
+        assert self.is_bare, "ETISS Target needs baremetal toolchain (riscv[32|64]-unknown-elf)"
         ret = super().get_platform_defs(platform)
         ret["MEM_ROM_ORIGIN"] = self.rom_start
         ret["MEM_ROM_LENGTH"] = self.rom_size

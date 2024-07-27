@@ -382,7 +382,7 @@ size_t TVMWrap_GetNumOutputs()
     return out
 
 
-def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug_arena=False):
+def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug_arena=False, relax_mode=False):
     modPrefix = f"tvmgen_{mod_name}"
 
     def writeTensors(in_tensors, out_tensors, modPrefix, api):
@@ -391,7 +391,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug
 // Define data for input and output tensors
 """
 
-            def writeTensorsHelper(tensors, prefix, out=False):
+            def writeTensorsHelper(tensors, prefix, out=False, relax_mode=False):
                 lenTensors = len(tensors)
                 direction = "out" if out else "in"
                 ret = ""
@@ -401,13 +401,19 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug
                 ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
                 ret += f"struct {prefix}_{direction}puts {prefix}_{direction}puts = {{" + "\n"
                 for i, t in enumerate(tensors):
-                    tensor_name = t.name.replace(":", "_").replace("/", "_").replace(".", "_").replace(";", "_")
-                    ret += f"    .{tensor_name} = {names[i]}," + "\n"
+                    if not relax_mode or not out:
+                        tensor_name = t.name.replace(":", "_").replace("/", "_").replace(".", "_").replace(";", "_")
+                        ret += f"    .{tensor_name} = {names[i]}," + "\n"
+                    else:
+                        if i > 0:
+                            ret += f"    .{direction}put{i} = {names[i]}," + "\n"
+                        else:
+                            ret += f"    .{direction}put = {names[i]}," + "\n"
                 ret += "};\n"
                 return ret
 
-            retStr += writeTensorsHelper(in_tensors, modPrefix, False)
-            retStr += writeTensorsHelper(out_tensors, modPrefix, True)
+            retStr += writeTensorsHelper(in_tensors, modPrefix, False, relax_mode=relax_mode)
+            retStr += writeTensorsHelper(out_tensors, modPrefix, True, relax_mode=relax_mode)
             return retStr
         elif api == "packed":
             retStr = """

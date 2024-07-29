@@ -56,8 +56,8 @@ class TVMAOTBackend(TVMBackend):
     def extra_pass_config(self):
         default = {"tir.usmp.enable": False}
         extra = super().extra_pass_config
-        extra.update(default)
-        return extra
+        default.update(extra)
+        return default
 
     @property
     def arena_size(self):

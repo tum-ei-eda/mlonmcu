@@ -233,6 +233,12 @@ def execute(
         subprocess.run(args, **kwargs, check=True)
         return None
 
+    def args_helper(x):
+        x = str(x)
+        if "[" in x or "]" in x or " " in x:
+            x = f'"{x}"'
+        return x
+
     out_str = ""
     if live:
         with subprocess.Popen(
@@ -252,7 +258,7 @@ def execute(
                 if handle_exit is not None:
                     exit_code = handle_exit(exit_code, out=out_str)
                 assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                    exit_code, " ".join(list(map(str, args)))
+                    exit_code, " ".join(list(map(args_helper, args)))
                 )
             except KeyboardInterrupt:
                 logger.debug("Interrupted subprocess. Sending SIGINT signal...")
@@ -270,7 +276,7 @@ def execute(
             if exit_code != 0:
                 err_func(out_str)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                exit_code, " ".join(list(map(str, args)))
+                exit_code, " ".join(list(map(args_helper, args)))
             )
         except KeyboardInterrupt:
             logger.debug("Interrupted subprocess. Sending SIGINT signal...")

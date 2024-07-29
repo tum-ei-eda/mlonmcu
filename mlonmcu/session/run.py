@@ -356,6 +356,7 @@ class Run:
     def add_model(self, model):
         """Setter for the model instance."""
         self.model = model
+        assert model is not None
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
         for platform in self.platforms:
             self.model.add_platform_config(platform, platform.config)

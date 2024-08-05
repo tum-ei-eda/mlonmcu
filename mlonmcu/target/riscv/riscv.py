@@ -293,9 +293,9 @@ class RISCVTarget(Target):
 
     @property
     def is_bare(self):
-        if "elf" in str(self.riscv_gcc_prefix):
+        if "elf" in str(self.riscv_gcc_basename):
             return True
-        elif "linux" in str(self.riscv_gcc_prefix):
+        elif "linux" in str(self.riscv_gcc_basename):
             return False
         else:
             return None  # unknown

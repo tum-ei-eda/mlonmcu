@@ -116,7 +116,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             # + f" > /dev/null && {self.idf_exe} "
             + " ".join([str(arg) for arg in args])
         )
-        out = utils.exec_getout(
+        out = utils.execute(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out

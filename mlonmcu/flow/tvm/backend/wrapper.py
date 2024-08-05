@@ -71,6 +71,7 @@ def generate_common_includes():
 #include "tvm/runtime/crt/error_codes.h"
 #include "tvm/runtime/c_runtime_api.h"
 #include "printing.h"
+#include "exit.h"
 """
 
 
@@ -215,7 +216,7 @@ TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);
 
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
-    exit(1);
+    mlonmcu_exit(1);
 }
 
 void TVMLogf(const char* msg, ...)
@@ -534,7 +535,7 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev)
     mainCode += """
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
-    exit(1);
+    mlonmcu_exit(1);
 }
 
 TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)

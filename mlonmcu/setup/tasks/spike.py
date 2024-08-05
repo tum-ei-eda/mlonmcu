@@ -133,7 +133,7 @@ def build_spike_pk(
         spikepkArgs.append("--host=" + gccName)
         env = os.environ.copy()
         env["PATH"] = str(Path(riscv_gcc) / "bin") + ":" + env["PATH"]
-        utils.exec_getout(
+        utils.execute(
             str(spikepkSrcDir / "configure"),
             *spikepkArgs,
             cwd=spikepkBuildDir,
@@ -199,7 +199,7 @@ def build_spike(
         # spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
         spikeArgs.append("--prefix=" + str(spikeInstallDir))
         spikeArgs.append("--enable-misaligned")
-        utils.exec_getout(
+        utils.execute(
             str(Path(spikeSrcDir) / "configure"),
             *spikeArgs,
             cwd=spikeBuildDir,

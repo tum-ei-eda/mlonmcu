@@ -79,7 +79,7 @@ def clone_vicuna(
 #         utils.mkdirs(vicunaBuildDir)
 #         vicunaArgs = []
 #         vicunaArgs.append("--prefix=" + str(vicunaInstallDir))
-#         utils.exec_getout(
+#         utils.execute(
 #             str(vicunaSrcDir / "configure"),
 #             *vicunaArgs,
 #             cwd=vicunaBuildDir,

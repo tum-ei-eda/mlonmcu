@@ -36,6 +36,7 @@ from mlonmcu.config import str2bool
 
 
 from mlonmcu.setup.utils import execute
+from mlonmcu.target.bench import add_bench_metrics
 from .metrics import Metrics
 
 
@@ -132,6 +133,9 @@ class Target:
             exit_code = int(exit_match.group(1))
         return exit_code
 
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
+
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         # This should not be accurate, just a fallback which should be overwritten
         start_time = time.time()
@@ -157,7 +161,9 @@ class Target:
         diff = end_time - start_time
         # size instead of readelf?
         metrics = Metrics()
-        metrics.add("Runtime [s]", diff)
+        metrics.add("End-to-End Runtime [s]", diff)
+        exit_code = 0  # TODO: get from handler?
+        self.parse_stdout(out, metrics, exit_code=exit_code)
 
         return metrics, out, artifacts
 

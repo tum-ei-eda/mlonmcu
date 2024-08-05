@@ -43,9 +43,6 @@ class TVMAOTBackend(TVMBackend):
         "arena_size": None,  # Determined automatically
         "unpacked_api": False,
         "alignment_bytes": 16,
-        "extra_pass_config": {
-            "tir.usmp.enable": False,
-        },
     }
 
     name = "tvmaot"
@@ -54,6 +51,13 @@ class TVMAOTBackend(TVMBackend):
         super().__init__(
             executor="aot", runtime=runtime, fmt=fmt, system_lib=system_lib, features=features, config=config
         )
+
+    @property
+    def extra_pass_config(self):
+        default = {"tir.usmp.enable": False}
+        extra = super().extra_pass_config
+        default.update(extra)
+        return default
 
     @property
     def arena_size(self):

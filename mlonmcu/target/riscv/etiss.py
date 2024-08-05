@@ -171,9 +171,9 @@ class EtissTarget(RISCVTarget):
         if self.config.get("cpu_arch", None):
             return self.config["cpu_arch"]
         elif self.enable_pext or self.enable_vext:
-            return "RV32IMACFDPV"
+            return f"RV{self.xlen}IMACFDPV"
         else:
-            return "RV32IMACFD"
+            return f"RV{self.xlen}IMACFD"
 
     @property
     def enable_vext(self):
@@ -611,6 +611,7 @@ class EtissTarget(RISCVTarget):
 
     def get_platform_defs(self, platform):
         assert platform == "mlif"
+        assert self.is_bare, "ETISS Target needs baremetal toolchain (riscv[32|64]-unknown-elf)"
         ret = super().get_platform_defs(platform)
         ret["MEM_ROM_ORIGIN"] = self.rom_start
         ret["MEM_ROM_LENGTH"] = self.rom_size

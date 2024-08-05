@@ -464,8 +464,8 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert is_power_of_two(self.vlen)
-        assert self.vlen >= VEXT_MIN_ALLOWED_VLEN
+        assert self.vlen is None or is_power_of_two(self.vlen)
+        assert self.vlen is None or self.vlen >= VEXT_MIN_ALLOWED_VLEN
         return filter_none(
             {
                 f"{target}.enable_vext": True,
@@ -752,6 +752,7 @@ class Usmp(BackendFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "algorithm": "greedy_by_conflicts",  # options: greedy_by_conflicts, greedy_by_size, hill_climb
+        "use_workspace_io": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -760,6 +761,11 @@ class Usmp(BackendFeature):
     @property
     def algorithm(self):
         return str(self.config["algorithm"])
+
+    @property
+    def use_workspace_io(self):
+        value = self.config["use_workspace_io"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     def add_backend_config(self, backend, config):
         assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -775,6 +781,7 @@ class Usmp(BackendFeature):
             tmp = ast.literal_eval(tmp)
         assert isinstance(tmp, dict)
         tmp["tir.usmp.enable"] = self.enabled
+        tmp["tir.usmp.use_workspace_io"] = self.use_workspace_io
         if self.algorithm in ["greedy_by_size", "greedy_by_conflicts", "hill_climb"]:
             tmp["tir.usmp.algorithm"] = self.algorithm
         else:
@@ -1700,11 +1707,12 @@ class Benchmark(PlatformFeature, TargetFeature):
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.
+                candidates = ["cycle", "time", "instruction"]  # TODO: allow overriding via config
                 data_ = [
                     {
                         key: (float(value) / self.num_runs) if self.num_runs > 1 else value
                         for key, value in m.data.items()
-                        if "cycle" in key.lower() or "time" in key.lower()
+                        if any(x in key.lower() for x in candidates)
                     }
                     for m in metrics_
                 ]
@@ -1722,7 +1730,9 @@ class Benchmark(PlatformFeature, TargetFeature):
                 elif self.aggregate == "none":
                     aggs = []
 
-                if len(aggs) == 0:
+                if len(df.columns) == 0:
+                    data = {}
+                elif len(aggs) == 0:
                     data = {}
                 else:
                     df_ = df.agg(aggs)

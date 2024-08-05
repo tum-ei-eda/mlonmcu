@@ -75,21 +75,21 @@ def install_zephyr(
         zephyrVenvScript = zephyrVenvDir / "bin" / "activate"
         if not utils.is_populated(zephyrVenvDir):
             venv.create(zephyrVenvDir)
-        utils.exec_getout(f". {zephyrVenvScript} && pip install west", shell=True, live=verbose)
+        utils.execute(f". {zephyrVenvScript} && pip install west", shell=True, live=verbose)
         zephyrRepo = context.environment.repos["zephyr"]
         zephyrUrl = zephyrRepo.url
         if not utils.is_populated(zephyrInstallDir / "zephyr"):
             zephyrVersion = zephyrRepo.ref
-            utils.exec_getout(
+            utils.execute(
                 f". {zephyrVenvScript} && west init -m {zephyrUrl} --mr {zephyrVersion} {zephyrInstallDir}",
                 shell=True,
                 live=verbose,
             )
         extra = zephyrInstallDir / "zephyr" / "scripts" / "requirements.txt"
-        utils.exec_getout(f". {zephyrVenvScript} && pip install -r {extra}", shell=True, live=verbose)
+        utils.execute(f". {zephyrVenvScript} && pip install -r {extra}", shell=True, live=verbose)
         env = os.environ.copy()
         env["ZEPHYR_BASE"] = str(zephyrInstallDir / "zephyr")
-        utils.exec_getout(f". {zephyrVenvScript} && west update", shell=True, live=verbose, env=env)
+        utils.execute(f". {zephyrVenvScript} && west update", shell=True, live=verbose, env=env)
         if "zephyr.sdk_version" in user_vars:
             sdkVersion = user_vars["zephyr.sdk_version"]
         else:
@@ -101,7 +101,7 @@ def install_zephyr(
             utils.download_and_extract(sdkUrl, sdkArchive, zephyrSdkDir, progress=verbose)
         sdkScript = zephyrSdkDir / "setup.sh"
         # TODO: allow to limit installed toolchains
-        utils.exec_getout(sdkScript, "-t", "all", "-h", live=verbose)
+        utils.execute(sdkScript, "-t", "all", "-h", live=verbose)
         # Apply patch to fix esp32c3 support
         patchFile = Path(
             pkg_resources.resource_filename(

@@ -648,7 +648,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             return dict(counts.head(top)), dict(probs.head(top))
 
         def _gen_csv(label, counts, probs):
-            lines = [f"{label},Count,Probablity"]
+            lines = [f"{label},Count,Probability"]
             for x in counts:
                 line = f"{x},{counts[x]},{probs[x]:.3f}"
                 lines.append(line)

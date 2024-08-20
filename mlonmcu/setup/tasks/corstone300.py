@@ -58,7 +58,7 @@ def install_corstone300(
             fvpArchive = fvpFileName + ".tgz"
             utils.download_and_extract(fvpUrl, fvpArchive, fvpInstallDir, progress=verbose)
             fvpScript = fvpInstallDir / "FVP_Corstone_SSE-300.sh"
-            utils.exec_getout(
+            utils.execute(
                 fvpScript,
                 "--i-agree-to-the-contained-eula",
                 "--no-interactive",

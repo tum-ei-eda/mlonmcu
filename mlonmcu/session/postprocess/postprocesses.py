@@ -648,7 +648,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             return dict(counts.head(top)), dict(probs.head(top))
 
         def _gen_csv(label, counts, probs):
-            lines = [f"{label},Count,Probablity"]
+            lines = [f"{label},Count,Probability"]
             for x in counts:
                 line = f"{x},{counts[x]},{probs[x]:.3f}"
                 lines.append(line)
@@ -1027,7 +1027,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         post_df = report.post_df
         group_by = self.group_by
         if group_by is None:
-            group_by = [x for x in pre_df.columns if x != "Run"]
+            group_by = [x for x in pre_df.columns if x not in ["Run", "Sub"]]
         assert isinstance(group_by, list)
         assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by), "Cols mssing in df"
         to_compare = self.to_compare

@@ -226,6 +226,7 @@ def resolve_environment_file(name: str = None, path: str = None) -> Path:
         env_file = lookup_environment()
         if not env_file:
             raise RuntimeError("Lookup for mlonmcu environment was not successful.")
+    assert env_file is not None, "Environment not found!"
     return Path(env_file)
 
 

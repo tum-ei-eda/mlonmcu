@@ -160,6 +160,7 @@ class TVMBackend(Backend):
             extra = {}
         if isinstance(extra, str):
             import ast
+
             extra = ast.literal_eval(extra)
         assert isinstance(extra, dict)
         return extra

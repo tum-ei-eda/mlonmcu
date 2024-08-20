@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.setup.tasks.riscv_gcc &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.setup.tasks.riscv_gcc &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="../../../../_static/documentation_options.js?v=1dd76d02"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -126,7 +126,7 @@
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.riscv_gcc.check_multilibs">[docs]</a>
 <span class="k">def</span> <span class="nf">check_multilibs</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">gccName</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pext</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">gccExe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gccName</span><span class="si">}</span><span class="s2">-gcc&quot;</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="n">gccExe</span><span class="p">,</span> <span class="s2">&quot;--print-multi-lib&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">live</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">gccExe</span><span class="p">,</span> <span class="s2">&quot;--print-multi-lib&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">live</span><span class="p">)</span>
     <span class="n">multilibs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">vext</span> <span class="ow">and</span> <span class="n">pext</span><span class="p">:</span>
         <span class="n">default_multilib</span> <span class="o">=</span> <span class="s2">&quot;rv32gcpv/ilp32d&quot;</span> <span class="k">if</span> <span class="s2">&quot;32&quot;</span> <span class="ow">in</span> <span class="n">gccName</span> <span class="k">else</span> <span class="s2">&quot;rv64gcpv/lp64d&quot;</span>  <span class="c1"># TODO: improve this</span>
@@ -268,6 +268,14 @@
         <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">):</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">riscvUrl</span><span class="p">,</span> <span class="n">riscvArchive</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="c1"># workaround for gnu subdir ins tc downloads</span>
+        <span class="n">gnu_dir</span> <span class="o">=</span> <span class="n">riscvInstallDir</span> <span class="o">/</span> <span class="s2">&quot;gnu&quot;</span>
+        <span class="k">if</span> <span class="n">gnu_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="kn">import</span> <span class="nn">shutil</span>
+
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.old&quot;</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.old&quot;</span> <span class="o">/</span> <span class="s2">&quot;gnu&quot;</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="p">)</span>
+
         <span class="n">multilib</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;riscv_gcc.multilib&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">default_multilib</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;riscv_gcc.default_multilib&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">multilibs</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;riscv_gcc.multilibs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -275,7 +283,7 @@
     <span class="k">if</span> <span class="s2">&quot;riscv_gcc.name&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
         <span class="n">gccName</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">gccNames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv64-unknown-elf&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv32-unknown-elf&quot;</span><span class="p">]</span>
+        <span class="n">gccNames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;riscv64-unknown-elf&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv32-unknown-elf&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv64-unknown-linux-musl&quot;</span><span class="p">]</span>
         <span class="n">gccName</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gccNames</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">)</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>

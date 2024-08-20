@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.target.riscv package &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.target.riscv package &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="_static/documentation_options.js?v=1dd76d02"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -391,6 +391,53 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.ara_rtl.AraRtlTarget.vlen">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vlen</span></span><a class="headerlink" href="#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.vlen" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.target.riscv.canmv_k230_ssh">
+<span id="mlonmcu-target-riscv-canmv-k230-ssh-module"></span><h2>mlonmcu.target.riscv.canmv_k230_ssh module<a class="headerlink" href="#module-mlonmcu.target.riscv.canmv_k230_ssh" title="Link to this heading"></a></h2>
+<p>MLonMCU Spike Target definitions</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.canmv_k230_ssh.</span></span><span class="sig-name descname"><span class="pre">CanMvK230SSHTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'canmv_k230_ssh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget" title="mlonmcu.target.ssh_target.SSHTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">SSHTarget</span></code></a>, <a class="reference internal" href="#mlonmcu.target.riscv.riscv_vext_target.RVVTarget" title="mlonmcu.target.riscv.riscv_vext_target.RVVTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">RVVTarget</span></code></a></p>
+<p>TODO.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">True,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'compressed':</span> <span class="pre">True,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'elen':</span> <span class="pre">64,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'embedded_vext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fpu':</span> <span class="pre">'double',</span> <span class="pre">'hostname':</span> <span class="pre">None,</span> <span class="pre">'ignore_known_hosts':</span> <span class="pre">True,</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'password':</span> <span class="pre">None,</span> <span class="pre">'port':</span> <span class="pre">22,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'username':</span> <span class="pre">None,</span> <span class="pre">'vext_spec':</span> <span class="pre">1.0,</span> <span class="pre">'vlen':</span> <span class="pre">128,</span> <span class="pre">'workdir':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">64}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'benchmark',</span> <span class="pre">'vext'}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'riscv_gcc.variant'}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.exec" title="Link to this definition"></a></dt>
+<dd><p>Use target to execute a executable with given arguments</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.get_metrics" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.parse_stdout">
+<span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.parse_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.parse_stdout" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1241,6 +1288,11 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.cross_compiler">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cross_compiler</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.cross_compiler" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.embedded">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">embedded</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.embedded" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1298,6 +1350,16 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.has_fpu">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_fpu</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.has_fpu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.is_bare">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_bare</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.is_bare" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.riscv.RISCVTarget.is_cross">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_cross</span></span><a class="headerlink" href="#mlonmcu.target.riscv.riscv.RISCVTarget.is_cross" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -2438,6 +2500,49 @@ TRACE_SIGS ?= ‘*’</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.target.riscv.CV32E40PTarget.verilator_executable">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verilator_executable</span></span><a class="headerlink" href="#mlonmcu.target.riscv.CV32E40PTarget.verilator_executable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.target.riscv.</span></span><span class="sig-name descname"><span class="pre">CanMvK230SSHTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'canmv_k230_ssh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget" title="mlonmcu.target.ssh_target.SSHTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">SSHTarget</span></code></a>, <a class="reference internal" href="#mlonmcu.target.riscv.riscv_vext_target.RVVTarget" title="mlonmcu.target.riscv.riscv_vext_target.RVVTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">RVVTarget</span></code></a></p>
+<p>TODO.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">True,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'compressed':</span> <span class="pre">True,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'elen':</span> <span class="pre">64,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'embedded_vext':</span> <span class="pre">False,</span> <span class="pre">'enable_vext':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fpu':</span> <span class="pre">'double',</span> <span class="pre">'hostname':</span> <span class="pre">None,</span> <span class="pre">'ignore_known_hosts':</span> <span class="pre">True,</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'password':</span> <span class="pre">None,</span> <span class="pre">'port':</span> <span class="pre">22,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'username':</span> <span class="pre">None,</span> <span class="pre">'vext_spec':</span> <span class="pre">1.0,</span> <span class="pre">'vlen':</span> <span class="pre">128,</span> <span class="pre">'workdir':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">64}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'benchmark',</span> <span class="pre">'vext'}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'riscv_gcc.install_dir',</span> <span class="pre">'riscv_gcc.name',</span> <span class="pre">'riscv_gcc.variant'}</span></em><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.exec">
+<span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/mlonmcu/mlonmcu/docs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.exec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.exec" title="Link to this definition"></a></dt>
+<dd><p>Use target to execute a executable with given arguments</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.get_metrics">
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handle_exit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.get_metrics" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.target.riscv.CanMvK230SSHTarget.parse_stdout">
+<span class="sig-name descname"><span class="pre">parse_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/target/riscv/canmv_k230_ssh.html#CanMvK230SSHTarget.parse_stdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.target.riscv.CanMvK230SSHTarget.parse_stdout" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

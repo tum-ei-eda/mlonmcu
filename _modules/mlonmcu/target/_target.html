@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.target._target &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.target._target &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="../../../_static/documentation_options.js?v=1dd76d02"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -113,9 +113,11 @@
     <span class="n">AraRtlTarget</span><span class="p">,</span>
     <span class="n">CV32E40PTarget</span><span class="p">,</span>
     <span class="n">VicunaTarget</span><span class="p">,</span>
+    <span class="n">CanMvK230SSHTarget</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.arm</span> <span class="kn">import</span> <span class="n">Corstone300Target</span>
 <span class="kn">from</span> <span class="nn">.host_x86</span> <span class="kn">import</span> <span class="n">HostX86Target</span>
+<span class="kn">from</span> <span class="nn">.host_x86_ssh</span> <span class="kn">import</span> <span class="n">HostX86SSHTarget</span>
 
 <span class="n">TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -141,6 +143,7 @@
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">EtissTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86_ssh&quot;</span><span class="p">,</span> <span class="n">HostX86SSHTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">Corstone300Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
@@ -151,6 +154,7 @@
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;ara_rtl&quot;</span><span class="p">,</span> <span class="n">AraRtlTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;cv32e40p&quot;</span><span class="p">,</span> <span class="n">CV32E40PTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;vicuna&quot;</span><span class="p">,</span> <span class="n">VicunaTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;canmv_k230_ssh&quot;</span><span class="p">,</span> <span class="n">CanMvK230SSHTarget</span><span class="p">)</span>
 </pre></div>
 
            </div>

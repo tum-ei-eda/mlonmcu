@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.setup.tasks.verilator &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.setup.tasks.verilator &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="../../../../_static/documentation_options.js?v=1dd76d02"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -186,14 +186,14 @@
         <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">verilatorBuildDir</span><span class="p">):</span>
             <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">env</span><span class="p">[</span><span class="s2">&quot;VERILATOR_ROOT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s2">&quot;autoconf&quot;</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
                 <span class="n">cwd</span><span class="o">=</span><span class="n">verilatorSrcDir</span><span class="p">,</span>
                 <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">verilatorSrcDir</span> <span class="o">/</span> <span class="s2">&quot;configure&quot;</span><span class="p">),</span>
                 <span class="sa">f</span><span class="s2">&quot;--prefix=</span><span class="si">{</span><span class="n">verilatorInstallDir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
@@ -232,7 +232,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">verilatorInstallDir</span><span class="p">):</span>
             <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s2">&quot;make&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;install&quot;</span><span class="p">,</span>
                 <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>

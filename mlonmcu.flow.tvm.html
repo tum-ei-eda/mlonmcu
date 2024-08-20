@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.flow.tvm package &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.flow.tvm package &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="_static/documentation_options.js?v=1dd76d02"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -133,6 +133,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.disable_vectorize"><code class="docutils literal notranslate"><span class="pre">TVMBackend.disable_vectorize</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.disabled_passes"><code class="docutils literal notranslate"><span class="pre">TVMBackend.disabled_passes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.dump"><code class="docutils literal notranslate"><span class="pre">TVMBackend.dump</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.extra_pass_config"><code class="docutils literal notranslate"><span class="pre">TVMBackend.extra_pass_config</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.extra_target_details"><code class="docutils literal notranslate"><span class="pre">TVMBackend.extra_target_details</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.extra_targets"><code class="docutils literal notranslate"><span class="pre">TVMBackend.extra_targets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMBackend.generate()</span></code></a></li>
@@ -225,6 +226,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.alignment_bytes"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.alignment_bytes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.arena_size"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.arena_size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.debug_arena"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.debug_arena</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.extra_pass_config"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.extra_pass_config</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.generate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_tvmc_compile_args"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.get_tvmc_compile_args()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_workspace_size_from_metadata"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.get_workspace_size_from_metadata()</span></code></a></li>
@@ -319,6 +321,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.alignment_bytes"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.alignment_bytes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.arena_size"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.arena_size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.debug_arena"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.debug_arena</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.extra_pass_config"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.extra_pass_config</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.generate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.get_tvmc_compile_args"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.get_tvmc_compile_args()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMAOTBackend.get_workspace_size_from_metadata"><code class="docutils literal notranslate"><span class="pre">TVMAOTBackend.get_workspace_size_from_metadata()</span></code></a></li>
@@ -343,6 +346,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.disable_vectorize"><code class="docutils literal notranslate"><span class="pre">TVMBackend.disable_vectorize</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.disabled_passes"><code class="docutils literal notranslate"><span class="pre">TVMBackend.disabled_passes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.dump"><code class="docutils literal notranslate"><span class="pre">TVMBackend.dump</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.extra_pass_config"><code class="docutils literal notranslate"><span class="pre">TVMBackend.extra_pass_config</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.extra_target_details"><code class="docutils literal notranslate"><span class="pre">TVMBackend.extra_target_details</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.extra_targets"><code class="docutils literal notranslate"><span class="pre">TVMBackend.extra_targets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.generate"><code class="docutils literal notranslate"><span class="pre">TVMBackend.generate()</span></code></a></li>
@@ -491,7 +495,7 @@
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend" title="mlonmcu.flow.tvm.backend.backend.TVMBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">TVMBackend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.TVMAOTBackend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">16,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'autotuned_mode':</span> <span class="pre">None,</span> <span class="pre">'autotuned_results_file':</span> <span class="pre">None,</span> <span class="pre">'custom_unroll':</span> <span class="pre">False,</span> <span class="pre">'debug_arena':</span> <span class="pre">False,</span> <span class="pre">'desired_layout':</span> <span class="pre">None,</span> <span class="pre">'desired_layout_map':</span> <span class="pre">None,</span> <span class="pre">'desired_layout_ops':</span> <span class="pre">None,</span> <span class="pre">'disable_vectorize':</span> <span class="pre">'auto',</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'dump':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{'tir.usmp.enable':</span> <span class="pre">False},</span> <span class="pre">'extra_target_details':</span> <span class="pre">None,</span> <span class="pre">'extra_targets':</span> <span class="pre">None,</span> <span class="pre">'generate_wrapper':</span> <span class="pre">'auto',</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'refresh_model_info':</span> <span class="pre">False,</span> <span class="pre">'relay_debug':</span> <span class="pre">None,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'target_keys':</span> <span class="pre">None,</span> <span class="pre">'target_mabi':</span> <span class="pre">None,</span> <span class="pre">'target_march':</span> <span class="pre">None,</span> <span class="pre">'target_mattr':</span> <span class="pre">None,</span> <span class="pre">'target_mcpu':</span> <span class="pre">None,</span> <span class="pre">'target_model':</span> <span class="pre">None,</span> <span class="pre">'target_mtriple':</span> <span class="pre">None,</span> <span class="pre">'target_num_cores':</span> <span class="pre">None,</span> <span class="pre">'tophub_url':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'unpacked_api':</span> <span class="pre">False,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.TVMAOTBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'alignment_bytes':</span> <span class="pre">16,</span> <span class="pre">'arena_size':</span> <span class="pre">None,</span> <span class="pre">'autotuned_mode':</span> <span class="pre">None,</span> <span class="pre">'autotuned_results_file':</span> <span class="pre">None,</span> <span class="pre">'custom_unroll':</span> <span class="pre">False,</span> <span class="pre">'debug_arena':</span> <span class="pre">False,</span> <span class="pre">'desired_layout':</span> <span class="pre">None,</span> <span class="pre">'desired_layout_map':</span> <span class="pre">None,</span> <span class="pre">'desired_layout_ops':</span> <span class="pre">None,</span> <span class="pre">'disable_vectorize':</span> <span class="pre">'auto',</span> <span class="pre">'disabled_passes':</span> <span class="pre">[],</span> <span class="pre">'dump':</span> <span class="pre">[],</span> <span class="pre">'extra_pass_config':</span> <span class="pre">{},</span> <span class="pre">'extra_target_details':</span> <span class="pre">None,</span> <span class="pre">'extra_targets':</span> <span class="pre">None,</span> <span class="pre">'generate_wrapper':</span> <span class="pre">'auto',</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">3,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'refresh_model_info':</span> <span class="pre">False,</span> <span class="pre">'relay_debug':</span> <span class="pre">None,</span> <span class="pre">'target_device':</span> <span class="pre">None,</span> <span class="pre">'target_keys':</span> <span class="pre">None,</span> <span class="pre">'target_mabi':</span> <span class="pre">None,</span> <span class="pre">'target_march':</span> <span class="pre">None,</span> <span class="pre">'target_mattr':</span> <span class="pre">None,</span> <span class="pre">'target_mcpu':</span> <span class="pre">None,</span> <span class="pre">'target_model':</span> <span class="pre">None,</span> <span class="pre">'target_mtriple':</span> <span class="pre">None,</span> <span class="pre">'target_num_cores':</span> <span class="pre">None,</span> <span class="pre">'tophub_url':</span> <span class="pre">None,</span> <span class="pre">'tvmc_custom_script':</span> <span class="pre">None,</span> <span class="pre">'tvmc_extra_args':</span> <span class="pre">[],</span> <span class="pre">'unpacked_api':</span> <span class="pre">False,</span> <span class="pre">'use_tuning_results':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.flow.tvm.TVMAOTBackend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -512,6 +516,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.flow.tvm.TVMAOTBackend.debug_arena">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">debug_arena</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.TVMAOTBackend.debug_arena" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tvm.TVMAOTBackend.extra_pass_config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extra_pass_config</span></span><a class="headerlink" href="#mlonmcu.flow.tvm.TVMAOTBackend.extra_pass_config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

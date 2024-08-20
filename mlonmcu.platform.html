@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.platform package &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.platform package &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="_static/documentation_options.js?v=1dd76d02"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -520,6 +520,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.configure"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.configure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.create_target"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.create_target()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.debug_symbols"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.debug_symbols</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.extend_attrs"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.extend_attrs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.fail_on_error"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.fail_on_error</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.fuse_ld"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.fuse_ld</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.garbage_collect"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.garbage_collect</span></code></a></li>
@@ -528,6 +529,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.get_cmake_args"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.get_cmake_args()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.get_definitions"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.get_definitions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.get_supported_targets"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.get_supported_targets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.global_isel"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.global_isel</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.goal"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.goal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.ignore_data"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.ignore_data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.init_directory"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.init_directory()</span></code></a></li>
@@ -578,6 +580,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.configure"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.configure()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.create_target"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.create_target()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.debug_symbols"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.debug_symbols</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.extend_attrs"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.extend_attrs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.fail_on_error"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.fail_on_error</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.fuse_ld"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.fuse_ld</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.garbage_collect"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.garbage_collect</span></code></a></li>
@@ -586,6 +589,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.get_cmake_args"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.get_cmake_args()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.get_definitions"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.get_definitions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.get_supported_targets"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.get_supported_targets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.global_isel"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.global_isel</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.goal"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.goal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.ignore_data"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.ignore_data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.MlifPlatform.init_directory"><code class="docutils literal notranslate"><span class="pre">MlifPlatform.init_directory()</span></code></a></li>

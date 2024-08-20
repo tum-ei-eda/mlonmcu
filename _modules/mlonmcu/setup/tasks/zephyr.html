@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.setup.tasks.zephyr &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.setup.tasks.zephyr &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="../../../../_static/documentation_options.js?v=1dd76d02"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -165,21 +165,21 @@
         <span class="n">zephyrVenvScript</span> <span class="o">=</span> <span class="n">zephyrVenvDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;activate&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">zephyrVenvDir</span><span class="p">):</span>
             <span class="n">venv</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">zephyrVenvDir</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; pip install west&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; pip install west&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">zephyrRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;zephyr&quot;</span><span class="p">]</span>
         <span class="n">zephyrUrl</span> <span class="o">=</span> <span class="n">zephyrRepo</span><span class="o">.</span><span class="n">url</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">zephyrInstallDir</span> <span class="o">/</span> <span class="s2">&quot;zephyr&quot;</span><span class="p">):</span>
             <span class="n">zephyrVersion</span> <span class="o">=</span> <span class="n">zephyrRepo</span><span class="o">.</span><span class="n">ref</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; west init -m </span><span class="si">{</span><span class="n">zephyrUrl</span><span class="si">}</span><span class="s2"> --mr </span><span class="si">{</span><span class="n">zephyrVersion</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">zephyrInstallDir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">extra</span> <span class="o">=</span> <span class="n">zephyrInstallDir</span> <span class="o">/</span> <span class="s2">&quot;zephyr&quot;</span> <span class="o">/</span> <span class="s2">&quot;scripts&quot;</span> <span class="o">/</span> <span class="s2">&quot;requirements.txt&quot;</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; pip install -r </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; pip install -r </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;ZEPHYR_BASE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">zephyrInstallDir</span> <span class="o">/</span> <span class="s2">&quot;zephyr&quot;</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; west update&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">zephyrVenvScript</span><span class="si">}</span><span class="s2"> &amp;&amp; west update&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;zephyr.sdk_version&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
             <span class="n">sdkVersion</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;zephyr.sdk_version&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -191,7 +191,7 @@
             <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">sdkUrl</span><span class="p">,</span> <span class="n">sdkArchive</span><span class="p">,</span> <span class="n">zephyrSdkDir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">sdkScript</span> <span class="o">=</span> <span class="n">zephyrSdkDir</span> <span class="o">/</span> <span class="s2">&quot;setup.sh&quot;</span>
         <span class="c1"># TODO: allow to limit installed toolchains</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="n">sdkScript</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sdkScript</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="c1"># Apply patch to fix esp32c3 support</span>
         <span class="n">patchFile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
             <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>

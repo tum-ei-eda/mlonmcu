@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.setup.tasks.ara &mdash; ML on MCU 0.5.dev0 documentation</title>
+  <title>mlonmcu.setup.tasks.ara &mdash; ML on MCU 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=de0fc20e"></script>
+        <script src="../../../../_static/documentation_options.js?v=1dd76d02"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             ML on MCU
           </a>
               <div class="version">
-                0.5.dev0
+                0.5.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -151,8 +151,8 @@
         <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">araSrcDir</span><span class="p">):</span>
             <span class="n">araRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;ara&quot;</span><span class="p">]</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">araRepo</span><span class="p">,</span> <span class="n">araSrcDir</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;apply-patches&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">araSrcDir</span> <span class="o">/</span> <span class="s2">&quot;hardware&quot;</span><span class="p">)</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">exec_getout</span><span class="p">(</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;bender&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">araSrcDir</span> <span class="o">/</span> <span class="s2">&quot;hardware&quot;</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;apply-patches&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">araSrcDir</span> <span class="o">/</span> <span class="s2">&quot;hardware&quot;</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;make&quot;</span><span class="p">,</span> <span class="s2">&quot;bender&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">araSrcDir</span> <span class="o">/</span> <span class="s2">&quot;hardware&quot;</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;ara.src_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">araSrcDir</span></div>
 
 </pre></div>

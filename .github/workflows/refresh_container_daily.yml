@@ -70,7 +70,7 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
       - name: Set up QEMU
@@ -146,7 +146,7 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ matrix.config.branch }}
       - name: Set up QEMU

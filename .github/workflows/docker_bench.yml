@@ -50,7 +50,7 @@ jobs:
     - name: Store cmdline
       run: echo "${{ github.event.inputs.bench_cmd }}" >> /environment/results/cmd.txt
     - name: Archive reports
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: results
         path: /environment/results/

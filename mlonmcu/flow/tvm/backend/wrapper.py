@@ -401,7 +401,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug
                 ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
                 ret += f"struct {prefix}_{direction}puts {prefix}_{direction}puts = {{" + "\n"
                 for i, t in enumerate(tensors):
-                    if not relax_mode or not out:
+                    if True:
                         tensor_name = t.name.replace(":", "_").replace("/", "_").replace(".", "_").replace(";", "_")
                         ret += f"    .{tensor_name} = {names[i]}," + "\n"
                     else:

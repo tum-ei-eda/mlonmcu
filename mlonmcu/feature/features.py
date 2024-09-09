@@ -2378,8 +2378,6 @@ class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
     def get_platform_config(self, platform):
         assert platform in ["mlif", "tvm", "microtvm"]
-        # if platform in ["tvm", "mircotvm"]:
-        #     assert self.interface in ["auto", "filesystem"]
         # if tvm/microtvm: allow using --fill-mode provided by tvmc run
         return {
             f"{platform}.set_inputs": self.enabled,
@@ -2414,8 +2412,6 @@ class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
     def get_platform_config(self, platform):
         assert platform in ["mlif", "tvm", "microtvm"]
-        # if platform in ["tvm", "mircotvm"]:
-        #     assert self.interface in ["auto", "filesystem", "stdout"]
         return {
             f"{platform}.get_outputs": self.enabled,
             f"{platform}.get_outputs_interface": self.interface,

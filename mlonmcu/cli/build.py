@@ -22,7 +22,7 @@ from mlonmcu.flow import get_available_backend_names
 from mlonmcu.cli.common import kickoff_runs
 from mlonmcu.cli.load import handle as handle_load, add_load_options
 from mlonmcu.context.context import MlonMcuContext
-from mlonmcu.session.run import RunStage
+from mlonmcu.session.run import RunStage, RunInitializer
 from mlonmcu.platform.lookup import get_platforms_targets, get_platforms_backends
 from .helper.parse import (
     extract_backend_names,
@@ -73,9 +73,12 @@ def _handle(args, context, require_target=False):
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
+        if isinstance(run, RunInitializer) and run.frozen:
+            new_runs.append(run)
+            continue
         for target_name in targets:
             for backend_name in backends:
-                new_run = run.copy()
+                new_run = run.copy(session=session)
                 if backend_name is not None:
                     platform_name = None
                     for platform in platforms:

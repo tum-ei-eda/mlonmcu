@@ -80,14 +80,11 @@ def create_tvm_platform_target(name, platform, base=Target):
                         import numpy as np
 
                         data = np.load(self.platform.inputs_artifact, allow_pickle=True)
-                        print("data", data, type(data))
                         num_inputs = len(data)
                         ins_file = Path(cwd) / "ins.npz"
             outs_file = None
             print_top = self.platform.print_top
-            print("before IF")
             if self.platform.get_outputs:
-                print("IF")
                 interface = self.platform.get_outputs_interface
                 if interface == "auto":
                     if self.supports_filesystem:
@@ -110,15 +107,11 @@ def create_tvm_platform_target(name, platform, base=Target):
             remaining_inputs = num_inputs
             outs_data = []
             for idx in range(num_batches):
-                print("idx", idx)
                 current_batch_size = max(min(batch_size, remaining_inputs), 1)
                 assert current_batch_size == 1
                 if processed_inputs < num_inputs:
-                    print("!!!")
                     in_data = data[idx]
-                    print("in_data", in_data, type(in_data))
                     np.savez(ins_file, **in_data)
-                    print("saved!")
                     processed_inputs += 1
                     remaining_inputs -= 1
                 else:
@@ -127,10 +120,8 @@ def create_tvm_platform_target(name, platform, base=Target):
                     program, self, cwd=cwd, ins_file=ins_file, outs_file=outs_file, print_top=print_top
                 )
                 ret += ret_
-                print("self.platform.get_outputs", self.platform.get_outputs)
                 if self.platform.get_outputs:
                     interface = self.platform.get_outputs_interface
-                    # print("interface", interface)
                     if interface == "auto":
                         if self.supports_filesystem:
                             interface = "filesystem"
@@ -147,8 +138,6 @@ def create_tvm_platform_target(name, platform, base=Target):
                         raise NotImplementedError
                     else:
                         assert False
-            print("outs_data", outs_data)
-            # input("$")
             if len(outs_data) > 0:
                 outs_path = Path(cwd) / "outputs.npy"
                 np.save(outs_path, outs_data)

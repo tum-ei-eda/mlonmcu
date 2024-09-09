@@ -521,7 +521,7 @@ class Run:
             if reasons:
                 logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
             else:
-                raise RuntimeError(f"No compatible frontend was found.")
+                raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):

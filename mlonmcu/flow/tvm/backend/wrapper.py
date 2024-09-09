@@ -71,6 +71,7 @@ def generate_common_includes():
 #include "tvm/runtime/crt/error_codes.h"
 #include "tvm/runtime/c_runtime_api.h"
 #include "printing.h"
+#include "exit.h"
 """
 
 

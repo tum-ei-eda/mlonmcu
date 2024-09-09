@@ -66,11 +66,11 @@ jobs:
         remove-android: 'true'
         remove-haskell: 'true'
         remove-codeql: 'true'
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     # TODO: caching
@@ -127,7 +127,7 @@ jobs:
         mlonmcu cleanup -H home/ -f --deps
       if: ${{ github.event.inputs.artifact == 'true' }}
     - name: Archive environment (without deps)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: mlonmcu_home
         path: home/

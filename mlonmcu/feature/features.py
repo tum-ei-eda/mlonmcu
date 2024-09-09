@@ -2231,7 +2231,7 @@ class VanillaAccelerator(TargetFeature):
 
 @register_feature("gen_data")
 class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
-    """TODO"""
+    """Generate input data for validation."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2278,7 +2278,7 @@ class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
 
 @register_feature("gen_ref_data", depends=["gen_data"])
 class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
-    """TODO"""
+    """Generate reference outputs for validation."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2319,7 +2319,7 @@ class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
 
 @register_feature("gen_ref_labels", depends=["gen_data"])
 class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
-    """TODO"""
+    """Generate reference labels for classification."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2360,7 +2360,7 @@ class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
 
 @register_feature("set_inputs")
 class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
-    """TODO"""
+    """Apply test inputs to model."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2389,7 +2389,7 @@ class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
 @register_feature("get_outputs")
 class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
-    """TODO"""
+    """Extract resulting outputs from model."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2425,7 +2425,7 @@ class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
 @register_feature("validate_new", depends=["gen_data", "gen_ref_data", "set_inputs", "get_outputs"])
 class ValidateNew(RunFeature):
-    """TODO"""
+    """Wrapper feature for enabling all validatioon related features at once."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,

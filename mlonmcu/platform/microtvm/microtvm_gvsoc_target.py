@@ -39,14 +39,14 @@ class GVSocMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         # "xpulp_version": None,  # None means that xpulp extension is not used,
         # "model": "pulp",
     }
-    REQUIRED = Target.REQUIRED + [
+    REQUIRED = Target.REQUIRED | {
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
         "pulp_freertos.install_dir",
         "microtvm_gvsoc.template",
         "hannah_tvm.src_dir",
-    ]
+    }
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

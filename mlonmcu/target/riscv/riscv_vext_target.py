@@ -58,7 +58,7 @@ class RVVTarget(RISCVTarget):
         value = int(self.config["vlen"])
         assert value == 0 or is_power_of_two(value), "VLEN needs to be a power of 2."
         assert value == 0 or value >= 32, "VLEN < 32 not allowed"
-        if value < 128:
+        if 0 < value < 128:
             assert self.embedded_vext, "VLEN < 128 imples embedded_vext=false"
         return value
 

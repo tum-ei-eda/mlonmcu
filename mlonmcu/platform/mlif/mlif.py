@@ -85,7 +85,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "lto": False,
         "slim_cpp": True,
         "garbage_collect": True,
-        "fuse_ld": None,
         "strip_strings": False,
         "unroll_loops": None,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
@@ -98,6 +97,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "model_support_file": None,
         "model_support_dir": None,
         "model_support_lib": None,
+        # llvm specific (TODO: move to toolchain components)
+        "fuse_ld": None,
+        "global_isel": False,
+        "extend_attrs": False,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -355,6 +358,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return value
 
     @property
+    def global_isel(self):
+        value = self.config["global_isel"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def extend_attrs(self):
+        value = self.config["extend_attrs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def strip_strings(self):
         value = self.config["strip_strings"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -410,6 +423,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["MODEL_SUPPORT_LIB"] = self.model_support_lib
         if self.fuse_ld is not None:
             definitions["FUSE_LD"] = self.fuse_ld
+        if self.global_isel is not None:
+            definitions["GLOBAL_ISEL"] = self.global_isel
+        if self.extend_attrs is not None:
+            definitions["EXTEND_ATTRS"] = self.extend_attrs
         if self.strip_strings is not None:
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:

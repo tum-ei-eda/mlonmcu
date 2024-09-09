@@ -248,7 +248,7 @@ def create_tvm_platform_target(name, platform, base=Target):
                 metrics = {"default": metrics}
                 for item in extracted:
                     metrics_ = Metrics()
-                    metrics_.add("Runtime [s]", float(item["Duration (us)"]) / 1e6)
+                    metrics_.add("Runtime [s]", float(item["Duration (us)"].replace(",", "")) / 1e6)
                     metrics[item["Name"]] = metrics_
 
             return metrics, out, artifacts

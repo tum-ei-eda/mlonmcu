@@ -6,9 +6,10 @@
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
 
 [![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
+[![lint workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/style.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/style.yml)
 [![demo workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml)
-[![container workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml)
 [![bench workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml)
+
 
 This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.
 
@@ -133,6 +134,14 @@ with mlonmcu.context.MlonMcuContext() as context:
     pass
 ```
 
+## List of interesting MLonMCU forks
+
+- MINRES TGC support: https://github.com/Minres/mlonmcu/tree/develop
+
+## List of existing MLonMCU extensions/plugins
+
+- ABC Example Plugin: coming soon!
+- MINRES TGC Support: coming soon!
 
 ## Development
 
@@ -162,6 +171,33 @@ Regarding coding style, it is recommended to run `black` before every commit. Th
 
   - Came up with MLonMCU Python package
 
+## Publications
+
+- **MLonMCU: TinyML Benchmarking with Fast Retargeting** ([https://dl.acm.org/doi/10.1145/3637543.3652878](https://dl.acm.org/doi/abs/10.1145/3615338.3618128))
+
+  *CODAI '23: Proceedings of the 2023 Workshop on Compilers, Deployment, and Tooling for Edge AI*
+
+  BibTeX
+
+  ```bibtex
+  @inproceedings{10.1145/3615338.3618128,
+    author = {van Kempen, Philipp and Stahl, Rafael and Mueller-Gritschneder, Daniel and Schlichtmann, Ulf},
+    title = {MLonMCU: TinyML Benchmarking with Fast Retargeting},
+    year = {2024},
+    isbn = {9798400703379},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3615338.3618128},
+    doi = {10.1145/3615338.3618128},
+    abstract = {While there exist many ways to deploy machine learning models on microcontrollers, it is non-trivial to choose the optimal combination of frameworks and targets for a given application. Thus, automating the end-to-end benchmarking flow is of high relevance nowadays. A tool called MLonMCU is proposed in this paper and demonstrated by benchmarking the state-of-the-art TinyML frameworks TFLite for Microcontrollers and TVM effortlessly with a large number of configurations in a low amount of time.},
+    booktitle = {Proceedings of the 2023 Workshop on Compilers, Deployment, and Tooling for Edge AI},
+    pages = {32–36},
+    numpages = {5},
+    keywords = {TinyML, neural networks, microcontrollers},
+    location = {Hamburg, Germany},
+    series = {CODAI '23}
+  }
+  ```
 
 ### Other
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template. However most of the templates was manually changed to be in Markdown instead of reStructuredText.
@@ -175,4 +211,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 <img src="./BMBF_gefoerdert_2017_en.jpg" alt="drawing" height="75" align="left" >
 
 This research is partially funded by the German Federal Ministry of Education and Research (BMBF) within
-the project [Scale4Edge](https://www.edacentrum.de/scale4edge/) (grant number 16ME0465).
+the projects [Scale4Edge](https://www.edacentrum.de/scale4edge/) (grant number 16ME0127) and [MANNHEIM-FlexKI](https://www.edacentrum.de/projekte/MANNHEIM-FlexKI) (grant number 01IS22086L).

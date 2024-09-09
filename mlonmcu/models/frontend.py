@@ -1167,7 +1167,7 @@ class TfLiteFrontend(SimpleFrontend):
 
                 def get_num_layers(file):
                     tflite_pack_args = [path, "--count-layers", "--noop"]
-                    out = utils.exec_getout(self.pack_script, *tflite_pack_args)
+                    out = utils.execute(self.pack_script, *tflite_pack_args)
                     matches = re.compile(r"Found\s(\d+)\slayers.").findall(out)
                     assert len(matches) == 1
                     num = int(matches[0])
@@ -1191,7 +1191,7 @@ class TfLiteFrontend(SimpleFrontend):
                         out_name = f"layer{i}"
                         out_file = Path(dest) / out_name
                         tflite_pack_args = [path, "-k", str(i), "--out", out_file]
-                        utils.exec_getout(self.pack_script, *tflite_pack_args)
+                        utils.execute(self.pack_script, *tflite_pack_args)
                         assert out_file.is_file()
                         results.append(out_file)
                     return results
@@ -1417,7 +1417,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
                 with open(in_file, "wb") as handle:
                     handle.write(tflite_data)
                 out_file = Path(tmpdirname) / "out.tflm"
-                utils.exec_getout(packer_exe, in_file, out_file)
+                utils.execute(packer_exe, in_file, out_file)
                 with open(out_file, "rb") as handle:
                     packed_data = handle.read()
 

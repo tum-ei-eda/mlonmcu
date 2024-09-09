@@ -34,11 +34,12 @@ class FeatureBase(ABC):
     scope = None
 
     DEFAULTS = {"enabled": True}
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, features=None, config=None):
         self.name = name
+        self.used = False
         self.config = config if config else {}
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         # assert features is None, "Features with features are currently not supported"
@@ -228,3 +229,9 @@ class RunFeature(FeatureBase):
 
     def add_run_config(self, config):
         config.update(self.get_run_config())
+
+    # def get_postprocesses(self):
+    #     return []
+
+    # def add_postprocesses(self, postprocesses):
+    #     postprocesses.extend(self.get_postprocesses())

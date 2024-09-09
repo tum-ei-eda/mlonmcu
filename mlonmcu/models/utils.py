@@ -79,6 +79,23 @@ def fill_data_source(in_bufs, out_bufs):
     return out
 
 
+def fill_data_source_inputs_only(in_bufs):
+    # out = '#include "ml_interface.h"\n'
+    out = "#include <stddef.h>\n"
+    out += "const int num_data_buffers_in = " + str(sum([len(buf) for buf in in_bufs])) + ";\n"
+    for i, buf in enumerate(in_bufs):
+        for j in range(len(buf)):
+            out += "const unsigned char data_buffer_in_" + str(i) + "_" + str(j) + "[] = {" + buf[j] + "};\n"
+    var_in = "const unsigned char *const data_buffers_in[] = {"
+    var_insz = "const size_t data_size_in[] = {"
+    for i, buf in enumerate(in_bufs):
+        for j in range(len(buf)):
+            var_in += "data_buffer_in_" + str(i) + "_" + str(j) + ", "
+            var_insz += "sizeof(data_buffer_in_" + str(i) + "_" + str(j) + "), "
+    out += var_in + "};\n" + var_insz + "};\n"
+    return out
+
+
 def lookup_data_buffers(input_paths, output_paths):
     assert len(input_paths) > 0
     legacy = False

@@ -1,5 +1,5 @@
 # Environment templates
-jinja2<3.1
+jinja2>=3.1.3
 
 # Config management
 xdg
@@ -15,9 +15,12 @@ pyelftools
 # Misc
 pyyaml
 pandas
-numpy
+numpy<2.0
 psutil
 
 # Sessions
 tqdm
 filelock
+
+# SSH
+paramiko  # TODO: make optional

@@ -29,30 +29,23 @@ paths:
     - "{{ config_dir }}/models"
 # Here default clone_urls
 repos:
-  tensorflow:  # TODO: rename to tflite-micro?
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-micro.git"
-    ref: feature/tflmc_support2
-  tflite_micro_compiler:
-    url: "git@gitlab.lrz.de:philippvk/tflite_micro_compiler.git"
-    ref: philippvk_new2
   tvm:
-    url: "git@github.com:PhilippvK/tvm.git"
-    ref: philippvk-current
+    url: "https://github.com/PhilippvK/tvm.git"
+    ref: philippvk-current-4-new
+    options:
+      recursive: true
   utvm_staticrt_codegen:
-    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
+    url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: master
   tvm_extensions:
-    url: "git@github.com:tum-ei-eda/tvm_extensions.git"
+    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
     ref: main
   muriscvnn:
-    url: "git@github.com:tum-ei-eda/muriscv-nn.git"
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
     ref: master
   etiss:
-    url: "git@github.com:PhilippvK/etiss.git"
+    url: "https://github.com/PhilippvK/etiss.git"
     ref: coredsl2-rvp-rvv-rebased2
-  packer:
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
-    ref: main
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
@@ -63,19 +56,21 @@ repos:
     url: "https://github.com/PhilippvK/CMSIS_5.git"
     ref: tumeda-patches-newer
   mlif:
-    url: "git@github.com:tum-ei-eda/mlonmcu-sw.git"
-    ref: philippvk
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: main
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etissvp:
-    url: "git@github.com:PhilippvK/microtvm-etissvp-template.git"
+    options:
+      recursive: true
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: main
   microtvm_espidf:
-    url: "git@github.com:PhilippvK/microtvm-espidf-template.git"
+    url: "https://github.com/PhilippvK/microtvm-espidf-template.git"
     ref: main
   zephyr:
-    url: "git@github.com:PhilippvK/zephyr.git"
+    url: "https://github.com/PhilippvK/zephyr.git"
     ref: philippvk
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -83,7 +78,7 @@ repos:
 frameworks:
   default: tvm
   tflm:
-    enabled: true
+    enabled: false
     backends:
       default: tflmi
       tflmc:
@@ -129,14 +124,14 @@ frameworks:
           disable_legalize: false
           autotuned: true
       tvmcg:
-        enabled: true
+        enabled: false
         features:
           debug_arena: true
           disable_legalize: false
           autotuned: true
     features:
-      cmsisnnbyoc: true
-      muriscvnnbyoc: true
+      cmsisnnbyoc: false
+      muriscvnnbyoc: false
 # Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
 frontends:
@@ -174,11 +169,11 @@ platforms:
       validate: true
       benchmark: true
   espidf:
-    enabled: true
+    enabled: false
     features:
       debug: true
   zephyr:
-    enabled: true
+    enabled: false
     features:
       debug: true
       benchmark: true
@@ -196,9 +191,9 @@ platforms:
     # validate: true
 # List of supported targets in the environment
 targets:
-  default: etiss_pulpino
+  default: spike
   etiss_pulpino:
-    enabled: true
+    enabled: false
     features:
       gdbserver: true
       etissdbg: true
@@ -218,19 +213,19 @@ targets:
       cachesim: true
       log_instrs: true
   ovpsim:
-    enabled: true
+    enabled: false
     features:
       vext: true
       pext: true
       log_instrs: true
   corstone300:
-    enabled: true
+    enabled: false
     features:
       ethosu: false
       arm_mvei: false
       arm_dsp: true
   riscv_qemu:
-    enabled: true
+    enabled: false
     features:
       vext: true
   microtvm_host:
@@ -238,11 +233,11 @@ targets:
   microtvm_spike:
     enabled: true
   microtvm_zephyr:
-    enabled: true
+    enabled: false
   microtvm_arduino:
     enabled: false
-  microtvm_etissvp:
-    enabled: true
+  microtvm_etiss:
+    enabled: false
   microtvm_espidf:
     enabled: false
   tvm_cpu:

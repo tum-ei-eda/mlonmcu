@@ -1,0 +1,271 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: f050eec7e32a0895f7658db21a4bdbd0975087a5
+  tvm:
+    # url: "https://github.com/apache/tvm.git"
+    url: "https://github.com/PhilippvK/tvm.git"
+    ref: 82a44f18e58c7c3d0b2e631faab67e6d38a83016
+    options:
+      recursive: true
+  tvm_extensions:
+    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
+    ref: 3ccd1ad8e4eed0cd86bfbd866d066833fd174dcb
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: bc60b2d2f541e1fee6352b9c9ab7cb442ff59bf4
+  spike:
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+  spikepk:
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
+    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: ara-new
+  ara:
+    url: "https://github.com/PhilippvK/ara.git"
+    ref: ara-new
+    options:
+      recursive: true
+      submodules:
+        - hardware
+  verilator:
+    url: "https://github.com/verilator/verilator"
+    ref: 8f090176a68b66bbe0a6ce95294944bffda9fdf7
+  embench:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: master
+  taclebench:
+    url: "https://github.com/tacle/tacle-bench.git"
+    ref: master
+  polybench:
+    url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
+    ref: master
+  mibench:
+    url: "https://github.com/embecosm/mibench.git"
+    ref: master
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+  cmsisnn:
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    # ref: v4.0.0
+    ref: ffeca904368926d60caeb2d97858215626892f35
+  cmsis:
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: 51263182d16c92649a48144ba56c0945f9fce60e
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
+
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: true
+      cmsisnn: false
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaotplus:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmllvm:
+        enabled: true
+        features:
+          # unpacked_api: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+    features:
+      cmsisnnbyoc: false
+      muriscvnnbyoc: true
+# Some frontends are experimental and therefore disabled here
+# Features like packing are only available in certain environments
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: true
+      split_layers: true
+  relay:
+    enabled: true
+    features:
+      relayviz: true
+  packed:
+    enabled: false
+    features:
+      packing: true
+      packed: true
+  onnx:
+    enabled: true
+  pb:
+    enabled: true
+  paddle:
+    enabled: true
+  example:
+    enabled: true
+  embench:
+    enabled: true
+  taclebench:
+    enabled: true
+  polybench:
+    enabled: true
+  coremark:
+    enabled: true
+  mathis:
+    enabled: true
+  dhrystone:
+    enabled: true
+  mibench:
+    enabled: true
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+      benchmark: true
+  espidf:
+    enabled: false
+    features:
+      debug: true
+  zephyr:
+    enabled: false
+    features:
+      debug: true
+  tvm:
+    enabled: true
+    features:
+      benchmark: true
+      tvm_rpc: true
+      autotune: true
+      tvm_profile: true
+  microtvm:
+    enabled: true
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: ara
+  ara:
+    enabled: true
+    features:
+      vext: true
+  host_x86:
+    enabled: false
+    features:
+      gdbserver: true
+  spike:
+    enabled: false
+    features:
+      vext: false
+      pext: false
+      cachesim: true
+      log_instrs: true
+  ovpsim:
+    enabled: false
+    features:
+      vext: false
+      pext: false
+      log_instrs: true
+  riscv_qemu:
+    enabled: false
+    features:
+      vext: false
+  microtvm_host:
+    enabled: false
+  microtvm_spike:
+    enabled: false
+  tvm_cpu:
+    enabled: false
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  runs_per_stage: true
+  # llvm.version: "15.0.6"  # No llvm 16 build available for ubuntu < 22.04
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/Archive/llvm16.tar.xz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv64gc_lp64d_medany.tar.xz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv64gcv_lp64d_medany.tar.xz"
+flags:
+  tflmc.exe:
+  - x86

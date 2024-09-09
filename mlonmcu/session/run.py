@@ -23,6 +23,7 @@ import copy
 import tempfile
 from pathlib import Path
 from enum import IntEnum
+from collections import defaultdict
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
@@ -30,11 +31,11 @@ from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
-from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.models.model import Model, Program
 from mlonmcu.platform import get_platforms
 from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
 
@@ -57,20 +58,35 @@ class RunStage(IntEnum):
     DONE = 7
 
 
+def add_any(new, base=None, append=True):
+    ret = []
+    if append:
+        if isinstance(base, list):
+            ret = base
+
+    if isinstance(new, list):
+        ret.extend(new)
+    else:
+        ret.append(new)
+    return ret
+
+
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    FEATURES = ["autotune", "target_optimized"]
+    FEATURES = {"autotune", "target_optimized", "validate_new"}
 
     DEFAULTS = {
         "export_optional": False,
         "tune_enabled": False,
-        "target_to_backend": False,
+        "target_to_backend": True,
+        "target_optimized_layouts": False,
+        "target_optimized_schedules": False,
         "stage_subdirs": False,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     @classmethod
     def from_file(cls, path):
@@ -107,7 +123,8 @@ class Run:
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
-        self.init_directory()
+        self.directories = {}
+        # self.init_directory()
         self.target = target
         self.cache_hints = []
         self.config = config if config else {}
@@ -116,8 +133,11 @@ class Run:
         self.run_features = self.process_features(features)
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.sub_names = []
+        self.sub_parents = {}
         self.result = None
         self.failing = False  # -> RunStatus
+        self.reason = None
+        self.failed_stage = None
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
         self.locked = False
         self.report = None
@@ -129,6 +149,7 @@ class Run:
         features = get_matching_features(features, FeatureType.RUN)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.used = True
             tmp_run_config = {f"run.{key}": value for key, value in self.run_config.items()}
             feature.add_run_config(tmp_run_config)
             self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
@@ -144,6 +165,18 @@ class Run:
     def target_to_backend(self):
         """Get target_to_backend property."""
         value = self.run_config["target_to_backend"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def target_optimized_layouts(self):
+        """Get target_optimized_layouts property."""
+        value = self.run_config["target_optimized_layouts"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def target_optimized_schedules(self):
+        """Get target_optimized_schedules property."""
+        value = self.run_config["target_optimized_schedules"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -230,6 +263,17 @@ class Run:
                 return stage
         return RunStage.DONE
 
+    @property
+    def last_stage(self):
+        """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
+        last = None
+        for stage in RunStage:
+            if self.has_stage(stage):
+                if not self.completed[stage.value]:
+                    return last
+                last = stage
+        return None
+
     def lock(self):
         """Aquire a mutex to lock the current run."""
         # ret = self.lock.acquire(timeout=0)
@@ -258,7 +302,29 @@ class Run:
             # A solution would be to split up the framework runtime libs from the mlif...
             for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
                 # The stage_subdirs setting is ignored here because platforms can be multi-stage!
-                platform.init_directory(path=Path(self.dir) / platform.name)
+                # platform.init_directory(path=Path(self.dir) / platform.name)
+                if platform in self.directories:
+                    continue
+                platform_dir = Path(self.dir) / platform.name
+                if platform.init_directory(path=platform_dir):
+                    self.directories[platform.name] = platform_dir
+            # if target not in self.directories:
+            #     target_dir = Path(self.dir) /target.name
+            #     if target.init_directory(path=target_dir)
+            #         self.directories[target.name] = target_dir
+
+            # TODO: other components
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k == "session":
+                setattr(result, k, v)
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
 
     def copy(self):
         """Create a new run based on this instance."""
@@ -266,7 +332,7 @@ class Run:
         if self.session:
             new_idx = self.session.request_run_idx()
             new.idx = new_idx
-            self.init_directory()
+            # self.init_directory()
         return new
 
     def init_component(self, component_cls, context=None):
@@ -290,25 +356,46 @@ class Run:
     def add_model(self, model):
         """Setter for the model instance."""
         self.model = model
+        assert model is not None
+        self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
+        for platform in self.platforms:
+            self.model.add_platform_config(platform, platform.config)
+            self.model.add_platform_defs(platform, platform.definitions)
+        # TODO: update after load stage
+        # for platform in self.platforms:
+        #     self.add_platform_defs(platform.name, platform.definitions)
 
-    def add_frontend(self, frontend):
+    def add_frontend(self, frontend, append=True):
         """Setter for the frontend instance."""
-        self.frontends = [frontend]
+        self.frontends = add_any(frontend, self.frontends, append=append)
+        for frontend in self.frontends:
+            for platform in self.platforms:
+                frontend.add_platform_config(platform, platform.config)
+                frontend.add_platform_defs(platform.name, platform.definitions)
 
-    def add_frontends(self, frontends):
+    def add_frontends(self, frontends, append=False):
         """Setter for the list of frontends."""
-        self.frontends = frontends
+        self.frontends = add_any(frontends, self.frontends, append=append)
+        for frontend in self.frontends:
+            for platform in self.platforms:
+                frontend.add_platform_config(platform, platform.config)
+                frontend.add_platform_defs(platform.name, platform.definitions)
 
     def add_backend(self, backend):
         """Setter for the backend instance."""
         self.backend = backend
         # assert len(self.platforms) > 0, "Add at least a platform before adding a backend."
         if self.model is not None:
-            assert self.backend.supports_model(self.model), (
-                "The added backend does not support the chosen model. "
-                "Add the backend before adding a model to find a suitable frontend."
-            )
+            if not isinstance(self.model, Model):
+                self.backend = None
+                return
+            if not self.model.skip_check:
+                assert self.backend.supports_model(self.model), (
+                    "The added backend does not support the chosen model. "
+                    "Add the backend before adding a model to find a suitable frontend."
+                )
         for platform in self.platforms:
+            self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)
 
     def add_framework(self, framework):
@@ -316,6 +403,7 @@ class Run:
         self.framework = framework
         # assert len(self.platforms) > 0, "Add at least a platform before adding a framework."
         for platform in self.platforms:
+            self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
 
     def add_target(self, target):
@@ -323,76 +411,93 @@ class Run:
         self.target = target
         assert self.platforms is not None, "Add at least a platform before adding a target."
         for platform in self.platforms:
+            self.target.add_platform_config(platform.name, platform.config)
             self.target.add_platform_defs(platform.name, platform.definitions)
         self.cache_hints = [self.target.get_arch()]
         # self.resolve_chache_refs()
 
-    def add_platform(self, platform):
+    def add_platform(self, platform, append=True):
         """Setter for the platform instance."""
-        self.platforms = [platform]
+        self.platforms = add_any(platform, self.platforms, append=append)
+        for frontend in self.frontends:
+            self.frontend.add_platform_config(platform.name, platform.config)
+            self.frontend.add_platform_defs(platform.name, platform.definitions)
+        if self.model:
+            self.model.add_platform_config(platform.name, platform.config)
+            self.model.add_platform_defs(platform.name, platform.definitions)
         if self.backend:
+            self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)
         if self.framework:
+            self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
 
-    def add_platforms(self, platforms):
+    def add_platforms(self, platforms, append=False):
         """Setter for the list of platforms."""
-        self.platforms = platforms
+        self.platforms = add_any(platforms, self.platforms, append=append)
+        # TODO: check for duplicates?
         for platform in platforms:
+            for frontend in self.frontends:
+                self.frontend.add_platform_config(platform.name, platform.config)
+                self.frontend.add_platform_defs(platform.name, platform.definitions)
+            if self.model:
+                self.model.add_platform_config(platform.name, platform.config)
+                self.model.add_platform_defs(platform.name, platform.definitions)
             if self.backend:
+                self.backend.add_platform_config(platform.name, platform.config)
                 self.backend.add_platform_defs(platform.name, platform.definitions)
             if self.framework:
+                self.framework.add_platform_config(platform.name, platform.config)
                 self.framework.add_platform_defs(platform.name, platform.definitions)
 
-    def add_postprocess(self, postprocess, append=False):
+    def add_postprocess(self, postprocess, append=True):
         """Setter for a postprocess instance."""
-        if append:
-            self.postprocesses.append(postprocess)
-        else:
-            self.postprocesses = [postprocess]
+        self.postprocesses = add_any(postprocess, self.postprocesses, append=append)
 
     def add_postprocesses(self, postprocesses, append=False):
         """Setter for the list of postprocesses."""
-        if append:
-            self.postprocesses.extend(postprocesses)
-        else:
-            self.postprocesses = postprocesses
+        self.postprocesses = add_any(postprocesses, self.postprocesses, append=append)
 
-    def add_feature(self, feature):
+    def add_feature(self, feature, append=True):
         """Setter for a feature instance."""
-        self.features = [feature]
+        self.features = add_any(feature, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
-        self.features = features if not append else self.features + features
+        self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
-
-    def pick_model_frontend(self, model_hints, backend=None):
-        assert len(model_hints) > 0
-        if backend is None:
-            self.frontends = [
-                frontend for frontend in self.frontends if model_hints[0].formats[0] in frontend.input_formats
-            ]
-            assert len(self.frontends) > 0
-            return model_hints[0]
-        for model_hint in model_hints:
-            if backend.supports_model(model_hint):
-                self.frontends = [
-                    frontend for frontend in self.frontends if model_hint.formats[0] in frontend.input_formats
-                ]
-                return model_hint
-        return None
 
     def add_model_by_name(self, model_name, context=None):
         """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"
         assert len(self.frontends) > 0, "Add a frontend to the run before adding a model"
-        model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
-        assert len(model_hints) > 0, f"Model with name '{model_name}' not found"
-        model_hint = self.pick_model_frontend(model_hints, backend=self.backend)
-        assert model_hint is not None, "Unable to pick a suitable model"
-        self.add_model(model_hint)
+        model = None
+        reasons = {}
+        for frontend in self.frontends:
+            if model is not None:
+                break
+            try:
+                model_hints = frontend.lookup_models([model_name], config=self.config, context=context)
+                # model_hints = lookup_models([model_name], frontends=self.frontends, context=context)
+                for model_hint in model_hints:
+                    if (
+                        self.backend is None
+                        or isinstance(model_hint, Program)
+                        or (self.backend is not None and self.backend.supports_model(model_hint))
+                    ):
+                        self.frontends = [frontend]
+                        assert model_hint is not None, "Unable to pick a suitable model"
+                        model = model_hint
+                        break
+            except Exception as e:
+                reasons[frontend.name] = str(e)
+        if model is None:
+            if reasons:
+                logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
+            else:
+                raise RuntimeError(f"Model with name '{model_name}' not found.")
+        self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):
         """Helper function to initialize and configure a frontend by its name."""
@@ -401,15 +506,22 @@ class Run:
     def add_frontends_by_name(self, frontend_names, context=None):
         """Helper function to initialize and configure frontends by their names."""
         frontends = []
+        reasons = {}
         for name in frontend_names:
             try:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
                 frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
-            except Exception:
+            except Exception as e:
+                reasons[name] = str(e)
                 continue
         assert len(frontends) > 0, "No compatible frontend was found"
+        if len(frontends) == 0:
+            if reasons:
+                logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
+            else:
+                raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):
@@ -421,6 +533,8 @@ class Run:
             self.add_backend(self.init_component(self.build_platform.create_backend(backend_name), context=context))
         else:
             self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
+        if self.backend is None:
+            return
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
@@ -473,9 +587,14 @@ class Run:
         """Helper function to initialize and configure features by their names."""
         features = []
         for feature_name in feature_names:
-            available_features = get_available_features(feature_name=feature_name)
-            for feature_cls in available_features:
-                features.append(self.init_component(feature_cls, context=context))
+            available_features = get_available_features(feature_name=feature_name, deps=True)
+            # check for already added features
+            temp = self.features + features if append else features
+            added_names = [f.name for f in temp]
+            for feature_name_, feature_cls_ in available_features.items():
+                if feature_name_ in added_names:
+                    continue
+                features.append(self.init_component(feature_cls_, context=context))
         self.add_features(features, append=append)
 
     def __repr__(self):
@@ -503,9 +622,20 @@ class Run:
 
     @property
     def artifacts(self):
-        return list(
-            itertools.chain([subs[subs.keys[0]] for stage, subs in self.artifacts_per_stage.items()])
-        )  # TODO: fix default only
+        sub = "default"
+        ret = sum(list(itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])), [])
+        return ret
+
+    def get_all_sub_artifacts(self, sub, stage=None):
+        if sub is None:
+            return []
+        assert sub in self.sub_names
+        if stage is None:
+            stage = self.last_stage
+        parents = self.sub_parents[(stage, sub)]
+        stage_, sub_ = parents
+        artifacts = self.get_all_sub_artifacts(sub_, stage_) + self.artifacts_per_stage[stage][sub]
+        return artifacts
 
     def toDict(self):
         """Utility not implemented yet. (TODO: remove?)"""
@@ -528,7 +658,7 @@ class Run:
                         if name not in ["", "default"]:
                             dest = dest / "sub" / name
                         dest.mkdir(parents=True, exist_ok=True)
-                        extract = artifact.fmt == ArtifactFormat.MLF
+                        extract = artifact.fmt in [ArtifactFormat.MLF, ArtifactFormat.ARCHIVE]
                         # extract = artifact.fmt == ArtifactFormat.MLF
                         # and not isinstance(self.platform, MicroTvmPlatform)
                         artifact.export(dest)
@@ -542,17 +672,58 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.RUN]  # Alternative: allow to trigger previous stages recursively as a fallback
 
-        self.artifacts_per_stage[RunStage.POSTPROCESS] = []
+        def _merge_dicts_of_lists(*args):
+            if len(args) == 0:
+                return {}
+            a = args[0]
+            de = defaultdict(list, a)
+            for b in args[1:]:
+                for (
+                    i,
+                    j,
+                ) in b.items():
+                    de[i].extend(j)
+            return dict(de)
+
+        self.artifacts_per_stage[RunStage.POSTPROCESS] = {"default": []}
         temp_report = self.get_report()
-        for postprocess in self.postprocesses:
-            if isinstance(postprocess, RunPostprocess):
-                artifacts = postprocess.post_run(temp_report, self.artifacts)
-                if artifacts is not None:
-                    self.artifacts_per_stage[RunStage.POSTPROCESS].extend(artifacts)  # TODO: subs?
+        last_stage = self.last_stage
+        assert last_stage is not None
+        self.export_stage(last_stage, optional=self.export_optional)
+        for name in self.artifacts_per_stage[last_stage]:
+            merged = {"default": []}
+            before = self.get_all_sub_artifacts(name)
+            for postprocess in self.postprocesses:
+                if isinstance(postprocess, RunPostprocess):
+                    artifacts = postprocess.post_run(temp_report, before)
+                    before.extend(artifacts)
+                    if artifacts is None:
+                        artifacts = []
+                    new = {}
+                    if isinstance(artifacts, dict):
+                        new.update(
+                            {
+                                (
+                                    key
+                                    if name in ["", "default"]
+                                    else (f"{name}_{key}" if key not in ["", "default"] else name)
+                                ): value
+                                for key, value in artifacts.items()
+                            }
+                        )
+                    else:
+                        new.update({name if name in ["", "default"] else f"{name}": artifacts})
+                    merged = _merge_dicts_of_lists(merged, new)
+            self.artifacts_per_stage[RunStage.POSTPROCESS].update(merged)
+            self.sub_parents.update({(RunStage.POSTPROCESS, key): (self.last_stage, name) for key in merged.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.POSTPROCESS])
+        self.sub_names = list(set(self.sub_names))
+
         self.report = temp_report
 
         self.completed[RunStage.POSTPROCESS] = True
         self.unlock()
+        self.export_stage(RunStage.POSTPROCESS, optional=self.export_optional)
 
     def run(self):
         """Run the 'run' using the defined target."""
@@ -565,31 +736,41 @@ class Run:
             self.export_stage(RunStage.COMPILE, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.COMPILE]:
                 elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][name][0]
-                self.target.generate_metrics(elf_artifact.path)
-                artifacts = self.target.artifacts
+                artifacts = self.target.generate_artifacts(elf_artifact.path)
                 if isinstance(artifacts, dict):
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
-                    )
+                    new = {
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
+                        for key, value in artifacts.items()
+                    }
                 else:
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {name if name in ["", "default"] else f"{name}": artifacts}
-                    )
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.RUN].update(new)
+                self.sub_parents.update({(RunStage.RUN, key): (self.last_stage, name) for key in new.keys()})
         else:
             assert self.completed[RunStage.BUILD]  # Used for tvm platform
             self.export_stage(RunStage.BUILD, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.BUILD]:
                 shared_object_artifact = self.artifacts_per_stage[RunStage.BUILD][name][0]
-                self.target.generate_metrics(shared_object_artifact.path)
-                artifacts = self.target.artifacts
+                artifacts = self.target.generate_artifacts(shared_object_artifact.path)
                 if isinstance(artifacts, dict):
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
-                    )
+                    new = {
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
+                        for key, value in artifacts.items()
+                    }
                 else:
-                    self.artifacts_per_stage[RunStage.RUN].update(
-                        {name if name in ["", "default"] else f"{name}": artifacts}
-                    )
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.RUN].update(new)
+                self.sub_parents.update({(RunStage.RUN, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.RUN])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.RUN] = True
         self.unlock()
@@ -598,25 +779,50 @@ class Run:
         """Compile the target software for the run."""
         logger.debug("%s Processing stage COMPILE", self.prefix)
         self.lock()
-        assert self.completed[RunStage.BUILD]
+        if isinstance(self.model, Model):
+            assert self.completed[RunStage.BUILD]
 
-        self.export_stage(RunStage.BUILD, optional=self.export_optional)
-        self.artifacts_per_stage[RunStage.COMPILE] = {}
-        for name in self.artifacts_per_stage[RunStage.BUILD]:
+            self.export_stage(RunStage.BUILD, optional=self.export_optional)
+            self.artifacts_per_stage[RunStage.COMPILE] = {}
+            for name in self.artifacts_per_stage[RunStage.BUILD]:
+                codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
+                if name not in ["", "default"]:
+                    codegen_dir = codegen_dir / "sub" / name
+                # TODO!
+                artifacts = self.compile_platform.generate_artifacts(
+                    codegen_dir, self.target
+                )  # TODO: has to go into different dirs
+                # artifacts = self.compile_platform.artifacts
+                if isinstance(artifacts, dict):
+                    new = {
+                        (
+                            key
+                            if name in ["", "default"]
+                            else (f"{name}_{key}" if key not in ["", "default"] else name)
+                        ): value
+                        for key, value in artifacts.items()
+                    }
+                else:
+                    new = {name if name in ["", "default"] else f"{name}": artifacts}
+                self.artifacts_per_stage[RunStage.COMPILE].update(new)
+                self.sub_parents.update({(RunStage.COMPILE, key): (self.last_stage, name) for key in new.keys()})
+        else:
+            assert self.completed[RunStage.LOAD]
+            self.artifacts_per_stage[RunStage.COMPILE] = {}
             codegen_dir = self.dir if not self.stage_subdirs else (self.dir / "stages" / str(int(RunStage.BUILD)))
-            if name not in ["", "default"]:
-                codegen_dir = codegen_dir / "sub" / name
-            # TODO!
-            self.compile_platform.generate_elf(codegen_dir, self.target)  # TODO: has to go into different dirs
-            artifacts = self.compile_platform.artifacts
+            name = "default"
+            artifacts = self.compile_platform.generate_artifacts(codegen_dir, self.target)
             if isinstance(artifacts, dict):
-                self.artifacts_per_stage[RunStage.COMPILE].update(
-                    {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
-                )
+                new = {
+                    key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                    for key, value in artifacts.items()
+                }
             else:
-                self.artifacts_per_stage[RunStage.COMPILE].update(
-                    {name if name in ["", "default"] else f"{name}": artifacts}
-                )
+                new = {name if name in ["", "default"] else f"{name}": artifacts}
+            self.artifacts_per_stage[RunStage.COMPILE].update(new)
+            self.sub_parents.update({(RunStage.COMPILE, key): (self.last_stage, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.COMPILE])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.COMPILE] = True
         self.unlock()
@@ -627,39 +833,116 @@ class Run:
         self.lock()
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
-        if self.target_to_backend:
+        target_to_backend = self.target_to_backend and (self.target is not None)
+        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
             assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
-            if len(cfg) > 0:
-                logger.debug("Updating backend config based on given target.")
-                self.backend.config.update(cfg)
+            target_to_backend = True
 
-        self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
-        self.artifacts_per_stage[RunStage.BUILD] = {}
-        for name in self.artifacts_per_stage[RunStage.LOAD]:
-            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
-            if not model_artifact.exported:
-                model_artifact.export(self.dir)
-            self.backend.load_model(model=model_artifact.path)
-            if self.has_stage(RunStage.TUNE):
-                self.export_stage(RunStage.TUNE, optional=self.export_optional)
-                if len(self.artifacts_per_stage[RunStage.TUNE][name]) > 0:  # TODO: inaccurate!
-                    tuning_artifact = self.artifacts_per_stage[RunStage.TUNE][name][0]
-                    if not tuning_artifact.exported:
-                        tuning_artifact.export(self.dir)
-                    self.backend.tuning_records = tuning_artifact.path
+        if target_to_backend:
+            self.target.add_backend_config(
+                self.backend.name,
+                self.backend.config,
+                optimized_layouts=self.target_optimized_layouts,
+                optimized_schedules=self.target_optimized_schedules,
+            )
 
+        def _build():
             # TODO: allow raw data as well as filepath in backends
-            self.backend.generate_code()
-            artifacts = self.backend.artifacts
+            artifacts = self.backend.generate_artifacts()
             if isinstance(artifacts, dict):
-                self.artifacts_per_stage[RunStage.BUILD].update(
-                    {key if name in ["", "default"] else f"{name}_{key}": value for key, value in artifacts.items()}
-                )
+                new = {
+                    key if name in ["", "default"] else (f"{name}_{key}" if key not in ["", "default"] else name): value
+                    for key, value in artifacts.items()
+                }
             else:
-                self.artifacts_per_stage[RunStage.BUILD].update(
-                    {name if name in ["", "default"] else f"{name}": artifacts}
+                new = {name if name in ["", "default"] else f"{name}": artifacts}
+            self.artifacts_per_stage[RunStage.BUILD].update(new)
+            self.sub_parents.update({(RunStage.BUILD, key): (self.last_stage, name) for key in new.keys()})
+
+        self.artifacts_per_stage[RunStage.BUILD] = {}
+        if self.has_stage(RunStage.TUNE):
+            self.export_stage(RunStage.TUNE, optional=self.export_optional)
+            for name in self.artifacts_per_stage[RunStage.TUNE]:
+                tune_stage_artifacts = self.artifacts_per_stage[RunStage.TUNE][name]
+                tuning_artifact = lookup_artifacts(
+                    tune_stage_artifacts, fmt=ArtifactFormat.TEXT, flags=["records"], first_only=True
                 )
+                if len(tuning_artifact) == 0:
+                    # fallback for metascheduler
+                    tuning_artifact = lookup_artifacts(
+                        tune_stage_artifacts,
+                        fmt=ArtifactFormat.ARCHIVE,
+                        flags=["records", "metascheduler"],
+                        first_only=True,
+                    )
+                    if len(tuning_artifact) == 0:
+                        continue
+                tuning_artifact = tuning_artifact[0]
+                if not tuning_artifact.exported:
+                    tuning_artifact.export(self.dir)
+                tuner_name = tuning_artifact.flags[-1]  # TODO: improve
+                self.backend.set_tuning_records(tuning_artifact.path, tuner_name=tuner_name)
+                candidate = (RunStage.TUNE, name)
+                assert candidate in self.sub_parents
+                parent_stage, parent_name = self.sub_parents[candidate]
+                assert parent_stage == RunStage.LOAD
+                assert parent_name in self.artifacts_per_stage[RunStage.LOAD]
+                load_stage_artifacts = self.artifacts_per_stage[parent_stage][parent_name]
+                model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
+                assert len(model_artifact) > 0
+                model_artifact = model_artifact[0]
+                if not model_artifact.exported:
+                    model_artifact.export(self.dir)
+                input_shapes = None
+                output_shapes = None
+                input_types = None
+                output_types = None
+                if model_artifact.name.split(".", 1)[0] == self.model.name:
+                    input_shapes = self.model.input_shapes
+                    output_shapes = self.model.output_shapes
+                    input_types = self.model.input_types
+                    output_types = self.model.output_types
+                self.backend.load_model(
+                    model=model_artifact.path,
+                    input_shapes=input_shapes,
+                    output_shapes=output_shapes,
+                    input_types=input_types,
+                    output_types=output_types,
+                )
+                _build()
+
+        else:
+            self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
+            for name in self.artifacts_per_stage[RunStage.LOAD]:
+                load_stage_artifacts = self.artifacts_per_stage[RunStage.LOAD][name]
+                model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
+                if len(model_artifact) == 0:
+                    # TODO: This breaks because number of subs can not decrease...
+                    continue
+                assert len(model_artifact) == 1
+                model_artifact = model_artifact[0]
+                if not model_artifact.exported:
+                    model_artifact.export(self.dir)
+                input_shapes = None
+                output_shapes = None
+                input_types = None
+                output_types = None
+                if model_artifact.name.split(".", 1)[0] == self.model.name:
+                    input_shapes = self.model.input_shapes
+                    output_shapes = self.model.output_shapes
+                    input_types = self.model.input_types
+                    output_types = self.model.output_types
+                self.backend.load_model(
+                    model=model_artifact.path,
+                    input_shapes=input_shapes,
+                    output_shapes=output_shapes,
+                    input_types=input_types,
+                    output_types=output_types,
+                )
+                _build()
+
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.BUILD] = True
         self.unlock()
@@ -670,12 +953,18 @@ class Run:
         self.lock()
         assert self.completed[RunStage.LOAD]
 
-        if self.target_to_backend:
-            assert self.target is not None, "Config target_to_backend can only be used if a target was provided"
-            cfg = self.target.get_backend_config(self.backend.name)  # Do not expect a backend prefix here
-            if len(cfg) > 0:
-                logger.debug("Updating backend config based on given target.")
-                self.backend.config.update(cfg)
+        target_to_backend = self.target_to_backend and (self.target is not None)
+        if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
+            assert self.target is not None, "Backend needs target"
+            target_to_backend = True
+
+        if target_to_backend:
+            self.target.add_backend_config(
+                self.backend.name,
+                self.backend.config,
+                optimized_layouts=self.target_optimized_layouts,
+                optimized_schedules=self.target_optimized_schedules,
+            )
 
         self.export_stage(RunStage.LOAD, optional=self.export_optional)
         self.artifacts_per_stage[RunStage.TUNE] = {}
@@ -687,17 +976,16 @@ class Run:
             # TODO: allow raw data as well as filepath in backends
             assert self.tune_platform, "Autotuning requires a TunePlatform"
             res = self.tune_platform.tune_model(model_artifact.path, self.backend, self.target)
+            new = {f"{name}": []}
             if res:
                 if isinstance(res, dict):
-                    self.artifacts_per_stage[RunStage.TUNE].update(
-                        {key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()}
-                    )
+                    new = {key if name in ["", "default"] else f"{name}_{key}": value for key, value in res.items()}
                 else:
-                    self.artifacts_per_stage[RunStage.TUNE].update(
-                        {name if name in ["", "default"] else f"{name}": res}
-                    )
-            else:
-                self.artifacts_per_stage[RunStage.TUNE][name] = []
+                    new = {name if name in ["", "default"] else f"{name}": res}
+            self.artifacts_per_stage[RunStage.TUNE].update(new)
+            self.sub_parents.update({(RunStage.TUNE, key): (RunStage.LOAD, name) for key in new.keys()})
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.TUNE])
+        self.sub_names = list(set(self.sub_names))
 
         self.completed[RunStage.TUNE] = True
         self.unlock()
@@ -708,25 +996,45 @@ class Run:
         self.lock()
         # assert self.completed[RunStage.NOP]
 
-        self.frontend.generate_models(self.model)
+        artifacts = self.frontend.generate_artifacts(self.model)
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
-        self.frontend.process_metadata(self.model, cfg=cfg_new)
-        if len(cfg_new) > 0:
-            for key, value in cfg_new.items():
-                component, name = key.split(".")[:2]
-                if self.backend is not None and component == self.backend.name:
-                    self.backend.config[name] = value
+        if isinstance(self.model, Model):
+            artifacts_ = self.frontend.process_metadata(self.model, cfg=cfg_new)
+            if artifacts_ is not None:
+                if isinstance(artifacts, dict):
+                    assert "default" in artifacts.keys()
+                    artifacts["default"].extend(artifacts_)
+                    # ignore subs for now
                 else:
-                    for platform in self.platforms:
-                        if platform is not None and component == platform.name:
-                            platform.config[name] = value
-                self.config[key] = value
-        artifacts = self.frontend.artifacts
+                    assert isinstance(artifacts, list)
+                    artifacts.extend(artifacts_)
+            if len(cfg_new) > 0:
+                for key, value in cfg_new.items():
+                    component, name = key.split(".")[:2]
+                    if self.backend is not None and component == self.backend.name:
+                        self.backend.config[name] = value
+                    elif component == self.model.name:
+                        # Do not overwrite user-provided shapes and types
+                        if self.model.config[name] is None:
+                            # self.model.config[name] = value
+                            self.model.config = filter_config(
+                                {key: value}, self.model.name, self.model.config, set(), set()
+                            )
+                    else:
+                        for platform in self.platforms:
+                            if platform is not None and component == platform.name:
+                                platform.config[name] = value
+                    self.config[key] = value
         if isinstance(artifacts, dict):
             self.artifacts_per_stage[RunStage.LOAD] = artifacts
         else:
             self.artifacts_per_stage[RunStage.LOAD] = {"default": artifacts}
+        self.sub_names.extend(self.artifacts_per_stage[RunStage.LOAD])
+        self.sub_names = list(set(self.sub_names))
+        self.sub_parents.update(
+            {(RunStage.LOAD, key): (None, None) for key in self.artifacts_per_stage[RunStage.LOAD].keys()}
+        )
 
         self.completed[RunStage.LOAD] = True
         self.unlock()
@@ -782,10 +1090,12 @@ class Run:
                     func()
                 except Exception as e:
                     self.failing = True
+                    self.reason = e
                     if self.locked:
                         self.unlock()
                     logger.exception(e)
                     run_stage = RunStage(stage).name
+                    self.failed_stage = run_stage
                     logger.error("%s Run failed at stage '%s', aborting...", self.prefix, run_stage)
                     break
             # self.stage = stage  # FIXME: The stage_func should update the stage intead?
@@ -813,9 +1123,9 @@ class Run:
             else ""
         )
 
-    def get_all_feature_names(self):
+    def get_all_feature_names(self, only_used=True):
         """Return list of feature names for this run."""
-        return [feature.name for feature in self.features]
+        return [feature.name for feature in self.features if feature.used or not only_used]
 
     def get_all_postprocess_names(self):
         """Return list of postprocess names for this run."""
@@ -831,6 +1141,12 @@ class Run:
         used = list(set([self.tune_platform, self.build_platform, self.compile_platform, self.target_platform]))
         ret = [platform.name for platform in used if platform is not None]
         return ret[0] if len(ret) == 1 else ret
+
+    def get_reason_text(self):
+        ret = str(type(self.reason).__name__) if self.reason else None
+        if self.failed_stage:
+            ret += " @ " + str(self.failed_stage)
+        return ret
 
     def get_all_configs(self, omit_paths=False, omit_defaults=False, omit_globals=False):
         """Return dict with component-specific and global configuration for this run."""
@@ -860,7 +1176,10 @@ class Run:
                 ret = {
                     key: value
                     for key, value in ret.items()
-                    if not (isinstance(value, Path) or (isinstance(value, str) and Path(value).exists()))
+                    if not (
+                        isinstance(value, Path)
+                        or (isinstance(value, str) and len(str(value)) < 200 and Path(value).exists())
+                    )
                 }
             return ret
 
@@ -869,6 +1188,7 @@ class Run:
             ret.update(
                 {key: value for key, value in self.config.items() if not has_prefix(key)}
             )  # Only config without a prefix!
+        ret.update(config_helper(self.model))
         for frontend in self.frontends:
             ret.update(config_helper(frontend))
         if self.backend:
@@ -876,6 +1196,7 @@ class Run:
         if self.framework:
             ret.update(config_helper(self.framework))
         if self.target:
+            self.target.reconfigure()
             ret.update(config_helper(self.target))
         for platform in self.platforms:
             ret.update(config_helper(platform))
@@ -919,60 +1240,56 @@ class Run:
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:
             post["Failing"] = True
+            reason_text = self.get_reason_text()
+            if reason_text:
+                post["Reason"] = reason_text
 
         self.export_stage(RunStage.RUN, optional=self.export_optional)
 
         subs = []
-        if RunStage.LOAD in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.LOAD].keys()
-            subs = names
-        if RunStage.TUNE in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.TUNE].keys()
-            subs = names
-        if RunStage.BUILD in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.BUILD].keys()
-            subs = names
         # metrics = Metrics()
         metrics_by_sub = {}
-        if RunStage.COMPILE in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.COMPILE].keys()
-            subs = names
-            for name in self.artifacts_per_stage[RunStage.COMPILE]:
-                metrics_by_sub[name] = Metrics()
-                if (
-                    len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
-                ):  # TODO: look for artifact of type metrics instead
-                    compile_metrics_artifact = lookup_artifacts(
-                        self.artifacts_per_stage[RunStage.COMPILE][name], name="metrics.csv"
-                    )[0]
-                    compile_metrics = Metrics.from_csv(compile_metrics_artifact.content)
-                    metrics_by_sub[name] = compile_metrics
 
-        if RunStage.RUN in self.artifacts_per_stage:
-            names = self.artifacts_per_stage[RunStage.RUN].keys()
-            if (
-                RunStage.COMPILE in self.artifacts_per_stage
-                and len(self.artifacts_per_stage[RunStage.COMPILE][name]) > 1
-            ):
-                if not self.failing:
-                    assert len(names) == len(subs), "Run and Compile Stage should have the same number of subs"  # TODO: fix
-            if not self.failing:
+        def metrics_helper(stage, subs):
+            # if self.failing:
+            #     return subs
+            if stage in self.artifacts_per_stage:
+                prev_metrics_by_sub = metrics_by_sub.copy()
+                names = self.artifacts_per_stage[stage].keys()
                 subs = names
-                for name in self.artifacts_per_stage[RunStage.RUN]:
-                    run_metrics_artifact = lookup_artifacts(
-                        self.artifacts_per_stage[RunStage.RUN][name], name="metrics.csv"
-                    )[0]
-                    run_metrics = Metrics.from_csv(run_metrics_artifact.content)
-                    # Combine with compile metrics
-                    if name in metrics_by_sub:
-                        metrics_data = metrics_by_sub[name].get_data()
-                    else:
-                        metrics_data = {}
-                    run_metrics_data = run_metrics.get_data()
-                    for key, value in metrics_data.items():
-                        if key not in run_metrics_data:
-                            run_metrics.add(key, value)
-                    metrics_by_sub[name] = run_metrics
+                for name in self.artifacts_per_stage[stage]:
+                    # metrics_by_sub[name] = Metrics()
+                    if len(self.artifacts_per_stage[stage][name]) > 0:
+                        filename = f"{stage.name.lower()}_metrics.csv"
+                        metrics_artifact = lookup_artifacts(self.artifacts_per_stage[stage][name], name=filename)
+                        if len(metrics_artifact) == 0:
+                            continue
+                        assert len(metrics_artifact) == 1
+                        metrics_artifact = metrics_artifact[0]
+                        metrics = Metrics.from_csv(metrics_artifact.content)
+                        metrics_data = metrics.get_data(include_optional=self.export_optional)
+                        # Combine with existing metrics
+                        parents = self.sub_parents[(stage, name)]
+                        parent_stage, parent_name = parents
+                        if parent_name in prev_metrics_by_sub:
+                            parent_metrics_data = prev_metrics_by_sub[parent_name].get_data(
+                                include_optional=self.export_optional
+                            )
+                        else:
+                            parent_metrics_data = {}
+                        for key, value in parent_metrics_data.items():
+                            if key not in metrics_data:
+                                metrics.add(key, value)
+                        metrics_by_sub[name] = metrics
+            return subs
+
+        for stage in range(RunStage.LOAD, RunStage.POSTPROCESS):
+            subs_ = metrics_helper(RunStage(stage), subs)
+            if len(subs_) < len(subs):
+                # assert self.failing
+                pass
+            else:
+                subs = subs_
 
         pres = []
         mains = []
@@ -986,7 +1303,7 @@ class Run:
                 main = metrics_by_sub[sub].get_data(include_optional=self.export_optional)
             else:
                 main = {}
-            mains.append(main if len(main) > 0 else {"Incomplete": [True]})
+            mains.append(main if len(main) > 0 else {"Incomplete": True})
             posts.append(post)  # TODO: omit for subs?
         report.set(pre=pres, main=mains, post=posts)
         return report

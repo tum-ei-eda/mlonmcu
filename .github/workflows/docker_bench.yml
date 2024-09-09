@@ -16,14 +16,14 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-name: Run Benchmarks
+name: Run Benchmarks in Docker Container
 on:
   workflow_dispatch:
     inputs:
       bench_image:
         description: 'Base Docker Image'
         required: true
-        default: "ghcr.io/tum-ei-eda/mlonmcu-bench:latest"
+        default: "tumeda/mlonmcu-bench:latest"
       bench_cmd:
         description: 'Benchmarking Command'
         required: true
@@ -35,12 +35,22 @@ jobs:
     runs-on: ubuntu-latest
     container: "${{ github.event.inputs.bench_image }}"
     steps:
+    - name: Maximize build space
+      # if: runner.os == 'Linux'
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 32768
+        temp-reserve-mb: 1024
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'
     - name: Run Benchmark command in container
       run: python3 -m mlonmcu.cli.main ${{ github.event.inputs.bench_cmd }}
     - name: Store cmdline
       run: echo "${{ github.event.inputs.bench_cmd }}" >> /environment/results/cmd.txt
     - name: Archive reports
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: results
         path: /environment/results/

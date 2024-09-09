@@ -6,8 +6,8 @@ logging:
   to_file: false
   rotate: false
 cleanup:
-  auto: false
-  keep: 50
+  auto: true
+  keep: 10
 # Default locations for certain directoriescan be changed here
 # Non-absolute paths will always be threated relative to the MLONMCU_HOME
 paths:
@@ -30,44 +30,96 @@ paths:
 # Here default clone_urls
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
-    url: "git@github.com:tensorflow/tflite-micro.git"
-    ref: 746f880a405aeca2db6d005fd9fb8e451f3cea34
-  tflite_micro_compiler:
-    url: "git@github.com:PhilippvK/tflite_micro_compiler.git"
-    ref: patches
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: ca5358f4680dbd94717a4c6bd77186bc1c799e1b
+    options:
+      single_branch: true
+  # tflite_micro_compiler:
+  #   url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
+  #   ref: patches
   tvm:
-    url: "git@github.com:tum-ei-eda/tvm.git"
-    ref: latest
-  utvm_staticrt_codegen:
-    url: "git@github.com:tum-ei-eda/utvm_staticrt_codegen.git"
-    ref: master
-  tvm_extensions:
-    url: "git@github.com:tum-ei-eda/tvm_extensions.git"
-    ref: main
-  etiss:
-    url: "git@github.com:tum-ei-eda/etiss.git"
-    ref: master
+    url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
+    ref: develop
+    options:
+      recursive: true
+      submodules:
+        - 3rdparty/dlpack
+        - 3rdparty/dmlc-core
+        - 3rdparty/libbacktrace
+        - 3rdparty/rang
+  # utvm_staticrt_codegen:
+  #   url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
+  #   ref: master
+  # tvm_extensions:
+  #   url: "https://github.com/tum-ei-eda/tvm_extensions.git"
+  #   ref: main
+  etiss:  # TODO: wait for merge
+    url: "https://github.com/PhilippvK/etiss.git"
+    ref: staging-new  # TODO: change after fixing semihosting issue
   muriscvnn:
-    url: "git@github.com:fabianpedd/muriscv_nn.git"
-    ref: main
-  packer:
-    url: "git@gitlab.lrz.de:de-tum-ei-eda-esl/tflite-pack.git"
-    ref: main
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: 0021d3f82beba69c782d241c2da5ba27ec788cae
   spike:
-    url: "git@github.com:riscv-software-src/riscv-isa-sim.git"
-    ref: master
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
   spikepk:
-    url: "git@github.com:riscv-software-src/riscv-pk.git"
-    ref: master
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
+    ref: 573c858d9071a2216537f71de651a814f76ee76d
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
-    ref: 8c60448c0e1e50e426180b26db9bc31ddf774361
+    ref: 51263182d16c92649a48144ba56c0945f9fce60e
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
+  cmsisnn:
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    # ref: v4.0.0
+    ref: ffeca904368926d60caeb2d97858215626892f35
+  ethosu_platform:
+    url: "https://review.mlplatform.org/ml/ethos-u/ethos-u-core-platform"
+    ref: fc42c71353d15c564558249bd4f13350119ab6a9
   mlif:
-    url: "git@github.com:tum-ei-eda/mlonmcu-sw.git"
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 4f89b17aa257afeccbebbb883b775cd9af58b7a0
+  # espidf:
+  #   url: "https://github.com/espressif/esp-idf.git"
+  #   ref: release/v4.4
+  #   options:
+  #     recursive: true
+  # zephyr:
+  #   url: "https://github.com/zephyrproject-rtos/zephyr.git"
+  #   ref: v3.2.0
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
+    ref: b1e53bdae24bb35e53d7cdad2917a9090f7fa933
+  microtvm_spike:
+    url: "https://github.com/PhilippvK/microtvm-spike-template.git"
+    ref: ddaaf4554aaafb0a509cd4d9db3397e07b512d9d
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+  vicuna:
+    url: "https://github.com/vproc/vicuna.git"
+    ref: c1484ec8fa9f1106505a4ca246af39a66420a1d0
+  verilator:
+    url: "https://github.com/verilator/verilator"
+    ref: tags/v4.210
+  dtc:
+    url: "https://github.com/dgibson/dtc.git"
     ref: main
-  espidf:
-    url: "https://github.com/espressif/esp-idf.git"
-    ref: release/v4.4
+  embench:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: master
+  taclebench:
+    url: "https://github.com/tacle/tacle-bench.git"
+    ref: master
+  polybench:
+    url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
+    ref: master
+  mibench:
+    url: "https://github.com/embecosm/mibench.git"
+    ref: master
 
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
@@ -78,8 +130,8 @@ frameworks:
     enabled: true
     backends:
       default: tflmi
-      tflmc:
-        enabled: false
+      # tflmc:
+      #   enabled: true
       tflmi:
         enabled: true
         features:
@@ -90,13 +142,18 @@ frameworks:
   tvm:
     enabled: true
     backends:
-      default: tvmaot
+      default: tvmaotplus
       tvmrt:
         enabled: true
         features:
           debug_arena: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
+          autotuned: true
+      tvmllvm:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
           autotuned: true
       tvmaot:
         enabled: true
@@ -104,18 +161,25 @@ frameworks:
           debug_arena: true
           unpacked_api: true
           usmp: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
-      tvmcg:
+      tvmaotplus:
         enabled: true
         features:
           debug_arena: true
-          disable_legalize: true
-          autotune: true
+          disable_legalize: false
           autotuned: true
-    features:
-      cmsisnnbyoc: false
+      # tvmcg:
+      #   enabled: true
+      #   features:
+      #     debug_arena: true
+      #     disable_legalize: false
+      #     autotune: true
+      #     autotuned: true
+    features: []
+    # features:
+    #   muriscvnnbyoc: true
+    #   cmsisnnbyoc: true
 # Some frontends are eperimental and therefore disabled here
 # Features like packing are only available in certain environments
 #
@@ -125,28 +189,56 @@ frontends:
     features:
       validate: true
       visualize: true
+      split_layers: true
   relay:
     enabled: true
     features:
       relayviz: true
-  packed:
-    enabled: false
-    features:
-      packing: true
-      packed: true
-  onnx:
-    enabled: false
+  # packed:
+  #   enabled: false
+  #   features:
+  #     packing: true
+  #     packed: true
+  # onnx:
+  #   enabled: true
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+  pb:
+    enabled: true
+  paddle:
+    enabled: true
+  example:
+    enabled: true
+  embench:
+    enabled: true
+  taclebench:
+    enabled: true
+  polybench:
+    enabled: true
+  coremark:
+    enabled: true
+  mathis:
+    enabled: true
+  dhrystone:
+    enabled: true
+  mibench:
+    enabled: true
 # List of supported targets in the environment
 targets:
-  default: etiss_pulpino
-  etiss_pulpino:
+  default: etiss
+  etiss:
     enabled: true
     features:
       gdbserver: true
       etissdbg: true
       trace: true
       log_instrs: true
+  # etiss_pulpino:
+  #   enabled: true
+  #   features:
+  #     gdbserver: true
+  #     etissdbg: true
+  #     trace: true
+  #     log_instrs: true
   host_x86:
     enabled: true
     features:
@@ -155,24 +247,45 @@ targets:
     enabled: true
     features:
       vext: true
+      pext: true
+      bext: true
       cachesim: true
       log_instrs: true
   ovpsim:
     enabled: true
     features:
       vext: true
+      pext: true
   corstone300:
-    enabled: true
+    enabled: false
     features:
       ethosu: false
-  esp32:
-    enabled: true
-  esp32c3:
-    enabled: true
-  microtvm_etissvp:
-    enabled: true
-  microtvm_espidf:
+  riscv_qemu:
     enabled: false
+    features:
+      vext: false
+  vicuna:
+    enabled: false
+    features:
+      vext: true
+  microtvm_host:
+    enabled: true
+  microtvm_spike:
+    enabled: true
+  microtvm_zephyr:
+    enabled: false
+  microtvm_arduino:
+    enabled: false
+  microtvm_etiss:
+    enabled: true
+  # microtvm_espidf:
+  #   enabled: true
+  tvm_cpu:
+    enabled: true
+  # esp32:
+  #   enabled: true
+  # esp32c3:
+  #   enabled: true
 # Some targets/platforms support multiple toolchains
 toolchains:
   gcc: true
@@ -183,14 +296,27 @@ platforms:
     features:
       debug: true
       validate: true
-  espidf:
+  tvm:
     enabled: true
     features:
-      debug: true
-  zephyr:
-    enabled: false
+      benchmark: true
+      tvm_rpc: true
+      autotvm: true
+      tvm_profile: true
+  microtvm:
+    enabled: true
     features:
-      debug: true
+      autotvm: true
+      benchmark: true
+      tvm_profile: true
+  # espidf:
+  #   enabled: true
+  #   features:
+  #     debug: true
+  # zephyr:
+  #   enabled: true
+  #   features:
+  #     debug: true
 postprocesses:
   use:
   # - detailed_cycles
@@ -203,10 +329,15 @@ postprocesses:
 # This is where further options such as specific versions of dependencies can be set in the furture
 vars:
   allow_extensions: false
-  # tvm.make_tool: "ninja"
-  llvm.version: "11.1.0"
   runs_per_stage: true
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fi89JQF89pEiWwP6aQh7cM4H/rv32gcv.tar.xz"
+  # tvm.make_tool: "ninja"
+  # llvm.version: "16.0.0"
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/Archive/llvm16.tar.xz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32gc_ilp32d.tar.xz"
+  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32gcv_ilp32d.tar.xz"
+  riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/20.04/rv32gcp_ilp32d.tar.xz"
+  spike.keep_build_dir: false
+  etiss.keep_build_dir: false
 flags:
   tflmc.exe:
   - x86

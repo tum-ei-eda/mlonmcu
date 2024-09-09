@@ -1,0 +1,29 @@
+
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+ARG MLONMCU_TEMPLATE
+
+ADD . /mlonmcu
+WORKDIR /mlonmcu
+RUN df -h
+RUN pip3 install --upgrade pip --no-cache-dir
+RUN pip3 install -r requirements.txt --no-cache-dir
+RUN pip3 install . --no-cache-dir
+RUN df -h
+
+WORKDIR /environment
+
+RUN df -h
+RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --clone-models --allow-exists
+ENV MLONMCU_HOME=/environment
+
+RUN mlonmcu setup -g
+
+RUN pip3 install -r /environment/requirements_addition.txt --no-cache-dir
+RUN df -h
+
+RUN mlonmcu setup -v --rebuild
+RUN df -h
+
+CMD mlonmcu
+VOLUME /environment

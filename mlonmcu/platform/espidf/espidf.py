@@ -51,7 +51,7 @@ def get_project_template(name="project"):
 class EspIdfPlatform(CompilePlatform, TargetPlatform):
     """ESP-IDF Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
+    FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -65,7 +65,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "flash_only": False,
     }
 
-    REQUIRED = ["espidf.install_dir", "espidf.src_dir"]
+    REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -116,7 +116,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             # + f" > /dev/null && {self.idf_exe} "
             + " ".join([str(arg) for arg in args])
         )
-        out = utils.exec_getout(
+        out = utils.execute(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out
@@ -148,7 +148,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.project_dir.mkdir(exist_ok=True)
 
     def get_supported_targets(self):
-        text = self.invoke_idf_exe("--list-targets", live=self.print_outputs, print_output=False)
+        text = self.invoke_idf_exe("--list-targets", live=self.print_outputs)
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = text.split("\n")
@@ -277,7 +277,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
         return out
 
-    def generate_elf(self, src, target, model=None, data_file=None):
+    def generate(self, src, target, model=None):
         artifacts = []
         out = self.compile(target, src=src)
         elf_name = self.project_name + ".elf"
@@ -293,14 +293,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             artifact = Artifact(elf_name, path=elf_file, fmt=ArtifactFormat.PATH)
             artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
-        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
-        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
-        artifacts.append(metrics_artifact)
         stdout_artifact = Artifact(
             "espidf_out.log", content=out, fmt=ArtifactFormat.TEXT  # TODO: split into one file per command
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {"default": metrics}
 
     def get_idf_serial_args(self, monitor=False):
         args = []
@@ -340,10 +337,10 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             return ""
 
         if self.use_idf_monitor:
-            import psutil
 
             def _kill_monitor():
                 import psutil
+
                 for proc in psutil.process_iter():
                     # check whether the process name matches
                     cmdline = " ".join(proc.cmdline())

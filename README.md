@@ -2,13 +2,14 @@
 
 [![pypi package](https://badge.fury.io/py/mlonmcu.svg)](https://pypi.org/project/mlonmcu)
 [![readthedocs](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
-![covergae](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
+![coverage](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
 
 [![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
+[![lint workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/style.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/style.yml)
 [![demo workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/demo.yml)
-[![container workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/container.yml)
 [![bench workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/bench.yml)
+
 
 This project contains research code related to the deployment of inference or learning applications on tiny micro-controllers.
 
@@ -22,11 +23,7 @@ This project contains research code related to the deployment of inference or le
 
 - Highly configurable python package
 - Automatic resolution and installation of dependencies
-- Supporting a large combination of frameworks/backends/targets/features:
-  - Frameworks (Backends): TFLite Micro, MircoTVM
-  - Targets: Host (x86), ETISS (Pulpino), Corstone300 (ARM Cortex-M), QEMU (RISC-V), Spike (`riscv-isa-sim`),...
-  - Platforms: Zephyr, ESP-IDF,...
-  - Features: Autotuning, Debugging, RPC,...
+- Supporting a large combination of frameworks/backends/targets/features
 - Build-in parallel processing of large number of benchmarks
 - Isolated enironments (not interfering with other installations)
 - Command Line and Python Development Interfaces
@@ -47,10 +44,10 @@ First, a set of APT packages needs to be installed:
 sudo apt install python3-pip python3-venv
 
 # MLonMCU related
-sudo apt install libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler tree g++
+sudo apt install libboost-all-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler tree g++
 
 # Optional (depending on configuration)
-sudo apt install ninja-build
+sudo apt install ninja-build flex lsb-release libelf-dev
 ```
 
 Also make sure that your default Python is at least v3.7. If the `python` command is not available in your shell or points Python v2.7 check out `python-is-python3`.
@@ -80,10 +77,7 @@ source .venv/bin/activate
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Install minimal dependencies
-pip install -r requirements_dev.txt
-
-# Optional (only for development)
+# Install ptional dependecies (only for development)
 pip install -r requirements_dev.txt
 pip install -r docs/requirements.txt
 
@@ -128,7 +122,7 @@ mlonmcu init
 
 Make sure to point the `MLONMCU_HOME` environment variable to the location of the previously initialied environment. (Alternative: use the `default` environment or `--home` argument on the command line)
 
-Next, generate a `requirements.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements.txt` inside the virtual Python environment.
+Next, generate a `requirements_addition.txt` file inside the environment directory using `mlonmcu setup -g` which now be installed by running `pip install -r $MLONMCU_HOME/requirements_addition.txt` inside the virtual Python environment.
 
 
 To use the created environment in a python program, a `MlonMcuContext` needs to be created as follows:
@@ -140,6 +134,14 @@ with mlonmcu.context.MlonMcuContext() as context:
     pass
 ```
 
+## List of interesting MLonMCU forks
+
+- MINRES TGC support: https://github.com/Minres/mlonmcu/tree/develop
+
+## List of existing MLonMCU extensions/plugins
+
+- ABC Example Plugin: coming soon!
+- MINRES TGC Support: coming soon!
 
 ## Development
 
@@ -159,18 +161,6 @@ Documentation is mainly generated automatically from doctrings (triggered via `m
 
 Regarding coding style, it is recommended to run `black` before every commit. The default line length should be given in the `setup.cfg` file.
 
-### Future Work
-
-- [ ] Finish beta version `v0.1.0`
-- [ ] Open Source Release
-  - [ ] Make repository public
-  - [ ] Release python package
-  - [ ] Publish docs automatically to https://readthedocs.org
-
-## Credits
-
-This is a research project proposed by the Chair of Design Automation of the Technical University of Munich.
-
 ### Developers
 
 - Rafael Stahl (TUM) [@rafzi]
@@ -181,9 +171,44 @@ This is a research project proposed by the Chair of Design Automation of the Tec
 
   - Came up with MLonMCU Python package
 
+## Publications
+
+- **MLonMCU: TinyML Benchmarking with Fast Retargeting** ([https://dl.acm.org/doi/10.1145/3637543.3652878](https://dl.acm.org/doi/abs/10.1145/3615338.3618128))
+
+  *CODAI '23: Proceedings of the 2023 Workshop on Compilers, Deployment, and Tooling for Edge AI*
+
+  BibTeX
+
+  ```bibtex
+  @inproceedings{10.1145/3615338.3618128,
+    author = {van Kempen, Philipp and Stahl, Rafael and Mueller-Gritschneder, Daniel and Schlichtmann, Ulf},
+    title = {MLonMCU: TinyML Benchmarking with Fast Retargeting},
+    year = {2024},
+    isbn = {9798400703379},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3615338.3618128},
+    doi = {10.1145/3615338.3618128},
+    abstract = {While there exist many ways to deploy machine learning models on microcontrollers, it is non-trivial to choose the optimal combination of frameworks and targets for a given application. Thus, automating the end-to-end benchmarking flow is of high relevance nowadays. A tool called MLonMCU is proposed in this paper and demonstrated by benchmarking the state-of-the-art TinyML frameworks TFLite for Microcontrollers and TVM effortlessly with a large number of configurations in a low amount of time.},
+    booktitle = {Proceedings of the 2023 Workshop on Compilers, Deployment, and Tooling for Edge AI},
+    pages = {32–36},
+    numpages = {5},
+    keywords = {TinyML, neural networks, microcontrollers},
+    location = {Hamburg, Germany},
+    series = {CODAI '23}
+  }
+  ```
 
 ### Other
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template. However most of the templates was manually changed to be in Markdown instead of reStructuredText.
 
 - **Cookiecutter:** https://github.com/audreyr/cookiecutter
 - **`audreyr/cookiecutter-pypackage`:** https://github.com/audreyr/cookiecutter-pypackage
+
+
+## Acknowledgment
+
+<img src="./BMBF_gefoerdert_2017_en.jpg" alt="drawing" height="75" align="left" >
+
+This research is partially funded by the German Federal Ministry of Education and Research (BMBF) within
+the projects [Scale4Edge](https://www.edacentrum.de/scale4edge/) (grant number 16ME0127) and [MANNHEIM-FlexKI](https://www.edacentrum.de/projekte/MANNHEIM-FlexKI) (grant number 01IS22086L).

@@ -41,11 +41,11 @@ def generate_wrapper_header():
 
 #include <stddef.h>
 
-void TVMWrap_Init();
+int TVMWrap_Init();
 void *TVMWrap_GetInputPtr(int index);
 size_t TVMWrap_GetInputSize(int index);
 size_t TVMWrap_GetNumInputs();
-void TVMWrap_Run();
+int TVMWrap_Run();
 void *TVMWrap_GetOutputPtr(int index);
 size_t TVMWrap_GetOutputSize(int index);
 size_t TVMWrap_GetNumOutputs();
@@ -71,6 +71,7 @@ def generate_common_includes():
 #include "tvm/runtime/crt/error_codes.h"
 #include "tvm/runtime/c_runtime_api.h"
 #include "printing.h"
+#include "exit.h"
 """
 
 
@@ -139,8 +140,12 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_aren
                 out += "{kDLUInt, 8, 1}"
             elif t.dtype == "int8":
                 out += "{kDLInt, 8, 1}"
+            elif t.dtype == "uint64":
+                out += "{kDLUInt, 64, 1}"
+            elif t.dtype == "int64":
+                out += "{kDLInt, 64, 1}"
             else:
-                raise "Invalid type"
+                raise RuntimeError(f"Invalid type: {t.dtype}")
             out += ", "
         out += "};\n    "
 
@@ -154,13 +159,13 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_aren
             out += "shape_" + str(i) + ", "
         out += "};\n"
 
-        out += "size_t ndims[] = { "
+        out += "    size_t ndims[] = { "
         for i, t in enumerate(tensors):
             out += str(len(t.shape)) + ", "
         out += "};\n    "
 
         for i, t in enumerate(tensors):
-            out += "    static uint8_t data_" + str(i) + "[" + str(t.size) + "];\n"
+            out += "static uint8_t data_" + str(i) + "[" + str(t.size) + "];\n"
         out += "    uint8_t *data[] = { "
         for i, t in enumerate(tensors):
             out += "data_" + str(i) + ", "
@@ -211,7 +216,7 @@ TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);
 
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
-    exit(1);
+    mlonmcu_exit(1);
 }
 
 void TVMLogf(const char* msg, ...)
@@ -256,7 +261,7 @@ tvm_crt_error_t TVMPlatformTimerStop(double* elapsed_time_seconds)
 
 void *g_handle = NULL;
 
-void TVMWrap_Init()
+int TVMWrap_Init()
 {
     int64_t device_type = kDLCPU;
     int64_t device_id = 0;
@@ -287,6 +292,7 @@ void TVMWrap_Init()
 
     //return graph_executor;
     g_handle = graph_executor;
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetInputPtr(int index)
@@ -321,13 +327,14 @@ size_t TVMWrap_GetNumInputs()
     return ${numInputs};
 }
 
-void TVMWrap_Run()
+int TVMWrap_Run()
 {
     TVMGraphExecutor* graph_executor = (TVMGraphExecutor*)g_handle;
     TVMGraphExecutor_Run(graph_executor);
 #if DEBUG_ARENA_USAGE
     DBGPRINTF("\\nGraph executor arena max usage after model invocation: %lu bytes\\n", max_arena_usage);
 #endif  // DEBUG_ARENA_USAGE
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetOutputPtr(int index)
@@ -395,7 +402,7 @@ def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug
                 ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
                 ret += f"struct {prefix}_{direction}puts {prefix}_{direction}puts = {{" + "\n"
                 for i, t in enumerate(tensors):
-                    tensor_name = t.name.replace(":", "_").replace("/", "_").replace(".", "_")
+                    tensor_name = t.name.replace(":", "_").replace("/", "_").replace(".", "_").replace(";", "_")
                     ret += f"    .{tensor_name} = {names[i]}," + "\n"
                 ret += "};\n"
                 return ret
@@ -528,7 +535,7 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev)
     mainCode += """
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
-    exit(1);
+    mlonmcu_exit(1);
 }
 
 TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)
@@ -536,12 +543,13 @@ TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int ove
     return 0;
 }
 
-void TVMWrap_Init()
+int TVMWrap_Init()
 {
 """
     if workspace_size > 0:
         mainCode += "    StackMemoryManager_Init(&app_workspace, g_aot_memory, WORKSPACE_SIZE);"
     mainCode += """
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetInputPtr(int index)
@@ -561,7 +569,7 @@ size_t TVMWrap_GetNumInputs()
     return ${numInputs};
 }
 
-void TVMWrap_Run()
+int TVMWrap_Run()
 {"""
     if api == "c":
         mainCode += """
@@ -597,6 +605,7 @@ void TVMWrap_Run()
     {
         TVMPlatformAbort(kTvmErrorPlatformCheckFailure);
     }
+    return 0;
 
 """
     else:
@@ -609,6 +618,7 @@ void TVMWrap_Run()
 #endif  // DEBUG_ARENA_USAGE
 """
     mainCode += """
+    return 0;  // TODO
 }
 
 void *TVMWrap_GetOutputPtr(int index)

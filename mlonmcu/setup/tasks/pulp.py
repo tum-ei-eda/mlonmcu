@@ -71,7 +71,7 @@ def install_pulp_gcc(
                 utils.mkdirs(pulpGccBuildDir)
                 if rebuild or not utils.is_populated(pulpGccSrcDir):
                     pulpGccRepo = context.environment.repos["pulp_gcc"]
-                    utils.clone(pulpGccRepo.url, pulpGccSrcDir, branch=pulpGccRepo.ref, refresh=rebuild, recursive=True)
+                    utils.clone_wrapper(pulpGccRepo, pulpGccSrcDir, refresh=rebuild, recursive=True)
                 env = os.environ.copy()
                 env["PATH"] = str(pulpGccInstallDir) + ":" + env["PATH"]
                 if rebuild or not utils.is_populated(pulpGccBuildDir):
@@ -80,7 +80,7 @@ def install_pulp_gcc(
                     pulpGccArgs.append("--with-arch=rv32imc")
                     pulpGccArgs.append("--with-cmodel=medlow")
                     pulpGccArgs.append("--enable-multilib")
-                    utils.exec_getout(
+                    utils.execute(
                         str(pulpGccSrcDir / "configure"),
                         *pulpGccArgs,
                         cwd=pulpGccBuildDir,
@@ -125,7 +125,7 @@ def clone_pulp_freertos(
         or not utils.is_populated(pulpConfigsDir)
     ):
         pulpRtosRepo = context.environment.repos["pulp_freertos"]
-        utils.clone(pulpRtosRepo.url, pulpRtosSrcDir, branch=pulpRtosRepo.ref, refresh=rebuild, recursive=True)
+        utils.clone_wrapper(pulpRtosRepo, pulpRtosSrcDir, refresh=rebuild)
         user_vars = context.environment.vars
         experimental_install = user_vars.get("pulp_freertos.experimental_install", False)
         if experimental_install:
@@ -190,3 +190,4 @@ def install_gvsoc(
     context.cache["pulp_freertos.install_dir"] = pulpRtosInstallDir
     context.cache["pulp_freertos.pythonpath"] = pulpPythonPath
     context.cache["gvsoc.exe"] = gvsocExe
+    context.export_paths.add(gvsocExe.parent)

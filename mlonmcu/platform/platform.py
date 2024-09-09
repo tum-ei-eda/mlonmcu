@@ -16,10 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import time
 import tempfile
 import multiprocessing
+
+# from abc import ABC
+from abc import abstractmethod
 from pathlib import Path
 from filelock import FileLock
+from typing import Tuple, List
 
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
@@ -28,6 +33,7 @@ from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.elf import get_results as get_static_mem_usage
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 logger = get_logger()
 
@@ -35,14 +41,14 @@ logger = get_logger()
 class Platform:
     """Abstract platform class."""
 
-    FEATURES = []
+    FEATURES = set()
 
     DEFAULTS = {
         "print_outputs": False,
     }
 
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(self, name, features=None, config=None):
         self.name = name
@@ -87,6 +93,7 @@ class Platform:
         for feature in features:
             # assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             if feature.name in self.FEATURES:
+                feature.used = True
                 feature.add_platform_config(self.name, self.config)
                 feature.add_platform_defs(self.name, self.definitions)
         return features
@@ -99,22 +106,14 @@ class Platform:
 
 
 class BuildPlatform(Platform):
-    """Abstract backend platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
+    """Abstract build platform class."""
 
     @property
     def supports_build(self):
         return True
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -126,22 +125,14 @@ class BuildPlatform(Platform):
 
 
 class TunePlatform(Platform):
-    """Abstract backend platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
+    """Abstract tune platform class."""
 
     @property
     def supports_tune(self):
         return True
 
-    def export_elf(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_elf() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -151,11 +142,33 @@ class TunePlatform(Platform):
         for artifact in self.artifacts:
             artifact.export(path)
 
+    @abstractmethod
+    def _tune_model(self, model_path, backend, target):
+        raise NotImplementedError
+
+    def tune_model(self, model_path, backend, target):
+        start_time = time.time()
+        artifacts, metrics = self._tune_model(model_path, backend, target)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Tune Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)  # TODO: store df instead?
+            artifact = Artifact("tune_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        return artifacts
+
 
 class CompilePlatform(Platform):
     """Abstract compile platform class."""
 
-    FEATURES = Platform.FEATURES + ["debug"]
+    FEATURES = Platform.FEATURES | {"debug"}
 
     DEFAULTS = {
         **Platform.DEFAULTS,
@@ -163,8 +176,6 @@ class CompilePlatform(Platform):
         "build_dir": None,
         "num_threads": multiprocessing.cpu_count(),
     }
-
-    REQUIRED = []
 
     @property
     def supports_compile(self):
@@ -177,7 +188,7 @@ class CompilePlatform(Platform):
 
     @property
     def num_threads(self):
-        return int(self.config["num_threads"])
+        return max(1, int(self.config["num_threads"]))
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)
@@ -200,23 +211,31 @@ class CompilePlatform(Platform):
         metrics.add("RAM zero-init data", ram_zdata)
         return metrics
 
-    def generate_elf(self, src, target, model=None, data_file=None):
+    @abstractmethod
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         raise NotImplementedError
 
-    def tune_model(self, path):
-        raise NotImplementedError
+    def generate_artifacts(self, src, target, model=None) -> List[Artifact]:
+        start_time = time.time()
+        artifacts, metrics = self.generate(src, target, model=None)
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Compile Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)
+            artifact = Artifact("compile_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        return artifacts
 
 
 class TargetPlatform(Platform):
     """Abstract target platform class."""
-
-    FEATURES = Platform.FEATURES + []
-
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-    }
-
-    REQUIRED = []
 
     def create_target(self, name):
         raise NotImplementedError

@@ -36,21 +36,27 @@ def create_environment_dict(environment):
         "keep": environment.defaults.cleanup_keep,
     }
     data["paths"] = {
-        path: str(path_config.path)
-        if isinstance(path_config, PathConfig)
-        else [str(config.path) for config in path_config]
+        path: (
+            str(path_config.path)
+            if isinstance(path_config, PathConfig)
+            else [str(config.path) for config in path_config]
+        )
         for path, path_config in environment.paths.items()
     }  # TODO: allow relative paths
     data["repos"] = {repo: vars(repo_config) for repo, repo_config in environment.repos.items()}
+    # TODO: test with options!
     data["frameworks"] = {
         "default": environment.defaults.default_framework if environment.defaults.default_framework else None,
         **{
             framework.name: {
                 "enabled": framework.enabled,
                 "backends": {
-                    "default": environment.defaults.default_backends[framework.name]
-                    if environment.defaults.default_backends and environment.defaults.default_backends[framework.name]
-                    else None,
+                    "default": (
+                        environment.defaults.default_backends[framework.name]
+                        if environment.defaults.default_backends
+                        and environment.defaults.default_backends[framework.name]
+                        else None
+                    ),
                     **{
                         backend.name: {
                             "enabled": backend.enabled,

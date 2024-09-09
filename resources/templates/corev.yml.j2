@@ -1,0 +1,283 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 10
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tensorflow:  # TODO: rename to tflite-micro?
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: 75f52901ebf5f1d6fbcef7e65e5e99e31ac63e44
+    options:
+      single_branch: true
+  tvm:
+    url: "https://github.com/PhilippvK/tvm.git"
+    ref: de2992b277570663a086a825598ddeb5b9c073cc  # branch: corev
+    options:
+      recursive: true
+      submodules:
+        - 3rdparty/dlpack
+        - 3rdparty/dmlc-core
+        - 3rdparty/libbacktrace
+        - 3rdparty/rang
+  etiss:
+    url: "https://github.com/PhilippvK/etiss.git"
+    ref: philippvk-xcorev
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: 29b1d52dddc170579cab1b9510a2749ac03da3d6
+  spike:
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+  spikepk:
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
+    ref: 573c858d9071a2216537f71de651a814f76ee76d
+  cmsis:
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: 51263182d16c92649a48144ba56c0945f9fce60e
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
+  cmsisnn:
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    # ref: v4.0.0
+    ref: ffeca904368926d60caeb2d97858215626892f35
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 7ba4ea6992093843720ae3494223cd910a64c828
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
+    ref: 4460f539f6607b0c8b90321e7cb80e28d1e1fbe2
+  microtvm_spike:
+    url: "https://github.com/PhilippvK/microtvm-spike-template.git"
+    ref: ffba460345f5b8682e2a6cb315699ff872c6221e
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+  verilator:
+    url: "https://github.com/verilator/verilator"
+    ref: tags/v4.210
+  embench:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: master
+  taclebench:
+    url: "https://github.com/tacle/tacle-bench.git"
+    ref: master
+  polybench:
+    # url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
+    # ref: master
+    url: "https://github.com/PhilippvK/PolyBenchC-4.2.1.git"
+    ref: fixes
+  mibench:
+    url: "https://github.com/embecosm/mibench.git"
+    ref: master
+  srecord:
+    url: "https://github.com/sierrafoxtrot/srecord.git"
+    ref: master
+  corevverif:
+    url: "https://github.com/PhilippvK/core-v-verif.git"
+    ref: 81002bc0a3a0afc2a1d444344fd6b26ddd308ad4
+  cv32e40p:
+    url: "https://github.com/PhilippvK/cv32e40p.git"
+    ref: 8e29b89d1b3c8451bac36545a4d5b154ad0a1ab8
+
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      # tflmc:
+      #   enabled: true
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: true
+      cmsisnn: true
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaotplus
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+      tvmllvm:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: false
+          autotuned: true
+      tvmaotplus:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+    features: []
+    features:
+      muriscvnnbyoc: true
+      cmsisnnbyoc: true
+# Some frontends are eperimental and therefore disabled here
+# Features like packing are only available in certain environments
+#
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: true
+  relay:
+    enabled: true
+    features:
+      relayviz: true
+  example:
+    enabled: true
+  embench:
+    enabled: true
+  taclebench:
+    enabled: true
+  polybench:
+    enabled: true
+  coremark:
+    enabled: true
+  mathis:
+    enabled: true
+  dhrystone:
+    enabled: true
+  mibench:
+    enabled: true
+# List of supported targets in the environment
+targets:
+  default: etiss
+  etiss:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      xcorev: true
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+  spike:
+    enabled: true
+    features:
+      vext: false
+      pext: false
+      cachesim: true
+      log_instrs: true
+  ovpsim:
+    # enabled: true
+    enabled: false
+    features:
+      vext: false
+      pext: false
+  corev_ovpsim:
+    # enabled: true
+    enabled: false
+    features:
+      xcorev: true
+  cv32e40p:
+    enabled: true
+    features:
+      xcorev: true
+  microtvm_host:
+    enabled: true
+  microtvm_spike:
+    enabled: true
+  microtvm_etiss:
+    enabled: true
+  tvm_cpu:
+    enabled: true
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+  tvm:
+    enabled: true
+    features:
+      benchmark: true
+      tvm_rpc: true
+      autotvm: true
+      tvm_profile: true
+  microtvm:
+    enabled: true
+    features:
+      autotvm: true
+      benchmark: true
+      tvm_profile: true
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  runs_per_stage: true
+  # tvm.make_tool: "ninja"
+  # llvm.version: "16.0.0"
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/corev/Archive/corev_llvm_custom.tar.xz"
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32im_ilp32.tar.xz"
+  # riscv_gcc.dl_url: "https://buildbot.embecosm.com/job/corev-gcc-ubuntu2004/25/artifact/corev-openhw-gcc-ubuntu2004-20231205.tar.gz"  # TODO: use corev gcc?
+  # corev_ovpsim.version: "v20231026"
+  # spike.keep_build_dir: false
+  # etiss.keep_build_dir: false
+  spikepk.default_arch: rv32im_zicsr_zifencei
+  spikepk.default_abi: ilp32
+flags:
+  tflmc.exe:
+  - x86

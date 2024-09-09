@@ -25,29 +25,35 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
         """Called at the end of a session."""
         df = report.post_df.copy()
         df["Kernels"] = df.apply(
-            lambda row: "muRISCV-NN"
-            if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
-            else (
-                "CMSIS-NN"
-                if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
-                else ("Autotuned" if row.get("feature_autotuned") else "Default")
+            lambda row: (
+                "muRISCV-NN"
+                if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
+                else (
+                    "CMSIS-NN"
+                    if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
+                    else ("Autotuned" if row.get("feature_autotuned") else "Default")
+                )
             ),
             axis=1,
         )
         # TODO: allow combinations
         df["Extensions"] = df.apply(
-            lambda row: "VEXT+PEXT"
-            if row.get("feature_vext") and row.get("feature_pext")
-            else (
-                "VEXT"
-                if row.get("feature_vext")
+            lambda row: (
+                "VEXT+PEXT"
+                if row.get("feature_vext") and row.get("feature_pext")
                 else (
-                    "PEXT"
-                    if row.get("feature_pext")
+                    "VEXT"
+                    if row.get("feature_vext")
                     else (
-                        "MVEI+DSP"
-                        if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
-                        else ("MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else ""))
+                        "PEXT"
+                        if row.get("feature_pext")
+                        else (
+                            "MVEI+DSP"
+                            if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
+                            else (
+                                "MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else "")
+                            )
+                        )
                     )
                 )
             ),
@@ -60,18 +66,17 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "host_x86",
-    "etiss_pulpino",
+    "etiss",
     "corstone300",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss_pulpino"]
+AUTOTUNED_TARGETS = ["spike", "etiss"]
 
 DEFAULT_TARGETS = [
     "spike",
     # "host_x86",
-    # "etiss_pulpino",
+    # "etiss",
     "corstone300",
 ]
 
@@ -115,17 +120,12 @@ def get_target_features(target, enable_default=True, enable_muriscvnn=False, ena
             *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
         ],
-        "ovpsim": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
-        ],
         "host_x86": [
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
         ],
-        "etiss_pulpino": [
+        "etiss": [
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
@@ -144,9 +144,8 @@ VALIDATE_FEATURES = ["validate", "debug"]
 
 TARGET_ARCH = {
     "spike": "riscv",
-    "ovpsim": "riscv",
     "x86": "x86",
-    "etiss_pulpino": "riscv",
+    "etiss": "riscv",
     "corstone300": "arm",
 }
 
@@ -193,9 +192,9 @@ BACKEND_DEFAULT_CONFIG = {
     "tvmaotplus": {"usmp.algorithm": "hill_climb"},
 }
 
-VLENS = [64, 128, 256, 512, 1024, 2048]
+VLENS = [128, 256, 512, 1024, 2048]
 
-DEFAULT_VLENS = [64, 128, 256, 512, 1024, 2048]
+DEFAULT_VLENS = [128, 256, 512, 1024, 2048]
 
 MODELS = [
     # "sine_model",
@@ -247,7 +246,6 @@ POSTPROCESS_CONFIG = {
     ],
     "rename_cols.mapping": {
         "config_spike.vlen": "VLEN",
-        "config_ovpsim.vlen": "VLEN",
         "config_tvmaotplus.desired_layout": "Layout",
     },
     "filter_cols.drop_nan": True,

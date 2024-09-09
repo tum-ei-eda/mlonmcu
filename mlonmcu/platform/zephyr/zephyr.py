@@ -25,6 +25,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import pkg_resources
+from typing import Tuple
 
 
 from mlonmcu.setup import utils
@@ -51,7 +52,7 @@ def get_project_template(name="project2"):  # Workaround which only support tvma
 class ZephyrPlatform(CompilePlatform, TargetPlatform):
     """Zephyr Platform class."""
 
-    FEATURES = CompilePlatform.FEATURES + TargetPlatform.FEATURES + ["benchmark"]
+    FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
         **CompilePlatform.DEFAULTS,
@@ -66,7 +67,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         "optimize": None,  # values: 0,1,2,3,s
     }
 
-    REQUIRED = ["zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"]
+    REQUIRED = {"zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -110,7 +111,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         env["ZEPHYR_BASE"] = str(self.zephyr_install_dir / "zephyr")
         env["ZEPHYR_SDK_INSTALL_DIR"] = str(self.zephyr_sdk_dir)
         cmd = ". " + str(self.zephyr_venv_dir / "bin" / "activate") + " && west " + " ".join([str(arg) for arg in args])
-        out = utils.exec_getout(
+        out = utils.execute(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out
@@ -160,9 +161,7 @@ project(ProjectName)
             def _handle(code):
                 return 0
 
-            text = self.invoke_west(
-                "build", "-d", b, "-b", "help", temp, live=False, print_output=False, handle_exit=_handle
-            )
+            text = self.invoke_west("build", "-d", b, "-b", "help", temp, live=False, handle_exit=_handle)
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
         target_names = re.compile(r"^  (\S+)$", re.MULTILINE).findall(text)
@@ -314,7 +313,7 @@ project(ProjectName)
         out += self.invoke_west(*westArgs, live=self.print_outputs)
         return out
 
-    def generate_elf(self, src, target, model=None, data_file=None):
+    def generate(self, src, target, model=None) -> Tuple[dict, dict]:
         artifacts = []
         out = self.compile(target, src=src)
         elf_name = "zephyr.elf"
@@ -330,14 +329,11 @@ project(ProjectName)
             artifact = Artifact(elf_name, path=elf_file, fmt=ArtifactFormat.PATH)
             artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)
-        content = metrics.to_csv(include_optional=True)  # TODO: store df instead?
-        metrics_artifact = Artifact("metrics.csv", content=content, fmt=ArtifactFormat.TEXT)
-        artifacts.append(metrics_artifact)
         stdout_artifact = Artifact(
             "zephyr_out.log", content=out, fmt=ArtifactFormat.TEXT  # TODO: split into one file per command
         )  # TODO: rename to tvmaot_out.log?
         artifacts.append(stdout_artifact)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {"default": metrics}
 
     def get_serial(self, target):
         port = target.port

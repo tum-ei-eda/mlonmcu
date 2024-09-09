@@ -89,8 +89,11 @@ def example_elf_file(request, tmp_path):
 def user_context():
     from mlonmcu.context.context import MlonMcuContext
 
-    with MlonMcuContext(deps_lock="read") as context:
-        yield context
+    try:
+        with MlonMcuContext(deps_lock="read") as context:
+            yield context
+    except RuntimeError:
+        pytest.skip("User Environment not found!")
 
 
 @pytest.fixture(scope="session")

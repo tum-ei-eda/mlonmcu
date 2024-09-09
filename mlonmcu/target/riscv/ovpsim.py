@@ -25,10 +25,13 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
-from .riscv import RISCVTarget, sort_extensions_canonical
+from .riscv import sort_extensions_canonical
 from .util import update_extensions
+from .riscv_pext_target import RVPTarget
+from .riscv_vext_target import RVVTarget
 
 logger = get_logger()
 
@@ -51,28 +54,23 @@ def replace_unsupported(exts):
     return ret
 
 
-class OVPSimTarget(RISCVTarget):
+class OVPSimTarget(RVPTarget, RVVTarget):
     """Target using an ARM FVP (fixed virtual platform) based on a Cortex M55 with EthosU support"""
 
-    FEATURES = RISCVTarget.FEATURES + ["vext", "pext", "gdbserver", "log_instrs"]
+    FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | {"gdbserver", "log_instrs", "trace"}
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "vlen": 0,  # vectorization=off
-        "elen": 32,
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
-        "enable_pext": False,
-        "pext_spec": 0.96,
+        **RVPTarget.DEFAULTS,
+        **RVVTarget.DEFAULTS,
         "bitmanip_spec": 0.94,
-        "variant": "RVB32I",
+        # TODO: add bext feature
+        "variant": None,
         "end_to_end_cycles": True,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["ovpsim.exe"]
+    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | {"ovpsim.exe"}
 
     def __init__(self, name="ovpsim", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -91,43 +89,11 @@ class OVPSimTarget(RISCVTarget):
 
     @property
     def extensions(self):
+        # exts = RVPTarget.extensions(self) + RVVTarget.extensions(self)
         exts = super().extensions
-        assert self.pext_spec <= MAX_P_SPEC, f"P-Extension spec {self.pext_spec} not supported by {self.name} target"
         return update_extensions(
             exts,
-            pext=self.enable_pext,
-            pext_spec=self.pext_spec,
-            vext=self.enable_vext,
-            elen=self.elen,
-            embedded=self.embedded_vext,
-            fpu=self.fpu,
-            variant=self.gcc_variant,
         )
-
-    @property
-    def attr(self):
-        attrs = super().attr.split(",")
-        if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
-            attrs.append(f"+zvl{self.vlen}b")
-        return ",".join(attrs)
-
-    @property
-    def vlen(self):
-        return int(self.config["vlen"])
-
-    @property
-    def elen(self):
-        return int(self.config["elen"])
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def enable_pext(self):
-        value = self.config["enable_pext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def end_to_end_cycles(self):
@@ -148,19 +114,6 @@ class OVPSimTarget(RISCVTarget):
     def gdbserver_port(self):
         return int(self.config["gdbserver_port"])
 
-    @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def pext_spec(self):
-        return float(self.config["pext_spec"])
-
     def get_default_ovpsim_args(self):
         extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)
         extensions_after = replace_unsupported(extensions_before)
@@ -174,6 +127,8 @@ class OVPSimTarget(RISCVTarget):
             "riscvOVPsim/cpu/unaligned=T",
             "--override",
             "riscvOVPsim/cpu/pk/reportExitErrors=T",
+            "--finishonopcode",
+            "0",
         ]
         if self.enable_pext:
             args.extend(
@@ -270,30 +225,23 @@ class OVPSimTarget(RISCVTarget):
         return metrics, out, []
 
     def get_platform_defs(self, platform):
-        ret = super().get_platform_defs(platform)
-        if self.enable_pext:
-            major, minor = str(self.pext_spec).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(self.vext_spec).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
+        ret = {}
+        ret.update(RVPTarget.get_platform_defs(self, platform))
+        ret.update(RVVTarget.get_platform_defs(self, platform))
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": "ovpsim-rv32"})
-            if self.enable_pext or self.enable_vext:
-                ret.update(
-                    {
-                        # Warning: passing kernel layouts does not work with upstream TVM
-                        # TODO: allow passing map?
-                        "desired_layout": "NHWC:HWOI",
-                    }
-                )
+            if optimized_layouts:
+                if self.enable_pext or self.enable_vext:
+                    ret.update(
+                        {
+                            "desired_layout": "NHWC:HWOI",
+                        }
+                    )
         return ret
 
 

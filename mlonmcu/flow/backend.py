@@ -17,16 +17,19 @@
 # limitations under the License.
 #
 import os
+import time
 import argparse
 from pathlib import Path
 from abc import ABC, abstractmethod
+from typing import Tuple, List
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config
 from mlonmcu.feature.features import get_matching_features
-from mlonmcu.artifact import ArtifactFormat
+from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
+from mlonmcu.target.metrics import Metrics
 
 logger = get_logger()
 
@@ -34,10 +37,10 @@ logger = get_logger()
 class Backend(ABC):
     name = None
 
-    FEATURES = []
+    FEATURES = set()
     DEFAULTS = {}
-    REQUIRED = []
-    OPTIONAL = []
+    REQUIRED = set()
+    OPTIONAL = set()
 
     def __init__(
         self,
@@ -64,27 +67,51 @@ class Backend(ABC):
         features = get_matching_features(features, FeatureType.BACKEND)
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
+            feature.used = True
             feature.add_backend_config(self.name, self.config)
         return features
 
     @abstractmethod
-    def load_model(self, model):
+    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
         pass
 
     @abstractmethod
-    def generate_code(self):
-        pass
+    def generate(self) -> Tuple[dict, dict]:
+        return {}, {}
+
+    def generate_artifacts(self) -> List[Artifact]:
+        start_time = time.time()
+        artifacts, metrics = self.generate()
+        # TODO: do something with out?
+        end_time = time.time()
+        diff = end_time - start_time
+        if len(metrics) == 0:
+            metrics = {"default": Metrics()}
+        for name, metrics_ in metrics.items():
+            if name == "default":
+                metrics_.add("Build Stage Time [s]", diff, True)
+            content = metrics_.to_csv(include_optional=True)  # TODO: store df instead?
+            artifact = Artifact("build_metrics.csv", content=content, fmt=ArtifactFormat.TEXT, flags=["metrics"])
+            if name not in artifacts:
+                artifacts[name] = []
+            artifacts[name].append(artifact)
+        self.artifacts = artifacts
+        return artifacts
 
     @property
     def has_tuner(self):
         return self.tuner is not None
 
+    @property
+    def needs_target(self):
+        return False
+
     def set_tuning_records(self, filepath):
         if not self.has_tuner:
             raise NotImplementedError("Backend does not support autotuning")
 
-    def export_code(self, path):
-        assert len(self.artifacts) > 0, "No artifacts found, please run generate_code() first"
+    def export_artifacts(self, path):
+        assert len(self.artifacts) > 0, "No artifacts found, please run generate_artifacts() first"
 
         if not isinstance(path, Path):
             path = Path(path)
@@ -120,6 +147,12 @@ class Backend(ABC):
                 with open(dest, "w") as outfile:
                     logger.info(f"Exporting artifact: {artifact.name}")
                     outfile.write(artifact.content)
+
+    def get_platform_config(self, platform):
+        return {}
+
+    def add_platform_config(self, platform, config):
+        config.update(self.get_platform_config(platform))
 
     def get_platform_defs(self, platform):
         if platform == "espidf":
@@ -221,7 +254,7 @@ def main(backend, args=None):
     backend_inst.load_model(model)
     if args.verbose:
         config["print_outputs"] = True
-    backend_inst.generate_code()
+    backend_inst.generate_artifacts()
     if args.print:
         print("Printing generated artifacts:")
         for artifact in backend_inst.artifacts:

@@ -30,24 +30,24 @@ on:
         default: ""
 
 jobs:
-  demo:
+  benchmark:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.10"]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     # TODO: caching
     - name: Install APT packages
       run: |
-        sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
-        sudo apt -qq install -y ninja-build
+        sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler rsync
+        sudo apt -qq install -y ninja-build flex
         sudo apt remove clang-11* llvm-11*
     - name: Initialize Virtualenv
       run: |
@@ -72,17 +72,16 @@ jobs:
     - name: Run Benchmark
       run: |
         source .venv/bin/activate
+        export MLONMCU_HOME=$(pwd)/home
         cd scripts/
         python bench.py ${{ github.event.inputs.benchmark }} out/
     - name: Archive reports
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: results
         path: scripts/out/
     - name: Get date
       run: echo "timestamp=`date +%FT%T`" >> $GITHUB_ENV
-    - name: Install RSync
-      run: apt install -y rsync
     - name: Upload results to a special branch
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:

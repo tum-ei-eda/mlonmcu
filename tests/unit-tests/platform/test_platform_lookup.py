@@ -190,6 +190,7 @@ def test_platform_get_platform_names(fake_context):
     def lookup_platform_configs(names_only=True):
         assert names_only
         return ["foo", "bar"]
+
     fake_context.environment.lookup_platform_configs = lookup_platform_configs
     res = mlonmcu.platform.lookup.get_platform_names(fake_context)
     assert res == ["foo", "bar"]

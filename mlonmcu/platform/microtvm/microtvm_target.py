@@ -28,9 +28,11 @@ from .microtvm_zephyr_target import ZephyrMicroTvmPlatformTarget
 from .microtvm_arduino_target import ArduinoMicroTvmPlatformTarget
 from .microtvm_espidf_target import EspidfMicroTvmPlatformTarget
 from .microtvm_host_target import HostMicroTvmPlatformTarget
-from .microtvm_etissvp_target import EtissvpMicroTvmPlatformTarget
+from .microtvm_etiss_target import EtissMicroTvmPlatformTarget
 from .microtvm_spike_target import SpikeMicroTvmPlatformTarget
 from .microtvm_gvsoc_target import GVSocMicroTvmPlatformTarget
+from .microtvm_corev_ovpsim_target import CoreVOVPSimMicroTvmPlatformTarget
+from .microtvm_mlonmcu_target import MlonmcuMicroTvmPlatformTarget
 
 logger = get_logger()
 
@@ -57,21 +59,20 @@ def get_microtvm_platform_targets():
 register_microtvm_platform_target("microtvm_zephyr", ZephyrMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_arduino", ArduinoMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_host", HostMicroTvmPlatformTarget)
-register_microtvm_platform_target("microtvm_etissvp", EtissvpMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_etiss", EtissMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_espidf", EspidfMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_spike", SpikeMicroTvmPlatformTarget)
 register_microtvm_platform_target("microtvm_gvsoc", GVSocMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_corev_ovpsim", CoreVOVPSimMicroTvmPlatformTarget)
+register_microtvm_platform_target("microtvm_mlonmcu", MlonmcuMicroTvmPlatformTarget)
 
 
 def create_microtvm_platform_target(name, platform, base=Target):
     class MicroTvmPlatformTarget(base):
-        FEATURES = base.FEATURES + []
-
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)
@@ -144,7 +145,6 @@ def create_microtvm_platform_target(name, platform, base=Target):
                 metrics.add("Runtime [s]", time_s)
 
             if self.platform.profile:
-                print("out", out)
                 headers = None
                 skip = False
                 lines = out.split("\n")
@@ -155,14 +155,12 @@ def create_microtvm_platform_target(name, platform, base=Target):
                     return [y[0] for y in x]
 
                 for line in lines:
-                    print("line", line)
                     if skip:
                         skip = False
                         continue
                     if headers is None:
                         if "Name" in line:
                             headers = extract_cols(line)
-                            print("headers", headers)
                             skip = True
                             continue
                     else:

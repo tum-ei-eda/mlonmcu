@@ -29,15 +29,12 @@ logger = get_logger()
 
 def create_zephyr_platform_target(name, platform, base=Target):
     class ZephyrPlatformTarget(base):
-        FEATURES = base.FEATURES + []
-
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
             "port": None,
             "baud": None,
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)

@@ -35,6 +35,8 @@ repos:
   tvm:
     url: "https://github.com/apache/tvm.git"
     ref: de6d8067754d746d88262c530b5241b5577b9aae
+    options:
+      recursive: true
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -46,7 +48,7 @@ repos:
     ref: c023b80a51c1b48ec62b9b092d047e9ac0bab3e8
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 4d2d26fb1fdb17e1da3a397c35d6f8877bf3ceab
+    ref: 40c0b920cf4072adf189211ca44291534355dcfd
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
@@ -58,12 +60,14 @@ repos:
     ref: ad1c3cad8f1240ef14a2c55381a78d792d76ec4d
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"  # This should be later changed to main branch in mlonmcu-sw
-    ref: c49f409799265cfb6da53af9397c8979f4ed1f2d        # Currently it is on the gvsoc branch
+    ref: 4b9a32659f7c5340e8de26a0b8c4135ca67d64ac
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
-  microtvm_etissvp:
-    url: "https://github.com/PhilippvK/microtvm-etissvp-template.git"
+    options:
+      recursive: true
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
     ref: 95ed42e4cc1dfbcccb39a0a5b8f95ca22bbef9cc
   zephyr:
     url: "https://github.com/zephyrproject-rtos/zephyr.git"
@@ -71,9 +75,13 @@ repos:
   pulp_gcc:
     url: "https://github.com/pulp-platform/riscv-gnu-toolchain.git"
     ref: 11ba51efe1c4692d60357083b9c20c28bfb66a23
+    options:
+      recursive: true
   pulp_freertos:
     url: "https://github.com/pulp-platform/pulp-freertos.git"
     ref: aabd624fd9feef222f8dc2e0fa3b7dc487c42bf3
+    options:
+      recursive: true
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -235,16 +243,16 @@ targets:
     enabled: false
   microtvm_arduino:
     enabled: false
-  microtvm_etissvp:
+  microtvm_etiss:
     enabled: true
   microtvm_espidf:
     enabled: false
   tvm_cpu:
     enabled: true
   gvsoc_pulp:
-    enable: true
+    enabled: true
   gvsoc_pulpissimo:
-    enable: true
+    enabled: true
 postprocesses:
   use:
   # - detailed_cycles

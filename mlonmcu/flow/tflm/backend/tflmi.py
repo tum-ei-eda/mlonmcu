@@ -17,9 +17,10 @@
 # limitations under the License.
 #
 import sys
+from typing import Tuple
 
 from .backend import TFLMBackend
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -47,32 +48,48 @@ class TFLMICodegen:
         out += "}  //namespace tflite\n"
         return out
 
-    def make_op_registrations(self, ops, custom_ops):
+    def make_op_registrations(self, ops, custom_ops, reporter=True):
         out = (
             "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver(error_reporter);\n"
+            if reporter
+            else "static tflite::MicroMutableOpResolver<" + str(len(ops) + len(custom_ops)) + "> resolver;\n"
         )
         for op in ops:
-            out += (
-                "  if (resolver.Add"
-                + op
-                + '() != kTfLiteOk) {\n    error_reporter->Report("Add'
-                + op
-                + '() failed");\n    exit(1);\n  }\n'
-            )
+            if reporter:
+                out += (
+                    "  if (resolver.Add"
+                    + op
+                    + '() != kTfLiteOk) {\n    error_reporter->Report("Add'  # TODO: replace with new logger
+                    + op
+                    + '() failed");\n    return 1;\n  }\n'
+                )
+            else:
+                # TODO
+                out += "  if (resolver.Add" + op + "() != kTfLiteOk) {\n    return 1;\n  }\n"
         for op in custom_ops:
             op_name = op
             op_reg = op
             if "|" in op:
                 op_name, op_reg = op.split("|")[:2]
-            out += (
-                '  if (resolver.AddCustom("'
-                + op_name
-                + '", tflite::'
-                + op_reg
-                + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'
-                + op_name
-                + '() failed");\n    exit(1);\n  }\n'
-            )
+            if reporter:
+                out += (
+                    '  if (resolver.AddCustom("'
+                    + op_name
+                    + '", tflite::'
+                    + op_reg
+                    + '()) != kTfLiteOk) {\n    error_reporter->Report("AddCustom'  # TODO: replace with new logger
+                    + op_name
+                    + '() failed");\n    return 1;\n  }\n'
+                )
+            else:
+                # TODO
+                out += (
+                    '  if (resolver.AddCustom("'
+                    + op_name
+                    + '", tflite::'
+                    + op_reg
+                    + "()) != kTfLiteOk) {\n    return 1;\n  }\n"
+                )
         return out
 
     def generate_header(self, prefix="model"):
@@ -84,11 +101,11 @@ class TFLMICodegen:
 
 #include <stddef.h>
 
-void {prefix}_init();
+int {prefix}_init();
 void *{prefix}_input_ptr(int index);
 size_t {prefix}_input_size(int index);
 size_t {prefix}_inputs();
-void {prefix}_invoke();
+int {prefix}_invoke();
 void *{prefix}_output_ptr(int index);
 size_t {prefix}_output_size(int index);
 size_t {prefix}_outputs();
@@ -109,48 +126,70 @@ size_t {prefix}_outputs();
         custom_ops=None,  # TODO: implement
         registrations=None,  # TODO: implement
         ops_resolver=None,  # TODO: implement
+        reporter=True,
     ):
         arena_size = arena_size if arena_size is not None else TFLMIBackend.DEFAULTS["arena_size"]
-        ops = ops if ops else TFLMIBackend.DEFAULTS["ops"]
-        if not isinstance(ops, list):
-            assert isinstance(ops, str)
-            if "," in ops:
-                ops = ops.split(",")
-            else:
-                ops = [ops]
-        if len(ops) > 0:
 
-            def convert_op_name(op):
-                new_name = ""
-                prev = None
-                for i, c in enumerate(op):
-                    if c == "_":
-                        prev = c
-                        continue
-                    elif prev is None:
-                        new_name += c
-                    elif (prev == "_") or prev.isdigit():
-                        new_name += c
-                    elif prev.isupper():
-                        new_name += c.lower()
-                    elif c.islower():
-                        new_name += c
+        def convert_op_name(op):
+            new_name = ""
+            prev = None
+            for i, c in enumerate(op):
+                if c == "_":
                     prev = c
-                return new_name
+                    continue
+                elif prev is None:
+                    new_name += c
+                elif (prev == "_") or prev.isdigit():
+                    new_name += c
+                elif prev.isupper():
+                    new_name += c.lower()
+                elif c.islower():
+                    new_name += c
+                prev = c
+            # workarounds for strange op names
+            MAPPINGS = {
+                "Lstm": "LSTM",
+            }
+            for key, value in MAPPINGS.items():
+                new_name = new_name.replace(key, value)
+            return new_name
 
+        if len(ops) > 0:
             op_names = list(map(convert_op_name, ops))
+
             ops = op_names
-        custom_ops = custom_ops if custom_ops else TFLMIBackend.DEFAULTS["custom_ops"]
         if len(custom_ops) > 0:
             raise NotImplementedError
-        registrations = (
-            registrations if registrations else TFLMIBackend.DEFAULTS["registrations"]
-        )  # TODO: Dict or list?
         if len(registrations) > 0:
             raise NotImplementedError
-        ops_resolver = ops_resolver if ops_resolver else TFLMIBackend.DEFAULTS["ops_resolver"]
-        if ops_resolver != "mutable":
-            raise NotImplementedError
+        if ops_resolver == "mutable":
+            assert (
+                len(ops) > 0
+            ), "No ops specified for ops_resolver=mutable!Set model ops in definition.yml or use ops_resolver=all"
+        elif ops_resolver == "all":
+            raise RuntimeError("AllOpsResolver was removed from TFLM!Use ops_resolver=mutable or ops_resolver=fallback")
+        elif ops_resolver == "fallback":
+            ops_resolver = "mutable"
+            # Defines common operators which are used in many models
+            default_ops = [
+                "ADD",
+                "AVERAGE_POOL_2D",
+                "CONCATENATION",
+                "CONV_2D",
+                "DEPTHWISE_CONV_2D",
+                "FULLY_CONNECTED",
+                # "GATHER",
+                # "LOGISTIC",
+                "MAX_POOL_2D",
+                # "MEAN",
+                # "REDUCE_MAX",
+                "RESHAPE",
+                "SOFTMAX",
+            ]
+            default_ops = list(map(convert_op_name, default_ops))
+            ops = list(set(ops + default_ops))  # remove duplicates
+        else:
+            raise ValueError(f"Unsupported ops_resolver: {ops_resolver}")
 
         model_data = None
         with open(model, "rb") as model_buf:
@@ -161,11 +200,14 @@ size_t {prefix}_outputs();
 
         wrapper_content = """
 // This file is generated. Do not edit.
+#include "printing.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/schema/schema_generated.h"
+"""
+        if reporter:
+            wrapper_content += """#include "tensorflow/lite/micro/micro_error_reporter.h"
 """
         if legacy:
             wrapper_content += """#include "tensorflow/lite/version.h"
@@ -195,7 +237,12 @@ size_t {prefix}_outputs();
         wrapper_content += """
 
 namespace {
+"""
+        if reporter:
+            wrapper_content += """
 tflite::ErrorReporter *error_reporter = nullptr;
+"""
+        wrapper_content += """
 const tflite::Model *model = nullptr;
 tflite::MicroInterpreter *interpreter = nullptr;
 
@@ -219,48 +266,77 @@ private:
 
 // The name of this function is important for Arduino compatibility.
 """
-            + f"void {prefix}_init() {{"
+            + f"int {prefix}_init() {{"
             + """
   // Set up logging. Google style is to avoid globals or statics because of
   // lifetime uncertainty, but since this has a trivial destructor it's okay.
   // NOLINTNEXTLINE(runtime-global-variables)
+"""
+        )
+        if reporter:
+            wrapper_content += """
 #ifdef _DEBUG
   static tflite::MicroErrorReporter micro_error_reporter;
 #else
   static DummyReporter micro_error_reporter;
 #endif
   error_reporter = &micro_error_reporter;
-
+"""
+        wrapper_content += """
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
   model = tflite::GetModel(g_model_data);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
+"""
+        if reporter:
+            wrapper_content += """
     error_reporter->Report("Model provided is schema version %d not equal "
                            "to supported version %d.",
                            model->version(), TFLITE_SCHEMA_VERSION);
-    exit(1);
+"""
+        wrapper_content += """
+    return 1;
   }
+"""
 
+        if ops_resolver == "mutable":
+            wrapper_content += self.make_op_registrations(ops, custom_ops, reporter=reporter)
+        elif ops_resolver == "all":
+            wrapper_content += """
   // This pulls in all the operation implementations we need.
   // NOLINTNEXTLINE(runtime-global-variables)
-  // static tflite::ops::micro::AllOpsResolver resolver;
-
+  static tflite::ops::micro::AllOpsResolver resolver;
 """
-        )
-        wrapper_content += self.make_op_registrations(ops, custom_ops)
-        wrapper_content += """
+
+        if reporter:
+            wrapper_content += """
 
   // Build an interpreter to run the model with.
   static tflite::MicroInterpreter static_interpreter(
       model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
+"""
+        else:
+            wrapper_content += """
+
+  // Build an interpreter to run the model with.
+  static tflite::MicroInterpreter static_interpreter(
+      model, resolver, tensor_arena, kTensorArenaSize);
+"""
+        wrapper_content += """
   interpreter = &static_interpreter;
 
   // Allocate memory from the tensor_arena for the model's tensors.
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
+"""
+        if reporter:
+            wrapper_content += """
     error_reporter->Report("AllocateTensors() failed");
-    exit(1);
+"""
+        wrapper_content += """
+    return 1;
   }
+  return 0;
 }
 """
 
@@ -289,18 +365,39 @@ size_t {prefix}_outputs() {{
   return interpreter->outputs_size();
 }}
 
-void {prefix}_invoke() {{
+int {prefix}_invoke() {{
   // Run inference, and report any error
   TfLiteStatus invoke_status = interpreter->Invoke();
   if (invoke_status != kTfLiteOk) {{
+"""
+        if reporter:
+            # TODO
+            wrapper_content += """
     error_reporter->Report("Invoke failed\\n");
-    exit(1);
-  }}
+"""
+        wrapper_content += """
+    return 1;
+  }
 #if DEBUG_ARENA_USAGE
   size_t used = interpreter->arena_used_bytes();
+"""
+        if reporter:
+            # TODO
+            wrapper_content += """
   error_reporter->Report("Arena Usage after model invocation: %d bytes\\n", used);
+"""
+        else:
+            wrapper_content += """
+  // printf("Arena Usage after model invocation: %d bytes\\n", used);
+  // printf("# Arena Usage: %d\\n", used);
+  mlonmcu_printf("# Arena Usage: %d\\n", used);
+  // MicroPrintf("# Arena Usage: %d\\n", used);
+
+"""
+        wrapper_content += """
 #endif  // DEBUG_ARENA_USAGE
-}}
+  return 0;
+}
 """
         if header:
             return wrapper_content, header_content
@@ -311,6 +408,8 @@ void {prefix}_invoke() {{
 class TFLMIBackend(TFLMBackend):
     name = "tflmi"
 
+    FEATURES = TFLMBackend.FEATURES | {"debug_arena"}
+
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
         "arena_size": 2**20,  # 1 MB
@@ -320,9 +419,8 @@ class TFLMIBackend(TFLMBackend):
         "registrations": {},
         "ops_resolver": "mutable",
         "legacy": False,
+        "reporter": False,  # Has to be disabled for support with latest upstream
     }
-
-    REQUIRED = TFLMBackend.REQUIRED + []
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
@@ -348,15 +446,45 @@ class TFLMIBackend(TFLMBackend):
     def arena_size(self):
         return int(self.config["arena_size"])
 
-    def generate_code(self):
+    @property
+    def ops(self):
+        value = self.config["ops"]
+        return str2list(value) if isinstance(value, str) else value
+
+    @property
+    def custom_ops(self):
+        value = self.config["custom_ops"]
+        return str2list(value) if isinstance(value, str) else value
+
+    @property
+    def registrations(self):
+        value = self.config["registrations"]
+        return str2list(value) if isinstance(value, str) else value
+
+    @property
+    def ops_resolver(self):
+        return self.config["ops_resolver"]
+
+    @property
+    def reporter(self):
+        value = self.config["reporter"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
-        config_map = {key.split(".")[-1]: value for key, value in self.config.items()}
         wrapper_code, header_code = self.codegen.generate_wrapper(
             self.model,
             prefix=self.prefix,
             header=True,
-            **config_map,
+            arena_size=self.arena_size,
+            debug_arena=self.debug_arena,
+            ops=self.ops,
+            custom_ops=self.custom_ops,
+            registrations=self.registrations,
+            ops_resolver=self.ops_resolver,
+            legacy=self.legacy,
+            reporter=self.reporter,
         )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))
         artifacts.append(
@@ -372,7 +500,7 @@ class TFLMIBackend(TFLMBackend):
         )
         artifacts.append(workspace_size_artifact)
         # TODO: stdout_artifact (Would need to invoke TFLMI in subprocess to get stdout)
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

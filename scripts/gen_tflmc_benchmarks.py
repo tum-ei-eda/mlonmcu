@@ -23,12 +23,14 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
         """Called at the end of a session."""
         df = report.post_df.copy()
         df["Kernels"] = df.apply(
-            lambda row: "muRISCV-NN"
-            if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
-            else (
-                "CMSIS-NN"
-                if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
-                else ("Autotuned" if row.get("feature_autotuned") else "Default")
+            lambda row: (
+                "muRISCV-NN"
+                if row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc")
+                else (
+                    "CMSIS-NN"
+                    if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
+                    else ("Autotuned" if row.get("feature_autotuned") else "Default")
+                )
             ),
             axis=1,
         )
@@ -39,17 +41,15 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "host_x86",
-    "etiss_pulpino",
+    "etiss",
     "corstone300",
 ]
 
 DEFAULT_TARGETS = [
     # "spike",
-    # "ovpsim",
     # "host_x86",
-    "etiss_pulpino",
+    "etiss",
     # "corstone300",
 ]
 
@@ -76,7 +76,7 @@ DEFAULT_FEATURES = [
 ]
 
 TARGET_DEFAULT_FEATURES = {
-    "etiss_pulpino": ["trace"],
+    "etiss": ["trace"],
 }
 
 

@@ -20,6 +20,8 @@ import sys
 import os
 import tempfile
 from pathlib import Path
+from typing import Tuple
+
 from .backend import TFLMBackend
 import mlonmcu.setup.utils as utils
 from mlonmcu.config import str2bool
@@ -33,7 +35,7 @@ logger = get_logger()
 class TFLMCBackend(TFLMBackend):
     name = "tflmc"
 
-    FEATURES = ["debug_arena"]
+    FEATURES = {"debug_arena"}
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,
@@ -43,7 +45,7 @@ class TFLMCBackend(TFLMBackend):
         "debug_arena": False,
     }
 
-    REQUIRED = TFLMBackend.REQUIRED + ["tflmc.exe"]
+    REQUIRED = TFLMBackend.REQUIRED | {"tflmc.exe"}
 
     @property
     def print_outputs(self):
@@ -89,7 +91,7 @@ size_t model_outputs();
 """
         return code
 
-    def generate_code(self):
+    def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
         tflmc_exe = None
@@ -104,7 +106,7 @@ size_t model_outputs();
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
-            out = utils.exec_getout(tflmc_exe, *args, live=self.print_outputs, print_output=False)
+            out = utils.execute(tflmc_exe, *args, live=self.print_outputs)
             files = [f for f in os.listdir(tmpdirname) if os.path.isfile(os.path.join(tmpdirname, f))]
             # TODO: ensure that main file is processed first
             for filename in files:
@@ -117,7 +119,7 @@ size_t model_outputs();
             stdout_artifact = Artifact("tflmc_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
 
-        self.artifacts = artifacts
+        return {"default": artifacts}, {}
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ import re
 import os
 from enum import Enum
 
+from mlonmcu.utils import filter_none
 from mlonmcu.target.target import Target
 from mlonmcu.target.metrics import Metrics
 
@@ -61,8 +62,6 @@ def get_espidf_platform_targets():
 
 
 class Esp32C3Target(Target):
-    FEATURES = Target.FEATURES + []
-
     DEFAULTS = {
         **Target.DEFAULTS,
         "xlen": 32,
@@ -73,8 +72,6 @@ class Esp32C3Target(Target):
         "attr": "",
         "count": Esp32C3PerfCount.CYCLE,
     }
-    REQUIRED = Target.REQUIRED + []
-    OPTIONAL = Target.OPTIONAL + []
 
     @property
     def xlen(self):
@@ -162,31 +159,49 @@ class Esp32C3Target(Target):
     def get_arch(self):
         return "riscv"
 
-    def get_backend_config(self, backend):
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
-            return {
-                "target_device": "riscv_cpu",
-                "target_march": self.arch,
-                "target_model": "esp32c3_devkit",
-                "target_mtriple": "riscv32-esp-elf",
-                "target_mabi": self.abi,
-                "target_mattr": self.attr,
-                "target_mcpu": "esp32c3",
-            }
-        return {}
+            ret.update(
+                {
+                    "target_device": "riscv_cpu",
+                    "target_march": self.arch,
+                    "target_model": "esp32c3_devkit",
+                    "target_mtriple": "riscv32-esp-elf",
+                    "target_mabi": self.abi,
+                    "target_mattr": self.attr,
+                    "target_mcpu": "esp32c3",
+                }
+            )
+            if optimized_schedules:
+                ret.update(
+                    {
+                        "target_device": "riscv_cpu",
+                    }
+                )
+        return ret
+
+    def add_backend_config(self, backend, config, optimized_layouts=False, optimized_schedules=False):
+        new = filter_none(
+            self.get_backend_config(
+                backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+            )
+        )
+
+        # only allow overwriting non-none values
+        # to support accepting user-vars
+        new = {key: value for key, value in new.items() if config.get(key, None) is None}
+        config.update(new)
 
 
 def create_espidf_platform_target(name, platform, base=Target):
     class EspIdfPlatformTarget(base):
-        FEATURES = base.FEATURES + []
-
         DEFAULTS = {
             **base.DEFAULTS,
             "timeout_sec": 0,  # disabled
             "port": None,
             "baud": None,
         }
-        REQUIRED = base.REQUIRED + []
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)

@@ -25,22 +25,32 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
         """Called at the end of a session."""
         df = report.post_df.copy()
         df["Schedules"] = df.apply(
-            lambda row: "ARM (Tuned)"
-            if row.get("config_tvmaot.target_device", "") == "arm_cpu" and row.get("feature_autotuned")
-            else "ARM"
-            if row.get("config_tvmaot.target_device", "") == "arm_cpu"
-            else "RISC-V (Tuned)"
-            if row.get("feature_target_optimized") and row.get("feature_autotuned")
-            else "RISC-V"
-            if row.get("feature_target_optimized")
-            else ("Default (Tuned)" if row.get("feature_autotuned") else "Default"),
+            lambda row: (
+                "ARM (Tuned)"
+                if row.get("config_tvmaot.target_device", "") == "arm_cpu" and row.get("feature_autotuned")
+                else (
+                    "ARM"
+                    if row.get("config_tvmaot.target_device", "") == "arm_cpu"
+                    else (
+                        "RISC-V (Tuned)"
+                        if row.get("feature_target_optimized") and row.get("feature_autotuned")
+                        else (
+                            "RISC-V"
+                            if row.get("feature_target_optimized")
+                            else ("Default (Tuned)" if row.get("feature_autotuned") else "Default")
+                        )
+                    )
+                )
+            ),
             axis=1,
         )
         # TODO: allow combinations
         df["Extensions"] = df.apply(
-            lambda row: "VEXT+PEXT"
-            if row.get("feature_vext") and row.get("feature_pext")
-            else ("VEXT" if row.get("feature_vext") else ("PEXT" if row.get("feature_pext") else (None))),
+            lambda row: (
+                "VEXT+PEXT"
+                if row.get("feature_vext") and row.get("feature_pext")
+                else ("VEXT" if row.get("feature_vext") else ("PEXT" if row.get("feature_pext") else (None)))
+            ),
             axis=1,
         )
         report.post_df = df
@@ -50,22 +60,19 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
-    "etiss_pulpino",
+    "etiss",
     "riscv_qemu",
 ]
 
 AUTOTUNED_TARGETS = [
     "spike",
-    "ovpsim",
-    "etiss_pulpino",
+    "etiss",
     # "riscv_qemu",
 ]
 
 DEFAULT_TARGETS = [
-    # "spike",
-    "ovpsim",
-    # "etiss_pulpino",
+    "spike",
+    # "etiss",
     # "riscv_qemu",
 ]
 
@@ -117,38 +124,6 @@ def get_target_features(
 ):
     TARGET_FEATURES = {
         "spike": [
-            *(
-                [
-                    [],
-                    *(
-                        ([["vext", "auto_vectorize"]] if enable_auto_vectorize and enable_vext else [["vext"]])
-                        if enable_vext
-                        else []
-                    ),
-                    *([["pext"]] if enable_pext else []),
-                ]
-                if enable_default
-                else []
-            ),
-            *(
-                [
-                    ["target_optimized"],
-                    *(
-                        (
-                            [["target_optimized", "vext", "auto_vectorize"]]
-                            if enable_auto_vectorize and enable_vext
-                            else [["target_optimized", "vext"]]
-                        )
-                        if enable_vext
-                        else []
-                    ),
-                    *([["target_optimized", "pext"]] if enable_pext else []),
-                ]
-                if enable_target_optimized
-                else []
-            ),
-        ],
-        "ovpsim": [
             *(
                 [
                     [],
@@ -330,11 +305,10 @@ POSTPROCESS_CONFIG = {
         "config_vext.vlen": "VLEN",
         "config_vext.elen": "ELEN",
         # "spike.vlen": "VLEN",
-        # "etiss_pulpino.vlen": "VLEN",
+        # "etiss.vlen": "VLEN",
         # "riscv_qemu.vlen": "VLEN",
-        # "ovpsim.elen": "ELEN",
         # "spike.elen": "ELEN",
-        # "etiss_pulpino.elen": "ELEN",
+        # "etiss.elen": "ELEN",
         # "riscv_qemu.elen": "ELEN",
         "config_tvmaot.desired_layout": "Layout",
         "config_mlif.toolchain": "Toolchain",

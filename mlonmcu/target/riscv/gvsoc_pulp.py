@@ -24,7 +24,8 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.common import cli, execute
+from mlonmcu.setup.utils import execute
+from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from .riscv import RISCVTarget
 from .util import update_extensions_pulp
@@ -36,7 +37,7 @@ logger = get_logger()
 class GvsocPulpTarget(RISCVTarget):
     """Target using a Pulpino-like VP running in the GVSOC simulator"""
 
-    FEATURES = RISCVTarget.FEATURES + ["log_instrs", "xpulp"]
+    FEATURES = RISCVTarget.FEATURES | {"log_instrs", "xpulp"}
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -47,12 +48,12 @@ class GvsocPulpTarget(RISCVTarget):
         "model": "pulp",
     }
 
-    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED + [
+    REQUIRED = RISCVTarget.PUPL_GCC_TOOLCHAIN_REQUIRED | {
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
         "pulp_freertos.install_dir",
-    ]
+    }
 
     def __init__(self, name="gvsoc_pulp", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -100,7 +101,7 @@ class GvsocPulpTarget(RISCVTarget):
     def gvsoc_preparation_env(self):
         return {
             "PULP_RISCV_GCC_TOOLCHAIN": str(self.pulp_gcc_prefix),
-            "PULP_CURRENT_CONFIG": "pulp@config_file=chips/pulp/pulp.json",
+            "PULP_CURRENT_CONFIG": f"{self.model}@config_file=chips/{self.model}/{self.model}.json",
             "PULP_CONFIGS_PATH": str(self.pulp_freertos_config_dir),
             "PYTHONPATH": str(self.pulp_freertos_install_dir / "python"),
             "INSTALL_DIR": str(self.pulp_freertos_install_dir),
@@ -111,7 +112,7 @@ class GvsocPulpTarget(RISCVTarget):
     def get_basic_gvsoc_simulating_arg(self, program):
         gvsoc_simulating_arg = []
         gvsoc_simulating_arg.append(f"--dir={program.parent / 'gvsim'}")
-        gvsoc_simulating_arg.append("--config-file=pulp@config_file=chips/pulp/pulp.json")
+        gvsoc_simulating_arg.append(f"--config-file={self.model}@config_file=chips/{self.model}/{self.model}.json")
         gvsoc_simulating_arg.append("--platform=gvsoc")
         gvsoc_simulating_arg.append(f"--binary={program.stem}")
         gvsoc_simulating_arg.append("prepare")
@@ -120,6 +121,7 @@ class GvsocPulpTarget(RISCVTarget):
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute an executable with given arguments"""
+        # create a new folder and copy the compiled program into it
         gvsimDir = program.parent / "gvsim"
         if not os.path.exists(gvsimDir):
             os.makedirs(gvsimDir)
@@ -176,8 +178,8 @@ class GvsocPulpTarget(RISCVTarget):
             logger.warning("unexpected script output (instructions)")
             cpu_instructions = None
         else:
-            instructions = int(float(cpu_instructions.group(1)))
-        return cycles, instructions
+            cpu_instructions = int(float(cpu_instructions.group(1)))
+        return cycles, cpu_instructions
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -203,11 +205,12 @@ class GvsocPulpTarget(RISCVTarget):
         ret["RISCV_ABI"] = self.abi
         return ret
 
-    def get_backend_config(self, backend):
-        ret = super().get_backend_config(backend)
+    def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
+        ret = super().get_backend_config(
+            backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules
+        )
         if backend in SUPPORTED_TVM_BACKENDS:
-            ret.update({"target_model": f"gvsoc_{self.model}"})
-            ret.update({"target_mabi": self.abi})
+            ret.update({"target_model": f"{self.model}-{self.arch}"})
         return ret
 
 

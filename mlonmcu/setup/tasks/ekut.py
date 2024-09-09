@@ -48,10 +48,7 @@ def clone_hannah_tvm(
     """Clone the hannah-tvm repository."""
     hannahTvmName = utils.makeDirName("hannah_tvm")
     hannahTvmSrcDir = context.environment.paths["deps"].path / "src" / hannahTvmName
-    if (
-        rebuild
-        or not utils.is_populated(hannahTvmSrcDir)
-    ):
+    if rebuild or not utils.is_populated(hannahTvmSrcDir):
         pulpRtosRepo = context.environment.repos["hannah_tvm"]
         utils.clone(pulpRtosRepo.url, hannahTvmSrcDir, branch=pulpRtosRepo.ref, refresh=rebuild, recursive=True)
     context.cache["hannah_tvm.src_dir"] = hannahTvmSrcDir

@@ -2227,3 +2227,212 @@ class VanillaAccelerator(TargetFeature):
             assert self.name not in extra_plugin_config
             extra_plugin_config[self.name]["baseaddr"] = self.base_addr
             config.update({f"{target}.extra_plugin_config": extra_plugin_config})
+
+
+@register_feature("gen_data")
+class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """Generate input data for validation."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "fill_mode": "file",  # Allowed: random, ones, zeros, file, dataset
+        "file": "auto",  # Only relevant if fill_mode=file
+        "number": 10,  # generate up to number samples (may be less if file has less inputs)
+        "fmt": "npy",  # Allowed: npy, npz
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_data", features=features, config=config)
+
+    @property
+    def fill_mode(self):
+        value = self.config["fill_mode"]
+        assert value in ["random", "ones", "zeros", "file", "dataset"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def number(self):
+        return int(self.config["number"])
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_data": self.enabled,
+            f"{frontend}.gen_data_fill_mode": self.fill_mode,
+            f"{frontend}.gen_data_file": self.file,
+            f"{frontend}.gen_data_number": self.number,
+            f"{frontend}.gen_data_fmt": self.fmt,
+        }
+
+
+@register_feature("gen_ref_data", depends=["gen_data"])
+class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """Generate reference outputs for validation."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mode": "file",  # Allowed: file, model
+        "file": "auto",  # Only relevant if mode=file
+        "fmt": "npy",  # Allowed: npy, npz
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_ref_data", features=features, config=config)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_ref_data": self.enabled,
+            f"{frontend}.gen_ref_data_mode": self.mode,
+            f"{frontend}.gen_ref_data_file": self.file,
+            f"{frontend}.gen_ref_data_fmt": self.fmt,
+        }
+
+
+@register_feature("gen_ref_labels", depends=["gen_data"])
+class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """Generate reference labels for classification."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mode": "file",  # Allowed: file, model
+        "file": "auto",  # Only relevant if mode=file
+        "fmt": "npy",  # Allowed: npy, npz, txt
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_ref_labels", features=features, config=config)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_ref_labels": self.enabled,
+            f"{frontend}.gen_ref_labels_mode": self.mode,
+            f"{frontend}.gen_ref_labels_file": self.file,
+            f"{frontend}.gen_ref_labels_fmt": self.fmt,
+        }
+
+
+@register_feature("set_inputs")
+class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
+    """Apply test inputs to model."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "interface": "auto",  # Allowed: auto, rom, filesystem, stdin, stdin_raw, uart
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("set_inputs", features=features, config=config)
+
+    @property
+    def interface(self):
+        value = self.config["interface"]
+        assert value in ["auto", "rom", "filesystem", "stdin", "stdin_raw", "uart"]
+        return value
+
+    def get_platform_config(self, platform):
+        assert platform in ["mlif", "tvm", "microtvm"]
+        # if tvm/microtvm: allow using --fill-mode provided by tvmc run
+        return {
+            f"{platform}.set_inputs": self.enabled,
+            f"{platform}.set_inputs_interface": self.interface,
+        }
+
+
+@register_feature("get_outputs")
+class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
+    """Extract resulting outputs from model."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "interface": "auto",  # Allowed: auto, filesystem, stdout, stdout_raw, uart
+        "fmt": "npy",  # Allowed: npz, npz
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("get_outputs", features=features, config=config)
+
+    @property
+    def interface(self):
+        value = self.config["interface"]
+        assert value in ["auto", "filesystem", "stdout", "stdout_raw", "uart"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_platform_config(self, platform):
+        assert platform in ["mlif", "tvm", "microtvm"]
+        return {
+            f"{platform}.get_outputs": self.enabled,
+            f"{platform}.get_outputs_interface": self.interface,
+            f"{platform}.get_outputs_fmt": self.fmt,
+        }
+
+
+@register_feature("validate_new", depends=["gen_data", "gen_ref_data", "set_inputs", "get_outputs"])
+class ValidateNew(RunFeature):
+    """Wrapper feature for enabling all validatioon related features at once."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_new", features=features, config=config)
+
+    # def get_postprocesses(self):
+    #     # config = {}
+    #     # from mlonmcu.session.postprocess import ValidateOutputsPostprocess
+    #     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
+    #     # return [validate_outputs_postprocess]
+    #     return ["validate_outputs"]

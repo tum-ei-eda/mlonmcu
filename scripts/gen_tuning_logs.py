@@ -18,7 +18,7 @@ PARALLEL = 1
 PROGRESS = True
 
 FRONTEND = "tflite"
-TARGET = "etiss_pulpino"
+TARGET = "etiss"
 PLATFORM = "microtvm"
 # BACKEND = "tvmaot"
 # BACKEND = "tvmllvm"

@@ -250,7 +250,7 @@ class RISCVTarget(Target):
     @property
     def attr(self):
         attrs = self.attrs
-        return ",".join(attrs)
+        return ",".join(sorted(attrs))
 
     @property
     def extra_args(self):
@@ -288,6 +288,25 @@ class RISCVTarget(Target):
         return self.fpu != "none"
 
     @property
+    def is_cross(self):
+        return True
+
+    @property
+    def is_bare(self):
+        if "elf" in str(self.riscv_gcc_basename):
+            return True
+        elif "linux" in str(self.riscv_gcc_basename):
+            return False
+        else:
+            return None  # unknown
+
+    @property
+    def cross_compiler(self):
+        if not self.is_cross:
+            return None
+        return f"{self.riscv_gcc_basename}-g++"
+
+    @property
     def toolchain(self):
         value = self.config.get("mlif.toolchain", None)
         if value is None:
@@ -311,6 +330,7 @@ class RISCVTarget(Target):
         ret["RISCV_MCPU"] = self.cpu
         # llvm/clang only!
         ret["RISCV_ATTR"] = self.attr
+        ret["RISCV_LINUX"] = not self.is_bare  # TODO: add -static if linux gcc is used
 
         def feature_helper(attrs):
             # TODO
@@ -336,6 +356,7 @@ class RISCVTarget(Target):
                     "target_model": f"etiss-{arch_clean}",
                     # "target_model": f"{self.name}-{arch_clean}",
                     "target_num_cores": 1,  # TODO: also add for non-riscv targets
+                    "cross_compiler": self.cross_compiler,
                     # "target_device": ?,
                     # "target_libs": ?,
                     # "target_tag": ?,

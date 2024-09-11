@@ -154,14 +154,21 @@ class TVMBackend(Backend):
         return str2bool(temp)
 
     @property
-    def pass_config(self):
-        base = {"tir.disable_vectorize": self.disable_vectorize}
+    def extra_pass_config(self):
         extra = self.config["extra_pass_config"]
+        if extra is None:
+            extra = {}
         if isinstance(extra, str):
             import ast
 
             extra = ast.literal_eval(extra)
         assert isinstance(extra, dict)
+        return extra
+
+    @property
+    def pass_config(self):
+        base = {"tir.disable_vectorize": self.disable_vectorize}
+        extra = self.extra_pass_config
         base.update(extra)
         return base
 
@@ -394,7 +401,7 @@ class TVMBackend(Backend):
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
-            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
+            return utils.execute(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
         else:
             if self.tvmc_custom_script is None:
                 pre = ["-m", "tvm.driver.tvmc"]
@@ -430,6 +437,8 @@ class TVMBackend(Backend):
                 self.model_format, self.model_info = get_fallback_model_info(
                     model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name
                 )
+        else:
+            self.input_shapes = None  # Relevant for multiple subs using the same backend
         if need_model_info:
             try:
                 self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
@@ -446,8 +455,11 @@ class TVMBackend(Backend):
             if self.model_info:
                 # TODO: also handle output_shapes
                 # TODO: take care of refresh_model_info
-                if input_shapes:
+                if self.input_shapes:
                     self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
+                    assert (
+                        len(self.model_info.in_tensors) > 0
+                    ), "Missmatch between provided input names and detected ones"
                 else:
                     self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
         if self.model_info:

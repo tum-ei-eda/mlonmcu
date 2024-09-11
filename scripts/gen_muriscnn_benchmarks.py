@@ -66,18 +66,17 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "host_x86",
-    "etiss_pulpino",
+    "etiss",
     "corstone300",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "ovpsim", "etiss_pulpino"]
+AUTOTUNED_TARGETS = ["spike", "etiss"]
 
 DEFAULT_TARGETS = [
     "spike",
     # "host_x86",
-    # "etiss_pulpino",
+    # "etiss",
     "corstone300",
 ]
 
@@ -121,17 +120,12 @@ def get_target_features(target, enable_default=True, enable_muriscvnn=False, ena
             *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
         ],
-        "ovpsim": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
-        ],
         "host_x86": [
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
         ],
-        "etiss_pulpino": [
+        "etiss": [
             *([[]] if enable_default else []),
             *([["muriscvnn"]] if enable_muriscvnn else []),
             *([["cmsisnn"]] if enable_cmsisnn else []),
@@ -150,9 +144,8 @@ VALIDATE_FEATURES = ["validate", "debug"]
 
 TARGET_ARCH = {
     "spike": "riscv",
-    "ovpsim": "riscv",
     "x86": "x86",
-    "etiss_pulpino": "riscv",
+    "etiss": "riscv",
     "corstone300": "arm",
 }
 
@@ -199,9 +192,9 @@ BACKEND_DEFAULT_CONFIG = {
     "tvmaotplus": {"usmp.algorithm": "hill_climb"},
 }
 
-VLENS = [64, 128, 256, 512, 1024, 2048]
+VLENS = [128, 256, 512, 1024, 2048]
 
-DEFAULT_VLENS = [64, 128, 256, 512, 1024, 2048]
+DEFAULT_VLENS = [128, 256, 512, 1024, 2048]
 
 MODELS = [
     # "sine_model",
@@ -253,7 +246,6 @@ POSTPROCESS_CONFIG = {
     ],
     "rename_cols.mapping": {
         "config_spike.vlen": "VLEN",
-        "config_ovpsim.vlen": "VLEN",
         "config_tvmaotplus.desired_layout": "Layout",
     },
     "filter_cols.drop_nan": True,

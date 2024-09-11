@@ -195,6 +195,8 @@ def execute(
     print_func: Callable = print,
     handle_exit: Optional[Callable] = None,
     err_func: Callable = logger.error,
+    encoding: Optional[str] = "utf-8",
+    stdin_data: Optional[bytes] = None,
     prefix: str = "",
     **kwargs,
 ) -> str:
@@ -214,6 +216,10 @@ def execute(
         Handler for exit code.
     err_func : Callable
         Function which should be used to print errors.
+    encoding: str, optional
+        Used encoding for the stdout.
+    stdin_data: bytes, optional
+        Send this to the stdin of the process.
     kwargs: dict
         Arbitrary keyword arguments passed through to the subprocess.
 
@@ -226,10 +232,18 @@ def execute(
     logger.debug("- Executing: %s", str(args))
     if "cwd" in kwargs:
         logger.debug("- CWD: %s", str(kwargs["cwd"]))
+    # if "env" in kwargs:
+    #     logger.debug("- ENV: %s", str(kwargs["env"]))
     if ignore_output:
         assert not live
         subprocess.run(args, **kwargs, check=True)
         return None
+
+    def args_helper(x):
+        x = str(x)
+        if "[" in x or "]" in x or " " in x:
+            x = f'"{x}"'
+        return x
 
     out_str = ""
     if live:
@@ -240,17 +254,28 @@ def execute(
             stderr=subprocess.STDOUT,
         ) as process:
             try:
+                if stdin_data:
+                    raise RuntimeError("stdin_data only supported if live=False")
+                    # not working...
+                    # process.stdin.write(stdin_data)
                 for line in process.stdout:
-                    new_line = prefix + line.decode(errors="replace")
+                    if encoding:
+                        line = line.decode(encoding, errors="replace")
+                        new_line = prefix + line
+                    else:
+                        new_line = line
                     out_str = out_str + new_line
                     print_func(new_line.replace("\n", ""))
                 exit_code = None
                 while exit_code is None:
                     exit_code = process.poll()
                 if handle_exit is not None:
-                    exit_code = handle_exit(exit_code, out=out_str)
+                    out_str_ = out_str
+                    if encoding is None:
+                        out_str_ = out_str_.decode("utf-8", errors="ignore")
+                    exit_code = handle_exit(exit_code, out=out_str_)
                 assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                    exit_code, " ".join(list(map(str, args)))
+                    exit_code, " ".join(list(map(args_helper, args)))
                 )
             except KeyboardInterrupt:
                 logger.debug("Interrupted subprocess. Sending SIGINT signal...")
@@ -258,17 +283,27 @@ def execute(
                 os.kill(pid, signal.SIGINT)
     else:
         try:
-            p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            out_str = p.communicate()[0].decode(errors="replace")
-            out_str = prefix + out_str
+            p = subprocess.Popen(
+                [i for i in args], **kwargs, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+            if stdin_data:
+                out_str = p.communicate(input=stdin_data)[0]
+            else:
+                out_str = p.communicate()[0]
+            if encoding:
+                out_str = out_str.decode(encoding, errors="replace")
+                out_str = prefix + out_str
             exit_code = p.poll()
             # print_func(out_str)
             if handle_exit is not None:
-                exit_code = handle_exit(exit_code, out=out_str)
+                out_str_ = out_str
+                if encoding is None:
+                    out_str_ = out_str_.decode("utf-8", errors="ignore")
+                exit_code = handle_exit(exit_code, out=out_str_)
             if exit_code != 0:
                 err_func(out_str)
             assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(
-                exit_code, " ".join(list(map(str, args)))
+                exit_code, " ".join(list(map(args_helper, args)))
             )
         except KeyboardInterrupt:
             logger.debug("Interrupted subprocess. Sending SIGINT signal...")

@@ -16,13 +16,11 @@ FRONTEND = "tflite"
 
 TARGETS = [
     "spike",
-    "ovpsim",
     "riscv_qemu",
 ]
 
 DEFAULT_TARGETS = [
     "spike",
-    # "ovpsim",
     # "riscv_qemu",
 ]
 
@@ -56,9 +54,8 @@ VALIDATE_FEATURES = ["validate", "debug"]
 
 TARGET_ARCH = {
     "spike": "riscv",
-    "ovpsim": "riscv",
     "x86": "x86",
-    "etiss_pulpino": "riscv",
+    "etiss": "riscv",
     "corstone300": "arm",
 }
 

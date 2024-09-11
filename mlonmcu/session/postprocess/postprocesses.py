@@ -24,6 +24,7 @@ import tempfile
 from pathlib import Path
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
@@ -31,6 +32,7 @@ from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
+from .validate_metrics import parse_validate_metrics, parse_classify_metrics
 
 logger = get_logger()
 
@@ -648,7 +650,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             return dict(counts.head(top)), dict(probs.head(top))
 
         def _gen_csv(label, counts, probs):
-            lines = [f"{label},Count,Probablity"]
+            lines = [f"{label},Count,Probability"]
             for x in counts:
                 line = f"{x},{counts[x]},{probs[x]:.3f}"
                 lines.append(line)
@@ -1027,7 +1029,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         post_df = report.post_df
         group_by = self.group_by
         if group_by is None:
-            group_by = [x for x in pre_df.columns if x != "Run"]
+            group_by = [x for x in pre_df.columns if x not in ["Run", "Sub"]]
         assert isinstance(group_by, list)
         assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by), "Cols mssing in df"
         to_compare = self.to_compare
@@ -1455,3 +1457,392 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
+
+
+class ValidateOutputsPostprocess(RunPostprocess):
+    """Postprocess for comparing model outputs with golden reference."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "report": False,
+        "validate_metrics": "topk(n=1);topk(n=2)",
+        "validate_range": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_outputs", features=features, config=config)
+
+    @property
+    def validate_metrics(self):
+        """Get validate_metrics property."""
+        value = self.config["validate_metrics"]
+        return value
+
+    @property
+    def report(self):
+        """Get report property."""
+        value = self.config["report"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def validate_range(self):
+        """Get validate_range property."""
+        value = self.config["validate_range"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
+        assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
+        outputs_ref_artifact = outputs_ref_artifact[0]
+        import numpy as np
+
+        outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
+        # import copy
+        # outputs = copy.deepcopy(outputs_ref)
+        # outputs[1][list(outputs[1].keys())[0]][0] = 42
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        in_data = None
+        # compared = 0
+        # matching = 0
+        # missing = 0
+        # metrics = {
+        #     "allclose(atol=0.0,rtol=0.0)": None,
+        #     "allclose(atol=0.05,rtol=0.05)": None,
+        #     "allclose(atol=0.1,rtol=0.1)": None,
+        #     "topk(n=1)": None,
+        #     "topk(n=2)": None,
+        #     "topk(n=inf)": None,
+        #     "toy": None,
+        #     "mse(thr=0.1)": None,
+        #     "mse(thr=0.05)": None,
+        #     "mse(thr=0.01)": None,
+        #     "+-1": None,
+        # }
+        validate_metrics_str = self.validate_metrics
+        validate_metrics = parse_validate_metrics(validate_metrics_str)
+        for i, output_ref in enumerate(outputs_ref):
+            if i >= len(outputs):
+                logger.warning("Missing output sample")
+                # missing += 1
+                break
+            output = outputs[i]
+            ii = 0
+            for out_name, out_ref_data in output_ref.items():
+                if out_name in output:
+                    out_data = output[out_name]
+                elif ii < len(output):
+                    if isinstance(output, dict):
+                        # fallback for custom name-based npy dict
+                        out_data = list(output.values())[ii]
+                    else:  # fallback for index-based npy array
+                        assert isinstance(output, (list, np.array)), "expected dict, list or np.array type"
+                        out_data = output[ii]
+                else:
+                    RuntimeError(f"Output not found: {out_name}")
+                # optional dequantize
+                # print("out_data_before_quant", out_data)
+                # print("sum(out_data_before_quant", np.sum(out_data))
+
+                quant = model_info_data.get("output_quant_details", None)
+                rng = model_info_data.get("output_ranges", None)
+                if quant:
+
+                    def ref_quant_helper(quant, data):  # TODO: move somewhere else
+                        if quant is None:
+                            return data
+                        quant_scale, quant_zero_point, quant_dtype, quant_range = quant
+                        if quant_dtype is None or data.dtype.name == quant_dtype:
+                            return data
+                        assert data.dtype.name in ["float32"], "Quantization only supported for float32 input"
+                        assert quant_dtype in ["int8"], "Quantization only supported for int8 output"
+                        if quant_range and self.validate_range:
+                            assert len(quant_range) == 2, "Range should be a tuple (lower, upper)"
+                            lower, upper = quant_range
+                            # print("quant_range", quant_range)
+                            # print("np.min(data)", np.min(data))
+                            # print("np.max(data)", np.max(data))
+                            assert lower <= upper
+                            assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
+
+                        return np.around((data / quant_scale) + quant_zero_point).astype("int8")
+
+                    def dequant_helper(quant, data):  # TODO: move somewhere else
+                        if quant is None:
+                            return data
+                        quant_scale, quant_zero_point, quant_dtype, quant_range = quant
+                        if quant_dtype is None or data.dtype.name == quant_dtype:
+                            return data
+                        assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                        assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                        ret = (data.astype("float32") - quant_zero_point) * quant_scale
+                        if quant_range and self.validate_range:
+                            assert len(quant_range) == 2, "Range should be a tuple (lower, upper)"
+                            # print("quant_range", quant_range)
+                            # print("np.min(ret)", np.min(ret))
+                            # print("np.max(ret)", np.max(ret))
+                            lower, upper = quant_range
+                            assert lower <= upper
+                            assert np.min(ret) >= lower and np.max(ret) <= upper, "Range missmatch"
+                        return ret
+
+                    assert ii < len(rng)
+                    rng_ = rng[ii]
+                    if rng_ and self.validate_range:
+                        assert len(rng_) == 2, "Range should be a tuple (lower, upper)"
+                        lower, upper = rng_
+                        assert lower <= upper
+                        # print("rng_", rng_)
+                        # print("np.min(out_data)", np.min(out_data))
+                        # print("np.max(out_data)", np.max(out_data))
+                        assert np.min(out_data) >= lower and np.max(out_data) <= upper, "Range missmatch"
+                    assert ii < len(quant)
+                    quant_ = quant[ii]
+                    if quant_ is not None:
+                        out_ref_data_quant = ref_quant_helper(quant_, out_ref_data)
+                        for vm in validate_metrics:
+                            vm.process(out_data, out_ref_data_quant, in_data=in_data, quant=True)
+                        out_data = dequant_helper(quant_, out_data)
+                # print("out_data", out_data)
+                # print("sum(out_data)", np.sum(out_data))
+                # print("out_ref_data", out_ref_data)
+                # print("sum(out_ref_data)", np.sum(out_ref_data))
+                # input("TIAW")
+                assert out_data.dtype == out_ref_data.dtype, "dtype missmatch"
+                assert out_data.shape == out_ref_data.shape, "shape missmatch"
+
+                for vm in validate_metrics:
+                    vm.process(out_data, out_ref_data, in_data=in_data, quant=False)
+                ii += 1
+        if self.report:
+            raise NotImplementedError
+        for vm in validate_metrics:
+            res = vm.get_summary()
+            report.post_df[f"{vm.name}"] = res
+        return []
+
+
+class ValidateLabelsPostprocess(RunPostprocess):
+    """Postprocess for comparing model outputs with golden reference."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "report": False,
+        "classify_metrics": "topk_label(n=1);topk_label(n=2)",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_labels", features=features, config=config)
+
+    @property
+    def classify_metrics(self):
+        """Get classify_metrics property."""
+        value = self.config["classify_metrics"]
+        return value
+
+    @property
+    def report(self):
+        """Get report property."""
+        value = self.config["report"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        labels_ref_artifact = lookup_artifacts(artifacts, name="labels_ref.npy", first_only=True)
+        assert (
+            len(labels_ref_artifact) == 1
+        ), "Could not find artifact: labels_ref.npy (Run classify_labels postprocess first!)"
+        labels_ref_artifact = labels_ref_artifact[0]
+        import numpy as np
+
+        labels_ref = np.load(labels_ref_artifact.path, allow_pickle=True)
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        # missing = 0
+        classify_metrics_str = self.classify_metrics
+        classify_metrics = parse_classify_metrics(classify_metrics_str)
+        for i, output in enumerate(outputs):
+            if isinstance(output, dict):  # name based lookup
+                pass
+            else:  # index based lookup
+                assert isinstance(output, (list, np.array)), "expected dict, list or np.array"
+                output_names = model_info_data["output_names"]
+                assert len(output) == len(output_names)
+                output = {output_names[idx]: out for idx, out in enumerate(output)}
+            assert len(output) == 1, "Only supporting single-output models"
+            out_data = output[list(output.keys())[0]]
+            # print("out_data", out_data)
+            assert i < len(labels_ref), "Missing reference labels"
+            label_ref = labels_ref[i]
+            # print("label_ref", label_ref)
+            for cm in classify_metrics:
+                cm.process(out_data, label_ref, quant=False)
+        if self.report:
+            raise NotImplementedError
+        for cm in classify_metrics:
+            res = cm.get_summary()
+            report.post_df[f"{cm.name}"] = res
+        return []
+
+
+class ExportOutputsPostprocess(RunPostprocess):
+    """Postprocess for writing model outputs to a directory."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "dest": None,  # if none: export as artifact
+        "use_ref": False,
+        "skip_dequant": False,
+        "fmt": "bin",
+        "archive_fmt": None,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("export_outputs", features=features, config=config)
+
+    @property
+    def dest(self):
+        """Get dest property."""
+        value = self.config["dest"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
+
+    @property
+    def use_ref(self):
+        """Get use_ref property."""
+        value = self.config["use_ref"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def skip_dequant(self):
+        """Get skip_dequant property."""
+        value = self.config["skip_dequant"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def fmt(self):
+        """Get fmt property."""
+        return self.config["fmt"]
+
+    @property
+    def archive_fmt(self):
+        """Get archive_fmt property."""
+        return self.config["archive_fmt"]
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        # print("model_info_data", model_info_data)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        if self.use_ref:
+            outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
+            assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
+            outputs_ref_artifact = outputs_ref_artifact[0]
+            outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
+            outputs = outputs_ref
+        else:
+            outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+            assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+            outputs_artifact = outputs_artifact[0]
+            outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        if self.dest is None:
+            temp_dir = tempfile.TemporaryDirectory()
+            dest_ = Path(temp_dir.name)
+        else:
+            temp_dir = None
+            assert self.dest.is_dir(), f"Not a directory: {self.dest}"
+            dest_ = self.dest
+        assert self.fmt in ["bin", "npy"], f"Invalid format: {self.fmt}"
+        filenames = []
+        for i, output in enumerate(outputs):
+            if isinstance(output, dict):  # name based lookup
+                pass
+            else:  # index based lookup
+                assert isinstance(output, (list, np.array)), "expected dict, list or np.array"
+                output_names = model_info_data["output_names"]
+                assert len(output) == len(output_names)
+                output = {output_names[idx]: out for idx, out in enumerate(output)}
+            quant = model_info_data.get("output_quant_details", None)
+            if quant and not self.skip_dequant:
+
+                def dequant_helper(quant, data):
+                    if quant is None:
+                        return data
+                    quant_scale, quant_zero_point, quant_dtype, quant_range = quant
+                    if quant_dtype is None or data.dtype.name == quant_dtype:
+                        return data
+                    assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                    assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                    return (data.astype("float32") - quant_zero_point) * quant_scale
+
+                output = {
+                    out_name: dequant_helper(quant[j], output[out_name]) for j, out_name in enumerate(output.keys())
+                }
+            if self.fmt == "npy":
+                raise NotImplementedError("npy export")
+            elif self.fmt == "bin":
+                assert len(output.keys()) == 1, "Multi-outputs not supported"
+                output_data = list(output.values())[0]
+                data = output_data.tobytes(order="C")
+                file_name = f"{i}.bin"
+                file_dest = dest_ / file_name
+                filenames.append(file_dest)
+                with open(file_dest, "wb") as f:
+                    f.write(data)
+            else:
+                assert False, f"fmt not supported: {self.fmt}"
+        artifacts = []
+        archive_fmt = self.archive_fmt
+        create_artifact = self.dest is None or archive_fmt is not None
+        if create_artifact:
+            if archive_fmt is None:
+                assert self.dest is None
+                archive_fmt = "tar.gz"  # Default fallback
+            assert archive_fmt in ["tar.xz", "tar.gz", "zip"]
+            archive_name = f"output_data.{archive_fmt}"
+            archive_path = f"{dest_}.{archive_fmt}"
+            if archive_fmt == "tar.gz":
+                import tarfile
+
+                with tarfile.open(archive_path, "w:gz") as tar:
+                    for filename in filenames:
+                        tar.add(filename, arcname=filename.name)
+            else:
+                raise NotImplementedError(f"archive_fmt={archive_fmt}")
+            with open(archive_path, "rb") as f:
+                raw = f.read()
+            artifact = Artifact(archive_name, raw=raw, fmt=ArtifactFormat.BIN)
+            artifacts.append(artifact)
+        if temp_dir:
+            temp_dir.cleanup()
+        return artifacts

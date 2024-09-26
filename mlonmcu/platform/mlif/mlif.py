@@ -101,6 +101,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "fuse_ld": None,
         "global_isel": False,
         "extend_attrs": False,
+        "ccache": False,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -118,6 +119,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def goal(self):
         return self.config["goal"]
+
+    @property
+    def ccache(self):
+        value = self.config["ccache"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
     def set_inputs(self):
@@ -431,6 +437,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:
             definitions["UNROLL_LOOPS"] = self.unroll_loops
+        if self.ccache:
+            definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
+            definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
 
         return definitions
 

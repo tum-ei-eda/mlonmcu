@@ -405,10 +405,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["BATCH_SIZE"] = self.batch_size
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
-        if self.toolchain == "llvm" and self.llvm_dir is None:
-            raise RuntimeError("Missing config variable: llvm.install_dir")
-        else:
-            definitions["LLVM_DIR"] = self.llvm_dir
+        if self.toolchain == "llvm":
+            if self.llvm_dir is None:
+                raise RuntimeError("Missing config variable: llvm.install_dir")
+            llvm_dir = Path(self.llvm_dir).resolve()
+            assert llvm_dir.is_dir(), f"llvm.install_dir does not exist: {llvm_dir}"
+            definitions["LLVM_DIR"] = llvm_dir
         if self.optimize is not None:
             definitions["OPTIMIZE"] = self.optimize
         if self.debug_symbols is not None:

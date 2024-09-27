@@ -1697,6 +1697,12 @@ class TaclebenchFrontend(SimpleFrontend):
 
 
 class PolybenchFrontend(SimpleFrontend):
+
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "dataset": "large",  # mini/small/medium/large/extralarge
+    }
+
     REQUIRED = {"polybench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -1769,6 +1775,7 @@ class PolybenchFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
+            ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
 
     def get_platform_config(self, platform):

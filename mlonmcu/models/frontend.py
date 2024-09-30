@@ -1933,7 +1933,8 @@ class MathisFrontend(SimpleFrontend):
 
 
 class MibenchFrontend(SimpleFrontend):
-    REQUIRED = {"mibench.src_dir"}
+    # REQUIRED = {"mibench.src_dir"}
+    REQUIRED = {"mlonmcu_sw_mibench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1950,8 +1951,10 @@ class MibenchFrontend(SimpleFrontend):
             "telecomm/FFT",
             "telecomm/CRC32",
             "automotive/susan",
-            "automotive/basicmath",
-            "automotive/bitcount",
+            "automotive/basicmath_small",
+            "automotive/basicmath_large",
+            "automotive/bitcount_small",
+            "automotive/bitcount_large",
             "automotive/qsort",
             "security/sha",
             "security/rijndael",
@@ -1984,7 +1987,8 @@ class MibenchFrontend(SimpleFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
+            # ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
+            ret["MLONMCU_SW_MIBENCH_DIR"] = Path(self.config["mlonmcu_sw_mibench.src_dir"])
 
         return ret
 

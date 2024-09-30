@@ -1996,6 +1996,7 @@ class MibenchFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["template"] = "mibench"
+            ret["template_dir"] = Path(self.config["mlonmcu_sw_mibench.src_dir"]) / "mlonmcu"
 
         return ret
 

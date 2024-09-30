@@ -69,6 +69,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
         "template": "ml_interface",
+        "template_dir": None,
         "template_version": None,
         "ignore_data": True,
         "skip_check": False,
@@ -271,6 +272,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["template"]
 
     @property
+    def template_dir(self):
+        return self.config["template_dir"]
+
+    @property
     def template_version(self):
         return self.config["template_version"]
 
@@ -396,6 +401,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def get_definitions(self):
         definitions = self.definitions
         definitions["TEMPLATE"] = self.template
+        if self.template_dir:
+            definitions["TEMPLATE_DIR"] = self.template_dir
         if self.template_version:
             definitions["TEMPLATE_VERSION"] = self.template_version
         definitions["TOOLCHAIN"] = self.toolchain

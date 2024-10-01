@@ -174,7 +174,7 @@ class ConfusionMatrixMetric(ValidationMetric):
         return correct, label
 
     def process(self, out_data, label_ref, quant: bool = False):
-        print("ConfusionMatrixMetric.process")
+        # print("ConfusionMatrixMetric.process")
         if not self.check(out_data, label_ref, quant=quant):
             return
         self.num_total += 1
@@ -244,8 +244,8 @@ class ToyScoreMetric(ValidationMetric):
             ref_res += ref_res**2
         res /= length
         ref_res /= length
-        print("res", res)
-        print("ref_res", ref_res)
+        # print("res", res)
+        # print("ref_res", ref_res)
         return np.allclose([res], [ref_res], atol=self.atol, rtol=self.rtol)
 
 
@@ -263,9 +263,9 @@ class PlusMinusOneMetric(ValidationMetric):
         length = len(data_)
         for jjj in range(length):
             diff = abs(data_[jjj] - ref_data_[jjj])
-            print("diff", diff)
+            # print("diff", diff)
             if diff > 1:
-                print("r FALSE")
+                # print("r FALSE")
                 return False
         return True
 

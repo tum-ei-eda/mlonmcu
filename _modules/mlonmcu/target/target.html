@@ -285,7 +285,7 @@
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">total</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
         <span class="c1"># We only save the stdout and artifacts of the last execution</span>
-        <span class="c1"># Callect metrics from all runs to aggregate them in a callback with high priority</span>
+        <span class="c1"># Collect metrics from all runs to aggregate them in a callback with high priority</span>
         <span class="n">artifacts_</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># if self.dir is None:</span>
         <span class="c1">#    self.dir = Path(</span>
@@ -430,7 +430,27 @@
             <span class="s2">&quot;max-vthread-extent&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">&quot;warp-size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">}</span></div>
-</div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supports_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supports_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supports_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supports_argv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supports_uart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 </pre></div>
 

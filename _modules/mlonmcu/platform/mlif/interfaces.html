@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.mlif.interfaces &mdash; ML on MCU 0.6.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=a4b979e1"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+              <div class="version">
+                0.6.dev0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.mlif.interfaces</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.mlif.interfaces</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;MLIF Interfaces&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">mlonmcu.models.utils</span> <span class="kn">import</span> <span class="n">fill_data_source_inputs_only</span>
+
+<span class="n">MAX_BATCH_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
+<span class="n">DEFAULT_BATCH_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<div class="viewcode-block" id="get_header">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_header">[docs]</a>
+<span class="k">def</span> <span class="nf">get_header</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &quot;quantize.h&quot;</span>
+<span class="s2">#include &quot;printing.h&quot;</span>
+<span class="s2">#include &quot;exit.h&quot;</span>
+<span class="s2">// #include &quot;ml_interface.h&quot;</span>
+<span class="s2">#include &lt;cstring&gt;</span>
+<span class="s2">#include &lt;unistd.h&gt;</span>
+<span class="s2">#include &lt;stdint.h&gt;</span>
+<span class="s2">#include &lt;stdbool.h&gt;</span>
+<span class="s2">#include  &lt;stdio.h&gt;</span>
+
+<span class="s2">extern &quot;C&quot; {</span>
+<span class="s2">int mlif_process_inputs(size_t, bool*);</span>
+<span class="s2">int mlif_process_outputs(size_t);</span>
+<span class="s2">void *mlif_input_ptr(int);</span>
+<span class="s2">void *mlif_output_ptr(int);</span>
+<span class="s2">int mlif_input_sz(int);</span>
+<span class="s2">int mlif_output_sz(int);</span>
+<span class="s2">int mlif_num_inputs();</span>
+<span class="s2">int mlif_num_outputs();</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_top_rom">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_top_rom">[docs]</a>
+<span class="k">def</span> <span class="nf">get_top_rom</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
+    <span class="n">in_bufs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ins_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">in_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ins_data</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="n">byte_data</span> <span class="o">=</span> <span class="n">in_data</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
+            <span class="n">temp2</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;0x</span><span class="si">{:02x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">byte_data</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">])</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp2</span><span class="p">)</span>
+        <span class="n">in_bufs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fill_data_source_inputs_only</span><span class="p">(</span><span class="n">in_bufs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_inputs_head">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_head">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_inputs_head</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">int mlif_process_inputs(size_t batch_idx, bool *new_)</span>
+<span class="s2">{</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_inputs_tail">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_tail">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_inputs_tail</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_outputs_head">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_outputs_head">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_outputs_head</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">int mlif_process_outputs(size_t batch_idx)</span>
+<span class="s2">{</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_outputs_tail">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_outputs_tail">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_outputs_tail</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_inputs_rom">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_rom">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_inputs_rom</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    *new_ = true;</span>
+<span class="s2">    int num_inputs = mlif_num_inputs();</span>
+<span class="s2">    for (int i = 0; i &lt; num_inputs; i++)</span>
+<span class="s2">    {</span>
+<span class="s2">        int idx = num_inputs * batch_idx + i;</span>
+<span class="s2">        int size = mlif_input_sz(i);</span>
+<span class="s2">        char* model_input_ptr = (char*)mlif_input_ptr(i);</span>
+<span class="s2">        if (idx &gt;= num_data_buffers_in)</span>
+<span class="s2">        {</span>
+<span class="s2">            *new_ = false;</span>
+<span class="s2">            break;</span>
+<span class="s2">        }</span>
+<span class="s2">        if (size != data_size_in[idx])</span>
+<span class="s2">        {</span>
+<span class="s2">            return EXIT_MLIF_INVALID_SIZE;</span>
+<span class="s2">        }</span>
+<span class="s2">        memcpy(model_input_ptr, data_buffers_in[idx], size);</span>
+<span class="s2">    }</span>
+<span class="s2">    return 0;</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_inputs_stdin_raw">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_stdin_raw">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_inputs_stdin_raw</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    char ch;</span>
+<span class="s2">    *new_ = true;</span>
+<span class="s2">    for (int i = 0; i &lt; mlif_num_inputs(); i++)</span>
+<span class="s2">    {</span>
+<span class="s2">        int cnt = 0;</span>
+<span class="s2">        int size = mlif_input_sz(i);</span>
+<span class="s2">        char* model_input_ptr = (char*)mlif_input_ptr(i);</span>
+<span class="s2">        while(read(STDIN_FILENO, &amp;ch, 1) &gt; 0) {</span>
+<span class="s2">            // printf(&quot;c=</span><span class="si">%c</span><span class="s2"> / </span><span class="si">%d</span><span class="se">\\</span><span class="s2">n&quot;, ch, ch);</span>
+<span class="s2">            model_input_ptr[cnt] = ch;</span>
+<span class="s2">            cnt++;</span>
+<span class="s2">            if (cnt == size) {</span>
+<span class="s2">                break;</span>
+<span class="s2">            }</span>
+<span class="s2">        }</span>
+<span class="s2">        // printf(&quot;cnt=</span><span class="si">%d</span><span class="s2"> in_size=</span><span class="si">%lu</span><span class="se">\\</span><span class="s2">n&quot;, cnt, in_size);</span>
+<span class="s2">        if (cnt == 0) {</span>
+<span class="s2">            *new_ = false;</span>
+<span class="s2">            return 0;</span>
+<span class="s2">        }</span>
+<span class="s2">        else if (cnt &lt; size)</span>
+<span class="s2">        {</span>
+<span class="s2">            return EXIT_MLIF_INVALID_SIZE;</span>
+<span class="s2">        }</span>
+<span class="s2">    }</span>
+<span class="s2">    return 0;</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="get_process_outputs_stdout_raw">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_outputs_stdout_raw">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_outputs_stdout_raw</span><span class="p">():</span>
+    <span class="c1"># TODO: maybe hardcode num_outputs and size here because we know it</span>
+    <span class="c1"># and get rid of loop?</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    for (int i = 0; i &lt; mlif_num_outputs(); i++)</span>
+<span class="s2">    {</span>
+<span class="s2">        int8_t *model_output_ptr = (int8_t*)mlif_output_ptr(i);</span>
+<span class="s2">        int size = mlif_output_sz(i);</span>
+<span class="s2">        // TODO: move markers out of loop</span>
+<span class="s2">        write(1, &quot;-?-&quot;, 3);</span>
+<span class="s2">        write(1, model_output_ptr, size);</span>
+<span class="s2">        write(1, &quot;-!-</span><span class="se">\\</span><span class="s2">n&quot; ,4);</span>
+<span class="s2">    }</span>
+<span class="s2">    return 0;</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ModelSupport">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport">[docs]</a>
+<span class="k">class</span> <span class="nc">ModelSupport</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">model_info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs_data</span> <span class="o">=</span> <span class="n">inputs_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">=</span> <span class="n">in_interface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_interface</span> <span class="o">=</span> <span class="n">out_interface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_set_inputs_interface</span><span class="p">(</span><span class="n">in_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_interface</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_get_outputs_interface</span><span class="p">(</span><span class="n">out_interface</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ModelSupport.select_set_inputs_interface">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.select_set_inputs_interface">[docs]</a>
+    <span class="k">def</span> <span class="nf">select_set_inputs_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">supports_filesystem</span><span class="p">:</span>
+                <span class="n">in_interface</span> <span class="o">=</span> <span class="s2">&quot;filesystem&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">supports_stdin</span><span class="p">:</span>
+                <span class="n">in_interface</span> <span class="o">=</span> <span class="s2">&quot;stdin_raw&quot;</span>
+                <span class="c1"># TODO: also allow stdin?</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Fallback</span>
+                <span class="n">in_interface</span> <span class="o">=</span> <span class="s2">&quot;rom&quot;</span>
+        <span class="k">assert</span> <span class="n">in_interface</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;filesystem&quot;</span><span class="p">,</span> <span class="s2">&quot;stdin&quot;</span><span class="p">,</span> <span class="s2">&quot;stdin_raw&quot;</span><span class="p">,</span> <span class="s2">&quot;rom&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;rom&quot;</span><span class="p">:</span>
+                <span class="n">batch_size</span> <span class="o">=</span> <span class="n">MAX_BATCH_SIZE</span>  <span class="c1"># all inputs are in already compiled into program</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">batch_size</span> <span class="o">=</span> <span class="n">DEFAULT_BATCH_SIZE</span>
+        <span class="k">return</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">batch_size</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.select_get_outputs_interface">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.select_get_outputs_interface">[docs]</a>
+    <span class="k">def</span> <span class="nf">select_get_outputs_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">out_interface</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">supports_filesystem</span><span class="p">:</span>
+                <span class="n">out_interface</span> <span class="o">=</span> <span class="s2">&quot;filesystem&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">supports_stdin</span><span class="p">:</span>
+                <span class="n">out_interface</span> <span class="o">=</span> <span class="s2">&quot;stdout_raw&quot;</span>
+                <span class="c1"># TODO: also allow stdout?</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Fallback</span>
+                <span class="n">out_interface</span> <span class="o">=</span> <span class="s2">&quot;ram&quot;</span>
+        <span class="k">assert</span> <span class="n">out_interface</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;filesystem&quot;</span><span class="p">,</span> <span class="s2">&quot;stdout&quot;</span><span class="p">,</span> <span class="s2">&quot;stdout_raw&quot;</span><span class="p">,</span> <span class="s2">&quot;ram&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">DEFAULT_BATCH_SIZE</span>
+        <span class="k">return</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">batch_size</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_header">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_header">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: make this configurable</span>
+        <span class="c1"># TODO: do not require C++?</span>
+        <span class="k">return</span> <span class="n">get_header</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_top">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_top">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;rom&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_top_rom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_bottom">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_bottom">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_process_inputs_body">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_inputs_body">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_process_inputs_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;rom&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_process_inputs_rom</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;stdin_raw&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_process_inputs_stdin_raw</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO: implement: filesystem (bin+npy), stdout</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_process_outputs_body">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_outputs_body">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_process_outputs_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_interface</span> <span class="o">==</span> <span class="s2">&quot;stdout_raw&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_process_outputs_stdout_raw</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO: implement: filesystem (bin+npy), ram</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_process_inputs">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_inputs">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_process_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="n">get_process_inputs_head</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_process_inputs_body</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="n">get_process_inputs_tail</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">code</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate_process_outputs">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_outputs">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_process_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="n">get_process_outputs_head</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_process_outputs_body</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="n">get_process_outputs_tail</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">code</span></div>
+
+
+<div class="viewcode-block" id="ModelSupport.generate">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_header</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_top</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_process_inputs</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_process_outputs</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_bottom</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">code</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

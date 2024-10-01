@@ -297,6 +297,8 @@
     <span class="n">print_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">,</span>
     <span class="n">handle_exit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">err_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="n">stdin_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -316,6 +318,10 @@
 <span class="sd">        Handler for exit code.</span>
 <span class="sd">    err_func : Callable</span>
 <span class="sd">        Function which should be used to print errors.</span>
+<span class="sd">    encoding: str, optional</span>
+<span class="sd">        Used encoding for the stdout.</span>
+<span class="sd">    stdin_data: bytes, optional</span>
+<span class="sd">        Send this to the stdin of the process.</span>
 <span class="sd">    kwargs: dict</span>
 <span class="sd">        Arbitrary keyword arguments passed through to the subprocess.</span>
 
@@ -350,15 +356,26 @@
             <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">process</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stdin_data</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;stdin_data only supported if live=False&quot;</span><span class="p">)</span>
+                    <span class="c1"># not working...</span>
+                    <span class="c1"># process.stdin.write(stdin_data)</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
-                    <span class="n">new_line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+                        <span class="n">new_line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">line</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_line</span> <span class="o">=</span> <span class="n">line</span>
                     <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span> <span class="o">+</span> <span class="n">new_line</span>
                     <span class="n">print_func</span><span class="p">(</span><span class="n">new_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
                 <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">while</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out_str</span><span class="p">)</span>
+                    <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str</span>
+                    <span class="k">if</span> <span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+                    <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out_str_</span><span class="p">)</span>
                 <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">args_helper</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
                 <span class="p">)</span>
@@ -368,13 +385,23 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
-            <span class="n">out_str</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
-            <span class="n">out_str</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">out_str</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">stdin_data</span><span class="p">:</span>
+                <span class="n">out_str</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">stdin_data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out_str</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
+                <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+                <span class="n">out_str</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">out_str</span>
             <span class="n">exit_code</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
             <span class="c1"># print_func(out_str)</span>
             <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out_str</span><span class="p">)</span>
+                <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str</span>
+                <span class="k">if</span> <span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out_str_</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">err_func</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>

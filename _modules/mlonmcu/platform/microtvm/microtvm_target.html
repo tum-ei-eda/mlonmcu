@@ -118,6 +118,7 @@
 <span class="kn">from</span> <span class="nn">.microtvm_host_target</span> <span class="kn">import</span> <span class="n">HostMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_etiss_target</span> <span class="kn">import</span> <span class="n">EtissMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_spike_target</span> <span class="kn">import</span> <span class="n">SpikeMicroTvmPlatformTarget</span>
+<span class="kn">from</span> <span class="nn">.microtvm_gvsoc_target</span> <span class="kn">import</span> <span class="n">GVSocMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_corev_ovpsim_target</span> <span class="kn">import</span> <span class="n">CoreVOVPSimMicroTvmPlatformTarget</span>
 <span class="kn">from</span> <span class="nn">.microtvm_mlonmcu_target</span> <span class="kn">import</span> <span class="n">MlonmcuMicroTvmPlatformTarget</span>
 
@@ -158,6 +159,7 @@
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_etiss&quot;</span><span class="p">,</span> <span class="n">EtissMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_espidf&quot;</span><span class="p">,</span> <span class="n">EspidfMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_spike&quot;</span><span class="p">,</span> <span class="n">SpikeMicroTvmPlatformTarget</span><span class="p">)</span>
+<span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_gvsoc&quot;</span><span class="p">,</span> <span class="n">GVSocMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_corev_ovpsim&quot;</span><span class="p">,</span> <span class="n">CoreVOVPSimMicroTvmPlatformTarget</span><span class="p">)</span>
 <span class="n">register_microtvm_platform_target</span><span class="p">(</span><span class="s2">&quot;microtvm_mlonmcu&quot;</span><span class="p">,</span> <span class="n">MlonmcuMicroTvmPlatformTarget</span><span class="p">)</span>
 

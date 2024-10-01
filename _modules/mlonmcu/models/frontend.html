@@ -110,7 +110,9 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="p">(</span>
@@ -124,6 +126,7 @@
     <span class="n">DhrystoneProgram</span><span class="p">,</span>
     <span class="n">MathisProgram</span><span class="p">,</span>
     <span class="n">MibenchProgram</span><span class="p">,</span>
+    <span class="n">OpenASIPProgram</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">lookup_models</span>
 <span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
@@ -145,7 +148,21 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;use_inout_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># TODO: print_outputs for frontends</span>
+        <span class="c1"># the following should be configured using gen_data feature</span>
+        <span class="s2">&quot;gen_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;gen_data_fill_mode&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_data_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_data_number&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_data_fmt&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># the following should be configured using gen_ref_data feature</span>
+        <span class="s2">&quot;gen_ref_data&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_data_mode&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_data_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_data_fmt&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_labels&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_labels_mode&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_labels_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_labels_fmt&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -173,6 +190,85 @@
     <span class="k">def</span> <span class="nf">use_inout_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_inout_data&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_data&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_data_fill_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_data_fill_mode&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="s2">&quot;ones&quot;</span><span class="p">,</span> <span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_data_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_data_file&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_data_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_data_number&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_data_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_data_fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_data&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_data_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_data_mode&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_data_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_data_file&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_data_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_data_fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_labels&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_labels_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_labels_mode&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_labels_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_labels_file&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gen_ref_labels_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;gen_ref_labels_fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">,</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Frontend.inference">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.inference">[docs]</a>
+    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="Frontend.extract_model_info">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.extract_model_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">extract_model_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
 
 <div class="viewcode-block" id="Frontend.supports_formats">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.supports_formats">[docs]</a>
@@ -226,6 +322,360 @@
         <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="Frontend.generate_input_data">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_input_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_names</span><span class="p">,</span> <span class="n">input_types</span><span class="p">,</span> <span class="n">input_shapes</span><span class="p">,</span> <span class="n">input_ranges</span><span class="p">,</span> <span class="n">input_quant_details</span><span class="p">,</span> <span class="n">in_paths</span><span class="p">):</span>
+        <span class="c1"># TODO: drop self and move method out of frontends.py, support non-tflite models</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data</span>
+        <span class="n">inputs_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="s2">&quot;ones&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_data_number</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">NEW</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_names</span><span class="p">):</span>
+                    <span class="k">assert</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">input_types</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown dtype for input: </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="n">input_types</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+                    <span class="n">quant</span> <span class="o">=</span> <span class="n">input_quant_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">rng</span> <span class="o">=</span> <span class="n">input_ranges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">gen_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+                    <span class="k">if</span> <span class="n">quant</span><span class="p">:</span>
+                        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">quant</span>
+                        <span class="k">assert</span> <span class="s2">&quot;float&quot;</span> <span class="ow">in</span> <span class="n">ty</span><span class="p">,</span> <span class="s2">&quot;Input already quantized?&quot;</span>
+                        <span class="k">if</span> <span class="n">NEW</span><span class="p">:</span>
+                            <span class="n">gen_dtype</span> <span class="o">=</span> <span class="n">ty</span>
+                    <span class="k">assert</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">input_shapes</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown shape for input: </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">shape</span> <span class="o">=</span> <span class="n">input_shapes</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="o">==</span> <span class="s2">&quot;zeros&quot;</span><span class="p">:</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gen_dtype</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="o">==</span> <span class="s2">&quot;ones&quot;</span><span class="p">:</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gen_dtype</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+                        <span class="n">DIST</span> <span class="o">=</span> <span class="s2">&quot;uniform&quot;</span>
+                        <span class="k">if</span> <span class="n">DIST</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+                            <span class="n">UPPER</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="n">LOWER</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Range should be a tuple (lower, upper)&quot;</span>
+                                <span class="n">LOWER</span><span class="p">,</span> <span class="n">UPPER</span> <span class="o">=</span> <span class="n">rng</span>
+                            <span class="k">if</span> <span class="s2">&quot;float&quot;</span> <span class="ow">in</span> <span class="n">gen_dtype</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">UPPER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="c1"># UPPER = 1.0</span>
+                                    <span class="n">UPPER</span> <span class="o">=</span> <span class="mf">0.5</span>
+                                <span class="k">if</span> <span class="n">LOWER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="c1"># LOWER = -1.0</span>
+                                    <span class="n">LOWER</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span>
+                            <span class="k">elif</span> <span class="s2">&quot;int&quot;</span> <span class="ow">in</span> <span class="n">gen_dtype</span><span class="p">:</span>
+                                <span class="n">dtype_info</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">gen_dtype</span><span class="p">),)</span>
+                                <span class="k">if</span> <span class="n">UPPER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="n">UPPER</span> <span class="o">=</span> <span class="n">dtype_info</span><span class="o">.</span><span class="n">max</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="k">assert</span> <span class="n">UPPER</span> <span class="o">&lt;=</span> <span class="n">dtype_info</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="s2">&quot;Out of dtype bound&quot;</span>
+                                <span class="k">if</span> <span class="n">LOWER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                    <span class="n">LOWER</span> <span class="o">=</span> <span class="n">dtype_info</span><span class="o">.</span><span class="n">min</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="k">assert</span> <span class="n">LOWER</span> <span class="o">&gt;=</span> <span class="n">dtype_info</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="s2">&quot;Out of dtype bound&quot;</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported dtype: </span><span class="si">{</span><span class="n">gen_dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">assert</span> <span class="n">LOWER</span> <span class="o">&lt;=</span> <span class="n">UPPER</span>
+                            <span class="n">RANGE</span> <span class="o">=</span> <span class="n">UPPER</span> <span class="o">-</span> <span class="n">LOWER</span>
+                            <span class="k">assert</span> <span class="n">RANGE</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">LOWER</span><span class="p">,</span> <span class="n">UPPER</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">gen_dtype</span><span class="p">)</span>
+                            <span class="c1"># input(&quot;?=&quot;)</span>
+                            <span class="c1"># if &quot;float&quot; in dtype:</span>
+                            <span class="c1">#     arr = np.random.rand(*shape).astype(dtype)</span>
+                            <span class="c1"># elif &quot;int&quot; in dtype:</span>
+                            <span class="c1">#     arr = np.random.randint(np.iinfo(dtype).min,</span>
+                            <span class="c1">#     np.iinfo(dtype).max, size=shape, dtype=dtype)</span>
+                            <span class="c1"># else:</span>
+                            <span class="c1">#     assert False</span>
+                        <span class="c1"># Quantize if required</span>
+                        <span class="c1"># if gen_dtype != dtype:</span>
+                        <span class="k">if</span> <span class="n">quant</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="s2">&quot;int&quot;</span> <span class="ow">in</span> <span class="n">dtype</span>
+                            <span class="c1"># assert quant</span>
+                            <span class="n">scale</span><span class="p">,</span> <span class="n">shift</span><span class="p">,</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">quant</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span> <span class="o">+</span> <span class="n">shift</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+                            <span class="c1"># input(&quot;!=&quot;)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported distribution: </span><span class="si">{</span><span class="n">DIST</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="kc">False</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">inputs_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_file</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;in_paths is empty&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">in_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">in_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">in_paths</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">NEW</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="n">file</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;Not found: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">basename</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">suffix</span>
+                    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.bin&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">basename</span><span class="p">:</span>
+                            <span class="n">i</span><span class="p">,</span> <span class="n">ii</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                            <span class="n">ii</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">basename</span><span class="p">)</span>
+                            <span class="n">ii</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">:</span>
+                            <span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+                    <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;.npz&quot;</span><span class="p">]:</span>
+                        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported ext: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_data_number</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">))):</span>
+                    <span class="k">assert</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">temp</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_names</span><span class="p">):</span>
+                        <span class="k">assert</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">assert</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">input_types</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown dtype for input: </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">dtype</span> <span class="o">=</span> <span class="n">input_types</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+                        <span class="n">quant</span> <span class="o">=</span> <span class="n">input_quant_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="n">rng</span> <span class="o">=</span> <span class="n">input_ranges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="n">gen_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+                        <span class="k">if</span> <span class="n">quant</span><span class="p">:</span>
+                            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">quant</span>
+                            <span class="c1"># assert &quot;float&quot; in ty, &quot;Input already quantized?&quot;</span>
+                            <span class="k">if</span> <span class="n">NEW</span><span class="p">:</span>
+                                <span class="n">gen_dtype</span> <span class="o">=</span> <span class="n">ty</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gen_dtype</span><span class="p">)</span>
+                        <span class="k">assert</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">input_shapes</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown shape for input: </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">shape</span> <span class="o">=</span> <span class="n">input_shapes</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+                        <span class="c1"># Quantize if required</span>
+                        <span class="c1"># if gen_dtype != dtype:</span>
+                        <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="s2">&quot;int&quot;</span> <span class="ow">in</span> <span class="n">dtype</span>
+                            <span class="c1"># assert quant</span>
+                            <span class="n">scale</span><span class="p">,</span> <span class="n">shift</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">qrng</span> <span class="o">=</span> <span class="n">quant</span>
+                            <span class="k">if</span> <span class="n">qrng</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">qrng</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Range should be a tuple (lower, upper)&quot;</span>
+                                <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">qrng</span>
+                                <span class="k">assert</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">upper</span>
+                                <span class="n">CLIP_INPUTS</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="k">if</span> <span class="n">CLIP_INPUTS</span><span class="p">:</span>
+                                    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">lower</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">lower</span>
+                                    <span class="p">),</span> <span class="s2">&quot;Range missmatch (lower)&quot;</span>
+                                    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">upper</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                                        <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">upper</span>
+                                    <span class="p">),</span> <span class="s2">&quot;Range missmatch (upper)&quot;</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span> <span class="o">+</span> <span class="n">shift</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+                            <span class="n">arr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+                            <span class="c1"># input(&quot;!=&quot;)</span>
+                        <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="c1"># TODO: Move shared code!</span>
+                            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Range should be a tuple (lower, upper)&quot;</span>
+                            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">rng</span>
+                            <span class="k">assert</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">upper</span>
+                            <span class="n">CLIP_INPUTS</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">if</span> <span class="n">CLIP_INPUTS</span><span class="p">:</span>
+                                <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">lower</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">lower</span><span class="p">),</span> <span class="s2">&quot;Range missmatch (lower)&quot;</span>
+                                <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">upper</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">upper</span><span class="p">),</span> <span class="s2">&quot;Range missmatch (upper)&quot;</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span>
+                    <span class="n">inputs_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Missing value for gen_data_file&quot;</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_data_file</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">file</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># for i, input_name in enumerate(input_names):</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="o">==</span> <span class="s2">&quot;dataset&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unsupported fill_mode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inputs_data</span></div>
+
+
+<div class="viewcode-block" id="Frontend.generate_output_ref_data">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_output_ref_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_output_ref_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">inputs_data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">out_paths</span><span class="p">,</span> <span class="n">output_names</span><span class="p">,</span> <span class="n">output_types</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="n">output_quant_details</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data</span>
+        <span class="n">outputs_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_mode</span> <span class="o">==</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">input_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
+                <span class="c1"># input(&quot;321?&quot;)</span>
+                <span class="n">output_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">quant</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dequant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">outputs_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_data</span><span class="p">)</span>
+                <span class="c1"># input(&quot;321!&quot;)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_file</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;out_paths is empty&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">out_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">out_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">out_paths</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span>
+                    <span class="n">files</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Missing output data for provided inputs. (Expected: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">)</span><span class="si">}</span><span class="s2">, Got: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                        <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="n">file</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+                    <span class="n">basename</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">suffix</span>
+                    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.bin&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">basename</span><span class="p">:</span>
+                            <span class="n">i</span><span class="p">,</span> <span class="n">ii</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                            <span class="n">ii</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">basename</span><span class="p">)</span>
+                            <span class="n">ii</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">:</span>
+                            <span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+                    <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;.npz&quot;</span><span class="p">]:</span>
+                        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported ext: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="c1"># TODO: handle case where there are more output samples than input samples?</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">)):</span>
+                    <span class="k">assert</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">temp</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_names</span><span class="p">):</span>
+                        <span class="k">assert</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">assert</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="n">output_types</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown dtype for output: </span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">dtype</span> <span class="o">=</span> <span class="n">output_types</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span>
+                        <span class="n">dequant</span> <span class="o">=</span> <span class="n">output_quant_details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">dequant</span><span class="p">:</span>
+                            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dequant</span>
+                            <span class="n">dtype</span> <span class="o">=</span> <span class="n">ty</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">ii</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+                        <span class="k">assert</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown shape for output: </span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">shape</span> <span class="o">=</span> <span class="n">output_shapes</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span>
+                        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+                        <span class="n">data</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span>
+                    <span class="n">outputs_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Missing value for gen_ref_data_file&quot;</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_data_file</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">file</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unsupported fill_mode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs_data</span></div>
+
+
+<div class="viewcode-block" id="Frontend.generate_ref_labels">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_ref_labels">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_ref_labels</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">inputs_data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">out_labels_paths</span><span class="p">,</span> <span class="n">output_names</span><span class="p">,</span> <span class="n">output_types</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="n">output_quant_details</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_mode</span> <span class="o">==</span> <span class="s2">&quot;model&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">input_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
+                <span class="n">output_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">quant</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dequant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Does not support multi-output classification&quot;</span>
+                <span class="n">output_data</span> <span class="o">=</span> <span class="n">output_data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">output_data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">top_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">output_data</span><span class="p">)</span>
+                <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_label</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_file</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_labels_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;labels_paths is empty&quot;</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_labels_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_labels_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Missing value for gen_ref_labels_file&quot;</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_file</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">file</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">ext</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+                <span class="n">labels_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="s2">&quot;i&quot;</span> <span class="ow">in</span> <span class="n">labels_df</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">assert</span> <span class="s2">&quot;label_idx&quot;</span> <span class="ow">in</span> <span class="n">labels_df</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels_df</span><span class="p">)</span>
+                <span class="n">labels_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">labels_df</span><span class="p">[</span><span class="s2">&quot;label_idx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fmt not supported: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unsupported fill_mode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">labels</span></div>
+
+
+<div class="viewcode-block" id="Frontend.generate_model_info">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.generate_model_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_model_info</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_names</span><span class="p">,</span>
+        <span class="n">output_names</span><span class="p">,</span>
+        <span class="n">input_shapes</span><span class="p">,</span>
+        <span class="n">output_shapes</span><span class="p">,</span>
+        <span class="n">input_types</span><span class="p">,</span>
+        <span class="n">output_types</span><span class="p">,</span>
+        <span class="n">input_ranges</span><span class="p">,</span>
+        <span class="n">output_ranges</span><span class="p">,</span>
+        <span class="n">input_quant_details</span><span class="p">,</span>
+        <span class="n">output_quant_details</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">model_info_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;input_names&quot;</span><span class="p">:</span> <span class="n">input_names</span><span class="p">,</span>
+            <span class="s2">&quot;output_names&quot;</span><span class="p">:</span> <span class="n">output_names</span><span class="p">,</span>
+            <span class="s2">&quot;input_shapes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">input_shapes</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;output_shapes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_shapes</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;input_types&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">input_types</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;output_types&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_types</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;input_ranges&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">input_ranges</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;output_ranges&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_ranges</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;input_quant_details&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">input_quant_details</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="s2">&quot;output_quant_details&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_quant_details</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+        <span class="p">}</span>
+        <span class="c1"># nested version</span>
+        <span class="c1"># model_info_dict = {</span>
+        <span class="c1">#     &quot;inputs&quot;: [</span>
+        <span class="c1">#         {</span>
+        <span class="c1">#             &quot;name&quot;: &quot;input_1&quot;,</span>
+        <span class="c1">#             &quot;shape&quot;: [1, 1014],</span>
+        <span class="c1">#             &quot;type&quot;: &quot;int8&quot;,</span>
+        <span class="c1">#         }</span>
+        <span class="c1">#     ],</span>
+        <span class="c1">#     &quot;outputs&quot;: [</span>
+        <span class="c1">#         {</span>
+        <span class="c1">#             &quot;name&quot;: &quot;output&quot;,</span>
+        <span class="c1">#             &quot;shape&quot;: [1, 10],</span>
+        <span class="c1">#             &quot;type&quot;: &quot;int8&quot;,</span>
+        <span class="c1">#         }</span>
+        <span class="c1">#     ],</span>
+        <span class="c1"># }</span>
+        <span class="k">return</span> <span class="n">model_info_dict</span>  <span class="c1"># TODO: turn into class</span></div>
+
+
 <div class="viewcode-block" id="Frontend.process_metadata">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.Frontend.process_metadata">[docs]</a>
     <span class="k">def</span> <span class="nf">process_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -233,10 +683,15 @@
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">metadata</span>
         <span class="n">in_paths</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">out_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels_paths</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">input_shapes</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">output_shapes</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">input_types</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">output_types</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">input_ranges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_ranges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">input_quant_details</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_quant_details</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;network_parameters&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
             <span class="n">network</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;network_parameters&quot;</span><span class="p">]</span>
             <span class="k">assert</span> <span class="s2">&quot;input_nodes&quot;</span> <span class="ow">in</span> <span class="n">network</span>
@@ -244,12 +699,27 @@
             <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">ins</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="n">shape</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shape&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="n">ty</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">ty</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ty</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ty</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># legacy</span>
+                <span class="n">rng</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;range&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">quantize</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantize&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">:</span>
                     <span class="n">input_shapes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">ty</span><span class="p">:</span>
                     <span class="n">input_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ty</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_inout_data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">rng</span><span class="p">:</span>
+                    <span class="n">input_ranges</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">quantize</span><span class="p">:</span>
+                    <span class="n">quant_scale</span> <span class="o">=</span> <span class="n">quantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_zero_shift</span> <span class="o">=</span> <span class="n">quantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;zero_shift&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_dtype</span> <span class="o">=</span> <span class="n">quantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_range</span> <span class="o">=</span> <span class="n">quantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;range&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_details</span> <span class="o">=</span> <span class="p">[</span><span class="n">quant_scale</span><span class="p">,</span> <span class="n">quant_zero_shift</span><span class="p">,</span> <span class="n">quant_dtype</span><span class="p">,</span> <span class="n">quant_range</span><span class="p">]</span>
+                    <span class="n">input_quant_details</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">quant_details</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_inout_data</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gen_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fill_mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_file</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span>
+                <span class="p">):</span>
                     <span class="k">if</span> <span class="s2">&quot;example_input&quot;</span> <span class="ow">in</span> <span class="n">inp</span> <span class="ow">and</span> <span class="s2">&quot;path&quot;</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;example_input&quot;</span><span class="p">]:</span>
                         <span class="n">in_data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;example_input&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">])</span>
                         <span class="c1"># TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)</span>
@@ -263,19 +733,42 @@
             <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outs</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="n">shape</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shape&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="n">ty</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">ty</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ty</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ty</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># legacy</span>
+                <span class="n">rng</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;range&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">dequantize</span> <span class="o">=</span> <span class="n">outp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dequantize&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">:</span>
                     <span class="n">output_shapes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">ty</span><span class="p">:</span>
                     <span class="n">output_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ty</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_inout_data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">rng</span><span class="p">:</span>
+                    <span class="n">output_ranges</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">rng</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">dequantize</span><span class="p">:</span>
+                    <span class="n">quant_scale</span> <span class="o">=</span> <span class="n">dequantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_zero_shift</span> <span class="o">=</span> <span class="n">dequantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;zero_shift&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_dtype</span> <span class="o">=</span> <span class="n">dequantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_range</span> <span class="o">=</span> <span class="n">dequantize</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;range&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">quant_details</span> <span class="o">=</span> <span class="p">[</span><span class="n">quant_scale</span><span class="p">,</span> <span class="n">quant_zero_shift</span><span class="p">,</span> <span class="n">quant_dtype</span><span class="p">,</span> <span class="n">quant_range</span><span class="p">]</span>
+                    <span class="n">output_quant_details</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">quant_details</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_inout_data</span> <span class="ow">or</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data_file</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span>
+                <span class="p">):</span>
                     <span class="k">if</span> <span class="s2">&quot;test_output_path&quot;</span> <span class="ow">in</span> <span class="n">outp</span><span class="p">:</span>
                         <span class="n">out_data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outp</span><span class="p">[</span><span class="s2">&quot;test_output_path&quot;</span><span class="p">])</span>
                         <span class="n">out_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="n">out_data_dir</span>
                         <span class="k">assert</span> <span class="p">(</span>
-                            <span class="n">in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+                            <span class="n">out_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
                         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Output data directory defined in model metadata does not exist: </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="n">out_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_mode</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_file</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;test_labels_file&quot;</span> <span class="ow">in</span> <span class="n">outp</span><span class="p">:</span>
+                        <span class="n">labels_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outp</span><span class="p">[</span><span class="s2">&quot;test_labels_file&quot;</span><span class="p">])</span>
+                        <span class="n">labels_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="n">labels_file</span>
+                        <span class="k">assert</span> <span class="p">(</span>
+                            <span class="n">labels_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+                        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Labels file defined in model metadata does not exist: </span><span class="si">{</span><span class="n">labels_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">labels_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fallback_in_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;input&quot;</span>
             <span class="k">if</span> <span class="n">fallback_in_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -283,6 +776,18 @@
             <span class="n">fallback_out_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;output&quot;</span>
             <span class="k">if</span> <span class="n">fallback_out_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
                 <span class="n">out_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fallback_out_path</span><span class="p">)</span>
+            <span class="n">fallback_labels_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;output_labels.csv&quot;</span>
+            <span class="k">if</span> <span class="n">fallback_labels_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="n">labels_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fallback_labels_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs_path</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overriding default model input data with user path&quot;</span><span class="p">)</span>
+            <span class="n">in_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">inputs_path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">outputs_path</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overriding default model output data with user path&quot;</span><span class="p">)</span>
+            <span class="n">out_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">outputs_path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">output_labels_path</span><span class="p">:</span>  <span class="c1"># TODO</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overriding default model output labels with user path&quot;</span><span class="p">)</span>
+            <span class="n">labels_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">output_labels_path</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;backends&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -292,12 +797,39 @@
                     <span class="n">flattened</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">backend_options</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
                     <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">flattened</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shapes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_types</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">input_shapes</span><span class="p">),</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">input_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">input_shapes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">input_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">input_types</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="p">(</span>
+                    <span class="n">input_names</span><span class="p">,</span>
+                    <span class="n">input_shapes</span><span class="p">,</span>
+                    <span class="n">input_types</span><span class="p">,</span>
+                    <span class="n">input_quant_details</span><span class="p">,</span>
+                    <span class="n">output_names</span><span class="p">,</span>
+                    <span class="n">output_shapes</span><span class="p">,</span>
+                    <span class="n">output_types</span><span class="p">,</span>
+                    <span class="n">output_quant_details</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Model info could not be extracted.&quot;</span><span class="p">)</span>
+
         <span class="c1"># Detect model support code (Allow overwrite in metadata YAML)</span>
-        <span class="n">support_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;support&quot;</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">support_path</span><span class="p">:</span>
+            <span class="n">support_path</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">support_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">support_path</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;support&quot;</span>
         <span class="k">if</span> <span class="n">support_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">assert</span> <span class="n">cfg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="c1"># TODO: onlu overwrite if unset?</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;mlif.model_support_dir&quot;</span><span class="p">:</span> <span class="n">support_path</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mlif.model_support_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;mlif.model_support_dir&quot;</span><span class="p">:</span> <span class="n">support_path</span><span class="p">})</span>
             <span class="c1"># cfg.update({&quot;espidf.model_support_dir&quot;: support_path})</span>
             <span class="c1"># cfg.update({&quot;zephyr.model_support_dir&quot;: support_path})</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -308,6 +840,8 @@
             <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;mlif.output_data_path&quot;</span><span class="p">:</span> <span class="n">out_paths</span><span class="p">})</span>
             <span class="c1"># cfg.update({&quot;espidf.output_data_path&quot;: out_paths})</span>
             <span class="c1"># cfg.update({&quot;zephyr.output_data_path&quot;: out_paths})</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;mlif.output_labels_path&quot;</span><span class="p">:</span> <span class="n">labels_paths</span><span class="p">})</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shapes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.input_shapes&quot;</span><span class="p">:</span> <span class="n">input_shapes</span><span class="p">})</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -315,7 +849,101 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.input_types&quot;</span><span class="p">:</span> <span class="n">input_types</span><span class="p">})</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.output_types&quot;</span><span class="p">:</span> <span class="n">output_types</span><span class="p">})</span></div>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.output_types&quot;</span><span class="p">:</span> <span class="n">output_types</span><span class="p">})</span>
+        <span class="c1"># flattened version</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_types</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">),</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">output_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_shapes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_shapes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">output_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_types</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">inputs_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">gen_model_info</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO: move to self (configurable)</span>
+        <span class="k">if</span> <span class="n">gen_model_info</span><span class="p">:</span>
+            <span class="n">model_info_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_model_info</span><span class="p">(</span>
+                <span class="n">input_names</span><span class="p">,</span>
+                <span class="n">output_names</span><span class="p">,</span>
+                <span class="n">input_shapes</span><span class="p">,</span>
+                <span class="n">output_shapes</span><span class="p">,</span>
+                <span class="n">input_types</span><span class="p">,</span>
+                <span class="n">output_types</span><span class="p">,</span>
+                <span class="n">input_ranges</span><span class="p">,</span>
+                <span class="n">output_ranges</span><span class="p">,</span>
+                <span class="n">input_quant_details</span><span class="p">,</span>
+                <span class="n">output_quant_details</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="kn">import</span> <span class="nn">yaml</span>
+
+            <span class="n">content</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model_info_dict</span><span class="p">)</span>
+            <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                <span class="s2">&quot;model_info.yml&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;model_info&quot;</span><span class="p">,)</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data</span><span class="p">:</span>
+            <span class="n">inputs_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_input_data</span><span class="p">(</span>
+                <span class="n">input_names</span><span class="p">,</span> <span class="n">input_types</span><span class="p">,</span> <span class="n">input_shapes</span><span class="p">,</span> <span class="n">input_ranges</span><span class="p">,</span> <span class="n">input_quant_details</span><span class="p">,</span> <span class="n">in_paths</span>
+            <span class="p">)</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fmt</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;npy&quot;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+                    <span class="n">tempfilename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;inputs.npy&quot;</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">,</span> <span class="n">inputs_data</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;npz&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported fmt: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">raw</span>
+            <span class="n">inputs_data_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;inputs.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;inputs&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">))</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputs_data_artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_data</span><span class="p">:</span>
+            <span class="n">outputs_ref_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_output_ref_data</span><span class="p">(</span>
+                <span class="n">inputs_data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">out_paths</span><span class="p">,</span> <span class="n">output_names</span><span class="p">,</span> <span class="n">output_types</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="n">output_quant_details</span>
+            <span class="p">)</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_data_fmt</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;npy&quot;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+                    <span class="n">tempfilename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;outputs_ref.npy&quot;</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">,</span> <span class="n">outputs_ref_data</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;npz&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported fmt: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">raw</span>
+            <span class="n">outputs_ref_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;outputs_ref.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;outputs_ref&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outputs_ref_artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels</span><span class="p">:</span>
+            <span class="n">labels_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_ref_labels</span><span class="p">(</span>
+                <span class="n">inputs_data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">labels_paths</span><span class="p">,</span> <span class="n">output_names</span><span class="p">,</span> <span class="n">output_types</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="n">output_quant_details</span>
+            <span class="p">)</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_ref_labels_fmt</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;npy&quot;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+                    <span class="n">tempfilename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;labels.npy&quot;</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">,</span> <span class="n">labels_ref</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tempfilename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;npz&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;txt&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported fmt: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">raw</span>
+            <span class="n">labels_ref_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;labels_ref.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;labels_ref&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels_ref_artifact</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">artifacts</span></div>
 
 
 <div class="viewcode-block" id="Frontend.generate">
@@ -430,6 +1058,7 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_formats</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_formats</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">assert</span> <span class="s2">&quot;/&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_formats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">extension</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>  <span class="c1"># TODO: is an onnx model raw data or text?</span>
@@ -446,7 +1075,14 @@
 <div class="viewcode-block" id="TfLiteFrontend">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend">[docs]</a>
 <span class="k">class</span> <span class="nc">TfLiteFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;visualize&quot;</span><span class="p">,</span> <span class="s2">&quot;split_layers&quot;</span><span class="p">,</span> <span class="s2">&quot;tflite_analyze&quot;</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">Frontend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span>
+        <span class="s2">&quot;visualize&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;split_layers&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tflite_analyze&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gen_data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_data&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gen_ref_labels&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -496,6 +1132,110 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">analyze_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;analyze_script&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="TfLiteFrontend.extract_model_info">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.extract_model_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">extract_model_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+        <span class="n">model_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">interpreter</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="n">input_details</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">get_input_details</span><span class="p">()</span>
+        <span class="n">output_details</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">get_output_details</span><span class="p">()</span>
+        <span class="n">input_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">input_shapes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">input_types</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">input_quant_details</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">output_shapes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_types</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_quant_details</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">input_details</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="n">input_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">input_shapes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">input_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="s2">&quot;quantization&quot;</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
+                <span class="n">scale</span><span class="p">,</span> <span class="n">zero_point</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;quantization&quot;</span><span class="p">]</span>
+                <span class="n">quant</span> <span class="o">=</span> <span class="p">[</span><span class="n">scale</span><span class="p">,</span> <span class="n">zero_point</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">]</span>
+                <span class="n">input_quant_details</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">quant</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">output_details</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">outp</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="n">output_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">output_shapes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">output_types</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">outp</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="s2">&quot;quantization&quot;</span> <span class="ow">in</span> <span class="n">outp</span><span class="p">:</span>
+                <span class="n">scale</span><span class="p">,</span> <span class="n">zero_point</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">&quot;quantization&quot;</span><span class="p">]</span>
+                <span class="n">quant</span> <span class="o">=</span> <span class="p">[</span><span class="n">scale</span><span class="p">,</span> <span class="n">zero_point</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">]</span>
+                <span class="n">output_quant_details</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">quant</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">input_names</span><span class="p">,</span>
+            <span class="n">input_shapes</span><span class="p">,</span>
+            <span class="n">input_types</span><span class="p">,</span>
+            <span class="n">input_quant_details</span><span class="p">,</span>
+            <span class="n">output_names</span><span class="p">,</span>
+            <span class="n">output_shapes</span><span class="p">,</span>
+            <span class="n">output_types</span><span class="p">,</span>
+            <span class="n">output_quant_details</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TfLiteFrontend.inference">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.inference">[docs]</a>
+    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">quant</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dequant</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+        <span class="n">model_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">interpreter</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">Interpreter</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="n">input_details</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">get_input_details</span><span class="p">()</span>
+        <span class="n">output_details</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">get_output_details</span><span class="p">()</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">allocate_tensors</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input details:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">input_details</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output details:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">output_details</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_details</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Multi-inputs not yet supported&quot;</span>
+        <span class="n">input_type</span> <span class="o">=</span> <span class="n">input_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span>
+        <span class="n">input_name</span> <span class="o">=</span> <span class="n">input_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="n">input_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">input_data</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Input </span><span class="si">{</span><span class="n">input_name</span><span class="si">}</span><span class="s2"> fot found in data&quot;</span>
+        <span class="n">np_features</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">quant</span> <span class="ow">and</span> <span class="n">input_type</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">:</span>
+            <span class="n">input_scale</span><span class="p">,</span> <span class="n">input_zero_point</span> <span class="o">=</span> <span class="n">input_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;quantization&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input scale:&quot;</span><span class="p">,</span> <span class="n">input_scale</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input zero point:&quot;</span><span class="p">,</span> <span class="n">input_zero_point</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">()</span>
+            <span class="n">np_features</span> <span class="o">=</span> <span class="p">(</span><span class="n">np_features</span> <span class="o">/</span> <span class="n">input_scale</span><span class="p">)</span> <span class="o">+</span> <span class="n">input_zero_point</span>
+            <span class="n">np_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">np_features</span><span class="p">)</span>
+        <span class="n">np_features</span> <span class="o">=</span> <span class="n">np_features</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">input_type</span><span class="p">)</span>
+        <span class="n">np_features</span> <span class="o">=</span> <span class="n">np_features</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">set_tensor</span><span class="p">(</span><span class="n">input_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;index&quot;</span><span class="p">],</span> <span class="n">np_features</span><span class="p">)</span>
+        <span class="n">interpreter</span><span class="o">.</span><span class="n">invoke</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">output_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;index&quot;</span><span class="p">])</span>
+
+        <span class="c1"># If the output type is int8 (quantized model), rescale data</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_details</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Multi-outputs not yet supported&quot;</span>
+        <span class="n">output_type</span> <span class="o">=</span> <span class="n">output_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span>
+        <span class="n">output_name</span> <span class="o">=</span> <span class="n">output_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dequant</span> <span class="ow">and</span> <span class="n">output_type</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">:</span>
+            <span class="n">output_scale</span><span class="p">,</span> <span class="n">output_zero_point</span> <span class="o">=</span> <span class="n">output_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;quantization&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Raw output scores:&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output scale:&quot;</span><span class="p">,</span> <span class="n">output_scale</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output zero point:&quot;</span><span class="p">,</span> <span class="n">output_zero_point</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">()</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">output_scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="n">output_zero_point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="c1"># Print the results of inference</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Inference output:&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">output_name</span><span class="p">:</span> <span class="n">output</span><span class="p">}</span></div>
+
 
 <div class="viewcode-block" id="TfLiteFrontend.produce_artifacts">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.produce_artifacts">[docs]</a>
@@ -1189,6 +1929,12 @@
 <div class="viewcode-block" id="PolybenchFrontend">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PolybenchFrontend">[docs]</a>
 <span class="k">class</span> <span class="nc">PolybenchFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">Frontend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="s2">&quot;large&quot;</span><span class="p">,</span>  <span class="c1"># mini/small/medium/large/extralarge</span>
+    <span class="p">}</span>
+
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;polybench.src_dir&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1269,6 +2015,7 @@
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;POLYBENCH_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;polybench.src_dir&quot;</span><span class="p">])</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;POLYBENCH_DATASET&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_DATASET&quot;</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -1650,6 +2397,65 @@
             <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">])</span>
             <span class="n">artifacts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">artifact</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">artifacts</span><span class="p">,</span> <span class="p">{}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="OpenASIPFrontend">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.OpenASIPFrontend">[docs]</a>
+<span class="k">class</span> <span class="nc">OpenASIPFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;openasip&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;sha256&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;aes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;crc&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def skip_backend(self):</span>
+    <span class="c1">#     return True</span>
+
+<div class="viewcode-block" id="OpenASIPFrontend.lookup_models">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.OpenASIPFrontend.lookup_models">[docs]</a>
+    <span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;openasip/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_names</span><span class="p">:</span>
+                <span class="n">hint</span> <span class="o">=</span> <span class="n">OpenASIPProgram</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">alt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;openasip/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="OpenASIPFrontend.generate">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.OpenASIPFrontend.generate">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;dummy_model&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;dummy&quot;</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="OpenASIPFrontend.get_platform_config">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.OpenASIPFrontend.get_platform_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;openasip&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
 </div>
 
 </pre></div>

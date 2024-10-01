@@ -152,9 +152,9 @@
         <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;cpu_arch&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;rom_start&quot;</span><span class="p">:</span> <span class="mh">0x0</span><span class="p">,</span>
+        <span class="s2">&quot;rom_start&quot;</span><span class="p">:</span> <span class="mh">0x1000000</span><span class="p">,</span>
         <span class="s2">&quot;rom_size&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>  <span class="c1"># 8 MB</span>
-        <span class="s2">&quot;ram_start&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>
+        <span class="s2">&quot;ram_start&quot;</span><span class="p">:</span> <span class="mh">0x1000000</span> <span class="o">+</span> <span class="mh">0x800000</span><span class="p">,</span>
         <span class="s2">&quot;ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
         <span class="s2">&quot;cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
         <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -178,8 +178,18 @@
         <span class="s2">&quot;extra_bool_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
         <span class="s2">&quot;extra_string_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
         <span class="s2">&quot;extra_plugin_config&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;use_run_helper&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;exit_on_loop&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;log_pc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;log_level&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;enable_semihosting&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;output_path_prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jit_gcc_cleanup&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;jit_verify&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;jit_debug&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;load_integrated_libraries&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -197,6 +207,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">etiss_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.script&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">etiss_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.exe&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">gdbserver_enable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -223,9 +237,23 @@
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enable_dmi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># return not self.trace_memory</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;plugins&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="EtissTarget.get_plugin_names">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.get_plugin_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_plugin_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugins</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">verbose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -403,6 +431,57 @@
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">use_run_helper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_run_helper&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">exit_on_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;exit_on_loop&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">log_pc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;log_pc&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">log_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;log_level&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">enable_semihosting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_semihosting&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">output_path_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output_path_prefix&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">jit_gcc_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;jit_gcc_cleanup&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">jit_verify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;jit_verify&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">jit_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;jit_debug&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">load_integrated_libraries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;load_integrated_libraries&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">])</span>
 
@@ -424,29 +503,52 @@
 
 <div class="viewcode-block" id="EtissTarget.get_ini_bool_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.get_ini_bool_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">override</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">override</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)}</span>
+
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;arch.enable_semihosting&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;arch.enable_semihosting&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_semihosting</span><span class="p">,</span>
+            <span class="s2">&quot;simple_mem_system.error_on_invalid_access&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_error</span><span class="p">,</span>
+            <span class="s2">&quot;jit.verify&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit_verify</span><span class="p">,</span>
+            <span class="s2">&quot;jit.debug&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit_debug</span><span class="p">,</span>
+            <span class="s2">&quot;etiss.load_integrated_libraries&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_integrated_libraries</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_string_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;simple_mem_system.print_dbus_access&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;simple_mem_system.print_to_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;etiss.exit_on_loop&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_loop</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;etiss.log_pc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_pc</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;etiss.enable_dmi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_dmi</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit</span> <span class="o">==</span> <span class="s2">&quot;GCC&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;jit.gcc.cleanup&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit_gcc_cleanup</span>
+
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_bool_config</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">override</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="EtissTarget.get_ini_string_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.get_ini_string_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ini_string_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_ini_string_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">override</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">override</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">))}</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;arch.cpu&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpu_arch</span><span class="p">,</span>
+            <span class="c1"># Mode will be overwritten by elf...</span>
+            <span class="c1"># &quot;simple_mem_system.memseg_mode_00&quot;: &quot;RX&quot;,</span>
+            <span class="c1"># &quot;simple_mem_system.memseg_mode_01&quot;: &quot;RWX&quot;,</span>
+            <span class="s2">&quot;etiss.output_path_prefix&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path_prefix</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;jit.type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">jit</span><span class="si">}</span><span class="s2">JIT&quot;</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_string_config</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">override</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="EtissTarget.get_ini_int_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.get_ini_int_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ini_int_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_ini_int_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">override</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">override</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="p">)}</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;simple_mem_system.memseg_origin_00&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_start</span><span class="p">,</span>
             <span class="s2">&quot;simple_mem_system.memseg_length_00&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_size</span><span class="p">,</span>
@@ -466,7 +568,19 @@
                 <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.vlen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.elen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span>
+        <span class="n">log_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span>
+        <span class="k">if</span> <span class="n">log_level</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+            <span class="n">log_level</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="mi">4</span>
+        <span class="k">if</span> <span class="n">log_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;etiss.loglevel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_level</span>
+        <span class="c1"># TODO</span>
+        <span class="c1"># ETISS::CPU_quantum_ps=100000</span>
+        <span class="c1"># ETISS::write_pc_trace_from_time_us=0</span>
+        <span class="c1"># ETISS::write_pc_trace_until_time_us=3000000</span>
+        <span class="c1"># ETISS::sim_mode=0</span>
+        <span class="c1"># vp::simulation_time_us=20000000</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_int_config</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">override</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -475,48 +589,55 @@
     <span class="k">def</span> <span class="nf">get_ini_plugin_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
-            <span class="c1"># This could also be accomplished using `--plugin.gdbserver.port` on the cmdline</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;gdbserver&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_port</span><span class="p">,</span>
+                <span class="p">}</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_plugin_config</span><span class="p">)</span>  <span class="c1"># TODO: merge nested dict instead of overriding</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
 <div class="viewcode-block" id="EtissTarget.write_ini">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.write_ini">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_ini</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">write_ini</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># TODO: Either create artifact for ini or prefer to use cmdline args.</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">ini_bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_bool_config</span><span class="p">()</span>
+            <span class="n">ini_bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_bool_config</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="n">override</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ini_bool</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[BoolConfigurations]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ini_bool</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">ini_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_string_config</span><span class="p">()</span>
+            <span class="n">ini_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_string_config</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="n">override</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ini_string</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[StringConfigurations]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ini_string</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">ini_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_int_config</span><span class="p">()</span>
+            <span class="n">ini_int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_int_config</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="n">override</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ini_int</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;[IntConfigurations]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ini_int</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">ini_plugin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ini_plugin_config</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ini_plugin</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">ini_plugin</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Plugin </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-                            <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plugin.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+            <span class="k">for</span> <span class="n">plugin_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plugin_names</span><span class="p">():</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Plugin </span><span class="si">{</span><span class="n">plugin_name</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">cfg</span> <span class="o">=</span> <span class="n">ini_plugin</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plugin.</span><span class="si">{</span><span class="n">plugin_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Check for remaining configs</span>
+            <span class="k">for</span> <span class="n">plugin_name</span><span class="p">,</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="n">ini_plugin</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Skipping config </span><span class="si">%s</span><span class="s2"> for disabled plugin </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">plugin_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EtissTarget.exec">
@@ -525,37 +646,63 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="n">etiss_script_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;etiss.extra_args requires etiss.use_run_helper=1&quot;</span><span class="p">)</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span>
 
         <span class="c1"># TODO: this is outdated</span>
         <span class="c1"># TODO: validate features (attach xor noattach!)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_etiss</span><span class="p">:</span>
-            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;gdb&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;gdb&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;etiss.debug_etiss requires etiss.use_run_helper=1&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
-            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;tgdb&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_attach</span><span class="p">:</span>
-                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;noattach&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;tgdb&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_attach</span><span class="p">:</span>
+                    <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;noattach&quot;</span><span class="p">)</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--plugin.gdbserver.port=</span><span class="si">{self.gdbserver_port}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_attach</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;etiss.gdbserver_attach requires etiss.use_run_helper=1&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span><span class="p">:</span>
-            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">)</span>
-            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;nodmi&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">)</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;nodmi&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_on_loop</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;noloop&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_pc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;logpc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_dmi</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;nodmi&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
         <span class="c1"># Alternative to stdout parsing: etiss_script_args.append(&quot;--vp.stats_file_path=stats.json&quot;)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plugin_names</span><span class="p">():</span>
+                <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">plugin</span><span class="p">])</span>
 
         <span class="c1"># TODO: working directory?</span>
+        <span class="n">ini_override</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
+            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">program</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ini_override</span><span class="p">[</span><span class="s2">&quot;vp.elf_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program</span>
         <span class="n">etiss_ini</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s2">&quot;custom.ini&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_ini</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_ini</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="n">ini_override</span><span class="p">)</span>
         <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span> <span class="o">+</span> <span class="n">etiss_ini</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugins</span><span class="p">:</span>
-            <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">plugin</span><span class="p">])</span>
 
         <span class="c1"># if self.timeout_sec &gt; 0:</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_script</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_exe</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">script</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="k">if</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">exec_timeout</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span><span class="p">,</span>
                 <span class="n">execute</span><span class="p">,</span>
-                <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">etiss_script</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-                <span class="n">program</span><span class="p">,</span>
+                <span class="n">script</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">etiss_script_args</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
@@ -563,8 +710,7 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
-                <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">etiss_script</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-                <span class="n">program</span><span class="p">,</span>
+                <span class="n">script</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">etiss_script_args</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
@@ -726,6 +872,8 @@
 <div class="viewcode-block" id="EtissTarget.get_target_system">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.get_target_system">[docs]</a>
     <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_semihosting</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;etiss.enable_semihosting=0 is not supported anymore&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 

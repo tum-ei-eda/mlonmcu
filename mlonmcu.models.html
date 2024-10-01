@@ -286,7 +286,7 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -320,6 +320,76 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.extract_model_info">
+<span class="sig-name descname"><span class="pre">extract_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.Model" title="mlonmcu.models.model.Model"><span class="pre">Model</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.extract_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.extract_model_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_data</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_data_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_data_file</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_data_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_data_fill_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_data_fill_mode</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_data_fill_mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_data_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_data_fmt</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_data_fmt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_data_number">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_data_number</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_data_number" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_data</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_data_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_data_file</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_data_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_data_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_data_fmt</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_data_fmt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_data_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_data_mode</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_data_mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_labels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_labels</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_labels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_labels_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_labels_file</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_labels_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_labels_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_labels_fmt</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_labels_fmt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.gen_ref_labels_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen_ref_labels_mode</span></span><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.gen_ref_labels_mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.generate">
 <span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.generate" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -330,6 +400,26 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.generate_input_data">
+<span class="sig-name descname"><span class="pre">generate_input_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_quant_details</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.generate_input_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.generate_input_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.generate_model_info">
+<span class="sig-name descname"><span class="pre">generate_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_quant_details</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_quant_details</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.generate_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.generate_model_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.generate_output_ref_data">
+<span class="sig-name descname"><span class="pre">generate_output_ref_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_quant_details</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.generate_output_ref_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.generate_output_ref_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.generate_ref_labels">
+<span class="sig-name descname"><span class="pre">generate_ref_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_labels_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_quant_details</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.generate_ref_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.generate_ref_labels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.get_platform_config">
 <span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.get_platform_config" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -337,6 +427,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.get_platform_defs">
 <span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.Frontend.inference">
+<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.Model" title="mlonmcu.models.model.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">array</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#Frontend.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.Frontend.inference" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -378,7 +473,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -487,6 +582,32 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.OpenASIPFrontend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">OpenASIPFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#OpenASIPFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.OpenASIPFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.OpenASIPFrontend.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#OpenASIPFrontend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.OpenASIPFrontend.generate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.OpenASIPFrontend.get_platform_config">
+<span class="sig-name descname"><span class="pre">get_platform_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#OpenASIPFrontend.get_platform_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.OpenASIPFrontend.get_platform_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.OpenASIPFrontend.lookup_models">
+<span class="sig-name descname"><span class="pre">lookup_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#OpenASIPFrontend.lookup_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.OpenASIPFrontend.lookup_models" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.OpenASIPFrontend.supported_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supported_names</span></span><a class="headerlink" href="#mlonmcu.models.frontend.OpenASIPFrontend.supported_names" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.PBFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">PBFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#PBFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.PBFrontend" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
@@ -498,7 +619,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.PackedFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'check':</span> <span class="pre">False,</span> <span class="pre">'fake_pack':</span> <span class="pre">False,</span> <span class="pre">'ignore_existing':</span> <span class="pre">True,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'use_packed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.PackedFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'check':</span> <span class="pre">False,</span> <span class="pre">'fake_pack':</span> <span class="pre">False,</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'ignore_existing':</span> <span class="pre">True,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'use_packed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.PackedFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -549,6 +670,11 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">PolybenchFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#PolybenchFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.PolybenchFrontend" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.PolybenchFrontend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dataset':</span> <span class="pre">'large',</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.PolybenchFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.PolybenchFrontend.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'polybench.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.PolybenchFrontend.REQUIRED" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -586,7 +712,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.RelayFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'relayviz_plotter':</span> <span class="pre">'term',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_graph':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'relayviz_plotter':</span> <span class="pre">'term',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_graph':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.RelayFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -680,12 +806,12 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'analyze_enable':</span> <span class="pre">False,</span> <span class="pre">'analyze_script':</span> <span class="pre">None,</span> <span class="pre">'pack_script':</span> <span class="pre">None,</span> <span class="pre">'split_layers':</span> <span class="pre">False,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'analyze_enable':</span> <span class="pre">False,</span> <span class="pre">'analyze_script':</span> <span class="pre">None,</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'pack_script':</span> <span class="pre">None,</span> <span class="pre">'split_layers':</span> <span class="pre">False,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'split_layers',</span> <span class="pre">'tflite_analyze',</span> <span class="pre">'validate',</span> <span class="pre">'visualize'}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.FEATURES" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gen_data',</span> <span class="pre">'gen_ref_data',</span> <span class="pre">'gen_ref_labels',</span> <span class="pre">'split_layers',</span> <span class="pre">'tflite_analyze',</span> <span class="pre">'validate',</span> <span class="pre">'visualize'}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.FEATURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -709,8 +835,18 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.extract_model_info">
+<span class="sig-name descname"><span class="pre">extract_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.Model" title="mlonmcu.models.model.Model"><span class="pre">Model</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.extract_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.extract_model_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.generate">
 <span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.generate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TfLiteFrontend.inference">
+<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.Model" title="mlonmcu.models.model.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">array</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dequant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TfLiteFrontend.inference" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -915,7 +1051,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model.Workload" title="mlonmcu.models.model.Workload"><code class="xref py py-class docutils literal notranslate"><span class="pre">Workload</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'input_shapes':</span> <span class="pre">None,</span> <span class="pre">'input_types':</span> <span class="pre">None,</span> <span class="pre">'inputs_path':</span> <span class="pre">'input',</span> <span class="pre">'metadata_path':</span> <span class="pre">'definition.yml',</span> <span class="pre">'output_shapes':</span> <span class="pre">None,</span> <span class="pre">'output_types':</span> <span class="pre">None,</span> <span class="pre">'outputs_path':</span> <span class="pre">'output',</span> <span class="pre">'support_path':</span> <span class="pre">'support'}</span></em><a class="headerlink" href="#mlonmcu.models.model.Model.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'input_shapes':</span> <span class="pre">None,</span> <span class="pre">'input_types':</span> <span class="pre">None,</span> <span class="pre">'inputs_path':</span> <span class="pre">None,</span> <span class="pre">'metadata_path':</span> <span class="pre">'definition.yml',</span> <span class="pre">'output_labels_path':</span> <span class="pre">None,</span> <span class="pre">'output_shapes':</span> <span class="pre">None,</span> <span class="pre">'output_types':</span> <span class="pre">None,</span> <span class="pre">'outputs_path':</span> <span class="pre">None,</span> <span class="pre">'support_path':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.model.Model.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -936,6 +1072,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model.metadata_path">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_path</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.metadata_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.Model.output_labels_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_labels_path</span></span><a class="headerlink" href="#mlonmcu.models.model.Model.output_labels_path" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -1046,6 +1187,27 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.from_extension">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ext</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#ModelFormats.from_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.from_extension" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.model.OpenASIPProgram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">OpenASIPProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#OpenASIPProgram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.OpenASIPProgram" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model.Program" title="mlonmcu.models.model.Program"><code class="xref py py-class docutils literal notranslate"><span class="pre">Program</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.OpenASIPProgram.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'crc_mode':</span> <span class="pre">'both'}</span></em><a class="headerlink" href="#mlonmcu.models.model.OpenASIPProgram.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model.OpenASIPProgram.crc_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crc_mode</span></span><a class="headerlink" href="#mlonmcu.models.model.OpenASIPProgram.crc_mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.model.OpenASIPProgram.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#OpenASIPProgram.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.OpenASIPProgram.get_platform_defs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1190,6 +1352,11 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.utils.fill_data_source_inputs_only">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.utils.</span></span><span class="sig-name descname"><span class="pre">fill_data_source_inputs_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_bufs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/utils.html#fill_data_source_inputs_only"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.utils.fill_data_source_inputs_only" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.utils.get_data_source">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.utils.</span></span><span class="sig-name descname"><span class="pre">get_data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/utils.html#get_data_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.utils.get_data_source" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1213,7 +1380,7 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1266,7 +1433,7 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.PackedFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'check':</span> <span class="pre">False,</span> <span class="pre">'fake_pack':</span> <span class="pre">False,</span> <span class="pre">'ignore_existing':</span> <span class="pre">True,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'use_packed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.models.PackedFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'check':</span> <span class="pre">False,</span> <span class="pre">'fake_pack':</span> <span class="pre">False,</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'ignore_existing':</span> <span class="pre">True,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'use_packed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.models.PackedFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1312,12 +1479,12 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'analyze_enable':</span> <span class="pre">False,</span> <span class="pre">'analyze_script':</span> <span class="pre">None,</span> <span class="pre">'pack_script':</span> <span class="pre">None,</span> <span class="pre">'split_layers':</span> <span class="pre">False,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'analyze_enable':</span> <span class="pre">False,</span> <span class="pre">'analyze_script':</span> <span class="pre">None,</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'pack_script':</span> <span class="pre">None,</span> <span class="pre">'split_layers':</span> <span class="pre">False,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False,</span> <span class="pre">'visualize_enable':</span> <span class="pre">False,</span> <span class="pre">'visualize_script':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'split_layers',</span> <span class="pre">'tflite_analyze',</span> <span class="pre">'validate',</span> <span class="pre">'visualize'}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.FEATURES" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gen_data',</span> <span class="pre">'gen_ref_data',</span> <span class="pre">'gen_ref_labels',</span> <span class="pre">'split_layers',</span> <span class="pre">'tflite_analyze',</span> <span class="pre">'validate',</span> <span class="pre">'visualize'}</span></em><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.FEATURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1341,8 +1508,18 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.extract_model_info">
+<span class="sig-name descname"><span class="pre">extract_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.Model" title="mlonmcu.models.model.Model"><span class="pre">Model</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.extract_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.extract_model_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.generate">
 <span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.generate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.TfLiteFrontend.inference">
+<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.Model" title="mlonmcu.models.model.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">array</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dequant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TfLiteFrontend.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.TfLiteFrontend.inference" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

@@ -2342,6 +2342,215 @@
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extra_plugin_config</span>
             <span class="n">extra_plugin_config</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;baseaddr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_addr</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_plugin_config&quot;</span><span class="p">:</span> <span class="n">extra_plugin_config</span><span class="p">})</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;gen_data&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GenData</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">):</span>  <span class="c1"># TODO: use custom stage instead of LOAD</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate input data for validation.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;fill_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: random, ones, zeros, file, dataset</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># Only relevant if fill_mode=file</span>
+        <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># generate up to number samples (may be less if file has less inputs)</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;npy&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: npy, npz</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;gen_data&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fill_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fill_mode&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="s2">&quot;ones&quot;</span><span class="p">,</span> <span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;number&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_data_fill_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_mode</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_data_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_data_number&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_data_fmt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;gen_ref_data&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gen_data&quot;</span><span class="p">])</span>
+<span class="k">class</span> <span class="nc">GenRefData</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">):</span>  <span class="c1"># TODO: use custom stage instead of LOAD</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate reference outputs for validation.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: file, model</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># Only relevant if mode=file</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;npy&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: npy, npz</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;gen_ref_data&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_data_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_data_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_data_fmt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;gen_ref_labels&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gen_data&quot;</span><span class="p">])</span>
+<span class="k">class</span> <span class="nc">GenRefLabels</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">):</span>  <span class="c1"># TODO: use custom stage instead of LOAD</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate reference labels for classification.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: file, model</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># Only relevant if mode=file</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;npy&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: npy, npz, txt</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;gen_ref_labels&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_frontend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tflite&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_labels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_labels_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_labels_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.gen_ref_labels_fmt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;set_inputs&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">SetInputs</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>  <span class="c1"># TODO: use custom stage instead of LOAD</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply test inputs to model.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;interface&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: auto, rom, filesystem, stdin, stdin_raw, uart</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;set_inputs&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;interface&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;rom&quot;</span><span class="p">,</span> <span class="s2">&quot;filesystem&quot;</span><span class="p">,</span> <span class="s2">&quot;stdin&quot;</span><span class="p">,</span> <span class="s2">&quot;stdin_raw&quot;</span><span class="p">,</span> <span class="s2">&quot;uart&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;microtvm&quot;</span><span class="p">]</span>
+        <span class="c1"># if tvm/microtvm: allow using --fill-mode provided by tvmc run</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.set_inputs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.set_inputs_interface&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;get_outputs&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GetOutputs</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>  <span class="c1"># TODO: use custom stage instead of LOAD</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract resulting outputs from model.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;interface&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: auto, filesystem, stdout, stdout_raw, uart</span>
+        <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;npy&quot;</span><span class="p">,</span>  <span class="c1"># Allowed: npz, npz</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;get_outputs&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;interface&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;filesystem&quot;</span><span class="p">,</span> <span class="s2">&quot;stdout&quot;</span><span class="p">,</span> <span class="s2">&quot;stdout_raw&quot;</span><span class="p">,</span> <span class="s2">&quot;uart&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fmt&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;npy&quot;</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;microtvm&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.get_outputs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.get_outputs_interface&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.get_outputs_fmt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">,</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;validate_new&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gen_data&quot;</span><span class="p">,</span> <span class="s2">&quot;gen_ref_data&quot;</span><span class="p">,</span> <span class="s2">&quot;set_inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;get_outputs&quot;</span><span class="p">])</span>
+<span class="k">class</span> <span class="nc">ValidateNew</span><span class="p">(</span><span class="n">RunFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper feature for enabling all validatioon related features at once.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;validate_new&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># def get_postprocesses(self):</span>
+    <span class="c1">#     # config = {}</span>
+    <span class="c1">#     # from mlonmcu.session.postprocess import ValidateOutputsPostprocess</span>
+    <span class="c1">#     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)</span>
+    <span class="c1">#     # return [validate_outputs_postprocess]</span>
+    <span class="c1">#     return [&quot;validate_outputs&quot;]</span>
 </pre></div>
 
            </div>

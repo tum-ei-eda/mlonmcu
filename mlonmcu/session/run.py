@@ -74,7 +74,7 @@ def add_any(new, base=None, append=True):
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    FEATURES = {"autotune", "target_optimized"}
+    FEATURES = {"autotune", "target_optimized", "validate_new"}
 
     DEFAULTS = {
         "export_optional": False,
@@ -506,15 +506,22 @@ class Run:
     def add_frontends_by_name(self, frontend_names, context=None):
         """Helper function to initialize and configure frontends by their names."""
         frontends = []
+        reasons = {}
         for name in frontend_names:
             try:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
                 frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
-            except Exception:
+            except Exception as e:
+                reasons[name] = str(e)
                 continue
         assert len(frontends) > 0, "No compatible frontend was found"
+        if len(frontends) == 0:
+            if reasons:
+                logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
+            else:
+                raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):
@@ -993,7 +1000,15 @@ class Run:
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
         if isinstance(self.model, Model):
-            self.frontend.process_metadata(self.model, cfg=cfg_new)
+            artifacts_ = self.frontend.process_metadata(self.model, cfg=cfg_new)
+            if artifacts_ is not None:
+                if isinstance(artifacts, dict):
+                    assert "default" in artifacts.keys()
+                    artifacts["default"].extend(artifacts_)
+                    # ignore subs for now
+                else:
+                    assert isinstance(artifacts, list)
+                    artifacts.extend(artifacts_)
             if len(cfg_new) > 0:
                 for key, value in cfg_new.items():
                     component, name = key.split(".")[:2]

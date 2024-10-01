@@ -20,8 +20,10 @@
 import os
 import tempfile
 from typing import Tuple
-
 from pathlib import Path
+
+import yaml
+import numpy as np
 
 from mlonmcu.config import str2bool
 from mlonmcu.setup import utils  # TODO: Move one level up?
@@ -33,6 +35,7 @@ from mlonmcu.target.target import Target
 from mlonmcu.models.utils import get_data_source
 
 from ..platform import CompilePlatform, TargetPlatform
+from .interfaces import ModelSupport
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()
@@ -57,6 +60,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
+            "set_inputs",
+            "get_outputs",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -64,6 +69,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         **CompilePlatform.DEFAULTS,
         **TargetPlatform.DEFAULTS,
         "template": "ml_interface",
+        "template_version": None,
         "ignore_data": True,
         "skip_check": False,
         "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
@@ -82,10 +88,20 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "strip_strings": False,
         "unroll_loops": None,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
+        "set_inputs": False,
+        "set_inputs_interface": None,
+        "get_outputs": False,
+        "get_outputs_interface": None,
+        "get_outputs_fmt": None,
+        "batch_size": None,
+        "model_support_file": None,
+        "model_support_dir": None,
+        "model_support_lib": None,
         # llvm specific (TODO: move to toolchain components)
         "fuse_ld": None,
         "global_isel": False,
         "extend_attrs": False,
+        "ccache": False,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -103,6 +119,67 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def goal(self):
         return self.config["goal"]
+
+    @property
+    def ccache(self):
+        value = self.config["ccache"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def set_inputs(self):
+        value = self.config["set_inputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def set_inputs_interface(self):
+        value = self.config["set_inputs_interface"]
+        return value
+
+    @property
+    def get_outputs(self):
+        value = self.config["get_outputs"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def get_outputs_interface(self):
+        value = self.config["get_outputs_interface"]
+        return value
+
+    @property
+    def get_outputs_fmt(self):
+        value = self.config["get_outputs_fmt"]  # TODO: use
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]  # TODO: use
+        if isinstance(value, str):
+            value = int(value)
+        return value
+
+    @property
+    def inputs_artifact(self):
+        # THIS IS A HACK (get inputs fom artifacts!)
+        lookup_path = self.build_dir.parent / "inputs.npy"
+        if lookup_path.is_file():
+            return lookup_path
+        else:
+            logger.warning("Artifact 'inputs.npz' not found!")
+            return None
+
+    @property
+    def model_info_file(self):
+        # THIS IS A HACK (get inputs fom artifacts!)
+        lookup_path = self.build_dir.parent / "model_info.yml"
+        if lookup_path.is_file():
+            return lookup_path
+        else:
+            logger.warning("Artifact 'model_info.yml' not found!")
+            return None
+
+    @property
+    def needs_model_support(self):
+        return self.set_inputs or self.get_outputs
 
     def gen_data_artifact(self):
         in_paths = self.input_data_path
@@ -194,6 +271,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["template"]
 
     @property
+    def template_version(self):
+        return self.config["template_version"]
+
+    @property
     def ignore_data(self):
         value = self.config["ignore_data"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
@@ -217,8 +298,19 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return str(self.config["toolchain"])
 
     @property
+    def model_support_file(self):
+        value = self.config["model_support_file"]  # TODO: use
+        return value
+
+    @property
     def model_support_dir(self):
-        return self.config["model_support_dir"]
+        value = self.config["model_support_dir"]  # TODO: use
+        return value
+
+    @property
+    def model_support_lib(self):
+        value = self.config["model_support_lib"]  # TODO: use
+        return value
 
     @property
     def prebuild_lib_dir(self):
@@ -304,15 +396,21 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def get_definitions(self):
         definitions = self.definitions
         definitions["TEMPLATE"] = self.template
+        if self.template_version:
+            definitions["TEMPLATE_VERSION"] = self.template_version
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
         definitions["SKIP_CHECK"] = self.skip_check
+        if self.batch_size is not None:
+            definitions["BATCH_SIZE"] = self.batch_size
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
-        if self.toolchain == "llvm" and self.llvm_dir is None:
-            raise RuntimeError("Missing config variable: llvm.install_dir")
-        else:
-            definitions["LLVM_DIR"] = self.llvm_dir
+        if self.toolchain == "llvm":
+            if self.llvm_dir is None:
+                raise RuntimeError("Missing config variable: llvm.install_dir")
+            llvm_dir = Path(self.llvm_dir).resolve()
+            assert llvm_dir.is_dir(), f"llvm.install_dir does not exist: {llvm_dir}"
+            definitions["LLVM_DIR"] = llvm_dir
         if self.optimize is not None:
             definitions["OPTIMIZE"] = self.optimize
         if self.debug_symbols is not None:
@@ -325,8 +423,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["ENABLE_GC"] = self.garbage_collect
         if self.slim_cpp is not None:
             definitions["SLIM_CPP"] = self.slim_cpp
+        if self.model_support_file is not None:
+            definitions["MODEL_SUPPORT_FILE"] = self.model_support_file
         if self.model_support_dir is not None:
             definitions["MODEL_SUPPORT_DIR"] = self.model_support_dir
+        if self.model_support_lib is not None:
+            definitions["MODEL_SUPPORT_LIB"] = self.model_support_lib
         if self.fuse_ld is not None:
             definitions["FUSE_LD"] = self.fuse_ld
         if self.global_isel is not None:
@@ -337,6 +439,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:
             definitions["UNROLL_LOOPS"] = self.unroll_loops
+        if self.ccache:
+            definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
+            definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
 
         return definitions
 
@@ -360,8 +465,46 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             env["PATH"] = path_new
         return env
 
+    def generate_model_support(self, target):
+        artifacts = []
+        batch_size = self.batch_size
+        inputs_data = None
+        if self.inputs_artifact is not None:
+            inputs_data = np.load(self.inputs_artifact, allow_pickle=True)
+        if self.model_info_file is not None:
+            with open(self.model_info_file, "r") as f:
+                model_info = yaml.safe_load(f)
+        if self.set_inputs or self.get_outputs:
+            model_support = ModelSupport(
+                in_interface=self.set_inputs_interface,
+                out_interface=self.get_outputs_interface,
+                model_info=model_info,
+                target=target,
+                batch_size=batch_size,
+                inputs_data=inputs_data,
+            )
+            code = model_support.generate()
+            code_artifact = Artifact(
+                "model_support.cpp",
+                content=code,
+                fmt=ArtifactFormat.TEXT,
+                flags=("model_support"),
+            )
+            self.definitions["BATCH_SIZE"] = model_support.batch_size
+            artifacts.append(code_artifact)
+        return artifacts
+
     def configure(self, target, src, _model):
-        del target
+        artifacts = []
+        if self.needs_model_support:
+            artifacts.extend(self.generate_model_support(target))
+            if len(artifacts) > 0:
+                assert len(artifacts) == 1
+                model_support_artifact = artifacts[0]
+                model_support_file = self.build_dir / model_support_artifact.name
+                model_support_artifact.export(model_support_file)
+                self.definitions["MODEL_SUPPORT_FILE"] = model_support_file
+            del target
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = self.get_cmake_args()
@@ -371,11 +514,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
-        artifacts = []
         if self.ignore_data:
             cmakeArgs.append("-DDATA_SRC=")
         else:
-            data_artifact = self.gen_data_artifact()
+            # data_artifact = self.gen_data_artifact()
+            data_artifact = None
             if data_artifact:
                 data_file = self.build_dir / data_artifact.name
                 data_artifact.export(data_file)

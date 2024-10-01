@@ -329,7 +329,7 @@
 <div class="viewcode-block" id="ConfusionMatrixMetric.process">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.ConfusionMatrixMetric.process">[docs]</a>
     <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_data</span><span class="p">,</span> <span class="n">label_ref</span><span class="p">,</span> <span class="n">quant</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ConfusionMatrixMetric.process&quot;</span><span class="p">)</span>
+        <span class="c1"># print(&quot;ConfusionMatrixMetric.process&quot;)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">out_data</span><span class="p">,</span> <span class="n">label_ref</span><span class="p">,</span> <span class="n">quant</span><span class="o">=</span><span class="n">quant</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_total</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -423,8 +423,8 @@
             <span class="n">ref_res</span> <span class="o">+=</span> <span class="n">ref_res</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">res</span> <span class="o">/=</span> <span class="n">length</span>
         <span class="n">ref_res</span> <span class="o">/=</span> <span class="n">length</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;res&quot;</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ref_res&quot;</span><span class="p">,</span> <span class="n">ref_res</span><span class="p">)</span>
+        <span class="c1"># print(&quot;res&quot;, res)</span>
+        <span class="c1"># print(&quot;ref_res&quot;, ref_res)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">([</span><span class="n">res</span><span class="p">],</span> <span class="p">[</span><span class="n">ref_res</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">atol</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rtol</span><span class="p">)</span></div>
 </div>
 
@@ -451,9 +451,9 @@
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">jjj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">data_</span><span class="p">[</span><span class="n">jjj</span><span class="p">]</span> <span class="o">-</span> <span class="n">ref_data_</span><span class="p">[</span><span class="n">jjj</span><span class="p">])</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+            <span class="c1"># print(&quot;diff&quot;, diff)</span>
             <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;r FALSE&quot;</span><span class="p">)</span>
+                <span class="c1"># print(&quot;r FALSE&quot;)</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 </div>

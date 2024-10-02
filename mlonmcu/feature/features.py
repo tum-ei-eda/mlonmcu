@@ -2279,16 +2279,31 @@ class MemgraphLlvmCdfg(PlatformFeature):
 
 @register_feature("global_isel")
 class GlobalIsel(PlatformFeature):
-    """TODO"""
+    """LLVM's -global-isel=1 mode (replacing ISelDAG)"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "abort": None,  # 0: fallback, 1: abort 2: fallback+msg
+    }
 
     def __init__(self, features=None, config=None):
         super().__init__("global_isel", features=features, config=config)
 
+    @property
+    def abort(self):
+        value = self.config["abort"]
+        assert value is None or str(value) in ["0", "1", "2"]
+        return value
+
     def get_platform_defs(self, platform):
         assert platform in ["mlif"]
-        return filter_none({
-            "GLOBAL_ISEL": self.enabled,
-        })
+        return filter_none(
+            {
+                "GLOBAL_ISEL": self.enabled,
+                "GLOBAL_ISEL_ABORT": self.abort,
+            }
+        )
+
 
 @register_feature("gen_data")
 class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD

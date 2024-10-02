@@ -2233,8 +2233,18 @@ class VanillaAccelerator(TargetFeature):
 class MemgraphLlvmCdfg(PlatformFeature):
     """TODO"""
 
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "session": "default",
+    }
+
     def __init__(self, features=None, config=None):
         super().__init__("memgraph_llvm_cdfg", features=features, config=config)
+
+    @property
+    def session(self):
+        value = self.config["session"]
+        return value
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"]
@@ -2243,6 +2253,7 @@ class MemgraphLlvmCdfg(PlatformFeature):
             "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
             "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
             "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
+            "MEMGRAPH_LLVM_CDFG_SESSION": self.session
         })
 
 

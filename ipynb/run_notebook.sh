@@ -89,6 +89,11 @@ do
 done
 
 
+if [[ -z $NOTEBOOK ]]
+then
+    echo "No NOTEBOOK specified. Aborting..."
+    exit 1
+fi
 NOTEBOOK=$(readlink -f $NOTEBOOK)
 if [[ ! -f $NOTEBOOK ]]
 then

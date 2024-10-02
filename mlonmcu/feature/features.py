@@ -2235,11 +2235,29 @@ class MemgraphLlvmCdfg(PlatformFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "session": "default",
+        "host": None,  # localhost
+        "port": None,  # 7687
+        "purge": None,  # false
+        "session": None,  # default,
     }
 
     def __init__(self, features=None, config=None):
         super().__init__("memgraph_llvm_cdfg", features=features, config=config)
+
+    @property
+    def host(self):
+        value = self.config["host"]
+        return value
+
+    @property
+    def port(self):
+        value = self.config["port"]
+        return value
+
+    @property
+    def purge(self):
+        value = self.config["purge"]
+        return str2bool(value, allow_none=True)
 
     @property
     def session(self):
@@ -2248,13 +2266,15 @@ class MemgraphLlvmCdfg(PlatformFeature):
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"]
-        return filter_none({
-            "MEMGRAPH_LLVM_CDFG": self.enabled,
-            "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
-            "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
-            "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
-            "MEMGRAPH_LLVM_CDFG_SESSION": self.session
-        })
+        return filter_none(
+            {
+                "MEMGRAPH_LLVM_CDFG": self.enabled,
+                "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_SESSION": self.session,
+            }
+        )
 
 
 @register_feature("global_isel")

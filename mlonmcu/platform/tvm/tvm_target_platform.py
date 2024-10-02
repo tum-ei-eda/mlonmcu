@@ -89,7 +89,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     @property
     def profile(self):
         value = self.config["profile"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def repeat(self):
@@ -108,12 +108,12 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     @property
     def total_time(self):
         value = self.config["total_time"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def set_inputs(self):
         value = self.config["set_inputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def set_inputs_interface(self):
@@ -123,7 +123,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     @property
     def get_outputs(self):
         value = self.config["get_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def get_outputs_interface(self):

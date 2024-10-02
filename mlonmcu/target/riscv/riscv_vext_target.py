@@ -77,7 +77,7 @@ class RVVTarget(RISCVTarget):
     @property
     def embedded_vext(self):
         value = self.config["embedded_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def extensions(self):

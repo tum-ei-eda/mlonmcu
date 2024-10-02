@@ -48,7 +48,7 @@ class FeatureBase(ABC):
     @property
     def enabled(self):
         value = self.config["enabled"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def remove_config_prefix(self, config):  # TODO: move to different place
         def helper(key):

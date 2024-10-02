@@ -125,12 +125,12 @@ class EtissTarget(RISCVTarget):
     @property
     def gdbserver_enable(self):
         value = self.config["gdbserver_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gdbserver_attach(self):
         value = self.config["gdbserver_attach"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gdbserver_port(self):
@@ -139,12 +139,12 @@ class EtissTarget(RISCVTarget):
     @property
     def debug_etiss(self):
         value = self.config["debug_etiss"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def trace_memory(self):
         value = self.config["trace_memory"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_dmi(self):
@@ -154,7 +154,7 @@ class EtissTarget(RISCVTarget):
     @property
     def plugins(self):
         value = self.config["plugins"]
-        return str2list(value) if isinstance(value, str) else value
+        return str2list(value)
 
     def get_plugin_names(self):
         ret = self.plugins
@@ -165,7 +165,7 @@ class EtissTarget(RISCVTarget):
     @property
     def verbose(self):
         value = self.config["verbose"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def rom_start(self):
@@ -203,47 +203,47 @@ class EtissTarget(RISCVTarget):
     @property
     def enable_vext(self):
         value = self.config["enable_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_pext(self):
         value = self.config["enable_pext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevmac(self):
         value = self.config["enable_xcorevmac"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevmem(self):
         value = self.config["enable_xcorevmem"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevbi(self):
         value = self.config["enable_xcorevbi"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevalu(self):
         value = self.config["enable_xcorevalu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevbitmanip(self):
         value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevsimd(self):
         value = self.config["enable_xcorevsimd"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevhwlp(self):
         value = self.config["enable_xcorevhwlp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def vlen(self):
@@ -260,22 +260,22 @@ class EtissTarget(RISCVTarget):
     @property
     def extra_bool_config(self):
         value = self.config["extra_bool_config"]
-        return str2dict(value) if not isinstance(value, dict) else value
+        return str2dict(value)
 
     @property
     def extra_int_config(self):
         value = self.config["extra_int_config"]
-        return str2dict(value) if not isinstance(value, dict) else value
+        return str2dict(value)
 
     @property
     def extra_string_config(self):
         value = self.config["extra_string_config"]
-        return str2dict(value) if not isinstance(value, dict) else value
+        return str2dict(value)
 
     @property
     def extra_plugin_config(self):
         value = self.config["extra_plugin_config"]
-        return str2dict(value) if not isinstance(value, dict) else value
+        return str2dict(value)
 
     @property
     def extensions(self):
@@ -335,22 +335,22 @@ class EtissTarget(RISCVTarget):
     @property
     def allow_error(self):
         value = self.config["allow_error"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def use_run_helper(self):
         value = self.config["use_run_helper"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def exit_on_loop(self):
         value = self.config["exit_on_loop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def log_pc(self):
         value = self.config["log_pc"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def log_level(self):
@@ -362,7 +362,7 @@ class EtissTarget(RISCVTarget):
     @property
     def enable_semihosting(self):
         value = self.config["enable_semihosting"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def output_path_prefix(self):
@@ -371,22 +371,22 @@ class EtissTarget(RISCVTarget):
     @property
     def jit_gcc_cleanup(self):
         value = self.config["jit_gcc_cleanup"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def jit_verify(self):
         value = self.config["jit_verify"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def jit_debug(self):
         value = self.config["jit_debug"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def load_integrated_libraries(self):
         value = self.config["load_integrated_libraries"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def vext_spec(self):
@@ -395,7 +395,7 @@ class EtissTarget(RISCVTarget):
     @property
     def embedded_vext(self):
         value = self.config["embedded_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def pext_spec(self):

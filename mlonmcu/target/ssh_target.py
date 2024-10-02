@@ -71,7 +71,7 @@ class SSHTarget(Target):
     @property
     def ignore_known_hosts(self):
         value = self.config["ignore_known_hosts"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def workdir(self):

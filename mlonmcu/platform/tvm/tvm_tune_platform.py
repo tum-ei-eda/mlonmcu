@@ -77,17 +77,17 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     @property
     def experimental_tvmc_tune_tasks(self):
         value = self.config["experimental_tvmc_tune_tasks"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def experimental_tvmc_tune_visualize(self):
         value = self.config["experimental_tvmc_tune_visualize"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_wandb(self):
         value = self.config["enable_wandb"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def min_repeat_ms(self):

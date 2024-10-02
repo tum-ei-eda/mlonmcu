@@ -39,7 +39,7 @@ class TvmRpcPlatform(Platform):
     @property
     def use_rpc(self):
         value = self.config["use_rpc"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def rpc_key(self):

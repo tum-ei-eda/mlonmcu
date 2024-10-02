@@ -55,7 +55,7 @@ class TVMRTBackend(TVMBackend):
     @property
     def debug_arena(self):
         value = self.config["debug_arena"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(system_lib=self.system_lib)

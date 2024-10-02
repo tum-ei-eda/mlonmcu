@@ -2712,63 +2712,17 @@ class PerfSim(TargetFeature):
         return None, None
 
 
-@register_feature("memgraph_llvm_cdfg")
-class MemgraphLlvmCdfg(PlatformFeature):
-    """TODO"""
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "host": None,  # localhost
-        "port": None,  # 7687
-        "purge": None,  # false
-        "session": None,  # default,
-    }
+@register_feature("basic_block_sections")
+class BasicBlockSections(PlatformFeature):
+    """LLVM's -fbasic-block-sections=labels feature"""
 
     def __init__(self, features=None, config=None):
-        super().__init__("memgraph_llvm_cdfg", features=features, config=config)
-
-    @property
-    def host(self):
-        value = self.config["host"]
-        return value
-
-    @property
-    def port(self):
-        value = self.config["port"]
-        return value
-
-    @property
-    def purge(self):
-        value = self.config["purge"]
-        return str2bool(value, allow_none=True)
-
-    @property
-    def session(self):
-        value = self.config["session"]
-        return value
+        super().__init__("llvm_basic_block_sections", features=features, config=config)
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif"]
         return filter_none(
             {
-                "MEMGRAPH_LLVM_CDFG": self.enabled,
-                "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
-                "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
-                "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
-                "MEMGRAPH_LLVM_CDFG_SESSION": self.session,
+                "LLVM_BASIC_BLOCK_SECTIONS": self.enabled,
             }
         )
-
-
-@register_feature("global_isel")
-class GlobalIsel(PlatformFeature):
-    """TODO"""
-
-    def __init__(self, features=None, config=None):
-        super().__init__("global_isel", features=features, config=config)
-
-    def get_platform_defs(self, platform):
-        assert platform in ["mlif"]
-        return filter_none({
-            "GLOBAL_ISEL": self.enabled,
-        })

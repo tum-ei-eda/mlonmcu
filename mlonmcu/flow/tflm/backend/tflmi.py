@@ -20,7 +20,7 @@ import sys
 from typing import Tuple
 
 from .backend import TFLMBackend
-from mlonmcu.config import str2bool, str2list
+from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -459,7 +459,7 @@ class TFLMIBackend(TFLMBackend):
     @property
     def registrations(self):
         value = self.config["registrations"]
-        return str2list(value)
+        return str2dict(value)
 
     @property
     def ops_resolver(self):

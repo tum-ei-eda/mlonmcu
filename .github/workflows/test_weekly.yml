@@ -1,0 +1,121 @@
+##
+## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
+##
+## This file is part of MLonMCU.
+## See https://github.com/tum-ei-eda/mlonmcu.git for further info.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+name: Weekly Integration Tests
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch name"
+        required: true
+        default: "develop"
+      template:
+        description: "Environment template"
+        required: true
+        default: "dev"
+  schedule:
+    - cron: "0 12 * * *"  # daily, TODO: switch to weekly
+
+strategy:
+  fail-fast: false
+  matrix:
+    python_version:
+      - "3.10"
+    config:
+      - {branch: main, template: default, image: "", path: "tests"}
+      - {branch: develop, template: dev, image: "", path: "tests"}
+      - {branch: main, template: default, image: "tumeda/mlonmcu-bench:latest", path: "tests"}
+      - {branch: develop, template: dev, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests"}
+
+jobs:
+  test_local:
+    name: Weekly Tests (Local)
+    # if: (github.event_name == 'schedule')
+    if: ${{ matrix.config.image == "" }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.config.image }}
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 32768
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.config.branch }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install APT packages
+        run: |
+          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
+          sudo apt -qq install -y ninja-build
+          sudo apt remove clang-11* llvm-11*
+      - name: Initialize Virtualenv
+        run: |
+          python -m pip install --upgrade pip
+          python -m venv .venv
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements.txt
+      - name: Run package creation
+        run: |
+          source .venv/bin/activate
+          make install
+      - name: Initialize MLonMCU environment
+        run: |
+          source .venv/bin/activate
+          mlonmcu init home/ --non-interactive --template ${{ matrix.config.template }}
+      - name: Setup MLonMCU dependencies
+        run: |
+          source .venv/bin/activate
+          mlonmcu setup -H home/ -v
+      - name: Install environment-specific Python packages
+        run: |
+          source .venv/bin/activate
+          MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
+          pip install -r home/requirements_addition.txt
+      - name: Prepare integration tests
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements_dev.txt
+      - name: Run integration tests
+        run: |
+          source .venv/bin/activate
+          MLONMCU_HOME=$(pwd)/home/ make test-full
+  test_docker:
+    name: Weekly Tests (Docker)
+    # if: (github.event_name == 'schedule')
+    if: ${{ matrix.config.image != "" }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.config.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.config.branch }}
+      - name: Run integration tests
+        run: |
+          make test-full

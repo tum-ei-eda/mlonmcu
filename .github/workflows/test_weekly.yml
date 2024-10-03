@@ -123,7 +123,7 @@ jobs:
       #     python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v
       - uses: addnab/docker-run-action@v3
         with:
-          image: ${{ matrix.image }}
+          image: ${{ matrix.config.image }}
           options: --workdir /home/runner/work/mlonmcu/mlonmcu -v /home/runner/work/mlonmcu/mlonmcu:/home/runner/work/mlonmcu/mlonmcu
           shell: bash
           run: python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

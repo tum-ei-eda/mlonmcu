@@ -31,9 +31,11 @@ jobs:
       matrix:
         python_version:
           - "3.10"
+        os:
+          - ubuntu-latest
         config:
-          - {os: ubuntu-latest, branch: main, template: default, path: "tests"}
-          - {os: ubuntu-latest, branch: develop, template: dev, path: "tests"}
+          - {branch: main, template: default, path: "tests"}
+          - {branch: develop, template: dev, path: "tests"}
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master

@@ -19,36 +19,21 @@
 name: Weekly Integration Tests
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Branch name"
-        required: true
-        default: "develop"
-      template:
-        description: "Environment template"
-        required: true
-        default: "dev"
   schedule:
     - cron: "0 12 * * *"  # daily, TODO: switch to weekly
-
-strategy:
-  fail-fast: false
-  matrix:
-    python_version:
-      - "3.10"
-    config:
-      - {branch: main, template: default, image: "", path: "tests"}
-      - {branch: develop, template: dev, image: "", path: "tests"}
-      - {branch: main, template: default, image: "tumeda/mlonmcu-bench:latest", path: "tests"}
-      - {branch: develop, template: dev, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests"}
 
 jobs:
   test_local:
     name: Weekly Tests (Local)
-    # if: (github.event_name == 'schedule')
-    if: ${{ matrix.config.image == "" }}
     runs-on: ubuntu-latest
-    container: ${{ matrix.config.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.10"
+        config:
+          - {branch: main, template: default, path: "tests"}
+          - {branch: develop, template: dev, path: "tests"}
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -104,13 +89,17 @@ jobs:
       - name: Run integration tests
         run: |
           source .venv/bin/activate
-          MLONMCU_HOME=$(pwd)/home/ make test-full
+          MLONMCU_HOME=$(pwd)/home/ python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v
   test_docker:
     name: Weekly Tests (Docker)
-    # if: (github.event_name == 'schedule')
-    if: ${{ matrix.config.image != "" }}
     runs-on: ubuntu-latest
     container: ${{ matrix.config.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests"}
+          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests"}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -118,4 +107,4 @@ jobs:
           ref: ${{ matrix.config.branch }}
       - name: Run integration tests
         run: |
-          make test-full
+          python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

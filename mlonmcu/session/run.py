@@ -159,36 +159,36 @@ class Run:
     def tune_enabled(self):
         """Get tune_enabled property."""
         value = self.run_config["tune_enabled"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_to_backend(self):
         """Get target_to_backend property."""
         value = self.run_config["target_to_backend"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_optimized_layouts(self):
         """Get target_optimized_layouts property."""
         value = self.run_config["target_optimized_layouts"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_optimized_schedules(self):
         """Get target_optimized_schedules property."""
         value = self.run_config["target_optimized_schedules"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def export_optional(self):
         """Get export_optional property."""
         value = self.run_config["export_optional"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def stage_subdirs(self):
         value = self.run_config["stage_subdirs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def build_platform(self):

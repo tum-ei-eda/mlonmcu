@@ -20,7 +20,7 @@ import sys
 from typing import Tuple
 
 from .backend import TFLMBackend
-from mlonmcu.config import str2bool, str2list
+from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -435,12 +435,12 @@ class TFLMIBackend(TFLMBackend):
     @property
     def legacy(self):
         value = self.config["legacy"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def debug_arena(self):
         value = self.config["debug_arena"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def arena_size(self):
@@ -449,17 +449,17 @@ class TFLMIBackend(TFLMBackend):
     @property
     def ops(self):
         value = self.config["ops"]
-        return str2list(value) if isinstance(value, str) else value
+        return str2list(value)
 
     @property
     def custom_ops(self):
         value = self.config["custom_ops"]
-        return str2list(value) if isinstance(value, str) else value
+        return str2list(value)
 
     @property
     def registrations(self):
         value = self.config["registrations"]
-        return str2list(value) if isinstance(value, str) else value
+        return str2dict(value)
 
     @property
     def ops_resolver(self):
@@ -468,7 +468,7 @@ class TFLMIBackend(TFLMBackend):
     @property
     def reporter(self):
         value = self.config["reporter"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []

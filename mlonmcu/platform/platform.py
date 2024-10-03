@@ -84,7 +84,7 @@ class Platform:
     @property
     def print_outputs(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def process_features(self, features):
         if features is None:
@@ -184,7 +184,7 @@ class CompilePlatform(Platform):
     @property
     def debug(self):
         value = self.config["debug"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def num_threads(self):

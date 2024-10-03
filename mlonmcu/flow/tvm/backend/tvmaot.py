@@ -67,12 +67,12 @@ class TVMAOTBackend(TVMBackend):
     @property
     def unpacked_api(self):
         value = self.config["unpacked_api"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def debug_arena(self):
         value = self.config["debug_arena"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def alignment_bytes(self):

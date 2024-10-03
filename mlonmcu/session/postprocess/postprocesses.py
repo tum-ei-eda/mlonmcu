@@ -92,19 +92,19 @@ class FilterColumnsPostprocess(SessionPostprocess):
     def drop_nan(self):
         """Get drop_nan property."""
         value = self.config["drop_nan"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def drop_empty(self):
         """Get drop_empty property."""
         value = self.config["drop_empty"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def drop_const(self):
         """Get drop_const property."""
         value = self.config["drop_const"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -214,7 +214,7 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     def drop(self):
         """Get drop property."""
         value = self.config["drop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         df = report.post_df
@@ -263,7 +263,7 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     def drop(self):
         """Get drop property."""
         value = self.config["drop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -570,13 +570,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def groups(self):
         """Get groups property."""
         value = self.config["groups"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def sequences(self):
         """get sequences property."""
         value = self.config["sequences"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def seq_depth(self):
@@ -592,19 +592,19 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def corev(self):
         """Get corev property."""
         value = self.config["corev"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1079,13 +1079,13 @@ class AnalyseDumpPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1160,13 +1160,13 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1482,13 +1482,13 @@ class ValidateOutputsPostprocess(RunPostprocess):
     def report(self):
         """Get report property."""
         value = self.config["report"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def validate_range(self):
         """Get validate_range property."""
         value = self.config["validate_range"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1655,7 +1655,7 @@ class ValidateLabelsPostprocess(RunPostprocess):
     def report(self):
         """Get report property."""
         value = self.config["report"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1735,13 +1735,13 @@ class ExportOutputsPostprocess(RunPostprocess):
     def use_ref(self):
         """Get use_ref property."""
         value = self.config["use_ref"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def skip_dequant(self):
         """Get skip_dequant property."""
         value = self.config["skip_dequant"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fmt(self):

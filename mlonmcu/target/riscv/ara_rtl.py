@@ -110,7 +110,7 @@ class AraRtlTarget(RVVTarget):
     @property
     def enable_vext(self):
         value = self.config["enable_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def vext_spec(self):
@@ -119,7 +119,7 @@ class AraRtlTarget(RVVTarget):
     @property
     def embedded_vext(self):
         value = self.config["embedded_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def elen(self):

@@ -50,7 +50,7 @@ class TFLMCBackend(TFLMBackend):
     @property
     def print_outputs(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

@@ -123,12 +123,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def ccache(self):
         value = self.config["ccache"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def set_inputs(self):
         value = self.config["set_inputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def set_inputs_interface(self):
@@ -138,7 +138,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def get_outputs(self):
         value = self.config["get_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def get_outputs_interface(self):
@@ -277,17 +277,17 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def ignore_data(self):
         value = self.config["ignore_data"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def skip_check(self):
         value = self.config["skip_check"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fail_on_error(self):
         value = self.config["fail_on_error"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def validate_outputs(self):
@@ -331,32 +331,32 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def mem_only(self):
         value = self.config["mem_only"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def debug_symbols(self):
         value = self.config["debug_symbols"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def verbose_makefile(self):
         value = self.config["verbose_makefile"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def lto(self):
         value = self.config["lto"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def slim_cpp(self):
         value = self.config["slim_cpp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def garbage_collect(self):
         value = self.config["garbage_collect"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fuse_ld(self):
@@ -366,24 +366,22 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def global_isel(self):
         value = self.config["global_isel"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def extend_attrs(self):
         value = self.config["extend_attrs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def strip_strings(self):
         value = self.config["strip_strings"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def unroll_loops(self):
         value = self.config["unroll_loops"]
-        if value is None:
-            return None
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()

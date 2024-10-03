@@ -34,8 +34,8 @@ class EtissPulpinoTarget(EtissTarget):
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
-    def get_ini_bool_config(self):
-        ret = super().get_ini_bool_config()
+    def get_ini_bool_config(self, override=None):
+        ret = super().get_ini_bool_config(override=override)
         ret["arch.enable_semihosting"] = False
         return ret
 

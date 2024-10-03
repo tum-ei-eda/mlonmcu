@@ -118,8 +118,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ matrix.config.branch }}
-      - name: PWD
-        run: pwd
       # - name: Run integration tests
       #   run: |
       #     python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v
@@ -128,4 +126,6 @@ jobs:
           image: ${{ matrix.config.image }}
           options: --workdir /home/runner/work/mlonmcu/mlonmcu -v /home/runner/work/mlonmcu/mlonmcu:/home/runner/work/mlonmcu/mlonmcu
           shell: bash
-          run: python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v
+          run: |
+            pip install -r requirements_dev.txt
+            python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

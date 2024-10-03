@@ -20,20 +20,20 @@ name: Weekly Integration Tests
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"  # daily, TODO: switch to weekly
+    - cron: "0 12 * * 0"  # Sundays @ 12:00
 
 jobs:
   test_local:
     name: Weekly Tests (Local)
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python_version:
           - "3.10"
         config:
-          - {branch: main, template: default, path: "tests"}
-          - {branch: develop, template: dev, path: "tests"}
+          - {os: ubuntu-latest, branch: main, template: default, path: "tests"}
+          - {os: ubuntu-latest, branch: develop, template: dev, path: "tests"}
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -98,8 +98,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests"}
-          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests"}
+          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/unit-tests"}
+          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/integration-tests"}
+          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/unit-tests"}
+          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/integration-tests"}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

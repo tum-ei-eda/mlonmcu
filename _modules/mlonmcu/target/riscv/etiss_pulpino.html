@@ -126,8 +126,8 @@
 
 <div class="viewcode-block" id="EtissPulpinoTarget.get_ini_bool_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_ini_bool_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_ini_bool_config</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_ini_bool_config</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="n">override</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.enable_semihosting&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 

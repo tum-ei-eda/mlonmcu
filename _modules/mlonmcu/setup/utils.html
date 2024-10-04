@@ -570,6 +570,8 @@
 <div class="viewcode-block" id="download">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.download">[docs]</a>
 <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;- Downloading: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">hook</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Wraps tqdm instance.&quot;&quot;&quot;</span>
         <span class="n">last_b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>

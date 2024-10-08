@@ -19,14 +19,15 @@
 name: Weekly Integration Tests
 on:
   workflow_dispatch:
-    local:
-      type: boolean
-      description: Run test locally (takes long time)
-      required: true
-    docker:
-      type: boolean
-      description: Run tests in prebuilt docker image (fast)
-      required: true
+    inputs:
+      local:
+        type: boolean
+        description: Run test locally (takes long time)
+        required: true
+      docker:
+        type: boolean
+        description: Run tests in prebuilt docker image (fast)
+        required: true
   schedule:
     - cron: "0 12 * * 0"  # Sundays @ 12:00
 

@@ -19,6 +19,14 @@
 name: Weekly Integration Tests
 on:
   workflow_dispatch:
+    local:
+      type: boolean
+      description: Run test locally (takes long time)
+      required: true
+    docker:
+      type: boolean
+      description: Run tests in prebuilt docker image (fast)
+      required: true
   schedule:
     - cron: "0 12 * * 0"  # Sundays @ 12:00
 
@@ -26,6 +34,7 @@ jobs:
   test_local:
     name: Weekly Tests (Local)
     runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.local }}
     strategy:
       fail-fast: false
       matrix:
@@ -34,8 +43,8 @@ jobs:
         os:
           - ubuntu-latest
         config:
-          - {branch: main, template: default, path: "tests"}
-          - {branch: develop, template: dev, path: "tests"}
+          - {branch: main, template: default, path: "tests --ignore tests/integration-tests/toolchains"}
+          - {branch: develop, template: dev, path: "tests --ignore tests/integration-tests/toolchains"}
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
@@ -96,14 +105,15 @@ jobs:
     name: Weekly Tests (Docker)
     runs-on: ubuntu-latest
     # container: ${{ matrix.config.image }}
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.docker }}
     strategy:
       fail-fast: false
       matrix:
         config:
           - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/unit-tests"}
-          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/integration-tests"}
+          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/integration-tests --ignore tests/integration-tests/toolchains"}
           - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/unit-tests"}
-          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/integration-tests"}
+          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/integration-tests --ignore tests/integration-tests/toolchains"}
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@master

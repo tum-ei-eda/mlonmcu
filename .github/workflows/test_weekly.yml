@@ -35,7 +35,7 @@ jobs:
   test_local:
     name: Weekly Tests (Local)
     runs-on: ${{ matrix.os }}
-    if: ${{ github.event_name == 'schedule' || github.event.inputs.local }}
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.local == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -106,7 +106,7 @@ jobs:
     name: Weekly Tests (Docker)
     runs-on: ubuntu-latest
     # container: ${{ matrix.config.image }}
-    if: ${{ github.event_name == 'schedule' || github.event.inputs.docker }}
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.docker == 'true' }}
     strategy:
       fail-fast: false
       matrix:

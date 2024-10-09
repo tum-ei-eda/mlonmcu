@@ -159,6 +159,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         (
             "Requirements for using tvm",
             [
+                "anytree",
                 "attrs",
                 "cloudpickle",
                 "decorator",

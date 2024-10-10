@@ -18,9 +18,10 @@ FAIL=0
 HTML=0
 PDF=0
 MILL=0
+DUMP=0
 
 function print_usage() {
-    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill]"
+    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill] [--dump]"
 }
 
 while :
@@ -64,6 +65,10 @@ do
       ;;
     --mill )
       MILL=1
+      shift
+      ;;
+    --dump )
+      DUMP=1
       shift
       ;;
     --help)
@@ -198,6 +203,16 @@ then
     fi
 else
     echo "Skipping execution of notebook..."
+fi
+
+if [[ $DUMP -eq 1 ]]
+then
+   echo "Dumping environment.yml.j2..."
+   cat $WORKSPACE/environment.yml.j2
+   echo
+   echo "Dumping python packages..."
+   python3 -m pip freeze
+   echo
 fi
 
 if [[ $HTML -eq 1 ]]

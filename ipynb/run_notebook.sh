@@ -3,7 +3,7 @@
 set -eE
 
 SHORT=h:,:,e:
-LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,help
+LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,dump,help
 OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
 
 eval set -- "$OPTS"

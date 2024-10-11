@@ -208,7 +208,7 @@ fi
 if [[ $DUMP -eq 1 ]]
 then
    echo "Dumping environment.yml.j2..."
-   cat $WORKSPACE/environment.yml.j2
+   cat $WORKSPACE/environment.yml
    echo
    echo "Dumping python packages..."
    python3 -m pip freeze

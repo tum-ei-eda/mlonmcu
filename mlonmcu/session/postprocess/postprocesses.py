@@ -623,13 +623,70 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             if self.sequences:
                 names = re.compile(r"core\s+\d+:\s0x[0-9abcdef]+\s\(0x[0-9abcdef]+\)\s([\w.]+).*").findall(content)
         elif is_etiss:
-            content = log_artifact.content
+
+            # TODO: generalize
+            def transform_df(df):
+                df["pc"] = df["pc"].apply(lambda x: int(x, 0))
+                df["pc"] = pd.to_numeric(df["pc"])
+                # TODO: normalize instr names
+                df[["instr", "rest"]] = df["rest"].str.split(" # ", n=1, expand=True)
+                df["instr"] = df["instr"].apply(lambda x: x.strip())
+                df["instr"] = df["instr"].astype("category")
+                df[["bytecode", "operands"]] = df["rest"].str.split(" ", n=1, expand=True)
+
+                def detect_size(bytecode):
+                    if bytecode[:2] == "0x":
+                        return len(bytecode[2:]) / 2
+                    elif bytecode[:2] == "0b":
+                        return len(bytecode[2:]) / 8
+                    else:
+                        assert len(set(bytecode)) == 2
+                        return len(bytecode) / 8
+
+                df["size"] = df["bytecode"].apply(detect_size)
+                df["bytecode"] = df["bytecode"].apply(
+                    lambda x: int(x, 16) if "0x" in x else (int(x, 2) if "0b" in x else int(x, 2))
+                )
+                df["bytecode"] = pd.to_numeric(df["bytecode"])
+                df.drop(columns=["rest"], inplace=True)
+                return df
+
+            def process_df(df):
+                encodings = None
+                names = None
+                if self.groups:
+                    # encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                    # encodings = [f"{enc}" for enc in encodings]
+                    encodings = [bin(enc) for enc in df["bytecode"].values]
+                if self.sequences:
+                    # names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
+                    names = list(df["instr"].values)
+                return encodings, names
+
+            log_artifact.uncache()
+            encodings = None
+            names = None
             if self.groups:
-                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
-                encodings = [f"0b{enc}" for enc in encodings]
-                # encodings = [f"{enc}" for enc in encodings]
+                encodings = []
             if self.sequences:
-                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
+                names = []
+            with pd.read_csv(log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22) as reader:  # TODO: expose chunksize
+                for chunk in reader:
+                    df = transform_df(chunk)
+
+                    encodings_, names_ = process_df(df)
+                    # input(">")
+
+                    encodings = encodings_
+                    names += names_
+            # df = None
+            # content = log_artifact.content
+            # if self.groups:
+            #     encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+            #     encodings = [f"0b{enc}" for enc in encodings]
+            #     # encodings = [f"{enc}" for enc in encodings]
+            # if self.sequences:
+            #     names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
         elif is_ovpsim:
             content = log_artifact.content
             if self.groups:

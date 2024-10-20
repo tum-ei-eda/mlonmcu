@@ -1470,12 +1470,19 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;etiss.experimental_print_to_file&quot;</span><span class="p">}</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">etiss_experimental_print_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etiss.experimental_print_to_file&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># def add_target_config(self, target, config, directory=None):</span>
@@ -1496,6 +1503,11 @@
             <span class="n">plugins_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plugins&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PrintInstruction&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">:</span> <span class="n">plugins_new</span><span class="p">})</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_experimental_print_to_file</span><span class="p">:</span>
+                <span class="n">extra_bool_config_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_bool_config&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                    <span class="n">extra_bool_config_new</span><span class="p">[</span><span class="s2">&quot;plugin.printinstruction.print_to_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_bool_config&quot;</span><span class="p">:</span> <span class="n">extra_bool_config_new</span><span class="p">})</span>
         <span class="k">elif</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">]:</span>
             <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--trace&quot;</span><span class="p">)</span>
@@ -1534,18 +1546,21 @@
                     <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
-                            <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
-                            <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
-                            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                                <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
-                                    <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
-                                <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                                <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                                    <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                                <span class="k">else</span><span class="p">:</span>
-                                    <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                            <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">)</span>
-                            <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_experimental_print_to_file</span><span class="p">:</span>
+                                <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;instr_trace.csv&quot;</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
+                                <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
+                                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
+                                        <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
+                                    <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                        <span class="n">instrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">new_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                                <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instrs</span><span class="p">)</span>
+                                <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_lines</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">]</span>
                             <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;instrs.txt&quot;</span>

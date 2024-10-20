@@ -128,6 +128,7 @@
         <span class="o">**</span><span class="n">TVMBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;arena_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="o">**</span><span class="mi">20</span><span class="p">,</span>  <span class="c1"># Can not be detemined automatically (Very large)</span>
         <span class="s2">&quot;debug_arena&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;link_params&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tvmllvm&quot;</span>
@@ -153,11 +154,18 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">link_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;link_params&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
 <div class="viewcode-block" id="TVMLLVMBackend.get_tvmc_compile_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmllvm.TVMLLVMBackend.get_tvmc_compile_args">[docs]</a>
     <span class="k">def</span> <span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_tvmrt_tvmc_args</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">,</span>
+            <span class="n">system_lib</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span><span class="p">,</span>
+            <span class="n">link_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">link_params</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 

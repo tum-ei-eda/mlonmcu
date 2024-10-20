@@ -1369,12 +1369,19 @@ class LogInstructions(TargetFeature):
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
+    OPTIONAL = {"etiss.experimental_print_to_file"}
+
     def __init__(self, features=None, config=None):
         super().__init__("log_instrs", features=features, config=config)
 
     @property
     def to_file(self):
         value = self.config["to_file"]
+        return str2bool(value, allow_none=True)
+
+    @property
+    def etiss_experimental_print_to_file(self):
+        value = self.config["etiss.experimental_print_to_file"]
         return str2bool(value, allow_none=True)
 
     # def add_target_config(self, target, config, directory=None):
@@ -1395,6 +1402,11 @@ class LogInstructions(TargetFeature):
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
+            if self.etiss_experimental_print_to_file:
+                extra_bool_config_new = config.get("extra_bool_config", {})
+                if self.to_file:
+                    extra_bool_config_new["plugin.printinstruction.print_to_file"] = True
+                config.update({f"{target}.extra_bool_config": extra_bool_config_new})
         elif target in ["ovpsim", "corev_ovpsim"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace")
@@ -1433,18 +1445,21 @@ class LogInstructions(TargetFeature):
                     new_lines = []
                     if self.to_file:
                         if target in ["etiss_pulpino", "etiss"]:
-                            # TODO: update stdout and remove log_instrs lines
-                            instrs = []
-                            for line in stdout.split("\n"):
-                                if target in ["etiss_pulpino", "etiss"]:
-                                    expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                                match = expr.match(line)
-                                if match is not None:
-                                    instrs.append(line)
-                                else:
-                                    new_lines.append(line)
-                            content = "\n".join(instrs)
-                            stdout = "\n".join(new_lines)
+                            if self.etiss_experimental_print_to_file:
+                                log_file = Path(directory) / "instr_trace.csv"
+                            else:
+                                # TODO: update stdout and remove log_instrs lines
+                                instrs = []
+                                for line in stdout.split("\n"):
+                                    if target in ["etiss_pulpino", "etiss"]:
+                                        expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                                    match = expr.match(line)
+                                    if match is not None:
+                                        instrs.append(line)
+                                    else:
+                                        new_lines.append(line)
+                                content = "\n".join(instrs)
+                                stdout = "\n".join(new_lines)
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"

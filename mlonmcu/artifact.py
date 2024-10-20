@@ -121,6 +121,20 @@ class Artifact:
         else:
             raise NotImplementedError
 
+    def cache(self):
+        raise NotImplementedError
+
+    def uncache(self):
+        assert self.path is not None, "Can only uncache artifacts written to disk"
+        assert self.path.is_file(), f"Missing file: {self.path}"
+        if self.content:
+            self.content = None
+        if self.data:
+            self.data = None
+        if self.raw:
+            self.raw = None
+        # TODO: logging msg
+
     def export(self, dest, extract=False):
         """Export the artifact to a given path (file or directory) and update its path.
 

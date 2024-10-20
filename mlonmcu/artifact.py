@@ -135,7 +135,7 @@ class Artifact:
             self.raw = None
         # TODO: logging msg
 
-    def export(self, dest, extract=False):
+    def export(self, dest, extract=False, skip_exported: bool = True):
         """Export the artifact to a given path (file or directory) and update its path.
 
         Arguments
@@ -152,6 +152,12 @@ class Artifact:
             filename = dest / self.name
         else:
             filename = dest
+        if self.exported and not extract:
+            assert self.path is not None
+            if self.path == filename:
+                if self.path.is_file() or self.path.is_dir():
+                    if skip_exported:
+                        return
         if self.fmt in [ArtifactFormat.TEXT, ArtifactFormat.SOURCE]:
             assert not extract, "extract option is only available for ArtifactFormat.MLF"
             with open(filename, "w", encoding="utf-8") as handle:

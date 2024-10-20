@@ -36,6 +36,7 @@ class TVMRTBackend(TVMBackend):
     DEFAULTS = {
         **TVMBackend.DEFAULTS,
         "debug_arena": False,
+        "link_params": True,
         "arena_size": 2**20,  # Can not be detemined automatically (Very large)
         # TODO: arena size warning!
     }
@@ -57,8 +58,13 @@ class TVMRTBackend(TVMBackend):
         value = self.config["debug_arena"]
         return str2bool(value)
 
+    @property
+    def link_params(self):
+        value = self.config["link_params"]
+        return str2bool(value)
+
     def get_tvmc_compile_args(self, out, dump=None):
-        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(system_lib=self.system_lib)
+        return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(system_lib=self.system_lib, link_params=self.link_params)
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts, metrics = super().generate()

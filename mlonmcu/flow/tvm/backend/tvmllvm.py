@@ -42,6 +42,7 @@ class TVMLLVMBackend(TVMBackend):
         **TVMBackend.DEFAULTS,
         "arena_size": 2**20,  # Can not be detemined automatically (Very large)
         "debug_arena": False,
+        "link_params": True,
     }
 
     name = "tvmllvm"
@@ -67,9 +68,16 @@ class TVMLLVMBackend(TVMBackend):
         value = self.config["debug_arena"]
         return str2bool(value)
 
+    @property
+    def link_params(self):
+        value = self.config["link_params"]
+        return str2bool(value)
+
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(
-            self.runtime, system_lib=self.system_lib
+            self.runtime,
+            system_lib=self.system_lib,
+            link_params=self.link_params,
         )
 
     def get_graph_and_params_from_mlf(self, path):

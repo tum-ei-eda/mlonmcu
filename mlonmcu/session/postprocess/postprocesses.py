@@ -670,7 +670,9 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 encodings = []
             if self.sequences:
                 names = []
-            with pd.read_csv(log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22) as reader:  # TODO: expose chunksize
+            with pd.read_csv(
+                log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22
+            ) as reader:  # TODO: expose chunksize
                 for chunk in reader:
                     df = transform_df(chunk)
 

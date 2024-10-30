@@ -23,7 +23,7 @@ import ast
 import tempfile
 from pathlib import Path
 from io import StringIO
-from collections import defaultdict 
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -1955,8 +1955,7 @@ class StageTimesGanttPostprocess(SessionPostprocess):
 
                         content += f"      {stage} : {time_s}s\n"
                 else:
-                        content += f"      {stage} : {start}, {end}\n"
+                    content += f"      {stage} : {start}, {end}\n"
         artifact = Artifact("stage_times.mermaid", content=content, fmt=ArtifactFormat.TEXT)
         artifacts.append(artifact)
         return artifacts
-

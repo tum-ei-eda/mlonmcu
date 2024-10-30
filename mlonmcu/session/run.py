@@ -1100,7 +1100,7 @@ class Run:
                     func()
                     if self.profile_stages:
                         end = time.time()
-                        self.times[stage] = (start, end) 
+                        self.times[stage] = (start, end)
                 except Exception as e:
                     self.failing = True
                     self.reason = e

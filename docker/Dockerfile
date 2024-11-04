@@ -69,7 +69,7 @@ RUN apt-get update \
 
 RUN dpkg -l
 
-CMD /bin/bash
+CMD ["/bin/bash"]
 
 FROM mlonmcu-ci AS mlonmcu
 
@@ -78,7 +78,8 @@ WORKDIR /mlonmcu
 RUN pip3 install --upgrade pip --no-cache-dir
 RUN pip3 install -r requirements.txt --no-cache-dir
 RUN pip3 install . --no-cache-dir
-CMD mlonmcu
+
+CMD ["mlonmcu"]
 
 ARG MLONMCU_TEMPLATE=default
 FROM mlonmcu AS mlonmcu-bench
@@ -100,5 +101,5 @@ RUN mlonmcu setup -v
 
 RUN df -h
 
-CMD mlonmcu
+CMD ["mlonmcu"]
 VOLUME /environment

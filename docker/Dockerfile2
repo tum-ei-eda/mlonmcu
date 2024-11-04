@@ -1,5 +1,5 @@
 
-ARG BASE_IMAGE
+ARG BASE_IMAGE="tumeda/mlonmcu-bench:latest"
 FROM ${BASE_IMAGE}
 ARG MLONMCU_TEMPLATE
 
@@ -25,5 +25,5 @@ RUN df -h
 RUN mlonmcu setup -v --rebuild
 RUN df -h
 
-CMD mlonmcu
+CMD ["mlonmcu"]
 VOLUME /environment

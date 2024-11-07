@@ -2514,7 +2514,7 @@ class ValidateNew(RunFeature):
     #     return ["validate_outputs"]
 
 
-@register_feature("basic_block_sections")
+@register_feature("llvm_basic_block_sections")
 class BasicBlockSections(PlatformFeature):
     """LLVM's -fbasic-block-sections=labels feature"""
 

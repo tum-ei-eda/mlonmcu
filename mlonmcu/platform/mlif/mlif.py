@@ -61,6 +61,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "benchmark",
             "xpulp",
             "memgraph_llvm_cdfg",
+            "llvm_basic_block_sections",
             "global_isel",
             "set_inputs",
             "get_outputs",

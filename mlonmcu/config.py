@@ -18,6 +18,7 @@
 #
 """Collection of utilities to manage MLonMCU configs."""
 import distutils.util
+from typing import List
 import ast
 
 from mlonmcu.feature.type import FeatureType
@@ -244,3 +245,44 @@ def str2list(value, allow_none=False):
     if value.startswith("["):
         return list(ast.literal_eval(value))
     return value.split(",")
+
+
+def pick_first(
+    config: dict, candidates: List[str], allow_empty: bool = False, allow_none: bool = False, allow_fail: bool = False
+):
+    """Find first valid entry in config for given keys.
+
+    Arguments
+    ---------
+    config : dict
+        The configuration data.
+    candidates : List[str]
+        The candidate keys.
+    allow_empty : bool, optional
+        Do not fail an return None if list is empty.
+    allow_none : bool, optional
+        Allow config entries with value None.
+    allow_fail : bool, optional
+        Do not fail if no valiud entry is found.
+
+    Returns
+    -------
+    ret : any
+        The found value in the config dict or None.
+
+    """
+    if len(candidates) == 0:
+        assert allow_empty, "pick_first: got empty list"
+        return None
+    ret = None
+    found = False
+    for candidate in candidates:
+        if candidate in config.keys():
+            val = config[candidate]
+            if val is not None or allow_none:
+                ret = val
+                found = True
+            break
+    if not found:
+        assert allow_fail, f"pick_first: could not find valid candidate in config ({candidates})"
+    return ret

@@ -531,7 +531,11 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["pext"],
             "tflmc.exe": ["pext"],
             "riscv_gcc.install_dir": ["pext"],
+            "riscv_gcc32.install_dir": ["pext"],
+            "riscv_gcc64.install_dir": ["pext"],
             "riscv_gcc.name": ["pext"],
+            "riscv_gcc32.name": ["pext"],
+            "riscv_gcc64.name": ["pext"],
         }
 
 

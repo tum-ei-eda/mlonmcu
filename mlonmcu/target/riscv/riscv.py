@@ -23,7 +23,7 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target import Target
-from mlonmcu.config import str2list, str2bool
+from mlonmcu.config import str2list, str2bool, pick_first
 from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
 
 logger = get_logger()
@@ -51,9 +51,24 @@ class RISCVTarget(Target):
         "attr": "",  # Please avoid using this directly
         "cpu": None,
     }
-    REQUIRED = {"riscv_gcc.install_dir", "riscv_gcc.name", "riscv_gcc.variant"}
+    REQUIRED = set()
+
     PUPL_GCC_TOOLCHAIN_REQUIRED = {"pulp_gcc.install_dir", "pulp_gcc.name"}  # TODO elegant handle customized toolchain
-    OPTIONAL = {"llvm.install_dir", "mlif.toolchain"}  # TODO: just a workaround until tc components are implemented
+
+    OPTIONAL = {
+        # TODO: just a workaround until tc components are implemented
+        "llvm.install_dir",
+        "mlif.toolchain",
+        "riscv32_gcc.install_dir",
+        "riscv32_gcc.name",
+        "riscv32_gcc.variant",
+        "riscv64_gcc.install_dir",
+        "riscv64_gcc.name",
+        "riscv64_gcc.variant",
+        "riscv_gcc.install_dir",
+        "riscv_gcc.name",
+        "riscv_gcc.variant",
+    }
 
     def reconfigure(self):
         # super().reconfigure()
@@ -66,11 +81,27 @@ class RISCVTarget(Target):
 
     @property
     def riscv_gcc_prefix(self):
-        return Path(self.config["riscv_gcc.install_dir"])
+        return Path(
+            pick_first(
+                self.config,
+                [
+                    f"riscv{self.xlen}_gcc.install_dir",
+                    "riscv_gcc.install_dir",
+                ],
+            )
+        )
 
     @property
     def riscv_gcc_basename(self):
-        return Path(self.config["riscv_gcc.name"])
+        return Path(
+            pick_first(
+                self.config,
+                [
+                    f"riscv{self.xlen}_gcc.name",
+                    "riscv_gcc.name",
+                ],
+            )
+        )
 
     @property
     def pulp_gcc_prefix(self):
@@ -82,7 +113,15 @@ class RISCVTarget(Target):
 
     @property
     def gcc_variant(self):
-        return self.config["riscv_gcc.variant"]
+        return Path(
+            pick_first(
+                self.config,
+                [
+                    f"riscv{self.xlen}_gcc.variant",
+                    "riscv_gcc.variant",
+                ],
+            )
+        )
 
     @property
     def xlen(self):
@@ -319,12 +358,11 @@ class RISCVTarget(Target):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         # TODO refactor the following using inheritance instead of branching
-        if "riscv_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the riscv_gcc toolchain
-            ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
-            ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
-        elif "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
-            ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
-            ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
+        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
+        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
+        # if "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
+        #     ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
+        #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
         ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
         ret["RISCV_ABI"] = self.abi
         ret["RISCV_MCPU"] = self.cpu

@@ -222,9 +222,6 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
                     )
         return ret
 
-    def get_target_system(self):
-        return "spike"
-
 
 class SpikeRV32Target(SpikeTarget):
     """32-bit version of spike target"""

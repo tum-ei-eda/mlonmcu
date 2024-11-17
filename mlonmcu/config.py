@@ -282,7 +282,7 @@ def pick_first(
             if val is not None or allow_none:
                 ret = val
                 found = True
-            break
+                break
     if not found:
         assert allow_fail, f"pick_first: could not find valid candidate in config ({candidates})"
     return ret

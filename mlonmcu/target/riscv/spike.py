@@ -222,6 +222,37 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
                     )
         return ret
 
+    def get_target_system(self):
+        return "spike"
+
+
+class SpikeRV32Target(SpikeTarget):
+    """32-bit version of spike target"""
+
+    DEFAULTS = {
+        **SpikeTarget.DEFAULTS,
+        "xlen": 32,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
+    }
+
+    def __init__(self, name="spike_rv32", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
+class SpikeRV64Target(SpikeTarget):
+    """64-bit version of spike target"""
+
+    DEFAULTS = {
+        **SpikeTarget.DEFAULTS,
+        "xlen": 64,
+        "vlen": 0,  # vectorization=off
+        "elen": 64,
+    }
+
+    def __init__(self, name="spike_rv64", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
 
 if __name__ == "__main__":
     cli(target=SpikeTarget)

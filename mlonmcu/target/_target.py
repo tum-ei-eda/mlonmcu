@@ -16,6 +16,8 @@
 from .riscv import (
     EtissPulpinoTarget,
     SpikeTarget,
+    SpikeRV32Target,
+    SpikeRV64Target,
     OVPSimTarget,
     COREVOVPSimTarget,
     RiscvQemuTarget,
@@ -56,6 +58,8 @@ register_target("host_x86", HostX86Target)
 register_target("host_x86_ssh", HostX86SSHTarget)
 register_target("corstone300", Corstone300Target)
 register_target("spike", SpikeTarget)
+register_target("spike_rv32", SpikeRV32Target)
+register_target("spike_rv64", SpikeRV64Target)
 register_target("ovpsim", OVPSimTarget)
 register_target("corev_ovpsim", COREVOVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)

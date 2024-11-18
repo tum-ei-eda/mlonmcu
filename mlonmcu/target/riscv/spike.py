@@ -29,6 +29,7 @@ from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
+from mlonmcu.config import pick_first
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
 from .riscv_bext_target import RVBTarget
@@ -79,7 +80,9 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         **RVBTarget.DEFAULTS,
         "spikepk_extra_args": [],
     }
-    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED | {"spike.exe", "spike.pk"}
+    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED
+
+    OPTIONAL = RVPTarget.OPTIONAL | RVVTarget.OPTIONAL | RVBTarget.OPTIONAL | {"spike.exe", "spike.pk", "spike.pk_rv32", "spike.pk_rv64"}
 
     def __init__(self, name="spike", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -90,7 +93,15 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
 
     @property
     def spike_pk(self):
-        return Path(self.config["spike.pk"])
+        return Path(
+            pick_first(
+                self.config,
+                [
+                    f"spike.pk_rv{self.xlen}",
+                    f"spike.pk",
+                ],
+            )
+        )
 
     @property
     def spikepk_extra_args(self):
@@ -230,7 +241,7 @@ class SpikeRV32Target(SpikeTarget):
         **SpikeTarget.DEFAULTS,
         "xlen": 32,
         "vlen": 0,  # vectorization=off
-        "elen": 32,
+        # "elen": 32,
     }
 
     def __init__(self, name="spike_rv32", features=None, config=None):
@@ -244,7 +255,7 @@ class SpikeRV64Target(SpikeTarget):
         **SpikeTarget.DEFAULTS,
         "xlen": 64,
         "vlen": 0,  # vectorization=off
-        "elen": 64,
+        # "elen": 64,
     }
 
     def __init__(self, name="spike_rv64", features=None, config=None):

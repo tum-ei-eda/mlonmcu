@@ -188,7 +188,8 @@ vars:
   spikepk.default_abi: "lp64d"
   spike.xlen: 64
   etiss.xlen: 64
-  riscv_gcc.name: riscv64-unknown-linux-musl
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gc_lp64d_linux_musl_medany.tar.xz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gcv_lp64d_linux_musl_medany.tar.xz"
+  riscv_gcc.enable_rv64: true
+  riscv_gcc_rv64.name: riscv64-unknown-linux-musl
+  riscv_gcc_rv64.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gc_lp64d_linux_musl_medany.tar.xz"
+  riscv_gcc_rv64.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gcv_lp64d_linux_musl_medany.tar.xz"
 flags: {}

@@ -82,6 +82,10 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
         elif pext:
             if not context.environment.has_feature("pext"):
                 return False
+        if xlen == 32 and not enable_rv32:
+            return False
+        if xlen == 64 and not enable_rv64:
+            return False
     return True
 
 

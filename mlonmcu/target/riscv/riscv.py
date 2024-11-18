@@ -59,12 +59,12 @@ class RISCVTarget(Target):
         # TODO: just a workaround until tc components are implemented
         "llvm.install_dir",
         "mlif.toolchain",
-        "riscv32_gcc.install_dir",
-        "riscv32_gcc.name",
-        "riscv32_gcc.variant",
-        "riscv64_gcc.install_dir",
-        "riscv64_gcc.name",
-        "riscv64_gcc.variant",
+        "riscv_gcc_rv32.install_dir",
+        "riscv_gcc_rv32.name",
+        "riscv_gcc_rv32.variant",
+        "riscv_gcc_rv64.install_dir",
+        "riscv_gcc_rv64.name",
+        "riscv_gcc_rv64.variant",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
         "riscv_gcc.variant",
@@ -85,7 +85,7 @@ class RISCVTarget(Target):
             pick_first(
                 self.config,
                 [
-                    f"riscv{self.xlen}_gcc.install_dir",
+                    f"riscv_gcc_rv{self.xlen}.install_dir",
                     "riscv_gcc.install_dir",
                 ],
             )
@@ -97,7 +97,7 @@ class RISCVTarget(Target):
             pick_first(
                 self.config,
                 [
-                    f"riscv{self.xlen}_gcc.name",
+                    f"riscv_gcc_rv{self.xlen}.name",
                     "riscv_gcc.name",
                 ],
             )
@@ -117,7 +117,7 @@ class RISCVTarget(Target):
             pick_first(
                 self.config,
                 [
-                    f"riscv{self.xlen}_gcc.variant",
+                    f"riscv_gcc_rv{self.xlen}.variant",
                     "riscv_gcc.variant",
                 ],
             )

@@ -349,6 +349,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mattr": None,  # for +nodsp, +nomve
         "debug_last_error": False,
         "use_vext": "AUTO",
+        "use_portable": "AUTO",
         "use_pext": "AUTO",
     }
 

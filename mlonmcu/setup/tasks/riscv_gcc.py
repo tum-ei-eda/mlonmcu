@@ -26,6 +26,7 @@ from mlonmcu.setup.task import TaskType
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 
 from .common import _validate_gcc, get_task_factory
 
@@ -71,11 +72,11 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     if params:
         vext = params.get("vext", False)
         pext = params.get("pext", False)
+        xlen = params.get("xlen", False)
         user_vars = context.environment.vars
-        combined = user_vars.get("riscv_gcc.combined", False)
-        if vext and pext:
-            return combined
-        elif vext:
+        enable_rv32 = str2bool(user_vars.get("riscv_gcc.enable_rv32", True))
+        enable_rv64 = str2bool(user_vars.get("riscv_gcc.enable_rv64", False))
+        if vext:
             if not context.environment.has_feature("vext"):
                 return False
         elif pext:
@@ -86,12 +87,12 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
 
 @Tasks.provides(
     [
-        "riscv_gcc.install_dir",
-        "riscv_gcc.name",
-        "riscv_gcc.variant",
-        "riscv_gcc.multilib",
-        "riscv_gcc.default_multilib",
-        "riscv_gcc.multilibs",
+        "riscv_gcc_rv{xlen}.install_dir",
+        "riscv_gcc_rv{xlen}.name",
+        "riscv_gcc_rv{xlen}.variant",
+        "riscv_gcc_rv{xlen}.multilib",
+        "riscv_gcc_rv{xlen}.default_multilib",
+        "riscv_gcc_rv{xlen}.multilibs",
     ]
 )
 @Tasks.param("vext", [False, True])
@@ -109,29 +110,25 @@ def install_riscv_gcc(
     vext = params["vext"]
     pext = params["pext"]
     xlen = params["xlen"]
-    combined = user_vars.get(f"riscv_gcc_rv{xlen}.combined", False)
     variant = user_vars.get(f"riscv_gcc_rv{xlen}.variant", "unknown")
     flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
-    if combined:
-        riscvName = utils.makeDirName(f"riscv_gcc_rv{xlen}", flags=[])
-    else:
-        riscvName = utils.makeDirName(f"riscv_gcc_rv32{xlen}", flags=flags)
+    riscvName = utils.makeDirName(f"riscv_gcc_rv{xlen}", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
     if (not vext) and (not pext) and f"riscv_gcc_rv{xlen}.install_dir_default" in user_vars:
-        riscvInstallDir = Path(user_vars[f"riscv_gcc_{xlen}.install_dir_default"])
+        riscvInstallDir = Path(user_vars[f"riscv_gcc_rv{xlen}.install_dir_default"])
         multilib = user_vars.get(f"riscv_gcc_rv{xlen}.multilib_default", None)
         default_multilib = user_vars.get(f"riscv_gcc_rv{xlen}.default_multilib_default", None)
         multilibs = user_vars.get(f"riscv_gcc_rv{xlen}.multilibs_default", None)
     elif vext and f"riscv_gcc_rv{xlen}.install_dir_vext" in user_vars:
         riscvInstallDir = Path(user_vars[f"riscv_gcc_rv{xlen}.install_dir_vext"])
-        multilib = user_vars.get(f"riscv_gcc_{xlen}.multilib_vext", None)
+        multilib = user_vars.get(f"riscv_gcc_rv{xlen}.multilib_vext", None)
         default_multilib = user_vars.get(f"riscv_gcc_rv{xlen}.default_multilib_vext", None)
         multilibs = user_vars.get(f"riscv_gcc_rv{xlen}.multilibs_vext", None)
     elif pext and f"riscv_gcc_rv{xlen}.install_dir_pext" in user_vars:
         riscvInstallDir = Path(user_vars[f"riscv_gcc_rv{xlen}.install_dir_pext"])
         multilib = user_vars.get(f"riscv_gcc_rv{xlen}.multilib_pext", None)
-        default_multilib = user_vars.get(f"riscv_gcc_{xlen}.default_multilib_pext", None)
+        default_multilib = user_vars.get(f"riscv_gcc_rv{xlen}.default_multilib_pext", None)
         multilibs = user_vars.get(f"riscv_gcc_rv{xlen}.multilibs_pext", None)
     elif f"riscv_gcc_rv{xlen}.install_dir" in user_vars:  # TODO: also check command line flags?
         # This would overwrite the cache.ini entry which is NOT wanted! -> return false but populate gcc_name?
@@ -148,10 +145,8 @@ def install_riscv_gcc(
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if vext and f"riscv_gcc_rv{xlen}.dl_url_vext" in user_vars:
-            assert not combined, f"Combined toolchain does only support riscv_gcc_rv{xlen}.dl_url"
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_varso[f"riscv_gcc_rv{xlen}.dl_url_vext"])
         elif pext and f"riscv_gcc_rv{xlen}.dl_url_pext" in user_vars:
-            assert not combined, f"Combined toolchain does only support riscv_gcc_{xlen}.dl_url"
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url_pext"])
         elif f"riscv_gcc_rv{xlen}.dl_url" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url"])

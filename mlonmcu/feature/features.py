@@ -155,6 +155,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "use_vext": "AUTO",
+        "use_portable": "AUTO",
         "use_pext": "AUTO",
     }
 
@@ -170,6 +171,14 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     @property
     def use_vext(self):
         value = self.config["use_vext"]
+        if value == "AUTO" or value is None:
+            return value
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_portable(self):
+        value = self.config["use_portable"]
         if value == "AUTO" or value is None:
             return value
         value = str2bool(value)
@@ -198,6 +207,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
         }
@@ -372,6 +382,14 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         return "ON" if value else "OFF"
 
     @property
+    def use_portable(self):
+        value = self.config["use_portable"]
+        if value == "AUTO" or value is None:
+            return value
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
     def use_pext(self):
         value = self.config["use_pext"]
         if value == "AUTO" or value is None:
@@ -409,6 +427,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
         }

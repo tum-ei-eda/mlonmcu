@@ -21,21 +21,47 @@
 import os
 import re
 import time
+import tempfile
+import multiprocessing
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
+from mlonmcu.setup import utils
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
-from mlonmcu.config import pick_first
+from mlonmcu.config import pick_first, str2bool
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
 from .riscv_bext_target import RVBTarget
 from .util import update_extensions, sort_extensions_canonical, join_extensions
 
 logger = get_logger()
+
+
+def _build_spike_pk(
+    dest, pk_src, riscv_gcc_prefix, riscv_gcc_name, arch, abi, verbose=False, threads=multiprocessing.cpu_count()
+):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        build_dir = Path(temp_dir)
+        args = []
+        args.append(f"--with-arch={arch}")
+        args.append(f"--with-abi={abi}")
+        args.append("--prefix=" + str(riscv_gcc_prefix))
+        args.append("--host=" + str(riscv_gcc_name))
+        env = os.environ.copy()
+        env["PATH"] = str(Path(riscv_gcc_prefix) / "bin") + ":" + env["PATH"]
+        utils.execute(
+            str(pk_src / "configure"),
+            *args,
+            cwd=build_dir,
+            env=env,
+            live=False,
+        )
+        utils.make(cwd=build_dir, threads=threads, live=verbose, env=env)
+        utils.copy(build_dir / "pk", dest)
 
 
 def filter_unsupported_extensions(exts):
@@ -79,13 +105,24 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         **RVVTarget.DEFAULTS,
         **RVBTarget.DEFAULTS,
         "spikepk_extra_args": [],
+        "build_pk": False,
     }
     REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED
 
-    OPTIONAL = RVPTarget.OPTIONAL | RVVTarget.OPTIONAL | RVBTarget.OPTIONAL | {"spike.exe", "spike.pk", "spike.pk_rv32", "spike.pk_rv64"}
+    OPTIONAL = (
+        RVPTarget.OPTIONAL
+        | RVVTarget.OPTIONAL
+        | RVBTarget.OPTIONAL
+        | {"spike.exe", "spike.pk", "spike.pk_rv32", "spike.pk_rv64", "spikepk.src_dir"}
+    )
 
     def __init__(self, name="spike", features=None, config=None):
         super().__init__(name, features=features, config=config)
+
+    @property
+    def build_pk(self):
+        value = self.config["build_pk"]
+        return str2bool(value)
 
     @property
     def spike_exe(self):
@@ -102,6 +139,11 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
                 ],
             )
         )
+
+    @property
+    def spike_pk_src_dir(self):
+        value = self.config["spikepk.src_dir"]
+        return value if value is None else Path(value)
 
     @property
     def spikepk_extra_args(self):
@@ -154,10 +196,27 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         if self.timeout_sec > 0:
             raise NotImplementedError
 
+        if self.build_pk:
+            # TODO: tempdir
+            assert cwd is not None
+            cwd = Path(cwd)
+            assert cwd.is_dir()
+            pk = cwd / ".temp_spike_pk"
+            arch = self.isa
+            if "zicsr" not in arch:
+                arch += "_zicsr"
+            if "zifencei" not in arch:
+                arch += "_zifencei"
+            _build_spike_pk(pk, self.spike_pk_src_dir, self.riscv_gcc_prefix, self.riscv_gcc_basename, arch, self.abi)
+            print("pk", pk)
+            input("!")
+        else:
+            pk = self.spike_pk.resolve()
+
         ret = execute(
             self.spike_exe.resolve(),
             *spike_args,
-            self.spike_pk.resolve(),
+            pk,
             *spikepk_args,
             program,
             *args,

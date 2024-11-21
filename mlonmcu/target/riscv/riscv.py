@@ -81,15 +81,19 @@ class RISCVTarget(Target):
 
     @property
     def riscv_gcc_prefix(self):
-        return Path(
+        ret = Path(
             pick_first(
                 self.config,
                 [
+                    f"riscv_gcc_{self.arch}_{self.abi}.install_dir",
+                    f"riscv_gcc_{self.arch}.install_dir",
                     f"riscv_gcc_rv{self.xlen}.install_dir",
                     "riscv_gcc.install_dir",
                 ],
             )
         )
+        # TODO: handle none
+        return ret
 
     @property
     def riscv_gcc_basename(self):
@@ -97,6 +101,8 @@ class RISCVTarget(Target):
             pick_first(
                 self.config,
                 [
+                    f"riscv_gcc_{self.arch}_{self.abi}.name",
+                    f"riscv_gcc_{self.arch}.name",
                     f"riscv_gcc_rv{self.xlen}.name",
                     "riscv_gcc.name",
                 ],
@@ -117,6 +123,7 @@ class RISCVTarget(Target):
             pick_first(
                 self.config,
                 [
+                    f"riscv_gcc_{self.arch}_{self.abi}.variant",
                     f"riscv_gcc_rv{self.xlen}.variant",
                     "riscv_gcc.variant",
                 ],

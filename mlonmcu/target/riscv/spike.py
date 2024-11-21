@@ -208,8 +208,6 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             if "zifencei" not in arch:
                 arch += "_zifencei"
             _build_spike_pk(pk, self.spike_pk_src_dir, self.riscv_gcc_prefix, self.riscv_gcc_basename, arch, self.abi)
-            print("pk", pk)
-            input("!")
         else:
             pk = self.spike_pk.resolve()
 

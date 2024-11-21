@@ -1,6 +1,6 @@
 from .etiss_pulpino import EtissPulpinoTarget
 from .etiss import EtissTarget, EtissRV32Target, EtissRV64Target
-from .spike import SpikeTarget, SpikeRV32Target, SpikeRV64Target
+from .spike import SpikeTarget, SpikeRV32Target, SpikeRV32MinTarget, SpikeRV64Target
 from .ovpsim import OVPSimTarget
 from .corev_ovpsim import COREVOVPSimTarget
 from .riscv_qemu import RiscvQemuTarget
@@ -18,6 +18,7 @@ __all__ = [
     "EtissRV64Target",
     "SpikeTarget",
     "SpikeRV32Target",
+    "SpikeRV32MinTarget",
     "SpikeRV64Target",
     "OVPSimTarget",
     "COREVOVPSimTarget",

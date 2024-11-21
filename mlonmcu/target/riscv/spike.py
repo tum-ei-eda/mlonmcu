@@ -248,6 +248,33 @@ class SpikeRV32Target(SpikeTarget):
         super().__init__(name, features=features, config=config)
 
 
+class SpikeRV32MinTarget(SpikeRV32Target):
+    """32-bit integer-only version of spike target"""
+
+    DEFAULTS = {
+        **SpikeTarget.DEFAULTS,
+        "xlen": 32,
+        "vlen": 0,  # vectorization=off
+        "fpu": "none",
+        "compressed": False,
+        "atomic": False,
+        "embedded_vext": True,
+        "build_pk": True,
+        # "elen": 32,
+    }
+
+    OPTIONAL = SpikeRV32Target.OPTIONAL | {
+        "riscv_gcc_rv32_min.install_dir",
+        "riscv_gcc_rv32im.install_dir",
+        "riscv_gcc_rv32im_ilp32.install_dir",
+        "riscv_gcc_rv32im_zve64x.install_dir",
+        "riscv_gcc_rv32im_zve64x_ilp32.install_dir",
+    }
+
+    def __init__(self, name="spike_rv32_min", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
 class SpikeRV64Target(SpikeTarget):
     """64-bit version of spike target"""
 

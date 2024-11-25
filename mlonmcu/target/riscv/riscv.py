@@ -18,6 +18,7 @@
 #
 """MLonMCU RISC-V Target definitions"""
 
+import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
@@ -81,12 +82,16 @@ class RISCVTarget(Target):
 
     @property
     def riscv_gcc_prefix(self):
+        arch = self.arch
+        arch_ = re.sub(r"_zvl\d+b", "", arch)
         ret = Path(
             pick_first(
                 self.config,
                 [
-                    f"riscv_gcc_{self.arch}_{self.abi}.install_dir",
-                    f"riscv_gcc_{self.arch}.install_dir",
+                    f"riscv_gcc_{arch}_{self.abi}.install_dir",
+                    f"riscv_gcc_{arch_}_{self.abi}.install_dir",
+                    f"riscv_gcc_{arch}.install_dir",
+                    f"riscv_gcc_{arch_}.install_dir",
                     f"riscv_gcc_rv{self.xlen}.install_dir",
                     "riscv_gcc.install_dir",
                 ],

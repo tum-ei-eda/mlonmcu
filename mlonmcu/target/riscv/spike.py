@@ -64,17 +64,22 @@ def _build_spike_pk(
         utils.copy(build_dir / "pk", dest)
 
 
-def filter_unsupported_extensions(exts):
+def filter_unsupported_extensions(exts, legacy: bool = False):
     assert isinstance(exts, set)
     REPLACEMENTS = {
-        r"zve\d\d[xfd]": "v",
-        r"zvl\d+b": None,
         r"zpsfoperand": "p",
         r"zpn": "p",
         r"zbpo": "p",
         # r"p": ["p", "b"],
         # r"p": ["p", "zba", "zbb", "zbc", "zbs"],
     }
+    if legacy:
+        REPLACEMENTS.update(
+            {
+                r"zve\d\d[xfd]": "v",
+                r"zvl\d+b": None,
+            }
+        )
     ret = set()
     for ext in exts:
         ignore = False
@@ -106,6 +111,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         **RVBTarget.DEFAULTS,
         "spikepk_extra_args": [],
         "build_pk": False,
+        "legacy": True,
     }
     REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED
 
@@ -122,6 +128,11 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
     @property
     def build_pk(self):
         value = self.config["build_pk"]
+        return str2bool(value)
+
+    @property
+    def legacy(self):
+        value = self.config["legacy"]
         return str2bool(value)
 
     @property
@@ -159,7 +170,10 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
 
     @property
     def isa(self):
-        exts = filter_unsupported_extensions(self.extensions)
+        exts = self.extensions
+        if not self.legacy:
+            exts.add("zicntr")
+        exts = filter_unsupported_extensions(exts, legacy=self.legacy)
         exts_str = join_extensions(sort_extensions_canonical(exts, lower=True))
         return f"rv{self.xlen}{exts_str}"
 
@@ -188,7 +202,8 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
 
         if self.enable_vext:
             assert self.vlen < 8192, "Spike does not support VLEN >= 8192"
-            spike_args.append(f"--varch=vlen:{self.vlen},elen:{self.elen}")
+            if self.legacy:
+                spike_args.append(f"--varch=vlen:{self.vlen},elen:{self.elen}")
         else:
             # assert self.vlen == 0
             pass

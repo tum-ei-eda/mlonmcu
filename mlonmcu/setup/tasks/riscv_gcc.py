@@ -149,7 +149,7 @@ def install_riscv_gcc(
             return riscvUrl, riscvFileName, riscvFileExtension
 
         if vext and f"riscv_gcc_rv{xlen}.dl_url_vext" in user_vars:
-            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_varso[f"riscv_gcc_rv{xlen}.dl_url_vext"])
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url_vext"])
         elif pext and f"riscv_gcc_rv{xlen}.dl_url_pext" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url_pext"])
         elif f"riscv_gcc_rv{xlen}.dl_url" in user_vars:

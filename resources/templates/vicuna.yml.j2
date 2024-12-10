@@ -245,6 +245,8 @@ vars:
   riscv_gcc_rv32.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32imv_ilp32.tar.xz"
   spike.keep_build_dir: false
   etiss.keep_build_dir: false
-  spikepk.default_arch: rv32im_zicsr_zifencei
-  spikepk.default_abi: ilp32
+  spikepk.enable_rv32: true
+  spikepk.enable_rv64: false
+  spikepk_rv32.default_arch: rv32im_zicsr_zifencei
+  spikepk_rv32.default_abi: ilp32
 flags: {}

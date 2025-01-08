@@ -18,9 +18,16 @@
  */
 #include "ml_interface.h"
 #include "printing.h"
+#include "exit.h"
 
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+
+void mlonmcu_exit(int status) {
+    printf("MLONMCU EXIT: %d\n", status);
+    exit(status);
+}
 
 __attribute__((weak)) bool mlif_request_input(void *model_input_ptr, size_t model_input_sz) {
   static int num_done = 0;

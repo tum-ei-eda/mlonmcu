@@ -18,9 +18,16 @@
  */
 #include "ml_interface.h"
 #include "printing.h"
+#include "exit.h"
 
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+
+void mlonmcu_exit(int status) {
+    printf("MLONMCU EXIT: %d\n", status);
+    exit(status);
+}
 
 void mlif_run() {
   mlif_init();

@@ -1,4 +1,5 @@
 #include "pins.h"
+#include "driver/gpio.h"
 
 void gpio_init()
 {
@@ -11,4 +12,3 @@ void gpio_init()
     gpio_set_direction(GPIO_LED_BLUE, GPIO_MODE_OUTPUT);
 #endif
 }
-

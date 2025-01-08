@@ -4,4 +4,9 @@ menu "TVM Build Options"
         default "$(TVM_SRC)"
         help
             TVM directory path.
+    config TVM_CRT_CONFIG_DIR
+        string "Path to crt_config"
+        default "crt_config"
+        help
+            TVM crt_config path.
 endmenu

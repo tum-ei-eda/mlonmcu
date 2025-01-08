@@ -1,6 +1,8 @@
 #ifndef MICRO_KWS_PINS_H_
 #define MICRO_KWS_PINS_H_
 
+#include "sdkconfig.h"
+
 void gpio_init(void);
 
 #if defined(CONFIG_IDF_TARGET_ESP32C3)

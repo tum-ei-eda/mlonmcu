@@ -52,9 +52,11 @@ def handle_executor(name: str):
     return ret
 
 
-def _process(pbar, run, until, skip, export):
+def _process(pbar, run, until, skip, export, needs_post):
     """Helper function to invoke the run."""
     run.process(until=until, skip=skip, export=export)
+    if needs_post:
+        run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
 
 
 # TODO: alternative _process functions
@@ -213,7 +215,10 @@ class SessionScheduler:
                                 total_threads,
                                 cpu_count,
                             )
-                    f = executor.submit(_process, pbar, run, until=self.until, skip=self.skipped_stages)
+                    needs_post = run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in self.skipped_stages
+                    f = executor.submit(
+                        _process, pbar, run, until=self.until, skip=self.skipped_stages, needs_post=needs_post
+                    )
                     self._futures.append(f)
                     self._future_run_idx[f] = i
                 self._join_futures(pbar)

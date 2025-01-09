@@ -203,6 +203,9 @@ class Session:
         def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
+            if not per_stage and run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip:
+                # run.postprocess()
+                run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
             if progress:
                 _update_progress(pbar)
 

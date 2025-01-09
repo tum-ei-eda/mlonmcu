@@ -1039,12 +1039,12 @@ class Run:
         self.completed[RunStage.LOAD] = True
         self.unlock()
 
-    def process(self, until=RunStage.RUN, skip=None, export=False):
+    def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
         """Process the run until a given stage."""
         skip = skip if skip is not None else []
         if until == RunStage.DONE:
             until = RunStage.DONE - 1
-        start = self.next_stage  # self.stage hold the max finished stage
+        start = self.next_stage if start is None else start
         if until < start:
             logger.debug("%s Nothing to do", self.prefix)
             return self.get_report()

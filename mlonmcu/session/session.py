@@ -56,10 +56,10 @@ class Session:
         "report_fmt": "csv",
     }
 
-    def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
+    def __init__(self, label=None, idx=None, archived=False, dir=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
-            label if len(label) > 0 else ("unnamed" + "_" + self.timestamp)
+            label if isinstance(label, str) and len(label) > 0 else ("unnamed" + "_" + self.timestamp)
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.config = config if config else {}

@@ -122,7 +122,7 @@ def build_spike_pk(
     xlen = params["xlen"]
     assert xlen in [32, 64]
     spikepkName = utils.makeDirName(f"spikepk_rv{xlen}")
-    spikepkSrcDir = context.cache["spikepk.src_dir"]
+    spikepkSrcDir = Path(context.cache["spikepk.src_dir"])
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
     if "spike.pk_rv{xlen}" in user_vars:  # TODO: also check command line flags?

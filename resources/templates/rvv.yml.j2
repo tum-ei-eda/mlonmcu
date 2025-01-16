@@ -1,0 +1,177 @@
+---
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+paths:
+  deps: deps
+  logs: logs
+  results: results
+  plugins: plugins
+  temp: temp
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: v0.17.0
+    options:
+      recursive: true
+  tvm_extensions:
+    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
+    ref: 859bbc89519b610d8adcdba0869d8b087887aabd
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: cec46aa94277417b3cb48bdb0dcd783abbe670da
+  etiss:
+    # url: "https://github.com/danielschloms/etiss.git"
+    url: "https://github.com/PhilippvK/etiss.git"  # TODO: merge fixes
+    ref: daniel-dev
+  spike:
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    # ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+    ref: eb0a3e2b0a7c57522928be39de95cd9f8c6dc636
+  spikepk:
+    # url: "https://github.com/riscv-software-src/riscv-pk.git"
+    # ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+    url: "https://github.com/PhilippvK/riscv-pk.git"
+    ref: fix-gcc14-rvv
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 3d950d03143644b48e69e22e0ce0fa4b340e1c7a
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: true
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaotplus:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmllvm:
+        enabled: true
+        features:
+          # unpacked_api: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+    features:
+      muriscvnnbyoc: false
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: true
+toolchains:
+  gcc: true
+  llvm: true
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+      benchmark: true
+  espidf:
+    enabled: false
+    features:
+      debug: true
+  zephyr:
+    enabled: false
+    features:
+      debug: true
+  tvm:
+    enabled: true
+    features:
+      benchmark: true
+      tvm_rpc: true
+      autotune: true
+      tvm_profile: true
+  microtvm:
+    enabled: true
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: etiss
+  etiss:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      vext: true
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+  spike:
+    enabled: true
+    features:
+      vext: false
+      cachesim: true
+      log_instrs: true
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  runs_per_stage: true
+  # tvm.make_tool: "ninja"
+  # llvm.distribution: x86_64-linux-gnu-ubuntu-18.04
+  # llvm.version: 18.1.8
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_ilp32.tar.xz"
+  riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_zve32x_ilp32.tar.xz"
+  spikepk_rv32.default_arch: rv32im_zicsr_zifencei
+  spikepk_rv32.default_abi: ilp32
+flags:
+  tflmc.exe:
+  - x86

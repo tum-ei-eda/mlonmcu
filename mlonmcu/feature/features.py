@@ -1471,6 +1471,8 @@ class LogInstructions(TargetFeature):
                         if target in ["etiss_pulpino", "etiss"]:
                             if self.etiss_experimental_print_to_file:
                                 log_file = Path(directory) / "instr_trace.csv"
+                                with open(log_file, "r") as f:
+                                    content = f.read()
                             else:
                                 # TODO: update stdout and remove log_instrs lines
                                 instrs = []

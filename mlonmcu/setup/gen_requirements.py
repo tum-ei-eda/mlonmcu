@@ -76,6 +76,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "paramiko",  # ssh
                 "pyelftools",
                 "pyyaml",
+                "setuptools",
                 "tqdm",
                 "xdg",
                 "xlsxwriter",  # xlsx reports

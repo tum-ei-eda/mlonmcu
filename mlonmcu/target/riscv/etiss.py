@@ -32,27 +32,28 @@ from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
+from .riscv_vext_target import RVVTarget
 from .riscv import RISCVTarget
+from .util import update_extensions
 
 logger = get_logger()
 
 
-class EtissTarget(RISCVTarget):
+class EtissTarget(RVVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES | {
+    FEATURES = RVVTarget.FEATURES | {
         "gdbserver",
         "etissdbg",
         "trace",
         "log_instrs",
         "pext",
-        "vext",
         "xcorev",
         "vanilla_accelerator",
     }
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
+        **RVVTarget.DEFAULTS,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
@@ -67,9 +68,6 @@ class EtissTarget(RISCVTarget):
         "ram_start": 0x1000000 + 0x800000,
         "ram_size": 0x4000000,  # 64 MB
         "cycle_time_ps": 31250,  # 32 MHz
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
         "enable_pext": False,
         "pext_spec": 0.96,
         "vlen": 0,  # vectorization=off
@@ -99,7 +97,7 @@ class EtissTarget(RISCVTarget):
         "jit_debug": False,
         "load_integrated_libraries": True,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
+    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -195,15 +193,14 @@ class EtissTarget(RISCVTarget):
     def cpu_arch(self):
         if self.config.get("cpu_arch", None):
             return self.config["cpu_arch"]
-        elif self.enable_pext or self.enable_vext:
+        elif self.enable_pext and self.enable_vext:
             return f"RV{self.xlen}IMACFDPV"
+        elif self.enable_pext:
+            return f"RV{self.xlen}IMACFDP"
+        elif self.enable_vext:
+            return f"RV{self.xlen}IMACFDV"
         else:
             return f"RV{self.xlen}IMACFD"
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value)
 
     @property
     def enable_pext(self):
@@ -279,6 +276,7 @@ class EtissTarget(RISCVTarget):
 
     @property
     def extensions(self):
+        # exts = RVPTarget.extensions(self) + RVVTarget.extensions(self)
         exts = super().extensions
         required = set()
         if "xcorev" not in exts:
@@ -299,7 +297,9 @@ class EtissTarget(RISCVTarget):
         for ext in required:
             if ext not in exts:
                 exts.add(ext)
-        return exts
+        return update_extensions(
+            exts,
+        )
 
     @property
     def attr(self):
@@ -386,15 +386,6 @@ class EtissTarget(RISCVTarget):
     @property
     def load_integrated_libraries(self):
         value = self.config["load_integrated_libraries"]
-        return str2bool(value)
-
-    @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
         return str2bool(value)
 
     @property
@@ -755,6 +746,9 @@ class EtissTarget(RISCVTarget):
         return "etiss"
 
     def get_platform_defs(self, platform):
+        ret = {}
+        ret.update(RVVTarget.get_platform_defs(self, platform))
+
         assert platform == "mlif"
         assert self.is_bare, "ETISS Target needs baremetal toolchain (riscv[32|64]-unknown-elf)"
         ret = super().get_platform_defs(platform)

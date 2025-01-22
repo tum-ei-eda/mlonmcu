@@ -35,6 +35,7 @@ from .postprocesses import (
     ValidateOutputsPostprocess,
     ValidateLabelsPostprocess,
     ExportOutputsPostprocess,
+    AnalyseLinkerMapPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -54,4 +55,5 @@ SUPPORTED_POSTPROCESSES = {
     "validate_outputs": ValidateOutputsPostprocess,
     "validate_labels": ValidateLabelsPostprocess,
     "export_outputs": ExportOutputsPostprocess,
+    "analyse_linker_map": AnalyseLinkerMapPostprocess,
 }

@@ -33,6 +33,7 @@ from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
 from .validate_metrics import parse_validate_metrics, parse_classify_metrics
+from .calc_lib_mem_footprints import parse_elf, analyze_linker_map_helper, generate_pie_data, agg_library_footprint
 
 logger = get_logger()
 
@@ -1920,3 +1921,117 @@ class ExportOutputsPostprocess(RunPostprocess):
         if temp_dir:
             temp_dir.cleanup()
         return artifacts
+
+
+class AnalyseLinkerMapPostprocess(RunPostprocess):
+    """Calculate memory footprints."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        # "to_df": True,
+        "to_df": False,
+        "to_file": True,
+        "per_func": True,
+        "per_object": True,
+        "per_library": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_linker_map", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value)
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value)
+
+    @property
+    def per_func(self):
+        """Get per_func property."""
+        value = self.config["per_func"]
+        return str2bool(value)
+
+    @property
+    def per_object(self):
+        """Get per_object property."""
+        value = self.config["per_object"]
+        return str2bool(value)
+
+    @property
+    def per_library(self):
+        """Get per_library property."""
+        value = self.config["per_library"]
+        return str2bool(value)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        platform = report.pre_df["Platform"]
+        if (platform != "mlif").any():
+            return []
+        ret_artifacts = []
+        elf_artifact = lookup_artifacts(
+            artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True
+        )
+        assert len(elf_artifact) == 1, "ELF artifact not found!"
+        elf_artifact = elf_artifact[0]
+        map_artifact = lookup_artifacts(
+            artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True
+        )
+
+        mem_footprint_df = parse_elf(elf_artifact.path)
+
+        mapFile = mapfile.MapFile()
+        mapFile.readMapFile(map_artifact.path)
+
+        symbol_map = analyze_linker_map_helper(mapFile)
+        symbol_map_df = pd.DataFrame(
+            symbol_map,
+            columns=[
+                "segment",
+                "section",
+                "symbol",
+                "object",
+                "object_full",
+                "library",
+                "library_full",
+            ],
+        )
+
+        topk = 1000
+
+        if self.per_func:
+            mem_footprint_per_func_data = generate_pie_data(mem_footprint_df, x="func", y="bytes", topk=topk)
+            print("per_func\n", mem_footprint_per_func_data, mem_footprint_per_func_data.sum())
+            if self.to_file:
+                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_func.csv", content=mem_footprint_per_func_csv, fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(artifact)
+
+        if self.per_library:
+            library_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="library", col="bytes")
+            mem_footprint_per_library_data = generate_pie_data(library_footprint_df, x="library", y="bytes", topk=topk)
+            print("per_library\n", mem_footprint_per_library_data, mem_footprint_per_library_data.sum())
+            if self.to_file:
+                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_library.csv", content=mem_footprint_per_library_csv, fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(artifact)
+
+        if self.per_object:
+            object_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="object", col="bytes")
+            mem_footprint_per_object_data = generate_pie_data(object_footprint_df, x="object", y="bytes", topk=topk)
+            print("per_object\n", mem_footprint_per_object_data, mem_footprint_per_object_data.sum())
+            if self.to_file:
+                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_object.csv", content=mem_footprint_per_object_csv, fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(artifact)
+
+        if self.to_df:
+            # post_df = report.post_df.copy()
+            # post_df["DumpCounts"] = str(counts)
+            # report.post_df = post_df
+            raise NotImplementedError
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts

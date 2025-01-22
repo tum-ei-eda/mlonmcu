@@ -69,6 +69,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "filelock",
                 "humanize",
                 "jinja2",
+                "mapfile_parser",
                 "networkx",
                 "numpy",
                 "openpyxl",  # xlsx reports

@@ -1,5 +1,4 @@
 ---
-# The MLONMCU_HOME is filled in automatically when creating the environment
 home: "{{ home_dir }}"
 logging:
   level: DEBUG
@@ -8,69 +7,48 @@ logging:
 cleanup:
   auto: true
   keep: 50
-# Default locations for certain directoriescan be changed here
-# Non-absolute paths will always be threated relative to the MLONMCU_HOME
 paths:
-  # Where the dependencies are downloaded and installed
   deps: deps
-  # If logging to file is used keep logs in this directory
   logs: logs
-  # Location where reports and artifacts are written to
   results: results
-  # Directory where custom extensions can be integrated
   plugins: plugins
-  # Directory for intermediate build products, should be located on a large enough drive
   temp: temp
-  # A collection of models which will be used to look for models
-  # The paths will be checked in the order defined here stopping at the first match
-  # Non-existant paths will be skipped without throwing an error
   models:
     - "{{ home_dir }}/models"
     - "{{ config_dir }}/models"
-# Here default clone_urls
 repos:
   tensorflow:
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 7a0249686f412551634a5058ddd6d2ec3f224203
+    ref: 8eb6b23de4470d6a8da3131650d6a67514dfa130
   tvm:
     url: "https://github.com/apache/tvm.git"
-    ref: e5bf56d1f4d4d46cfe4845e4f76c991be35cc332
+    ref: 567eeed38bdbcefb68e36328af6ab1501a81d51e
     options:
       recursive: true
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: 0e70311f5e70a73e088c18dcc345e958e3d8b174
-  etiss:
-    url: "https://github.com/tum-ei-eda/etiss.git"
-    ref: 739573d5f12798074bc7d375a46c005f23f59f67  # develop, 23.01.2024
+    ref: bench_gcc14_llvm19
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+    ref: eb0a3e2b0a7c57522928be39de95cd9f8c6dc636
   spikepk:
-    url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+    url: "https://github.com/PhilippvK/riscv-pk.git"
+    ref: 54b1264e7f9f306d19c7e0fc6828289dccd1fda5
   cmsis:
-    # url: "https://github.com/PhilippvK/CMSIS_5.git"
     url: "https://github.com/ARM-software/CMSIS_5.git"
     ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
-    # ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
   cmsisnn:
-    # url: "https://github.com/PhilippvK/CMSIS-NN.git"
     url: "https://github.com/ARM-software/CMSIS-NN.git"
-    # ref: 35ce20560794ddc9e6d87006cad7a3bc665f8319  # v4.0.0 + portability patch
     ref: 040da18234b597867bd54d736ca4ceae545b2853
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: d0a79d92b5a8e767b947b214bda8743ec6318741
+    ref: 3cdd2e53e165f31290f831e31f93b00c18174288
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
     ref: 2d31cafc941d3889b042af9c0a72b5f768ac4606
   layergen:
     url: "https://github.com/PhilippvK/ml-layer-gen.git"
     ref: 8d27988fe3a50838521e7c7fb42193da717c5830
-# Here all supported frameworks with their specific features are defined
-# Optionally disable unwanted or incomatible backends or features here
-# The configured defaults are used if no backend was specified in the command line options
 frameworks:
   default: tvm
   tflm:
@@ -111,18 +89,9 @@ frameworks:
           disable_legalize: false
           autotuned: true
           moiopt: true
-      tvmllvm:
-        enabled: true
-        features:
-          # unpacked_api: true
-          disable_legalize: false
-          autotuned: true
-          moiopt: true
     features:
       cmsisnnbyoc: false
       muriscvnnbyoc: false
-# Some frontends are experimental and therefore disabled here
-# Features like packing are only available in certain environments
 frontends:
   tflite:
     enabled: true
@@ -132,12 +101,9 @@ frontends:
       split_layers: true
   layergen:
     enabled: true
-  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
-# Some targets/platforms support multiple toolchains
 toolchains:
   gcc: true
   llvm: true
-# Platform extend the number of supported targets
 platforms:
   mlif:
     enabled: true
@@ -145,16 +111,8 @@ platforms:
       debug: true
       validate: true
       benchmark: true
-# List of supported targets in the environment
 targets:
   default: host_x86
-  etiss:
-    enabled: true
-    features:
-      gdbserver: true
-      etissdbg: true
-      trace: true
-      log_instrs: true
   host_x86:
     enabled: true
     features:
@@ -171,25 +129,20 @@ targets:
     features:
       vext: true
 postprocesses:
-  use:
-  # - detailed_cycles
-  # - average_cycles
-  # - filter_cols
-  # - features2cols
-  # - config2cols
-  # - bytes2kb
-  # - visualize
-# This is where further options such as specific versions of dependencies can be set in the furture
+  use: []
 vars:
   allow_extensions: false
   runs_per_stage: true
-  # tvm.make_tool: "ninja"
+  spike.xlen: 64
+  spike.legacy: false
+  spike_rv64.legacy: false
   spikepk.default_arch: "rv64gc"
   spikepk.default_abi: "lp64d"
-  spike.xlen: 64
-  etiss.xlen: 64
+  spikepk.enable_rv32: false
+  spikepk.enable_rv64: true
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_19.1.1/clang+llvm-19.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
   riscv_gcc.enable_rv64: true
-  riscv_gcc_rv64.name: riscv64-unknown-linux-musl
-  riscv_gcc_rv64.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gc_lp64d_linux_musl_medany.tar.xz"
-  riscv_gcc_rv64.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gcv_lp64d_linux_musl_medany.tar.xz"
+  riscv_gcc_rv64.name: riscv64-unknown-linux-gnu
+  riscv_gcc_rv64.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gc_lp64d_linux_medany.tar.xz"
+  riscv_gcc_rv64.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gcv_lp64d_linux_medany.tar.xz"
 flags: {}

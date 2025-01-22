@@ -141,6 +141,7 @@ vars:
   spikepk.enable_rv32: false
   spikepk.enable_rv64: true
   llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_19.1.1/clang+llvm-19.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
+  riscv_gcc.enable_rv32: false
   riscv_gcc.enable_rv64: true
   riscv_gcc_rv64.name: riscv64-unknown-linux-gnu
   riscv_gcc_rv64.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gc_lp64d_linux_medany.tar.xz"

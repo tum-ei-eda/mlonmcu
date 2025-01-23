@@ -25,6 +25,10 @@ SSH_PASSWORD = None
 SSH_WORKDIR = "/tmp/workdir"
 
 
+MEM_ONLY = False
+FUSE_LD = "ld"  # llvm only
+
+
 class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
     """TODO"""
 
@@ -341,7 +345,9 @@ def get_backend_config(backend, features, enable_autotuned=False):
 
 DEFAULT_CONFIG = {
     # "mlif.optimize": "s",
-    "mlif.fuse_ld": "none",
+    # "mlif.fuse_ld": "none",
+    "mlif.fuse_ld": FUSE_LD,
+    "mlif.strip_strings": MEM_ONLY,
     "run.export_optional": True,
     "mlif.verbose_makefile": True,
     "mlif.print_outputs": False,
@@ -404,6 +410,7 @@ POSTPROCESS_CONFIG = {
         "Total RAM (rel.)",
         "ROM read-only",
         "ROM code",
+        "ROM code (libmuriscvnn.a)",
         # "ROM read-only",
         # "ROM code",
         # "ROM misc",
@@ -726,7 +733,7 @@ def benchmark(args):
             if args.noop:
                 stage = RunStage.LOAD
             else:
-                stage = RunStage.RUN
+                stage = RunStage.COMPILE if MEM_ONLY else RunStage.RUN
             success = session.process_runs(
                 until=stage, num_workers=args.parallel, progress=args.progress, context=context, per_stage=args.runs_per_stage,
             )

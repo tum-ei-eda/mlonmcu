@@ -20,7 +20,7 @@ then
     PARALLEL=1
 
 else
-    PARALLEL=$(($(nproc) / 2))
+    PARALLEL=$(($(nproc) / 4))
 fi
 
 for MODEL in ${MODELS//,/ }

@@ -596,7 +596,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if map_file.is_file():
             with open(map_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT)
+                is_llvm_map = self.toolchain == "llvm" and self.fuse_ld != "ld"
+                map_type = "lld" if is_llvm_map else "ld"
+                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT, flags=(map_type,))
                 artifacts.append(artifact)
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:

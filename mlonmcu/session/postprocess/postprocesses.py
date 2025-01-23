@@ -1983,9 +1983,14 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         map_artifact = lookup_artifacts(
             artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True
         )
+        assert len(map_artifact) == 1, "Linker map artifact not found!"
+        map_artifact = map_artifact[0]
+        is_ld = "ld" in map_artifact.flags
+        assert is_ld, "Non ld linker currently unsupported"
 
         mem_footprint_df = parse_elf(elf_artifact.path)
 
+        from mapfile_parser import mapfile
         mapFile = mapfile.MapFile()
         mapFile.readMapFile(map_artifact.path)
 
@@ -2003,35 +2008,51 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
             ],
         )
 
-        topk = 1000
+        topk = None
 
         if self.per_func:
             mem_footprint_per_func_data = generate_pie_data(mem_footprint_df, x="func", y="bytes", topk=topk)
-            print("per_func\n", mem_footprint_per_func_data, mem_footprint_per_func_data.sum())
+            # print("per_func\n", mem_footprint_per_func_data, mem_footprint_per_func_data["bytes"].sum())
             if self.to_file:
-                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_func.csv", content=mem_footprint_per_func_csv, fmt=ArtifactFormat.TEXT)
-                ret_artifacts.append(artifact)
+                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_func.csv", content=mem_footprint_per_func_data.to_csv(index=False), fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(mem_footprint_per_func_artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["ROM code (by func)"] = mem_footprint_per_func_data.to_dict()
+                report.post_df = post_df
 
         if self.per_library:
             library_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="library", col="bytes")
             mem_footprint_per_library_data = generate_pie_data(library_footprint_df, x="library", y="bytes", topk=topk)
-            print("per_library\n", mem_footprint_per_library_data, mem_footprint_per_library_data.sum())
+            # print("per_library\n", mem_footprint_per_library_data, mem_footprint_per_library_data["bytes"].sum())
             if self.to_file:
-                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_library.csv", content=mem_footprint_per_library_csv, fmt=ArtifactFormat.TEXT)
-                ret_artifacts.append(artifact)
+                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_library.csv", content=mem_footprint_per_library_data.to_csv(index=False), fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(mem_footprint_per_func_artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["ROM code (by library)"] = mem_footprint_per_library_data.to_dict()
+                report.post_df = post_df
+            if True:  # TODO: generalize
+                # print("if1")
+                if "libmuriscvnn.a" in mem_footprint_per_library_data["library"].unique():
+                    # print("if2")
+                    muriscvnn_bytes = mem_footprint_per_library_data[mem_footprint_per_library_data["library"] == "libmuriscvnn.a"]["bytes"].iloc[0]
+                    # print("muriscvnn_bytes", muriscvnn_bytes)
+                    post_df = report.post_df.copy()
+                    post_df["ROM code (libmuriscvnn.a)"] = muriscvnn_bytes
+                    report.post_df = post_df
 
         if self.per_object:
             object_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="object", col="bytes")
             mem_footprint_per_object_data = generate_pie_data(object_footprint_df, x="object", y="bytes", topk=topk)
-            print("per_object\n", mem_footprint_per_object_data, mem_footprint_per_object_data.sum())
+            # print("per_object\n", mem_footprint_per_object_data, mem_footprint_per_object_data["bytes"].sum())
             if self.to_file:
-                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_object.csv", content=mem_footprint_per_object_csv, fmt=ArtifactFormat.TEXT)
-                ret_artifacts.append(artifact)
+                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_object.csv", content=mem_footprint_per_object_data.to_csv(index=False), fmt=ArtifactFormat.TEXT)
+                ret_artifacts.append(mem_footprint_per_func_artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["ROM code (by object)"] = mem_footprint_per_object_data.to_dict()
+                report.post_df = post_df
 
-        if self.to_df:
-            # post_df = report.post_df.copy()
-            # post_df["DumpCounts"] = str(counts)
-            # report.post_df = post_df
-            raise NotImplementedError
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

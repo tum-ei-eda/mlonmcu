@@ -44,6 +44,8 @@ from mlonmcu.models.model import (
     OpenASIPProgram,
     RVVBenchProgram,
     ISSBenchProgram,
+    CmsisDSPProgram,
+    CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -2116,3 +2118,51 @@ class ISSBenchFrontend(BenchFrontend):
             "branch_heavy",
             "mem_heavy",
         ]
+
+
+class CmsisDSPFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_dsp",
+            CmsisDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_abs_q15",
+            "arm_abs_q31",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_dsp_bench"
+        return ret
+
+
+class CmsisNNFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_nn",
+            CmsisNNProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_nn_activation_s16_tanh",
+            "arm_nn_activation_s16_sigmoid",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_nn_bench"
+        return ret

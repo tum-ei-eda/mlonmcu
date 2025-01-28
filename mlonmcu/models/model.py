@@ -431,3 +431,91 @@ class OpenASIPProgram(Program):
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret
+
+
+class CmsisDSPProgram(Program):
+    DEFAULTS = {
+        "size": 16,  # hoch much data to operate on
+        "batch_size": 16,  # num_batches=ceil(size/batch_size)
+        "number": 10,  # how often to repeat (TODO: use existing bench feature)
+    }
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return min(value, self.size)  # batch size should not exceed size
+
+    @property
+    def number(self):
+        value = self.config["number"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["CMSIS_DSP_BENCHMARK"] = self.name
+            ret["CMSIS_DSP_SIZE"] = self.size
+            ret["CMSIS_DSP_BATCH_SIZE"] = self.batch_size
+            ret["CMSIS_DSP_NUMBER"] = self.number
+        return ret
+
+
+class CmsisNNProgram(Program):
+    DEFAULTS = {
+        "size": 16,  # hoch much data to operate on
+        "batch_size": 16,  # num_batches=ceil(size/batch_size)
+        "number": 10,  # how often to repeat (TODO: use existing bench feature)
+    }
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return min(value, self.size)  # batch size should not exceed size
+
+    @property
+    def number(self):
+        value = self.config["number"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["CMSIS_NN_BENCHMARK"] = self.name
+            ret["CMSIS_NN_SIZE"] = self.size
+            ret["CMSIS_NN_BATCH_SIZE"] = self.batch_size
+            ret["CMSIS_NN_NUMBER"] = self.number
+        return ret

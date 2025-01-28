@@ -38,6 +38,7 @@ from mlonmcu.models.model import (
     DhrystoneProgram,
     MathisProgram,
     MibenchProgram,
+    OpenASIPProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -98,12 +99,12 @@ class Frontend(ABC):
     @property
     def use_inout_data(self):
         value = self.config["use_inout_data"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gen_data(self):
         value = self.config["gen_data"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gen_data_fill_mode(self):
@@ -128,7 +129,7 @@ class Frontend(ABC):
     @property
     def gen_ref_data(self):
         value = self.config["gen_ref_data"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gen_ref_data_mode(self):
@@ -149,7 +150,7 @@ class Frontend(ABC):
     @property
     def gen_ref_labels(self):
         value = self.config["gen_ref_labels"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gen_ref_labels_mode(self):
@@ -955,12 +956,12 @@ class TfLiteFrontend(SimpleFrontend):
     @property
     def visualize_enable(self):
         value = self.config["visualize_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def split_layers(self):
         value = self.config["split_layers"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def visualize_script(self):
@@ -973,7 +974,7 @@ class TfLiteFrontend(SimpleFrontend):
     @property
     def analyze_enable(self):
         value = self.config["analyze_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def analyze_script(self):
@@ -1237,7 +1238,7 @@ class RelayFrontend(SimpleFrontend):
     @property
     def visualize_graph(self):
         value = self.config["visualize_graph"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def relayviz_plotter(self):
@@ -1365,22 +1366,22 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
     @property
     def ignore_existing(self):
         value = self.config["ignore_existing"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fake_pack(self):
         value = self.config["fake_pack"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def use_packed(self):
         value = self.config["use_packed"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def check(self):
         value = self.config["check"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def produce_artifacts(self, model):
         tflite_data = None
@@ -1697,6 +1698,12 @@ class TaclebenchFrontend(SimpleFrontend):
 
 
 class PolybenchFrontend(SimpleFrontend):
+
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "dataset": "large",  # mini/small/medium/large/extralarge
+    }
+
     REQUIRED = {"polybench.src_dir"}
 
     def __init__(self, features=None, config=None):
@@ -1769,6 +1776,7 @@ class PolybenchFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
+            ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
 
     def get_platform_config(self, platform):
@@ -2087,3 +2095,50 @@ class LayerGenFrontend(Frontend):
             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
             artifacts[name] = [artifact]
         return artifacts, {}
+
+
+class OpenASIPFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "openasip",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "sha256",
+            "aes",
+            "crc",
+        ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("openasip/", "")
+            if name in self.supported_names:
+                hint = OpenASIPProgram(
+                    name,
+                    alt=f"openasip/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "openasip"
+        return ret

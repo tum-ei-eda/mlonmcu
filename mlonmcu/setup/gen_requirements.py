@@ -159,6 +159,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         (
             "Requirements for using tvm",
             [
+                "anytree",
                 "attrs",
                 "cloudpickle",
                 "decorator",
@@ -253,7 +254,7 @@ CONSTRAINTS = [
     ("tornado", None),
     ("typing_extensions", None),
     ("xdg", None),
-    ("xgboost", ">=1.7.0"),
+    ("xgboost", ">=1.7.0,<2.0"),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]

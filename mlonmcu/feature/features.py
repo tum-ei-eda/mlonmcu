@@ -127,7 +127,7 @@ class Validate(FrontendFeature, PlatformFeature):
     @property
     def allow_missing(self):
         value = self.config["allow_missing"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fail_on_error(self):
@@ -155,6 +155,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "use_vext": "AUTO",
+        "use_portable": "AUTO",
         "use_pext": "AUTO",
     }
 
@@ -172,8 +173,15 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         value = self.config["use_vext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_portable(self):
+        value = self.config["use_portable"]
+        if value == "AUTO" or value is None:
+            return value
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     @property
@@ -181,8 +189,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         value = self.config["use_pext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     def add_framework_config(self, framework, config):
@@ -200,6 +207,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
         }
@@ -341,6 +349,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mattr": None,  # for +nodsp, +nomve
         "debug_last_error": False,
         "use_vext": "AUTO",
+        "use_portable": "AUTO",
         "use_pext": "AUTO",
     }
 
@@ -370,8 +379,15 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         value = self.config["use_vext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_portable(self):
+        value = self.config["use_portable"]
+        if value == "AUTO" or value is None:
+            return value
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     @property
@@ -379,8 +395,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         value = self.config["use_pext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     def add_backend_config(self, backend, config):
@@ -413,6 +428,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
         }
@@ -535,7 +551,11 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["pext"],
             "tflmc.exe": ["pext"],
             "riscv_gcc.install_dir": ["pext"],
+            "riscv_gcc32.install_dir": ["pext"],
+            "riscv_gcc64.install_dir": ["pext"],
             "riscv_gcc.name": ["pext"],
+            "riscv_gcc32.name": ["pext"],
+            "riscv_gcc64.name": ["pext"],
         }
 
 
@@ -563,22 +583,22 @@ class Bext(SetupFeature, TargetFeature, PlatformFeature):
     @property
     def zba(self):
         value = self.config["zba"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def zbb(self):
         value = self.config["zbb"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def zbc(self):
         value = self.config["zbc"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def zbs(self):
         value = self.config["zbs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def get_target_config(self, target):
         return filter_none(
@@ -636,7 +656,7 @@ class GdbServer(TargetFeature):
     @property
     def attach(self):
         value = self.config["attach"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def port(self):
@@ -677,7 +697,7 @@ class Trace(TargetFeature):
     @property
     def to_file(self):
         value = self.config["to_file"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
@@ -765,7 +785,7 @@ class Usmp(BackendFeature):
     @property
     def use_workspace_io(self):
         value = self.config["use_workspace_io"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def add_backend_config(self, backend, config):
         assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -1286,7 +1306,7 @@ class CacheSim(TargetFeature):
     @property
     def ic_enable(self):
         value = self.config["ic_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def ic_config(self):
@@ -1295,7 +1315,7 @@ class CacheSim(TargetFeature):
     @property
     def dc_enable(self):
         value = self.config["dc_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def dc_config(self):
@@ -1304,7 +1324,7 @@ class CacheSim(TargetFeature):
     @property
     def l2_enable(self):
         value = self.config["l2_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def l2_config(self):
@@ -1313,12 +1333,12 @@ class CacheSim(TargetFeature):
     @property
     def log_misses(self):
         value = self.config["log_misses"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def detailed(self):
         value = self.config["detailed"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1373,13 +1393,20 @@ class LogInstructions(TargetFeature):
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
+    OPTIONAL = {"etiss.experimental_print_to_file"}
+
     def __init__(self, features=None, config=None):
         super().__init__("log_instrs", features=features, config=config)
 
     @property
     def to_file(self):
         value = self.config["to_file"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
+
+    @property
+    def etiss_experimental_print_to_file(self):
+        value = self.config["etiss.experimental_print_to_file"]
+        return str2bool(value, allow_none=True)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1399,6 +1426,11 @@ class LogInstructions(TargetFeature):
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
+            if self.etiss_experimental_print_to_file:
+                extra_bool_config_new = config.get("extra_bool_config", {})
+                if self.to_file:
+                    extra_bool_config_new["plugin.printinstruction.print_to_file"] = True
+                config.update({f"{target}.extra_bool_config": extra_bool_config_new})
         elif target in ["ovpsim", "corev_ovpsim"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace")
@@ -1437,18 +1469,21 @@ class LogInstructions(TargetFeature):
                     new_lines = []
                     if self.to_file:
                         if target in ["etiss_pulpino", "etiss"]:
-                            # TODO: update stdout and remove log_instrs lines
-                            instrs = []
-                            for line in stdout.split("\n"):
-                                if target in ["etiss_pulpino", "etiss"]:
-                                    expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                                match = expr.match(line)
-                                if match is not None:
-                                    instrs.append(line)
-                                else:
-                                    new_lines.append(line)
-                            content = "\n".join(instrs)
-                            stdout = "\n".join(new_lines)
+                            if self.etiss_experimental_print_to_file:
+                                log_file = Path(directory) / "instr_trace.csv"
+                            else:
+                                # TODO: update stdout and remove log_instrs lines
+                                instrs = []
+                                for line in stdout.split("\n"):
+                                    if target in ["etiss_pulpino", "etiss"]:
+                                        expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                                    match = expr.match(line)
+                                    if match is not None:
+                                        instrs.append(line)
+                                    else:
+                                        new_lines.append(line)
+                                content = "\n".join(instrs)
+                                stdout = "\n".join(new_lines)
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
@@ -1527,12 +1562,12 @@ class TargetOptimized(RunFeature):
     @property
     def layouts(self):
         value = self.config["layouts"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def schedules(self):
         value = self.config["schedules"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def __init__(self, features=None, config=None):
         super().__init__("target_optimized", features=features, config=config)
@@ -1571,7 +1606,7 @@ class AutoVectorize(PlatformFeature):
     @property
     def verbose(self):
         value = self.config["verbose"]
-        # return str2bool(value) if not isinstance(value, (bool, int)) else value
+        # return str2bool(value)
         if value is None or not value:
             return "OFF"
         assert isinstance(value, str)
@@ -1582,12 +1617,12 @@ class AutoVectorize(PlatformFeature):
     @property
     def loop(self):
         value = self.config["loop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def slp(self):
         value = self.config["slp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def force_vector_width(self):
@@ -1618,7 +1653,7 @@ class AutoVectorize(PlatformFeature):
     @property
     def custom_unroll(self):
         value = self.config["custom_unroll"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def get_platform_defs(self, platform):
         return {
@@ -1660,7 +1695,7 @@ class Benchmark(PlatformFeature, TargetFeature):
     @property
     def total(self):
         value = self.config["total"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def aggregate(self):
@@ -1848,37 +1883,37 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
     @property
     def mac(self):
         value = self.config["mac"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def mem(self):
         value = self.config["mem"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def bi(self):
         value = self.config["bi"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def alu(self):
         value = self.config["alu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def bitmanip(self):
         value = self.config["bitmanip"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def simd(self):
         value = self.config["simd"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def hwlp(self):
         value = self.config["hwlp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1940,8 +1975,8 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 
     # Default getter functions:
     @staticmethod
-    def generalized_str2bool(input: Union[str, bool, int]) -> bool:
-        return str2bool(input) if isinstance(input, str) else input
+    def generalized_str2bool(inp: Union[str, bool, int]) -> bool:
+        return str2bool(inp)
 
     def getter_bool(self, key_name: Union[str, bool, int]) -> bool:
         return self.generalized_str2bool(self.config[key_name])

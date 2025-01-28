@@ -252,7 +252,7 @@ class TVMBackend(Backend):
     @property
     def use_tuning_results(self):
         value = self.config["use_tuning_results"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def tvmc_extra_args(self):
@@ -265,7 +265,7 @@ class TVMBackend(Backend):
     @property
     def disabled_passes(self):
         value = self.config["disabled_passes"]
-        return str2list(value) if isinstance(value, str) else value
+        return str2list(value)
 
     @property
     def tvm_pythonpath(self):
@@ -286,17 +286,17 @@ class TVMBackend(Backend):
     @property
     def print_outputs(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def use_tlcpack(self):
         value = self.config["tvm.use_tlcpack"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def custom_unroll(self):
         value = self.config["custom_unroll"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def dump(self):
@@ -318,7 +318,7 @@ class TVMBackend(Backend):
     @property
     def refresh_model_info(self):
         value = self.config["refresh_model_info"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def generate_wrapper(self):

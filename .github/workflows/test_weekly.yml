@@ -1,0 +1,142 @@
+##
+## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
+##
+## This file is part of MLonMCU.
+## See https://github.com/tum-ei-eda/mlonmcu.git for further info.
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+name: Weekly Integration Tests
+on:
+  workflow_dispatch:
+    inputs:
+      local:
+        type: boolean
+        description: Run test locally (takes long time)
+        required: true
+      docker:
+        type: boolean
+        description: Run tests in prebuilt docker image (fast)
+        required: true
+  schedule:
+    - cron: "0 12 * * 0"  # Sundays @ 12:00
+
+jobs:
+  test_local:
+    name: Weekly Tests (Local)
+    runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.local == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.10"
+        os:
+          - ubuntu-latest
+        config:
+          - {branch: main, template: default, path: "tests --ignore tests/integration-tests/toolchains"}
+          - {branch: develop, template: dev, path: "tests --ignore tests/integration-tests/toolchains"}
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 32768
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.config.branch }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install APT packages
+        run: |
+          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
+          sudo apt -qq install -y ninja-build
+          sudo apt remove clang-11* llvm-11*
+      - name: Initialize Virtualenv
+        run: |
+          python -m pip install --upgrade pip
+          python -m venv .venv
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements.txt
+      - name: Run package creation
+        run: |
+          source .venv/bin/activate
+          make install
+      - name: Initialize MLonMCU environment
+        run: |
+          source .venv/bin/activate
+          mlonmcu init home/ --non-interactive --template ${{ matrix.config.template }}
+      - name: Setup MLonMCU dependencies
+        run: |
+          source .venv/bin/activate
+          mlonmcu setup -H home/ -v
+      - name: Install environment-specific Python packages
+        run: |
+          source .venv/bin/activate
+          MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
+          pip install -r home/requirements_addition.txt
+      - name: Prepare integration tests
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements_dev.txt
+      - name: Run integration tests
+        run: |
+          source .venv/bin/activate
+          MLONMCU_HOME=$(pwd)/home/ python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v
+  test_docker:
+    name: Weekly Tests (Docker)
+    runs-on: ubuntu-latest
+    # container: ${{ matrix.config.image }}
+    if: ${{ github.event_name == 'schedule' || github.event.inputs.docker == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/unit-tests"}
+          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/integration-tests --ignore tests/integration-tests/toolchains"}
+          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/unit-tests"}
+          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/integration-tests --ignore tests/integration-tests/toolchains"}
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 32768
+          temp-reserve-mb: 4096
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.config.branch }}
+      # - name: Run integration tests
+      #   run: |
+      #     python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: ${{ matrix.config.image }}
+          options: --workdir /home/runner/work/mlonmcu/mlonmcu -v /home/runner/work/mlonmcu/mlonmcu:/home/runner/work/mlonmcu/mlonmcu
+          shell: bash
+          run: |
+            pip install -r requirements_dev.txt
+            python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

@@ -3,7 +3,7 @@
 set -eE
 
 SHORT=h:,:,e:
-LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,help
+LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,dump,help
 OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
 
 eval set -- "$OPTS"
@@ -18,9 +18,10 @@ FAIL=0
 HTML=0
 PDF=0
 MILL=0
+DUMP=0
 
 function print_usage() {
-    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill]"
+    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill] [--dump]"
 }
 
 while :
@@ -66,6 +67,10 @@ do
       MILL=1
       shift
       ;;
+    --dump )
+      DUMP=1
+      shift
+      ;;
     --help)
       print_usage
       exit 0
@@ -89,6 +94,11 @@ do
 done
 
 
+if [[ -z $NOTEBOOK ]]
+then
+    echo "No NOTEBOOK specified. Aborting..."
+    exit 1
+fi
 NOTEBOOK=$(readlink -f $NOTEBOOK)
 if [[ ! -f $NOTEBOOK ]]
 then
@@ -193,6 +203,16 @@ then
     fi
 else
     echo "Skipping execution of notebook..."
+fi
+
+if [[ $DUMP -eq 1 ]]
+then
+   echo "Dumping environment.yml.j2..."
+   cat $WORKSPACE/environment.yml
+   echo
+   echo "Dumping python packages..."
+   python3 -m pip freeze
+   echo
 fi
 
 if [[ $HTML -eq 1 ]]

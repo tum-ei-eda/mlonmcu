@@ -444,6 +444,8 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
 
 
 def download(url, dest, progress=False):
+    logger.debug("- Downloading: %s", url)
+
     def hook(t):
         """Wraps tqdm instance."""
         last_b = [0]

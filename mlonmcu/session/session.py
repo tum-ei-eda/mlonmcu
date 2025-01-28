@@ -56,10 +56,10 @@ class Session:
         "report_fmt": "csv",
     }
 
-    def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
+    def __init__(self, label=None, idx=None, archived=False, dir=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
-            label if len(label) > 0 else ("unnamed" + "_" + self.timestamp)
+            label if isinstance(label, str) and len(label) > 0 else ("unnamed" + "_" + self.timestamp)
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.config = config if config else {}
@@ -203,6 +203,9 @@ class Session:
         def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
+            if not per_stage and run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip:
+                # run.postprocess()
+                run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
             if progress:
                 _update_progress(pbar)
 

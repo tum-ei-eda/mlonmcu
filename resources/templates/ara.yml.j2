@@ -70,8 +70,8 @@ repos:
     url: "https://github.com/tacle/tacle-bench.git"
     ref: master
   polybench:
-    url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
-    ref: master
+    url: "https://github.com/PhilippvK/PolyBenchC-4.2.1.git"
+    ref: fixes
   mibench:
     url: "https://github.com/embecosm/mibench.git"
     ref: master
@@ -263,9 +263,10 @@ vars:
   allow_extensions: false
   runs_per_stage: true
   # llvm.version: "15.0.6"  # No llvm 16 build available for ubuntu < 22.04
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/Archive/llvm16.tar.xz"
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv64gc_lp64d_medany.tar.xz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv64gcv_lp64d_medany.tar.xz"
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/16.0.6/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
+  riscv_gcc.enable_rv64: true
+  riscv_gcc_rv64.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gc_lp64d_medany.tar.xz"
+  riscv_gcc_rv64.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gcv_lp64d_medany.tar.xz"
 flags:
   tflmc.exe:
   - x86

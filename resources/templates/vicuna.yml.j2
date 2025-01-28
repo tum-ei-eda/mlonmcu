@@ -36,7 +36,7 @@ repos:
       single_branch: true
   tvm:
     url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
-    ref: develop
+    ref: develop-rebased
     options:
       recursive: true
       submodules:
@@ -77,7 +77,8 @@ repos:
     ref: c1484ec8fa9f1106505a4ca246af39a66420a1d0
   verilator:
     url: "https://github.com/verilator/verilator"
-    ref: tags/v4.210
+    # ref: tags/v4.210
+    ref: tags/v4.222
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main
@@ -88,8 +89,8 @@ repos:
     url: "https://github.com/tacle/tacle-bench.git"
     ref: master
   polybench:
-    url: "https://github.com/MatthiasJReisinger/PolyBenchC-4.2.1.git"
-    ref: master
+    url: "https://github.com/PhilippvK/PolyBenchC-4.2.1.git"
+    ref: fixes
   mibench:
     url: "https://github.com/embecosm/mibench.git"
     ref: master
@@ -239,11 +240,13 @@ vars:
   runs_per_stage: true
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/Archive/llvm16.tar.xz"
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32im_ilp32.tar.xz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32imv_ilp32.tar.xz"
+  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/16.0.6/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32im_ilp32.tar.xz"
+  riscv_gcc_rv32.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32imv_ilp32.tar.xz"
   spike.keep_build_dir: false
   etiss.keep_build_dir: false
-  spikepk.default_arch: rv32im_zicsr_zifencei
-  spikepk.default_abi: ilp32
+  spikepk.enable_rv32: true
+  spikepk.enable_rv64: false
+  spikepk_rv32.default_arch: rv32im_zicsr_zifencei
+  spikepk_rv32.default_abi: ilp32
 flags: {}

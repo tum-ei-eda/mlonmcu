@@ -159,36 +159,36 @@ class Run:
     def tune_enabled(self):
         """Get tune_enabled property."""
         value = self.run_config["tune_enabled"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_to_backend(self):
         """Get target_to_backend property."""
         value = self.run_config["target_to_backend"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_optimized_layouts(self):
         """Get target_optimized_layouts property."""
         value = self.run_config["target_optimized_layouts"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_optimized_schedules(self):
         """Get target_optimized_schedules property."""
         value = self.run_config["target_optimized_schedules"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def export_optional(self):
         """Get export_optional property."""
         value = self.run_config["export_optional"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def stage_subdirs(self):
         value = self.run_config["stage_subdirs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def build_platform(self):
@@ -495,8 +495,7 @@ class Run:
         if model is None:
             if reasons:
                 logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
-            else:
-                raise RuntimeError(f"Model with name '{model_name}' not found.")
+            raise RuntimeError(f"Model with name '{model_name}' not found.")
         self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):
@@ -516,12 +515,10 @@ class Run:
             except Exception as e:
                 reasons[name] = str(e)
                 continue
-        assert len(frontends) > 0, "No compatible frontend was found"
         if len(frontends) == 0:
             if reasons:
                 logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
-            else:
-                raise RuntimeError("No compatible frontend was found.")
+            raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):
@@ -1039,12 +1036,12 @@ class Run:
         self.completed[RunStage.LOAD] = True
         self.unlock()
 
-    def process(self, until=RunStage.RUN, skip=None, export=False):
+    def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
         """Process the run until a given stage."""
         skip = skip if skip is not None else []
         if until == RunStage.DONE:
             until = RunStage.DONE - 1
-        start = self.next_stage  # self.stage hold the max finished stage
+        start = self.next_stage if start is None else start
         if until < start:
             logger.debug("%s Nothing to do", self.prefix)
             return self.get_report()

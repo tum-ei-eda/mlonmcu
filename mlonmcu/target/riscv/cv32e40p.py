@@ -65,37 +65,37 @@ class CV32E40PTarget(RISCVTarget):
     @property
     def enable_xcorevmac(self):
         value = self.config["enable_xcorevmac"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevmem(self):
         value = self.config["enable_xcorevmem"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevbi(self):
         value = self.config["enable_xcorevbi"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevalu(self):
         value = self.config["enable_xcorevalu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevbitmanip(self):
         value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevsimd(self):
         value = self.config["enable_xcorevsimd"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevhwlp(self):
         value = self.config["enable_xcorevhwlp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def extensions(self):
@@ -175,7 +175,7 @@ class CV32E40PTarget(RISCVTarget):
                 cwd=cwd,
                 **kwargs,
             )
-        return ret
+        return ret, []
 
     def parse_exit(self, out):
         exit_code = super().parse_exit(out)
@@ -214,11 +214,13 @@ class CV32E40PTarget(RISCVTarget):
         # TODO: re-enable sim MIPS
         start_time = time.time()
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out_, _ = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out += out_
         else:
-            out += self.exec(
+            out_, _ = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
+            out += out_
         end_time = time.time()
         diff = end_time - start_time
         exit_code = 0

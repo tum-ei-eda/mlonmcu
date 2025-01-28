@@ -32,6 +32,16 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
+def apply_params(key, params):
+    ret = key
+    for param_name, param_val in params.items():
+        ret = ret.replace(f"{{{param_name}}}", str(param_val))
+    # if key != ret:
+    #     print(f"{key} -> {ret}")
+    #     input("a")
+    return ret
+
+
 def get_combs(data) -> List[dict]:
     """Utility which returns combinations of the input data.
 
@@ -201,16 +211,17 @@ class TaskFactory:
         return self.needs(keys, force=False)
 
     def removes(self, keys):
-        """Decorator for cleanuo tasks."""
+        """Decorator for cleanup tasks."""
 
         # TODO: implementation
         def real_decorator(function):
-            @wraps(function)
-            def wrapper(*args, **kwargs):
-                retval = function(*args, **kwargs)
-                return retval
+            # @wraps(function)
+            # def wrapper(*args, **kwargs):
+            #     retval = function(*args, **kwargs)
+            #     return retval
+            # return wrapper
 
-            return wrapper
+            return function
 
         return real_decorator
 
@@ -236,23 +247,29 @@ class TaskFactory:
             for key in keys:
                 self.providers[key] = name
 
-            @wraps(function)
-            def wrapper(*args, **kwargs):
-                context = args[0]
-                for key in keys:
-                    if key in context.cache._vars:
-                        del context.cache._vars[key]  # Unset the value before calling function
-                retval = function(*args, **kwargs)
-                if retval is not False:
-                    # logger.debug("Checking outputs...")
-                    variables = context.cache._vars
-                    for key in keys:
-                        if key not in variables.keys() or variables[key] is None:
-                            raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
-                return retval
+            # @wraps(function)
+            # def wrapper(*args, **kwargs):
+            #     # print("args", args)
+            #     # print("kwargs", kwargs)
+            #     context = args[0]
+            #     # params = kwargs.get("params", {})
+            #     # print("params", params)
+            #     # input("a")
+            #     for key in keys:
+            #         if key in context.cache._vars:
+            #             del context.cache._vars[key]  # Unset the value before calling function
+            #     retval = function(*args, **kwargs)
+            #     if retval is not False:
+            #         # logger.debug("Checking outputs...")
+            #         variables = context.cache._vars
+            #         for key in keys:
+            #             if key not in variables.keys() or variables[key] is None:
+            #                 raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
+            #     return retval
 
-            self.registry[name] = wrapper
-            return wrapper
+            # self.registry[name] = wrapper
+            # return wrapper
+            return function
 
         return real_decorator
 
@@ -268,12 +285,13 @@ class TaskFactory:
             else:
                 self.params[name] = {flag: options}
 
-            @wraps(function)
-            def wrapper(*args, **kwargs):
-                retval = function(*args, **kwargs)
-                return retval
+            # @wraps(function)
+            # def wrapper(*args, **kwargs):
+            #     retval = function(*args, **kwargs)
+            #     return retval
+            # return wrapper
 
-            return wrapper
+            return function
 
         return real_decorator
 
@@ -308,19 +326,28 @@ class TaskFactory:
                     return ret
 
                 combs_ = get_valid_combs(combs)
+                context = args[0]
 
                 def process(name_, params=None, rebuild=False):
                     if not params:
-                        params = []
+                        params = {}
                     rebuild = rebuild
                     if name in self.dependencies:
                         for dep in self.dependencies[name]:
                             if dep in self.changed:
                                 rebuild = True
                                 break
+                    keys = [key for key, provider in self.providers.items() if provider == name]
+                    for key in keys:
+                        if key in context.cache._vars:
+                            del context.cache._vars[key]  # Unset the value before calling function
                     retval = function(*args, params=params, rebuild=rebuild, **kwargs)
+                    variables = context.cache._vars
+                    for key in keys:
+                        key = apply_params(key, params)
+                        if key not in variables.keys() or variables[key] is None:
+                            raise RuntimeError(f"Task '{name}' did not set the value of '{key}'")
                     if retval:
-                        keys = [key for key, provider in self.providers.items() if provider == name]
                         for key in keys:
                             if key not in self.changed:
                                 self.changed.append(key)

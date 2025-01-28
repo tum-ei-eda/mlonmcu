@@ -60,7 +60,7 @@ class Setup:
     @property
     def verbose(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def clean_cache(self, interactive=True):
         assert self.context is not None

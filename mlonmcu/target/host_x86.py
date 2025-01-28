@@ -50,12 +50,12 @@ class HostX86Target(Target):
     @property
     def gdbserver_enable(self):
         value = self.config["gdbserver_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gdbserver_attach(self):
         value = self.config["gdbserver_attach"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def gdbserver_port(self):

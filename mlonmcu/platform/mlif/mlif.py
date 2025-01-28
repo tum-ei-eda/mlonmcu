@@ -104,6 +104,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "fuse_ld": None,
         "global_isel": False,
         "extend_attrs": False,
+        "ccache": False,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -123,9 +124,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["goal"]
 
     @property
+    def ccache(self):
+        value = self.config["ccache"]
+        return str2bool(value)
+
+    @property
     def set_inputs(self):
         value = self.config["set_inputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def set_inputs_interface(self):
@@ -135,7 +141,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def get_outputs(self):
         value = self.config["get_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def get_outputs_interface(self):
@@ -274,17 +280,17 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def ignore_data(self):
         value = self.config["ignore_data"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def skip_check(self):
         value = self.config["skip_check"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fail_on_error(self):
         value = self.config["fail_on_error"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def validate_outputs(self):
@@ -328,32 +334,32 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def mem_only(self):
         value = self.config["mem_only"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def debug_symbols(self):
         value = self.config["debug_symbols"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def verbose_makefile(self):
         value = self.config["verbose_makefile"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def lto(self):
         value = self.config["lto"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def slim_cpp(self):
         value = self.config["slim_cpp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def garbage_collect(self):
         value = self.config["garbage_collect"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fuse_ld(self):
@@ -363,24 +369,22 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def global_isel(self):
         value = self.config["global_isel"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def extend_attrs(self):
         value = self.config["extend_attrs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def strip_strings(self):
         value = self.config["strip_strings"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def unroll_loops(self):
         value = self.config["unroll_loops"]
-        if value is None:
-            return None
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     def get_supported_targets(self):
         target_names = get_mlif_platform_targets()
@@ -402,10 +406,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["BATCH_SIZE"] = self.batch_size
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
-        if self.toolchain == "llvm" and self.llvm_dir is None:
-            raise RuntimeError("Missing config variable: llvm.install_dir")
-        else:
-            definitions["LLVM_DIR"] = self.llvm_dir
+        if self.toolchain == "llvm":
+            if self.llvm_dir is None:
+                raise RuntimeError("Missing config variable: llvm.install_dir")
+            llvm_dir = Path(self.llvm_dir).resolve()
+            assert llvm_dir.is_dir(), f"llvm.install_dir does not exist: {llvm_dir}"
+            definitions["LLVM_DIR"] = llvm_dir
         if self.optimize is not None:
             definitions["OPTIMIZE"] = self.optimize
         if self.debug_symbols is not None:
@@ -434,6 +440,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:
             definitions["UNROLL_LOOPS"] = self.unroll_loops
+        if self.ccache:
+            definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
+            definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
 
         return definitions
 

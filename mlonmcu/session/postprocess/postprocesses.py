@@ -92,19 +92,19 @@ class FilterColumnsPostprocess(SessionPostprocess):
     def drop_nan(self):
         """Get drop_nan property."""
         value = self.config["drop_nan"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def drop_empty(self):
         """Get drop_empty property."""
         value = self.config["drop_empty"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def drop_const(self):
         """Get drop_const property."""
         value = self.config["drop_const"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -214,7 +214,7 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     def drop(self):
         """Get drop property."""
         value = self.config["drop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         df = report.post_df
@@ -263,7 +263,7 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     def drop(self):
         """Get drop property."""
         value = self.config["drop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -570,13 +570,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def groups(self):
         """Get groups property."""
         value = self.config["groups"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def sequences(self):
         """get sequences property."""
         value = self.config["sequences"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def seq_depth(self):
@@ -592,19 +592,19 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def corev(self):
         """Get corev property."""
         value = self.config["corev"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -623,13 +623,72 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             if self.sequences:
                 names = re.compile(r"core\s+\d+:\s0x[0-9abcdef]+\s\(0x[0-9abcdef]+\)\s([\w.]+).*").findall(content)
         elif is_etiss:
-            content = log_artifact.content
+
+            # TODO: generalize
+            def transform_df(df):
+                df["pc"] = df["pc"].apply(lambda x: int(x, 0))
+                df["pc"] = pd.to_numeric(df["pc"])
+                # TODO: normalize instr names
+                df[["instr", "rest"]] = df["rest"].str.split(" # ", n=1, expand=True)
+                df["instr"] = df["instr"].apply(lambda x: x.strip())
+                df["instr"] = df["instr"].astype("category")
+                df[["bytecode", "operands"]] = df["rest"].str.split(" ", n=1, expand=True)
+
+                def detect_size(bytecode):
+                    if bytecode[:2] == "0x":
+                        return len(bytecode[2:]) / 2
+                    elif bytecode[:2] == "0b":
+                        return len(bytecode[2:]) / 8
+                    else:
+                        assert len(set(bytecode)) == 2
+                        return len(bytecode) / 8
+
+                df["size"] = df["bytecode"].apply(detect_size)
+                df["bytecode"] = df["bytecode"].apply(
+                    lambda x: int(x, 16) if "0x" in x else (int(x, 2) if "0b" in x else int(x, 2))
+                )
+                df["bytecode"] = pd.to_numeric(df["bytecode"])
+                df.drop(columns=["rest"], inplace=True)
+                return df
+
+            def process_df(df):
+                encodings = None
+                names = None
+                if self.groups:
+                    # encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                    # encodings = [f"{enc}" for enc in encodings]
+                    encodings = [bin(enc) for enc in df["bytecode"].values]
+                if self.sequences:
+                    # names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
+                    names = list(df["instr"].values)
+                return encodings, names
+
+            log_artifact.uncache()
+            encodings = None
+            names = None
             if self.groups:
-                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
-                encodings = [f"0b{enc}" for enc in encodings]
-                # encodings = [f"{enc}" for enc in encodings]
+                encodings = []
             if self.sequences:
-                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
+                names = []
+            with pd.read_csv(
+                log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22
+            ) as reader:  # TODO: expose chunksize
+                for chunk in reader:
+                    df = transform_df(chunk)
+
+                    encodings_, names_ = process_df(df)
+                    # input(">")
+
+                    encodings = encodings_
+                    names += names_
+            # df = None
+            # content = log_artifact.content
+            # if self.groups:
+            #     encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+            #     encodings = [f"0b{enc}" for enc in encodings]
+            #     # encodings = [f"{enc}" for enc in encodings]
+            # if self.sequences:
+            #     names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
         elif is_ovpsim:
             content = log_artifact.content
             if self.groups:
@@ -1079,13 +1138,13 @@ class AnalyseDumpPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1096,7 +1155,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
         dump_artifact = lookup_artifacts(
             artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True
         )
-        assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"
+        assert len(dump_artifact) == 1, "Dump artifact not found!"
         dump_artifact = dump_artifact[0]
         is_llvm = "llvm" in dump_artifact.flags
         assert is_llvm, "Non-llvm objdump currently unsupported"
@@ -1110,10 +1169,25 @@ class AnalyseDumpPostprocess(RunPostprocess):
                 continue
             insn = splitted[1]
             args = splitted[2]
+            # stop = insn == "cv.lh" and args == "t2, (a0), 0x2"
+            if "seal5." in insn:
+                insn = insn.replace("seal5.", "")
             if "cv." in insn:
                 if "(" in args and ")" in args:
                     m = re.compile(r"(.*)\((.*)\)").match(args)
-                    if m:
+                    m2 = re.compile(r"(.*)\((.*)\),\s*(.*)").match(args)
+                    if m2:
+                        g = m2.groups()
+                        assert len(g) == 3
+                        _, base, offset = g
+                        fmt = "ri"
+                        try:
+                            offset = int(offset)
+                        except ValueError:
+                            fmt = "rr"
+                        insn += f"_{fmt}"
+                        insn += "_inc"
+                    elif m:
                         g = m.groups()
                         assert len(g) == 2
                         offset, base = g
@@ -1123,7 +1197,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
                         except ValueError:
                             fmt = "rr"
                         insn += f"_{fmt}"
-                        if "!" in base:
+                        if "!" in base or ")," in base:
                             insn += "_inc"
             if insn in counts:
                 counts[insn] += 1
@@ -1160,13 +1234,13 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1482,13 +1556,13 @@ class ValidateOutputsPostprocess(RunPostprocess):
     def report(self):
         """Get report property."""
         value = self.config["report"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def validate_range(self):
         """Get validate_range property."""
         value = self.config["validate_range"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1655,7 +1729,7 @@ class ValidateLabelsPostprocess(RunPostprocess):
     def report(self):
         """Get report property."""
         value = self.config["report"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1735,13 +1809,13 @@ class ExportOutputsPostprocess(RunPostprocess):
     def use_ref(self):
         """Get use_ref property."""
         value = self.config["use_ref"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def skip_dequant(self):
         """Get skip_dequant property."""
         value = self.config["skip_dequant"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fmt(self):

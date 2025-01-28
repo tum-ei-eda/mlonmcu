@@ -37,7 +37,7 @@ class MicroTvmTunePlatform(TvmTunePlatform, MicroTvmTargetPlatform):
     @property
     def experimental_tvmc_micro_tune(self):
         value = self.config["experimental_tvmc_micro_tune"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def invoke_tvmc_micro_tune(self, *args, target=None, list_options=False, **kwargs):
         all_args = []

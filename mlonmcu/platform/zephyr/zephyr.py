@@ -94,13 +94,13 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
     @property
     def wait_for_user(self):
         value = self.config["wait_for_user"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def flash_only(self):
         # TODO: get rid of this
         value = self.config["flash_only"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def optimize(self):

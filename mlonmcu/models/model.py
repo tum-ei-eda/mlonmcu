@@ -331,7 +331,7 @@ class MathisProgram(Program):
     def size(self):
         value = self.config["size"]
         if isinstance(value, str):
-            value = str(value)
+            value = int(value)
         assert isinstance(value, int)
         assert value > 0
         return value
@@ -412,4 +412,22 @@ class DhrystoneProgram(Program):
         ret = {}
         if platform == "mlif":
             ret["DHRYSTONE_ITERATIONS"] = 10000
+        return ret
+
+
+class OpenASIPProgram(Program):
+    DEFAULTS = {
+        "crc_mode": "both",
+    }
+
+    @property
+    def crc_mode(self):
+        return str(self.config["crc_mode"])
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["OPENASIP_BENCHMARK"] = self.name
+            if self.name == "crc":
+                ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret

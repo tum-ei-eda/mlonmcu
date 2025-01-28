@@ -34,8 +34,8 @@ class EtissPulpinoTarget(EtissTarget):
     def __init__(self, name="etiss_pulpino", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
-    def get_ini_bool_config(self):
-        ret = super().get_ini_bool_config()
+    def get_ini_bool_config(self, override=None):
+        ret = super().get_ini_bool_config(override=override)
         ret["arch.enable_semihosting"] = False
         return ret
 
@@ -52,6 +52,9 @@ class EtissPulpinoTarget(EtissTarget):
         ret["PULPINO_RAM_START"] = self.ram_start
         ret["PULPINO_RAM_SIZE"] = self.ram_size
         return ret
+
+    def get_target_system(self):
+        return "etiss_pulpino"
 
 
 if __name__ == "__main__":

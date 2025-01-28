@@ -34,6 +34,8 @@ from .frontend import (
     MibenchFrontend,
     LayerGenFrontend,
     OpenASIPFrontend,
+    CmsisDSPFrontend,
+    CmsisNNFrontend,
 )
 
 SUPPORTED_FRONTENDS = {
@@ -53,6 +55,8 @@ SUPPORTED_FRONTENDS = {
     "mibench": MibenchFrontend,
     "layergen": LayerGenFrontend,
     "openasip": OpenASIPFrontend,
+    "cmsis_dsp": CmsisDSPFrontend,
+    "cmsis_nn": CmsisNNFrontend,
 }  # TODO: use registry instead
 
 __all__ = [

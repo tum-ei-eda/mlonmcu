@@ -39,6 +39,8 @@ from mlonmcu.models.model import (
     MathisProgram,
     MibenchProgram,
     OpenASIPProgram,
+    CmsisDSPProgram,
+    CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -2141,4 +2143,88 @@ class OpenASIPFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["template"] = "openasip"
+        return ret
+
+
+class CmsisDSPFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_dsp",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_abs_q15",
+            "arm_abs_q31",
+        ]
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("cmsis_dsp/", "")
+            if name in self.supported_names:
+                hint = CmsisDSPProgram(
+                    name,
+                    alt=f"cmsis_dsp/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_dsp_bench"
+        return ret
+
+
+class CmsisNNFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_nn",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_nn_activation_s16_tanh",
+            "arm_nn_activation_s16_sigmoid",
+        ]
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("cmsis_nn/", "")
+            if name in self.supported_names:
+                hint = CmsisNNProgram(
+                    name,
+                    alt=f"cmsis_nn/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_nn_bench"
         return ret

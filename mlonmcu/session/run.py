@@ -495,8 +495,7 @@ class Run:
         if model is None:
             if reasons:
                 logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
-            else:
-                raise RuntimeError(f"Model with name '{model_name}' not found.")
+            raise RuntimeError(f"Model with name '{model_name}' not found.")
         self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):
@@ -516,12 +515,10 @@ class Run:
             except Exception as e:
                 reasons[name] = str(e)
                 continue
-        assert len(frontends) > 0, "No compatible frontend was found"
         if len(frontends) == 0:
             if reasons:
                 logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
-            else:
-                raise RuntimeError("No compatible frontend was found.")
+            raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):

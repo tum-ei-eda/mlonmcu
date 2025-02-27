@@ -18,6 +18,7 @@
 #
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
 import itertools
+import time
 import os
 import copy
 import tempfile
@@ -83,6 +84,7 @@ class Run:
         "target_optimized_layouts": False,
         "target_optimized_schedules": False,
         "stage_subdirs": False,
+        "profile_stages": False,
     }
 
     REQUIRED = set()
@@ -135,6 +137,7 @@ class Run:
         self.sub_names = []
         self.sub_parents = {}
         self.result = None
+        self.times = {}
         self.failing = False  # -> RunStatus
         self.reason = None
         self.failed_stage = None
@@ -188,6 +191,11 @@ class Run:
     @property
     def stage_subdirs(self):
         value = self.run_config["stage_subdirs"]
+        return str2bool(value)
+
+    @property
+    def profile_stages(self):
+        value = self.run_config["profile_stages"]
         return str2bool(value)
 
     @property
@@ -1084,7 +1092,12 @@ class Run:
             if func:
                 self.failing = False
                 try:
+                    if self.profile_stages:
+                        start = time.time()
                     func()
+                    if self.profile_stages:
+                        end = time.time()
+                        self.times[stage] = (start, end)
                 except Exception as e:
                     self.failing = True
                     self.reason = e
@@ -1300,6 +1313,12 @@ class Run:
                 main = metrics_by_sub[sub].get_data(include_optional=self.export_optional)
             else:
                 main = {}
+            if self.profile_stages:
+                for stage, stage_times in self.times.items():
+                    assert len(stage_times) == 2
+                    start, end = stage_times
+                    main[f"{RunStage(stage).name.capitalize()} Stage Start Time [s]"] = start
+                    main[f"{RunStage(stage).name.capitalize()} Stage End Time [s]"] = end
             mains.append(main if len(main) > 0 else {"Incomplete": True})
             posts.append(post)  # TODO: omit for subs?
         report.set(pre=pres, main=mains, post=posts)

@@ -244,6 +244,7 @@ class ONNXModelInfo(ModelInfo):
             return ret
 
         in_tensors = _helper(model.graph.input)
+        in_tensors = [x for x in in_tensors if x.name == "Input3"]
         out_tensors = _helper(model.graph.output)
 
         # TVM seems to ignore the original output names for ONNX models

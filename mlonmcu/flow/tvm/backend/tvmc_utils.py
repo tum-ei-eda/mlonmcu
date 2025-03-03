@@ -39,7 +39,7 @@ def get_disabled_pass_tvmc_args(disabled_passes):
 def get_input_shapes_tvmc_args(input_shapes):
     if input_shapes is None:
         return []
-    arg = " ".join([f"{name}:[" + ",".join(list(map(str, dims))) + "]" for name, dims in input_shapes.items()])
+    arg = " ".join([f"{name}:[" + ",".join(list(map(str, dims))) + "]" for name, dims in input_shapes.items() if name == "Input3"])
     return ["--input-shapes", arg]
 
 

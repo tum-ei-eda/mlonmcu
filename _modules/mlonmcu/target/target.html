@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.target.target &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,31 +101,31 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLonMCU Target definitions&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
 
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">filter_none</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.feature</span> <span class="kn">import</span> <span class="n">Feature</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_none</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.feature</span><span class="w"> </span><span class="kn">import</span> <span class="n">Feature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.type</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_matching_features</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
 
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.utils</span> <span class="kn">import</span> <span class="n">execute</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.bench</span> <span class="kn">import</span> <span class="n">add_bench_metrics</span>
-<span class="kn">from</span> <span class="nn">.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">execute</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.bench</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_bench_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 
 
 <div class="viewcode-block" id="Target">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target">[docs]</a>
-<span class="k">class</span> <span class="nc">Target</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Target</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base target class</span>
 
 <span class="sd">    Attributes</span>
@@ -153,7 +153,7 @@
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Feature</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -178,20 +178,20 @@
     <span class="c1">#     self.dir.mkdir(exist_ok=True)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;repeat&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Target(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 <div class="viewcode-block" id="Target.process_features">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.process_features">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
@@ -205,27 +205,27 @@
 
 <div class="viewcode-block" id="Target.reconfigure">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.reconfigure">[docs]</a>
-    <span class="k">def</span> <span class="nf">reconfigure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconfigure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Target.exec">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.exec">[docs]</a>
-    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="Target.inspect">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.inspect">[docs]</a>
-    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use target to inspect a executable&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inspect_program</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">inspect_program_args</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Target.parse_exit">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.parse_exit">[docs]</a>
-    <span class="k">def</span> <span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
         <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;MLONMCU EXIT: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
@@ -235,17 +235,17 @@
 
 <div class="viewcode-block" id="Target.parse_stdout">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.parse_stdout">[docs]</a>
-    <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Target.get_metrics">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_metrics">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># This should not be accurate, just a fallback which should be overwritten</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
             <span class="c1"># TODO: before or after?</span>
@@ -275,7 +275,7 @@
 
 <div class="viewcode-block" id="Target.generate">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.generate">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">total</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeat</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
@@ -315,7 +315,7 @@
 
 <div class="viewcode-block" id="Target.generate_artifacts">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.generate_artifacts">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">):</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">elf</span><span class="p">)</span>
         <span class="c1"># TODO: do something with out?</span>
@@ -337,7 +337,7 @@
 
 <div class="viewcode-block" id="Target.export_artifacts">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.export_artifacts">[docs]</a>
-    <span class="k">def</span> <span class="nf">export_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No artifacts found, please run generate_artifacts() first&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
@@ -356,49 +356,49 @@
 
 <div class="viewcode-block" id="Target.get_target_system">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_target_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 
 <div class="viewcode-block" id="Target.get_arch">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_arch">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="Target.get_platform_config">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_platform_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="Target.add_platform_config">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_platform_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_config</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Target.get_platform_defs">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_platform_defs">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="Target.add_platform_defs">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_platform_defs">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">defs</span><span class="p">):</span>
         <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Target.get_backend_config">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_backend_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
 
 <div class="viewcode-block" id="Target.add_backend_config">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.add_backend_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">new</span> <span class="o">=</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span>
                 <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="n">optimized_layouts</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="n">optimized_schedules</span>
@@ -413,7 +413,7 @@
 
 <div class="viewcode-block" id="Target.get_hardware_details">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.target.Target.get_hardware_details">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_hardware_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_hardware_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;num-cores&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># TODO: overwrite for host_x86?</span>
             <span class="s2">&quot;cache-line-bytes&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>  <span class="c1"># TODO: disable?</span>
@@ -428,23 +428,23 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supports_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supports_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supports_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supports_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supports_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supports_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supports_argv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supports_argv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">supports_uart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supports_uart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
 </pre></div>

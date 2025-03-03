@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.mlif.mlif_target &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,30 +99,30 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">get_targets</span><span class="p">,</span> <span class="n">Target</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_targets</span><span class="p">,</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.interfaces</span> <span class="kn">import</span> <span class="n">ModelSupport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelSupport</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="get_mlif_platform_targets">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif_target.get_mlif_platform_targets">[docs]</a>
-<span class="k">def</span> <span class="nf">get_mlif_platform_targets</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mlif_platform_targets</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">get_targets</span><span class="p">()</span></div>
 
 
 
 <div class="viewcode-block" id="MlifExitCode">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif_target.MlifExitCode">[docs]</a>
-<span class="k">class</span> <span class="nc">MlifExitCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlifExitCode</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
     <span class="n">ERROR</span> <span class="o">=</span> <span class="mh">0x10</span>
     <span class="n">INVALID_SIZE</span> <span class="o">=</span> <span class="mh">0x11</span>
     <span class="n">OUTPUT_MISSMATCH</span> <span class="o">=</span> <span class="mh">0x12</span>
@@ -130,7 +130,7 @@
 <div class="viewcode-block" id="MlifExitCode.values">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif_target.MlifExitCode.values">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">values</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span></div>
 </div>
 
@@ -138,18 +138,18 @@
 
 <div class="viewcode-block" id="create_mlif_platform_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif_target.create_mlif_platform_target">[docs]</a>
-<span class="k">def</span> <span class="nf">create_mlif_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">MlifPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_mlif_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">MlifPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
         <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
             <span class="o">**</span><span class="n">base</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="n">ins_file</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">num_inputs</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">in_interface</span> <span class="o">=</span> <span class="kc">None</span>
@@ -160,14 +160,14 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">set_inputs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">:</span>
                 <span class="c1"># first figure out how many inputs are provided</span>
                 <span class="k">if</span> <span class="n">model_info_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="kn">import</span> <span class="nn">yaml</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
                     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_info_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                         <span class="n">model_info_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">model_info_data</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">inputs_artifact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
                     <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">inputs_artifact</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">num_inputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -228,7 +228,7 @@
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">out_interface</span> <span class="o">==</span> <span class="s2">&quot;filesystem&quot;</span><span class="p">:</span>
-                        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+                        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
                         <span class="n">outs_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;outs.npy&quot;</span>
                         <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">outs_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_data</span><span class="p">:</span>
@@ -294,12 +294,12 @@
                 <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outputs_artifact</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">ret</span><span class="p">,</span> <span class="n">artifacts</span>
 
-        <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="c1"># This is wrapper around the original exec function to catch special return codes thrown by the inout data</span>
             <span class="c1"># feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">validate_outputs</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">skip_check</span><span class="p">:</span>
 
-                <span class="k">def</span> <span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -323,7 +323,7 @@
                 <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Validation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_result</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span>
 
-        <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
             <span class="n">target_system</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_system</span><span class="p">()</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;TARGET_SYSTEM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_system</span>

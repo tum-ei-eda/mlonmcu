@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.session.postprocess.postprocesses &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,42 +101,42 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Collection of (example) postprocesses integrated in MLonMCU.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">ast</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2dict</span><span class="p">,</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2dict</span><span class="p">,</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.postprocess</span> <span class="kn">import</span> <span class="n">SessionPostprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span>
-<span class="kn">from</span> <span class="nn">.validate_metrics</span> <span class="kn">import</span> <span class="n">parse_validate_metrics</span><span class="p">,</span> <span class="n">parse_classify_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionPostprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.validate_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_validate_metrics</span><span class="p">,</span> <span class="n">parse_classify_metrics</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="match_rows">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.match_rows">[docs]</a>
-<span class="k">def</span> <span class="nf">match_rows</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">match_rows</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to group similar rows in a dataframe.&quot;&quot;&quot;</span>
     <span class="n">groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">groups</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_check_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">_check_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -145,7 +145,7 @@
 
 <div class="viewcode-block" id="FilterColumnsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">FilterColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FilterColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to drop unwanted columns from a report.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -157,11 +157,11 @@
         <span class="s2">&quot;drop_const&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;filter_cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">keep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get keep property.&quot;&quot;&quot;</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;keep&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -169,7 +169,7 @@
         <span class="k">return</span> <span class="n">cfg</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop property.&quot;&quot;&quot;</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -177,29 +177,29 @@
         <span class="k">return</span> <span class="n">cfg</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">drop_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop_nan property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop_nan&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">drop_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop_empty property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop_empty&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">drop_const</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_const</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop_const property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop_const&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FilterColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">_filter_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">keep</span><span class="p">,</span> <span class="n">drop</span><span class="p">,</span> <span class="n">drop_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_const</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_filter_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">keep</span><span class="p">,</span> <span class="n">drop</span><span class="p">,</span> <span class="n">drop_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_const</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">drop_empty</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span>
             <span class="k">if</span> <span class="n">drop_nan</span><span class="p">:</span>
@@ -236,7 +236,7 @@
 
 <div class="viewcode-block" id="RenameColumnsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">RenameColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RenameColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can rename columns based on a provided mapping.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -245,30 +245,30 @@
         <span class="s2">&quot;merge&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;rename_cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mapping&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;merge&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RenameColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;rename_cols: non unique mapping found. use merge=True to avoid overwriting values.&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">df</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)]</span>
@@ -289,7 +289,7 @@
 
 <div class="viewcode-block" id="Features2ColumnsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">Features2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Features2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to transform (explode) the &#39;Features&#39; Column</span>
 <span class="sd">    in a dataframe for easier filtering.&quot;&quot;&quot;</span>
 
@@ -299,11 +299,11 @@
         <span class="s2">&quot;drop&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;features2cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get limit property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -311,14 +311,14 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Features2ColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="k">if</span> <span class="s2">&quot;Features&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">return</span>
@@ -345,7 +345,7 @@
 
 <div class="viewcode-block" id="Config2ColumnsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">Config2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Config2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to transform (explode) the &#39;Config&#39; Column in a dataframe for easier filtering.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -354,11 +354,11 @@
         <span class="s2">&quot;drop&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;config2cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get limit property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;limit&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -366,14 +366,14 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get drop property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;drop&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Config2ColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="k">if</span> <span class="s2">&quot;Config&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -396,14 +396,14 @@
 
 <div class="viewcode-block" id="MyPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MyPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;mypost&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config2cols</span> <span class="o">=</span> <span class="n">Config2ColumnsPostprocess</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="p">{</span>
@@ -510,7 +510,7 @@
 
 <div class="viewcode-block" id="MyPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MyPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
@@ -522,16 +522,16 @@
 
 <div class="viewcode-block" id="PassConfig2ColumnsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">PassConfig2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PassConfig2ColumnsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to transform (explode) the TVM pass_config into separate columns.</span>
 <span class="sd">    requires prior Config2Columns pass.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;passcfg2cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PassConfig2ColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;config_tvmaot.extra_pass_config&quot;</span>
@@ -547,15 +547,15 @@
 
 <div class="viewcode-block" id="Bytes2kBPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">Bytes2kBPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bytes2kBPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>  <span class="c1"># RunPostprocess?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess which can be used to scale the memory related columns from Bytes to KiloBytes.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;bytes2kb&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Bytes2kBPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span>
         <span class="n">match_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ROM&quot;</span><span class="p">,</span> <span class="s2">&quot;RAM&quot;</span><span class="p">]</span>
@@ -575,7 +575,7 @@
 
 <div class="viewcode-block" id="VisualizePostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.VisualizePostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">VisualizePostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VisualizePostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A very simple example on how to generate a plot of the results using a postprocess.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -583,17 +583,17 @@
         <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;visualize&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get format property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="VisualizePostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.VisualizePostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -606,7 +606,7 @@
                 <span class="k">return</span> <span class="p">[]</span>
 
         <span class="c1"># Local import to deal with optional dependencies</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
         <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">COLS</span><span class="p">))</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># (w, h)</span>
@@ -633,7 +633,7 @@
 
 <div class="viewcode-block" id="Artifact2ColumnPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">Artifact2ColumnPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Artifact2ColumnPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess for converting artifacts to columns in the report.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -641,11 +641,11 @@
         <span class="s2">&quot;file2colname&quot;</span><span class="p">:</span> <span class="p">{},</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;artifacts2cols&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">file2colname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">file2colname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get file2colname property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;file2colname&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -654,7 +654,7 @@
 
 <div class="viewcode-block" id="Artifact2ColumnPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">colname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">file2colname</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -691,7 +691,7 @@
 
 <div class="viewcode-block" id="AnalyseInstructionsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">AnalyseInstructionsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalyseInstructionsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting specific types of instructions.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -705,52 +705,52 @@
         <span class="s2">&quot;corev&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_instructions&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get groups property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;groups&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get sequences property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;sequences&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">seq_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seq_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get seq_depth property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;seq_depth&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get top property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">corev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get corev property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;corev&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AnalyseInstructionsPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">log_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;log_instrs&quot;</span><span class="p">,),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -769,7 +769,7 @@
         <span class="k">elif</span> <span class="n">is_etiss</span><span class="p">:</span>
 
             <span class="c1"># TODO: generalize</span>
-            <span class="k">def</span> <span class="nf">transform_df</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">transform_df</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
                 <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
                 <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;pc&quot;</span><span class="p">])</span>
                 <span class="c1"># TODO: normalize instr names</span>
@@ -778,7 +778,7 @@
                 <span class="n">df</span><span class="p">[</span><span class="s2">&quot;instr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;instr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
                 <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;bytecode&quot;</span><span class="p">,</span> <span class="s2">&quot;operands&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;rest&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-                <span class="k">def</span> <span class="nf">detect_size</span><span class="p">(</span><span class="n">bytecode</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">detect_size</span><span class="p">(</span><span class="n">bytecode</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">bytecode</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;0x&quot;</span><span class="p">:</span>
                         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytecode</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
                     <span class="k">elif</span> <span class="n">bytecode</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;0b&quot;</span><span class="p">:</span>
@@ -795,7 +795,7 @@
                 <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rest&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">df</span>
 
-            <span class="k">def</span> <span class="nf">process_df</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">process_df</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
                 <span class="n">encodings</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">names</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
@@ -845,12 +845,12 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Uable to determine the used target.&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_helper</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
             <span class="n">counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
             <span class="n">probs</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">top</span><span class="p">)),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">top</span><span class="p">))</span>
 
-        <span class="k">def</span> <span class="nf">_gen_csv</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_gen_csv</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">,Count,Probability&quot;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">:</span>
                 <span class="n">line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">counts</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">probs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -860,7 +860,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">is_riscv</span><span class="p">,</span> <span class="s2">&quot;Currently only riscv instrcutions can be analysed by groups&quot;</span>
 
-            <span class="k">def</span> <span class="nf">_extract_major_opcode</span><span class="p">(</span><span class="n">enc</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">_extract_major_opcode</span><span class="p">(</span><span class="n">enc</span><span class="p">):</span>
                 <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="mb">0b0010011</span><span class="p">:</span> <span class="s2">&quot;OP-IMM&quot;</span><span class="p">,</span>
                     <span class="mb">0b0110111</span><span class="p">:</span> <span class="s2">&quot;LUI&quot;</span><span class="p">,</span>
@@ -944,7 +944,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span><span class="p">:</span>
             <span class="n">max_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seq_depth</span>
 
-            <span class="k">def</span> <span class="nf">_get_sublists</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">_get_sublists</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">-</span> <span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
                     <span class="n">lst_</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">length</span><span class="p">]</span>
@@ -1132,7 +1132,7 @@
                 <span class="s2">&quot;cv.setupi&quot;</span><span class="p">,</span>
             <span class="p">}</span>
 
-            <span class="k">def</span> <span class="nf">apply_mapping</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">apply_mapping</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;cv_&quot;</span><span class="p">,</span> <span class="s2">&quot;cv.&quot;</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_sc&quot;</span><span class="p">,</span> <span class="s2">&quot;.sc&quot;</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_b&quot;</span><span class="p">,</span> <span class="s2">&quot;.b&quot;</span><span class="p">)</span>
@@ -1175,7 +1175,7 @@
 
 <div class="viewcode-block" id="CompareRowsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.CompareRowsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">CompareRowsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompareRowsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -1188,48 +1188,48 @@
         <span class="s2">&quot;substract&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;compare_rows&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_compare property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_compare&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">group_by</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">group_by</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get group_by property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;group_by&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">baseline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">baseline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get baseline property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;baseline&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">percent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">percent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get percent property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;percent&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get invert property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;invert&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">substract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get substract property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;substract&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CompareRowsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.CompareRowsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
         <span class="n">pre_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span>
         <span class="n">main_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span>  <span class="c1"># metrics</span>
@@ -1249,7 +1249,7 @@
         <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">to_compare</span><span class="p">:</span>
 
-            <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
                 <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="s2">&quot;Index of group baseline out of bounds&quot;</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="n">df</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline</span><span class="p">]</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">substract</span><span class="p">:</span>
@@ -1274,7 +1274,7 @@
 
 <div class="viewcode-block" id="AnalyseDumpPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseDumpPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">AnalyseDumpPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalyseDumpPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting static instructions.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -1283,24 +1283,24 @@
         <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_dump&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AnalyseDumpPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseDumpPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">platform</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">[</span><span class="s2">&quot;Platform&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">&quot;mlif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
@@ -1361,7 +1361,7 @@
 
 <div class="viewcode-block" id="AnalyseCoreVCountsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseCoreVCountsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">AnalyseCoreVCountsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalyseCoreVCountsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Counting static instructions.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -1370,24 +1370,24 @@
         <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_corev_counts&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AnalyseCoreVCountsPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseCoreVCountsPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">count_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dump_counts.csv&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1682,7 +1682,7 @@
 
 <div class="viewcode-block" id="ValidateOutputsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ValidateOutputsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">ValidateOutputsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidateOutputsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess for comparing model outputs with golden reference.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -1692,35 +1692,35 @@
         <span class="s2">&quot;validate_range&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;validate_outputs&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">validate_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get validate_metrics property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;validate_metrics&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get report property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">validate_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_range</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get validate_range property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;validate_range&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ValidateOutputsPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ValidateOutputsPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;model_info.yml&quot;</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Could not find artifact: model_info.yml&quot;</span>
         <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">model_info_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="kn">import</span> <span class="nn">yaml</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
         <span class="n">model_info_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info_data</span><span class="p">[</span><span class="s2">&quot;output_names&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -1728,7 +1728,7 @@
         <span class="n">outputs_ref_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;outputs_ref.npy&quot;</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs_ref_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Could not find artifact: outputs_ref.npy&quot;</span>
         <span class="n">outputs_ref_artifact</span> <span class="o">=</span> <span class="n">outputs_ref_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
         <span class="n">outputs_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">outputs_ref_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># import copy</span>
@@ -1784,7 +1784,7 @@
                 <span class="n">rng</span> <span class="o">=</span> <span class="n">model_info_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_ranges&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">quant</span><span class="p">:</span>
 
-                    <span class="k">def</span> <span class="nf">ref_quant_helper</span><span class="p">(</span><span class="n">quant</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c1"># TODO: move somewhere else</span>
+                    <span class="k">def</span><span class="w"> </span><span class="nf">ref_quant_helper</span><span class="p">(</span><span class="n">quant</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c1"># TODO: move somewhere else</span>
                         <span class="k">if</span> <span class="n">quant</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="k">return</span> <span class="n">data</span>
                         <span class="n">quant_scale</span><span class="p">,</span> <span class="n">quant_zero_point</span><span class="p">,</span> <span class="n">quant_dtype</span><span class="p">,</span> <span class="n">quant_range</span> <span class="o">=</span> <span class="n">quant</span>
@@ -1803,7 +1803,7 @@
 
                         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">((</span><span class="n">data</span> <span class="o">/</span> <span class="n">quant_scale</span><span class="p">)</span> <span class="o">+</span> <span class="n">quant_zero_point</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">)</span>
 
-                    <span class="k">def</span> <span class="nf">dequant_helper</span><span class="p">(</span><span class="n">quant</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c1"># TODO: move somewhere else</span>
+                    <span class="k">def</span><span class="w"> </span><span class="nf">dequant_helper</span><span class="p">(</span><span class="n">quant</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c1"># TODO: move somewhere else</span>
                         <span class="k">if</span> <span class="n">quant</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="k">return</span> <span class="n">data</span>
                         <span class="n">quant_scale</span><span class="p">,</span> <span class="n">quant_zero_point</span><span class="p">,</span> <span class="n">quant_dtype</span><span class="p">,</span> <span class="n">quant_range</span> <span class="o">=</span> <span class="n">quant</span>
@@ -1862,7 +1862,7 @@
 
 <div class="viewcode-block" id="ValidateLabelsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ValidateLabelsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">ValidateLabelsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidateLabelsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess for comparing model outputs with golden reference.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -1871,29 +1871,29 @@
         <span class="s2">&quot;classify_metrics&quot;</span><span class="p">:</span> <span class="s2">&quot;topk_label(n=1);topk_label(n=2)&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;validate_labels&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">classify_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">classify_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get classify_metrics property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;classify_metrics&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get report property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ValidateLabelsPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ValidateLabelsPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;model_info.yml&quot;</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Could not find artifact: model_info.yml&quot;</span>
         <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">model_info_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="kn">import</span> <span class="nn">yaml</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
         <span class="n">model_info_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info_data</span><span class="p">[</span><span class="s2">&quot;output_names&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -1903,7 +1903,7 @@
             <span class="nb">len</span><span class="p">(</span><span class="n">labels_ref_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="p">),</span> <span class="s2">&quot;Could not find artifact: labels_ref.npy (Run classify_labels postprocess first!)&quot;</span>
         <span class="n">labels_ref_artifact</span> <span class="o">=</span> <span class="n">labels_ref_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
         <span class="n">labels_ref</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">labels_ref_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">outputs_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;outputs.npy&quot;</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1941,7 +1941,7 @@
 
 <div class="viewcode-block" id="ExportOutputsPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ExportOutputsPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">ExportOutputsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExportOutputsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Postprocess for writing model outputs to a directory.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -1953,11 +1953,11 @@
         <span class="s2">&quot;archive_fmt&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;export_outputs&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get dest property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dest&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1967,35 +1967,35 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">use_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get use_ref property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_ref&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">skip_dequant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">skip_dequant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get skip_dequant property.&quot;&quot;&quot;</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;skip_dequant&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get fmt property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fmt&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">archive_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">archive_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get archive_fmt property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;archive_fmt&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ExportOutputsPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ExportOutputsPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
         <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;model_info.yml&quot;</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Could not find artifact: model_info.yml&quot;</span>
         <span class="n">model_info_artifact</span> <span class="o">=</span> <span class="n">model_info_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="kn">import</span> <span class="nn">yaml</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
         <span class="n">model_info_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">model_info_artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="c1"># print(&quot;model_info_data&quot;, model_info_data)</span>
@@ -2032,7 +2032,7 @@
             <span class="n">quant</span> <span class="o">=</span> <span class="n">model_info_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_quant_details&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">quant</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_dequant</span><span class="p">:</span>
 
-                <span class="k">def</span> <span class="nf">dequant_helper</span><span class="p">(</span><span class="n">quant</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">dequant_helper</span><span class="p">(</span><span class="n">quant</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">quant</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">return</span> <span class="n">data</span>
                     <span class="n">quant_scale</span><span class="p">,</span> <span class="n">quant_zero_point</span><span class="p">,</span> <span class="n">quant_dtype</span><span class="p">,</span> <span class="n">quant_range</span> <span class="o">=</span> <span class="n">quant</span>
@@ -2069,7 +2069,7 @@
             <span class="n">archive_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;output_data.</span><span class="si">{</span><span class="n">archive_fmt</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">archive_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dest_</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">archive_fmt</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">if</span> <span class="n">archive_fmt</span> <span class="o">==</span> <span class="s2">&quot;tar.gz&quot;</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">tarfile</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
 
                 <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">archive_path</span><span class="p">,</span> <span class="s2">&quot;w:gz&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>

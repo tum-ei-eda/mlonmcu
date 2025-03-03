@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.tasks.riscv_gcc &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,16 +101,16 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">_validate_gcc</span><span class="p">,</span> <span class="n">get_task_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_gcc</span><span class="p">,</span> <span class="n">get_task_factory</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -119,7 +119,7 @@
 
 <div class="viewcode-block" id="check_multilibs">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.riscv_gcc.check_multilibs">[docs]</a>
-<span class="k">def</span> <span class="nf">check_multilibs</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">gccName</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pext</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_multilibs</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">gccName</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pext</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">gccExe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gccName</span><span class="si">}</span><span class="s2">-gcc&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">gccExe</span><span class="p">,</span> <span class="s2">&quot;--print-multi-lib&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">live</span><span class="p">)</span>
     <span class="n">multilibs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -143,7 +143,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_validate_riscv_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_riscv_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
@@ -186,7 +186,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_riscv_gcc</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TOOLCHAIN</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">install_riscv_gcc</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_riscv_gcc</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and install the RISCV GCC toolchain.&quot;&quot;&quot;</span>
@@ -227,7 +227,7 @@
         <span class="n">multilibs</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;riscv_gcc.multilibs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
 
-        <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_helper</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
             <span class="n">fullUrlSplit</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
             <span class="n">riscvUrl</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fullUrlSplit</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">riscvFileName</span><span class="p">,</span> <span class="n">riscvFileExtension</span> <span class="o">=</span> <span class="n">fullUrlSplit</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -266,7 +266,7 @@
         <span class="c1"># workaround for gnu subdir ins tc downloads</span>
         <span class="n">gnu_dir</span> <span class="o">=</span> <span class="n">riscvInstallDir</span> <span class="o">/</span> <span class="s2">&quot;gnu&quot;</span>
         <span class="k">if</span> <span class="n">gnu_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-            <span class="kn">import</span> <span class="nn">shutil</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 
             <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.old&quot;</span><span class="p">)</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">riscvInstallDir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.old&quot;</span> <span class="o">/</span> <span class="s2">&quot;gnu&quot;</span><span class="p">,</span> <span class="n">riscvInstallDir</span><span class="p">)</span>

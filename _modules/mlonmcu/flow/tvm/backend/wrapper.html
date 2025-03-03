@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.flow.tvm.backend.wrapper &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,9 +102,9 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span><span class="p">,</span> <span class="n">log2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">ceil</span><span class="p">,</span> <span class="n">log2</span>
 
 <span class="c1"># TODO: use this</span>
 <span class="c1"># from tvm.relay.backend.utils import mangle_module_name</span>
@@ -112,7 +112,7 @@
 
 <div class="viewcode-block" id="calc_pages">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.calc_pages">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_pages</span><span class="p">(</span><span class="n">workspace_size</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_pages</span><span class="p">(</span><span class="n">workspace_size</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">):</span>
     <span class="c1"># Determine the number of required pages</span>
     <span class="k">assert</span> <span class="n">workspace_size</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Workspace size can not be negative&quot;</span>
     <span class="n">crtPageSizeLog2</span> <span class="o">=</span> <span class="n">log2</span><span class="p">(</span><span class="n">page_size</span><span class="p">)</span>
@@ -124,7 +124,7 @@
 
 <div class="viewcode-block" id="generate_wrapper_header">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_wrapper_header">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_wrapper_header</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_wrapper_header</span><span class="p">():</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#ifndef TVM_WRAPPER_H</span>
 <span class="s2">#define TVM_WRAPPER_H</span>
 
@@ -147,7 +147,7 @@
 
 <div class="viewcode-block" id="generate_header">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_header">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_header</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_header</span><span class="p">():</span>
     <span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
     <span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;// This file is generated. Do not edit.</span>
 <span class="s2">// Generated on: </span><span class="si">{</span><span class="n">time</span><span class="si">}</span>
@@ -158,7 +158,7 @@
 
 <div class="viewcode-block" id="generate_common_includes">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_common_includes">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_common_includes</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_common_includes</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#include &lt;stdlib.h&gt;</span>
 <span class="s2">#include &lt;stdarg.h&gt;</span>
@@ -173,7 +173,7 @@
 
 <div class="viewcode-block" id="generate_graph_includes">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_graph_includes">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_graph_includes</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_graph_includes</span><span class="p">():</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">generate_common_includes</span><span class="p">()</span>
     <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#include &quot;tvm/runtime/crt/packed_func.h&quot;</span>
@@ -188,7 +188,7 @@
 
 <div class="viewcode-block" id="generate_aot_includes">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_aot_includes">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_aot_includes</span><span class="p">(</span><span class="n">allocator</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_aot_includes</span><span class="p">(</span><span class="n">allocator</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">generate_common_includes</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">allocator</span><span class="p">:</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;#include &quot;tvm/runtime/crt/stack_allocator.h&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -198,14 +198,14 @@
 
 <div class="viewcode-block" id="fill">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.fill">[docs]</a>
-<span class="k">def</span> <span class="nf">fill</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="n">template</span><span class="p">)</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="getSizes">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.getSizes">[docs]</a>
-<span class="k">def</span> <span class="nf">getSizes</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">getSizes</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;size_t sizes[] = { &quot;</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
@@ -216,7 +216,7 @@
 
 <div class="viewcode-block" id="write_tvmrt_wrapper">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.write_tvmrt_wrapper">[docs]</a>
-<span class="k">def</span> <span class="nf">write_tvmrt_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_tvmrt_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">generate_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
@@ -225,19 +225,19 @@
 
 <div class="viewcode-block" id="generate_tvmrt_wrapper">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmrt_wrapper">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_tvmrt_wrapper</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">crtNumPages</span><span class="p">,</span> <span class="n">crtPageSizeLog2</span> <span class="o">=</span> <span class="n">calc_pages</span><span class="p">(</span><span class="n">workspace_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">escapeJson</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">escapeJson</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">toCArray</span><span class="p">(</span><span class="nb">bin</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">toCArray</span><span class="p">(</span><span class="nb">bin</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">bin</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">+=</span> <span class="nb">hex</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">def</span> <span class="nf">getMeta</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">withNames</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getMeta</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">withNames</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="n">withNames</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;const char *names[] = { &quot;</span>
@@ -499,16 +499,16 @@
 
 <div class="viewcode-block" id="generate_tvmaot_wrapper">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmaot_wrapper">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">modPrefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;tvmgen_</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="nf">writeTensors</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">writeTensors</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">api</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
             <span class="n">retStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">// Define data for input and output tensors</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-            <span class="k">def</span> <span class="nf">writeTensorsHelper</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">writeTensorsHelper</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">lenTensors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
                 <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;out&quot;</span> <span class="k">if</span> <span class="n">out</span> <span class="k">else</span> <span class="s2">&quot;in&quot;</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -531,7 +531,7 @@
 <span class="s2">// Define data for input and output tensors</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-            <span class="k">def</span> <span class="nf">writeTensorsHelper</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">writeTensorsHelper</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="n">lenTensors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
                 <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;out&quot;</span> <span class="k">if</span> <span class="n">out</span> <span class="k">else</span> <span class="s2">&quot;in&quot;</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -768,7 +768,7 @@
 
 <div class="viewcode-block" id="write_tvmaot_wrapper">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.write_tvmaot_wrapper">[docs]</a>
-<span class="k">def</span> <span class="nf">write_tvmaot_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_tvmaot_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="n">api</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>

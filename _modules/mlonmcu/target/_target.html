@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.target._target &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -96,7 +96,7 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">.riscv</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.riscv</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EtissPulpinoTarget</span><span class="p">,</span>
     <span class="n">SpikeTarget</span><span class="p">,</span>
     <span class="n">OVPSimTarget</span><span class="p">,</span>
@@ -110,16 +110,16 @@
     <span class="n">VicunaTarget</span><span class="p">,</span>
     <span class="n">CanMvK230SSHTarget</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.arm</span> <span class="kn">import</span> <span class="n">Corstone300Target</span>
-<span class="kn">from</span> <span class="nn">.host_x86</span> <span class="kn">import</span> <span class="n">HostX86Target</span>
-<span class="kn">from</span> <span class="nn">.host_x86_ssh</span> <span class="kn">import</span> <span class="n">HostX86SSHTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.arm</span><span class="w"> </span><span class="kn">import</span> <span class="n">Corstone300Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.host_x86</span><span class="w"> </span><span class="kn">import</span> <span class="n">HostX86Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.host_x86_ssh</span><span class="w"> </span><span class="kn">import</span> <span class="n">HostX86SSHTarget</span>
 
 <span class="n">TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
 
 
 <div class="viewcode-block" id="register_target">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.register_target">[docs]</a>
-<span class="k">def</span> <span class="nf">register_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">TARGET_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
@@ -130,7 +130,7 @@
 
 <div class="viewcode-block" id="get_targets">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.get_targets">[docs]</a>
-<span class="k">def</span> <span class="nf">get_targets</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_targets</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">TARGET_REGISTRY</span></div>
 
 

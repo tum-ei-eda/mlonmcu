@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.lookup &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,22 +99,22 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">get_platforms</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">resolve_required_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_platforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_required_config</span>
 
 
 <div class="viewcode-block" id="get_platform_names">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.get_platform_names">[docs]</a>
-<span class="k">def</span> <span class="nf">get_platform_names</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_platform_names</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_platform_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="get_platforms_targets">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.get_platforms_targets">[docs]</a>
-<span class="k">def</span> <span class="nf">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">platform_names</span> <span class="o">=</span> <span class="n">get_platform_names</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">platform_classes</span> <span class="o">=</span> <span class="n">get_platforms</span><span class="p">()</span>
     <span class="c1"># To initialize the platform we need to provide a config with required paths.</span>
@@ -142,7 +142,7 @@
 
 <div class="viewcode-block" id="get_platforms_backends">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.get_platforms_backends">[docs]</a>
-<span class="k">def</span> <span class="nf">get_platforms_backends</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_platforms_backends</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">platform_names</span> <span class="o">=</span> <span class="n">get_platform_names</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">platform_classes</span> <span class="o">=</span> <span class="n">get_platforms</span><span class="p">()</span>
     <span class="c1"># To initialize the platform we need to provide a config with required paths.</span>
@@ -170,7 +170,7 @@
 
 <div class="viewcode-block" id="print_platforms">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_platforms">[docs]</a>
-<span class="k">def</span> <span class="nf">print_platforms</span><span class="p">(</span><span class="n">platform_names</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_platforms</span><span class="p">(</span><span class="n">platform_names</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Platforms:&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">platform_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No platforms found&quot;</span><span class="p">)</span>
@@ -182,7 +182,7 @@
 
 <div class="viewcode-block" id="print_targets">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_targets">[docs]</a>
-<span class="k">def</span> <span class="nf">print_targets</span><span class="p">(</span><span class="n">platform_targets</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_targets</span><span class="p">(</span><span class="n">platform_targets</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Targets:&quot;</span><span class="p">)</span>
     <span class="n">target_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">platform_targets</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -200,7 +200,7 @@
 
 <div class="viewcode-block" id="print_backends">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_backends">[docs]</a>
-<span class="k">def</span> <span class="nf">print_backends</span><span class="p">(</span><span class="n">platform_backends</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_backends</span><span class="p">(</span><span class="n">platform_backends</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Backends:&quot;</span><span class="p">)</span>
     <span class="n">backend_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">platform_backends</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">backend_names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -218,7 +218,7 @@
 
 <div class="viewcode-block" id="print_summary">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.lookup.print_summary">[docs]</a>
-<span class="k">def</span> <span class="nf">print_summary</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Platform Targets Summary</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">platform_targets</span> <span class="o">=</span> <span class="n">get_platforms_targets</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">print_platforms</span><span class="p">(</span><span class="n">platform_targets</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.tvm.tvm_base_platform &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,12 +100,12 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;TVM Base Platform&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">..platform</span> <span class="kn">import</span> <span class="n">Platform</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.python_utils</span> <span class="kn">import</span> <span class="n">prepare_python_environment</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">Platform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.python_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_python_environment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -113,7 +113,7 @@
 <span class="c1"># TODO: abstarct</span>
 <div class="viewcode-block" id="TvmBasePlatform">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_base_platform.TvmBasePlatform">[docs]</a>
-<span class="k">class</span> <span class="nc">TvmBasePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TvmBasePlatform</span><span class="p">(</span><span class="n">Platform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM base platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -125,7 +125,7 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
@@ -137,7 +137,7 @@
 
 <div class="viewcode-block" id="TvmBasePlatform.init_directory">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_base_platform.TvmBasePlatform.init_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project directory already initialized&quot;</span><span class="p">)</span>
@@ -165,24 +165,24 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_configs_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_configs_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TvmBasePlatform.invoke_tvmc">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_base_platform.TvmBasePlatform.invoke_tvmc">[docs]</a>
-    <span class="k">def</span> <span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_tvmc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">live</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">live</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
@@ -197,7 +197,7 @@
 
 <div class="viewcode-block" id="TvmBasePlatform.close">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_base_platform.TvmBasePlatform.close">[docs]</a>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 </div>

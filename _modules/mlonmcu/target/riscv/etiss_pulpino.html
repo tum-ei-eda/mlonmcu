@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.target.riscv.etiss_pulpino &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,26 +102,26 @@
 <span class="sd">&quot;&quot;&quot;MLonMCU ETISS/Pulpino Target definitions&quot;&quot;&quot;</span>
 
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.common</span> <span class="kn">import</span> <span class="n">cli</span>
-<span class="kn">from</span> <span class="nn">.etiss</span> <span class="kn">import</span> <span class="n">EtissTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.etiss</span><span class="w"> </span><span class="kn">import</span> <span class="n">EtissTarget</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="EtissPulpinoTarget">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget">[docs]</a>
-<span class="k">class</span> <span class="nc">EtissPulpinoTarget</span><span class="p">(</span><span class="n">EtissTarget</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtissPulpinoTarget</span><span class="p">(</span><span class="n">EtissTarget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a Pulpino-like VP running in the ETISS simulator&quot;&quot;&quot;</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">EtissTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EtissPulpinoTarget.get_ini_bool_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_ini_bool_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ini_bool_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_ini_bool_config</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="n">override</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.enable_semihosting&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -129,7 +129,7 @@
 
 <div class="viewcode-block" id="EtissPulpinoTarget.get_platform_defs">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.EtissPulpinoTarget.get_platform_defs">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ETISS_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_dir</span>

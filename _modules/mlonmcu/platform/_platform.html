@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform._platform &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,11 +99,11 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">.mlif</span> <span class="kn">import</span> <span class="n">MlifPlatform</span>
-<span class="kn">from</span> <span class="nn">.espidf</span> <span class="kn">import</span> <span class="n">EspIdfPlatform</span>
-<span class="kn">from</span> <span class="nn">.zephyr</span> <span class="kn">import</span> <span class="n">ZephyrPlatform</span>
-<span class="kn">from</span> <span class="nn">.tvm</span> <span class="kn">import</span> <span class="n">TvmPlatform</span>
-<span class="kn">from</span> <span class="nn">.microtvm</span> <span class="kn">import</span> <span class="n">MicroTvmPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.mlif</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlifPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.espidf</span><span class="w"> </span><span class="kn">import</span> <span class="n">EspIdfPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.zephyr</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZephyrPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvm</span><span class="w"> </span><span class="kn">import</span> <span class="n">TvmPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroTvmPlatform</span>
 
 <span class="c1"># from .arduino import ArduinoPlatform</span>
 
@@ -113,7 +113,7 @@
 
 <div class="viewcode-block" id="register_platform">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.register_platform">[docs]</a>
-<span class="k">def</span> <span class="nf">register_platform</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_platform</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">PLATFORM_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">platform_name</span> <span class="ow">in</span> <span class="n">PLATFORM_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
@@ -124,7 +124,7 @@
 
 <div class="viewcode-block" id="get_platforms">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.get_platforms">[docs]</a>
-<span class="k">def</span> <span class="nf">get_platforms</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_platforms</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">PLATFORM_REGISTRY</span></div>
 
 

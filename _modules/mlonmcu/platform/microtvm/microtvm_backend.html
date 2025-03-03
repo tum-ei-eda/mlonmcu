@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.microtvm.microtvm_backend &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,15 +99,15 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMBackend</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmaot</span> <span class="kn">import</span> <span class="n">TVMAOTBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.tvmaot</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMAOTBackend</span>
 
 <span class="c1"># from mlonmcu.flow.tvm.backend.tvmaotplus import TVMAOTPlusBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmllvm</span> <span class="kn">import</span> <span class="n">TVMLLVMBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.tvm.backend.tvmrt</span> <span class="kn">import</span> <span class="n">TVMRTBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.tvmllvm</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMLLVMBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.tvmrt</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMRTBackend</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -116,7 +116,7 @@
 
 <div class="viewcode-block" id="register_microtvm_platform_backend">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_backend.register_microtvm_platform_backend">[docs]</a>
-<span class="k">def</span> <span class="nf">register_microtvm_platform_backend</span><span class="p">(</span><span class="n">backend_name</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_microtvm_platform_backend</span><span class="p">(</span><span class="n">backend_name</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">MICROTVM_PLATFORM_BACKEND_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">backend_name</span> <span class="ow">in</span> <span class="n">MICROTVM_PLATFORM_BACKEND_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
@@ -127,7 +127,7 @@
 
 <div class="viewcode-block" id="get_microtvm_platform_backends">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_backend.get_microtvm_platform_backends">[docs]</a>
-<span class="k">def</span> <span class="nf">get_microtvm_platform_backends</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_microtvm_platform_backends</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">MICROTVM_PLATFORM_BACKEND_REGISTRY</span></div>
 
 
@@ -140,9 +140,9 @@
 
 <div class="viewcode-block" id="create_microtvm_platform_backend">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_backend.create_microtvm_platform_backend">[docs]</a>
-<span class="k">def</span> <span class="nf">create_microtvm_platform_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">TVMBackend</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">MicroTvmPlatformBackend</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_microtvm_platform_backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">TVMBackend</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">MicroTvmPlatformBackend</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mlf&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
 

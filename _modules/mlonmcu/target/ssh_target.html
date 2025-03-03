@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.target.ssh_target &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,22 +101,22 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLonMCU SSH Target definitions&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="c1"># import tempfile</span>
 <span class="c1"># import time</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span> <span class="nn">paramiko</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">paramiko</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
-<span class="kn">from</span> <span class="nn">.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
 
 
 <div class="viewcode-block" id="SSHTarget">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget">[docs]</a>
-<span class="k">class</span> <span class="nc">SSHTarget</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SSHTarget</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
@@ -130,13 +130,13 @@
     <span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hostname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hostname&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;hostname not defined&quot;</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -144,22 +144,22 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">username</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">username</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;username&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">password</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">password</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;password&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ignore_known_hosts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ignore_known_hosts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ignore_known_hosts&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">workdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;workdir&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -167,7 +167,7 @@
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SSHTarget(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
 
     <span class="c1"># def check_remote(self):</span>
@@ -183,14 +183,14 @@
 
 <div class="viewcode-block" id="SSHTarget.create_remote_directory">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget.create_remote_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_remote_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_remote_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mkdir -p </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">ssh</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SSHTarget.copy_to_remote">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget.copy_to_remote">[docs]</a>
-    <span class="k">def</span> <span class="nf">copy_to_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_to_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
         <span class="n">sftp</span> <span class="o">=</span> <span class="n">ssh</span><span class="o">.</span><span class="n">open_sftp</span><span class="p">()</span>
         <span class="n">sftp</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
         <span class="n">sftp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
@@ -198,7 +198,7 @@
 
 <div class="viewcode-block" id="SSHTarget.copy_from_remote">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget.copy_from_remote">[docs]</a>
-    <span class="k">def</span> <span class="nf">copy_from_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_from_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssh</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
         <span class="n">sftp</span> <span class="o">=</span> <span class="n">ssh</span><span class="o">.</span><span class="n">open_sftp</span><span class="p">()</span>
         <span class="n">sftp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
         <span class="n">sftp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
@@ -206,7 +206,7 @@
 
 <div class="viewcode-block" id="SSHTarget.parse_exit">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget.parse_exit">[docs]</a>
-    <span class="k">def</span> <span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
         <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;SSH EXIT=(.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
@@ -216,7 +216,7 @@
 
 <div class="viewcode-block" id="SSHTarget.exec_via_ssh">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.ssh_target.SSHTarget.exec_via_ssh">[docs]</a>
-    <span class="k">def</span> <span class="nf">exec_via_ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exec_via_ssh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># TODO: keep connection established!</span>
         <span class="c1"># self.check_remote()</span>
         <span class="k">with</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">SSHClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">ssh</span><span class="p">:</span>

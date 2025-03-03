@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.target.host_x86_ssh &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,14 +101,14 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLonMCU Host/x86 Target definitions&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">cli</span>
-<span class="kn">from</span> <span class="nn">.ssh_target</span> <span class="kn">import</span> <span class="n">SSHTarget</span>
-<span class="kn">from</span> <span class="nn">.host_x86</span> <span class="kn">import</span> <span class="n">HostX86Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ssh_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">SSHTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.host_x86</span><span class="w"> </span><span class="kn">import</span> <span class="n">HostX86Target</span>
 
 
 <div class="viewcode-block" id="HostX86SSHTarget">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.host_x86_ssh.HostX86SSHTarget">[docs]</a>
-<span class="k">class</span> <span class="nc">HostX86SSHTarget</span><span class="p">(</span><span class="n">SSHTarget</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HostX86SSHTarget</span><span class="p">(</span><span class="n">SSHTarget</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">SSHTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="n">HostX86Target</span><span class="o">.</span><span class="n">FEATURES</span>  <span class="c1"># TODO: do not allow gdbserver</span>
@@ -118,12 +118,12 @@
         <span class="o">**</span><span class="n">HostX86Target</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;host_x86_ssh&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;host_x86_ssh&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="HostX86SSHTarget.exec">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.host_x86_ssh.HostX86SSHTarget.exec">[docs]</a>
-    <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdbserver_enable</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;gdbserver via ssh&quot;</span><span class="p">)</span>
 
@@ -136,7 +136,7 @@
 
 <div class="viewcode-block" id="HostX86SSHTarget.get_target_system">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.host_x86_ssh.HostX86SSHTarget.get_target_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;host_x86&quot;</span></div>
 </div>
 

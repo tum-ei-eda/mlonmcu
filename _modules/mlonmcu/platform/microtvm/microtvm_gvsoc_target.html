@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.microtvm.microtvm_gvsoc_target &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,20 +99,20 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.microtvm_template_target</span> <span class="kn">import</span> <span class="n">TemplateMicroTvmPlatformTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_template_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemplateMicroTvmPlatformTarget</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="GVSocMicroTvmPlatformTarget">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_gvsoc_target.GVSocMicroTvmPlatformTarget">[docs]</a>
-<span class="k">class</span> <span class="nc">GVSocMicroTvmPlatformTarget</span><span class="p">(</span><span class="n">TemplateMicroTvmPlatformTarget</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GVSocMicroTvmPlatformTarget</span><span class="p">(</span><span class="n">TemplateMicroTvmPlatformTarget</span><span class="p">):</span>
     <span class="c1"># FEATURES = TemplateMicroTvmPlatformTarget.FEATURES + [&quot;xpulp&quot;]</span>
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">TemplateMicroTvmPlatformTarget</span><span class="o">.</span><span class="n">FEATURES</span>
 
@@ -133,7 +133,7 @@
         <span class="s2">&quot;hannah_tvm.src_dir&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">microtvm_gvsoc_template</span>
         <span class="c1"># TODO: integrate into TVM build config</span>
@@ -144,20 +144,20 @@
         <span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">microtvm_gvsoc_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">microtvm_gvsoc_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;microtvm_gvsoc.template&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">hannah_tvm_src_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hannah_tvm_src_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hannah_tvm.src_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">compiler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compiler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;compiler&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="GVSocMicroTvmPlatformTarget.get_project_options">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_gvsoc_target.GVSocMicroTvmPlatformTarget.get_project_options">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_project_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_project_options</span><span class="p">()</span>
         <span class="c1"># TODO</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
@@ -170,7 +170,7 @@
 
 <div class="viewcode-block" id="GVSocMicroTvmPlatformTarget.update_environment">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_gvsoc_target.GVSocMicroTvmPlatformTarget.update_environment">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_environment</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hannah_tvm_src_dir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span></div>
@@ -184,7 +184,7 @@
 
 <div class="viewcode-block" id="GVSocMicroTvmPlatformTarget.get_backend_config">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_gvsoc_target.GVSocMicroTvmPlatformTarget.get_backend_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># TODO</span>
         <span class="k">return</span> <span class="n">ret</span></div>

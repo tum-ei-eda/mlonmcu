@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.flow.tvm.backend.tvmc_utils &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -104,14 +104,14 @@
 
 <div class="viewcode-block" id="get_runtime_executor_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_runtime_executor_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_runtime_executor_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">executor</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_runtime_executor_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">executor</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--runtime&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="s2">&quot;--executor&quot;</span><span class="p">,</span> <span class="n">executor</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="get_pass_config_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_pass_config_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_pass_config_tvmc_args</span><span class="p">(</span><span class="n">pass_config</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pass_config_tvmc_args</span><span class="p">(</span><span class="n">pass_config</span><span class="p">):</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">pass_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--pass-config&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
@@ -121,7 +121,7 @@
 
 <div class="viewcode-block" id="get_disabled_pass_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_disabled_pass_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span>
@@ -131,7 +131,7 @@
 
 <div class="viewcode-block" id="get_input_shapes_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_input_shapes_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_input_shapes_tvmc_args</span><span class="p">(</span><span class="n">input_shapes</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_input_shapes_tvmc_args</span><span class="p">(</span><span class="n">input_shapes</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">input_shapes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">:[&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">dims</span><span class="p">)))</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dims</span> <span class="ow">in</span> <span class="n">input_shapes</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
@@ -141,7 +141,7 @@
 
 <div class="viewcode-block" id="check_allowed">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.check_allowed">[docs]</a>
-<span class="k">def</span> <span class="nf">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
     <span class="n">common</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;libs&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="s2">&quot;mcpu&quot;</span><span class="p">,</span> <span class="s2">&quot;device&quot;</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;constants-byte-alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;workspace-bytes-alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;march&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">common</span>
@@ -173,8 +173,8 @@
 
 <div class="viewcode-block" id="gen_target_details_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.gen_target_details_args">[docs]</a>
-<span class="k">def</span> <span class="nf">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
             <span class="c1"># value = &quot;true&quot; if value else &quot;false&quot;</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
@@ -193,7 +193,7 @@
 
 <div class="viewcode-block" id="gen_extra_target_details_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.gen_extra_target_details_args">[docs]</a>
-<span class="k">def</span> <span class="nf">gen_extra_target_details_args</span><span class="p">(</span><span class="n">extra_target_details</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_extra_target_details_args</span><span class="p">(</span><span class="n">extra_target_details</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">extra_target</span><span class="p">,</span> <span class="n">target_details</span> <span class="ow">in</span> <span class="n">extra_target_details</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">target_details</span><span class="p">:</span>
@@ -204,7 +204,7 @@
 
 <div class="viewcode-block" id="get_target_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_target_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_target_tvmc_args</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">extra_targets</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_target_tvmc_args</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">extra_targets</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="p">{}):</span>
     <span class="k">if</span> <span class="n">extra_targets</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_targets</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -226,7 +226,7 @@
 
 <div class="viewcode-block" id="get_tuning_records_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tuning_records_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="n">use_tuning_results</span><span class="p">,</span> <span class="n">tuning_records_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="n">use_tuning_results</span><span class="p">,</span> <span class="n">tuning_records_file</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">use_tuning_results</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">tuning_records_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No tuning records are available&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--tuning-records&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tuning_records_file</span><span class="p">)]</span>
@@ -237,7 +237,7 @@
 
 <div class="viewcode-block" id="get_rpc_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_rpc_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_rpc_tvmc_args</span><span class="p">(</span><span class="n">enabled</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_rpc_tvmc_args</span><span class="p">(</span><span class="n">enabled</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="p">[</span>
             <span class="s2">&quot;--rpc-key&quot;</span><span class="p">,</span>
@@ -253,7 +253,7 @@
 
 <div class="viewcode-block" id="get_tvmaot_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmaot_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tvmaot_tvmc_args</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">,</span> <span class="n">unpacked_api</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmaot_tvmc_args</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">,</span> <span class="n">unpacked_api</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">unpacked_api</span><span class="p">:</span>
@@ -275,7 +275,7 @@
 
 <div class="viewcode-block" id="get_tvmrt_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmrt_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">system_lib</span><span class="p">))]</span>
@@ -286,7 +286,7 @@
 
 <div class="viewcode-block" id="get_data_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_data_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_data_tvmc_args</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_tvmc_args</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">ins_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--inputs&quot;</span><span class="p">,</span> <span class="n">ins_file</span><span class="p">])</span>
@@ -306,7 +306,7 @@
 
 <div class="viewcode-block" id="get_bench_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_bench_tvmc_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_bench_tvmc_args</span><span class="p">(</span><span class="n">print_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">end_to_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_bench_tvmc_args</span><span class="p">(</span><span class="n">print_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">end_to_end</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
@@ -330,7 +330,7 @@
 
 <div class="viewcode-block" id="get_desired_layout_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_desired_layout_args">[docs]</a>
-<span class="k">def</span> <span class="nf">get_desired_layout_args</span><span class="p">(</span><span class="n">layouts</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_desired_layout_args</span><span class="p">(</span><span class="n">layouts</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">mapping</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">layouts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;desired_layout not allowed when using desired_layouts_map&quot;</span>
         <span class="k">assert</span> <span class="n">ops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;desired_layout_ops not allowed when using desired_layouts_map&quot;</span>

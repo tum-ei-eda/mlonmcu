@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.tasks.tvm &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,15 +101,15 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_task_factory</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -118,12 +118,12 @@
 
 <div class="viewcode-block" id="requires_patch">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tvm.requires_patch">[docs]</a>
-<span class="k">def</span> <span class="nf">requires_patch</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">requires_patch</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;disable_legalize&quot;</span><span class="p">)</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># user_vars = context.environment.vars</span>
     <span class="n">patch</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">patch</span><span class="p">:</span>
@@ -132,7 +132,7 @@
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_tvm_clone</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tvm_clone</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="n">tvm_src_dir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tvm_src_dir</span><span class="p">:</span>
@@ -140,7 +140,7 @@
     <span class="k">return</span> <span class="n">_validate_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_tvm_build</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tvm_build</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="n">use_tlcpack</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tvm.use_tlcpack&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">debug_build</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tvm.debug_build&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -172,7 +172,7 @@
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_tvm_install</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tvm_install</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="kc">False</span>
 
 
@@ -183,7 +183,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;patch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>  <span class="c1"># This is just a temporary workaround until the patch is hopefully upstreamed</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm_clone</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clone_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the TVM repository.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -214,7 +214,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;cmsisnn&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">True</span><span class="p">])</span>  <span class="c1"># There is no good reason to build without cmsisnn</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm_build</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_tvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the TVM framework.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -303,7 +303,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm_install</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FRAMEWORK</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">install_tvm</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_tvm</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Install TVM.&quot;&quot;&quot;</span>
@@ -323,7 +323,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_validate_tvm_extensions</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tvm_extensions</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">_validate_tvm_build</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="ow">and</span> <span class="n">requires_patch</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
 
@@ -332,7 +332,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tvm_extensions.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm_extensions.wrapper&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tvm_extensions</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FEATURE</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clone_tvm_extensions</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_tvm_extensions</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the TVM extensions repository.&quot;&quot;&quot;</span>

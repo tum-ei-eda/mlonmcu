@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.flow.tvm.framework &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,18 +102,18 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definitions for TVMFramework.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pkg_resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.framework</span> <span class="kn">import</span> <span class="n">Framework</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Framework</span>
 
 <span class="c1"># from mlonmcu.flow.tvm import TVMBackend</span>
 
 
 <div class="viewcode-block" id="get_crt_config_dir">
 <a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.get_crt_config_dir">[docs]</a>
-<span class="k">def</span> <span class="nf">get_crt_config_dir</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_crt_config_dir</span><span class="p">():</span>
     <span class="n">files</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span>
         <span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;frameworks&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="s2">&quot;crt_config&quot;</span><span class="p">)</span>
     <span class="p">)</span>
@@ -128,7 +128,7 @@
 
 <div class="viewcode-block" id="TVMFramework">
 <a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework">[docs]</a>
-<span class="k">class</span> <span class="nc">TVMFramework</span><span class="p">(</span><span class="n">Framework</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TVMFramework</span><span class="p">(</span><span class="n">Framework</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM Framework specialization.&quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tvm&quot;</span>
@@ -143,29 +143,29 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># self.backends = TVMBackend.registry</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tvm_src</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_src</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.src_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">extra_incs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extra_incs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_incs&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">extra_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extra_libs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_libs&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">crt_config_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">crt_config_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;crt_config_dir&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TVMFramework.get_platform_defs">
 <a class="viewcode-back" href="../../../../mlonmcu.flow.tvm.html#mlonmcu.flow.tvm.framework.TVMFramework.get_platform_defs">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_incs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_libs</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="s2">&quot;Extra incs or libs are only supported by &#39;mlif&#39; platform&quot;</span>

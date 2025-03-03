@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.models.lookup &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,23 +99,23 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelFormats</span>
-<span class="kn">from</span> <span class="nn">.group</span> <span class="kn">import</span> <span class="n">ModelGroup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">ModelFormats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.group</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelGroup</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="get_model_directories">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.get_model_directories">[docs]</a>
-<span class="k">def</span> <span class="nf">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
     <span class="n">dirs</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span>
     <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">dirs</span></div>
@@ -124,7 +124,7 @@
 
 <div class="viewcode-block" id="find_metadata">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.find_metadata">[docs]</a>
-<span class="k">def</span> <span class="nf">find_metadata</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_metadata</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">possible_basenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;definition&quot;</span><span class="p">]</span>
     <span class="n">possible_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;yml&quot;</span><span class="p">]</span>
     <span class="n">directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
@@ -146,7 +146,7 @@
 
 <div class="viewcode-block" id="list_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.list_models">[docs]</a>
-<span class="k">def</span> <span class="nf">list_models</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># TODO: get config from environment or cmdline!</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_models</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># TODO: get config from environment or cmdline!</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
     <span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span> <span class="k">if</span> <span class="n">formats</span> <span class="k">else</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">]</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">formats</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No formats provided for model lookup&quot;</span>
@@ -222,7 +222,7 @@
 
 <div class="viewcode-block" id="list_modelgroups">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.list_modelgroups">[docs]</a>
-<span class="k">def</span> <span class="nf">list_modelgroups</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_modelgroups</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not a directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -243,7 +243,7 @@
                         <span class="n">modelgroup</span> <span class="o">=</span> <span class="n">ModelGroup</span><span class="p">(</span><span class="n">groupname</span><span class="p">,</span> <span class="n">groupmodels</span><span class="p">)</span>
                         <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modelgroup</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not open YAML file&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not open YAML file&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
             <span class="k">break</span>
     <span class="k">return</span> <span class="n">groups</span></div>
 
@@ -251,7 +251,7 @@
 
 <div class="viewcode-block" id="lookup_models_and_groups">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.lookup_models_and_groups">[docs]</a>
-<span class="k">def</span> <span class="nf">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup_models_and_groups</span><span class="p">(</span><span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">all_models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">all_groups</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">duplicates</span> <span class="o">=</span> <span class="p">{}</span>
@@ -294,7 +294,7 @@
 
 <div class="viewcode-block" id="print_paths">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_paths">[docs]</a>
-<span class="k">def</span> <span class="nf">print_paths</span><span class="p">(</span><span class="n">directories</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_paths</span><span class="p">(</span><span class="n">directories</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Paths:&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
         <span class="n">exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
@@ -307,7 +307,7 @@
 
 <div class="viewcode-block" id="print_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_models">[docs]</a>
-<span class="k">def</span> <span class="nf">print_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="p">[],</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="p">[],</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Models:&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span>
@@ -328,7 +328,7 @@
 
 <div class="viewcode-block" id="print_groups">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_groups">[docs]</a>
-<span class="k">def</span> <span class="nf">print_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="p">[],</span> <span class="n">duplicates</span><span class="o">=</span><span class="p">[],</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="p">[],</span> <span class="n">duplicates</span><span class="o">=</span><span class="p">[],</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Groups:&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span>
@@ -355,7 +355,7 @@
 
 <div class="viewcode-block" id="print_summary">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_summary">[docs]</a>
-<span class="k">def</span> <span class="nf">print_summary</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="c1"># TODO: get from context!</span>
     <span class="n">formats</span> <span class="o">=</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">]</span>
 
@@ -372,7 +372,7 @@
 
 <div class="viewcode-block" id="lookup_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.lookup_models">[docs]</a>
-<span class="k">def</span> <span class="nf">lookup_models</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup_models</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">frontends</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">frontends</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="c1"># TODO: Get defaults frontends from environment (with no config/features)</span>
@@ -419,7 +419,7 @@
 
 <div class="viewcode-block" id="apply_modelgroups">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.apply_modelgroups">[docs]</a>
-<span class="k">def</span> <span class="nf">apply_modelgroups</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_modelgroups</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="n">directories</span> <span class="o">=</span> <span class="n">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
@@ -442,7 +442,7 @@
 
 <div class="viewcode-block" id="map_frontend_to_model">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.map_frontend_to_model">[docs]</a>
-<span class="k">def</span> <span class="nf">map_frontend_to_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">frontends</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">map_frontend_to_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">frontends</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">model_fmts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">formats</span>
     <span class="n">backend_fmts</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">get_supported_formats</span><span class="p">()</span> <span class="k">if</span> <span class="n">backend</span> <span class="k">else</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="n">frontends</span><span class="p">:</span>

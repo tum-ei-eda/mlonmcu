@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Environments &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -208,7 +208,7 @@
 <h3>Python API<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>For the best experience a MLonMCU environment should always we wrapped with a <code class="docutils literal notranslate"><span class="pre">MlonMcuContext</span></code> as it provides useful utilities and a locking mechanism which can ensure that only one instance of the environment can be requested at a time.</p>
 <p>The typical using using a Python <code class="docutils literal notranslate"><span class="pre">with</span></code> block looks as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
 
 <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">()</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>
     <span class="k">pass</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.tvm.tvm &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,15 +101,15 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;TVM Platform&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.tvm_base_platform</span> <span class="kn">import</span> <span class="n">TvmBasePlatform</span>
-<span class="kn">from</span> <span class="nn">.tvm_target_platform</span> <span class="kn">import</span> <span class="n">TvmTargetPlatform</span>
-<span class="kn">from</span> <span class="nn">.tvm_build_platform</span> <span class="kn">import</span> <span class="n">TvmBuildPlatform</span>
-<span class="kn">from</span> <span class="nn">.tvm_tune_platform</span> <span class="kn">import</span> <span class="n">TvmTunePlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvm_base_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TvmBasePlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvm_target_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TvmTargetPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvm_build_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TvmBuildPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvm_tune_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TvmTunePlatform</span>
 
 
 <div class="viewcode-block" id="TvmPlatform">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm.TvmPlatform">[docs]</a>
-<span class="k">class</span> <span class="nc">TvmPlatform</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TvmPlatform</span><span class="p">(</span>
     <span class="n">TvmBasePlatform</span><span class="p">,</span>
     <span class="n">TvmBuildPlatform</span><span class="p">,</span>
     <span class="c1"># TvmTargetPlatform,  # implicitly via tune platform</span>
@@ -132,7 +132,7 @@
         <span class="n">TvmBasePlatform</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">TvmBuildPlatform</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">TvmTargetPlatform</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">TvmTunePlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TvmPlatform</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;tvm&quot;</span><span class="p">,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.tasks.common &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,9 +102,9 @@
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskFactory</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -113,12 +113,12 @@
 
 <div class="viewcode-block" id="get_task_factory">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.common.get_task_factory">[docs]</a>
-<span class="k">def</span> <span class="nf">get_task_factory</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_task_factory</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">Tasks</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_validate_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_gcc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_toolchain</span><span class="p">(</span><span class="s2">&quot;gcc&quot;</span><span class="p">)</span>
 </pre></div>
 

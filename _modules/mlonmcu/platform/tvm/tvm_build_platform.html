@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.tvm.tvm_build_platform &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,18 +100,18 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;TVM Build Platform&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">..platform</span> <span class="kn">import</span> <span class="n">BuildPlatform</span>
-<span class="kn">from</span> <span class="nn">.tvm_backend</span> <span class="kn">import</span> <span class="n">create_tvm_platform_backend</span><span class="p">,</span> <span class="n">get_tvm_platform_backends</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuildPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvm_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_tvm_platform_backend</span><span class="p">,</span> <span class="n">get_tvm_platform_backends</span>
 
 
 <div class="viewcode-block" id="TvmBuildPlatform">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_build_platform.TvmBuildPlatform">[docs]</a>
-<span class="k">class</span> <span class="nc">TvmBuildPlatform</span><span class="p">(</span><span class="n">BuildPlatform</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TvmBuildPlatform</span><span class="p">(</span><span class="n">BuildPlatform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM build platform class.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TvmBuildPlatform.create_backend">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_build_platform.TvmBuildPlatform.create_backend">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">supported</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_backends</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid TVM platform backend&quot;</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">supported</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
@@ -120,7 +120,7 @@
 
 <div class="viewcode-block" id="TvmBuildPlatform.get_supported_backends">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_build_platform.TvmBuildPlatform.get_supported_backends">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_supported_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">backend_names</span> <span class="o">=</span> <span class="n">get_tvm_platform_backends</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">backend_names</span></div>
 </div>

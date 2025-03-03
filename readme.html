@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ML on MCU &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -217,7 +217,7 @@ pip install -r ipynb/requirements.txt
 <p>Make sure to point the <code class="docutils literal notranslate"><span class="pre">MLONMCU_HOME</span></code> environment variable to the location of the previously initialied environment. (Alternative: use the <code class="docutils literal notranslate"><span class="pre">default</span></code> environment or <code class="docutils literal notranslate"><span class="pre">--home</span></code> argument on the command line)</p>
 <p>Next, generate a <code class="docutils literal notranslate"><span class="pre">requirements_addition.txt</span></code> file inside the environment directory using <code class="docutils literal notranslate"><span class="pre">mlonmcu</span> <span class="pre">setup</span> <span class="pre">-g</span></code> which now be installed by running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">$MLONMCU_HOME/requirements_addition.txt</span></code> inside the virtual Python environment.</p>
 <p>To use the created environment in a python program, a <code class="docutils literal notranslate"><span class="pre">MlonMcuContext</span></code> needs to be created as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlonmcu.context</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.context</span>
 
 <span class="k">with</span> <span class="n">mlonmcu</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">MlonMcuContext</span><span class="p">()</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
     <span class="k">pass</span>

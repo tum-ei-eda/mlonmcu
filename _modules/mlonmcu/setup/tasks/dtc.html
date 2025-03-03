@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.tasks.dtc &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,21 +101,21 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_task_factory</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 <span class="n">Tasks</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_dtc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_dtc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="c1"># TODO: require this for: ???</span>
     <span class="c1"># TODO: cleanup after build</span>
     <span class="c1"># return True</span>
@@ -127,7 +127,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;dtc.src_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_dtc</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clone_dtc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_dtc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the dtc repo.&quot;&quot;&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;dtc&quot;</span><span class="p">)</span>
     <span class="n">srcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">name</span>
@@ -147,7 +147,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;dtc.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;dtc.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;dtc.exe&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_dtc</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_dtc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_dtc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the device tree compile.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>

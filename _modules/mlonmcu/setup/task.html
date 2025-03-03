@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.task &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,23 +101,23 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definitions of a task registry used to automatically install dependencies.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
-<span class="kn">from</span> <span class="nn">networkx.drawing.nx_agraph</span> <span class="kn">import</span> <span class="n">write_dot</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">networkx.drawing.nx_agraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_dot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="get_combs">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.get_combs">[docs]</a>
-<span class="k">def</span> <span class="nf">get_combs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_combs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility which returns combinations of the input data.</span>
 
 <span class="sd">    Parameters</span>
@@ -148,7 +148,7 @@
 
 <div class="viewcode-block" id="TaskType">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskType">[docs]</a>
-<span class="k">class</span> <span class="nc">TaskType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for the task type.&quot;&quot;&quot;</span>
 
     <span class="n">MISC</span> <span class="o">=</span> <span class="mi">0</span>
@@ -165,7 +165,7 @@
 
 <div class="viewcode-block" id="TaskGraph">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskGraph">[docs]</a>
-<span class="k">class</span> <span class="nc">TaskGraph</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Task graph object.</span>
 
 <span class="sd">    Attributes</span>
@@ -182,14 +182,14 @@
 <span class="sd">    TODO</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">providers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">providers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="n">dependencies</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">providers</span> <span class="o">=</span> <span class="n">providers</span>
 
 <div class="viewcode-block" id="TaskGraph.get_graph">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskGraph.get_graph">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get nodes and edges of the task graph.</span>
 
 <span class="sd">        Returns</span>
@@ -215,7 +215,7 @@
 
 <div class="viewcode-block" id="TaskGraph.get_order">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskGraph.get_order">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get execution order of tasks via topological sorting.&quot;&quot;&quot;</span>
         <span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
@@ -226,7 +226,7 @@
 
 <div class="viewcode-block" id="TaskGraph.export_dot">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskGraph.export_dot">[docs]</a>
-    <span class="k">def</span> <span class="nf">export_dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export_dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Visualize the task dependency graph.&quot;&quot;&quot;</span>
         <span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
@@ -241,7 +241,7 @@
 
 <div class="viewcode-block" id="TaskFactory">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory">[docs]</a>
-<span class="k">class</span> <span class="nc">TaskFactory</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class which is used to register all available tasks and their annotations.</span>
 
 <span class="sd">    Attributes</span>
@@ -260,7 +260,7 @@
 <span class="sd">        List of tasks?artifacts which have changed recently</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">providers</span> <span class="o">=</span> <span class="p">{}</span>
@@ -271,17 +271,17 @@
 
 <div class="viewcode-block" id="TaskFactory.reset_changes">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.reset_changes">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset all pending changes.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changed</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="TaskFactory.needs">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.needs">[docs]</a>
-    <span class="k">def</span> <span class="nf">needs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">needs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator which registers the artifacts a task needs to be processed.&quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
@@ -289,7 +289,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">keys</span>
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="c1"># logger.debug(&quot;Checking inputs...&quot;)</span>
                 <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
                     <span class="n">context</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -307,20 +307,20 @@
 
 <div class="viewcode-block" id="TaskFactory.optional">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.optional">[docs]</a>
-    <span class="k">def</span> <span class="nf">optional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator for optional task requirements.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">needs</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TaskFactory.removes">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.removes">[docs]</a>
-    <span class="k">def</span> <span class="nf">removes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">removes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator for cleanuo tasks.&quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: implementation</span>
-        <span class="k">def</span> <span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="n">retval</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">retval</span>
 
@@ -345,16 +345,16 @@
 
 <div class="viewcode-block" id="TaskFactory.provides">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.provides">[docs]</a>
-    <span class="k">def</span> <span class="nf">provides</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">provides</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator which registers what a task provides.&quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="n">context</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span><span class="p">:</span>
@@ -376,12 +376,12 @@
 
 <div class="viewcode-block" id="TaskFactory.param">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.param">[docs]</a>
-    <span class="k">def</span> <span class="nf">param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator which registers available task parameters.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span>
 
-        <span class="k">def</span> <span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">flag</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span>
@@ -389,7 +389,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">flag</span><span class="p">:</span> <span class="n">options</span><span class="p">}</span>
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="n">retval</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">retval</span>
 
@@ -400,10 +400,10 @@
 
 <div class="viewcode-block" id="TaskFactory.validate">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.validate">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator which registers validation functions for a task.&quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">validates</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
             <span class="k">return</span> <span class="n">function</span>
@@ -413,17 +413,17 @@
 
 <div class="viewcode-block" id="TaskFactory.register">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.register">[docs]</a>
-    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator which actually registers a task in the registry.&quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__name__</span>
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
                 <span class="n">combs</span> <span class="o">=</span> <span class="n">get_combs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
 
-                <span class="k">def</span> <span class="nf">get_valid_combs</span><span class="p">(</span><span class="n">combs</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">get_valid_combs</span><span class="p">(</span><span class="n">combs</span><span class="p">):</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">comb</span> <span class="ow">in</span> <span class="n">combs</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validates</span><span class="p">:</span>
@@ -435,7 +435,7 @@
 
                 <span class="n">combs_</span> <span class="o">=</span> <span class="n">get_valid_combs</span><span class="p">(</span><span class="n">combs</span><span class="p">)</span>
 
-                <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
                         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">rebuild</span> <span class="o">=</span> <span class="n">rebuild</span>

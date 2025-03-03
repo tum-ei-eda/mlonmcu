@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.mlif.interfaces &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,7 +100,7 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MLIF Interfaces&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.models.utils</span> <span class="kn">import</span> <span class="n">fill_data_source_inputs_only</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">fill_data_source_inputs_only</span>
 
 <span class="n">MAX_BATCH_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1e6</span><span class="p">)</span>
 <span class="n">DEFAULT_BATCH_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
@@ -108,7 +108,7 @@
 
 <div class="viewcode-block" id="get_header">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_header">[docs]</a>
-<span class="k">def</span> <span class="nf">get_header</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_header</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">#include &quot;quantize.h&quot;</span>
 <span class="s2">#include &quot;printing.h&quot;</span>
@@ -136,7 +136,7 @@
 
 <div class="viewcode-block" id="get_top_rom">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_top_rom">[docs]</a>
-<span class="k">def</span> <span class="nf">get_top_rom</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_top_rom</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
     <span class="n">in_bufs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ins_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inputs_data</span><span class="p">):</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
@@ -152,7 +152,7 @@
 
 <div class="viewcode-block" id="get_process_inputs_head">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_head">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_inputs_head</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_inputs_head</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">int mlif_process_inputs(size_t batch_idx, bool *new_)</span>
 <span class="s2">{</span>
@@ -162,7 +162,7 @@
 
 <div class="viewcode-block" id="get_process_inputs_tail">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_tail">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_inputs_tail</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_inputs_tail</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span></div>
@@ -171,7 +171,7 @@
 
 <div class="viewcode-block" id="get_process_outputs_head">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_outputs_head">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_outputs_head</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_outputs_head</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">int mlif_process_outputs(size_t batch_idx)</span>
 <span class="s2">{</span>
@@ -181,7 +181,7 @@
 
 <div class="viewcode-block" id="get_process_outputs_tail">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_outputs_tail">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_outputs_tail</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_outputs_tail</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">}</span>
 <span class="s2">&quot;&quot;&quot;</span></div>
@@ -190,7 +190,7 @@
 
 <div class="viewcode-block" id="get_process_inputs_rom">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_rom">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_inputs_rom</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_inputs_rom</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    *new_ = true;</span>
 <span class="s2">    int num_inputs = mlif_num_inputs();</span>
@@ -217,7 +217,7 @@
 
 <div class="viewcode-block" id="get_process_inputs_stdin_raw">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_inputs_stdin_raw">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_inputs_stdin_raw</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_inputs_stdin_raw</span><span class="p">():</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    char ch;</span>
 <span class="s2">    *new_ = true;</span>
@@ -251,7 +251,7 @@
 
 <div class="viewcode-block" id="get_process_outputs_stdout_raw">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.get_process_outputs_stdout_raw">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_outputs_stdout_raw</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_outputs_stdout_raw</span><span class="p">():</span>
     <span class="c1"># TODO: maybe hardcode num_outputs and size here because we know it</span>
     <span class="c1"># and get rid of loop?</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -271,8 +271,8 @@
 
 <div class="viewcode-block" id="ModelSupport">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport">[docs]</a>
-<span class="k">class</span> <span class="nc">ModelSupport</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelSupport</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inputs_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">model_info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inputs_data</span> <span class="o">=</span> <span class="n">inputs_data</span>
@@ -283,7 +283,7 @@
 
 <div class="viewcode-block" id="ModelSupport.select_set_inputs_interface">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.select_set_inputs_interface">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_set_inputs_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_set_inputs_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">supports_filesystem</span><span class="p">:</span>
@@ -304,7 +304,7 @@
 
 <div class="viewcode-block" id="ModelSupport.select_get_outputs_interface">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.select_get_outputs_interface">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_get_outputs_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_get_outputs_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_interface</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">out_interface</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">supports_filesystem</span><span class="p">:</span>
@@ -322,7 +322,7 @@
 
 <div class="viewcode-block" id="ModelSupport.generate_header">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_header">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: make this configurable</span>
         <span class="c1"># TODO: do not require C++?</span>
         <span class="k">return</span> <span class="n">get_header</span><span class="p">()</span></div>
@@ -330,7 +330,7 @@
 
 <div class="viewcode-block" id="ModelSupport.generate_top">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_top">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;rom&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_top_rom</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
@@ -338,13 +338,13 @@
 
 <div class="viewcode-block" id="ModelSupport.generate_bottom">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_bottom">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="ModelSupport.generate_process_inputs_body">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_inputs_body">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_process_inputs_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_process_inputs_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;rom&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_process_inputs_rom</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_interface</span> <span class="o">==</span> <span class="s2">&quot;stdin_raw&quot;</span><span class="p">:</span>
@@ -354,7 +354,7 @@
 
 <div class="viewcode-block" id="ModelSupport.generate_process_outputs_body">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_outputs_body">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_process_outputs_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_process_outputs_body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_interface</span> <span class="o">==</span> <span class="s2">&quot;stdout_raw&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">get_process_outputs_stdout_raw</span><span class="p">()</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO: implement: filesystem (bin+npy), ram</span></div>
@@ -362,7 +362,7 @@
 
 <div class="viewcode-block" id="ModelSupport.generate_process_inputs">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_inputs">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_process_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_process_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">code</span> <span class="o">+=</span> <span class="n">get_process_inputs_head</span><span class="p">()</span>
         <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_process_inputs_body</span><span class="p">()</span>
@@ -372,7 +372,7 @@
 
 <div class="viewcode-block" id="ModelSupport.generate_process_outputs">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate_process_outputs">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_process_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_process_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">code</span> <span class="o">+=</span> <span class="n">get_process_outputs_head</span><span class="p">()</span>
         <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_process_outputs_body</span><span class="p">()</span>
@@ -382,7 +382,7 @@
 
 <div class="viewcode-block" id="ModelSupport.generate">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.interfaces.ModelSupport.generate">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_header</span><span class="p">()</span>
         <span class="n">code</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_top</span><span class="p">()</span>

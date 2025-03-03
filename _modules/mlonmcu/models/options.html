@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.models.options &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,8 +103,8 @@
 
 <div class="viewcode-block" id="BackendModelOptions">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.options.BackendModelOptions">[docs]</a>
-<span class="k">class</span> <span class="nc">BackendModelOptions</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BackendModelOptions</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{}):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supported</span> <span class="o">=</span> <span class="n">supported</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span></div>
@@ -113,8 +113,8 @@
 
 <div class="viewcode-block" id="TFLMIModelOptions">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.options.TFLMIModelOptions">[docs]</a>
-<span class="k">class</span> <span class="nc">TFLMIModelOptions</span><span class="p">(</span><span class="n">BackendModelOptions</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TFLMIModelOptions</span><span class="p">(</span><span class="n">BackendModelOptions</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">backend</span><span class="p">,</span>
         <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -131,8 +131,8 @@
 
 <div class="viewcode-block" id="TVMRTModelOptions">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.options.TVMRTModelOptions">[docs]</a>
-<span class="k">class</span> <span class="nc">TVMRTModelOptions</span><span class="p">(</span><span class="n">BackendModelOptions</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">arena_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TVMRTModelOptions</span><span class="p">(</span><span class="n">BackendModelOptions</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">arena_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="n">supported</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span> <span class="o">=</span> <span class="n">arena_size</span></div>
 
@@ -140,7 +140,7 @@
 
 <div class="viewcode-block" id="parse_model_options_for_backend">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.options.parse_model_options_for_backend">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_model_options_for_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_model_options_for_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
     <span class="n">backend_types</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;tflmi&quot;</span><span class="p">:</span> <span class="n">TFLMIModelOptions</span><span class="p">,</span>
         <span class="s2">&quot;tvmrt&quot;</span><span class="p">:</span> <span class="n">TVMRTModelOptions</span><span class="p">,</span>

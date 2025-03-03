@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.microtvm.microtvm &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,15 +101,15 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MicroTVM Platform&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.microtvm_base_platform</span> <span class="kn">import</span> <span class="n">MicroTvmBasePlatform</span>
-<span class="kn">from</span> <span class="nn">.microtvm_target_platform</span> <span class="kn">import</span> <span class="n">MicroTvmTargetPlatform</span>
-<span class="kn">from</span> <span class="nn">.microtvm_build_platform</span> <span class="kn">import</span> <span class="n">MicroTvmBuildPlatform</span>
-<span class="kn">from</span> <span class="nn">.microtvm_tune_platform</span> <span class="kn">import</span> <span class="n">MicroTvmTunePlatform</span>
-<span class="kn">from</span> <span class="nn">.microtvm_compile_platform</span> <span class="kn">import</span> <span class="n">MicroTvmCompilePlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_base_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroTvmBasePlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_target_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroTvmTargetPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_build_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroTvmBuildPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_tune_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroTvmTunePlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_compile_platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">MicroTvmCompilePlatform</span>
 
-<span class="kn">from</span> <span class="nn">.microtvm_target</span> <span class="kn">import</span> <span class="n">create_microtvm_platform_target</span><span class="p">,</span> <span class="n">get_microtvm_platform_targets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.microtvm_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_microtvm_platform_target</span><span class="p">,</span> <span class="n">get_microtvm_platform_targets</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 <span class="c1"># TODO: This file is very similar to the TVM platform -&gt; Reuse as much as possible</span>
@@ -117,7 +117,7 @@
 
 <div class="viewcode-block" id="MicroTvmPlatform">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform">[docs]</a>
-<span class="k">class</span> <span class="nc">MicroTvmPlatform</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MicroTvmPlatform</span><span class="p">(</span>
     <span class="n">MicroTvmBasePlatform</span><span class="p">,</span>
     <span class="n">MicroTvmCompilePlatform</span><span class="p">,</span>
     <span class="c1"># MicroTvmTargetPlatform,  # implicitly via tune platform</span>
@@ -150,7 +150,7 @@
         <span class="o">|</span> <span class="n">MicroTvmTunePlatform</span><span class="o">.</span><span class="n">REQUIRED</span>
     <span class="p">)</span>  <span class="c1"># TODO: validate?</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MicroTvmPlatform</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;microtvm&quot;</span><span class="p">,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
@@ -160,13 +160,13 @@
     <span class="c1"># The following methods are defined here as they would need to be implemented for compile and target platforms</span>
 <div class="viewcode-block" id="MicroTvmPlatform.get_supported_targets">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_supported_targets">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">get_microtvm_platform_targets</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="MicroTvmPlatform.create_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.create_target">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="n">supported</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid MicroTVM device&quot;</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">supported</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.context.read_write_filelock &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -104,33 +104,33 @@
 <span class="sd">The locks are non-blocking.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">filelock</span> <span class="kn">import</span> <span class="n">FileLock</span>
-<span class="kn">import</span> <span class="nn">uuid</span>  <span class="c1"># this is used to create a identifier for every ReadFileLock and WriteFileLock instance.</span>
-<span class="kn">import</span> <span class="nn">datetime</span>  <span class="c1"># this is used to track the lock actions</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">filelock</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileLock</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>  <span class="c1"># this is used to create a identifier for every ReadFileLock and WriteFileLock instance.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>  <span class="c1"># this is used to track the lock actions</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">atexit</span>
 
 
 <div class="viewcode-block" id="RWLockTimeout">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.RWLockTimeout">[docs]</a>
-<span class="k">class</span> <span class="nc">RWLockTimeout</span><span class="p">(</span><span class="ne">TimeoutError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RWLockTimeout</span><span class="p">(</span><span class="ne">TimeoutError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when the lock could not be acquired.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lock</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1">#: The Read or Write lock instance.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">lock</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;The lock with id &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&#39; in env &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">&#39; could not be acquired.&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="ReadFileLock">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.ReadFileLock">[docs]</a>
-<span class="k">class</span> <span class="nc">ReadFileLock</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReadFileLock</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trackfilepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_track&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">FileLock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
@@ -138,7 +138,7 @@
 
 <div class="viewcode-block" id="ReadFileLock.acquire">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.ReadFileLock.acquire">[docs]</a>
-    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function tried to acquire a ReadFileLock.</span>
 <span class="sd">        The process is the following:</span>
@@ -200,7 +200,7 @@
 
 <div class="viewcode-block" id="ReadFileLock.release">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.ReadFileLock.release">[docs]</a>
-    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function releases a ReadFileLock.</span>
 <span class="sd">        the process is the following:</span>
@@ -238,7 +238,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This property returns if a lock is occupied(locked) by other processes.</span>
 <span class="sd">        the process is the following:</span>
@@ -280,8 +280,8 @@
 
 <div class="viewcode-block" id="WriteFileLock">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.WriteFileLock">[docs]</a>
-<span class="k">class</span> <span class="nc">WriteFileLock</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WriteFileLock</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trackfilepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_track&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">FileLock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
@@ -289,7 +289,7 @@
 
 <div class="viewcode-block" id="WriteFileLock.acquire">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.WriteFileLock.acquire">[docs]</a>
-    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function tried to acquire a WriteFileLock.</span>
 <span class="sd">        The process is the following:</span>
@@ -351,7 +351,7 @@
 
 <div class="viewcode-block" id="WriteFileLock.release">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.read_write_filelock.WriteFileLock.release">[docs]</a>
-    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function releases a WriteFileLock.</span>
 <span class="sd">        the process is the following:</span>
@@ -391,7 +391,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This property returns if a lock is occupied(locked) by other processes.</span>
 <span class="sd">        the process is the following:</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.espidf.espidf_target &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,25 +99,25 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">filter_none</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_none</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.riscv.util</span> <span class="kn">import</span> <span class="n">sort_extensions_canonical</span><span class="p">,</span> <span class="n">join_extensions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.riscv.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">sort_extensions_canonical</span><span class="p">,</span> <span class="n">join_extensions</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Esp32C3PerfCount">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount">[docs]</a>
-<span class="k">class</span> <span class="nc">Esp32C3PerfCount</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Esp32C3PerfCount</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">CYCLE</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">INST</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">LD_HAZARD</span> <span class="o">=</span> <span class="mi">4</span>
@@ -137,7 +137,7 @@
 
 <div class="viewcode-block" id="register_espidf_platform_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.register_espidf_platform_target">[docs]</a>
-<span class="k">def</span> <span class="nf">register_espidf_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_espidf_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
@@ -148,14 +148,14 @@
 
 <div class="viewcode-block" id="get_espidf_platform_targets">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.get_espidf_platform_targets">[docs]</a>
-<span class="k">def</span> <span class="nf">get_espidf_platform_targets</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_espidf_platform_targets</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">ESPIDF_PLATFORM_TARGET_REGISTRY</span></div>
 
 
 
 <div class="viewcode-block" id="Esp32C3Target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target">[docs]</a>
-<span class="k">class</span> <span class="nc">Esp32C3Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Esp32C3Target</span><span class="p">(</span><span class="n">Target</span><span class="p">):</span>
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">Target</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
@@ -168,11 +168,11 @@
     <span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">xlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlen&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">exts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extensions&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">exts</span> <span class="o">=</span> <span class="n">exts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
@@ -189,7 +189,7 @@
         <span class="k">return</span> <span class="n">exts</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arch&quot;</span><span class="p">]</span>  <span class="c1"># TODO: allow underscores and versions</span>
         <span class="k">if</span> <span class="n">temp</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">temp</span>
@@ -198,7 +198,7 @@
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}{</span><span class="n">exts_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">abi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">abi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;abi&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">temp</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">temp</span>
@@ -216,7 +216,7 @@
             <span class="k">return</span> <span class="n">temp</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;attr&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">attrs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -226,7 +226,7 @@
         <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;fpu&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
@@ -234,17 +234,17 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">has_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_fpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpu</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span>
 
 <div class="viewcode-block" id="Esp32C3Target.get_platform_defs">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_platform_defs">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ESP32C3_PERF_COUNT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -252,19 +252,19 @@
 
 <div class="viewcode-block" id="Esp32C3Target.get_target_system">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_target_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;esp32c3&quot;</span></div>
 
 
 <div class="viewcode-block" id="Esp32C3Target.get_arch">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_arch">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;riscv&quot;</span></div>
 
 
 <div class="viewcode-block" id="Esp32C3Target.get_backend_config">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.get_backend_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">:</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
@@ -289,7 +289,7 @@
 
 <div class="viewcode-block" id="Esp32C3Target.add_backend_config">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.add_backend_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">new</span> <span class="o">=</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span>
                 <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="n">optimized_layouts</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="n">optimized_schedules</span>
@@ -306,8 +306,8 @@
 
 <div class="viewcode-block" id="create_espidf_platform_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.create_espidf_platform_target">[docs]</a>
-<span class="k">def</span> <span class="nf">create_espidf_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
-    <span class="k">class</span> <span class="nc">EspIdfPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_espidf_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">Target</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">EspIdfPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
         <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
             <span class="o">**</span><span class="n">base</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
             <span class="s2">&quot;timeout_sec&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
@@ -315,23 +315,23 @@
             <span class="s2">&quot;baud&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
 
         <span class="nd">@property</span>
-        <span class="k">def</span> <span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;timeout_sec&quot;</span><span class="p">])</span>
 
         <span class="nd">@property</span>
-        <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
 
         <span class="nd">@property</span>
-        <span class="k">def</span> <span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;baud&quot;</span><span class="p">]</span>
 
-        <span class="k">def</span> <span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Use target to execute a executable with given arguments&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Program arguments are not supported for real hardware devices&quot;</span><span class="p">)</span>
@@ -347,7 +347,7 @@
             <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">ret</span>
 
-        <span class="k">def</span> <span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
             <span class="n">cpu_cycles</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Total Cycles: (.*)&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cpu_cycles</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;unexpected script output (cycles)&quot;</span><span class="p">)</span>
@@ -362,7 +362,7 @@
                 <span class="n">time_us</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cpu_time_us</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
             <span class="k">return</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">time_us</span>
 
-        <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
                 <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -378,7 +378,7 @@
 
             <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span>
 
-        <span class="k">def</span> <span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;unkwown&quot;</span>
 
     <span class="k">return</span> <span class="n">EspIdfPlatformTarget</span></div>

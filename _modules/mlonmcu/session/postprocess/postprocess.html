@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.session.postprocess.postprocess &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,12 +100,12 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definitions of base classes for MLonMCU postprocesses.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span>
 
 
 <div class="viewcode-block" id="Postprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">Postprocess</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Postprocess</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract postprocess.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -115,7 +115,7 @@
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_features</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
@@ -123,7 +123,7 @@
 
 <div class="viewcode-block" id="Postprocess.process_features">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess.process_features">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Utility which handles postprocess_features.&quot;&quot;&quot;</span>
         <span class="c1"># Currently there is no support for postprocess features (FIXME)</span>
         <span class="c1"># if features is None:</span>
@@ -139,12 +139,12 @@
 
 <div class="viewcode-block" id="SessionPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.SessionPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">SessionPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SessionPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Session postprocess which is applied to multiple runs at the end of a session. (multi-row)&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SessionPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.SessionPostprocess.post_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span></div>
 </div>
 
@@ -152,12 +152,12 @@
 
 <div class="viewcode-block" id="RunPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.RunPostprocess">[docs]</a>
-<span class="k">class</span> <span class="nc">RunPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run postprocess which is applied to a single run.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RunPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.RunPostprocess.post_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span></div>
 </div>
 

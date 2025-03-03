@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.cli.load &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,7 +101,7 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for the load stage.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.cli.common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_common_options</span><span class="p">,</span>
     <span class="n">add_context_options</span><span class="p">,</span>
     <span class="n">add_model_options</span><span class="p">,</span>
@@ -109,16 +109,16 @@
     <span class="n">kickoff_runs</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config_and_feature_names</span><span class="p">,</span> <span class="n">extract_frontend_names</span><span class="p">,</span> <span class="n">extract_postprocess_names</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.models</span> <span class="kn">import</span> <span class="n">SUPPORTED_FRONTENDS</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.models.lookup</span> <span class="kn">import</span> <span class="n">apply_modelgroups</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helper.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_config_and_feature_names</span><span class="p">,</span> <span class="n">extract_frontend_names</span><span class="p">,</span> <span class="n">extract_postprocess_names</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_FRONTENDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.lookup</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_modelgroups</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunStage</span>
 
 
 <div class="viewcode-block" id="add_load_options">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.add_load_options">[docs]</a>
-<span class="k">def</span> <span class="nf">add_load_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_load_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
     <span class="n">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
@@ -138,7 +138,7 @@
 
 <div class="viewcode-block" id="get_parser">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.get_parser">[docs]</a>
-<span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the load subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Load model using the ML on MCU flow.&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">flow_func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
@@ -147,7 +147,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="n">new_config</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">gen_config</span><span class="p">,</span> <span class="n">gen_features</span> <span class="o">=</span> <span class="n">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_config</span><span class="p">)</span>
@@ -169,7 +169,7 @@
 
 <div class="viewcode-block" id="handle">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.load.handle">[docs]</a>
-<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ctx</span><span class="p">:</span>
         <span class="n">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.gen_requirements &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -126,13 +126,13 @@
 <span class="sd">The data representing each piece is contained in the two maps below.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">textwrap</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
 
 
 <span class="n">RequirementsByPieceType</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]</span>
@@ -367,7 +367,7 @@
 
 <div class="viewcode-block" id="validate_requirements_by_piece">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.validate_requirements_by_piece">[docs]</a>
-<span class="k">def</span> <span class="nf">validate_requirements_by_piece</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_requirements_by_piece</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate REQUIREMENTS_BY_PIECE, returning a list of problems.</span>
 
 <span class="sd">    Returns</span>
@@ -454,7 +454,7 @@
 
 <div class="viewcode-block" id="parse_semver">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.parse_semver">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_semver</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_semver</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a semantic versioning constraint of the form &quot;^X.[.Y[.Z[...]]]]&quot;</span>
 
 <span class="sd">    Parameters</span>
@@ -510,7 +510,7 @@
 
 <div class="viewcode-block" id="validate_constraints">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.validate_constraints">[docs]</a>
-<span class="k">def</span> <span class="nf">validate_constraints</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_constraints</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate CONSTRAINTS, returning a list of problems found.</span>
 
 <span class="sd">    Returns</span>
@@ -557,13 +557,13 @@
 
 <div class="viewcode-block" id="ValidationError">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.ValidationError">[docs]</a>
-<span class="k">class</span> <span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a validation error occurs.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ValidationError.format_problems">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.ValidationError.format_problems">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">format_problems</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_problems</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Format a list of problems with a global config variable into human-readable output.</span>
 
 <span class="sd">        Parameters</span>
@@ -588,7 +588,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">problems</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Describes an error that occurs validating one of the global config variables.</span>
 
 <span class="sd">        Parameters</span>
@@ -605,7 +605,7 @@
 
 <div class="viewcode-block" id="validate_or_raise">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.validate_or_raise">[docs]</a>
-<span class="k">def</span> <span class="nf">validate_or_raise</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_or_raise</span><span class="p">():</span>
     <span class="n">problems</span> <span class="o">=</span> <span class="n">validate_requirements_by_piece</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;REQUIREMENTS_BY_PIECE&quot;</span><span class="p">,</span> <span class="n">problems</span><span class="p">)</span>
@@ -618,7 +618,7 @@
 
 <div class="viewcode-block" id="semver_to_requirements">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.semver_to_requirements">[docs]</a>
-<span class="k">def</span> <span class="nf">semver_to_requirements</span><span class="p">(</span><span class="n">dep</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joined_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">semver_to_requirements</span><span class="p">(</span><span class="n">dep</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">joined_deps</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a SemVer-style constraint to a setuptools-compatible constraint.</span>
 
 <span class="sd">    Parameters</span>
@@ -645,7 +645,7 @@
 
 <div class="viewcode-block" id="join_requirements">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.join_requirements">[docs]</a>
-<span class="k">def</span> <span class="nf">join_requirements</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">join_requirements</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate, then join REQUIRMENTS_BY_PIECE against CONSTRAINTS and return the result.</span>
 
 <span class="sd">    Returns</span>
@@ -688,7 +688,7 @@
 
 <div class="viewcode-block" id="join_and_write_requirements">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.join_and_write_requirements">[docs]</a>
-<span class="k">def</span> <span class="nf">join_and_write_requirements</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">join_and_write_requirements</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">joined_deps</span> <span class="o">=</span> <span class="n">join_requirements</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -721,7 +721,7 @@
 
 <div class="viewcode-block" id="parse_args">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.parse_args">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_args</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--lint&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Just lint dependencies, don&#39;t generate anything&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
@@ -730,7 +730,7 @@
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.gen_requirements.main">[docs]</a>
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
     <span class="n">join_and_write_requirements</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 

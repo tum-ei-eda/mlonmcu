@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.config &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,18 +100,18 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Collection of utilities to manage MLonMCU configs.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">distutils.util</span>
-<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">distutils.util</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.type</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="remove_config_prefix">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.remove_config_prefix">[docs]</a>
-<span class="k">def</span> <span class="nf">remove_config_prefix</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_config_prefix</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterate over keys in dict and remove given prefix.</span>
 
 <span class="sd">    Arguments</span>
@@ -132,7 +132,7 @@
     <span class="k">if</span> <span class="n">skip</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">skip</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="p">{</span><span class="n">helper</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">}</span></div>
@@ -141,7 +141,7 @@
 
 <div class="viewcode-block" id="filter_config">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.filter_config">[docs]</a>
-<span class="k">def</span> <span class="nf">filter_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">optionals</span><span class="p">,</span> <span class="n">required_keys</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">defaults</span><span class="p">,</span> <span class="n">optionals</span><span class="p">,</span> <span class="n">required_keys</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter the global config for a given component prefix.</span>
 
 <span class="sd">    Arguments</span>
@@ -207,7 +207,7 @@
 
 <div class="viewcode-block" id="resolve_required_config">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.resolve_required_config">[docs]</a>
-<span class="k">def</span> <span class="nf">resolve_required_config</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_required_config</span><span class="p">(</span>
     <span class="n">required_keys</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_flags</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>  <span class="c1"># TODO: add framework, backend, and frontends as well?</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility which iterates over a set of given config keys and</span>
@@ -236,7 +236,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_sublists</span><span class="p">(</span><span class="n">in_list</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sublists</span><span class="p">(</span><span class="n">in_list</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[[]]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">in_list</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_list</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -246,7 +246,7 @@
 
     <span class="n">hint_combinations</span> <span class="o">=</span> <span class="n">get_sublists</span><span class="p">(</span><span class="n">hints</span> <span class="k">if</span> <span class="n">hints</span> <span class="k">else</span> <span class="p">[])</span>
 
-    <span class="k">def</span> <span class="nf">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cache_flags</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
             <span class="c1"># result.update({key: frozenset(value) for key, value in default.items()})</span>
@@ -307,7 +307,7 @@
 
 <div class="viewcode-block" id="str2bool">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.str2bool">[docs]</a>
-<span class="k">def</span> <span class="nf">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;str2bool received None value while allow_none=False&quot;</span>
         <span class="k">return</span> <span class="n">value</span>
@@ -320,7 +320,7 @@
 
 <div class="viewcode-block" id="str2dict">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.str2dict">[docs]</a>
-<span class="k">def</span> <span class="nf">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;str2dict received None value while allow_none=False&quot;</span>
         <span class="k">return</span> <span class="n">value</span>
@@ -334,7 +334,7 @@
 
 <div class="viewcode-block" id="str2list">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.str2list">[docs]</a>
-<span class="k">def</span> <span class="nf">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;str2list received None value while allow_none=False&quot;</span>
         <span class="k">return</span> <span class="n">value</span>

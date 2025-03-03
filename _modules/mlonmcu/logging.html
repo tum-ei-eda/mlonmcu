@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.logging &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,9 +101,9 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Loging utilities for MLonMCU&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">logging.handlers</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging.handlers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
     <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
@@ -116,7 +116,7 @@
 
 <div class="viewcode-block" id="get_formatter">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.logging.get_formatter">[docs]</a>
-<span class="k">def</span> <span class="nf">get_formatter</span><span class="p">(</span><span class="n">minimal</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_formatter</span><span class="p">(</span><span class="n">minimal</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a log formatter for one on two predefined formats.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">minimal</span><span class="p">:</span>
         <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
@@ -129,7 +129,7 @@
 
 <div class="viewcode-block" id="get_logger">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.logging.get_logger">[docs]</a>
-<span class="k">def</span> <span class="nf">get_logger</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function which return the main mlonmcu logger while ensuring that is is properly initialized.&quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">initialized</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">)</span>
@@ -146,7 +146,7 @@
 
 <div class="viewcode-block" id="set_log_level">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.logging.set_log_level">[docs]</a>
-<span class="k">def</span> <span class="nf">set_log_level</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_log_level</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set command line log level at runtime.&quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
@@ -158,7 +158,7 @@
 
 <div class="viewcode-block" id="set_log_file">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.logging.set_log_file">[docs]</a>
-<span class="k">def</span> <span class="nf">set_log_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_log_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enable logging to a file.&quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rotate</span><span class="p">:</span>

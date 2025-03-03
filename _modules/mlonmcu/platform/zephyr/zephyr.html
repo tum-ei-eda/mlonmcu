@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.zephyr.zephyr &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,32 +101,32 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Zephyr Platform&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pkg_resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
 
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target</span> <span class="kn">import</span> <span class="n">get_targets</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.target.target</span> <span class="kn">import</span> <span class="n">Target</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_targets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
 
-<span class="kn">from</span> <span class="nn">..platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
-<span class="kn">from</span> <span class="nn">.zephyr_target</span> <span class="kn">import</span> <span class="n">create_zephyr_platform_target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.zephyr_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_zephyr_platform_target</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="get_project_template">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.get_project_template">[docs]</a>
-<span class="k">def</span> <span class="nf">get_project_template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;project2&quot;</span><span class="p">):</span>  <span class="c1"># Workaround which only support tvmaot!!!</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_project_template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;project2&quot;</span><span class="p">):</span>  <span class="c1"># Workaround which only support tvmaot!!!</span>
     <span class="n">zephyr_templates</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;platforms&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr&quot;</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">zephyr_templates</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -137,7 +137,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform">[docs]</a>
-<span class="k">class</span> <span class="nc">ZephyrPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZephyrPlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Zephyr Platform class.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">CompilePlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="n">TargetPlatform</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;benchmark&quot;</span><span class="p">}</span>
@@ -157,7 +157,7 @@
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;zephyr.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr.sdk_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;zephyr.venv_dir&quot;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">&quot;zephyr&quot;</span><span class="p">,</span>
             <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
@@ -168,35 +168,35 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zephyr_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zephyr_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zephyr.install_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zephyr_sdk_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zephyr_sdk_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zephyr.sdk_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zephyr_venv_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zephyr_venv_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;zephyr.venv_dir&quot;</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">wait_for_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;wait_for_user&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">flash_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flash_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: get rid of this</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;flash_only&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimize&quot;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ZephyrPlatform.invoke_west">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.invoke_west">[docs]</a>
-    <span class="k">def</span> <span class="nf">invoke_west</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_west</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;ZEPHYR_BASE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zephyr_install_dir</span> <span class="o">/</span> <span class="s2">&quot;zephyr&quot;</span><span class="p">)</span>
         <span class="n">env</span><span class="p">[</span><span class="s2">&quot;ZEPHYR_SDK_INSTALL_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zephyr_sdk_dir</span><span class="p">)</span>
@@ -209,7 +209,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.init_directory">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.init_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project directory already initialized&quot;</span><span class="p">)</span>
@@ -238,7 +238,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.get_supported_targets">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_supported_targets">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMakeLists.txt&quot;</span>
             <span class="c1"># f.touch()</span>
@@ -254,7 +254,7 @@
 
             <span class="c1"># This will fail</span>
             <span class="c1"># Workaround used to get list of supported boards...</span>
-            <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">_handle</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
                 <span class="k">return</span> <span class="mi">0</span>
 
             <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_west</span><span class="p">(</span><span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="s2">&quot;-b&quot;</span><span class="p">,</span> <span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle</span><span class="p">)</span>
@@ -269,7 +269,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.create_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.create_target">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid Zephyr target&quot;</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="n">get_targets</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
@@ -280,38 +280,38 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">project_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;project_template&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;baud&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span>
 
 <div class="viewcode-block" id="ZephyrPlatform.close">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.close">[docs]</a>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ZephyrPlatform.get_west_cmake_args">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_west_cmake_args">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_west_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_west_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmake_defs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CMAKE_BUILD_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="s2">&quot;Release&quot;</span><span class="p">}</span>
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-D</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cmake_defs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
 
 
 <div class="viewcode-block" id="ZephyrPlatform.prepare">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_directory</span><span class="p">()</span>
         <span class="n">template_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span>
         <span class="k">if</span> <span class="n">template_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -323,7 +323,7 @@
         <span class="k">assert</span> <span class="n">template_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Provided project template does not exists: </span><span class="si">{</span><span class="n">template_dir</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">template_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">write_defaults</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">write_defaults</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
             <span class="n">defs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_CPLUSPLUS=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -406,7 +406,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.compile">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.compile">[docs]</a>
-    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
         <span class="c1"># TODO: build with cmake options</span>
         <span class="c1"># TODO: support self.num_threads</span>
@@ -427,7 +427,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.generate">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.generate">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">)</span>
         <span class="n">elf_name</span> <span class="o">=</span> <span class="s2">&quot;zephyr.elf&quot;</span>
@@ -452,7 +452,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.get_serial">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_serial">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="n">port</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">port</span>
         <span class="k">if</span> <span class="n">port</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Falling back to &#39;espidf.baud&#39;</span>
@@ -468,7 +468,7 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.flash">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.flash">[docs]</a>
-    <span class="k">def</span> <span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
         <span class="c1"># Ignore elf, as we use self.project_dir instead</span>
         <span class="c1"># TODO: add alternative approach which allows passing elf instead</span>
         <span class="k">if</span> <span class="n">elf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -500,16 +500,16 @@
 
 <div class="viewcode-block" id="ZephyrPlatform.monitor">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.monitor">[docs]</a>
-    <span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_only</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
         <span class="n">port</span><span class="p">,</span> <span class="n">baud</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serial</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_monitor_helper</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baud</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_monitor_helper</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baud</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
             <span class="c1"># Local import to get rid of pyserial dependency</span>
 
-            <span class="kn">import</span> <span class="nn">serial</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">serial</span>
 
             <span class="c1"># start_match and end_match are inclusive</span>
             <span class="n">found_start</span> <span class="o">=</span> <span class="n">start_match</span> <span class="ow">is</span> <span class="kc">None</span>

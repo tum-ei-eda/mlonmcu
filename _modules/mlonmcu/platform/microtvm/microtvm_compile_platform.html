@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.platform.microtvm.microtvm_compile_platform &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,22 +100,22 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;MicroTVM Compile Platform&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 
-<span class="kn">from</span> <span class="nn">..platform</span> <span class="kn">import</span> <span class="n">CompilePlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilePlatform</span>
 
 
 <div class="viewcode-block" id="MicroTvmCompilePlatform">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_compile_platform.MicroTvmCompilePlatform">[docs]</a>
-<span class="k">class</span> <span class="nc">MicroTvmCompilePlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MicroTvmCompilePlatform</span><span class="p">(</span><span class="n">CompilePlatform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;MicroTVM compile platform class.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MicroTvmCompilePlatform.invoke_tvmc_micro_create">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_compile_platform.MicroTvmCompilePlatform.invoke_tvmc_micro_create">[docs]</a>
-    <span class="k">def</span> <span class="nf">invoke_tvmc_micro_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_tvmc_micro_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlf_path</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">all_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
             <span class="n">all_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--force&quot;</span><span class="p">)</span>
@@ -128,7 +128,7 @@
 
 <div class="viewcode-block" id="MicroTvmCompilePlatform.invoke_tvmc_micro_build">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_compile_platform.MicroTvmCompilePlatform.invoke_tvmc_micro_build">[docs]</a>
-    <span class="k">def</span> <span class="nf">invoke_tvmc_micro_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_tvmc_micro_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">all_args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">force</span><span class="p">:</span>
             <span class="n">all_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--force&quot;</span><span class="p">)</span>
@@ -140,14 +140,14 @@
 
 <div class="viewcode-block" id="MicroTvmCompilePlatform.prepare">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_compile_platform.MicroTvmCompilePlatform.prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlf</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlf</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro_create</span><span class="p">(</span><span class="n">mlf</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 
 
 <div class="viewcode-block" id="MicroTvmCompilePlatform.compile">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_compile_platform.MicroTvmCompilePlatform.compile">[docs]</a>
-    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="c1"># TODO: build with cmake options</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_micro_build</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
@@ -156,7 +156,7 @@
 
 <div class="viewcode-block" id="MicroTvmCompilePlatform.generate">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_compile_platform.MicroTvmCompilePlatform.generate">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;default.tar&quot;</span>  <span class="c1"># TODO: lookup for *.tar file</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>

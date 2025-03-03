@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.cli.common &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,17 +99,17 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.platform</span> <span class="kn">import</span> <span class="n">get_platforms</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.session.postprocess</span> <span class="kn">import</span> <span class="n">SUPPORTED_POSTPROCESSES</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_available_feature_names</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_level</span>
-<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_platforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_POSTPROCESSES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_available_feature_names</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_level</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helper.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_config</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -118,7 +118,7 @@
 
 <div class="viewcode-block" id="handle_logging_flags">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.handle_logging_flags">[docs]</a>
-<span class="k">def</span> <span class="nf">handle_logging_flags</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_logging_flags</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;quiet&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;--verbose and --quiet can not be used at the same time&quot;</span><span class="p">)</span>
@@ -133,7 +133,7 @@
 
 <div class="viewcode-block" id="add_flow_options">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_flow_options">[docs]</a>
-<span class="k">def</span> <span class="nf">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">flow_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;flow options&quot;</span><span class="p">)</span>
     <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
         <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
@@ -197,7 +197,7 @@
         <span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_gen_args</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_gen_args</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
             <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
             <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -260,7 +260,7 @@
 
 <div class="viewcode-block" id="add_common_options">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_common_options">[docs]</a>
-<span class="k">def</span> <span class="nf">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
@@ -283,7 +283,7 @@
 
 <div class="viewcode-block" id="add_context_options">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_context_options">[docs]</a>
-<span class="k">def</span> <span class="nf">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">with_home</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">with_home</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">common</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;context options&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">with_home</span><span class="p">:</span>
         <span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MLONMCU_HOME&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -300,7 +300,7 @@
 
 <div class="viewcode-block" id="add_model_options">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_model_options">[docs]</a>
-<span class="k">def</span> <span class="nf">add_model_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_model_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;models&quot;</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
@@ -314,7 +314,7 @@
 
 <div class="viewcode-block" id="kickoff_runs">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.kickoff_runs">[docs]</a>
-<span class="k">def</span> <span class="nf">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="c1"># session.label = args.label</span>

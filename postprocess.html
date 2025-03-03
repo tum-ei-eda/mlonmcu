@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Postprocesses &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -119,14 +119,14 @@
 <p>To extend the list of predefined post-processes with a custom implementation a Python class has to be developed as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TODO</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.postproces</span> <span class="kn">import</span> <span class="n">Postprocess</span><span class="p">,</span> <span class="n">ProcessStage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.postproces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Postprocess</span><span class="p">,</span> <span class="n">ProcessStage</span>
 
-<span class="k">class</span> <span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="n">ProcessStage</span><span class="o">.</span><span class="n">SESSION</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">pass</span>
 </pre></div>
 </div>
@@ -134,7 +134,7 @@
 <p>To use the newly implemented process, it needs to be registered. There are two approaches to do so:</p>
 <ul>
 <li><p>Call the registration function manually:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlonmcu.postprocess</span> <span class="kn">import</span> <span class="n">register_postprocess</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_postprocess</span>
 
 <span class="n">register_postprocess</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">MyPostprocess</span><span class="p">)</span>
 </pre></div>
@@ -142,7 +142,7 @@
 </li>
 <li><p>Use a decorator for the registration. However this option is only available when playing the new postprocess in <code class="docutils literal notranslate"><span class="pre">mlonmcu/postprocess/postprocesses.py</span></code> as the decorators are only processed in this file.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_postprocess</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>

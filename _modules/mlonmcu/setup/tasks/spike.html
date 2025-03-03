@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.tasks.spike &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,25 +101,25 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
-<span class="kn">from</span> <span class="nn">.ara</span> <span class="kn">import</span> <span class="n">_validate_ara_rtl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_task_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ara</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_ara_rtl</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 <span class="n">Tasks</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_validate_ara_rtl</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
@@ -130,7 +130,7 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_spikepk</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_spikepk</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
@@ -145,7 +145,7 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_spike_clean</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_spike_clean</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
@@ -158,7 +158,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spikepk</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clone_spike_pk</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_spike_pk</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the spike proxy kernel.&quot;&quot;&quot;</span>
@@ -182,7 +182,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">])</span>  <span class="c1"># [&quot;rv32gc&quot;, &quot;rv64gc&quot;, &quot;rv32im&quot;, &quot;rv64im&quot;]</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spikepk</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_spike_pk</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_spike_pk</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build Spike proxy kernel.&quot;&quot;&quot;</span>
@@ -247,7 +247,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clone_spike</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_spike</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the spike simulator.&quot;&quot;&quot;</span>
@@ -269,7 +269,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.exe&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">build_spike</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_spike</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build Spike simulator.&quot;&quot;&quot;</span>
@@ -316,7 +316,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">removes</span><span class="p">([</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">])</span>  <span class="c1"># TODO: implement</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike_clean</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clean_spike</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_spike</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup Spike build dir.&quot;&quot;&quot;</span>
@@ -326,7 +326,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_validate_microtvm_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_microtvm_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;microtvm_spike&quot;</span><span class="p">)</span>
 
 
@@ -335,7 +335,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;microtvm_spike.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;microtvm_spike.template&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_microtvm_spike</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">clone_microtvm_spike</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_microtvm_spike</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the microtvm-spike-template repository.&quot;&quot;&quot;</span>

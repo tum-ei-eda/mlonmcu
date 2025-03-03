@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.flow.tvm.backend.model_info &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,16 +100,16 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.models.model</span> <span class="kn">import</span> <span class="n">ModelFormats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFormats</span>
 
 
 <div class="viewcode-block" id="TensorInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.TensorInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">TensorInfo</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TensorInfo</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">if</span> <span class="n">fix_names</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
@@ -127,7 +127,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">type_size</span> <span class="o">=</span> <span class="n">size_lookup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_size</span>
         <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
@@ -144,10 +144,10 @@
 
 <div class="viewcode-block" id="TfLiteTensorInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.TfLiteTensorInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">TfLiteTensorInfo</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TfLiteTensorInfo</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="c1"># Local imports to get rid of tflite dependency for non-tflite models</span>
-        <span class="kn">from</span> <span class="nn">tflite.TensorType</span> <span class="kn">import</span> <span class="n">TensorType</span> <span class="k">as</span> <span class="n">TType</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tflite.TensorType</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorType</span> <span class="k">as</span> <span class="n">TType</span>
 
         <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Name</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">ShapeLength</span><span class="p">())])</span>
@@ -167,40 +167,40 @@
 
 <div class="viewcode-block" id="RelayTensorInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.RelayTensorInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">RelayTensorInfo</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RelayTensorInfo</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="n">fix_names</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ModelInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.ModelInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">ModelInfo</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelInfo</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_tensors</span> <span class="o">=</span> <span class="n">in_tensors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out_tensors</span> <span class="o">=</span> <span class="n">out_tensors</span>
 
 <div class="viewcode-block" id="ModelInfo.validate">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.ModelInfo.validate">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Missing inputs&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Missing outputs&quot;</span></div>
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">has_ins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_ins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">has_outs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_outs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
 
 
 <div class="viewcode-block" id="TfLiteModelInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.TfLiteModelInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">TfLiteModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TfLiteModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">model</span><span class="o">.</span><span class="n">SubgraphsLength</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="n">g</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">Subgraphs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
@@ -219,7 +219,7 @@
 
 <div class="viewcode-block" id="shape_from_str">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.shape_from_str">[docs]</a>
-<span class="k">def</span> <span class="nf">shape_from_str</span><span class="p">(</span><span class="n">shape_str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">shape_from_str</span><span class="p">(</span><span class="n">shape_str</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
         <span class="p">[</span><span class="nb">complex</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> <span class="k">if</span> <span class="s2">&quot;i&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shape_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
     <span class="p">)</span></div>
@@ -228,7 +228,7 @@
 
 <div class="viewcode-block" id="parse_relay_main">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.parse_relay_main">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_relay_main</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_relay_main</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
     <span class="n">input_tensors</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">output_tensors</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -285,8 +285,8 @@
 
 <div class="viewcode-block" id="RelayModelInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.RelayModelInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">RelayModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod_text</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RelayModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod_text</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">in_tensors</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">out_tensors</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">mod_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
@@ -305,7 +305,7 @@
 
 <div class="viewcode-block" id="get_tfgraph_inout">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_tfgraph_inout">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tfgraph_inout</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tfgraph_inout</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
     <span class="n">ops</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_operations</span><span class="p">()</span>
     <span class="n">outputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ops</span><span class="p">)</span>
     <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -323,9 +323,9 @@
 
 <div class="viewcode-block" id="PBModelInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.PBModelInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">PBModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PBModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
 
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">graph_def</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">GraphDef</span><span class="p">()</span>
@@ -341,15 +341,15 @@
 
 <div class="viewcode-block" id="ONNXModelInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.ONNXModelInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">ONNXModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">google.protobuf.json_format</span> <span class="kn">import</span> <span class="n">MessageToDict</span>
-        <span class="kn">import</span> <span class="nn">onnx</span>
-        <span class="kn">from</span> <span class="nn">onnx.mapping</span> <span class="kn">import</span> <span class="n">TENSOR_TYPE_TO_NP_TYPE</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ONNXModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">google.protobuf.json_format</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageToDict</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">onnx.mapping</span><span class="w"> </span><span class="kn">import</span> <span class="n">TENSOR_TYPE_TO_NP_TYPE</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">_helper</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_helper</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="n">MessageToDict</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
@@ -377,9 +377,9 @@
 
 <div class="viewcode-block" id="PaddleModelInfo">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.PaddleModelInfo">[docs]</a>
-<span class="k">class</span> <span class="nc">PaddleModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">paddle</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PaddleModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">paddle</span>
 
         <span class="n">paddle</span><span class="o">.</span><span class="n">enable_static</span><span class="p">()</span>
         <span class="n">paddle</span><span class="o">.</span><span class="n">disable_signal_handler</span><span class="p">()</span>
@@ -394,7 +394,7 @@
                 <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;fetch&quot;</span><span class="p">:</span>
                     <span class="n">output_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="k">def</span> <span class="nf">_convert_dtype_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_convert_dtype_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Converts a Paddle type id to a string.&quot;&quot;&quot;</span>
             <span class="c1"># See: https://github.com/apache/tvm/blob/cc769fdc951707b8be991949864817b955a4dbc7/python/tvm/</span>
             <span class="c1"># relay/frontend/paddlepaddle.py#L70</span>
@@ -422,9 +422,9 @@
 
 <div class="viewcode-block" id="get_tflite_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_tflite_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
     <span class="c1"># Local imports to get rid of tflite dependency for non-tflite models</span>
-    <span class="kn">import</span> <span class="nn">tflite</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tflite</span>
 
     <span class="n">tflite_model</span> <span class="o">=</span> <span class="n">tflite</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">GetRootAsModel</span><span class="p">(</span><span class="n">model_buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">TfLiteModelInfo</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span>
@@ -434,7 +434,7 @@
 
 <div class="viewcode-block" id="get_relay_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_relay_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_relay_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_relay_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">RelayModelInfo</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
 
@@ -442,7 +442,7 @@
 
 <div class="viewcode-block" id="get_pb_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_pb_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_pb_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pb_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">PBModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
 
@@ -450,7 +450,7 @@
 
 <div class="viewcode-block" id="get_paddle_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_paddle_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_paddle_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_paddle_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">PaddleModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
 
@@ -458,7 +458,7 @@
 
 <div class="viewcode-block" id="get_onnx_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_onnx_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_onnx_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_onnx_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">ONNXModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
 
@@ -466,7 +466,7 @@
 
 <div class="viewcode-block" id="get_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
     <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
     <span class="n">fmt</span> <span class="o">=</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">from_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">:</span>
@@ -492,11 +492,11 @@
 
 <div class="viewcode-block" id="get_fallback_model_info">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_fallback_model_info">[docs]</a>
-<span class="k">def</span> <span class="nf">get_fallback_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_shapes</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="n">input_types</span><span class="p">,</span> <span class="n">output_types</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_fallback_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_shapes</span><span class="p">,</span> <span class="n">output_shapes</span><span class="p">,</span> <span class="n">input_types</span><span class="p">,</span> <span class="n">output_types</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span><span class="p">):</span>
     <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
     <span class="n">fmt</span> <span class="o">=</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">from_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">helper</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">types</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">shapes</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
 
     <span class="n">info</span> <span class="o">=</span> <span class="n">ModelInfo</span><span class="p">(</span>
@@ -521,7 +521,7 @@
 
 <div class="viewcode-block" id="get_model_format">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_model_format">[docs]</a>
-<span class="k">def</span> <span class="nf">get_model_format</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_model_format</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">model</span><span class="p">)[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
     <span class="n">fmt</span> <span class="o">=</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">from_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
 
@@ -534,7 +534,7 @@
 
 <div class="viewcode-block" id="get_supported_formats">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.model_info.get_supported_formats">[docs]</a>
-<span class="k">def</span> <span class="nf">get_supported_formats</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_supported_formats</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">RELAY</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">ONNX</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">]</span></div>
 
 </pre></div>

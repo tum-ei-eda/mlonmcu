@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.context.context &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,34 +101,34 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Definition if the contextmanager for mlonmcu environments.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">filelock</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">filelock</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">ask_user</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_file</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">Run</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.session.session</span> <span class="kn">import</span> <span class="n">Session</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup.cache</span> <span class="kn">import</span> <span class="n">TaskCache</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.setup.utils</span> <span class="k">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.plugins</span> <span class="kn">import</span> <span class="n">process_extensions</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.read_write_filelock</span> <span class="kn">import</span> <span class="n">ReadFileLock</span><span class="p">,</span> <span class="n">WriteFileLock</span><span class="p">,</span> <span class="n">RWLockTimeout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ask_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">Run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskCache</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_extensions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.read_write_filelock</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadFileLock</span><span class="p">,</span> <span class="n">WriteFileLock</span><span class="p">,</span> <span class="n">RWLockTimeout</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.environment.environment</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">UserEnvironment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.environment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">UserEnvironment</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.environment.list</span> <span class="kn">import</span> <span class="n">get_environments_map</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.environment.config</span> <span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">get_plugins_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.list</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environments_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">get_plugins_dir</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="lookup_environment">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.lookup_environment">[docs]</a>
-<span class="k">def</span> <span class="nf">lookup_environment</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup_environment</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to automatically find a suitable environment.</span>
 
 <span class="sd">    This function is used if neither a name nor a path of the environment was specified by the user.</span>
@@ -173,7 +173,7 @@
 
 <div class="viewcode-block" id="get_environment_by_path">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_environment_by_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_environment_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_environment_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to find an environment file using a supplied path.</span>
 
 <span class="sd">    Parameters</span>
@@ -199,7 +199,7 @@
 
 <div class="viewcode-block" id="get_environment_by_name">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_environment_by_name">[docs]</a>
-<span class="k">def</span> <span class="nf">get_environment_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_environment_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to find an environment file using a supplied name.</span>
 
 <span class="sd">    Parameters</span>
@@ -224,7 +224,7 @@
 
 <div class="viewcode-block" id="get_ids">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_ids">[docs]</a>
-<span class="k">def</span> <span class="nf">get_ids</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ids</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a sorted list of ids for sessions/runs found in the given directory.</span>
 
 <span class="sd">    Parameters</span>
@@ -246,7 +246,7 @@
 
 <div class="viewcode-block" id="load_recent_sessions">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.load_recent_sessions">[docs]</a>
-<span class="k">def</span> <span class="nf">load_recent_sessions</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_recent_sessions</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a list of recent sessions for the environment.</span>
 
 <span class="sd">    Parameters</span>
@@ -297,7 +297,7 @@
 
 <div class="viewcode-block" id="resolve_environment_file">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.resolve_environment_file">[docs]</a>
-<span class="k">def</span> <span class="nf">resolve_environment_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_environment_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to find the environment file by a optionally given name or path.</span>
 
 <span class="sd">    The lookup is performed in a predefined order:</span>
@@ -333,7 +333,7 @@
 
 <div class="viewcode-block" id="setup_logging">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.setup_logging">[docs]</a>
-<span class="k">def</span> <span class="nf">setup_logging</span><span class="p">(</span><span class="n">environment</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_logging</span><span class="p">(</span><span class="n">environment</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check logging settings for environment and initialize the logs directory.</span>
 
 <span class="sd">    Attributes</span>
@@ -357,7 +357,7 @@
 
 <div class="viewcode-block" id="MlonMcuContext">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext">[docs]</a>
-<span class="k">class</span> <span class="nc">MlonMcuContext</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlonMcuContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Contextmanager for mlonmcu environments.</span>
 
 <span class="sd">    Attributes</span>
@@ -376,7 +376,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deps_lock</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;write&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deps_lock</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;write&quot;</span><span class="p">):</span>
         <span class="n">env_file</span> <span class="o">=</span> <span class="n">resolve_environment_file</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">env_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unable to find a MLonMCU environment&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">UserEnvironment</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">env_file</span><span class="p">)</span>  <span class="c1"># TODO: move to __enter__</span>
@@ -401,7 +401,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">lock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_session_link_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">filelock</span><span class="o">.</span><span class="n">Timeout</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Lock on current context could not be aquired.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Lock on current context could not be aquired.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="n">load_recent_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
@@ -416,11 +416,11 @@
 
 <div class="viewcode-block" id="MlonMcuContext.create_session">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.create_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">lock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_session_link_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">filelock</span><span class="o">.</span><span class="n">Timeout</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Lock on current context could not be aquired.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Lock on current context could not be aquired.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
 <span class="w">                </span><span class="sd">&quot;&quot;&quot;Create a new session in the current context.&quot;&quot;&quot;</span>
@@ -444,7 +444,7 @@
 
 <div class="viewcode-block" id="MlonMcuContext.load_cache">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.load_cache">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If available load the cache.ini file in the deps directory&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
@@ -462,11 +462,11 @@
 
 <div class="viewcode-block" id="MlonMcuContext.load_extensions">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.load_extensions">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If available load the extensions.py scripts in the plugin directories&quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: check vars.enable_extensions before!</span>
-        <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;Unknown&quot;</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;Unknown&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">plugins_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
                 <span class="n">extensions_file</span> <span class="o">=</span> <span class="n">plugins_dir</span> <span class="o">/</span> <span class="s2">&quot;extensions.py&quot;</span>
                 <span class="k">if</span> <span class="n">extensions_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
@@ -487,7 +487,7 @@
 
 <div class="viewcode-block" id="MlonMcuContext.get_session">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.get_session">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an active session if available, else create a new one.</span>
 
 <span class="sd">        Returns</span>
@@ -506,7 +506,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Enter MlonMcuContext&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">is_locked</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -521,14 +521,14 @@
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                     <span class="s2">&quot;Lock on current context could not be aquired. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Current context is locked via: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="MlonMcuContext.cleanup">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.cleanup">[docs]</a>
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean up the context before leaving the context by closing all active sessions&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Cleaning up active sessions&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
@@ -537,14 +537,14 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return true if all sessions in the context are inactive&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">active</span> <span class="k">for</span> <span class="n">sess</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span>
 
     <span class="c1"># WARNING: this will remove the actual session directories!</span>
 <div class="viewcode-block" id="MlonMcuContext.cleanup_sessions">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.cleanup_sessions">[docs]</a>
-    <span class="k">def</span> <span class="nf">cleanup_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Utility to cleanup old sessions from the disk.&quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span>
         <span class="n">all_sessions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span>
@@ -587,7 +587,7 @@
 
 <div class="viewcode-block" id="MlonMcuContext.get_sessions_runs_idx">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.get_sessions_runs_idx">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_sessions_runs_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sessions_runs_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sessions_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
             <span class="n">session_runs_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">)]</span>
@@ -597,8 +597,8 @@
 
 <div class="viewcode-block" id="MlonMcuContext.print_summary">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.print_summary">[docs]</a>
-    <span class="k">def</span> <span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">print_sessions</span><span class="p">(</span><span class="n">sessions_runs</span><span class="p">,</span> <span class="n">with_runs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">print_sessions</span><span class="p">(</span><span class="n">sessions_runs</span><span class="p">,</span> <span class="n">with_runs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sessions:&quot;</span><span class="p">)</span>
             <span class="n">session_index_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">session</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)}</span>
             <span class="k">for</span> <span class="n">session</span><span class="p">,</span> <span class="n">runs</span> <span class="ow">in</span> <span class="n">sessions_runs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -616,7 +616,7 @@
 
 <div class="viewcode-block" id="MlonMcuContext.lookup">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.lookup">[docs]</a>
-    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">user_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">user_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -625,7 +625,7 @@
 
 <div class="viewcode-block" id="MlonMcuContext.export">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.export">[docs]</a>
-    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">session_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">session_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">dest</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span> <span class="ow">or</span> <span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">dest</span><span class="p">)):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">&quot;Destination is already populated! Overwrite?&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
@@ -639,7 +639,7 @@
         <span class="k">if</span> <span class="n">run_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Can only choose runs of a single session&quot;</span>
 
-        <span class="k">def</span> <span class="nf">find_session</span><span class="p">(</span><span class="n">sid</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">find_session</span><span class="p">(</span><span class="n">sid</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
 
@@ -704,7 +704,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Exit MlonMcuContext&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="p">:</span>

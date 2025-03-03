@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.cli.flow &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,21 +101,21 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for invoking the mlonmcu flow.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.platform.lookup</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.cli.load</span> <span class="k">as</span> <span class="nn">load</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.cli.tune</span> <span class="k">as</span> <span class="nn">tune</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.cli.build</span> <span class="k">as</span> <span class="nn">build</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.cli.compile</span> <span class="k">as</span> <span class="nn">compile_</span>  <span class="c1"># compile is a builtin name</span>
-<span class="kn">import</span> <span class="nn">mlonmcu.cli.run</span> <span class="k">as</span> <span class="nn">run</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="n">add_flow_options</span><span class="p">,</span> <span class="n">add_common_options</span><span class="p">,</span> <span class="n">add_context_options</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.platform.lookup</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.cli.load</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">load</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.cli.tune</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tune</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.cli.build</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">build</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.cli.compile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">compile_</span>  <span class="c1"># compile is a builtin name</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.cli.run</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.cli.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_flow_options</span><span class="p">,</span> <span class="n">add_common_options</span><span class="p">,</span> <span class="n">add_context_options</span>
 
 
 <div class="viewcode-block" id="get_parser">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.flow.get_parser">[docs]</a>
-<span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the flow subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;flow&quot;</span><span class="p">,</span>
@@ -138,7 +138,7 @@
 
 <div class="viewcode-block" id="handle_list_targets">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.flow.handle_list_targets">[docs]</a>
-<span class="k">def</span> <span class="nf">handle_list_targets</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_list_targets</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">deps_lock</span><span class="o">=</span><span class="s2">&quot;read&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">mlonmcu</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">print_summary</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span></div>
 
@@ -146,7 +146,7 @@
 
 <div class="viewcode-block" id="handle">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.flow.handle">[docs]</a>
-<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback function which will be called to process the flow subcommand&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list_targets</span><span class="p">:</span>
         <span class="n">handle_list_targets</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.cli.compile &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,20 +101,20 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for the run process.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="n">kickoff_runs</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.build</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.cli.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">kickoff_runs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.cli.build</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">handle</span> <span class="k">as</span> <span class="n">handle_build</span><span class="p">,</span>
     <span class="n">add_build_options</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.session.run</span> <span class="kn">import</span> <span class="n">RunStage</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.platform.lookup</span> <span class="kn">import</span> <span class="n">get_platforms_targets</span>
-<span class="kn">from</span> <span class="nn">.helper.parse</span> <span class="kn">import</span> <span class="n">extract_target_names</span><span class="p">,</span> <span class="n">extract_platform_names</span><span class="p">,</span> <span class="n">extract_config_and_feature_names</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunStage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.platform.lookup</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_platforms_targets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helper.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_target_names</span><span class="p">,</span> <span class="n">extract_platform_names</span><span class="p">,</span> <span class="n">extract_config_and_feature_names</span>
 
 
 <div class="viewcode-block" id="add_compile_options">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.compile.add_compile_options">[docs]</a>
-<span class="k">def</span> <span class="nf">add_compile_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_compile_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
     <span class="n">add_build_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span></div>
 
     <span class="c1"># compile_parser = parser.add_argument_group(&quot;compile options&quot;)</span>
@@ -122,7 +122,7 @@
 
 <div class="viewcode-block" id="get_parser">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.compile.get_parser">[docs]</a>
-<span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the compile subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Compile model using ML on MCU flow.&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">flow_func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
@@ -131,7 +131,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="n">handle_build</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">targets</span> <span class="o">=</span> <span class="n">extract_target_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># This will eventually be ignored below</span>
     <span class="n">platforms</span> <span class="o">=</span> <span class="n">extract_platform_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
@@ -164,7 +164,7 @@
 
 <div class="viewcode-block" id="check_args">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.compile.check_args">[docs]</a>
-<span class="k">def</span> <span class="nf">check_args</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_args</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="c1"># print(&quot;CHECK ARGS&quot;)</span>
     <span class="k">pass</span></div>
 
@@ -172,7 +172,7 @@
 
 <div class="viewcode-block" id="handle">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.compile.handle">[docs]</a>
-<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">ctx</span><span class="p">:</span>
         <span class="n">_handle</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>

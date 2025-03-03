@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.setup.setup &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -99,25 +99,25 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.logging</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.type</span> <span class="kn">import</span> <span class="n">FeatureType</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.feature.features</span> <span class="kn">import</span> <span class="n">get_matching_features</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">filter_config</span><span class="p">,</span> <span class="n">str2bool</span>
-<span class="kn">from</span> <span class="nn">.tasks</span> <span class="kn">import</span> <span class="n">get_task_factory</span>
-<span class="kn">from</span> <span class="nn">.task</span> <span class="kn">import</span> <span class="n">TaskGraph</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.utils</span> <span class="kn">import</span> <span class="n">ask_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.type</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_matching_features</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span><span class="p">,</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_task_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskGraph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ask_user</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Setup">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup">[docs]</a>
-<span class="k">class</span> <span class="nc">Setup</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Setup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;MLonMCU dependency management interface.&quot;&quot;&quot;</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -130,7 +130,7 @@
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tasks_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tasks_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks_factory</span><span class="p">:</span>
             <span class="n">tasks_factory</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
@@ -143,13 +143,13 @@
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">verbose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">verbose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Setup.clean_cache">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.clean_cache">[docs]</a>
-    <span class="k">def</span> <span class="nf">clean_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">deps_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">&quot;deps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
         <span class="n">cache_file</span> <span class="o">=</span> <span class="n">deps_dir</span> <span class="o">/</span> <span class="s2">&quot;cache.ini&quot;</span>
@@ -162,7 +162,7 @@
 
 <div class="viewcode-block" id="Setup.clean_dependencies">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.clean_dependencies">[docs]</a>
-    <span class="k">def</span> <span class="nf">clean_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clean_cache</span><span class="p">(</span><span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span>
         <span class="n">deps_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">&quot;deps&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
@@ -178,7 +178,7 @@
 
 <div class="viewcode-block" id="Setup.process_features">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.process_features">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">get_matching_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">FeatureType</span><span class="o">.</span><span class="n">SETUP</span><span class="p">)</span>
@@ -192,7 +192,7 @@
         <span class="k">return</span> <span class="n">features</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_task_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_task_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tasks_factory</span><span class="o">.</span><span class="n">reset_changes</span><span class="p">()</span>
         <span class="n">task_graph</span> <span class="o">=</span> <span class="n">TaskGraph</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tasks_factory</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
@@ -203,7 +203,7 @@
 
 <div class="viewcode-block" id="Setup.get_dependency_order">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.get_dependency_order">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_dependency_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dependency_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">task_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_task_graph</span><span class="p">()</span>
         <span class="n">V</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="n">task_graph</span><span class="o">.</span><span class="n">get_graph</span><span class="p">()</span>
         <span class="n">order</span> <span class="o">=</span> <span class="n">task_graph</span><span class="o">.</span><span class="n">get_order</span><span class="p">()</span>
@@ -214,7 +214,7 @@
 
 <div class="viewcode-block" id="Setup.setup_progress_bar">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.setup_progress_bar">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_progress_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_progress_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">enabled</span><span class="p">:</span>
             <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span>
                 <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tasks_factory</span><span class="o">.</span><span class="n">registry</span><span class="p">),</span>
@@ -230,7 +230,7 @@
 
 <div class="viewcode-block" id="Setup.write_cache_file">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.write_cache_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_cache_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_cache_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating dependency cache&quot;</span><span class="p">)</span>
         <span class="n">cache_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;cache.ini&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span></div>
@@ -238,7 +238,7 @@
 
 <div class="viewcode-block" id="Setup.write_env_file">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.write_env_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_env_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_env_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updating paths cript&quot;</span><span class="p">)</span>
         <span class="n">paths_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;paths.sh&quot;</span>
         <span class="n">paths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">export_paths</span>
@@ -250,7 +250,7 @@
 
 <div class="viewcode-block" id="Setup.visualize">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.visualize">[docs]</a>
-    <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">task_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_task_graph</span><span class="p">()</span>
         <span class="n">task_graph</span><span class="o">.</span><span class="n">export_dot</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Written task graph to file: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span></div>
@@ -258,7 +258,7 @@
 
 <div class="viewcode-block" id="Setup.invoke_single_task">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.invoke_single_task">[docs]</a>
-    <span class="k">def</span> <span class="nf">invoke_single_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">write_env</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_single_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">write_env</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks_factory</span><span class="o">.</span><span class="n">registry</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid task name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks_factory</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="n">rebuild</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
@@ -270,7 +270,7 @@
 
 <div class="viewcode-block" id="Setup.install_dependencies">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.install_dependencies">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_dependencies</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_dependencies</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">write_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -297,16 +297,16 @@
 
 <div class="viewcode-block" id="Setup.generate_requirements">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.setup.Setup.generate_requirements">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_requirements</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_requirements</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">.gen_requirements</span> <span class="kn">import</span> <span class="n">join_requirements</span>
-        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.gen_requirements</span><span class="w"> </span><span class="kn">import</span> <span class="n">join_requirements</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
         <span class="n">requirements</span> <span class="o">=</span> <span class="n">join_requirements</span><span class="p">()</span>
         <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="s2">&quot;requirements_addition.txt&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">feature_enabled_and_supported</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">feature</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">feature_enabled_and_supported</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">feature</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="n">feature</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;supported&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                     <span class="k">return</span> <span class="kc">True</span>

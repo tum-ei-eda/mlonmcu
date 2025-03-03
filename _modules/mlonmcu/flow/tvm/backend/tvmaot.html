@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.flow.tvm.backend.tvmaot &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,22 +100,22 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">.backend</span> <span class="kn">import</span> <span class="n">TVMBackend</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.flow.backend</span> <span class="kn">import</span> <span class="n">main</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.config</span> <span class="kn">import</span> <span class="n">str2bool</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.artifact</span> <span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
-<span class="kn">from</span> <span class="nn">.wrapper</span> <span class="kn">import</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">,</span> <span class="n">generate_wrapper_header</span>
-<span class="kn">from</span> <span class="nn">.model_info</span> <span class="kn">import</span> <span class="n">get_relay_model_info</span>
-<span class="kn">from</span> <span class="nn">.tvmc_utils</span> <span class="kn">import</span> <span class="n">get_tvmaot_tvmc_args</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">,</span> <span class="n">generate_wrapper_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.model_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_relay_model_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tvmc_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_tvmaot_tvmc_args</span>
 
 
 <div class="viewcode-block" id="TVMAOTBackend">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend">[docs]</a>
-<span class="k">class</span> <span class="nc">TVMAOTBackend</span><span class="p">(</span><span class="n">TVMBackend</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TVMAOTBackend</span><span class="p">(</span><span class="n">TVMBackend</span><span class="p">):</span>
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">*</span><span class="n">TVMBackend</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span>
         <span class="s2">&quot;debug_arena&quot;</span><span class="p">,</span>
@@ -133,40 +133,40 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tvmaot&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mlf&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mlf&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">executor</span><span class="o">=</span><span class="s2">&quot;aot&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="n">runtime</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">extra_pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extra_pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">default</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tir.usmp.enable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
         <span class="n">extra</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extra_pass_config</span>
         <span class="n">default</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">default</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">arena_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arena_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;arena_size&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">unpacked_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unpacked_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">debug_arena</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">debug_arena</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;debug_arena&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">alignment_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">alignment_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;alignment_bytes&quot;</span><span class="p">])</span>
 
 <div class="viewcode-block" id="TVMAOTBackend.get_tvmc_compile_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.get_tvmc_compile_args">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_tvmaot_tvmc_args</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alignment_bytes</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span><span class="p">,</span>
@@ -176,7 +176,7 @@
 
 <div class="viewcode-block" id="TVMAOTBackend.get_workspace_size_from_metadata">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.get_workspace_size_from_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;modules&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">][</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">][</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;main&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -186,7 +186,7 @@
 
 <div class="viewcode-block" id="TVMAOTBackend.generate">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.generate">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;default&quot;</span> <span class="ow">in</span> <span class="n">artifacts</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>

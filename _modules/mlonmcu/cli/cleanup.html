@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mlonmcu.cli.cleanup &mdash; ML on MCU 0.7.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -100,10 +100,10 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for cleaning up the current environment.&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.context.context</span> <span class="kn">import</span> <span class="n">MlonMcuContext</span>
-<span class="kn">from</span> <span class="nn">mlonmcu.setup</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup</span>
 
-<span class="kn">from</span> <span class="nn">mlonmcu.cli.common</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.cli.common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_common_options</span><span class="p">,</span>
     <span class="n">add_context_options</span><span class="p">,</span>
 <span class="p">)</span>
@@ -111,7 +111,7 @@
 
 <div class="viewcode-block" id="get_parser">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.cleanup.get_parser">[docs]</a>
-<span class="k">def</span> <span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_parser</span><span class="p">(</span><span class="n">subparsers</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;Define and return a subparser for the cleanup subcommand.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;cleanup&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cleanup ML on MCU environment.&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">handle</span><span class="p">)</span>
@@ -150,7 +150,7 @@
 
 <div class="viewcode-block" id="handle">
 <a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.cleanup.handle">[docs]</a>
-<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">MlonMcuContext</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="n">deps_lock</span><span class="o">=</span><span class="s2">&quot;write&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
         <span class="n">interactive</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span>
         <span class="n">keep</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">keep</span>

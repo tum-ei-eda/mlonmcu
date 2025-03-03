@@ -39,7 +39,7 @@ on:
 jobs:
   minimal:
     name: Build minimal image for CI
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: "Set current date as env variable"
         run: |
@@ -157,7 +157,7 @@ jobs:
             ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
   base:
     name: Build base image for users
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: minimal
     steps:
       - name: "Set current date as env variable"
@@ -269,7 +269,7 @@ jobs:
             ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu:${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}
   bench:
     name: Build large image for benchmarking
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: base
     steps:
       - name: "Set current date as env variable"

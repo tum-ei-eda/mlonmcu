@@ -140,5 +140,6 @@ jobs:
           options: --workdir /home/runner/work/mlonmcu/mlonmcu -v /home/runner/work/mlonmcu/mlonmcu:/home/runner/work/mlonmcu/mlonmcu
           shell: bash
           run: |
-            pip install -r requirements_dev.txt
+            python3 -m pip install --upgrade pip setuptools
+            pip3 install -r requirements_dev.txt
             python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

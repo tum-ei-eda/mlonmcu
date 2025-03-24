@@ -1489,7 +1489,8 @@ class ExampleFrontend(SimpleFrontend):
 
     @property
     def supported_names(self):
-        return ["hello_world", "foobar"]
+        # return ["hello_world", "foobar"]
+        return ["hello_world", "foobar", "load_filter", "basic_hash"]
 
     def lookup_models(self, names, config=None, context=None):
         ret = []

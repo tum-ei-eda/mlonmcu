@@ -530,7 +530,14 @@ class EtissTarget(RISCVTarget):
             for plugin_name, cfg in ini_plugin.items():
                 if len(cfg) == 0:
                     continue
-                logger.warning("Skipping config %s for disabled plugin %s", cfg, plugin_name)
+                # logger.warning("Skipping config %s for disabled plugin %s", cfg, plugin_name)
+                # FIXME: For etiss_perf there is a missmtach between plugin name and config prefix
+                for key, value in cfg.items():
+                    if isinstance(value, bool):
+                        val = "true" if value else "false"
+                    else:
+                        val = value
+                    f.write(f"plugin.{plugin_name}.{key}={val}\n")
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""

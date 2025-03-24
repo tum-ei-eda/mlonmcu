@@ -1578,7 +1578,8 @@ class ExampleFrontend(BenchFrontend):
 
     @property
     def supported_names(self):
-        return ["hello_world", "foobar"]
+        # return ["hello_world", "foobar"]
+        return ["hello_world", "foobar", "load_filter", "basic_hash"]
 
 
 class EmbenchFrontend(BenchFrontend):

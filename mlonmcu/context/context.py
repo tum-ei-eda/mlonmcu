@@ -533,43 +533,74 @@ class MlonMcuContext:
             return user_vars[key]
         return self.cache[key, flags]
 
-    def export(self, dest, session_ids=None, run_ids=None, interactive=True):
+    def export(self, dest, session_ids=None, run_ids=None, session_labels=None, interactive=True):
         dest = Path(dest)
         if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):
             if not ask_user("Destination is already populated! Overwrite?", default=True, interactive=interactive):
                 print("Aborted")
                 return
         dest_, ext = os.path.splitext(dest)
+        if session_labels is None:
+            session_labels = []
         if session_ids is None:
+            session_ids = []
+        if len(session_ids) == 0 and len(session_labels) == 0:
             # Can not select all sessions, fall back to latest session
             session_ids = [-1]
 
         if run_ids is not None:
             assert len(session_ids) == 1, "Can only choose runs of a single session"
 
-        def find_session(sid):
+        def find_session(session_id: Optional[int] = None, session_label: Optional[str] = None):
+            assert (session_id is None) ^ (session_label is None)
             if len(self.sessions) == 0:
                 return None
 
-            if sid == -1:
-                assert len(self.sessions) > 0
-                return self.sessions[-1]
+            if session_id is not None:
+                if session_id == -1:
+                    assert len(self.sessions) > 0
+                    return self.sessions[-1]
 
-            for session in self.sessions:
-                if session.idx == sid:
-                    return session
+                for session in self.sessions:
+                    if session.idx == session_id:
+                        return session
+
+            if session_label is not None:
+                ret = []
+                for session in reversed(self.sessions):
+                    if session.label == session_label:
+                        ret.append(session)
+                if len(ret) == 0:
+                    return None
+                if len(ret) > 1:
+                    logger.warning("Found multiple matches for label %s. Picking most recent session!", session_label)
+                ret = ret[0]
+                return ret
+
             return None
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
+            sessions = []
+            for label in session_labels:
+                session = find_session(session_label=label)
+                if session is None:
+                    print(
+                        f"Lookup for session label {label} failed. Available:",
+                        " ".join(set([str(s.label) for s in self.sessions])),
+                    )
+                    sys.exit(1)
+                sessions.append(session)
             for sid in session_ids:
-                session = find_session(sid)
+                session = find_session(session_id=sid)
                 if session is None:
                     print(
                         f"Lookup for session id {sid} failed. Available:", " ".join([str(s.idx) for s in self.sessions])
                     )
                     sys.exit(1)
-                if len(session_ids) == 1:
+                sessions.append(session)
+            for session in sessions:
+                if len(sessions) == 1:
                     base = tmpdir
                 else:
                     base = tmpdir / str(sid)

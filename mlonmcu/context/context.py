@@ -22,7 +22,7 @@ import sys
 import os
 import shutil
 import tempfile
-from typing import List, Union
+from typing import List, Union, Optional, Dict
 from pathlib import Path
 import filelock
 
@@ -149,6 +149,39 @@ def get_ids(directory: Path) -> List[int]:
     return sorted(ids)  # TODO: sort by session datetime?
 
 
+def lookup_session_label(session_labels: Dict[str, int], sess_idx: int) -> Optional[int]:
+    for label, session in session_labels.items():
+        if session == sess_idx:
+            return label
+    return None
+
+
+def get_session_labels(env: Environment) -> Dict[str, int]:
+    # TODO: write session label to sess dir instead!
+    ret = {}
+    results_dir = env.paths["results"].path
+    # TODO: handle excel reports was well?
+    csv_files = results_dir.glob("*.csv")
+    for csv_file in csv_files:
+        # print("csv_file", csv_file)
+        label = csv_file.stem
+        import pandas as pd
+
+        report_df = pd.read_csv(csv_file)
+        # not all reports will have session col
+        if "Session" not in report_df.columns:
+            continue
+        if len(report_df) == 0:
+            continue
+        sessions = list(report_df["Session"].unique())
+        assert len(sessions) == 1
+        session = sessions[0]
+        # print("label", label)
+        # print("session", session)
+        ret[label] = session
+    return ret
+
+
 def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     """Get a list of recent sessions for the environment.
 
@@ -174,6 +207,8 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     # TODO: in the future also strs (custom or hash) should be allowed
     session_ids = get_ids(sessions_directory)
 
+    session_labels = get_session_labels(env)
+
     for sid in session_ids:
         session_directory = sessions_directory / str(sid)
         # session_file = sessions_directory / str(sid) / "session.txt"
@@ -190,7 +225,10 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
             run.archived = True
             run.dir = run_directory
             runs.append(run)
-        session = Session(idx=sid, archived=True, dir=session_directory)
+        label = lookup_session_label(session_labels, sid)
+        if label is None:
+            label = "unknown"
+        session = Session(idx=sid, label=label, archived=True, dir=session_directory)
         session.runs = runs
         session.dir = session_directory
         sessions.append(session)

@@ -71,7 +71,7 @@ class Session:
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
-        self.dir = dir
+        self.dir = Path(dest) if dest is not None else None
         self.tempdir = None
         self.session_lock = None
 

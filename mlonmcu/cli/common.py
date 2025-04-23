@@ -167,6 +167,13 @@ def add_flow_options(parser):
         default="",
         help="Label for the session (default: %(default)s)",
     )
+    flow_parser.add_argument(
+        "--dest",
+        type=str,
+        metavar="DEST",
+        default=None,
+        help="Custom destination for session artifacts",
+    )
 
 
 def add_common_options(parser):

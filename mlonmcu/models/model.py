@@ -54,6 +54,7 @@ class ModelFormats(Enum):
     PB = ModelFormat(6, ["pb"])
     PADDLE = ModelFormat(7, ["pdmodel"])
     TEXT = ModelFormat(8, ["txt"])
+    MLIR = ModelFormat(9, ["mlir"])
 
 
 def parse_metadata_from_path(path):

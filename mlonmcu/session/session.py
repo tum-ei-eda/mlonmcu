@@ -401,6 +401,9 @@ class Session:
         else:
             if not self.dir.is_dir():
                 self.dir.mkdir(parents=True)
+        label_file = self.dir / "label.txt"
+        with open(label_file, "w") as f:
+            f.write(self.label)
         self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
         try:
             self.session_lock.acquire(timeout=10)

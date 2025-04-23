@@ -56,7 +56,7 @@ class Session:
         "report_fmt": "csv",
     }
 
-    def __init__(self, label=None, idx=None, archived=False, dir=None, config=None):
+    def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
             label if isinstance(label, str) and len(label) > 0 else ("unnamed" + "_" + self.timestamp)
@@ -394,7 +394,7 @@ class Session:
         """Open this run."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
-        if dir is None:
+        if self.dir is None:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)

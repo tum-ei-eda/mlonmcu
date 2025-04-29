@@ -118,6 +118,7 @@ class TVMAOTBackend(TVMBackend):
                 self.prefix,
                 api="c" if self.unpacked_api else "packed",
                 debug_arena=self.debug_arena,
+                relax_mode=self.relax_mode,
             )
         artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
         header_src = generate_wrapper_header()

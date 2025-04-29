@@ -1329,6 +1329,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.task.TaskType.TOOLCHAIN"><code class="docutils literal notranslate"><span class="pre">TaskType.TOOLCHAIN</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.task.apply_params"><code class="docutils literal notranslate"><span class="pre">apply_params()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.task.get_combs"><code class="docutils literal notranslate"><span class="pre">get_combs()</span></code></a></li>
 </ul>
 </li>
@@ -1537,6 +1538,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.EtissPulpinoTarget.REQUIRED"><code class="docutils literal notranslate"><span class="pre">EtissPulpinoTarget.REQUIRED</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.EtissPulpinoTarget.get_ini_bool_config"><code class="docutils literal notranslate"><span class="pre">EtissPulpinoTarget.get_ini_bool_config()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.EtissPulpinoTarget.get_platform_defs"><code class="docutils literal notranslate"><span class="pre">EtissPulpinoTarget.get_platform_defs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.EtissPulpinoTarget.get_target_system"><code class="docutils literal notranslate"><span class="pre">EtissPulpinoTarget.get_target_system()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.HostX86Target"><code class="docutils literal notranslate"><span class="pre">HostX86Target</span></code></a><ul>
@@ -1592,16 +1594,20 @@
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget"><code class="docutils literal notranslate"><span class="pre">SpikeTarget</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.DEFAULTS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.FEATURES"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.OPTIONAL</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.REQUIRED"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.build_pk"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.build_pk</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.exec"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.exec()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.extensions"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.extensions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.get_backend_config"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.get_backend_config()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.get_metrics"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.get_metrics()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.get_platform_defs"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.get_platform_defs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.isa"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.isa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.legacy"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.legacy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.parse_stdout"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.parse_stdout()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spike_exe"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.spike_exe</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spike_pk"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.spike_pk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spike_pk_src_dir"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.spike_pk_src_dir</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.SpikeTarget.spikepk_extra_args"><code class="docutils literal notranslate"><span class="pre">SpikeTarget.spikepk_extra_args</span></code></a></li>
 </ul>
 </li>
@@ -1812,6 +1818,20 @@
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>AssertionError: If a required key is missing.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.config.pick_first">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.config.</span></span><span class="sig-name descname"><span class="pre">pick_first</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_empty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_none</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_fail</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/config.html#pick_first"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.config.pick_first" title="Link to this definition"></a></dt>
+<dd><p>Find first valid entry in config for given keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ret</strong><span class="classifier">any</span></dt><dd><p>The found value in the config dict or None.</p>
+</dd>
 </dl>
 </dd>
 </dl>

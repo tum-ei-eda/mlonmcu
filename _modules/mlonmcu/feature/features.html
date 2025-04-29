@@ -250,6 +250,7 @@
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;use_vext&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_portable&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">,</span>
         <span class="s2">&quot;use_pext&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">,</span>
         <span class="s2">&quot;use_corev&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
@@ -266,6 +267,14 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">use_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_vext&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;AUTO&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_portable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_portable&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;AUTO&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -300,6 +309,7 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;MURISCVNN&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_DIR&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">muriscvnn_dir</span><span class="p">,</span>
+            <span class="s2">&quot;MURISCVNN_PORTABLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_portable</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_VEXT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_vext</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_PEXT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_pext</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_COREV&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_corev</span><span class="p">,</span>
@@ -442,6 +452,7 @@
         <span class="s2">&quot;mattr&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># for +nodsp, +nomve</span>
         <span class="s2">&quot;debug_last_error&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;use_vext&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_portable&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">,</span>
         <span class="s2">&quot;use_pext&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -469,6 +480,14 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">use_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_vext&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;AUTO&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_portable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_portable&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;AUTO&quot;</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -512,6 +531,7 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;MURISCVNN&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_DIR&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">muriscvnn_dir</span><span class="p">,</span>
+            <span class="s2">&quot;MURISCVNN_PORTABLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_portable</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_VEXT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_vext</span><span class="p">,</span>
             <span class="s2">&quot;MURISCVNN_PEXT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_pext</span><span class="p">,</span>
         <span class="p">}</span>
@@ -634,7 +654,11 @@
             <span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
             <span class="s2">&quot;tflmc.exe&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
             <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;riscv_gcc32.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;riscv_gcc64.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
             <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;riscv_gcc32.name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;riscv_gcc64.name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span>
         <span class="p">}</span>
 
 

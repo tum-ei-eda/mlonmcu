@@ -101,6 +101,7 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Collection of utilities to manage MLonMCU configs.&quot;&quot;&quot;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">distutils.util</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.type</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureType</span>
@@ -344,6 +345,50 @@
     <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pick_first">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.config.pick_first">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pick_first</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">candidates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">allow_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">allow_fail</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find first valid entry in config for given keys.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        The configuration data.</span>
+<span class="sd">    candidates : List[str]</span>
+<span class="sd">        The candidate keys.</span>
+<span class="sd">    allow_empty : bool, optional</span>
+<span class="sd">        Do not fail an return None if list is empty.</span>
+<span class="sd">    allow_none : bool, optional</span>
+<span class="sd">        Allow config entries with value None.</span>
+<span class="sd">    allow_fail : bool, optional</span>
+<span class="sd">        Do not fail if no valiud entry is found.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ret : any</span>
+<span class="sd">        The found value in the config dict or None.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">allow_empty</span><span class="p">,</span> <span class="s2">&quot;pick_first: got empty list&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">candidate</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">allow_none</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">allow_fail</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;pick_first: could not find valid candidate in config (</span><span class="si">{</span><span class="n">candidates</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
 
 </pre></div>
 

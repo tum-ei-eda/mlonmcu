@@ -115,6 +115,19 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
+<div class="viewcode-block" id="apply_params">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.apply_params">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_params</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">key</span>
+    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_val</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">param_val</span><span class="p">))</span>
+    <span class="c1"># if key != ret:</span>
+    <span class="c1">#     print(f&quot;{key} -&gt; {ret}&quot;)</span>
+    <span class="c1">#     input(&quot;a&quot;)</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+
 <div class="viewcode-block" id="get_combs">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.get_combs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_combs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
@@ -315,16 +328,17 @@
 <div class="viewcode-block" id="TaskFactory.removes">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskFactory.removes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">removes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator for cleanuo tasks.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Decorator for cleanup tasks.&quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: implementation</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">real_decorator</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
-            <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="n">retval</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">retval</span>
+            <span class="c1"># @wraps(function)</span>
+            <span class="c1"># def wrapper(*args, **kwargs):</span>
+            <span class="c1">#     retval = function(*args, **kwargs)</span>
+            <span class="c1">#     return retval</span>
+            <span class="c1"># return wrapper</span>
 
-            <span class="k">return</span> <span class="n">wrapper</span>
+            <span class="k">return</span> <span class="n">function</span>
 
         <span class="k">return</span> <span class="n">real_decorator</span></div>
 
@@ -353,23 +367,29 @@
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
 
-            <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="n">context</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span><span class="p">:</span>
-                        <span class="k">del</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="c1"># Unset the value before calling function</span>
-                <span class="n">retval</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">retval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-                    <span class="c1"># logger.debug(&quot;Checking outputs...&quot;)</span>
-                    <span class="n">variables</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span>
-                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">variables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; did not set the value of &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">retval</span>
+            <span class="c1"># @wraps(function)</span>
+            <span class="c1"># def wrapper(*args, **kwargs):</span>
+            <span class="c1">#     # print(&quot;args&quot;, args)</span>
+            <span class="c1">#     # print(&quot;kwargs&quot;, kwargs)</span>
+            <span class="c1">#     context = args[0]</span>
+            <span class="c1">#     # params = kwargs.get(&quot;params&quot;, {})</span>
+            <span class="c1">#     # print(&quot;params&quot;, params)</span>
+            <span class="c1">#     # input(&quot;a&quot;)</span>
+            <span class="c1">#     for key in keys:</span>
+            <span class="c1">#         if key in context.cache._vars:</span>
+            <span class="c1">#             del context.cache._vars[key]  # Unset the value before calling function</span>
+            <span class="c1">#     retval = function(*args, **kwargs)</span>
+            <span class="c1">#     if retval is not False:</span>
+            <span class="c1">#         # logger.debug(&quot;Checking outputs...&quot;)</span>
+            <span class="c1">#         variables = context.cache._vars</span>
+            <span class="c1">#         for key in keys:</span>
+            <span class="c1">#             if key not in variables.keys() or variables[key] is None:</span>
+            <span class="c1">#                 raise RuntimeError(f&quot;Task &#39;{name}&#39; did not set the value of &#39;{key}&#39;&quot;)</span>
+            <span class="c1">#     return retval</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapper</span>
-            <span class="k">return</span> <span class="n">wrapper</span>
+            <span class="c1"># self.registry[name] = wrapper</span>
+            <span class="c1"># return wrapper</span>
+            <span class="k">return</span> <span class="n">function</span>
 
         <span class="k">return</span> <span class="n">real_decorator</span></div>
 
@@ -388,12 +408,13 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">flag</span><span class="p">:</span> <span class="n">options</span><span class="p">}</span>
 
-            <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-            <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="n">retval</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">retval</span>
+            <span class="c1"># @wraps(function)</span>
+            <span class="c1"># def wrapper(*args, **kwargs):</span>
+            <span class="c1">#     retval = function(*args, **kwargs)</span>
+            <span class="c1">#     return retval</span>
+            <span class="c1"># return wrapper</span>
 
-            <span class="k">return</span> <span class="n">wrapper</span>
+            <span class="k">return</span> <span class="n">function</span>
 
         <span class="k">return</span> <span class="n">real_decorator</span></div>
 
@@ -434,19 +455,28 @@
                     <span class="k">return</span> <span class="n">ret</span>
 
                 <span class="n">combs_</span> <span class="o">=</span> <span class="n">get_valid_combs</span><span class="p">(</span><span class="n">combs</span><span class="p">)</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
                 <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
-                        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">rebuild</span> <span class="o">=</span> <span class="n">rebuild</span>
                     <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
                             <span class="k">if</span> <span class="n">dep</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="p">:</span>
                                 <span class="n">rebuild</span> <span class="o">=</span> <span class="kc">True</span>
                                 <span class="k">break</span>
+                    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span><span class="p">:</span>
+                            <span class="k">del</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="c1"># Unset the value before calling function</span>
                     <span class="n">retval</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="n">rebuild</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">variables</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">_vars</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                        <span class="n">key</span> <span class="o">=</span> <span class="n">apply_params</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">variables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; did not set the value of &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">retval</span><span class="p">:</span>
-                        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">provider</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
                         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">changed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>

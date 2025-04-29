@@ -152,7 +152,9 @@
 <div class="viewcode-block" id="TVMRTBackend.get_tvmc_compile_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMRTBackend.get_tvmc_compile_args">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">system_lib</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">link_params</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_tvmrt_tvmc_args</span><span class="p">(</span>
+            <span class="n">system_lib</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">link_params</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TVMRTBackend.generate">

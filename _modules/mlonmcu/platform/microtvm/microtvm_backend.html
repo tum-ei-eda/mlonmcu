@@ -117,7 +117,7 @@
 <div class="viewcode-block" id="register_microtvm_platform_backend">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_backend.register_microtvm_platform_backend">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_microtvm_platform_backend</span><span class="p">(</span><span class="n">backend_name</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">MICROTVM_PLATFORM_BACKEND_REGISTRY</span>
+    <span class="c1"># global MICROTVM_PLATFORM_BACKEND_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">backend_name</span> <span class="ow">in</span> <span class="n">MICROTVM_PLATFORM_BACKEND_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TVM platform backend  </span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>

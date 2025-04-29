@@ -104,14 +104,18 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">execute</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.bench</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_bench_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_first</span><span class="p">,</span> <span class="n">str2bool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.riscv_pext_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">RVPTarget</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.riscv_vext_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">RVVTarget</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.riscv_bext_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">RVBTarget</span>
@@ -120,19 +124,47 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_spike_pk</span><span class="p">(</span>
+    <span class="n">dest</span><span class="p">,</span> <span class="n">pk_src</span><span class="p">,</span> <span class="n">riscv_gcc_prefix</span><span class="p">,</span> <span class="n">riscv_gcc_name</span><span class="p">,</span> <span class="n">arch</span><span class="p">,</span> <span class="n">abi</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+        <span class="n">build_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--with-arch=</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--with-abi=</span><span class="si">{</span><span class="n">abi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--prefix=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">riscv_gcc_prefix</span><span class="p">))</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--host=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">riscv_gcc_name</span><span class="p">))</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">riscv_gcc_prefix</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">pk_src</span> <span class="o">/</span> <span class="s2">&quot;configure&quot;</span><span class="p">),</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;pk&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="filter_unsupported_extensions">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.filter_unsupported_extensions">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">filter_unsupported_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_unsupported_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">legacy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
     <span class="n">REPLACEMENTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="sa">r</span><span class="s2">&quot;zve\d\d[xfd]&quot;</span><span class="p">:</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span>
-        <span class="sa">r</span><span class="s2">&quot;zvl\d+b&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="sa">r</span><span class="s2">&quot;zpsfoperand&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span>
         <span class="sa">r</span><span class="s2">&quot;zpn&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span>
         <span class="sa">r</span><span class="s2">&quot;zbpo&quot;</span><span class="p">:</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span>
         <span class="c1"># r&quot;p&quot;: [&quot;p&quot;, &quot;b&quot;],</span>
         <span class="c1"># r&quot;p&quot;: [&quot;p&quot;, &quot;zba&quot;, &quot;zbb&quot;, &quot;zbc&quot;, &quot;zbs&quot;],</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">legacy</span><span class="p">:</span>
+        <span class="n">REPLACEMENTS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="sa">r</span><span class="s2">&quot;zve\d\d[xfd]&quot;</span><span class="p">:</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span>
+                <span class="sa">r</span><span class="s2">&quot;zvl\d+b&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
         <span class="n">ignore</span> <span class="o">=</span> <span class="kc">False</span>
@@ -166,11 +198,30 @@
         <span class="o">**</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="o">**</span><span class="n">RVBTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;spikepk_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;build_pk&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;legacy&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVPTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVBTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVPTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVBTarget</span><span class="o">.</span><span class="n">REQUIRED</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">RVPTarget</span><span class="o">.</span><span class="n">OPTIONAL</span>
+        <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span>
+        <span class="o">|</span> <span class="n">RVBTarget</span><span class="o">.</span><span class="n">OPTIONAL</span>
+        <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_pk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;build_pk&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;legacy&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spike_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -178,7 +229,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spike_pk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spike.pk&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">pick_first</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;spike.pk_rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;spike.pk&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spike_pk_src_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spikepk_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -194,7 +258,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">isa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">exts</span> <span class="o">=</span> <span class="n">filter_unsupported_extensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extensions</span><span class="p">)</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extensions</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
+            <span class="n">exts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;zicntr&quot;</span><span class="p">)</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="n">filter_unsupported_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">)</span>
         <span class="n">exts_str</span> <span class="o">=</span> <span class="n">join_extensions</span><span class="p">(</span><span class="n">sort_extensions_canonical</span><span class="p">(</span><span class="n">exts</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}{</span><span class="n">exts_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
@@ -225,7 +292,8 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">&lt;</span> <span class="mi">8192</span><span class="p">,</span> <span class="s2">&quot;Spike does not support VLEN &gt;= 8192&quot;</span>
-            <span class="n">spike_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--varch=vlen:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">,elen:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">:</span>
+                <span class="n">spike_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--varch=vlen:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">,elen:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># assert self.vlen == 0</span>
             <span class="k">pass</span>
@@ -233,10 +301,25 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_pk</span><span class="p">:</span>
+            <span class="c1"># TODO: tempdir</span>
+            <span class="k">assert</span> <span class="n">cwd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">cwd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">cwd</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+            <span class="n">pk</span> <span class="o">=</span> <span class="n">cwd</span> <span class="o">/</span> <span class="s2">&quot;.temp_spike_pk&quot;</span>
+            <span class="n">arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">isa</span>
+            <span class="k">if</span> <span class="s2">&quot;zicsr&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arch</span><span class="p">:</span>
+                <span class="n">arch</span> <span class="o">+=</span> <span class="s2">&quot;_zicsr&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;zifencei&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arch</span><span class="p">:</span>
+                <span class="n">arch</span> <span class="o">+=</span> <span class="s2">&quot;_zifencei&quot;</span>
+            <span class="n">_build_spike_pk</span><span class="p">(</span><span class="n">pk</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spike_pk_src_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_prefix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_basename</span><span class="p">,</span> <span class="n">arch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abi</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spike_pk</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
         <span class="n">ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spike_exe</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
             <span class="o">*</span><span class="n">spike_args</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">spike_pk</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+            <span class="n">pk</span><span class="p">,</span>
             <span class="o">*</span><span class="n">spikepk_args</span><span class="p">,</span>
             <span class="n">program</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">,</span>
@@ -324,6 +407,70 @@
                     <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="SpikeRV32Target">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.SpikeRV32Target">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpikeRV32Target</span><span class="p">(</span><span class="n">SpikeTarget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;32-bit version of spike target&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SpikeTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="c1"># &quot;elen&quot;: 32,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SpikeRV32MinTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.SpikeRV32MinTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpikeRV32MinTarget</span><span class="p">(</span><span class="n">SpikeRV32Target</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;32-bit integer-only version of spike target&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SpikeTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="s2">&quot;fpu&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;compressed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;atomic&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;build_pk&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="c1"># &quot;elen&quot;: 32,</span>
+    <span class="p">}</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">SpikeRV32Target</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span>
+        <span class="s2">&quot;riscv_gcc_rv32_min.install_dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc_rv32im.install_dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc_rv32im_ilp32.install_dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc_rv32im_zve64x.install_dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;riscv_gcc_rv32im_zve64x_ilp32.install_dir&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spike_rv32_min&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SpikeRV64Target">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.SpikeRV64Target">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpikeRV64Target</span><span class="p">(</span><span class="n">SpikeTarget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;64-bit version of spike target&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SpikeTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
+        <span class="c1"># &quot;elen&quot;: 64,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
 
 
 

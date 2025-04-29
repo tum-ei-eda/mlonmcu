@@ -114,7 +114,7 @@
 <div class="viewcode-block" id="register_platform">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.register_platform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_platform</span><span class="p">(</span><span class="n">platform_name</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">PLATFORM_REGISTRY</span>
+    <span class="c1"># global PLATFORM_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">platform_name</span> <span class="ow">in</span> <span class="n">PLATFORM_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Platform </span><span class="si">{</span><span class="n">platform_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>

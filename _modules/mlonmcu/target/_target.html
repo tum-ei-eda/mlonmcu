@@ -99,11 +99,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.riscv</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">EtissPulpinoTarget</span><span class="p">,</span>
     <span class="n">SpikeTarget</span><span class="p">,</span>
+    <span class="n">SpikeRV32Target</span><span class="p">,</span>
+    <span class="n">SpikeRV32MinTarget</span><span class="p">,</span>
+    <span class="n">SpikeRV64Target</span><span class="p">,</span>
     <span class="n">OVPSimTarget</span><span class="p">,</span>
     <span class="n">COREVOVPSimTarget</span><span class="p">,</span>
     <span class="n">RiscvQemuTarget</span><span class="p">,</span>
     <span class="n">GvsocPulpTarget</span><span class="p">,</span>
     <span class="n">EtissTarget</span><span class="p">,</span>
+    <span class="n">EtissRV32Target</span><span class="p">,</span>
+    <span class="n">EtissRV64Target</span><span class="p">,</span>
     <span class="n">AraTarget</span><span class="p">,</span>
     <span class="n">AraRtlTarget</span><span class="p">,</span>
     <span class="n">CV32E40PTarget</span><span class="p">,</span>
@@ -120,7 +125,7 @@
 <div class="viewcode-block" id="register_target">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.register_target">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">register_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">TARGET_REGISTRY</span>
+    <span class="c1"># global TARGET_REGISTRY</span>
 
     <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> is already registered&quot;</span><span class="p">)</span>
@@ -137,10 +142,15 @@
 
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">EtissTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="n">EtissRV32Target</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="n">EtissRV64Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86_ssh&quot;</span><span class="p">,</span> <span class="n">HostX86SSHTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;corstone300&quot;</span><span class="p">,</span> <span class="n">Corstone300Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">SpikeTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span> <span class="n">SpikeRV32Target</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike_rv32_min&quot;</span><span class="p">,</span> <span class="n">SpikeRV32MinTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span> <span class="n">SpikeRV64Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="n">OVPSimTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span> <span class="n">COREVOVPSimTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;riscv_qemu&quot;</span><span class="p">,</span> <span class="n">RiscvQemuTarget</span><span class="p">)</span>

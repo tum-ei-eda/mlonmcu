@@ -27,7 +27,7 @@ TVM_PLATFORM_BACKEND_REGISTRY = {}
 
 
 def register_tvm_platform_backend(backend_name, b, override=False):
-    global TVM_PLATFORM_BACKEND_REGISTRY
+    # global TVM_PLATFORM_BACKEND_REGISTRY
 
     if backend_name in TVM_PLATFORM_BACKEND_REGISTRY and not override:
         raise RuntimeError(f"TVM platform backend  {backend_name} is already registered")

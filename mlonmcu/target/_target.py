@@ -41,7 +41,7 @@ TARGET_REGISTRY = {}
 
 
 def register_target(target_name, t, override=False):
-    global TARGET_REGISTRY
+    # global TARGET_REGISTRY
 
     if target_name in TARGET_REGISTRY and not override:
         raise RuntimeError(f"Target {target_name} is already registered")

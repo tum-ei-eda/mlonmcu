@@ -56,7 +56,7 @@ class Session:
         "report_fmt": "csv",
     }
 
-    def __init__(self, label=None, idx=None, archived=False, dir=None, config=None):
+    def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
             label if isinstance(label, str) and len(label) > 0 else ("unnamed" + "_" + self.timestamp)
@@ -71,7 +71,7 @@ class Session:
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
-        self.dir = dir
+        self.dir = Path(dest) if dest is not None else None
         self.tempdir = None
         self.session_lock = None
 
@@ -394,13 +394,16 @@ class Session:
         """Open this run."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
-        if dir is None:
+        if self.dir is None:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)
         else:
             if not self.dir.is_dir():
                 self.dir.mkdir(parents=True)
+        label_file = self.dir / "label.txt"
+        with open(label_file, "w") as f:
+            f.write(self.label)
         self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
         try:
             self.session_lock.acquire(timeout=10)

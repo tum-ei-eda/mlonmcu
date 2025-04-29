@@ -18,4 +18,4 @@
 #
 """Version module for mlonmcu."""
 
-__version__ = "0.7.dev0"
+__version__ = "0.8.dev0"

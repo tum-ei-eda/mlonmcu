@@ -157,6 +157,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         "use_vext": "AUTO",
         "use_portable": "AUTO",
         "use_pext": "AUTO",
+        "use_corev": False,
     }
 
     REQUIRED = {"muriscvnn.src_dir"}
@@ -191,6 +192,12 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
             return value
         value = str2bool(value)
         return "ON" if value else "OFF"
+    
+    @property
+    def use_corev(self):
+        value = self.config["use_corev"]
+        value = str2bool(value)
+        return "ON" if value else "OFF"
 
     def add_framework_config(self, framework, config):
         assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
@@ -210,6 +217,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
             "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
+            "MURISCVNN_COREV": self.use_corev,
         }
 
     def get_required_cache_flags(self):

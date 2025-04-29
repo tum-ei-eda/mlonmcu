@@ -18,20 +18,9 @@
 #
 """MLonMCU ETISS/Pulpino Target definitions"""
 
-import os
-import re
-import csv
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool, str2list, str2dict
-from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.setup.utils import execute
-from mlonmcu.target.common import cli
-from mlonmcu.target.metrics import Metrics
-from mlonmcu.target.bench import add_bench_metrics
 from .etiss import EtissTarget
 
 logger = get_logger()
@@ -70,7 +59,6 @@ class EtissPerfTarget(EtissTarget):
     @property
     def etiss_script(self):
         assert not self.use_run_helper, "Target etiss_perf does not support run_helper.sh"
-        return None
 
     @property
     def etiss_exe(self):

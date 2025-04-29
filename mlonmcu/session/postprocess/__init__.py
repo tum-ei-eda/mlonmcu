@@ -35,6 +35,7 @@ from .postprocesses import (
     ValidateOutputsPostprocess,
     ValidateLabelsPostprocess,
     ExportOutputsPostprocess,
+    StageTimesGanttPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -54,4 +55,5 @@ SUPPORTED_POSTPROCESSES = {
     "validate_outputs": ValidateOutputsPostprocess,
     "validate_labels": ValidateLabelsPostprocess,
     "export_outputs": ExportOutputsPostprocess,
+    "stage_times_gantt": StageTimesGanttPostprocess,
 }

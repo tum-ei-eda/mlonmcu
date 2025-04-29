@@ -823,7 +823,7 @@ class Usmp(BackendFeature):
 
 @register_feature("fuse_ops")
 class FuseOps(BackendFeature):
-    """TODO"""
+    """Exposes relay.FuseOps.max_depth settings for TVM backends."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -1125,7 +1125,7 @@ class AutoTVM(TVMTuneBase):
 
 @register_feature("autoscheduler", depends=["autotune"])
 class AutoScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM AutoScheduler Tuning Feature."""
 
     # TODO: metascheduler
     # TODO: graphtuner
@@ -1163,7 +1163,7 @@ class AutoScheduler(TVMTuneBase):
 
 @register_feature("metascheduler", depends=["autotune"])
 class MetaScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM MetaScheduler Tuning Feature."""
 
     DEFAULTS = {
         **TVMTuneBase.DEFAULTS,
@@ -2237,7 +2237,7 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
 
 @register_feature("vanilla_accelerator")
 class VanillaAccelerator(TargetFeature):
-    """TODO"""
+    """BYOC Vanilla Accelerator Feature for TVM."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2483,7 +2483,7 @@ class ValidateNew(RunFeature):
 
 @register_feature("perf_sim")
 class PerfSim(TargetFeature):
-    """TODO"""
+    """ETISS Performance Estimation/Simulation Feature."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,

@@ -27,6 +27,7 @@ from mlonmcu.setup.task import TaskType
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 
 from .common import get_task_factory
 from .ara import _validate_ara_rtl
@@ -40,8 +41,6 @@ def _validate_spike(context: MlonMcuContext, params=None):
     if not context.environment.has_target("spike") and not _validate_ara_rtl(context, params=params):
         return False
     user_vars = context.environment.vars
-    if "spike.pk" not in user_vars:  # TODO: also check command line flags?
-        assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
     if "spike.exe" not in user_vars:  # TODO: also check command line flags?
         assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
     return True
@@ -51,14 +50,29 @@ def _validate_spikepk(context: MlonMcuContext, params=None):
     if not _validate_spike(context, params=params):
         return False
     user_vars = context.environment.vars
-    # multilib = user_vars.get("riscv_gcc.multilib", False)
-    supported_archs = user_vars.get("riscv_gcc.supported_archs", [])
-    if params:
-        arch = params["arch"]
-        # if arch != "rv32gc":
-        if arch != "default":
-            if arch not in supported_archs:
-                return False
+    enable_rv32 = str2bool(user_vars.get("spikepk.enable_rv32", True))
+    enable_rv64 = str2bool(user_vars.get("spikepk.enable_rv64", False))
+    if (enable_rv32 and "spike.pk_rv32" not in user_vars) or (
+        enable_rv64 and "spike.pk_rv64" not in user_vars
+    ):  # TODO: also check command line flags?
+        assert "spikepk" in context.environment.repos, "Undefined repository: 'spikepk'"
+    return True
+
+
+def _validate_spikepk_build(context: MlonMcuContext, params=None):
+    if not _validate_spike(context, params=params):
+        return False
+    if not _validate_spikepk(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    enable_rv32 = str2bool(user_vars.get("spikepk.enable_rv32", True))
+    enable_rv64 = str2bool(user_vars.get("spikepk.enable_rv64", False))
+    assert params is not None
+    xlen = params.get("xlen")
+    if xlen == 32 and not enable_rv32:
+        return False
+    if xlen == 64 and not enable_rv64:
+        return False
     return True
 
 
@@ -88,11 +102,13 @@ def clone_spike_pk(
     context.cache["spikepk.src_dir"] = spikepkSrcDir
 
 
-@Tasks.needs(["spikepk.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
-@Tasks.provides(["spikepk.build_dir", "spikepk.install_dir", "spike.pk"])
+@Tasks.needs(["spikepk.src_dir"])
+@Tasks.optional(["riscv_gcc_rv{xlen}.install_dir", "riscv_gcc_rv{xlen}.name"])
+@Tasks.provides(["spikepk_rv{xlen}.build_dir", "spikepk_rv{xlen}.install_dir", "spike.pk_rv{xlen}"])
 # TODO: allow arch,abi
-@Tasks.param("arch", ["default"])  # ["rv32gc", "rv64gc", "rv32im", "rv64im"]
-@Tasks.validate(_validate_spikepk)
+# @Tasks.param("arch", ["default"])  # ["rv32gc", "rv64gc", "rv32im", "rv64im"]
+@Tasks.param("xlen", [32, 64])
+@Tasks.validate(_validate_spikepk_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -101,31 +117,32 @@ def build_spike_pk(
     if not params:
         params = {}
     user_vars = context.environment.vars
-    if "spike.pk" in user_vars:  # TODO: also check command line flags?
-        return False
-    spikepkName = utils.makeDirName("spikepk")
+    # default_arch = "rv32gc"
+    # arch = params.get("arch", "rv32gc")
+    xlen = params["xlen"]
+    assert xlen in [32, 64]
+    spikepkName = utils.makeDirName(f"spikepk_rv{xlen}")
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
-    # default_arch = "rv32gc"
-    arch = params.get("arch", "rv32gc")
-    if arch == "default":
-        arch = user_vars.get("spikepk.default_arch", "rv32imafdc_zifencei_zicsr")
-        abi = user_vars.get("spikepk.default_abi", "ilp32d")
-    else:
-        abi = "lp64" if "rv64" in arch else "ilp32"
+    if "spike.pk_rv{xlen}" in user_vars:  # TODO: also check command line flags?
+        return False
+    arch = user_vars.get(
+        f"spikepk_rv{xlen}.default_arch", "rv32imafdc_zifencei_zicsr" if xlen == 32 else "rv64imafdc_zifencei_zicsr"
+    )
+    abi = user_vars.get(f"spikepk_rv{xlen}.default_abi", "ilp32d" if xlen == 32 else "lp64d")
     # spikepkBin = spikepkInstallDir / f"pk_{arch}_{abi}"
     spikepkDefaultBin = spikepkInstallDir / "pk"
     # if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkBin.is_file()):
     if rebuild or not (utils.is_populated(spikepkBuildDir) and spikepkDefaultBin.is_file()):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikepkBuildDir)
-        gccName = context.cache["riscv_gcc.name"]
+        gccName = context.cache[f"riscv_gcc_rv{xlen}.name"]
         # assert gccName == "riscv32-unknown-elf", "Spike PK requires a non-multilib toolchain!"
-        if "riscv_gcc.install_dir" in user_vars:
-            riscv_gcc = user_vars["riscv_gcc.install_dir"]
+        if f"riscv_gcc_rv{xlen}.install_dir" in user_vars:
+            riscv_gcc = user_vars[f"riscv_gcc_rv{xlen}.install_dir"]
         else:
-            riscv_gcc = context.cache["riscv_gcc.install_dir"]
+            riscv_gcc = context.cache[f"riscv_gcc_rv{xlen}.install_dir"]
         spikepkArgs = []
         spikepkArgs.append(f"--with-arch={arch}")
         spikepkArgs.append(f"--with-abi={abi}")
@@ -146,10 +163,10 @@ def build_spike_pk(
         # utils.move(spikepkBuildDir / "pk", spikepkBin)
         # if arch == default_arch:
         utils.copy(spikepkBuildDir / "pk", spikepkDefaultBin)
-    context.cache["spikepk.build_dir"] = spikepkBuildDir
-    context.cache["spikepk.install_dir"] = spikepkInstallDir
+    context.cache[f"spikepk_rv{xlen}.build_dir"] = spikepkBuildDir
+    context.cache[f"spikepk_rv{xlen}.install_dir"] = spikepkInstallDir
     # if arch == default_arch:
-    context.cache["spike.pk"] = spikepkDefaultBin
+    context.cache[f"spike.pk_rv{xlen}"] = spikepkDefaultBin
     context.export_paths.add(spikepkInstallDir)
 
 
@@ -171,7 +188,7 @@ def clone_spike(
     context.cache["spike.src_dir"] = spikeSrcDir
 
 
-@Tasks.needs(["spike.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.needs(["spike.src_dir"])
 @Tasks.provides(["spike.build_dir", "spike.exe"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)

@@ -35,7 +35,7 @@ jobs:
   refresh:
     name: Refresh large image for benchmarking
     if: (github.event_name != 'schedule')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Lowercase repository url
         id: lowered
@@ -105,7 +105,7 @@ jobs:
   refresh_cron:
     name: Refresh large image for benchmarking
     if: (github.event_name == 'schedule')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:

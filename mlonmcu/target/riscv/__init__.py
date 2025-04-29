@@ -1,6 +1,6 @@
 from .etiss_pulpino import EtissPulpinoTarget
-from .etiss import EtissTarget
-from .spike import SpikeTarget
+from .etiss import EtissTarget, EtissRV32Target, EtissRV64Target
+from .spike import SpikeTarget, SpikeRV32Target, SpikeRV32MinTarget, SpikeRV64Target
 from .ovpsim import OVPSimTarget
 from .corev_ovpsim import COREVOVPSimTarget
 from .riscv_qemu import RiscvQemuTarget
@@ -14,7 +14,12 @@ from .canmv_k230_ssh import CanMvK230SSHTarget
 __all__ = [
     "EtissPulpinoTarget",
     "EtissTarget",
+    "EtissRV32Target",
+    "EtissRV64Target",
     "SpikeTarget",
+    "SpikeRV32Target",
+    "SpikeRV32MinTarget",
+    "SpikeRV64Target",
     "OVPSimTarget",
     "COREVOVPSimTarget",
     "RiscvQemuTarget",

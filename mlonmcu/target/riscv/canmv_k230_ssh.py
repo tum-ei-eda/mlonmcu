@@ -62,7 +62,7 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
         if handle_exit:
             exit_code = handle_exit(0, out=output)
             assert exit_code == 0
-        return output
+        return output, []
 
     def parse_stdout(self, out, metrics, exit_code=0):
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
@@ -82,9 +82,9 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
 
         start_time = time.time()
         if self.print_outputs:
-            out = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out = self.exec(
+            out, artifacts = self.exec(
                 elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
         # TODO: do something with out?
@@ -102,7 +102,7 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
             if diff > 0:
                 metrics.add("MIPS", (sim_insns / diff) / 1e6, True)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def get_platform_defs(self, platform):
         ret = {}

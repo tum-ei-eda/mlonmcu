@@ -671,7 +671,9 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
                 encodings = []
             if self.sequences:
                 names = []
-            with pd.read_csv(log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22) as reader:  # TODO: expose chunksize
+            with pd.read_csv(
+                log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22
+            ) as reader:  # TODO: expose chunksize
                 for chunk in reader:
                     df = transform_df(chunk)
 
@@ -1154,7 +1156,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
         dump_artifact = lookup_artifacts(
             artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True
         )
-        assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"
+        assert len(dump_artifact) == 1, "Dump artifact not found!"
         dump_artifact = dump_artifact[0]
         is_llvm = "llvm" in dump_artifact.flags
         assert is_llvm, "Non-llvm objdump currently unsupported"
@@ -1168,10 +1170,25 @@ class AnalyseDumpPostprocess(RunPostprocess):
                 continue
             insn = splitted[1]
             args = splitted[2]
+            # stop = insn == "cv.lh" and args == "t2, (a0), 0x2"
+            if "seal5." in insn:
+                insn = insn.replace("seal5.", "")
             if "cv." in insn:
                 if "(" in args and ")" in args:
                     m = re.compile(r"(.*)\((.*)\)").match(args)
-                    if m:
+                    m2 = re.compile(r"(.*)\((.*)\),\s*(.*)").match(args)
+                    if m2:
+                        g = m2.groups()
+                        assert len(g) == 3
+                        _, base, offset = g
+                        fmt = "ri"
+                        try:
+                            offset = int(offset)
+                        except ValueError:
+                            fmt = "rr"
+                        insn += f"_{fmt}"
+                        insn += "_inc"
+                    elif m:
                         g = m.groups()
                         assert len(g) == 2
                         offset, base = g
@@ -1181,7 +1198,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
                         except ValueError:
                             fmt = "rr"
                         insn += f"_{fmt}"
-                        if "!" in base:
+                        if "!" in base or ")," in base:
                             insn += "_inc"
             if insn in counts:
                 counts[insn] += 1

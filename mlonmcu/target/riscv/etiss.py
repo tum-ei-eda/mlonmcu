@@ -752,7 +752,7 @@ class EtissTarget(RISCVTarget):
     def get_target_system(self):
         if not self.enable_semihosting:
             raise NotImplementedError("etiss.enable_semihosting=0 is not supported anymore")
-        return self.name
+        return "etiss"
 
     def get_platform_defs(self, platform):
         assert platform == "mlif"
@@ -788,6 +788,34 @@ class EtissTarget(RISCVTarget):
                         }
                     )
         return ret
+
+
+class EtissRV32Target(EtissTarget):
+    """32-bit version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 32,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
+    }
+
+    def __init__(self, name="etiss_rv32", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
+class EtissRV64Target(EtissTarget):
+    """64-bit version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 64,
+        "vlen": 0,  # vectorization=off
+        "elen": 64,
+    }
+
+    def __init__(self, name="etiss_rv64", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
 
 if __name__ == "__main__":

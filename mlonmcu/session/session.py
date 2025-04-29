@@ -56,10 +56,10 @@ class Session:
         "report_fmt": "csv",
     }
 
-    def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
+    def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
-            label if len(label) > 0 else ("unnamed" + "_" + self.timestamp)
+            label if isinstance(label, str) and len(label) > 0 else ("unnamed" + "_" + self.timestamp)
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.config = config if config else {}
@@ -71,7 +71,7 @@ class Session:
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
-        self.dir = dir
+        self.dir = Path(dest) if dest is not None else None
         self.tempdir = None
         self.session_lock = None
 
@@ -203,6 +203,9 @@ class Session:
         def _process(pbar, run, until, skip):
             """Helper function to invoke the run."""
             run.process(until=until, skip=skip, export=export)
+            if not per_stage and run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip:
+                # run.postprocess()
+                run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
             if progress:
                 _update_progress(pbar)
 
@@ -391,13 +394,16 @@ class Session:
         """Open this run."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
-        if dir is None:
+        if self.dir is None:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)
         else:
             if not self.dir.is_dir():
                 self.dir.mkdir(parents=True)
+        label_file = self.dir / "label.txt"
+        with open(label_file, "w") as f:
+            f.write(self.label)
         self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
         try:
             self.session_lock.acquire(timeout=10)

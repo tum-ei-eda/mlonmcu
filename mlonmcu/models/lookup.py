@@ -55,10 +55,18 @@ def find_metadata(directory, model_name=None):
     return None
 
 
+MODELS_CACHE = {}
+
+
 def list_models(directory, depth=1, formats=None, config=None):  # TODO: get config from environment or cmdline!
     config = config if config is not None else {}
     formats = formats if formats else [ModelFormats.TFLITE]
     assert len(formats) > 0, "No formats provided for model lookup"
+    cache_key = (directory, depth, tuple(formats), tuple(config))  # TODO: hash!
+    if cache_key in MODELS_CACHE:
+        logger.debug("Model cache hit.")
+        return MODELS_CACHE[cache_key]
+    logger.debug("Model cache miss.")
     models = []
     for fmt in formats:
         if depth != 1:
@@ -125,10 +133,19 @@ def list_models(directory, depth=1, formats=None, config=None):  # TODO: get con
                         )
                     )
 
+    MODELS_CACHE[cache_key] = models
     return models
 
 
+MODELGROUPS_CACHE = {}
+
+
 def list_modelgroups(directory):
+    cache_key = (directory,)
+    if cache_key in MODELGROUPS_CACHE:
+        logger.info("Modelgroup cache hit.")
+        return MODELGROUPS_CACHE[cache_key]
+    logger.info("Modelgroup cache miss.")
     if not os.path.isdir(directory):
         logger.debug("Not a directory: %s", str(directory))
         return []
@@ -151,6 +168,7 @@ def list_modelgroups(directory):
                 except yaml.YAMLError as err:
                     raise RuntimeError("Could not open YAML file") from err
             break
+    MODELGROUPS_CACHE[cache_key] = groups
     return groups
 
 

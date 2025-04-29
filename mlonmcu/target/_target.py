@@ -16,11 +16,16 @@
 from .riscv import (
     EtissPulpinoTarget,
     SpikeTarget,
+    SpikeRV32Target,
+    SpikeRV32MinTarget,
+    SpikeRV64Target,
     OVPSimTarget,
     COREVOVPSimTarget,
     RiscvQemuTarget,
     GvsocPulpTarget,
     EtissTarget,
+    EtissRV32Target,
+    EtissRV64Target,
     AraTarget,
     AraRtlTarget,
     CV32E40PTarget,
@@ -35,7 +40,7 @@ TARGET_REGISTRY = {}
 
 
 def register_target(target_name, t, override=False):
-    global TARGET_REGISTRY
+    # global TARGET_REGISTRY
 
     if target_name in TARGET_REGISTRY and not override:
         raise RuntimeError(f"Target {target_name} is already registered")
@@ -48,10 +53,15 @@ def get_targets():
 
 register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
+register_target("etiss_rv32", EtissRV32Target)
+register_target("etiss_rv64", EtissRV64Target)
 register_target("host_x86", HostX86Target)
 register_target("host_x86_ssh", HostX86SSHTarget)
 register_target("corstone300", Corstone300Target)
 register_target("spike", SpikeTarget)
+register_target("spike_rv32", SpikeRV32Target)
+register_target("spike_rv32_min", SpikeRV32MinTarget)
+register_target("spike_rv64", SpikeRV64Target)
 register_target("ovpsim", OVPSimTarget)
 register_target("corev_ovpsim", COREVOVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)

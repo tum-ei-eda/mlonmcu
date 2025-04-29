@@ -81,7 +81,8 @@ repos:
     ref: 439b78d36456f716629ad9dbaff9734baaa75db9
   verilator:
     url: "https://github.com/verilator/verilator"
-    ref: tags/v4.210
+    # ref: tags/v4.210
+    ref: tags/v4.222
   embench:
     url: "https://github.com/embench/embench-iot.git"
     ref: master
@@ -101,7 +102,7 @@ repos:
     ref: master
   corevverif:
     url: "https://github.com/PhilippvK/core-v-verif.git"
-    ref: 81002bc0a3a0afc2a1d444344fd6b26ddd308ad4
+    ref: b47faadcc6cca79d5181ff682976887cbe171c2f
   cv32e40p:
     url: "https://github.com/PhilippvK/cv32e40p.git"
     ref: 8e29b89d1b3c8451bac36545a4d5b154ad0a1ab8
@@ -271,13 +272,13 @@ vars:
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
   llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/corev/Archive/corev_llvm_custom.tar.xz"
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32im_ilp32.tar.xz"
-  # riscv_gcc.dl_url: "https://buildbot.embecosm.com/job/corev-gcc-ubuntu2004/25/artifact/corev-openhw-gcc-ubuntu2004-20231205.tar.gz"  # TODO: use corev gcc?
+  riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32im_ilp32.tar.xz"
+  # riscv_gcc_rv32.dl_url: "https://buildbot.embecosm.com/job/corev-gcc-ubuntu2004/25/artifact/corev-openhw-gcc-ubuntu2004-20231205.tar.gz"  # TODO: use corev gcc?
   # corev_ovpsim.version: "v20231026"
   # spike.keep_build_dir: false
   # etiss.keep_build_dir: false
-  spikepk.default_arch: rv32im_zicsr_zifencei
-  spikepk.default_abi: ilp32
+  spikepk_rv32.default_arch: rv32im_zicsr_zifencei
+  spikepk_rv32.default_abi: ilp32
 flags:
   tflmc.exe:
   - x86

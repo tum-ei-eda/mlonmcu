@@ -1105,7 +1105,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         if to_compare is None:
             to_compare = list(main_df.columns)
         assert isinstance(to_compare, list)
-        assert all(col in main_df.columns for col in to_compare)
+        assert all(col in main_df.columns for col in to_compare), f"Missing cols? ({to_compare} vs {list(main_df.columns)})"
         full_df = pd.concat([pre_df, main_df, post_df], axis=1)
         grouped = full_df.groupby(group_by, axis=0, group_keys=False, dropna=False)
         new_df = pd.DataFrame()

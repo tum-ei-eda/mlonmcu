@@ -1455,6 +1455,15 @@ class ONNXFrontend(SimpleFrontend):
             config=config,
         )
 
+class MLIRFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "mlir",
+            ModelFormats.MLIR,
+            features=features,
+            config=config,
+        )
+
 
 class PBFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):

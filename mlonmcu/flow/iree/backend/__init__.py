@@ -24,4 +24,12 @@ from .ireellvm_inline import IREELLVMInlineBackend
 from .ireellvmc import IREELLVMCBackend
 from .ireellvmc_inline import IREELLVMCInlineBackend
 
-__all__ = ["IREEBackend", "IREEVMVXBackend", "IREELLVMBackend", "IREELLVMCBackend", "IREEVMVXInlineBackend", "IREELLVMInlineBackend", "IREELLVMCInlineBackend"]
+__all__ = [
+    "IREEBackend",
+    "IREEVMVXBackend",
+    "IREELLVMBackend",
+    "IREELLVMCBackend",
+    "IREEVMVXInlineBackend",
+    "IREELLVMInlineBackend",
+    "IREELLVMCInlineBackend",
+]

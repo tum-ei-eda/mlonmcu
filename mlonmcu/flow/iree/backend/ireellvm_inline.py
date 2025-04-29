@@ -45,4 +45,6 @@ class IREELLVMInlineBackend(IREEBackend):
     name = "ireellvm_inline"
 
     def __init__(self, features=None, config=None):
-        super().__init__(output_format="vm-bytecode", hal_backend="llvm-cpu", hal_inline=True, features=features, config=config)
+        super().__init__(
+            output_format="vm-bytecode", hal_backend="llvm-cpu", hal_inline=True, features=features, config=config
+        )

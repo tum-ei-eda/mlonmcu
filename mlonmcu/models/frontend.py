@@ -1455,6 +1455,7 @@ class ONNXFrontend(SimpleFrontend):
             config=config,
         )
 
+
 class MLIRFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(

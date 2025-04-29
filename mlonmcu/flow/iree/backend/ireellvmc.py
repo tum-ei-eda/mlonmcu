@@ -45,4 +45,6 @@ class IREELLVMCBackend(IREEBackend):
     name = "ireellvmc"
 
     def __init__(self, features=None, config=None):
-        super().__init__(output_format="vm-c", hal_backend="llvm-cpu", hal_inline=False, features=features, config=config)
+        super().__init__(
+            output_format="vm-c", hal_backend="llvm-cpu", hal_inline=False, features=features, config=config
+        )

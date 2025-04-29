@@ -192,7 +192,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
             return value
         value = str2bool(value)
         return "ON" if value else "OFF"
-    
+
     @property
     def use_corev(self):
         value = self.config["use_corev"]

@@ -24,6 +24,7 @@ from .riscv import (
     RiscvQemuTarget,
     GvsocPulpTarget,
     EtissTarget,
+    EtissPerfTarget,
     EtissRV32Target,
     EtissRV64Target,
     AraTarget,
@@ -40,7 +41,7 @@ TARGET_REGISTRY = {}
 
 
 def register_target(target_name, t, override=False):
-    global TARGET_REGISTRY
+    # global TARGET_REGISTRY
 
     if target_name in TARGET_REGISTRY and not override:
         raise RuntimeError(f"Target {target_name} is already registered")
@@ -53,6 +54,7 @@ def get_targets():
 
 register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
+register_target("etiss_perf", EtissPerfTarget)
 register_target("etiss_rv32", EtissRV32Target)
 register_target("etiss_rv64", EtissRV64Target)
 register_target("host_x86", HostX86Target)

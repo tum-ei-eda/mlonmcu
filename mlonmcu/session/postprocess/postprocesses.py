@@ -23,6 +23,7 @@ import ast
 import tempfile
 from pathlib import Path
 from io import StringIO
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -1919,4 +1920,59 @@ class ExportOutputsPostprocess(RunPostprocess):
             artifacts.append(artifact)
         if temp_dir:
             temp_dir.cleanup()
+        return artifacts
+
+
+class StageTimesGanttPostprocess(SessionPostprocess):
+    """Write Mermaid markdown file for stage times."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("stage_times_gantt", features=features, config=config)
+
+    def post_session(self, report):
+        """Called at the end of a session."""
+        artifacts = []
+        content = """gantt
+  title Flow
+  dateFormat x
+  axisFormat %H:%M:%S
+"""
+        for i, row in report.main_df.iterrows():
+            content += f"    section Run {i}\n"
+            stage_times = defaultdict(dict)
+            for key, value in row.items():
+                # if " Stage Time [s]" in key:
+                #     key = key.replace(" Stage Time [s]", "")
+                #     stage_times[key]["time_s"] = value
+                if " Start Time [s]" in key:
+                    key = key.replace(" Start Time [s]", "")
+                    stage_times[key]["start"] = value
+                if " End Time [s]" in key:
+                    key = key.replace(" End Time [s]", "")
+                    stage_times[key]["end"] = value
+            # stage_times = dict(reversed(list(stage_times.items())))
+            # print("stage_times", stage_times)
+            first = True
+            for stage, times in stage_times.items():
+                start = times.get("start")
+                end = times.get("end")
+                # time_s = times.get("time_s")
+                time_s = None
+                start = int(start * 1e3)
+                end = int(end * 1e3)
+                if False:
+                    if first:
+                        first = False
+                        content += f"      {stage} : 0, {time_s}s\n"
+                    else:
+
+                        content += f"      {stage} : {time_s}s\n"
+                else:
+                    content += f"      {stage} : {start}, {end}\n"
+        artifact = Artifact("stage_times.mermaid", content=content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(artifact)
         return artifacts

@@ -32,7 +32,7 @@ MICROTVM_PLATFORM_BACKEND_REGISTRY = {}
 
 
 def register_microtvm_platform_backend(backend_name, b, override=False):
-    global MICROTVM_PLATFORM_BACKEND_REGISTRY
+    # global MICROTVM_PLATFORM_BACKEND_REGISTRY
 
     if backend_name in MICROTVM_PLATFORM_BACKEND_REGISTRY and not override:
         raise RuntimeError(f"TVM platform backend  {backend_name} is already registered")

@@ -29,7 +29,7 @@ PLATFORM_REGISTRY = {}
 
 
 def register_platform(platform_name, p, override=False):
-    global PLATFORM_REGISTRY
+    # global PLATFORM_REGISTRY
 
     if platform_name in PLATFORM_REGISTRY and not override:
         raise RuntimeError(f"Platform {platform_name} is already registered")

@@ -1924,7 +1924,7 @@ class ExportOutputsPostprocess(RunPostprocess):
 
 
 class StageTimesGanttPostprocess(SessionPostprocess):
-    """TODO."""
+    """Write Mermaid markdown file for stage times."""
 
     DEFAULTS = {
         **SessionPostprocess.DEFAULTS,
@@ -1955,7 +1955,7 @@ class StageTimesGanttPostprocess(SessionPostprocess):
                     key = key.replace(" End Time [s]", "")
                     stage_times[key]["end"] = value
             # stage_times = dict(reversed(list(stage_times.items())))
-            print("stage_times", stage_times)
+            # print("stage_times", stage_times)
             first = True
             for stage, times in stage_times.items():
                 start = times.get("start")

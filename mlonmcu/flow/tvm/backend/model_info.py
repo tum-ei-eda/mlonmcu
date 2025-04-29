@@ -163,9 +163,10 @@ class RelayTensorInfo(TensorInfo):
 
 
 class ModelInfo:
-    def __init__(self, in_tensors, out_tensors, fix_names=False):
+    def __init__(self, in_tensors, out_tensors, main_func_name=None, fix_names=False):
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
+        self.main_func_name = main_func_name
 
     def validate(self):
         assert len(self.in_tensors) > 0, "Missing inputs"

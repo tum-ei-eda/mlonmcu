@@ -2572,6 +2572,7 @@ class BasicBlockSections(PlatformFeature):
             }
         )
 
+
 @register_feature("perf_sim")
 class PerfSim(TargetFeature):
     """ETISS Performance Estimation/Simulation Feature."""

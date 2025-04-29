@@ -50,7 +50,7 @@ ESPIDF_PLATFORM_TARGET_REGISTRY = {}
 
 
 def register_espidf_platform_target(target_name, t, override=False):
-    global ESPIDF_PLATFORM_TARGET_REGISTRY
+    # global ESPIDF_PLATFORM_TARGET_REGISTRY
 
     if target_name in ESPIDF_PLATFORM_TARGET_REGISTRY and not override:
         raise RuntimeError(f"ESP-IDF platform target {target_name} is already registered")

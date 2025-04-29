@@ -823,7 +823,7 @@ class Usmp(BackendFeature):
 
 @register_feature("fuse_ops")
 class FuseOps(BackendFeature):
-    """TODO"""
+    """Exposes relay.FuseOps.max_depth settings for TVM backends."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -1125,7 +1125,7 @@ class AutoTVM(TVMTuneBase):
 
 @register_feature("autoscheduler", depends=["autotune"])
 class AutoScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM AutoScheduler Tuning Feature."""
 
     # TODO: metascheduler
     # TODO: graphtuner
@@ -1163,7 +1163,7 @@ class AutoScheduler(TVMTuneBase):
 
 @register_feature("metascheduler", depends=["autotune"])
 class MetaScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM MetaScheduler Tuning Feature."""
 
     DEFAULTS = {
         **TVMTuneBase.DEFAULTS,
@@ -2237,7 +2237,7 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
 
 @register_feature("vanilla_accelerator")
 class VanillaAccelerator(TargetFeature):
-    """TODO"""
+    """BYOC Vanilla Accelerator Feature for TVM."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2479,3 +2479,84 @@ class ValidateNew(RunFeature):
     #     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
     #     # return [validate_outputs_postprocess]
     #     return ["validate_outputs"]
+
+
+@register_feature("perf_sim")
+class PerfSim(TargetFeature):
+    """ETISS Performance Estimation/Simulation Feature."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "core": "cv32e40p",
+        "trace_asm": False,  # TODO: move to owen feature, save files!
+        "trace_instr": False,  # TODO: move to owen feature, save files!
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("perf_sim", features=features, config=config)
+
+    @property
+    def core(self):
+        value = self.config["core"]
+        return value
+
+    @property
+    def trace_asm(self):
+        value = self.config["trace_asm"]
+        return str2bool(value)
+
+    @property
+    def trace_instr(self):
+        value = self.config["trace_instr"]
+        return str2bool(value)
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss_perf"]
+        if not self.enabled:
+            return
+        plugins_new = config.get(f"{target}.plugins", [])
+        extra_plugin_config = config.get(f"{target}.extra_plugin_config", {})
+        plugins_new.append("PerformanceEstimatorPlugin")
+        if self.core is not None:
+            assert self.name not in extra_plugin_config
+            extra_plugin_config["perfEst"] = {}
+            extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
+        if self.trace_asm or self.trace_instr:
+            assert not (self.trace_asm and self.trace_instr)
+            assert not self.trace_instr or self.core.upper() == "CVA6"
+            plugins_new.append("TracePrinterPlugin")
+            trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
+            extra_plugin_config["tracePrinter"] = {}
+            extra_plugin_config["tracePrinter"]["trace"] = trace
+            extra_plugin_config["tracePrinter"]["to_file"] = 1
+            extra_plugin_config["tracePrinter"]["outDir"] = "/tmp/perf_out/"  # TODO: do not hardcode
+            extra_plugin_config["tracePrinter"]["fileName"] = "instr_trace" if self.trace_instr else "asm_trace"
+            extra_plugin_config["tracePrinter"]["rotateSize"] = 0x100000
+        config.update({f"{target}.plugins": plugins_new})
+        config.update({f"{target}.extra_plugin_config": extra_plugin_config})
+
+    def get_target_callbacks(self, target):
+        assert target in ["etiss_perf"]
+        if self.enabled:
+
+            def metrics_callback(stdout, metrics, artifacts, directory=None):
+                """Callback for extracting perf metrics from stdout"""
+                assert len(metrics) == 1
+                instrs_match = re.compile(r" >> Number of instructions: (\d+)").findall(stdout)
+                assert instrs_match is not None
+                assert len(instrs_match) == 1
+                cycles_match = re.compile(r" >> Estimated number of processor cycles: (\d+)").findall(stdout)
+                assert cycles_match is not None
+                assert len(cycles_match) == 1
+                cpi_match = re.compile(
+                    r" >> Estimated average number of processor cycles per instruction: (\d+?\.\d+)"
+                ).findall(stdout)
+                assert cpi_match is not None
+                assert len(cpi_match) == 1
+                metrics[0].add("PerfSim Instructions", int(instrs_match[0]))
+                metrics[0].add("PerfSim Cycles", int(cycles_match[0]))
+                metrics[0].add("PerfSim CPI", float(cpi_match[0]))
+                return stdout
+
+            return None, metrics_callback
+        return None, None

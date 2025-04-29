@@ -24,6 +24,7 @@ from .riscv import (
     RiscvQemuTarget,
     GvsocPulpTarget,
     EtissTarget,
+    EtissPerfTarget,
     EtissRV32Target,
     EtissRV64Target,
     AraTarget,
@@ -53,6 +54,7 @@ def get_targets():
 
 register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
+register_target("etiss_perf", EtissPerfTarget)
 register_target("etiss_rv32", EtissRV32Target)
 register_target("etiss_rv64", EtissRV64Target)
 register_target("host_x86", HostX86Target)

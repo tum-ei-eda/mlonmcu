@@ -97,8 +97,6 @@ RUN . /venv/bin/activate && pip install -r /environment/requirements_addition.tx
 
 RUN df -h
 
-RUN df -h
-
 RUN . /venv/bin/activate && mlonmcu setup -v
 
 RUN df -h

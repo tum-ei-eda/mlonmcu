@@ -319,7 +319,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         logger.debug(f"Created worker for task {i}")
 
                         def do_work(idx, prepend, task_len):
-                            nonlocal trials_single, trials_global, early_stopping
+                            # nonlocal trials_single, trials_global, early_stopping
+                            nonlocal trials_single, early_stopping
                             t0 = time.time()
                             with tempfile.TemporaryDirectory() as tmp_dir:
                                 out_file = Path(tmp_dir) / "tuning_results.log.txt"

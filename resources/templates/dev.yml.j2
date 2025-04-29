@@ -39,7 +39,7 @@ repos:
   #   ref: patches
   tvm:
     url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
-    ref: develop
+    ref: develop_v0.17.0
     options:
       recursive: true
       submodules:
@@ -82,7 +82,8 @@ repos:
     ref: fc42c71353d15c564558249bd4f13350119ab6a9
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 878cd01558896628e5d673a51fc19b5c0fd3be14
+    # ref: 878cd01558896628e5d673a51fc19b5c0fd3be14
+    ref: 609c47e03017b53fbe9b48312a58e95b08b3ae00
   # espidf:
   #   url: "https://github.com/espressif/esp-idf.git"
   #   ref: release/v4.4
@@ -334,11 +335,11 @@ vars:
   # llvm.version: "16.0.0"
   # llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/Archive/llvm16.tar.xz"
   llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/18.1.8/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
-  # llvm.distributioni: x86_64-linux-gnu-ubuntu-18.04
+  # llvm.distribution: x86_64-linux-gnu-ubuntu-18.04
   # llvm.version: 18.1.8
-  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
-  riscv_gcc.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcv_ilp32d.tar.xz"
-  riscv_gcc.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcp_ilp32d.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
+  riscv_gcc_rv32.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcv_ilp32d.tar.xz"
+  riscv_gcc_rv32.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcp_ilp32d.tar.xz"
   spike.keep_build_dir: false
   etiss.keep_build_dir: false
 flags:

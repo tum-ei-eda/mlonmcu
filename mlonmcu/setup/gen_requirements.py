@@ -254,7 +254,7 @@ CONSTRAINTS = [
     ("tornado", None),
     ("typing_extensions", None),
     ("xdg", None),
-    ("xgboost", ">=1.7.0"),
+    ("xgboost", ">=1.7.0,<2.0"),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]

@@ -148,7 +148,6 @@ with mlonmcu.context.MlonMcuContext() as context:
 Make sure to first install the additonal set of development Python packages into your virtual environment:
 
 ```
-pip install -r requirements_all.txt  # Install packages for every component (instead of using mlonmcu setup -g)
 pip install -r requirements_dev.txt  # Building distributions and running tests
 pip install -r docs/requirements.txt  # For working with the documentation
 ```

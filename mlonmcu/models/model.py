@@ -331,7 +331,7 @@ class MathisProgram(Program):
     def size(self):
         value = self.config["size"]
         if isinstance(value, str):
-            value = str(value)
+            value = int(value)
         assert isinstance(value, int)
         assert value > 0
         return value

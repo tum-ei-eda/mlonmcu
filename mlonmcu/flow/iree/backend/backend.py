@@ -966,8 +966,16 @@ class IREEBackend(Backend):
             model_path,
             # "--iree-opt-level=O2",  # needs iree 3.3+
             # "--iree-opt-strip-assertions",
+            "--iree-opt-strip-assertions",
+            # "--iree-opt-aggressively-propagate-transposes",
+            # "--iree-dispatch-creation-enable-aggressive-fusion",
+            "--iree-llvmcpu-loop-unrolling",
+            # "--iree-input-demote-i64-to-i32=true",
+            # "--iree-stream-resource-index-bits=8",
             f"--output-format={self.output_format}",
             f"--iree-hal-target-backends={self.hal_backend}",
+            "--iree-vm-bytecode-module-strip-source-map=true",  # TODO: vm-bytecode only?
+            "--iree-vm-emit-polyglot-zip",
             *get_iree_compile_hal_backend_target_args(self.hal_backend, self.get_target_details()),
             *([f"--iree-execution-model={self.execution_model}"] if self.execution_model is not None else []),
             # TODO: emitc only?

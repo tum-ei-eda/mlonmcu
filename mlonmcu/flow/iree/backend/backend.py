@@ -76,7 +76,8 @@ def generate_iree_wrapper(
     main_func_name = model_info.main_func_name
     print("main_func_name", main_func_name)
     assert main_func_name is not None
-    identifier2 = "module_linked" if translated else f"{main_func_name}_dispatch_0"
+    # identifier2 = "module_linked" if translated else f"{main_func_name}_dispatch_0"
+    identifier2 = "model_linked" if translated else f"{main_func_name}_dispatch_0"
     print("identifier2", identifier2)
     inSizes = getSizes(model_info.in_tensors)
     outSizes = getSizes(model_info.out_tensors)
@@ -131,7 +132,7 @@ def generate_iree_wrapper(
             .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL,
             .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,
         }},
-        iree_make_const_byte_span(inputs[{i}], sizeof(inputs[{i}])), &arg{i}_buffer_view));
+        iree_make_const_byte_span(inputs[{i}], sizeof(*inputs[{i}])), &arg{i}_buffer_view));
 """
         if not use_emitc:
             ret += f"""
@@ -163,7 +164,8 @@ def generate_iree_wrapper(
 """
         return ret
 
-    setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=use_emitc)
+    # setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=use_emitc)
+    setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=False)
 
     def getCopyOutputsCode(out_tensors):
         assert len(out_tensors) == 1
@@ -179,14 +181,14 @@ def generate_iree_wrapper(
   // Read back the results and ensure we got the right values.
   IREE_RETURN_IF_ERROR(iree_hal_device_transfer_d2h(
       device, iree_hal_buffer_view_buffer(ret_buffer_view), 0, outputs[0],
-      sizeof(outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,
+      sizeof(*outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,
       iree_infinite_timeout()));
 """
         return ret
 
     copyOutputs = getCopyOutputsCode(model_info.out_tensors)
 
-    ret = (
+    wrapper_main = (
         """
 #include <stddef.h>
 
@@ -210,12 +212,13 @@ def generate_iree_wrapper(
 // A function to create the HAL device from the different backend targets.
 // The HAL device is returned based on the implementation, and it must be
 // released by the caller.
-extern iree_status_t create_sample_device(iree_allocator_t host_allocator,
-                                          iree_hal_device_t **out_device);
+extern iree_status_t create_sample_device(
+    iree_allocator_t host_allocator, iree_hal_device_t** out_device,
+    iree_hal_executable_loader_t** loader);
 
-// A function to load the vm bytecode module from the different backend targets.
-// The bytecode module is generated for the specific backend and platform.
-extern const iree_const_byte_span_t load_bytecode_module_data();
+// A function to create the bytecode or C module.
+extern iree_status_t create_module(iree_vm_instance_t* instance,
+                                   iree_vm_module_t** out_module);
 
 // static globals
 static iree_vm_instance_t *instance = NULL;
@@ -240,8 +243,9 @@ iree_status_t Prepare(void) {
   printf("B\\n");
 
   iree_hal_executable_loader_t* loader = NULL;
-  IREE_RETURN_IF_ERROR(create_sample_device(iree_allocator_system(), &device),
-                       "create device");
+  IREE_RETURN_IF_ERROR(
+      create_sample_device(iree_allocator_system(), &device, &loader),
+      "create device");
   printf("C\\n");
 
 #if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)
@@ -256,14 +260,8 @@ iree_status_t Prepare(void) {
   printf("D\\n");
 
 
-  // Load bytecode module from the embedded data.
-  const iree_const_byte_span_t module_data = load_bytecode_module_data();
-  printf("D_\\n");
-
-  iree_vm_module_t *bytecode_module = NULL;
-  IREE_RETURN_IF_ERROR(iree_vm_bytecode_module_create(
-      instance, module_data, iree_allocator_null(), iree_allocator_system(),
-      &bytecode_module));
+  iree_vm_module_t *module = NULL;
+  IREE_RETURN_IF_ERROR(create_module(instance, &module));
   printf("E\\n");
 
   // iree_vm_module_t *hal_module = NULL;
@@ -272,7 +270,7 @@ iree_status_t Prepare(void) {
   //     iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),
   //     &hal_module));
 #if defined(BUILD_INLINE_HAL)
-  iree_vm_module_t* modules[] = {hal_inline_module, bytecode_module};
+  iree_vm_module_t* modules[] = {hal_inline_module, module};
 #elif defined(BUILD_LOADER_HAL)
   // Create hal_loader_module
   iree_vm_module_t* hal_loader_module = NULL;
@@ -280,7 +278,7 @@ iree_status_t Prepare(void) {
       instance, IREE_HAL_MODULE_FLAG_NONE,
       /*loader_count=*/1, &loader, iree_allocator_system(),
       &hal_loader_module));
-  iree_vm_module_t* modules[] = {hal_inline_module, hal_loader_module, bytecode_module};
+  iree_vm_module_t* modules[] = {hal_inline_module, hal_loader_module, module};
 #else
   // Create hal_module
   iree_vm_module_t* hal_module = NULL;
@@ -289,12 +287,13 @@ iree_status_t Prepare(void) {
       iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),
       &hal_module));
 
-  iree_vm_module_t* modules[] = {hal_module, bytecode_module};
+  iree_vm_module_t* modules[] = {hal_module, module};
 #endif
+  iree_hal_executable_loader_release(loader);
   printf("F\\n");
 
   // Allocate a context that will hold the module state across invocations.
-  // iree_vm_module_t *modules[] = {hal_module, bytecode_module};
+  // iree_vm_module_t *modules[] = {hal_module, module};
   IREE_RETURN_IF_ERROR(iree_vm_context_create_with_modules(
       instance, IREE_VM_CONTEXT_FLAG_NONE, IREE_ARRAYSIZE(modules), &modules[0],
       iree_allocator_system(), &context));
@@ -310,7 +309,7 @@ iree_status_t Prepare(void) {
 #if defined(BUILD_LOADER_HAL)
   iree_vm_module_release(hal_loader_module);
 #endif
-  iree_vm_module_release(bytecode_module);
+  iree_vm_module_release(module);
   printf("I\\n");
 
   // Lookup the entry point function.
@@ -449,10 +448,6 @@ size_t IREE_GetNumOutputs()
 #include "iree/modules/hal/module.h"
 #include "iree/runtime/api.h"
 
-#include \""""
-        + identifier
-        + """_emitc.h\"
-
 // Initial buffer contents for 4 * 2 = 8.
 // const int32_t kInt4[] = {4, 4, 4, 4};
 // const int32_t kInt2[] = {2, 2, 2, 2};
@@ -462,12 +457,6 @@ size_t IREE_GetNumOutputs()
         + """
 
 iree_status_t module_create(iree_vm_instance_t* v1, iree_allocator_t v2, iree_vm_module_t** v3);
-
-iree_status_t create_module(iree_vm_instance_t* instance,
-                            iree_vm_module_t** out_module) {
-  return module_create(instance, iree_vm_instance_allocator(instance),
-                       out_module);
-}
 
 extern const iree_hal_executable_library_header_t**
 """
@@ -618,7 +607,7 @@ iree_status_t Cleanup() {
   // int32_t results[] = {0, 0, 0, 0};
   IREE_RETURN_IF_ERROR(iree_hal_device_transfer_d2h(
       device, iree_hal_buffer_view_buffer(ret_buffer_view), 0, outputs[0],
-      sizeof(outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,
+      sizeof(*outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,
       iree_infinite_timeout()));
   // for (iree_host_size_t i = 0; i < IREE_ARRAYSIZE(results); ++i) {
   //   if (results[i] != 8) {
@@ -646,7 +635,7 @@ iree_status_t Cleanup() {
 }
 """
     )
-    ret2 = """#ifndef IREE_WRAPPER_H
+    header = """#ifndef IREE_WRAPPER_H
 #define IREE_WRAPPER_H
 
 #include <stddef.h>
@@ -663,7 +652,7 @@ size_t IREE_GetNumOutputs();
 
 #endif  // IREE_WRAPPER_H
 """
-    ret3 = (
+    sync_static = (
         """
 #include <stddef.h>
 
@@ -671,53 +660,51 @@ size_t IREE_GetNumOutputs();
 #include "iree/hal/api.h"
 #include "iree/hal/drivers/local_sync/sync_device.h"
 #include "iree/hal/local/executable_loader.h"
-#include "iree/hal/local/loaders/embedded_elf_loader.h"
+#include "iree/hal/local/loaders/static_library_loader.h"
 
-// Compiled module embedded here to avoid file IO:
 #include \""""
         + identifier
-        + """.h\"
+        + """_static_lib.h\"
 
 iree_status_t create_sample_device(iree_allocator_t host_allocator,
-                                   iree_hal_device_t **out_device) {
+                                   iree_hal_device_t **out_device,
+                                   iree_hal_executable_loader_t** loader) {
+
   // Set parameters for the device created in the next step.
   iree_hal_sync_device_params_t params;
   iree_hal_sync_device_params_initialize(&params);
 
-  iree_hal_executable_loader_t *loader = NULL;
-  IREE_RETURN_IF_ERROR(iree_hal_embedded_elf_loader_create(
-      /*plugin_manager=*/NULL, host_allocator, &loader));
+  const iree_hal_executable_library_query_fn_t libraries[] = {
+      """
+        + identifier2
+        + """_library_query,
+  };
+
+  iree_status_t status = iree_hal_static_library_loader_create(
+      IREE_ARRAYSIZE(libraries), libraries,
+      iree_hal_executable_import_provider_null(), host_allocator, loader);
 
   // Use the default host allocator for buffer allocations.
   iree_string_view_t identifier = iree_make_cstring_view("local-sync");
-  iree_hal_allocator_t *device_allocator = NULL;
-  iree_status_t status = iree_hal_allocator_create_heap(
-      identifier, host_allocator, host_allocator, &device_allocator);
-
-  // Create the synchronous device and release the loader afterwards.
+  iree_hal_allocator_t* device_allocator = NULL;
   if (iree_status_is_ok(status)) {
+    status = iree_hal_allocator_create_heap(identifier, host_allocator,
+                                            host_allocator, &device_allocator);
+  }
+
+  if (iree_status_is_ok(status)) {
+    // Create the synchronous device
     status = iree_hal_sync_device_create(
-        identifier, &params, /*loader_count=*/1, &loader, device_allocator,
+        identifier, &params, /*loader_count=*/1, loader, device_allocator,
         host_allocator, out_device);
   }
 
   iree_hal_allocator_release(device_allocator);
-  iree_hal_executable_loader_release(loader);
   return status;
-}
-
-const iree_const_byte_span_t load_bytecode_module_data() {
-  const struct iree_file_toc_t *module_file_toc =
-      """
-        + identifier
-        + """_create();
-  return iree_make_const_byte_span(module_file_toc->data,
-                                   module_file_toc->size);
 }
 """
     )
-    ret3_vmvx = (
-        """
+    sync_vmvx = """
 #include <stddef.h>
 
 #include "iree/base/api.h"
@@ -760,22 +747,77 @@ iree_status_t create_sample_device(iree_allocator_t host_allocator,
   iree_hal_allocator_release(device_allocator);
   return status;
 }
+"""
+    utils_vmvx = (
+        """
+#include <stdio.h>
 
-// Compiled module embedded here to avoid file IO:
+#include "iree/vm/bytecode/module.h"
+
 #include \""""
         + identifier
         + """.h\"
-const iree_const_byte_span_t load_bytecode_module_data() {
-  const struct iree_file_toc_t *module_file_toc =
-      """
+
+// A function to create a VMVX bytecode module.
+iree_status_t create_module(iree_vm_instance_t* instance,
+                            iree_vm_module_t** out_module) {
+  const struct iree_file_toc_t *module_file_toc = """
         + identifier
         + """_create();
-  return iree_make_const_byte_span(module_file_toc->data,
-                                   module_file_toc->size);
+  iree_const_byte_span_t module_data =
+      iree_make_const_byte_span(module_file_toc->data, module_file_toc->size);
+  return iree_vm_bytecode_module_create(instance, module_data,
+                                        iree_allocator_null(),
+                                        iree_allocator_system(), out_module);
 }
 """
     )
-    return (ret_emitc if use_emitc else ret) + epilog, ret2, (ret3_vmvx if vmvx else ret3)
+    utils_bytecode = (
+        """
+#include <stdio.h>
+
+#include "iree/vm/bytecode/module.h"
+
+#include \""""
+        + identifier
+        + """.h\"
+
+// A function to create the bytecode module.
+iree_status_t create_module(iree_vm_instance_t* instance,
+                            iree_vm_module_t** out_module) {
+  const struct iree_file_toc_t *module_file_toc = """
+        + identifier
+        + """_create();
+  iree_const_byte_span_t module_data =
+      iree_make_const_byte_span(module_file_toc->data, module_file_toc->size);
+  return iree_vm_bytecode_module_create(
+      instance, module_data, iree_allocator_null(),
+      iree_vm_instance_allocator(instance), out_module);
+}
+"""
+    )
+    utils_emitc = (
+        """
+#include <stdio.h>
+
+#include \""""
+        + identifier
+        + """_emitc.h\"
+
+// A function to create the C module.
+iree_status_t create_module(iree_vm_instance_t* instance,
+                            iree_vm_module_t** out_module) {
+  return module_create(instance, iree_vm_instance_allocator(instance),
+                       out_module);
+}
+"""
+    )
+    # return (ret_emitc if use_emitc else ret) + epilog, ret2, (ret3_vmvx if vmvx else ret3)
+    prolog = ""
+    sync = sync_vmvx if vmvx else sync_static
+    wrapper = prolog + wrapper_main + epilog
+    utils = utils_vmvx if vmvx else (utils_emitc if use_emitc else utils_bytecode)
+    return wrapper, header, sync, utils
 
 
 class IREEBackend(Backend):

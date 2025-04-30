@@ -851,6 +851,7 @@ class IREEBackend(Backend):
         self.hal_backend = hal_backend
         self.hal_inline = hal_inline
         self.execution_model = None
+        self.static_lib = self.hal_backend == "llvm-cpu"
         if self.hal_inline:
             if self.hal_backend == "vmvx":
                 self.hal_backend = "vmvx-inline"
@@ -979,7 +980,8 @@ class IREEBackend(Backend):
                     "--iree-llvmcpu-link-embedded=false",
                     f"-iree-llvmcpu-static-library-output-path={static_lib_path}",
                 ]
-                if self.output_format == "vm-c" and self.hal_backend == "llvm-cpu"
+                # if self.output_format == "vm-c" and self.hal_backend == "llvm-cpu"
+                if self.hal_backend == "llvm-cpu" and self.static_lib
                 else []
             ),
             *(
@@ -1154,23 +1156,14 @@ class IREEBackend(Backend):
             elif self.output_format == "vm-c":
                 out_path = out_dir / f"{self.identifier}_emitc.h"
             out = self.invoke_iree_compile(out_path, model_path, cwd=temp_dir)
-            if self.output_format == "vm-c":
+            if self.hal_backend == "llvm-cpu":
                 static_lib_path = out_dir / f"{self.identifier}_static_lib.o"
                 header_path = out_dir / f"{self.identifier}_static_lib.h"
-                with open(out_path, "r") as f:
-                    emitc_content = f.read()
                 with open(static_lib_path, "rb") as f:
                     static_lib_raw = f.read()
                 with open(header_path, "r") as f:
                     header_content = f.read()
 
-                artifacts.append(
-                    Artifact(
-                        out_path.name,
-                        content=emitc_content,
-                        fmt=ArtifactFormat.SOURCE,
-                    )
-                )
                 artifacts.append(
                     Artifact(
                         static_lib_path.name,
@@ -1185,7 +1178,22 @@ class IREEBackend(Backend):
                         fmt=ArtifactFormat.SOURCE,
                     )
                 )
-            elif self.output_format == "vm-bytecode":
+
+                if self.output_format == "vm-c":
+                    with open(out_path, "r") as f:
+                        emitc_content = f.read()
+
+                    artifacts.append(
+                        Artifact(
+                            out_path.name,
+                            content=emitc_content,
+                            fmt=ArtifactFormat.SOURCE,
+                        )
+                    )
+            # elif self.output_format == "vm-bytecode":
+            # elif self.hal_backend in ["vmvx", "vmvx-inline"]:
+            #     assert self.output_format == "vm-bytecode"
+            if self.output_format == "vm-bytecode":
                 with open(out_path, "rb") as f:
                     out_raw = f.read()
                 artifacts.append(
@@ -1216,11 +1224,11 @@ class IREEBackend(Backend):
                         fmt=ArtifactFormat.SOURCE,
                     )
                 )
-            wrapper_content, wrapper_header_content, sync_content = generate_iree_wrapper(
+            wrapper_content, wrapper_header_content, sync_content, utils_content = generate_iree_wrapper(
                 model_info,
                 self.identifier,
                 use_emitc=self.use_emitc,
-                vmvx=self.hal_backend == "vmvx",
+                vmvx=self.hal_backend in ["vmvx", "vmvx-inline"],
                 translated=translated,
             )
             artifacts.append(
@@ -1232,15 +1240,23 @@ class IREEBackend(Backend):
             )
             artifacts.append(
                 Artifact(
+                    f"{self.identifier}_utils.c",
+                    content=utils_content,
+                    fmt=ArtifactFormat.SOURCE,
+                )
+            )
+            artifacts.append(
+                Artifact(
                     "iree_wrapper.h",
                     content=wrapper_header_content,
                     fmt=ArtifactFormat.SOURCE,
                 )
             )
-            if not self.use_emitc:
+            # if not self.use_emitc:
+            if True:
                 artifacts.append(
                     Artifact(
-                        "device_embedded_sync.c",
+                        "device_sync.c",
                         content=sync_content,
                         fmt=ArtifactFormat.SOURCE,
                     )

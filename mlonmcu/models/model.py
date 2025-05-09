@@ -55,6 +55,7 @@ class ModelFormats(Enum):
     PADDLE = ModelFormat(7, ["pdmodel"])
     TEXT = ModelFormat(8, ["txt"])
     MLIR = ModelFormat(9, ["mlir"])
+    SAVED_MODEL = ModelFormat(9, [""])  # tf
 
 
 def parse_metadata_from_path(path):

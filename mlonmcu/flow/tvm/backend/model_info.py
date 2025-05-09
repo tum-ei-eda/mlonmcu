@@ -518,4 +518,4 @@ def get_supported_formats():
 
 
 def get_supported_formats_iree():
-    return [ModelFormats.TFLITE, ModelFormats.MLIR]
+    return [ModelFormats.TFLITE, ModelFormats.ONNX, ModelFormats.SAVED_MODEL, ModelFormats.MLIR]

@@ -336,6 +336,7 @@ def clone(
     branch: str = "",
     submodules: list = [],
     recursive: bool = False,
+    depth: Optional[int] = None,
     refresh: bool = False,
 ):
     """Helper function for cloning a repository.
@@ -384,16 +385,18 @@ def clone(
             repo.git.pull("origin", branch)  # This should also work for specific commits
             update_submodules()
     else:
-        if branch:
-            repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
+        no_checkout = branch is not None
+        branch_ = None
+        if depth is not None and branch is not None:
+            branch_ = branch
+        repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=no_checkout, branch=branch_)
+        if branch is not None:
             repo.git.checkout(branch)
-            update_submodules()
-        else:
-            Repo.clone_from(url, dest, recursive=recursive)
+        update_submodules()
 
 
 def clone_wrapper(cfg: RepoConfig, dest: Union[str, bytes, os.PathLike], refresh: bool = False):
-    clone(cfg.url, dest, branch=cfg.ref, submodules=cfg.submodules, recursive=cfg.recursive, refresh=refresh)
+    clone(cfg.url, dest, branch=cfg.ref, submodules=cfg.submodules, recursive=cfg.recursive, depth=cfg.depth, refresh=refresh)
 
 
 def apply(

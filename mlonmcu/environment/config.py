@@ -147,6 +147,11 @@ class RepoConfig(BaseConfig):
         return value
 
     @property
+    def depth(self):
+        value = self.options.get("depth", None)
+        return int(value) if value is not None else None
+
+    @property
     def submodules(self):
         value = self.options.get("submodules", None)
         if value is not None:

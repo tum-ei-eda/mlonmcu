@@ -154,7 +154,8 @@ def parse_relay_main(line):
         if len(output_tensor_names_str) > 0:
             output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
         else:
-            output_tensor_names = [f"output{i}" for i in range(len(output_tensor_strs))]
+            # output_tensor_names = [f"output{i}" for i in range(len(output_tensor_strs))]
+            output_tensor_names = [f"output{i}" if i > 0 else "output" for i in range(len(output_tensor_strs))]
 
         assert len(output_tensor_names) == len(output_tensor_strs)
 

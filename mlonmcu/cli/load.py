@@ -74,7 +74,11 @@ def _handle(args, context):
                 all_features = list(set(features + f))
                 run.add_features_by_name(all_features, context=context)  # TODO do this before load.py?
                 run.add_frontends_by_name(frontends, context=context)
-                run.add_model_by_name(model, context=context)
+                is_url = model.startswith("http://") or model.startswith("https://")
+                if is_url:
+                    run.add_model_by_url(model, context=context)
+                else:
+                    run.add_model_by_name(model, context=context)
                 run.add_postprocesses_by_name(postprocesses, context=context)  # TODO do this before load.py?
 
 

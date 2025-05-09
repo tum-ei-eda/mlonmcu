@@ -468,6 +468,23 @@ class Run:
         self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
+    def add_model_by_url(self, url, context=None):
+        """Helper function to initialize and configure a model by url."""
+        # TODO: move this to session to only download a model once
+        # hash url
+        # check if hash exists -> already downloaded
+        # download file to temp_dir
+        dl_file = None
+        self.add_model_by_path(dl_file, context)
+
+    def add_model_by_path(self, path, context=None):
+        """Helper function to initialize and configure a model by path."""
+        # Get suitable frontend
+        # get name from file
+        # model = ModelHint(?)
+        model = None
+        self.add_model(model)
+
     def add_model_by_name(self, model_name, context=None):
         """Helper function to initialize and configure a model by its name."""
         assert context is not None, "Please supply a context"

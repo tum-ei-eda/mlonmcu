@@ -945,7 +945,8 @@ class IREEBackend(Backend):
             ret["abi"] = self.target_abi
         if self.target_cpu_features:
             temp = self.target_cpu_features
-            custom_unroll = False  # TODO
+            # custom_unroll = False  # TODO
+            custom_unroll = True
             if custom_unroll:
                 temp += ",+no-default-unroll"
             ret["cpu-features"] = temp
@@ -967,9 +968,16 @@ class IREEBackend(Backend):
             # "--iree-opt-level=O2",  # needs iree 3.3+
             # "--iree-opt-strip-assertions",
             "--iree-opt-strip-assertions",
+            "--iree-llvmcpu-target-vector-width-in-bytes=4",
+            "--iree-llvmcpu-slp-vectorization=0",
+            "--iree-llvmcpu-loop-vectorization=0",
+            "--iree-llvmcpu-check-linalg-vectorization=0",
+            "--iree-llvmcpu-disable-vector-peeling=1",
+            "--iree-llvmcpu-enable-scalable-vectorization=0",
+            "--iree-llvmcpu-fail-on-large-vector=1",
             # "--iree-opt-aggressively-propagate-transposes",
             # "--iree-dispatch-creation-enable-aggressive-fusion",
-            "--iree-llvmcpu-loop-unrolling",
+            ### "--iree-llvmcpu-loop-unrolling",
             # "--iree-input-demote-i64-to-i32=true",
             # "--iree-stream-resource-index-bits=8",
             f"--output-format={self.output_format}",

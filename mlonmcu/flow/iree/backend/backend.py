@@ -1140,17 +1140,23 @@ class IREEBackend(Backend):
                 translated = True
                 mlirbc_path = out_dir / f"{self.identifier}.mlirbc"
                 mlir_path = out_dir / f"{self.identifier}.mlir"
-                # python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
-                python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
+                needs_mlirbc2mlir = False
+                if self.model_format == "tflite":
+                    python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
+                    needs_mlirbc2mlir = True
+                elif self.model_format == "onnx":
+                    python_args = ["-m", "iree.tools.onnx.scripts.iree_import_onnx", model_path, "-o", mlir_path, "--opset-version=17"]
+                elif self.model_format == "saved_model":
+                    python_args = ["-m", "iree.tools.tf.scripts.iree_import_tf", model_path, "-o", mlir_path, "--tf-import-type=savedmodel_v1", "--tf-savedmodel-exported-names=predict"]
+                else:
+                    raise NotImplementedError(f"Unhandled format: {self.model_format}")
                 utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
-                self.translate_mlirbc_to_mlir(mlirbc_path, mlir_path, cwd=temp_dir)
-                # input("-")
+                if needs_mlirbc2mlir:
+                    self.translate_mlirbc_to_mlir(mlirbc_path, mlir_path, cwd=temp_dir)
                 model_format, model_info = get_model_info(mlir_path, backend_name=self.name)
                 assert model_format == "mlir"
                 with open(mlir_path, "r") as f:
                     mlir_content = f.read()
-                with open(mlirbc_path, "rb") as f:
-                    mlirbc_raw = f.read()
                 artifacts.append(
                     Artifact(
                         mlir_path.name,
@@ -1158,13 +1164,16 @@ class IREEBackend(Backend):
                         fmt=ArtifactFormat.SOURCE,
                     )
                 )
-                artifacts.append(
-                    Artifact(
-                        mlirbc_path.name,
-                        raw=mlirbc_raw,
-                        fmt=ArtifactFormat.BIN,
+                if needs_mlirbc2mlir:
+                    with open(mlirbc_path, "rb") as f:
+                        mlirbc_raw = f.read()
+                    artifacts.append(
+                        Artifact(
+                            mlirbc_path.name,
+                            raw=mlirbc_raw,
+                            fmt=ArtifactFormat.BIN,
+                        )
                     )
-                )
                 # model_path = mlirbc_path
                 model_path = mlir_path
             if self.output_format == "vm-bytecode":

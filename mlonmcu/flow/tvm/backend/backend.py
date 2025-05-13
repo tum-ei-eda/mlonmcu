@@ -427,7 +427,9 @@ class TVMBackend(Backend):
             ret = self.invoke_tvmc("compile", *args, cwd=cwd)
         return ret
 
-    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None):
+    def load_model(
+        self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None
+    ):
         self.model = model
         self.params_path = params_path
         # TODO: path model class instead of path!

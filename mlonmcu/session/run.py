@@ -907,12 +907,14 @@ class Run:
                     output_shapes = self.model.output_shapes
                     input_types = self.model.input_types
                     output_types = self.model.output_types
+                    params_path = self.model.params_path
                 self.backend.load_model(
                     model=model_artifact.path,
                     input_shapes=input_shapes,
                     output_shapes=output_shapes,
                     input_types=input_types,
                     output_types=output_types,
+                    params_path=params_path,
                 )
                 _build()
 
@@ -932,17 +934,22 @@ class Run:
                 output_shapes = None
                 input_types = None
                 output_types = None
+                print("self.model", self.model)
+                print("model_artifact.name", model_artifact.name)
                 if model_artifact.name.split(".", 1)[0] == self.model.name:
                     input_shapes = self.model.input_shapes
                     output_shapes = self.model.output_shapes
                     input_types = self.model.input_types
                     output_types = self.model.output_types
+                    params_path = self.model.params_path
+                print("params_path", params_path)
                 self.backend.load_model(
                     model=model_artifact.path,
                     input_shapes=input_shapes,
                     output_shapes=output_shapes,
                     input_types=input_types,
                     output_types=output_types,
+                    params_path=params_path,
                 )
                 _build()
 

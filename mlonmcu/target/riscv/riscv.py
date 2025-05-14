@@ -392,6 +392,12 @@ class RISCVTarget(Target):
     def get_arch(self):
         return "riscv"
 
+    def get_vector_width():
+        return 0
+
+    def has_scalable_vectorization():
+        return False
+
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
@@ -441,6 +447,8 @@ class RISCVTarget(Target):
                     "target_abi": self.abi,
                     "target_cpu_features": self.attr,
                     "target_cpu": self.cpu,
+                    "target_vector_width": self.get_vector_width(),
+                    "target_scalable_vectorization": self.has_scalable_vectorization(),
                 }
             )
         return ret

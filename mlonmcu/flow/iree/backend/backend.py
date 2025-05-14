@@ -19,7 +19,7 @@
 import os
 import tempfile
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 import multiprocessing
 
 from mlonmcu.flow.backend import Backend
@@ -68,6 +68,61 @@ def get_iree_compile_hal_backend_target_args(hal_backend, target_details):
         [[f"--iree-llvmcpu-target-{key}", helper(value)] for key, value in target_details.items()],
         [],
     )
+
+
+def get_iree_compile_optimization_args(
+    iree_version: str,
+    opt_level: Optional[str],
+):
+    assert iree_version.count(".") == 1
+    major, minor = map(int, iree_version.split(".", 1))
+    ret = []
+    if major < 3 or (major == 3 and minor < 3):
+        # No unified optimization flags
+        if opt_level is not None:
+            raise ValueError("opt_level not supported for IREE version {iree_vection}")
+        ret += [
+            "--iree-opt-aggressively-propagate-transposes",
+            "--iree-dispatch-creation-enable-aggressive-fusion",
+            "--iree-input-demote-i64-to-i32=true",
+            "--iree-stream-resource-index-bits=8",
+        ]
+    else:
+        if opt_level is not None:
+            ret += ("--iree-opt-level={opt_level}",)  # needs iree 3.3+
+    # TODO: vm-bytecode only?
+    ret += [
+        "--iree-vm-bytecode-module-strip-source-map=true",
+        "--iree-vm-emit-polyglot-zip",
+    ]
+    return ret
+
+
+def get_iree_compile_llvmcpu_vectorization_unroll_args(
+    hal_backend: str,
+    target_vector_width: Optional[int] = None,
+    target_scalable_vector: bool = False,
+    loop_unroll: bool = True,
+):
+    if hal_backend != "llvm-cpu":
+        return []
+    supports_vectorization = target_vector_width is not None and target_vector_width > 0
+    vector_width = 0
+    if supports_vectorization:
+        vector_width = target_vector_width
+    else:
+        vector_width = 4
+    ret = [
+        f"--iree-llvmcpu-target-vector-width-in-bytes={vector_width}",
+        f"--iree-llvmcpu-slp-vectorization={int(supports_vectorization)}",
+        f"--iree-llvmcpu-loop-vectorization={int(supports_vectorization)}",
+        f"--iree-llvmcpu-disable-vector-peeling={1-int(supports_vectorization)}",
+        # "--iree-llvmcpu-check-linalg-vectorization=0",
+        "--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}",
+        "--iree-llvmcpu-fail-on-large-vector={1-int(supports_vectorization)}",
+        "--iree-llvmcpu-loop-unrolling={int(loop_unroll)}",
+    ]
+    return ret
 
 
 def generate_iree_wrapper(
@@ -829,13 +884,17 @@ class IREEBackend(Backend):
 
     DEFAULTS = {
         "print_outputs": False,
-        "opt_level": 3,
+        "opt_level": None,
         "target_cpu": None,
         "target_triple": None,
         "target_abi": None,
         "target_cpu_features": None,
         "iree_compile_extra_args": [],
         "num_threads": multiprocessing.cpu_count(),
+        "strip_assertions": None,
+        "iree_version": None,  # TODO: auto?
+        "target_vector_width": None,
+        "target_scalable_vectorization": None,
     }
 
     OPTIONAL = set()
@@ -892,6 +951,7 @@ class IREEBackend(Backend):
 
     @property
     def opt_level(self):
+        # O3, O2,...
         return self.config["opt_level"]
 
     @property
@@ -961,29 +1021,33 @@ class IREEBackend(Backend):
             "--flatten",
         ]
 
+    @property
+    def strip_assertions(self):
+        return str2bool(self.config["strip_assertions"])
+
+    @property
+    def iree_version(self):
+        return self.config["iree_version"]
+
+    @property
+    def target_vector_width(self):
+        return self.config["target_vector_width"]
+
+    @property
+    def target_scalable_vector(self):
+        return str2bool(self.config["target_scalable_vectorization"])
+
     def get_iree_compile_args(self, out, model_path):
         static_lib_path = out.parent / f"{self.identifier}_static_lib.o"
         args = [
             model_path,
-            # "--iree-opt-level=O2",  # needs iree 3.3+
-            # "--iree-opt-strip-assertions",
-            "--iree-opt-strip-assertions",
-            "--iree-llvmcpu-target-vector-width-in-bytes=4",
-            "--iree-llvmcpu-slp-vectorization=0",
-            "--iree-llvmcpu-loop-vectorization=0",
-            "--iree-llvmcpu-check-linalg-vectorization=0",
-            "--iree-llvmcpu-disable-vector-peeling=1",
-            "--iree-llvmcpu-enable-scalable-vectorization=0",
-            "--iree-llvmcpu-fail-on-large-vector=1",
-            # "--iree-opt-aggressively-propagate-transposes",
-            # "--iree-dispatch-creation-enable-aggressive-fusion",
-            ### "--iree-llvmcpu-loop-unrolling",
-            # "--iree-input-demote-i64-to-i32=true",
-            # "--iree-stream-resource-index-bits=8",
+            *(["--iree-opt-strip-assertions"] if self.strip_assertions else []),
+            *get_iree_compile_llvmcpu_vectorization_unroll_args(
+                self.hal_backend, self.target_vector_width, self.target_scalable_vector, self.loop_unroll
+            ),
+            *get_iree_compile_optimization_args(self.iree_version, self.opt_level),
             f"--output-format={self.output_format}",
             f"--iree-hal-target-backends={self.hal_backend}",
-            "--iree-vm-bytecode-module-strip-source-map=true",  # TODO: vm-bytecode only?
-            "--iree-vm-emit-polyglot-zip",
             *get_iree_compile_hal_backend_target_args(self.hal_backend, self.get_target_details()),
             *([f"--iree-execution-model={self.execution_model}"] if self.execution_model is not None else []),
             # TODO: emitc only?
@@ -1145,9 +1209,24 @@ class IREEBackend(Backend):
                     python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
                     needs_mlirbc2mlir = True
                 elif self.model_format == "onnx":
-                    python_args = ["-m", "iree.tools.onnx.scripts.iree_import_onnx", model_path, "-o", mlir_path, "--opset-version=17"]
+                    python_args = [
+                        "-m",
+                        "iree.tools.onnx.scripts.iree_import_onnx",
+                        model_path,
+                        "-o",
+                        mlir_path,
+                        "--opset-version=17",
+                    ]
                 elif self.model_format == "saved_model":
-                    python_args = ["-m", "iree.tools.tf.scripts.iree_import_tf", model_path, "-o", mlir_path, "--tf-import-type=savedmodel_v1", "--tf-savedmodel-exported-names=predict"]
+                    python_args = [
+                        "-m",
+                        "iree.tools.tf.scripts.iree_import_tf",
+                        model_path,
+                        "-o",
+                        mlir_path,
+                        "--tf-import-type=savedmodel_v1",
+                        "--tf-savedmodel-exported-names=predict",
+                    ]
                 else:
                     raise NotImplementedError(f"Unhandled format: {self.model_format}")
                 utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)

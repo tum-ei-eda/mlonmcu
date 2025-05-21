@@ -392,10 +392,10 @@ class RISCVTarget(Target):
     def get_arch(self):
         return "riscv"
 
-    def get_vector_width():
+    def get_vector_width(self):
         return 0
 
-    def has_scalable_vectorization():
+    def has_scalable_vectorization(self):
         return False
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

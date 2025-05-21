@@ -71,11 +71,15 @@ def get_iree_compile_hal_backend_target_args(hal_backend, target_details):
 
 
 def get_iree_compile_optimization_args(
-    iree_version: str,
-    opt_level: Optional[str],
+    iree_version: Optional[str] = None,
+    opt_level: Optional[str] = None,
 ):
-    assert iree_version.count(".") == 1
-    major, minor = map(int, iree_version.split(".", 1))
+    if iree_version is None:
+        logger.warning("iree.version undefined, assuming v3.3")
+        major = 3
+        minor = 3
+    else:
+        major, minor = map(int, iree_version.split(".", 1))
     ret = []
     if major < 3 or (major == 3 and minor < 3):
         # No unified optimization flags
@@ -101,8 +105,8 @@ def get_iree_compile_optimization_args(
 def get_iree_compile_llvmcpu_vectorization_unroll_args(
     hal_backend: str,
     target_vector_width: Optional[int] = None,
-    target_scalable_vector: bool = False,
-    loop_unroll: bool = True,
+    target_scalable_vector: Optional[bool] = None,
+    loop_unroll: Optional[bool] = None,
 ):
     if hal_backend != "llvm-cpu":
         return []
@@ -118,9 +122,9 @@ def get_iree_compile_llvmcpu_vectorization_unroll_args(
         f"--iree-llvmcpu-loop-vectorization={int(supports_vectorization)}",
         f"--iree-llvmcpu-disable-vector-peeling={1-int(supports_vectorization)}",
         # "--iree-llvmcpu-check-linalg-vectorization=0",
-        "--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}",
-        "--iree-llvmcpu-fail-on-large-vector={1-int(supports_vectorization)}",
-        "--iree-llvmcpu-loop-unrolling={int(loop_unroll)}",
+        f"--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}",
+        f"--iree-llvmcpu-fail-on-large-vector={1-int(supports_vectorization)}",
+        *([f"--iree-llvmcpu-loop-unrolling={int(loop_unroll)}"] if loop_unroll is not None else []),
     ]
     return ret
 
@@ -892,12 +896,13 @@ class IREEBackend(Backend):
         "iree_compile_extra_args": [],
         "num_threads": multiprocessing.cpu_count(),
         "strip_assertions": None,
-        "iree_version": None,  # TODO: auto?
+        # "iree_version": None,  # TODO: auto?
         "target_vector_width": None,
         "target_scalable_vectorization": None,
+        "loop_unroll": True,
     }
 
-    OPTIONAL = set()
+    OPTIONAL = {"iree.version"}
 
     REQUIRED = {"iree.install_dir", "iree.src_dir"}
 
@@ -1023,11 +1028,17 @@ class IREEBackend(Backend):
 
     @property
     def strip_assertions(self):
-        return str2bool(self.config["strip_assertions"])
+        return str2bool(self.config["strip_assertions"], allow_none=True)
 
     @property
     def iree_version(self):
-        return self.config["iree_version"]
+        value = self.config["iree.version"]
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            value = str(float(value))
+        assert value.count(".") == 1
+        return value
 
     @property
     def target_vector_width(self):
@@ -1035,13 +1046,22 @@ class IREEBackend(Backend):
 
     @property
     def target_scalable_vector(self):
-        return str2bool(self.config["target_scalable_vectorization"])
+        return str2bool(self.config["target_scalable_vectorization"], allow_none=True)
+
+    @property
+    def loop_unroll(self):
+        return str2bool(self.config["loop_unroll"], allow_none=True)
 
     def get_iree_compile_args(self, out, model_path):
         static_lib_path = out.parent / f"{self.identifier}_static_lib.o"
         args = [
             model_path,
-            *(["--iree-opt-strip-assertions"] if self.strip_assertions else []),
+            # TODO: use true/false
+            *(
+                [f"--iree-opt-strip-assertions={int(self.strip_assertions)}"]
+                if self.strip_assertions is not None
+                else []
+            ),
             *get_iree_compile_llvmcpu_vectorization_unroll_args(
                 self.hal_backend, self.target_vector_width, self.target_scalable_vector, self.loop_unroll
             ),
@@ -1206,6 +1226,16 @@ class IREEBackend(Backend):
                 mlir_path = out_dir / f"{self.identifier}.mlir"
                 needs_mlirbc2mlir = False
                 if self.model_format == "tflite":
+                    iree_version = self.iree_version
+                    # TODO: move to utils
+                    if iree_version is None:
+                        logger.warning("iree.version undefined, assuming v3.3")
+                        major = 3
+                        minor = 3
+                    else:
+                        major, minor = map(int, iree_version.split(".", 1))
+                    if major == 3 and minor > 1:
+                        raise RuntimeError("TFLite (TOSA) importer unsupported for iree.version > 3.1")
                     python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
                     needs_mlirbc2mlir = True
                 elif self.model_format == "onnx":

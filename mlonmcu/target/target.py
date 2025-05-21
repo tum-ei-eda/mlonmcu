@@ -63,6 +63,7 @@ class Target:
     DEFAULTS = {
         "print_outputs": False,
         "repeat": None,
+        "temp_dir_base": None,
     }
 
     REQUIRED = set()
@@ -100,6 +101,10 @@ class Target:
     @property
     def repeat(self):
         return self.config["repeat"]
+
+    @property
+    def temp_dir_base(self):
+        return self.config["temp_dir_base"]
 
     def __repr__(self):
         return f"Target({self.name})"
@@ -176,7 +181,7 @@ class Target:
         artifacts_ = []
         # if self.dir is None:
         #    self.dir = Path(
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory(dir=self.temp_dir_base) as temp_dir:
             for n in range(total):
                 args = []
                 for callback in self.pre_callbacks:

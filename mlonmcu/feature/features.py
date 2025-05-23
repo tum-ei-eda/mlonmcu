@@ -710,6 +710,7 @@ class Trace(TargetFeature):
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
+    # TODO: add callback to save artifact?
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
         assert target in ["etiss_pulpino", "etiss", "ovpsim"]

@@ -194,6 +194,17 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
+    (
+        "iree",
+        (
+            "Requirements for using iree",
+            [
+                "iree-turbine",
+                "tensorflow",
+                "tflite",
+            ],
+        ),
+    ),
 ]
 
 ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]
@@ -249,7 +260,8 @@ CONSTRAINTS = [
     ("reedsolo", ">=1.5.3,<=1.5.4"),
     ("scipy", None),
     ("synr", None),
-    ("tensorflow", "~=2.13.0"),
+    # ("tensorflow", "~=2.13.0"),
+    ("tensorflow", "~=2.18.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
     ("typing_extensions", None),

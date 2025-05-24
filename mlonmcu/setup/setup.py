@@ -300,5 +300,11 @@ class Setup:
                         f.write(f"{d}{os.linesep}")
                     logger.info("add dependencies for tflite visualization")
                     break
+            for config in config_pools:
+                if "iree" in config.name and config.enabled:
+                    for d in requirements["iree"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for iree")
+                    break
         logger.info("Finished generating requirements_addition.txt")
         return True

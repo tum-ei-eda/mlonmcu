@@ -208,4 +208,4 @@ def install_riscv_gcc(
     context.cache[f"riscv_gcc_rv{xlen}.multilib", flags] = multilib or multilib_
     context.cache[f"riscv_gcc_rv{xlen}.default_multilib", flags] = default_multilib or default_multilib_
     context.cache[f"riscv_gcc_rv{xlen}.multilibs", flags] = multilibs or multilibs_
-    context.export_paths.add(riscvInstallDir / "bin")
+    # context.export_paths.add(riscvInstallDir / "bin")

@@ -35,7 +35,7 @@ class TGCTarget(RISCVTarget):
 
     isa_dict = {"tgc5a": ["e"], "tgc5b": ["i"], "tgc5c": ["i", "m", "c"]}
 
-    FEATURES = RISCVTarget.FEATURES + []
+    FEATURES = RISCVTarget.FEATURES
 
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
@@ -45,7 +45,7 @@ class TGCTarget(RISCVTarget):
         "isa": "tgc5c",
         "backend": "interp",
     }
-    REQUIRED = RISCVTarget.REQUIRED + ["tgc.exe"]
+    REQUIRED = RISCVTarget.REQUIRED | {"tgc.exe"}
 
     def __init__(self, name="tgc", features=None, config=None):
         super().__init__(name, features=features, config=config)

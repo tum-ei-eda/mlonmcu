@@ -19,7 +19,8 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import multiprocessing
-from pathlib import Path
+
+# from pathlib import Path
 
 from mlonmcu.setup.task import TaskType
 from mlonmcu.context.context import MlonMcuContext
@@ -34,6 +35,8 @@ Tasks = get_task_factory()
 
 
 def _validate_llvm(context: MlonMcuContext, params=None):
+    del params
+    user_vars = context.environment.vars
     if context.environment.has_toolchain("llvm"):
         return True
     if context.environment.has_framework("tvm"):
@@ -43,19 +46,20 @@ def _validate_llvm(context: MlonMcuContext, params=None):
             return True
 
 
-@Tasks.provides(["llvm.install_dir"])
+@Tasks.provides(["llvm.install_dir", "llvm.version"])
 @Tasks.validate(_validate_llvm)
 @Tasks.register(category=TaskType.MISC)
 def install_llvm(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """Download and install LLVM."""
+    del params, rebuild, threads
     llvmName = utils.makeDirName("llvm")
     llvmInstallDir = context.environment.paths["deps"].path / "install" / llvmName
     user_vars = context.environment.vars
-    if "llvm.install_dir" in user_vars:  # TODO: also check command line flags?
-        # TODO: WARNING
-        llvmInstallDir = Path(user_vars["llvm.install_dir"])
+    llvmDir, llvmVersion = utils.resolve_llvm_wrapper(context, allow_none=True)
+    if llvmDir is not None and llvmDir != llvmInstallDir:
+        llvmInstallDir = llvmDir
     else:
         # TODO: share helper with riscv.py
         def _helper(url):
@@ -78,5 +82,8 @@ def install_llvm(
         # rebuild should only be triggered if the version/url changes but we can not detect that at the moment
         if not utils.is_populated(llvmInstallDir):
             utils.download_and_extract(llvmUrl, llvmArchive, llvmInstallDir, progress=verbose)
+    if llvmVersion is None:
+        llvmVersion = utils.detect_llvm_version(llvmInstallDir)
     context.cache["llvm.install_dir"] = llvmInstallDir
+    context.cache["llvm.version"] = llvmVersion
     context.export_paths.add(llvmInstallDir / "bin")

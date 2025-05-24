@@ -87,6 +87,7 @@ def _validate_tvm_build(context: MlonMcuContext, params=None):
 
 
 def _validate_tvm_install(context: MlonMcuContext, params=None):
+    del context, params
     return False
 
 
@@ -96,6 +97,7 @@ def _validate_tvm_install(context: MlonMcuContext, params=None):
 @Tasks.validate(_validate_tvm_clone)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
+    del verbose, threads
     """Clone the TVM repository."""
     if not params:
         params = {}
@@ -117,7 +119,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     context.cache["tvm.pythonpath", flags] = tvmPythonPath
 
 
-@Tasks.needs(["tvm.src_dir", "llvm.install_dir", "cmake.exe", "cmake.version"])
+@Tasks.needs(["tvm.src_dir", "llvm.install_dir", "llvm.version", "cmake.exe", "cmake.version"])
 @Tasks.provides(["tvm.build_dir", "tvm.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("cmsisnn", [True])  # There is no good reason to build without cmsisnn
@@ -139,6 +141,11 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     tvmInstallDir = context.environment.paths["deps"].path / "install" / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"
     user_vars = context.environment.vars
+    # llvm_dir, llvm_version = utils.resolve_llvm_wrapper(context)
+    llvm_dir = context.cache["llvm.install_dir"]
+    llvm_version = context.cache["llvm.version"]
+    MIN_LLVM_VERSION = "14"
+    assert utils.check_version(llvm_version, min_version=MIN_LLVM_VERSION), f"Unsupported LLVM version: {llvm_version}"
     # cmake_exe, cmake_version = utils.resolve_cmake_wrapper(context)
     cmake_exe = context.cache["cmake.exe"]
     cmake_version = context.cache["cmake.version"]
@@ -155,7 +162,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
         utils.mkdirs(tvmBuildDir)
         cfgFileSrc = Path(tvmSrcDir) / "cmake" / "config.cmake"
         cfgFile = tvmBuildDir / "config.cmake"
-        llvmConfig = str(Path(context.cache["llvm.install_dir"]) / "bin" / "llvm-config")
+        llvmConfig = str(llvm_dir / "bin" / "llvm-config")
         llvmConfigEscaped = str(llvmConfig).replace("/", "\\/")
         utils.copy(cfgFileSrc, cfgFile)
         utils.exec(

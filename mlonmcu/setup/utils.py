@@ -21,8 +21,6 @@ import signal
 import sys
 import multiprocessing
 import subprocess
-
-# import logging
 import tarfile
 import zipfile
 import shutil
@@ -422,7 +420,7 @@ def make(*args, threads=multiprocessing.cpu_count(), use_ninja=False, cwd=None, 
     return execute(*cmd, cwd=cwd, **kwargs)
 
 
-def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
+def cmake(src, *args, debug=False, use_ninja=False, cwd=None, cmake_exe: Optional[Union[str, Path]] = None, **kwargs):
     if cwd is None:
         raise RuntimeError("Please always pass a cwd to cmake()")
     if isinstance(cwd, Path):
@@ -432,7 +430,9 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, **kwargs):
     extraArgs.append("-DCMAKE_BUILD_TYPE=" + buildType)
     if use_ninja:
         extraArgs.append("-GNinja")
-    cmd = ["cmake", str(src)] + extraArgs + list(args)
+    if cmake_exe is None:
+        cmake_exe = "cmake"
+    cmd = [cmake_exe, str(src)] + extraArgs + list(args)
     return execute(*cmd, cwd=cwd, **kwargs)
 
 
@@ -667,3 +667,56 @@ def resolve_llvm_wrapper(context: MlonMcuContext, allow_none: bool = False):
     mlonmcu_llvm_dir = context.cache.get("llvm.install_dir")
     print("mlonmcu_llvm_dir", mlonmcu_llvm_dir)
     return resolve_llvm(use_system_llvm, llvm_version, user_llvm_dir, mlonmcu_llvm_dir, allow_none=allow_none)
+
+
+def detect_system_cmake(allow_none: bool = False):
+    print("detect_system_cmake", allow_none)
+    name = "cmake"
+    cmake_exe = check_program(name, allow_none=allow_none)
+    print("cmake_exe", cmake_exe)
+    return cmake_exe
+
+
+def detect_cmake_version(cmake_exe: Union[str, Path]):
+    cmake_version = execute(cmake_exe, "--version", live=False).splitlines()[0].split(" ")[-1]
+    print("cmake_version", cmake_version)
+    return cmake_version.strip()
+
+
+def resolve_cmake(
+    use_system_cmake: bool = False,
+    user_cmake_exe: Optional[Path] = None,
+    mlonmcu_cmake_exe: Optional[Path] = None,
+    allow_none: bool = False,
+):
+    print("resolve_cmake", use_system_cmake, user_cmake_exe, mlonmcu_cmake_exe)
+    if user_cmake_exe is not None:
+        assert Path(user_cmake_exe).is_file(), "Could not find user CMake"
+        cmake_exe = user_cmake_exe
+    elif use_system_cmake:
+        system_cmake_exe = detect_system_cmake()
+        if system_cmake_exe is None:
+            assert allow_none, "Could not find system CMake"
+            return None, None
+        cmake_exe = system_cmake_exe
+    else:
+        if mlonmcu_cmake_exe is None:
+            assert allow_none, "Could not find MLonMCU CMake install"
+            return None, None
+        cmake_exe = mlonmcu_cmake_exe
+    cmake_exe = Path(cmake_exe)
+    print("cmake_exe", cmake_exe)
+    cmake_version = detect_cmake_version(cmake_exe)
+    print("cmake_version", cmake_version)
+    assert cmake_version is not None, "Unable to get CMake version"
+    return cmake_exe, cmake_version
+
+
+def resolve_cmake_wrapper(context: MlonMcuContext, allow_none: bool = False):
+    print("resolve_cmake_wrapper")
+    user_vars = context.environment.vars
+    use_system_cmake = user_vars.get("cmake.use_system", False)
+    print("use_system_cmake", use_system_cmake)
+    mlonmcu_cmake_exe = context.cache.get("cmake.exe")
+    print("mlonmcu_cmake_exe", mlonmcu_cmake_exe)
+    return resolve_cmake(use_system_cmake, mlonmcu_cmake_exe, allow_none=allow_none)

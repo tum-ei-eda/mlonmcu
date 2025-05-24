@@ -36,6 +36,8 @@ This project contains research code related to the deployment of inference or le
 #### Connan Commands (MINRES only)
 
 ```sh
+sudo apt install libfmt-dev libspdlog-dev libyaml-cpp-dev libjsoncpp-dev
+# ...
 curl -sfL https://direnv.net/install.sh | bash
 which direnv
 curl -s "https://get.sdkman.io" | bash

@@ -117,7 +117,7 @@ def clone_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     context.cache["tvm.pythonpath", flags] = tvmPythonPath
 
 
-@Tasks.needs(["tvm.src_dir", "llvm.install_dir"])
+@Tasks.needs(["tvm.src_dir", "llvm.install_dir", "cmake.exe", "cmake.version"])
 @Tasks.provides(["tvm.build_dir", "tvm.lib"])
 @Tasks.param("dbg", [False, True])
 @Tasks.param("cmsisnn", [True])  # There is no good reason to build without cmsisnn
@@ -139,6 +139,14 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     tvmInstallDir = context.environment.paths["deps"].path / "install" / tvmName
     tvmLib = tvmBuildDir / "libtvm.so"
     user_vars = context.environment.vars
+    # cmake_exe, cmake_version = utils.resolve_cmake_wrapper(context)
+    cmake_exe = context.cache["cmake.exe"]
+    cmake_version = context.cache["cmake.version"]
+    MIN_CMAKE_VERSION = "3.20"
+    assert utils.check_version(
+        cmake_version, min_version=MIN_CMAKE_VERSION
+    ), f"Unsupported CMake version: {cmake_version}"
+
     if rebuild or not utils.is_populated(tvmBuildDir) or not tvmLib.is_file():
         ninja = False
         if "tvm.make_tool" in user_vars:
@@ -194,6 +202,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             debug=dbg,
             use_ninja=ninja,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=tvmBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["tvm.build_dir", flags] = tvmBuildDir

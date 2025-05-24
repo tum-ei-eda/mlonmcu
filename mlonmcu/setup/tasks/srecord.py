@@ -63,6 +63,7 @@ def clone_srecord(
 # Only build srec_cat here
 # @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.needs(["srecord.src_dir"])
+@Tasks.optional(["cmake.exe"])
 @Tasks.provides(["srecord.build_dir", "srecord.install_dir"])
 @Tasks.validate(_validate_srecord)
 @Tasks.register(category=TaskType.MISC)
@@ -74,6 +75,7 @@ def build_srecord(
     buildDir = context.environment.paths["deps"].path / "build" / name
     installDir = context.environment.paths["deps"].path / "install" / name
     user_vars = context.environment.vars
+    cmake_exe = context.cache.get("cmake.exe")
     if "srecord.install_dir" in user_vars:
         return False
     utils.mkdirs(installDir)
@@ -85,6 +87,7 @@ def build_srecord(
             cwd=buildDir,
             debug=False,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make("srec_cat", cwd=buildDir, threads=threads, live=verbose)
         utils.copy(buildDir / "srec_cat" / "srec_cat", installDir / "srec_cat")

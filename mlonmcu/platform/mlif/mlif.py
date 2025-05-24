@@ -263,6 +263,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["llvm.install_dir"]
 
     @property
+    def cmake_exe(self):
+        return self.config["cmake.exe"]
+
+    @property
     def srecord_dir(self):
         return self.config["srecord.install_dir"]
 
@@ -533,6 +537,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             debug=self.debug,
             live=self.print_outputs,
             env=env,
+            cmake_exe=self.cmake_exe,
         )
         return out, artifacts
 

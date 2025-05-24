@@ -35,6 +35,7 @@ from git import Repo
 from tqdm import tqdm
 
 from mlonmcu import logging
+from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.environment.config import RepoConfig
 
 logger = logging.get_logger()
@@ -577,3 +578,92 @@ def check_program(name: str, allow_none: bool = False):
     path = Path(path).resolve()
     print("path_", path)
     return path
+
+
+def detect_system_llvm(major_version_hint: Optional[int] = None, allow_none: bool = False):
+    print("detect_system_llvm", major_version_hint, allow_none)
+    if major_version_hint is not None:
+        name = f"clang-{major_version_hint}"
+    else:
+        # This will not always be the latest version but the default one...
+        name = "clang"
+    clang_path = check_program(name, allow_none=allow_none)
+    print("clang_path", clang_path)
+    llvm_config_path = clang_path.parent / "llvm-config"
+    print("llvm_config_path", llvm_config_path)
+    assert llvm_config_path.is_file(), f"llvm-config not found in: {llvm_config_path}"
+    llvm_prefix = execute(llvm_config_path, "--prefix", live=False)
+    print("llvm_prefix", llvm_prefix)
+    if llvm_prefix is None:
+        assert allow_none, "Could not get llvm install dir"
+        return None
+    return llvm_prefix.strip()
+
+
+def detect_llvm_version(llvm_dir: Union[str, Path], full: bool = True):
+    llvm_dir = Path(llvm_dir)
+    print(
+        "llvm_dir",
+        llvm_dir,
+        type(llvm_dir),
+        llvm_dir.is_dir(),
+        llvm_dir.is_file(),
+        llvm_dir.is_symlink(),
+        llvm_dir.exists(),
+    )
+    assert llvm_dir.is_dir(), f"Not a directory: {llvm_dir}"
+    llvm_config = llvm_dir / "bin" / "llvm-config"
+    assert llvm_config.is_file()
+    llvm_version_full = execute(llvm_config, "--version", live=False).strip()
+    print("llvm_version_full", llvm_version_full)
+    if not full:
+        from packaging.version import Version
+
+        llvm_version_major = Version(llvm_version_full).major
+        return llvm_version_major
+    return llvm_version_full
+
+
+def resolve_llvm(
+    use_system_llvm: bool = False,
+    llvm_version: Optional[str] = None,
+    user_llvm_dir: Optional[Path] = None,
+    mlonmcu_llvm_dir: Optional[Path] = None,
+    allow_none: bool = False,
+):
+    print("resolve_llvm", use_system_llvm, llvm_version, user_llvm_dir, mlonmcu_llvm_dir)
+    if user_llvm_dir is not None:
+        assert Path(user_llvm_dir).is_dir(), "Could not find user LLVM install"
+        llvm_dir = user_llvm_dir
+    elif use_system_llvm:
+        llvm_version_major = Version(llvm_version).major if llvm_version is not None else None
+        system_llvm_dir = detect_system_llvm(major_version_hint=llvm_version_major)
+        if system_llvm_dir is None:
+            assert allow_none, "Could not find system LLVM install"
+            return None, None
+        llvm_dir = system_llvm_dir
+    else:
+        if mlonmcu_llvm_dir is None:
+            assert allow_none, "Could not find MLonMCU LLVM install"
+            return None, None
+        llvm_dir = mlonmcu_llvm_dir
+    llvm_dir = Path(llvm_dir)
+    print("llvm_dir", llvm_dir)
+    llvm_version = detect_llvm_version(llvm_dir, full=True)
+    print("llvm_version", llvm_version)
+    assert llvm_version is not None, "Unable to get LLVM version"
+    return llvm_dir, llvm_version
+
+
+def resolve_llvm_wrapper(context: MlonMcuContext, allow_none: bool = False):
+    print("resolve_llvm_wrapper")
+    user_vars = context.environment.vars
+    use_system_llvm = user_vars.get("llvm.use_system", False)
+    print("use_system_llvm", use_system_llvm)
+    llvm_version = user_vars.get("llvm.version", None)
+    print("llvm_version", llvm_version)
+    user_llvm_dir = user_vars.get("llvm.install_dir", None)
+    print("user_llvm_dir", user_llvm_dir)
+    mlonmcu_llvm_dir = context.cache.get("llvm.install_dir")
+    print("mlonmcu_llvm_dir", mlonmcu_llvm_dir)
+    return resolve_llvm(use_system_llvm, llvm_version, user_llvm_dir, mlonmcu_llvm_dir, allow_none=allow_none)

@@ -64,7 +64,7 @@ def clone_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     if rebuild or not utils.is_populated(tgcSrcDir):
         logger.debug(context.environment.repos)
         tgcRepo = context.environment.repos["tgc"]
-        utils.clone(tgcRepo.url, tgcSrcDir, branch="develop", recursive=True)  # TODO: use wrapper
+        utils.clone_wrapper(tgcRepo, tgcSrcDir)
 
     context.cache["tgc.src_dir"] = tgcSrcDir
 
@@ -78,14 +78,14 @@ def clone_tgc_gen(
     """Clone the tgc generator."""
     tgcGenName = utils.makeDirName("tgc_gen")
     tgcGenSrcDir = context.environment.paths["deps"].path / "src" / tgcGenName
-    user_vars = context.environment.vars
+    # user_vars = context.environment.vars
     if rebuild or not utils.is_populated(tgcGenSrcDir):
         tgcGenRepo = context.environment.repos["tgc_gen"]
-        utils.clone(tgcGenRepo.url, tgcSrcDir, branch=tgcGenRepo.ref, recursive=True)  # TODO: use wrapper
-    context.cache["tgc.gen_src_dir"] = tgc_gen_src_dir
+        utils.clone_wrapper(tgcGenRepo, tgcGenSrcDir, branch=tgcGenRepo.ref)
+    context.cache["tgc.gen_src_dir"] = tgcGenSrcDir
 
 
-@Tasks.needs(["tgc.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.needs(["tgc.src_dir"])
 @Tasks.optional(["tgc.gen_src_dir"])
 @Tasks.validate(_validate_tgc)
 @Tasks.provides(["tgc.build_dir", "tgc.exe"])

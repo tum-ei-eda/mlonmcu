@@ -574,7 +574,8 @@ class EtissTarget(RISCVTarget):
                 etiss_script_args.append("logpc")
         if not self.enable_dmi:
             if self.use_run_helper:
-                etiss_script_args.append("nodmi")
+                if "nodmi" not in etiss_script_args:
+                    etiss_script_args.append("nodmi")
         if self.verbose:
             etiss_script_args.append("v")
         # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")

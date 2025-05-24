@@ -29,6 +29,7 @@ import shutil
 import tempfile
 import urllib.request
 from pathlib import Path
+from packaging.version import Version
 from typing import Union, List, Callable, Optional
 from git import Repo
 from tqdm import tqdm
@@ -547,3 +548,32 @@ def download_and_extract(url, archive, dest, progress=False, force=True):
 
 def patch(path, cwd=None):
     raise NotImplementedError
+
+
+def check_version(version: str, min_version: Optional[str] = None, max_version: Optional[str] = None):
+    print("check_version", version, min_version, max_version)
+
+    version = Version(version)
+    if min_version is not None:
+        min_version = Version(min_version)
+        if version < min_version:
+            return False
+    if max_version is not None:
+        max_version = Version(max_version)
+        if version > max_version:
+            return False
+    return True
+
+
+def check_program(name: str, allow_none: bool = False):
+    print("check_program", name, allow_none)
+
+    path = shutil.which(name)
+    print("path", path)
+    if path is None:
+        assert allow_none, f"Program {name} not found in path"
+        return None
+    # path = Path(os.readlink(path))
+    path = Path(path).resolve()
+    print("path_", path)
+    return path

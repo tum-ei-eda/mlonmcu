@@ -552,7 +552,6 @@ def patch(path, cwd=None):
 
 
 def check_version(version: str, min_version: Optional[str] = None, max_version: Optional[str] = None):
-    print("check_version", version, min_version, max_version)
 
     version = Version(version)
     if min_version is not None:
@@ -567,33 +566,26 @@ def check_version(version: str, min_version: Optional[str] = None, max_version: 
 
 
 def check_program(name: str, allow_none: bool = False):
-    print("check_program", name, allow_none)
 
     path = shutil.which(name)
-    print("path", path)
     if path is None:
         assert allow_none, f"Program {name} not found in path"
         return None
     # path = Path(os.readlink(path))
     path = Path(path).resolve()
-    print("path_", path)
     return path
 
 
 def detect_system_llvm(major_version_hint: Optional[int] = None, allow_none: bool = False):
-    print("detect_system_llvm", major_version_hint, allow_none)
     if major_version_hint is not None:
         name = f"clang-{major_version_hint}"
     else:
         # This will not always be the latest version but the default one...
         name = "clang"
     clang_path = check_program(name, allow_none=allow_none)
-    print("clang_path", clang_path)
     llvm_config_path = clang_path.parent / "llvm-config"
-    print("llvm_config_path", llvm_config_path)
     assert llvm_config_path.is_file(), f"llvm-config not found in: {llvm_config_path}"
     llvm_prefix = execute(llvm_config_path, "--prefix", live=False)
-    print("llvm_prefix", llvm_prefix)
     if llvm_prefix is None:
         assert allow_none, "Could not get llvm install dir"
         return None
@@ -602,20 +594,10 @@ def detect_system_llvm(major_version_hint: Optional[int] = None, allow_none: boo
 
 def detect_llvm_version(llvm_dir: Union[str, Path], full: bool = True):
     llvm_dir = Path(llvm_dir)
-    print(
-        "llvm_dir",
-        llvm_dir,
-        type(llvm_dir),
-        llvm_dir.is_dir(),
-        llvm_dir.is_file(),
-        llvm_dir.is_symlink(),
-        llvm_dir.exists(),
-    )
     assert llvm_dir.is_dir(), f"Not a directory: {llvm_dir}"
     llvm_config = llvm_dir / "bin" / "llvm-config"
     assert llvm_config.is_file()
     llvm_version_full = execute(llvm_config, "--version", live=False).strip()
-    print("llvm_version_full", llvm_version_full)
     if not full:
         from packaging.version import Version
 
@@ -631,7 +613,6 @@ def resolve_llvm(
     mlonmcu_llvm_dir: Optional[Path] = None,
     allow_none: bool = False,
 ):
-    print("resolve_llvm", use_system_llvm, llvm_version, user_llvm_dir, mlonmcu_llvm_dir)
     if user_llvm_dir is not None:
         assert Path(user_llvm_dir).is_dir(), "Could not find user LLVM install"
         llvm_dir = user_llvm_dir
@@ -648,38 +629,28 @@ def resolve_llvm(
             return None, None
         llvm_dir = mlonmcu_llvm_dir
     llvm_dir = Path(llvm_dir)
-    print("llvm_dir", llvm_dir)
     llvm_version = detect_llvm_version(llvm_dir, full=True)
-    print("llvm_version", llvm_version)
     assert llvm_version is not None, "Unable to get LLVM version"
     return llvm_dir, llvm_version
 
 
 def resolve_llvm_wrapper(context, allow_none: bool = False):
-    print("resolve_llvm_wrapper")
     user_vars = context.environment.vars
     use_system_llvm = user_vars.get("llvm.use_system", False)
-    print("use_system_llvm", use_system_llvm)
     llvm_version = user_vars.get("llvm.version", None)
-    print("llvm_version", llvm_version)
     user_llvm_dir = user_vars.get("llvm.install_dir", None)
-    print("user_llvm_dir", user_llvm_dir)
     mlonmcu_llvm_dir = context.cache.get("llvm.install_dir")
-    print("mlonmcu_llvm_dir", mlonmcu_llvm_dir)
     return resolve_llvm(use_system_llvm, llvm_version, user_llvm_dir, mlonmcu_llvm_dir, allow_none=allow_none)
 
 
 def detect_system_cmake(allow_none: bool = False):
-    print("detect_system_cmake", allow_none)
     name = "cmake"
     cmake_exe = check_program(name, allow_none=allow_none)
-    print("cmake_exe", cmake_exe)
     return cmake_exe
 
 
 def detect_cmake_version(cmake_exe: Union[str, Path]):
     cmake_version = execute(cmake_exe, "--version", live=False).splitlines()[0].split(" ")[-1]
-    print("cmake_version", cmake_version)
     return cmake_version.strip()
 
 
@@ -689,7 +660,6 @@ def resolve_cmake(
     mlonmcu_cmake_exe: Optional[Path] = None,
     allow_none: bool = False,
 ):
-    print("resolve_cmake", use_system_cmake, user_cmake_exe, mlonmcu_cmake_exe)
     if user_cmake_exe is not None:
         assert Path(user_cmake_exe).is_file(), "Could not find user CMake"
         cmake_exe = user_cmake_exe
@@ -705,18 +675,13 @@ def resolve_cmake(
             return None, None
         cmake_exe = mlonmcu_cmake_exe
     cmake_exe = Path(cmake_exe)
-    print("cmake_exe", cmake_exe)
     cmake_version = detect_cmake_version(cmake_exe)
-    print("cmake_version", cmake_version)
     assert cmake_version is not None, "Unable to get CMake version"
     return cmake_exe, cmake_version
 
 
 def resolve_cmake_wrapper(context, allow_none: bool = False):
-    print("resolve_cmake_wrapper")
     user_vars = context.environment.vars
     use_system_cmake = user_vars.get("cmake.use_system", False)
-    print("use_system_cmake", use_system_cmake)
     mlonmcu_cmake_exe = context.cache.get("cmake.exe")
-    print("mlonmcu_cmake_exe", mlonmcu_cmake_exe)
     return resolve_cmake(use_system_cmake, mlonmcu_cmake_exe, allow_none=allow_none)

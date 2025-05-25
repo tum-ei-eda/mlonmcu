@@ -727,6 +727,38 @@ class Trace(TargetFeature):
                 extra_args_new.append(trace_file)
             config.update({f"{target}.extra_args": extra_args_new})
 
+    def get_target_callbacks(self, target):
+        assert target in [
+            "etiss_pulpino",
+            "etiss",
+            "ovpsim",
+            "corev_ovpsim",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            if self.to_file:
+
+                def mem_trace_callback(stdout, metrics, artifacts, directory=None):
+                    """Callback which parses collects the generated artifacts."""
+                    file_name = "trace.txt"
+                    if target in ["etiss_pulpino", "etiss"]:
+                        file_name = "dBusAccess.csv"
+                    assert directory is not None
+                    file_path = Path(directory) / file_name
+                    assert file_path.is_file()
+                    with open(file_path, "r") as f:
+                        content = f.read()
+                    mem_artifact = Artifact(
+                        f"{target}_mem.log",
+                        content=content,
+                        fmt=ArtifactFormat.TEXT,
+                        flags=(self.name, target),
+                    )
+                    artifacts.append(mem_artifact)
+                    return stdout
+
+                return None, mem_trace_callback
+        return None, None
+
 
 @register_feature("unpacked_api")
 class UnpackedApi(BackendFeature):  # TODO: should this be a feature or config only?

@@ -105,7 +105,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir", "srecord.install_dir"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "cmake.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__(

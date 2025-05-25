@@ -35,6 +35,10 @@ Tasks = get_task_factory()
 
 
 def _validate_boost(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    use_system_boost = user_vars.get("boost.use_system", False)
+    if use_system_boost:
+        return False
     if context.environment.has_target("spike") or context.environment.has_target("etiss_pulpino"):
         return True
     return False

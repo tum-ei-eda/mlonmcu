@@ -33,7 +33,7 @@ from git import Repo
 from tqdm import tqdm
 
 from mlonmcu import logging
-from mlonmcu.context.context import MlonMcuContext
+# from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.environment.config import RepoConfig
 
 logger = logging.get_logger()
@@ -655,7 +655,7 @@ def resolve_llvm(
     return llvm_dir, llvm_version
 
 
-def resolve_llvm_wrapper(context: MlonMcuContext, allow_none: bool = False):
+def resolve_llvm_wrapper(context, allow_none: bool = False):
     print("resolve_llvm_wrapper")
     user_vars = context.environment.vars
     use_system_llvm = user_vars.get("llvm.use_system", False)
@@ -712,7 +712,7 @@ def resolve_cmake(
     return cmake_exe, cmake_version
 
 
-def resolve_cmake_wrapper(context: MlonMcuContext, allow_none: bool = False):
+def resolve_cmake_wrapper(context, allow_none: bool = False):
     print("resolve_cmake_wrapper")
     user_vars = context.environment.vars
     use_system_cmake = user_vars.get("cmake.use_system", False)

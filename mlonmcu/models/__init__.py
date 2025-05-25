@@ -43,6 +43,7 @@ SUPPORTED_FRONTENDS = {
     "onnx": ONNXFrontend,
     "pb": PBFrontend,
     "paddle": PaddleFrontend,
+    "example": ExampleFrontend,
 }  # TODO: use registry instead
 
 __all__ = ["print_summary", "TfLiteFrontend", "PackedFrontend", "ONNXFrontend", "PBFrontend", "SUPPORTED_FRONTENDS"]

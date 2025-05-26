@@ -26,6 +26,7 @@ from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.target.riscv.util import sort_extensions_canonical, join_extensions
+from mlonmcu.target.bench import add_bench_metrics
 
 from mlonmcu.logging import get_logger
 
@@ -235,34 +236,43 @@ def create_espidf_platform_target(name, platform, base=Target):
             ret = self.platform.run(program, self)
             return ret
 
-        def parse_stdout(self, out):
-            cpu_cycles = re.search(r"Total Cycles: (.*)", out)
-            if not cpu_cycles:
-                logger.warning("unexpected script output (cycles)")
-                cycles = None
-            else:
-                cycles = int(float(cpu_cycles.group(1)))
-            cpu_time_us = re.search(r"Total Time: (.*) us", out)
-            if not cpu_time_us:
-                logger.warning("unexpected script output (time_us)")
-                time_us = None
-            else:
-                time_us = int(float(cpu_time_us.group(1)))
-            return cycles, time_us
+        def parse_exit(self, out):
+            exit_code = None
+            exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+            if exit_match:
+                exit_code = int(exit_match.group(1))
+            return exit_code
+
+        # def parse_stdout(self, out):
+        def parse_stdout(self, out, metrics, exit_code=0):
+            add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
 
         def get_metrics(self, elf, directory, handle_exit=None):
+            def _handle_exit(code, out=None):
+                assert out is not None
+                temp = self.parse_exit(out)
+                # TODO: before or after?
+                if temp is None:
+                    temp = code
+                if handle_exit is not None:
+                    temp = handle_exit(temp, out=out)
+                return temp
+
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True, handle_exit=handle_exit)
+                out = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
             else:
                 out = self.exec(
-                    elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+                    elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
                 )
-            cycles, time_us = self.parse_stdout(out)
-
             metrics = Metrics()
-            metrics.add("Cycles", cycles)
-            time_s = time_us / 1e6 if time_us is not None else time_us
-            metrics.add("Runtime [s]", time_s)
+            exit_code = 0  # TODO: get from handler?
+            self.parse_stdout(out, metrics, exit_code=exit_code)
+            # cycles, time_us = self.parse_stdout(out)
+
+            # metrics = Metrics()
+            # metrics.add("Cycles", cycles)
+            # time_s = time_us / 1e6 if time_us is not None else time_us
+            # metrics.add("Runtime [s]", time_s)
 
             return metrics, out, []
 

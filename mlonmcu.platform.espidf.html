@@ -122,7 +122,7 @@
 <p>ESP-IDF Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'use_idf_monitor':</span> <span class="pre">True,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'newlib_nano_fmt':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'use_idf_monitor':</span> <span class="pre">True,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -158,6 +158,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.create_target">
 <span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.create_target" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.detect_idf_version">
+<span class="sig-name descname"><span class="pre">detect_idf_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.detect_idf_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.detect_idf_version" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -205,6 +210,11 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idf_exe</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.idf_exe" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.idf_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idf_version</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.idf_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.init_directory">
 <span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.init_directory" title="Link to this definition"></a></dt>
@@ -218,6 +228,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.monitor">
 <span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.monitor" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf.EspIdfPlatform.newlib_nano_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">newlib_nano_fmt</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.espidf.EspIdfPlatform.newlib_nano_fmt" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -323,7 +338,7 @@
 <dd><p>Bases: <a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.target.Target" title="mlonmcu.target.target.Target"><code class="xref py py-class docutils literal notranslate"><span class="pre">Target</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.espidf_target.Esp32C3Target.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'count':</span> <span class="pre">Esp32C3PerfCount.CYCLE,</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'count':</span> <span class="pre">Esp32C3PerfCount.CYCLE,</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -419,7 +434,7 @@
 <p>ESP-IDF Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'use_idf_monitor':</span> <span class="pre">True,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'baud':</span> <span class="pre">115200,</span> <span class="pre">'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'flash_only':</span> <span class="pre">False,</span> <span class="pre">'newlib_nano_fmt':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'port':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'use_idf_monitor':</span> <span class="pre">True,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></em><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -455,6 +470,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.create_target">
 <span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.create_target" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.detect_idf_version">
+<span class="sig-name descname"><span class="pre">detect_idf_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.detect_idf_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.detect_idf_version" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -502,6 +522,11 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idf_exe</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.idf_exe" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.idf_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">idf_version</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.idf_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.init_directory">
 <span class="sig-name descname"><span class="pre">init_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.init_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.init_directory" title="Link to this definition"></a></dt>
@@ -515,6 +540,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.monitor">
 <span class="sig-name descname"><span class="pre">monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/espidf/espidf.html#EspIdfPlatform.monitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.monitor" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.espidf.EspIdfPlatform.newlib_nano_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">newlib_nano_fmt</span></span><a class="headerlink" href="#mlonmcu.platform.espidf.EspIdfPlatform.newlib_nano_fmt" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

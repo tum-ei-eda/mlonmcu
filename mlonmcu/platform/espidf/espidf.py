@@ -76,6 +76,22 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
+        self._idf_version = None
+
+    def detect_idf_version(self):
+        text = self.invoke_idf_exe("--version", live=False).strip()
+        version = text.splitlines()[-1].split(" ")[-1]
+        assert version[0] == "v"
+        version = version[1:]
+        if "-" in version:
+            version = version.split("-", 1)[0]
+        return version
+
+    @property
+    def idf_version(self):
+        if self._idf_version is None:
+            self._idf_version = self.detect_idf_version()
+        return self._idf_version
 
     @property
     def espidf_install_dir(self):

@@ -237,6 +237,22 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             defs = self.definitions
             with open(filename, "w", encoding="utf-8") as f:
                 f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
+                # TODO: append to existing file instead?
+                if self.project_template == "micro_speech_esp32devboard":
+                    f.write("CONFIG_MICRO_KWS_NUM_CLASSES=10\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_TRIGGER_THRESHOLD_SINGLE=180\n")
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_0="silence"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_1="unkown"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_2="yes"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_3="no"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_4="up"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_5="down"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_6="left"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_7="right"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_8="on"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_9="off"\n')
                 if self.debug:
                     f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y\n")

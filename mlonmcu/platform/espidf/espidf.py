@@ -320,7 +320,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         if self.port:
             args.extend(["-p", self.port])
         if self.baud:
-            args.extend(["-B" if monitor else "-b", self.baud])
+            from packaging.version import Version
+
+            if Version(self.idf_version) < Version("v5.0.0"):
+                args.extend(["-B" if monitor else "-b", self.baud])
+            else:
+                args.extend(["-b", self.baud])
         return args
 
     def flash(self, elf, target, timeout=120):

@@ -63,6 +63,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "use_idf_monitor": True,
         "wait_for_user": True,
         "flash_only": False,
+        "newlib_nano_fmt": True,
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -113,6 +114,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     @property
     def wait_for_user(self):
         value = self.config["wait_for_user"]
+        return str2bool(value)
+
+    @property
+    def newlib_nano_fmt(self):
+        value = self.config["newlib_nano_fmt"]
         return str2bool(value)
 
     @property
@@ -247,7 +253,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write("CONFIG_LOG_DEFAULT_LEVEL_NONE=y\n")
                     f.write("CONFIG_LOG_DEFAULT_LEVEL=0\n")
                     f.write("CONFIG_LOG_MAXIMUM_LEVEL=0\n")
-                    f.write("CONFIG_NEWLIB_NANO_FORMAT=y\n")
+                    newlib_nano_fmt_val = "y" if self.newlib_nano_fmt else "n"
+                    f.write(f"CONFIG_NEWLIB_NANO_FORMAT={newlib_nano_fmt_val}\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     optimize_for_size = True

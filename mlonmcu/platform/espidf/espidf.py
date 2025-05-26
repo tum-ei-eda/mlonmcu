@@ -238,7 +238,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             with open(filename, "w", encoding="utf-8") as f:
                 f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
                 # TODO: append to existing file instead?
-                if self.project_template == "micro_speech_esp32devboard":
+                if self.project_template == "micro_kws_esp32devboard":
                     f.write("CONFIG_MICRO_KWS_NUM_CLASSES=10\n")
                     f.write("CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800\n")
                     f.write("CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50\n")

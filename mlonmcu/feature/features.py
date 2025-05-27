@@ -2572,10 +2572,13 @@ class PerfSim(TargetFeature):
                 trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
                 extra_plugin_config["tracePrinter"] = {}
                 extra_plugin_config["tracePrinter"]["trace"] = trace
-                extra_plugin_config["tracePrinter"]["to_file"] = 1
+                extra_plugin_config["tracePrinter"]["stream.toFile"] = 1
                 # extra_plugin_config["tracePrinter"]["outDir"] = "/tmp/perf_out/"  # TODO: do not hardcode
-                extra_plugin_config["tracePrinter"]["outDir"] = "."
-                extra_plugin_config["tracePrinter"]["fileName"] = "instr_trace" if self.trace_instr else "asm_trace"
+                extra_plugin_config["tracePrinter"]["stream.outDir"] = "."
+                extra_plugin_config["tracePrinter"]["stream.fileName"] = (
+                    "instr_trace" if self.trace_instr else "asm_trace"
+                )
+                extra_plugin_config["tracePrinter"]["stream.postfix"] = ".csv"
                 extra_plugin_config["tracePrinter"]["rotateSize"] = 0x100000
         config.update({f"{target}.plugins": plugins_new})
         config.update({f"{target}.extra_plugin_config": extra_plugin_config})
@@ -2605,6 +2608,9 @@ class PerfSim(TargetFeature):
                     assert directory is not None
                     assert self.core is not None
                     csv_files = list(Path(directory).glob(f"{self.core.upper()}_*.csv"))
+                    if self.trace_asm:
+                        csv_files_ = list(Path(directory).glob("asm_trace_*.csv"))
+                        csv_files += csv_files_
                     for file in csv_files:
                         with open(file, "r") as f:
                             content = f.read()

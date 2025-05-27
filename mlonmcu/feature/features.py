@@ -713,8 +713,8 @@ class Trace(TargetFeature):
     # TODO: add callback to save artifact?
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "etiss", "ovpsim"]
-        if target in ["etiss_pulpino", "etiss"]:
+        assert target in ["etiss_pulpino", "etiss", "etiss_perf", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
             config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
@@ -731,6 +731,7 @@ class Trace(TargetFeature):
         assert target in [
             "etiss_pulpino",
             "etiss",
+            "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
@@ -740,7 +741,7 @@ class Trace(TargetFeature):
                 def mem_trace_callback(stdout, metrics, artifacts, directory=None):
                     """Callback which parses collects the generated artifacts."""
                     file_name = "trace.txt"
-                    if target in ["etiss_pulpino", "etiss"]:
+                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
                         file_name = "dBusAccess.csv"
                     assert directory is not None
                     file_path = Path(directory) / file_name
@@ -1451,7 +1452,7 @@ class LogInstructions(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
+        assert target in ["spike", "etiss_pulpino", "etiss", "etiss_perf", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1463,7 +1464,7 @@ class LogInstructions(TargetFeature):
                 log_file = directory / "instrs.txt"
                 extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target in ["etiss_pulpino", "etiss"]:
+        elif target in ["etiss_pulpino", "etiss", "etiss_perf"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
@@ -1498,6 +1499,7 @@ class LogInstructions(TargetFeature):
             "spike",
             "etiss_pulpino",
             "etiss",
+            "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
             "gvsoc_pulp",
@@ -1509,14 +1511,14 @@ class LogInstructions(TargetFeature):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        if target in ["etiss_pulpino", "etiss"]:
+                        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
                             if self.etiss_experimental_print_to_file:
                                 log_file = Path(directory) / "instr_trace.csv"
                             else:
                                 # TODO: update stdout and remove log_instrs lines
                                 instrs = []
                                 for line in stdout.split("\n"):
-                                    if target in ["etiss_pulpino", "etiss"]:
+                                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
                                         expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                                     match = expr.match(line)
                                     if match is not None:
@@ -2523,6 +2525,7 @@ class PerfSim(TargetFeature):
         "core": "cv32e40p",
         "trace_asm": False,  # TODO: move to owen feature, save files!
         "trace_instr": False,  # TODO: move to owen feature, save files!
+        "to_file": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -2543,6 +2546,10 @@ class PerfSim(TargetFeature):
         value = self.config["trace_instr"]
         return str2bool(value)
 
+    def to_file(self):
+        value = self.config["to_file"]
+        return str2bool(value, allow_none=True)
+
     def add_target_config(self, target, config):
         assert target in ["etiss_perf"]
         if not self.enabled:
@@ -2554,17 +2561,22 @@ class PerfSim(TargetFeature):
             assert self.name not in extra_plugin_config
             extra_plugin_config["perfEst"] = {}
             extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
+            if self.to_file:
+                extra_plugin_config["perfEst"]["print"] = 1
+            extra_plugin_config["perfEst"]["printDir"] = "."
         if self.trace_asm or self.trace_instr:
-            assert not (self.trace_asm and self.trace_instr)
-            assert not self.trace_instr or self.core.upper() == "CVA6"
-            plugins_new.append("TracePrinterPlugin")
-            trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
-            extra_plugin_config["tracePrinter"] = {}
-            extra_plugin_config["tracePrinter"]["trace"] = trace
-            extra_plugin_config["tracePrinter"]["to_file"] = 1
-            extra_plugin_config["tracePrinter"]["outDir"] = "/tmp/perf_out/"  # TODO: do not hardcode
-            extra_plugin_config["tracePrinter"]["fileName"] = "instr_trace" if self.trace_instr else "asm_trace"
-            extra_plugin_config["tracePrinter"]["rotateSize"] = 0x100000
+            if self.to_file:
+                assert not (self.trace_asm and self.trace_instr)
+                assert not self.trace_instr or self.core.upper() == "CVA6"
+                plugins_new.append("TracePrinterPlugin")
+                trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
+                extra_plugin_config["tracePrinter"] = {}
+                extra_plugin_config["tracePrinter"]["trace"] = trace
+                extra_plugin_config["tracePrinter"]["to_file"] = 1
+                # extra_plugin_config["tracePrinter"]["outDir"] = "/tmp/perf_out/"  # TODO: do not hardcode
+                extra_plugin_config["tracePrinter"]["outDir"] = "."
+                extra_plugin_config["tracePrinter"]["fileName"] = "instr_trace" if self.trace_instr else "asm_trace"
+                extra_plugin_config["tracePrinter"]["rotateSize"] = 0x100000
         config.update({f"{target}.plugins": plugins_new})
         config.update({f"{target}.extra_plugin_config": extra_plugin_config})
 
@@ -2589,6 +2601,20 @@ class PerfSim(TargetFeature):
                 metrics[0].add("PerfSim Instructions", int(instrs_match[0]))
                 metrics[0].add("PerfSim Cycles", int(cycles_match[0]))
                 metrics[0].add("PerfSim CPI", float(cpi_match[0]))
+                if self.to_file:
+                    assert directory is not None
+                    assert self.core is not None
+                    csv_files = list(Path(directory).glob(f"{self.core.upper()}_*.csv"))
+                    for file in csv_files:
+                        with open(file, "r") as f:
+                            content = f.read()
+                        artifact = Artifact(
+                            file.name,
+                            content=content,
+                            fmt=ArtifactFormat.TEXT,
+                            flags=(self.name, target),
+                        )
+                        artifacts.append(artifact)
                 return stdout
 
             return None, metrics_callback

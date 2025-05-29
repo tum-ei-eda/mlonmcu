@@ -41,9 +41,11 @@ class TGCTarget(RISCVTarget):
         **RISCVTarget.DEFAULTS,
         "extensions": ["i", "m", "c"],
         "fpu": None,
+        "atomic": False,
         "iss_args": None,
         "isa": "tgc5c",
         "backend": "interp",
+        # TODO: plugins
     }
     REQUIRED = RISCVTarget.REQUIRED | {"tgc.exe"}
 
@@ -89,39 +91,51 @@ class TGCTarget(RISCVTarget):
             *args,
             **kwargs,
         )
-        return ret
+        return ret, []
 
-    def parse_stdout(self, out, handle_exit=None):
+    def parse_stdout(self, out, metrics, exit_code=0):
+        # print("out", out)
+        # TODO: filter out log prefix!
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         pattern = r"(\d+) cycles during (\d+)ms resulting in ([\d.]+)MIPS"
 
-        match = re.search(pattern, out)
+        match_ = re.search(pattern, out)
 
-        if match:
-            cycles = int(match.group(1))
-            duration = int(match.group(2))
-            mips = float(match.group(3))
-            return cycles, duration, mips
+        if match_:
+            cycles = int(match_.group(1))
+            duration = int(match_.group(2))
+            mips = float(match_.group(3))
         else:
             logger.warning("unexcpected script output")
-            return None, None, None
+            return
+        metrics.add("Simulated Instructions", cycles, True)
+        metrics.add("MIPS", mips, optional=True)
+        metrics.add("Simulation Time", duration, optional=True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
 
+        def _handle_exit(code, out=None):
+            assert out is not None
+            temp = self.parse_exit(out)
+            # TODO: before or after?
+            if temp is None:
+                temp = code
+            if handle_exit is not None:
+                temp = handle_exit(temp, out=out)
+            return temp
+
         if self.print_outputs:
-            out += self.exec(elf, *args, cwd=directory, live=True, handle_exit=handle_exit)
+            out, artifacts = self.exec(elf, *args, cwd=directory, live=True, handle_exit=_handle_exit)
         else:
-            out += self.exec(
-                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=handle_exit
+            out, artifacts = self.exec(
+                elf, *args, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
             )
-        total_cycles, time, mips = self.parse_stdout(out, handle_exit=handle_exit)
-
+        exit_code = 0
         metrics = Metrics()
-        metrics.add("Cycles", total_cycles)
-        metrics.add("Time_ISS(ms)", time)
-        metrics.add("MIPS", mips)
+        self.parse_stdout(out, metrics, exit_code=exit_code)
 
-        return metrics, out, []
+        return metrics, out, artifacts
 
     def get_target_system(self):
         return self.name

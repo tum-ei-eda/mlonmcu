@@ -74,7 +74,7 @@ def clone_etiss(
 
 # @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.needs(["etiss.src_dir"])
-@Tasks.optional(["etiss.plugins_dir"])  # Just as a dummy target to enforce order
+@Tasks.optional(["etiss.plugins_dir", "cmake.exe", "boost.install_dir"])  # Just as a dummy target to enforce order
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss)
@@ -90,12 +90,16 @@ def build_etiss(
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
     etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
     # llvmInstallDir = context.cache["llvm.install_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
     user_vars = context.environment.vars
+    boost_dir = context.cache.get("boost.install_dir")
     if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
         return False
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
+        if boost_dir is not None:
+            env["BOOST_ROOT"] = str(boost_dir)
         # env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
             context.cache["etiss.src_dir"],
@@ -104,6 +108,7 @@ def build_etiss(
             debug=params["dbg"],
             env=env,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.build_dir", flags] = etissBuildDir

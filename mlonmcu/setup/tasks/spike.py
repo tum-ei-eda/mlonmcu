@@ -189,6 +189,7 @@ def clone_spike(
 
 
 @Tasks.needs(["spike.src_dir"])
+@Tasks.optional(["boost.install_dir"])
 @Tasks.provides(["spike.build_dir", "spike.exe"])
 @Tasks.validate(_validate_spike)
 @Tasks.register(category=TaskType.TARGET)
@@ -203,6 +204,7 @@ def build_spike(
         return False
     spikeName = utils.makeDirName("spike")
     spikeSrcDir = context.cache["spike.src_dir"]
+    boostDir = context.cache.get("boost.install_dir")
     spikeBuildDir = context.environment.paths["deps"].path / "build" / spikeName
     spikeInstallDir = context.environment.paths["deps"].path / "install" / spikeName
     spikeExe = spikeInstallDir / "spike"
@@ -216,6 +218,8 @@ def build_spike(
         # spikeArgs.append("--prefix=" + str(context.cache["riscv_gcc.install_dir"]))
         spikeArgs.append("--prefix=" + str(spikeInstallDir))
         spikeArgs.append("--enable-misaligned")
+        if boostDir is not None:
+            spikeArgs.append(f"--with-boost={boostDir}")
         utils.execute(
             str(Path(spikeSrcDir) / "configure"),
             *spikeArgs,

@@ -1,4 +1,5 @@
 """Plugin for 3rd party components"""
+
 import os
 import sys
 from mlonmcu.logging import get_logger

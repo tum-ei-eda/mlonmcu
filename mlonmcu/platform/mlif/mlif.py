@@ -105,7 +105,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir", "srecord.install_dir"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "cmake.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -261,6 +261,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def llvm_dir(self):
         return self.config["llvm.install_dir"]
+
+    @property
+    def cmake_exe(self):
+        return self.config["cmake.exe"]
 
     @property
     def srecord_dir(self):
@@ -533,6 +537,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             debug=self.debug,
             live=self.print_outputs,
             env=env,
+            cmake_exe=self.cmake_exe,
         )
         return out, artifacts
 

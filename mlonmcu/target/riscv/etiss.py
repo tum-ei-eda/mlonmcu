@@ -519,13 +519,18 @@ class EtissTarget(RISCVTarget):
             ini_plugin = self.get_ini_plugin_config()
             for plugin_name in self.get_plugin_names():
                 f.write(f"[Plugin {plugin_name}]\n")
-                cfg = ini_plugin.pop(plugin_name, {})
+                LOOKUP = {
+                    "TracePrinterPlugin": "tracePrinter",
+                    "PerformanceEstimatorPlugin": "perfEst",
+                }
+                plugin_name_ = LOOKUP.get(plugin_name, plugin_name)
+                cfg = ini_plugin.pop(plugin_name_, {})
                 for key, value in cfg.items():
                     if isinstance(value, bool):
                         val = "true" if value else "false"
                     else:
                         val = value
-                    f.write(f"plugin.{plugin_name}.{key}={val}\n")
+                    f.write(f"plugin.{plugin_name_}.{key}={val}\n")
             # Check for remaining configs
             for plugin_name, cfg in ini_plugin.items():
                 if len(cfg) == 0:
@@ -574,7 +579,8 @@ class EtissTarget(RISCVTarget):
                 etiss_script_args.append("logpc")
         if not self.enable_dmi:
             if self.use_run_helper:
-                etiss_script_args.append("nodmi")
+                if "nodmi" not in etiss_script_args:
+                    etiss_script_args.append("nodmi")
         if self.verbose:
             etiss_script_args.append("v")
         # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")

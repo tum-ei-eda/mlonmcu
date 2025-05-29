@@ -19,7 +19,7 @@
 """TVM Tune Platform"""
 import re
 import os
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2dict, str2list
 import time
 import tempfile
 import tarfile
@@ -38,6 +38,7 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_rpc_tvmc_args,
     get_target_tvmc_args,
     get_disabled_pass_tvmc_args,
+    get_desired_layout_args,
 )
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.target.metrics import Metrics
@@ -101,7 +102,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         max_parallel = int(self.config.get("autotuning_max_parallel", 1))
         timeout = int(self.config.get("autotuning_timeout", 1000))
         results_file = self.config.get("autotuning_results_file", None)
-        desired_layout = backend.config.get("desired_layout", None)
+        desired_layout = str2list(backend.config.get("desired_layout", None), allow_none=True)
+        desired_layout_ops = str2list(backend.config.get("desired_layout_ops", None), allow_none=True)
+        desired_layout_map = str2dict(backend.config.get("desired_layout_map", None), allow_none=True)
         ret = [
             *get_target_tvmc_args(
                 backend.target,
@@ -109,7 +112,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 target_details=backend.get_target_details(),
                 extra_target_details=backend.extra_target_details,
             ),
-            *(["--desired-layout", desired_layout] if desired_layout is not None else []),
+            # *(["--desired-layout", desired_layout] if desired_layout is not None else []),
+            *get_desired_layout_args(desired_layout, desired_layout_ops, desired_layout_map),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
             *get_disabled_pass_tvmc_args(backend.disabled_passes),
             # TODO: missing: pass config etc.
@@ -200,7 +204,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             return cnt
 
         def get_max_flops(out, prefix="M"):
-            res = re.compile(r"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
+            res = re.compile(rf"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
             if len(res) > 0:
                 return res[-1]
             return -1

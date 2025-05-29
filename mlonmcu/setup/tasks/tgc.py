@@ -62,11 +62,29 @@ def clone_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     if "tgc.exe" in user_vars:  # TODO: also check command line flags?
         return False
     if rebuild or not utils.is_populated(tgcSrcDir):
-        logger.debug(context.environment.repos)
         tgcRepo = context.environment.repos["tgc"]
         utils.clone_wrapper(tgcRepo, tgcSrcDir)
 
     context.cache["tgc.src_dir"] = tgcSrcDir
+
+
+@Tasks.provides(["tgc_bsp.src_dir"])
+@Tasks.validate(_validate_tgc)
+@Tasks.register(category=TaskType.TARGET)
+def clone_tgc_bsp(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the tgc BSP."""
+    bspName = utils.makeDirName("tgc_bsp")
+    bspSrcDir = context.environment.paths["deps"].path / "src" / bspName
+    user_vars = context.environment.vars
+    if "tgc_bsp.src_dir" in user_vars:  # TODO: also check command line flags?
+        return False
+    if rebuild or not utils.is_populated(bspSrcDir):
+        bspRepo = context.environment.repos["tgc_bsp"]
+        utils.clone_wrapper(bspRepo, bspSrcDir)
+
+    context.cache["tgc_bsp.src_dir"] = bspSrcDir
 
 
 @Tasks.provides(["tgc.gen_src_dir"])

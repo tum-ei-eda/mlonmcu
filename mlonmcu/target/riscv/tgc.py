@@ -25,6 +25,7 @@ from typing import List
 from mlonmcu.logging import get_logger
 from mlonmcu.target.common import cli, execute
 from mlonmcu.target.metrics import Metrics
+from mlonmcu.target.bench import add_bench_metrics
 
 from .riscv import RISCVTarget
 
@@ -47,7 +48,7 @@ class TGCTarget(RISCVTarget):
         "backend": "interp",
         # TODO: plugins
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"tgc.exe"}
+    REQUIRED = RISCVTarget.REQUIRED | {"tgc.exe", "tgc_bsp.src_dir"}
 
     def __init__(self, name="tgc", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -59,6 +60,10 @@ class TGCTarget(RISCVTarget):
     @property
     def tgc_exe(self):
         return Path(self.config["tgc.exe"])
+
+    @property
+    def tgc_bsp_dir(self):
+        return Path(self.config["tgc_bsp.src_dir"])
 
     @property
     def iss_args(self):
@@ -94,7 +99,6 @@ class TGCTarget(RISCVTarget):
         return ret, []
 
     def parse_stdout(self, out, metrics, exit_code=0):
-        # print("out", out)
         # TODO: filter out log prefix!
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         pattern = r"(\d+) cycles during (\d+)ms resulting in ([\d.]+)MIPS"
@@ -142,7 +146,7 @@ class TGCTarget(RISCVTarget):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret["TGC_PREFIX"] = self.riscv_gcc_prefix / "bin" / f"{self.riscv_gcc_basename}-"
+        ret["TGC_BSP_DIR"] = self.tgc_bsp_dir
         return ret
 
 

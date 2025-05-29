@@ -285,7 +285,6 @@ class Model(Workload):
         return f"Model({self.name})"
 
 
-
 class Program(Workload):
     def __repr__(self):
         if self.alt:

@@ -33,6 +33,7 @@ from git import Repo
 from tqdm import tqdm
 
 from mlonmcu import logging
+
 # from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.environment.config import RepoConfig
 

@@ -264,10 +264,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def jit(self):
-        tmp = self.config.get("jit", None)
-        if tmp is None:
-            tmp = f"RV{self.xlen}IMACFD"  # TODO: improve
-        return tmp
+        return self.config.get("jit", None)
 
     @property
     def llvm_prefix(self):

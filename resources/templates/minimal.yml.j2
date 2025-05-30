@@ -231,6 +231,9 @@ vars:
   llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
   riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
+  cmake.use_system: true
+  llvm.use_system: true
+  boost.use_system: true
 flags:
   tflmc.exe:
   - x86

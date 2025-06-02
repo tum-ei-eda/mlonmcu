@@ -2523,6 +2523,7 @@ class PerfSim(TargetFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "core": "cv32e40p",
+        "estimator": True,
         "trace_asm": False,  # TODO: move to owen feature, save files!
         "trace_instr": False,  # TODO: move to owen feature, save files!
         "to_file": False,
@@ -2535,6 +2536,11 @@ class PerfSim(TargetFeature):
     def core(self):
         value = self.config["core"]
         return value
+
+    @property
+    def estimator(self):
+        value = self.config["estimator"]
+        return str2bool(value)
 
     @property
     def trace_asm(self):
@@ -2556,20 +2562,22 @@ class PerfSim(TargetFeature):
             return
         plugins_new = config.get(f"{target}.plugins", [])
         extra_plugin_config = config.get(f"{target}.extra_plugin_config", {})
-        plugins_new.append("PerformanceEstimatorPlugin")
-        if self.core is not None:
-            assert self.name not in extra_plugin_config
-            extra_plugin_config["perfEst"] = {}
-            extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
-            if self.to_file:
-                extra_plugin_config["perfEst"]["print"] = 1
-            extra_plugin_config["perfEst"]["printDir"] = "."
+        if self.estimator:
+            plugins_new.append("PerformanceEstimatorPlugin")
+            if self.core is not None:
+                assert self.name not in extra_plugin_config
+                extra_plugin_config["perfEst"] = {}
+                extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
+                if self.to_file:
+                    extra_plugin_config["perfEst"]["print"] = 1
+                extra_plugin_config["perfEst"]["printDir"] = "."
         if self.trace_asm or self.trace_instr:
             if self.to_file:
                 assert not (self.trace_asm and self.trace_instr)
                 assert not self.trace_instr or self.core.upper() == "CVA6"
                 plugins_new.append("TracePrinterPlugin")
                 trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
+                # trace = "InstructionTrace_RV64" if self.trace_instr else "CV32E40P"
                 extra_plugin_config["tracePrinter"] = {}
                 extra_plugin_config["tracePrinter"]["trace"] = trace
                 extra_plugin_config["tracePrinter"]["stream.toFile"] = 1
@@ -2590,20 +2598,21 @@ class PerfSim(TargetFeature):
             def metrics_callback(stdout, metrics, artifacts, directory=None):
                 """Callback for extracting perf metrics from stdout"""
                 assert len(metrics) == 1
-                instrs_match = re.compile(r" >> Number of instructions: (\d+)").findall(stdout)
-                assert instrs_match is not None
-                assert len(instrs_match) == 1
-                cycles_match = re.compile(r" >> Estimated number of processor cycles: (\d+)").findall(stdout)
-                assert cycles_match is not None
-                assert len(cycles_match) == 1
-                cpi_match = re.compile(
-                    r" >> Estimated average number of processor cycles per instruction: (\d+?\.\d+)"
-                ).findall(stdout)
-                assert cpi_match is not None
-                assert len(cpi_match) == 1
-                metrics[0].add("PerfSim Instructions", int(instrs_match[0]))
-                metrics[0].add("PerfSim Cycles", int(cycles_match[0]))
-                metrics[0].add("PerfSim CPI", float(cpi_match[0]))
+                if self.estimator:
+                    instrs_match = re.compile(r" >> Number of instructions: (\d+)").findall(stdout)
+                    assert instrs_match is not None
+                    assert len(instrs_match) == 1
+                    cycles_match = re.compile(r" >> Estimated number of processor cycles: (\d+)").findall(stdout)
+                    assert cycles_match is not None
+                    assert len(cycles_match) == 1
+                    cpi_match = re.compile(
+                        r" >> Estimated average number of processor cycles per instruction: (\d+?\.\d+)"
+                    ).findall(stdout)
+                    assert cpi_match is not None
+                    assert len(cpi_match) == 1
+                    metrics[0].add("PerfSim Instructions", int(instrs_match[0]))
+                    metrics[0].add("PerfSim Cycles", int(cycles_match[0]))
+                    metrics[0].add("PerfSim CPI", float(cpi_match[0]))
                 if self.to_file:
                     assert directory is not None
                     assert self.core is not None

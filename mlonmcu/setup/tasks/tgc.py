@@ -149,7 +149,6 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
                 #         utils.execute(
                 #             cmd,
                 #             cwd=tgcSrcDir,
-                #             print_output=True,
                 #             shell=True,
                 #         )
         utils.execute(
@@ -159,8 +158,7 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             "-B",
             ".",
             cwd=tgcBuildDir,
-            live=False,
-            print_output=True,
+            live=verbose,
         )
         utils.make(cwd=tgcBuildDir, threads=threads, live=verbose)
         # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)

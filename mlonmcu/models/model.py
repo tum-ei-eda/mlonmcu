@@ -263,7 +263,6 @@ class Model(Workload):
     @property
     def params_path(self):
         value = self.config["params_path"]
-        print("value", value)
         if value is not None:
             if not isinstance(value, Path):
                 assert isinstance(value, str)

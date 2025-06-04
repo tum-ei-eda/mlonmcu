@@ -37,8 +37,9 @@ def _validate_tgc(context: MlonMcuContext, params=None):
     if not context.environment.has_target("tgc"):
         return False
     user_vars = context.environment.vars
-    if "tgc.exe" not in user_vars:  # TODO: also check command line flags?
-        assert "tgc" in context.environment.repos, "Undefined repository: 'tgc'"
+    if "tgc.exe" in user_vars:  # TODO: also check command line flags?
+        return False
+    # assert "tgc" in context.environment.repos, "Undefined repository: 'tgc'"
     return True
 
 

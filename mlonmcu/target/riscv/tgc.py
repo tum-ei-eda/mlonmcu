@@ -52,8 +52,8 @@ class TGCTarget(RISCVTarget):
 
     def __init__(self, name="tgc", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        if self.isa != "tgc5c":
-            self.config["extensions"] = self.isa_dict[self.isa]
+        # if self.isa != "tgc5c":
+        #     self.config["extensions"] = self.isa_dict[self.isa]
         if "e" in self.config["extensions"]:
             self.config["abi"] = "ilp32e"
 

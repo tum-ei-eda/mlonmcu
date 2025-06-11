@@ -132,7 +132,9 @@ def _check_summary_output(
 
 @pytest.mark.parametrize("detailed", [False, True])
 @pytest.mark.parametrize("ignore_cache", [False, True])
-def test_models_print_summary(detailed, ignore_cache, capsys, fake_context, fake_environment_directory, fake_config_home):
+def test_models_print_summary(
+    detailed, ignore_cache, capsys, fake_context, fake_environment_directory, fake_config_home
+):
     # list empty
     with mock.patch.dict(fake_context.environment.paths, {"models": []}):
         print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)

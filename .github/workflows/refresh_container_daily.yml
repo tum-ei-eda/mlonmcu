@@ -83,10 +83,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Check Disk
         run: df -h
-      - name: Move Symlink Docker to /mnt
+      - name: Symlink Docker to /mnt
         run: |
+          sudo systemctl stop docker
           sudo mv /var/lib/docker /mnt/docker
           sudo ln -s /mnt/docker /var/lib/docker
+          sudo systemctl start docker
       - name: Check Disk
         run: df -h
       - name: Build and push to Docker Hub
@@ -160,10 +162,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Check Disk
         run: df -h
-      - name: Move Symlink Docker to /mnt
+      - name: Symlink Docker to /mnt
         run: |
+          sudo systemctl stop docker
           sudo mv /var/lib/docker /mnt/docker
           sudo ln -s /mnt/docker /var/lib/docker
+          sudo systemctl start docker
       - name: Check Disk
         run: df -h
       - name: Build and push to Docker Hub

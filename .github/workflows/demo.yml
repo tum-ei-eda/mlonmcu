@@ -100,7 +100,7 @@ jobs:
         source .venv/bin/activate
         mlonmcu setup -H home/ -v
     - name: Check Disk
-      run: df
+      run: df -h
     - name: Install environment-specific Python packages
       run: |
         source .venv/bin/activate

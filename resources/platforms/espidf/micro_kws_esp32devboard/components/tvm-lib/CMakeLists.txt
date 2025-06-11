@@ -56,7 +56,7 @@ ENDIF()
     )
 
 
-component_compile_options(-Wno-error=unused-but-set-parameter -Wno-error=format -Wno-error=incompatible-pointer-types)
+component_compile_options(-Wno-error=unused-but-set-parameter -Wno-error=format -Wno-incompatible-pointer-types)
 
 TARGET_INCLUDE_DIRECTORIES(${COMPONENT_LIB} PUBLIC
     -DTVM_RUNTIME_ALLOC_ALIGNMENT_BYTES=${TVM_ALIGNMENT_BYTES}

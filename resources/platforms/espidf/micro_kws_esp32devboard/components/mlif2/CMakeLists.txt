@@ -18,12 +18,8 @@ limitations under the License.
 ]]
 
 SET(MLONMCU_CODEGEN_DIR ${CONFIG_MLONMCU_CODEGEN_DIR})
-# SET(MLONMCU_CODEGEN_DIR ${CONFIG_MLONMCU_CODEGEN_DIR} CACHE PATH "Directory with codegen results")
 SET(MLONMCU_FRAMEWORK ${CONFIG_MLONMCU_FRAMEWORK})
-# SET(MLONMCU_FRAMEWORK ${CONFIG_MLONMCU_FRAMEWORK} CACHE STRING "Name of MLonMCU Framework")
 SET(MLONMCU_BACKEND ${CONFIG_MLONMCU_BACKEND})
-# SET(MLONMCU_BACKEND ${CONFIG_MLONMCU_BACKEND} CACHE STRING "Name of MLonMCU Backend")
-SET(NUM_RUNS ${CONFIG_MLONMCU_NUM_RUNS})
 
 
 SET(MLIF_SRCS ml_interface.c)
@@ -61,17 +57,24 @@ ELSE()
     SET(LIB_NAME tflite-lib tvm-lib)
 ENDIF()
 
-SET(MODEL_SUPPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/default_model_support)
-SET(MODEL_SUPPORT_SRCS
-    ${MODEL_SUPPORT_DIR}/process_input.c
-    ${MODEL_SUPPORT_DIR}/process_output.c
-)
-SET(DATA_SRC ${CMAKE_CURRENT_SOURCE_DIR}/default_data.c)
+# SET(MODEL_SUPPORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/default_model_support)
+# SET(MODEL_SUPPORT_SRCS
+#     ${MODEL_SUPPORT_DIR}/process_input.c
+#     ${MODEL_SUPPORT_DIR}/process_output.c
+# )
+# SET(DATA_SRC ${CMAKE_CURRENT_SOURCE_DIR}/default_data.c)
 
-idf_component_register(SRCS ${CODEGEN_SRCS} ${MLIF_SRCS} ${MODEL_SUPPORT_SRCS} ${DATA_SRC}
-                    INCLUDE_DIRS ${CODEGEN_INCS} ${MODEL_SUPPORT_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include
+# idf_component_register(SRCS ${CODEGEN_SRCS} ${MLIF_SRCS} ${MODEL_SUPPORT_SRCS} ${DATA_SRC}
+#                     INCLUDE_DIRS ${CODEGEN_INCS} ${MODEL_SUPPORT_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include
+#                     REQUIRES ${LIB_NAME})
+# SET(MLIF_EXTRA_INCS
+#   ${CMAKE_CURRENT_SOURCE_DIR}/${MLONMCU_FRAMEWORK}
+# )
+
+idf_component_register(SRCS ${CODEGEN_SRCS} ${MLIF_SRCS}
+                    INCLUDE_DIRS ${CODEGEN_INCS} ${CMAKE_CURRENT_SOURCE_DIR}/include
                     REQUIRES ${LIB_NAME})
 
 component_compile_options(-Wno-error=missing-braces -Wno-incompatible-pointer-types -Wno-error=unused-const-variable)
 
-target_compile_definitions(${COMPONENT_LIB} PUBLIC NUM_RUNS=${NUM_RUNS})
+# target_compile_definitions(${COMPONENT_LIB} PUBLIC NUM_RUNS=${NUM_RUNS})

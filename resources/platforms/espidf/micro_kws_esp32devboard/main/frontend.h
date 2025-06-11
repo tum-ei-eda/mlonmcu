@@ -1,8 +1,9 @@
 /*
  * Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
  *
- * This file is part of MLonMCU.
- * See https://github.com/tum-ei-eda/mlonmcu.git for further info.
+ * This file is part of the MicroKWS project.
+ * See https://gitlab.lrz.de/de-tum-ei-eda-esl/ESD4ML/micro-kws for further
+ * info.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +17,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef SUPPORT_EXIT_H
-#define SUPPORT_EXIT_H
 
-#define EXIT_MLIF_BASE        (0x10)
-#define EXIT_MLIF_INVALID_SIZE  (EXIT_MLIF_BASE + 1)
-#define EXIT_MLIF_MISSMATCH   (EXIT_MLIF_BASE + 2)
+#ifndef FRONTEND_H
+#define FRONTEND_H
 
-void mlonmcu_exit(int status);
+#include <cstdint>
 
-#endif  // SUPPORT_EXIT_H
+#include "esp_err.h"
+
+// Sets up any resources needed for the feature generation pipeline.
+esp_err_t InitializeFrontend();
+
+// Converts audio sample data into a more compact form that's appropriate for
+// feeding into a neural network.
+esp_err_t GenerateFrontendData(const int16_t* input, size_t input_size, int8_t* output);
+
+#endif  // FRONTEND_H

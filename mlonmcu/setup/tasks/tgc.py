@@ -37,8 +37,9 @@ def _validate_tgc(context: MlonMcuContext, params=None):
     if not context.environment.has_target("tgc"):
         return False
     user_vars = context.environment.vars
-    if "tgc.exe" not in user_vars:  # TODO: also check command line flags?
-        assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
+    if "tgc.exe" in user_vars:  # TODO: also check command line flags?
+        return False
+    # assert "tgc" in context.environment.repos, "Undefined repository: 'tgc'"
     return True
 
 
@@ -132,7 +133,7 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
         # No need to build a vext and non-vext variant?
         utils.mkdirs(tgcBuildDir)
         if "tgc_gen" in context.environment.repos:
-            utils.exec_getout(
+            utils.execute(
                 "direnv allow",
                 cwd=tgcSrcDir,
                 shell=True,
@@ -146,21 +147,19 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
                 #         cmd = f'/bin/bash -c "source ~/.sdkman/bin/sdkman-init.sh && sdk use java 11.0.21-tem && java
                 # --version && {tgcSrcDir}/../tgc_gen/scripts/generate_iss.sh -c {version} -o dbt-rise-tgc/ -b {backend}
                 # {tgcSrcDir}/../tgc_gen/CoreDSL/{version}.core_desc"'
-                #         utils.exec_getout(
+                #         utils.execute(
                 #             cmd,
                 #             cwd=tgcSrcDir,
-                #             print_output=True,
                 #             shell=True,
                 #         )
-        utils.exec_getout(
+        utils.execute(
             "cmake",
             "-S",
             tgcSrcDir,
             "-B",
             ".",
             cwd=tgcBuildDir,
-            live=False,
-            print_output=True,
+            live=verbose,
         )
         utils.make(cwd=tgcBuildDir, threads=threads, live=verbose)
         # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)

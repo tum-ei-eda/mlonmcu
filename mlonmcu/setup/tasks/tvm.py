@@ -165,28 +165,28 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
         llvmConfig = str(llvm_dir / "bin" / "llvm-config")
         llvmConfigEscaped = str(llvmConfig).replace("/", "\\/")
         utils.copy(cfgFileSrc, cfgFile)
-        utils.exec(
+        utils.execute(
             "sed",
             "-i",
             "--",
             r"s/USE_MICRO OFF/USE_MICRO ON/g",
             str(cfgFile),
         )
-        utils.exec(
+        utils.execute(
             "sed",
             "-i",
             "--",
             r"s/USE_MICRO_STANDALONE_RUNTIME OFF/USE_MICRO_STANDALONE_RUNTIME ON/g",
             str(cfgFile),
         )
-        utils.exec(
+        utils.execute(
             "sed",
             "-i",
             "--",
             r"s/USE_LLVM \(OFF\|ON\)/USE_LLVM " + llvmConfigEscaped + "/g",
             str(cfgFile),
         )
-        utils.exec(
+        utils.execute(
             "sed",
             "-i",
             "--",
@@ -194,7 +194,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             str(cfgFile),
         )
         if cmsisnn:
-            utils.exec(
+            utils.execute(
                 "sed",
                 "-i",
                 "--",

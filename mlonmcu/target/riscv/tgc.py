@@ -22,7 +22,8 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.target.common import cli, execute
+from mlonmcu.target.common import cli
+from mlonmcu.setup.utils import execute
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 
@@ -51,8 +52,8 @@ class TGCTarget(RISCVTarget):
 
     def __init__(self, name="tgc", features=None, config=None):
         super().__init__(name, features=features, config=config)
-        if self.isa != "tgc5c":
-            self.config["extensions"] = self.isa_dict[self.isa]
+        # if self.isa != "tgc5c":
+        #     self.config["extensions"] = self.isa_dict[self.isa]
         if "e" in self.config["extensions"]:
             self.config["abi"] = "ilp32e"
 

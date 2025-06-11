@@ -44,6 +44,20 @@ def _validate_etiss(context: MlonMcuContext, params={}):
     return context.environment.has_target("etiss_pulpino") or context.environment.has_target("etiss")
 
 
+def _validate_etiss_clone(context: MlonMcuContext, params={}):
+    user_vars = context.environment.vars
+    if "etiss.src_dir" in user_vars:
+        return False
+    return _validate_etiss(context, params=params)
+
+
+def _validate_etiss_build(context: MlonMcuContext, params={}):
+    user_vars = context.environment.vars
+    if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
+        return False
+    return _validate_etiss(context, params=params)
+
+
 def _validate_etiss_clean(context: MlonMcuContext, params={}):
     if not _validate_etiss(context, params=params):
         return False
@@ -53,7 +67,7 @@ def _validate_etiss_clean(context: MlonMcuContext, params={}):
 
 
 @Tasks.provides(["etiss.src_dir"])
-@Tasks.validate(_validate_etiss)
+@Tasks.validate(_validate_etiss_clone)
 @Tasks.register(category=TaskType.TARGET)
 def clone_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -77,7 +91,7 @@ def clone_etiss(
 @Tasks.optional(["etiss.plugins_dir", "cmake.exe", "boost.install_dir"])  # Just as a dummy target to enforce order
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
-@Tasks.validate(_validate_etiss)
+@Tasks.validate(_validate_etiss_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -118,7 +132,7 @@ def build_etiss(
 @Tasks.needs(["etiss.build_dir"])
 @Tasks.provides(["etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
-@Tasks.validate(_validate_etiss)
+@Tasks.validate(_validate_etiss_build)
 @Tasks.register(category=TaskType.TARGET)
 def install_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

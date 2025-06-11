@@ -83,6 +83,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Check Disk
         run: df -h
+      - name: Move Symlink Docker to /mnt
+        run: |
+          sudo mv /var/lib/docker /mnt/docker
+          sudo ln -s /mnt/docker /var/lib/docker
+      - name: Check Disk
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v6
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -152,6 +158,12 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check Disk
+        run: df -h
+      - name: Move Symlink Docker to /mnt
+        run: |
+          sudo mv /var/lib/docker /mnt/docker
+          sudo ln -s /mnt/docker /var/lib/docker
       - name: Check Disk
         run: df -h
       - name: Build and push to Docker Hub

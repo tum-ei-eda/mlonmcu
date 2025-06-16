@@ -133,6 +133,7 @@
         <span class="s2">&quot;abi&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;attr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="s2">&quot;cpu_arch&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;jit&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;etiss_extra_args&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="s2">&quot;enable_xcorevmac&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_xcorevmem&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -238,6 +239,7 @@
                 <span class="s2">&quot;arch&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_arch</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">toolchain</span> <span class="o">==</span> <span class="s2">&quot;gcc&quot;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">llvm_arch</span><span class="p">,</span>
                 <span class="s2">&quot;abi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abi</span><span class="p">,</span>
                 <span class="s2">&quot;cpu_arch&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpu_arch</span><span class="p">,</span>
+                <span class="o">**</span><span class="p">({</span><span class="s2">&quot;jit&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -347,6 +349,10 @@
         <span class="k">if</span> <span class="n">tmp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">tmp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;RV</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">IMACFD&quot;</span>  <span class="c1"># TODO: improve</span>
         <span class="k">return</span> <span class="n">tmp</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">jit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">llvm_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -140,11 +140,6 @@
 <span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm/microtvm.html#MicroTvmPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.create_target" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_supported_targets">
-<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm/microtvm.html#MicroTvmPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.microtvm.MicroTvmPlatform.get_supported_targets" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </section>
@@ -564,7 +559,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.microtvm.microtvm_template_target.TemplateMicroTvmPlatformTarget" title="mlonmcu.platform.microtvm.microtvm_template_target.TemplateMicroTvmPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateMicroTvmPlatformTarget</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'cpu_arch':</span> <span class="pre">None,</span> <span class="pre">'enable_xcorevalu':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevbi':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevbitmanip':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevhwlp':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevmac':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevmem':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevsimd':</span> <span class="pre">False,</span> <span class="pre">'etiss_extra_args':</span> <span class="pre">'',</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'fpu':</span> <span class="pre">'double',</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'quiet':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc',</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'workspace_size_bytes':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'cpu_arch':</span> <span class="pre">None,</span> <span class="pre">'enable_xcorevalu':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevbi':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevbitmanip':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevhwlp':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevmac':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevmem':</span> <span class="pre">False,</span> <span class="pre">'enable_xcorevsimd':</span> <span class="pre">False,</span> <span class="pre">'etiss_extra_args':</span> <span class="pre">'',</span> <span class="pre">'extensions':</span> <span class="pre">['i',</span> <span class="pre">'m',</span> <span class="pre">'c'],</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'fpu':</span> <span class="pre">'double',</span> <span class="pre">'jit':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'quiet':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'toolchain':</span> <span class="pre">'gcc',</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'workspace_size_bytes':</span> <span class="pre">None,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></em><a class="headerlink" href="#mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -665,6 +660,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.get_project_options">
 <span class="sig-name descname"><span class="pre">get_project_options</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm/microtvm_etiss_target.html#EtissMicroTvmPlatformTarget.get_project_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.get_project_options" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.jit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">jit</span></span><a class="headerlink" href="#mlonmcu.platform.microtvm.microtvm_etiss_target.EtissMicroTvmPlatformTarget.jit" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -1220,11 +1220,6 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.create_target">
 <span class="sig-name descname"><span class="pre">create_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm/microtvm.html#MicroTvmPlatform.create_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.create_target" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="mlonmcu.platform.microtvm.MicroTvmPlatform.get_supported_targets">
-<span class="sig-name descname"><span class="pre">get_supported_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/microtvm/microtvm.html#MicroTvmPlatform.get_supported_targets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.microtvm.MicroTvmPlatform.get_supported_targets" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

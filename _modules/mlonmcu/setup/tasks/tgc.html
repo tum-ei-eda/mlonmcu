@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.setup.tasks.tgc &mdash; ML on MCU 0.8.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=70e6bf69"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.setup.tasks.tgc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.setup.tasks.tgc</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_task_factory</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+<span class="n">Tasks</span> <span class="o">=</span> <span class="n">get_task_factory</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tgc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">del</span> <span class="n">params</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;tgc&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;tgc.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># assert &quot;tgc&quot; in context.environment.repos, &quot;Undefined repository: &#39;tgc&#39;&quot;</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_tgc_gen</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_tgc</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">enable</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tgc.gen_enable&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">enable</span>
+
+
+<div class="viewcode-block" id="clone_tgc">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tgc.clone_tgc">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tgc.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tgc</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_tgc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the tgc simulator.&quot;&quot;&quot;</span>
+    <span class="k">del</span> <span class="n">params</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">threads</span>
+    <span class="n">tgcName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tgc&quot;</span><span class="p">)</span>
+    <span class="n">tgcSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">tgcName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;tgc.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tgcSrcDir</span><span class="p">):</span>
+        <span class="n">tgcRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tgc&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">tgcRepo</span><span class="p">,</span> <span class="n">tgcSrcDir</span><span class="p">)</span>
+
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tgc.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tgcSrcDir</span></div>
+
+
+
+<div class="viewcode-block" id="clone_tgc_bsp">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tgc.clone_tgc_bsp">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tgc_bsp.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tgc</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_tgc_bsp</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the tgc BSP.&quot;&quot;&quot;</span>
+    <span class="k">del</span> <span class="n">params</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">threads</span>
+    <span class="n">bspName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tgc_bsp&quot;</span><span class="p">)</span>
+    <span class="n">bspSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">bspName</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;tgc_bsp.src_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">bspSrcDir</span><span class="p">):</span>
+        <span class="n">bspRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tgc_bsp&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">bspRepo</span><span class="p">,</span> <span class="n">bspSrcDir</span><span class="p">)</span>
+
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tgc_bsp.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bspSrcDir</span></div>
+
+
+
+<div class="viewcode-block" id="clone_tgc_gen">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tgc.clone_tgc_gen">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tgc.gen_src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tgc_gen</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_tgc_gen</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the tgc generator.&quot;&quot;&quot;</span>
+    <span class="k">del</span> <span class="n">params</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">threads</span>
+    <span class="n">tgcGenName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tgc_gen&quot;</span><span class="p">)</span>
+    <span class="n">tgcGenSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">tgcGenName</span>
+    <span class="c1"># user_vars = context.environment.vars</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tgcGenSrcDir</span><span class="p">):</span>
+        <span class="n">tgcGenRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;tgc_gen&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">tgcGenRepo</span><span class="p">,</span> <span class="n">tgcGenSrcDir</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tgc.gen_src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tgcGenSrcDir</span></div>
+
+
+
+<div class="viewcode-block" id="build_tgc">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.tgc.build_tgc">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;tgc.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;tgc.gen_src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_tgc</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;tgc.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tgc.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_tgc</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()):</span>
+    <span class="c1"># Build tgc simulator.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">gen_enable</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tgc.gen_enable&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;tgc.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">tgcName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;tgc&quot;</span><span class="p">)</span>
+    <span class="n">tgcSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tgc.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">tgcBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">tgcName</span>
+    <span class="n">tgcInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">tgcName</span>
+    <span class="n">tgcExe</span> <span class="o">=</span> <span class="n">tgcInstallDir</span> <span class="o">/</span> <span class="s2">&quot;tgc-sim&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="c1"># backends = [&quot;interp&quot;, &quot;asmjit&quot;]</span>
+    <span class="c1"># versions = [&quot;TGC5A&quot;, &quot;TGC5B&quot;]</span>
+    <span class="k">if</span> <span class="s2">&quot;tgc.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">tgcBuildDir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tgcExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">()):</span>
+        <span class="c1"># No need to build a vext and non-vext variant?</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tgcBuildDir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;tgc_gen&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;direnv allow&quot;</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">tgcSrcDir</span><span class="p">,</span>
+                <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">executable</span><span class="o">=</span><span class="s2">&quot;/bin/bash&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">gen_enable</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+                <span class="c1"># tgcGenSrcDir = context.cache[&quot;tgc.gen_src_dir&quot;]</span>
+                <span class="c1"># for backend in backends:</span>
+                <span class="c1">#     for version in versions:</span>
+                <span class="c1">#         cmd = f&#39;/bin/bash -c &quot;source ~/.sdkman/bin/sdkman-init.sh &amp;&amp; sdk use java 11.0.21-tem &amp;&amp; java</span>
+                <span class="c1"># --version &amp;&amp; {tgcSrcDir}/../tgc_gen/scripts/generate_iss.sh -c {version} -o dbt-rise-tgc/ -b {backend}</span>
+                <span class="c1"># {tgcSrcDir}/../tgc_gen/CoreDSL/{version}.core_desc&quot;&#39;</span>
+                <span class="c1">#         utils.execute(</span>
+                <span class="c1">#             cmd,</span>
+                <span class="c1">#             cwd=tgcSrcDir,</span>
+                <span class="c1">#             shell=True,</span>
+                <span class="c1">#         )</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;cmake&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-S&quot;</span><span class="p">,</span>
+            <span class="n">tgcSrcDir</span><span class="p">,</span>
+            <span class="s2">&quot;-B&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">tgcBuildDir</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">tgcBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="c1"># utils.make(target=&quot;install&quot;, cwd=spikeBuildDir, threads=threads, live=verbose)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">tgcInstallDir</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tgcBuildDir</span> <span class="o">/</span> <span class="s2">&quot;dbt-rise-tgc&quot;</span> <span class="o">/</span> <span class="s2">&quot;tgc-sim&quot;</span><span class="p">,</span> <span class="n">tgcExe</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tgc.build_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tgcBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;tgc.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tgcExe</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -172,6 +172,7 @@
         <span class="s2">&quot;garbage_collect&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;strip_strings&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;unroll_loops&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;inline_functions&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;goal&quot;</span><span class="p">:</span> <span class="s2">&quot;generic_mlonmcu&quot;</span><span class="p">,</span>  <span class="c1"># Use &#39;generic_mlif&#39; for older version of MLIF</span>
         <span class="s2">&quot;set_inputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;set_inputs_interface&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -190,7 +191,7 @@
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mlif.src_dir&quot;</span><span class="p">}</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;cmake.exe&quot;</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -357,6 +358,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cmake_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">srecord_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">]</span>
 
@@ -475,14 +480,20 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">unroll_loops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;unroll_loops&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MlifPlatform.get_supported_targets">
-<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.get_supported_targets">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">target_names</span> <span class="o">=</span> <span class="n">get_mlif_platform_targets</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">target_names</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inline_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;inline_functions&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">target_names</span> <span class="o">=</span> <span class="n">get_mlif_platform_targets</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">target_names</span>
 
 <div class="viewcode-block" id="MlifPlatform.close">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.close">[docs]</a>
@@ -539,6 +550,8 @@
             <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;STRIP_STRINGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_strings</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unroll_loops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;UNROLL_LOOPS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unroll_loops</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inline_functions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;INLINE_FUNCTIONS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inline_functions</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccache</span><span class="p">:</span>
             <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;CMAKE_C_COMPILER_LAUNCHER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ccache&quot;</span>  <span class="c1"># TODO: choose between ccache/sccache</span>
             <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;CMAKE_CXX_COMPILER_LAUNCHER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ccache&quot;</span>  <span class="c1"># TODO: choose between ccache/sccache</span>
@@ -650,6 +663,7 @@
             <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
             <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">cmake_exe</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmake_exe</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span></div>
 

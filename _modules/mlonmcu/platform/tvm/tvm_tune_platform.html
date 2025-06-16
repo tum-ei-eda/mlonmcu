@@ -102,7 +102,7 @@
 <span class="sd">&quot;&quot;&quot;TVM Tune Platform&quot;&quot;&quot;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2dict</span><span class="p">,</span> <span class="n">str2list</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
@@ -121,6 +121,7 @@
     <span class="n">get_rpc_tvmc_args</span><span class="p">,</span>
     <span class="n">get_target_tvmc_args</span><span class="p">,</span>
     <span class="n">get_disabled_pass_tvmc_args</span><span class="p">,</span>
+    <span class="n">get_desired_layout_args</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
@@ -191,7 +192,9 @@
         <span class="n">max_parallel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_max_parallel&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">timeout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_timeout&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">))</span>
         <span class="n">results_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuning_results_file&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">desired_layout</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desired_layout&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">desired_layout</span> <span class="o">=</span> <span class="n">str2list</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desired_layout&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">desired_layout_ops</span> <span class="o">=</span> <span class="n">str2list</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desired_layout_ops&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">desired_layout_map</span> <span class="o">=</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desired_layout_map&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
             <span class="o">*</span><span class="n">get_target_tvmc_args</span><span class="p">(</span>
                 <span class="n">backend</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
@@ -199,7 +202,8 @@
                 <span class="n">target_details</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">get_target_details</span><span class="p">(),</span>
                 <span class="n">extra_target_details</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">extra_target_details</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--desired-layout&quot;</span><span class="p">,</span> <span class="n">desired_layout</span><span class="p">]</span> <span class="k">if</span> <span class="n">desired_layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="c1"># *([&quot;--desired-layout&quot;, desired_layout] if desired_layout is not None else []),</span>
+            <span class="o">*</span><span class="n">get_desired_layout_args</span><span class="p">(</span><span class="n">desired_layout</span><span class="p">,</span> <span class="n">desired_layout_ops</span><span class="p">,</span> <span class="n">desired_layout_map</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_rpc_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_rpc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_port</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">disabled_passes</span><span class="p">),</span>
             <span class="c1"># TODO: missing: pass config etc.</span>
@@ -300,7 +304,7 @@
             <span class="k">return</span> <span class="n">cnt</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_max_flops</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">):</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+\.\d+\s*\/\s*(\d+\.\d+)\s+</span><span class="si">{prefix}</span><span class="s2">FLOPS&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;\d+\.\d+\s*\/\s*(\d+\.\d+)\s+</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">FLOPS&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>

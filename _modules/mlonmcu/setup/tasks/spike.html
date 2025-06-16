@@ -283,6 +283,7 @@
 <div class="viewcode-block" id="build_spike">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.spike.build_spike">[docs]</a>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.exe&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
@@ -297,6 +298,7 @@
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">spikeName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span>
     <span class="n">spikeSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">]</span>
+    <span class="n">boostDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">)</span>
     <span class="n">spikeBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
     <span class="n">spikeInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
     <span class="n">spikeExe</span> <span class="o">=</span> <span class="n">spikeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
@@ -310,6 +312,8 @@
         <span class="c1"># spikeArgs.append(&quot;--prefix=&quot; + str(context.cache[&quot;riscv_gcc.install_dir&quot;]))</span>
         <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--prefix=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">))</span>
         <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--enable-misaligned&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">boostDir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spikeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--with-boost=</span><span class="si">{</span><span class="n">boostDir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">spikeSrcDir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;configure&quot;</span><span class="p">),</span>
             <span class="o">*</span><span class="n">spikeArgs</span><span class="p">,</span>

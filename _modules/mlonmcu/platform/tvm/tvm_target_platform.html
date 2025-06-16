@@ -242,16 +242,13 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="TvmTargetPlatform.get_supported_targets">
-<a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.get_supported_targets">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: get this via tvmc run --help</span>
         <span class="n">target_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="s2">&quot;cuda&quot;</span><span class="p">,</span> <span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;metal&quot;</span><span class="p">,</span> <span class="s2">&quot;vulkan&quot;</span><span class="p">,</span> <span class="s2">&quot;rocm&quot;</span><span class="p">,</span> <span class="s2">&quot;micro&quot;</span><span class="p">]</span>
 
         <span class="n">skip_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;micro&quot;</span><span class="p">]</span>  <span class="c1"># Use microtvm platform instead</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;tvm_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_names</span><span class="p">]</span></div>
-
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;tvm_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_names</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TvmTargetPlatform.create_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.create_target">[docs]</a>

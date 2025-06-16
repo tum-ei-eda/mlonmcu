@@ -805,10 +805,11 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
+    <span class="c1"># TODO: add callback to save artifact?</span>
     <span class="c1"># def add_target_config(self, target, config, directory=None):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.trace_memory&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">})</span>
         <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">:</span>
             <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
@@ -820,6 +821,39 @@
                 <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--tracefile&quot;</span><span class="p">)</span>
                 <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace_file</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">mem_trace_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">                    </span><span class="sd">&quot;&quot;&quot;Callback which parses collects the generated artifacts.&quot;&quot;&quot;</span>
+                    <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;trace.txt&quot;</span>
+                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
+                        <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;dBusAccess.csv&quot;</span>
+                    <span class="k">assert</span> <span class="n">directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">file_name</span>
+                    <span class="k">assert</span> <span class="n">file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">mem_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">_mem.log&quot;</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                        <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mem_artifact</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">stdout</span>
+
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mem_trace_callback</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">)</span>
@@ -918,7 +952,7 @@
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;fuse_ops&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FuseOps</span><span class="p">(</span><span class="n">BackendFeature</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exposes relay.FuseOps.max_depth settings for TVM backends.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -1226,7 +1260,7 @@
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;autoscheduler&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">])</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AutoScheduler</span><span class="p">(</span><span class="n">TVMTuneBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM AutoScheduler Tuning Feature.&quot;&quot;&quot;</span>
 
     <span class="c1"># TODO: metascheduler</span>
     <span class="c1"># TODO: graphtuner</span>
@@ -1264,7 +1298,7 @@
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;metascheduler&quot;</span><span class="p">,</span> <span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;autotune&quot;</span><span class="p">])</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MetaScheduler</span><span class="p">(</span><span class="n">TVMTuneBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TVM MetaScheduler Tuning Feature.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">TVMTuneBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -1519,7 +1553,7 @@
 
     <span class="c1"># def add_target_config(self, target, config, directory=None):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
@@ -1531,7 +1565,7 @@
                 <span class="n">log_file</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">/</span> <span class="s2">&quot;instrs.txt&quot;</span>
                 <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--log=</span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
-        <span class="k">elif</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
             <span class="n">plugins_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plugins&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PrintInstruction&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">:</span> <span class="n">plugins_new</span><span class="p">})</span>
@@ -1566,6 +1600,7 @@
             <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
             <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span>
             <span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">,</span>
@@ -1577,14 +1612,14 @@
 <span class="w">                    </span><span class="sd">&quot;&quot;&quot;Callback which parses the targets output and updates the generated metrics and artifacts.&quot;&quot;&quot;</span>
                     <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_experimental_print_to_file</span><span class="p">:</span>
                                 <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;instr_trace.csv&quot;</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
                                 <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
                                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]:</span>
+                                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
                                         <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
                                     <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                                     <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2347,7 +2382,7 @@
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;vanilla_accelerator&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">VanillaAccelerator</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;BYOC Vanilla Accelerator Feature for TVM.&quot;&quot;&quot;</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -2589,6 +2624,126 @@
     <span class="c1">#     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)</span>
     <span class="c1">#     # return [validate_outputs_postprocess]</span>
     <span class="c1">#     return [&quot;validate_outputs&quot;]</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;perf_sim&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PerfSim</span><span class="p">(</span><span class="n">TargetFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ETISS Performance Estimation/Simulation Feature.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;core&quot;</span><span class="p">:</span> <span class="s2">&quot;cv32e40p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;estimator&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;trace_asm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: move to owen feature, save files!</span>
+        <span class="s2">&quot;trace_instr&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: move to owen feature, save files!</span>
+        <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;perf_sim&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">core</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;core&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;estimator&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trace_asm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;trace_asm&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trace_instr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;trace_instr&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_perf&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">plugins_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">extra_plugin_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_plugin_config&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">:</span>
+            <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PerformanceEstimatorPlugin&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">core</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extra_plugin_config</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;perfEst&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;perfEst&quot;</span><span class="p">][</span><span class="s2">&quot;uArch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                    <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;perfEst&quot;</span><span class="p">][</span><span class="s2">&quot;print&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;perfEst&quot;</span><span class="p">][</span><span class="s2">&quot;printDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_asm</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_instr</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trace_asm</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_instr</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_instr</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;CVA6&quot;</span>
+                <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;TracePrinterPlugin&quot;</span><span class="p">)</span>
+                <span class="n">trace</span> <span class="o">=</span> <span class="s2">&quot;InstructionTrace_RV64&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_instr</span> <span class="k">else</span> <span class="s2">&quot;AssemblyTrace&quot;</span>
+                <span class="c1"># trace = &quot;InstructionTrace_RV64&quot; if self.trace_instr else &quot;CV32E40P&quot;</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">][</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trace</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">][</span><span class="s2">&quot;stream.toFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="c1"># extra_plugin_config[&quot;tracePrinter&quot;][&quot;outDir&quot;] = &quot;/tmp/perf_out/&quot;  # TODO: do not hardcode</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">][</span><span class="s2">&quot;stream.outDir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">][</span><span class="s2">&quot;stream.fileName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;instr_trace&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_instr</span> <span class="k">else</span> <span class="s2">&quot;asm_trace&quot;</span>
+                <span class="p">)</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">][</span><span class="s2">&quot;stream.postfix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.csv&quot;</span>
+                <span class="n">extra_plugin_config</span><span class="p">[</span><span class="s2">&quot;tracePrinter&quot;</span><span class="p">][</span><span class="s2">&quot;rotateSize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x100000</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">:</span> <span class="n">plugins_new</span><span class="p">})</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_plugin_config&quot;</span><span class="p">:</span> <span class="n">extra_plugin_config</span><span class="p">})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_perf&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">metrics_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;Callback for extracting perf metrics from stdout&quot;&quot;&quot;</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">:</span>
+                    <span class="n">instrs_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &gt;&gt; Number of instructions: (\d+)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="n">instrs_match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">instrs_match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">cycles_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &gt;&gt; Estimated number of processor cycles: (\d+)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="n">cycles_match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycles_match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">cpi_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                        <span class="sa">r</span><span class="s2">&quot; &gt;&gt; Estimated average number of processor cycles per instruction: (\d+?\.\d+)&quot;</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="n">cpi_match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cpi_match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;PerfSim Instructions&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">instrs_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;PerfSim Cycles&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cycles_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;PerfSim CPI&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">cpi_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="n">directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">core</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="n">csv_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_*.csv&quot;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_asm</span><span class="p">:</span>
+                        <span class="n">csv_files_</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;asm_trace_*.csv&quot;</span><span class="p">))</span>
+                        <span class="n">csv_files</span> <span class="o">+=</span> <span class="n">csv_files_</span>
+                    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">:</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                        <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                            <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                            <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">stdout</span>
+
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metrics_callback</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 </pre></div>
 
            </div>

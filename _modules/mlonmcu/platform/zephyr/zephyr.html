@@ -236,9 +236,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ZephyrPlatform.get_supported_targets">
-<a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_supported_targets">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;CMakeLists.txt&quot;</span>
             <span class="c1"># f.touch()</span>
@@ -264,8 +262,7 @@
 
         <span class="k">return</span> <span class="p">[</span>
             <span class="sa">f</span><span class="s2">&quot;zephyr_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">target_names</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s2">&quot; &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span>
-        <span class="p">]</span>  <span class="c1"># TODO: consider dropping zephyr_ prefix</span></div>
-
+        <span class="p">]</span>  <span class="c1"># TODO: consider dropping zephyr_ prefix</span>
 
 <div class="viewcode-block" id="ZephyrPlatform.create_target">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.create_target">[docs]</a>

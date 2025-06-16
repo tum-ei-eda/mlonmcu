@@ -106,6 +106,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -2099,6 +2100,67 @@
             <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">temp_dir</span><span class="p">:</span>
             <span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">artifacts</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StageTimesGanttPostprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.StageTimesGanttPostprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StageTimesGanttPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write Mermaid markdown file for stage times.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;stage_times_gantt&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StageTimesGanttPostprocess.post_session">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.StageTimesGanttPostprocess.post_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;gantt</span>
+<span class="s2">  title Flow</span>
+<span class="s2">  dateFormat x</span>
+<span class="s2">  axisFormat %H:%M:%S</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;    section Run </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">stage_times</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># if &quot; Stage Time [s]&quot; in key:</span>
+                <span class="c1">#     key = key.replace(&quot; Stage Time [s]&quot;, &quot;&quot;)</span>
+                <span class="c1">#     stage_times[key][&quot;time_s&quot;] = value</span>
+                <span class="k">if</span> <span class="s2">&quot; Start Time [s]&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; Start Time [s]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">stage_times</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">if</span> <span class="s2">&quot; End Time [s]&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; End Time [s]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">stage_times</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="c1"># stage_times = dict(reversed(list(stage_times.items())))</span>
+            <span class="c1"># print(&quot;stage_times&quot;, stage_times)</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">times</span> <span class="ow">in</span> <span class="n">stage_times</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">)</span>
+                <span class="c1"># time_s = times.get(&quot;time_s&quot;)</span>
+                <span class="n">time_s</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+                        <span class="n">first</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="n">content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;      </span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> : 0, </span><span class="si">{</span><span class="n">time_s</span><span class="si">}</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+
+                        <span class="n">content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;      </span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">time_s</span><span class="si">}</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;      </span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;stage_times.mermaid&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">artifacts</span></div>
 </div>
 

@@ -104,19 +104,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
-
-<span class="c1"># import logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">git</span><span class="w"> </span><span class="kn">import</span> <span class="n">Repo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
+
+<span class="c1"># from mlonmcu.context.context import MlonMcuContext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">RepoConfig</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
@@ -538,7 +539,7 @@
 
 <div class="viewcode-block" id="cmake">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.cmake">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cmake</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cmake</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmake_exe</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">cwd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Please always pass a cwd to cmake()&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
@@ -548,7 +549,9 @@
     <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DCMAKE_BUILD_TYPE=&quot;</span> <span class="o">+</span> <span class="n">buildType</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">use_ninja</span><span class="p">:</span>
         <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-GNinja&quot;</span><span class="p">)</span>
-    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmake&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">)]</span> <span class="o">+</span> <span class="n">extraArgs</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cmake_exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cmake_exe</span> <span class="o">=</span> <span class="s2">&quot;cmake&quot;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmake_exe</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">)]</span> <span class="o">+</span> <span class="n">extraArgs</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -692,6 +695,173 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.patch">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">patch</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+
+<div class="viewcode-block" id="check_version">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.check_version">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_version</span><span class="p">(</span><span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">min_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+    <span class="n">version</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">min_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">min_version</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">min_version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="n">min_version</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">max_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_version</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">max_version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">&gt;</span> <span class="n">max_version</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="check_program">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.check_program">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_program</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Program </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found in path&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># path = Path(os.readlink(path))</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="detect_system_llvm">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_system_llvm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_system_llvm</span><span class="p">(</span><span class="n">major_version_hint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">major_version_hint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang-</span><span class="si">{</span><span class="n">major_version_hint</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># This will not always be the latest version but the default one...</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;clang&quot;</span>
+    <span class="n">clang_path</span> <span class="o">=</span> <span class="n">check_program</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span>
+    <span class="n">llvm_config_path</span> <span class="o">=</span> <span class="n">clang_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;llvm-config&quot;</span>
+    <span class="k">assert</span> <span class="n">llvm_config_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;llvm-config not found in: </span><span class="si">{</span><span class="n">llvm_config_path</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">llvm_prefix</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">llvm_config_path</span><span class="p">,</span> <span class="s2">&quot;--prefix&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">llvm_prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not get llvm install dir&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">llvm_prefix</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="detect_llvm_version">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_llvm_version">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_llvm_version</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">llvm_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;Not a directory: </span><span class="si">{</span><span class="n">llvm_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">llvm_config</span> <span class="o">=</span> <span class="n">llvm_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;llvm-config&quot;</span>
+    <span class="k">assert</span> <span class="n">llvm_config</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="n">llvm_version_full</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">llvm_config</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">llvm_version_full</span> <span class="o">=</span> <span class="n">llvm_version_full</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">full</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
+
+        <span class="n">llvm_version_major</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">llvm_version_full</span><span class="p">)</span><span class="o">.</span><span class="n">major</span>
+        <span class="k">return</span> <span class="n">llvm_version_major</span>
+    <span class="k">return</span> <span class="n">llvm_version_full</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_llvm">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.resolve_llvm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_llvm</span><span class="p">(</span>
+    <span class="n">use_system_llvm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">llvm_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">user_llvm_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mlonmcu_llvm_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">user_llvm_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_llvm_dir</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="s2">&quot;Could not find user LLVM install&quot;</span>
+        <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">user_llvm_dir</span>
+    <span class="k">elif</span> <span class="n">use_system_llvm</span><span class="p">:</span>
+        <span class="n">llvm_version_major</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">llvm_version</span><span class="p">)</span><span class="o">.</span><span class="n">major</span> <span class="k">if</span> <span class="n">llvm_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">system_llvm_dir</span> <span class="o">=</span> <span class="n">detect_system_llvm</span><span class="p">(</span><span class="n">major_version_hint</span><span class="o">=</span><span class="n">llvm_version_major</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">system_llvm_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find system LLVM install&quot;</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">system_llvm_dir</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mlonmcu_llvm_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find MLonMCU LLVM install&quot;</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">mlonmcu_llvm_dir</span>
+    <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">)</span>
+    <span class="n">llvm_version</span> <span class="o">=</span> <span class="n">detect_llvm_version</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">llvm_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unable to get LLVM version&quot;</span>
+    <span class="k">return</span> <span class="n">llvm_dir</span><span class="p">,</span> <span class="n">llvm_version</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_llvm_wrapper">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.resolve_llvm_wrapper">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_llvm_wrapper</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">use_system_llvm</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.use_system&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">llvm_version</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">user_llvm_dir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">mlonmcu_llvm_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resolve_llvm</span><span class="p">(</span><span class="n">use_system_llvm</span><span class="p">,</span> <span class="n">llvm_version</span><span class="p">,</span> <span class="n">user_llvm_dir</span><span class="p">,</span> <span class="n">mlonmcu_llvm_dir</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="detect_system_cmake">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_system_cmake">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_system_cmake</span><span class="p">(</span><span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cmake&quot;</span>
+    <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">check_program</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmake_exe</span></div>
+
+
+
+<div class="viewcode-block" id="detect_cmake_version">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_cmake_version">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_cmake_version</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]):</span>
+    <span class="n">cmake_version</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">cmake_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_cmake">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.resolve_cmake">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_cmake</span><span class="p">(</span>
+    <span class="n">use_system_cmake</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">user_cmake_exe</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mlonmcu_cmake_exe</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">user_cmake_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_cmake_exe</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">&quot;Could not find user CMake&quot;</span>
+        <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">user_cmake_exe</span>
+    <span class="k">elif</span> <span class="n">use_system_cmake</span><span class="p">:</span>
+        <span class="n">system_cmake_exe</span> <span class="o">=</span> <span class="n">detect_system_cmake</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">system_cmake_exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find system CMake&quot;</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">system_cmake_exe</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mlonmcu_cmake_exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find MLonMCU CMake install&quot;</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">mlonmcu_cmake_exe</span>
+    <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">)</span>
+    <span class="n">cmake_version</span> <span class="o">=</span> <span class="n">detect_cmake_version</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">cmake_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unable to get CMake version&quot;</span>
+    <span class="k">return</span> <span class="n">cmake_exe</span><span class="p">,</span> <span class="n">cmake_version</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_cmake_wrapper">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.resolve_cmake_wrapper">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_cmake_wrapper</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">use_system_cmake</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.use_system&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">mlonmcu_cmake_exe</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resolve_cmake</span><span class="p">(</span><span class="n">use_system_cmake</span><span class="p">,</span> <span class="n">mlonmcu_cmake_exe</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span></div>
 
 </pre></div>
 

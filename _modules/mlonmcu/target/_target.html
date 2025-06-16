@@ -107,6 +107,7 @@
     <span class="n">RiscvQemuTarget</span><span class="p">,</span>
     <span class="n">GvsocPulpTarget</span><span class="p">,</span>
     <span class="n">EtissTarget</span><span class="p">,</span>
+    <span class="n">EtissPerfTarget</span><span class="p">,</span>
     <span class="n">EtissRV32Target</span><span class="p">,</span>
     <span class="n">EtissRV64Target</span><span class="p">,</span>
     <span class="n">AraTarget</span><span class="p">,</span>
@@ -114,6 +115,7 @@
     <span class="n">CV32E40PTarget</span><span class="p">,</span>
     <span class="n">VicunaTarget</span><span class="p">,</span>
     <span class="n">CanMvK230SSHTarget</span><span class="p">,</span>
+    <span class="n">TGCTarget</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.arm</span><span class="w"> </span><span class="kn">import</span> <span class="n">Corstone300Target</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.host_x86</span><span class="w"> </span><span class="kn">import</span> <span class="n">HostX86Target</span>
@@ -142,6 +144,7 @@
 
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">EtissPulpinoTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">EtissTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span> <span class="n">EtissPerfTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="n">EtissRV32Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="n">EtissRV64Target</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">HostX86Target</span><span class="p">)</span>
@@ -160,6 +163,7 @@
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;cv32e40p&quot;</span><span class="p">,</span> <span class="n">CV32E40PTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;vicuna&quot;</span><span class="p">,</span> <span class="n">VicunaTarget</span><span class="p">)</span>
 <span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;canmv_k230_ssh&quot;</span><span class="p">,</span> <span class="n">CanMvK230SSHTarget</span><span class="p">)</span>
+<span class="n">register_target</span><span class="p">(</span><span class="s2">&quot;tgc&quot;</span><span class="p">,</span> <span class="n">TGCTarget</span><span class="p">)</span>
 </pre></div>
 
            </div>

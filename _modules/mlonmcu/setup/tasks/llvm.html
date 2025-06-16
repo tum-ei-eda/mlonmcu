@@ -102,7 +102,8 @@
 <span class="sd">&quot;&quot;&quot;Definition of tasks used to dynamically install MLonMCU dependencies&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># from pathlib import Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
@@ -117,6 +118,8 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_llvm</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">del</span> <span class="n">params</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_toolchain</span><span class="p">(</span><span class="s2">&quot;llvm&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_framework</span><span class="p">(</span><span class="s2">&quot;tvm&quot;</span><span class="p">):</span>
@@ -128,19 +131,20 @@
 
 <div class="viewcode-block" id="install_llvm">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.llvm.install_llvm">[docs]</a>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm.version&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_llvm</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">install_llvm</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and install LLVM.&quot;&quot;&quot;</span>
+    <span class="k">del</span> <span class="n">params</span><span class="p">,</span> <span class="n">rebuild</span><span class="p">,</span> <span class="n">threads</span>
     <span class="n">llvmName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;llvm&quot;</span><span class="p">)</span>
     <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">llvmName</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="k">if</span> <span class="s2">&quot;llvm.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
-        <span class="c1"># TODO: WARNING</span>
-        <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">])</span>
+    <span class="n">llvmDir</span><span class="p">,</span> <span class="n">llvmVersion</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">resolve_llvm_wrapper</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">llvmDir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">llvmDir</span> <span class="o">!=</span> <span class="n">llvmInstallDir</span><span class="p">:</span>
+        <span class="n">llvmInstallDir</span> <span class="o">=</span> <span class="n">llvmDir</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># TODO: share helper with riscv.py</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">_helper</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
@@ -163,7 +167,10 @@
         <span class="c1"># rebuild should only be triggered if the version/url changes but we can not detect that at the moment</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">):</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">llvmUrl</span><span class="p">,</span> <span class="n">llvmArchive</span><span class="p">,</span> <span class="n">llvmInstallDir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">llvmVersion</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">llvmVersion</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">detect_llvm_version</span><span class="p">(</span><span class="n">llvmInstallDir</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">llvmInstallDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">llvmVersion</span>
     <span class="n">context</span><span class="o">.</span><span class="n">export_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">llvmInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span><span class="p">)</span></div>
 
 </pre></div>

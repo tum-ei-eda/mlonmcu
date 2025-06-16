@@ -151,6 +151,7 @@
 <div class="viewcode-block" id="build_srecord">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.srecord.build_srecord">[docs]</a>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;srecord.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;srecord.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_srecord</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">MISC</span><span class="p">)</span>
@@ -162,6 +163,7 @@
     <span class="n">buildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">name</span>
     <span class="n">installDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">name</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="s2">&quot;srecord.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">installDir</span><span class="p">)</span>
@@ -173,6 +175,7 @@
             <span class="n">cwd</span><span class="o">=</span><span class="n">buildDir</span><span class="p">,</span>
             <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">cmake_exe</span><span class="o">=</span><span class="n">cmake_exe</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;srec_cat&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">buildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">buildDir</span> <span class="o">/</span> <span class="s2">&quot;srec_cat&quot;</span> <span class="o">/</span> <span class="s2">&quot;srec_cat&quot;</span><span class="p">,</span> <span class="n">installDir</span> <span class="o">/</span> <span class="s2">&quot;srec_cat&quot;</span><span class="p">)</span>

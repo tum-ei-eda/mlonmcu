@@ -153,6 +153,14 @@
         <span class="n">name</span> <span class="o">=</span> <span class="n">convert_key</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
+<div class="viewcode-block" id="TaskCache.get">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+
 <div class="viewcode-block" id="TaskCache.find_best_match">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.cache.TaskCache.find_best_match">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_best_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>

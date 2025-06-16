@@ -464,6 +464,10 @@
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.load_extensions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;If available load the extensions.py scripts in the plugin directories&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">:</span>
+            <span class="n">allow_extensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;allow_extensions&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_extensions</span><span class="p">:</span>
+                <span class="k">return</span>
 
         <span class="c1"># TODO: check vars.enable_extensions before!</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;Unknown&quot;</span><span class="p">):</span>
@@ -471,7 +475,7 @@
                 <span class="n">extensions_file</span> <span class="o">=</span> <span class="n">plugins_dir</span> <span class="o">/</span> <span class="s2">&quot;extensions.py&quot;</span>
                 <span class="k">if</span> <span class="n">extensions_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading extensions.py (</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-                    <span class="n">process_extensions</span><span class="p">(</span><span class="n">extensions_file</span><span class="p">)</span>
+                    <span class="n">process_extensions</span><span class="p">(</span><span class="n">extensions_file</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">hint</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
 
         <span class="c1"># global (user)</span>
         <span class="n">plugins_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_plugins_dir</span><span class="p">())</span>

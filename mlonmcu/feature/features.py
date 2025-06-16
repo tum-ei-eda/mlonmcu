@@ -1452,7 +1452,16 @@ class LogInstructions(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "etiss_perf", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
+        assert target in [
+            "spike",
+            "etiss_pulpino",
+            "etiss",
+            "etiss_perf",
+            "ovpsim",
+            "corev_ovpsim",
+            "gvsoc_pulp",
+            "vicuna2",
+        ]
         if not self.enabled:
             return
         if target == "spike":
@@ -1493,6 +1502,8 @@ class LogInstructions(TargetFeature):
             else:
                 extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
+        elif target == "vicuna2":
+            config.update({f"{target}.log_instrs": True})
 
     def get_target_callbacks(self, target):
         assert target in [
@@ -1503,6 +1514,7 @@ class LogInstructions(TargetFeature):
             "ovpsim",
             "corev_ovpsim",
             "gvsoc_pulp",
+            "vicuna2",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             if not target == "gvsoc_pulp":
@@ -1527,6 +1539,10 @@ class LogInstructions(TargetFeature):
                                         new_lines.append(line)
                                 content = "\n".join(instrs)
                                 stdout = "\n".join(new_lines)
+                        elif target == "vicuna2":
+                            log_file = Path(directory) / "log_instrs.csv"
+                            with open(log_file, "r") as f:
+                                content = f.read()
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"

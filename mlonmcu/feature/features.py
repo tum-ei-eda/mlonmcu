@@ -671,7 +671,7 @@ class GdbServer(TargetFeature):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim"]
+        assert target in ["host_x86", "etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "ovpsim", "corev_ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,

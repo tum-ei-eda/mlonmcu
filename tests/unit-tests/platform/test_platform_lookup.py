@@ -35,6 +35,9 @@ class MyPlatformA(TargetPlatform):
             config=config,
         )
 
+    def _get_supported_targets(self):
+        return []
+
 
 class MyPlatformB(TargetPlatform):
     def __init__(self, features=None, config=None):

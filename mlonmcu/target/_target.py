@@ -31,6 +31,7 @@ from .riscv import (
     AraRtlTarget,
     CV32E40PTarget,
     VicunaTarget,
+    Vicuna2Target,
     CanMvK230SSHTarget,
     TGCTarget,
 )
@@ -73,5 +74,6 @@ register_target("ara", AraTarget)
 register_target("ara_rtl", AraRtlTarget)
 register_target("cv32e40p", CV32E40PTarget)
 register_target("vicuna", VicunaTarget)
+register_target("vicuna2", Vicuna2Target)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
 register_target("tgc", TGCTarget)

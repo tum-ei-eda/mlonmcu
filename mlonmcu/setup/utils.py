@@ -599,6 +599,7 @@ def detect_llvm_version(llvm_dir: Union[str, Path], full: bool = True):
     llvm_config = llvm_dir / "bin" / "llvm-config"
     assert llvm_config.is_file()
     llvm_version_full = execute(llvm_config, "--version", live=False).strip()
+    llvm_version_full = llvm_version_full.replace("git", "")
     if not full:
         from packaging.version import Version
 

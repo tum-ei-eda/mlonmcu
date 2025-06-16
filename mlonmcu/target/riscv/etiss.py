@@ -101,6 +101,7 @@ class EtissTarget(RISCVTarget):
         "fclk": 100e6,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
+    OPTIONAL = RISCVTarget.OPTIONAL | {"boost.install_dir"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -122,6 +123,14 @@ class EtissTarget(RISCVTarget):
     @property
     def etiss_exe(self):
         return self.config["etissvp.exe"]
+
+    @property
+    def boost_install_dir(self):
+        value = self.config["boost.install_dir"]
+        if value is not None:
+            value = Path(value)
+            assert value.is_dir()
+        return value
 
     @property
     def gdbserver_enable(self):
@@ -602,6 +611,19 @@ class EtissTarget(RISCVTarget):
         # if self.timeout_sec > 0:
         script = self.etiss_script if self.use_run_helper else self.etiss_exe
         script = Path(script).resolve()
+        if "env" in kwargs:
+            env = kwargs["env"]
+        else:
+            env = os.environ.copy()
+        if self.boost_install_dir is not None:
+            boost_lib_dir = self.boost_install_dir / "lib"
+            ld_library_path = env.get("LD_LIBRARY_PATH", None)
+            if len(ld_library_path) > 0:
+                ld_library_path = f"{boost_lib_dir}:{ld_library_path}"
+            else:
+                ld_library_path = boost_lib_dir
+            env["LD_LIBRARY_PATH"] = ld_library_path
+            kwargs["env"] = env
         if False:
             ret = exec_timeout(
                 self.timeout_sec,

@@ -142,7 +142,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         with tempfile.TemporaryDirectory() as temp:
             f = Path(temp) / "CMakeLists.txt"
             # f.touch()

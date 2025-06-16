@@ -387,7 +387,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["unroll_loops"]
         return str2bool(value, allow_none=True)
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
 

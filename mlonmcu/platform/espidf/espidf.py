@@ -169,7 +169,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         text = self.invoke_idf_exe("--list-targets", live=self.print_outputs)
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?

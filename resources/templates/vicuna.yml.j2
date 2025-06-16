@@ -81,10 +81,14 @@ repos:
   vicuna:
     url: "https://github.com/vproc/vicuna.git"
     ref: c1484ec8fa9f1106505a4ca246af39a66420a1d0
+  vicuna2:
+    url: "https://github.com/vproc/vicuna2_tinyml_benchmarking.git"
+    ref: 81b91a89e249e7c40ad45615b3917f040ae18701
   verilator:
     url: "https://github.com/verilator/verilator"
     # ref: tags/v4.210
-    ref: tags/v4.222
+    # ref: tags/v4.222
+    ref: tags/v5.030
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main
@@ -233,6 +237,10 @@ targets:
     enabled: true
     features:
       vext: true
+  vicuna2:
+    enabled: true
+    features:
+      vext: true
   microtvm_host:
     enabled: true
   microtvm_spike:
@@ -269,4 +277,11 @@ vars:
   spikepk.enable_rv64: false
   spikepk_rv32.default_arch: rv32im_zicsr_zifencei
   spikepk_rv32.default_abi: ilp32
+  etiss_rv32.fpu: none
+  etiss_rv32.compressed: false
+  etiss_rv32.atomic: false
+  etiss_rv32.cpu_arch: RV32IMACFDV
+  spike_rv32.fpu: none
+  spike_rv32.compressed: false
+  spike_rv32.atomic: false
 flags: {}

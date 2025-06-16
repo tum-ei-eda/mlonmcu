@@ -87,6 +87,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "garbage_collect": True,
         "strip_strings": False,
         "unroll_loops": None,
+        "inline_functions": None,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
         "set_inputs": False,
         "set_inputs_interface": None,
@@ -385,6 +386,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def unroll_loops(self):
         value = self.config["unroll_loops"]
+        if isinstance(value, str) and value.strip().lower() in ["auto", ""]:
+            return None
+        return str2bool(value, allow_none=True)
+
+    @property
+    def inline_functions(self):
+        value = self.config["inline_functions"]
+        if isinstance(value, str) and value.strip().lower() in ["auto", ""]:
+            return None
         return str2bool(value, allow_none=True)
 
     def _get_supported_targets(self):
@@ -441,6 +451,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:
             definitions["UNROLL_LOOPS"] = self.unroll_loops
+        if self.inline_functions is not None:
+            definitions["INLINE_FUNCTIONS"] = self.inline_functions
         if self.ccache:
             definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
             definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache

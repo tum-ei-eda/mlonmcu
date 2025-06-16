@@ -574,7 +574,7 @@ class EtissTarget(RISCVTarget):
                 etiss_script_args.append("tgdb")
                 if not self.gdbserver_attach:
                     etiss_script_args.append("noattach")
-                etiss_script_args.append("--plugin.gdbserver.port={self.gdbserver_port}")
+                etiss_script_args.append(f"--plugin.gdbserver.port={self.gdbserver_port}")
                 if self.gdbserver_attach:
                     raise NotImplementedError("etiss.gdbserver_attach requires etiss.use_run_helper=1")
         if self.trace_memory:

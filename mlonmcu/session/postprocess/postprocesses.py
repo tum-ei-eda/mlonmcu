@@ -46,7 +46,7 @@ def match_rows(df, cols):
 
 
 def _check_cfg(value):
-    res = re.compile(r"^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$").match(value)
+    res = re.compile(r"^((?:[a-zA-Z\d\-_ \.\[\]\(\)]+)(?:,[a-zA-Z\d\-_ \.\[\]\(\)]+)*)$").match(value)
     if res is None:
         return False
     return True

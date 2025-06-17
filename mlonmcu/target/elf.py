@@ -48,6 +48,13 @@ def parseElf(inFile):
     m["ram_data"] = 0
     m["ram_zdata"] = 0
 
+    # TODO: handle
+    # WARNING - ignored: .tbss / size: 64
+    # WARNING - ignored: .preinit_array / size: 8
+    # WARNING - ignored: .got.plt / size: 24
+    # WARNING - ignored: .tdata / size: 24
+    # WARNING - ignored: .tbss / size: 64
+
     ignoreSections = [
         "",
         ".stack",

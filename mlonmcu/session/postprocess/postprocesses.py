@@ -1998,8 +1998,8 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         map_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True)
         assert len(map_artifact) == 1, "Linker map artifact not found!"
         map_artifact = map_artifact[0]
-        is_ld = "ld" in map_artifact.flags
-        assert is_ld, "Non ld linker currently unsupported"
+        # is_ld = "ld" in map_artifact.flags
+        # assert is_ld, "Non ld linker currently unsupported"
 
         mem_footprint_df = parse_elf(elf_artifact.path)
 

@@ -45,8 +45,6 @@ def parse_elf(elf_path):
 
 
 def analyze_linker_map_helper(mapFile):
-    from mapfile_parser import mapfile
-
     ret = []
     data = mapFile.toJson(humanReadable=False)
     # print("data", data)

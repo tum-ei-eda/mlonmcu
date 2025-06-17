@@ -96,6 +96,7 @@ class TVMBackend(Backend):
         super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
+        self.params_path = None
         self.model_info = None
         self.input_shapes = None
         self.model_format = None
@@ -369,6 +370,7 @@ class TVMBackend(Backend):
         assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
         args = [
             self.model,
+            *(["--relay-params", self.params_path] if self.params_path is not None else []),
             *get_target_tvmc_args(
                 self.target,
                 extra_targets=self.extra_targets,
@@ -425,8 +427,11 @@ class TVMBackend(Backend):
             ret = self.invoke_tvmc("compile", *args, cwd=cwd)
         return ret
 
-    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
+    def load_model(
+        self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None
+    ):
         self.model = model
+        self.params_path = params_path
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
         need_model_info = True

@@ -35,7 +35,7 @@ jobs:
   refresh:
     name: Refresh large image for benchmarking
     if: (github.event_name != 'schedule')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Lowercase repository url
         id: lowered
@@ -60,15 +60,6 @@ jobs:
           else
               echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
           fi
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 32768
-          temp-reserve-mb: 4096
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -90,6 +81,16 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check Disk
+        run: df -h
+      - name: Symlink Docker to /mnt
+        run: |
+          sudo systemctl stop docker
+          sudo mv /var/lib/docker /mnt/docker
+          sudo ln -s /mnt/docker /var/lib/docker
+          sudo systemctl start docker
+      - name: Check Disk
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v6
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -102,10 +103,12 @@ jobs:
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+      - name: Check Disk
+        run: df -h
   refresh_cron:
     name: Refresh large image for benchmarking
     if: (github.event_name == 'schedule')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -136,15 +139,6 @@ jobs:
           else
               echo "template=${{ matrix.config.template }}-" >> $GITHUB_OUTPUT
           fi
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 32768
-          temp-reserve-mb: 4096
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -166,6 +160,16 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Check Disk
+        run: df -h
+      - name: Symlink Docker to /mnt
+        run: |
+          sudo systemctl stop docker
+          sudo mv /var/lib/docker /mnt/docker
+          sudo ln -s /mnt/docker /var/lib/docker
+          sudo systemctl start docker
+      - name: Check Disk
+        run: df -h
       - name: Build and push to Docker Hub
         uses: docker/build-push-action@v6
         if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
@@ -178,3 +182,5 @@ jobs:
             MLONMCU_TEMPLATE=${{ matrix.config.template }}
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest-updated
+      - name: Check Disk
+        run: df -h

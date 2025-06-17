@@ -48,6 +48,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "abi": None,
         "attr": "",
         "cpu_arch": None,
+        "jit": None,
         "etiss_extra_args": "",
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
@@ -151,6 +152,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "arch": self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch,
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch,
+                **({"jit": self.jit} if self.jit is not None else {}),
             }
         )
         return ret
@@ -259,6 +261,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         if tmp is None:
             tmp = f"RV{self.xlen}IMACFD"  # TODO: improve
         return tmp
+
+    @property
+    def jit(self):
+        return self.config.get("jit", None)
 
     @property
     def llvm_prefix(self):

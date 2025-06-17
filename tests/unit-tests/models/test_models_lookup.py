@@ -21,7 +21,7 @@ import pytest
 import yaml
 import re
 from mlonmcu.environment.environment import PathConfig
-from mlonmcu.models.lookup import print_summary
+from mlonmcu.models.lookup import print_summary, reset_models_cache
 
 # def test_models_get_model_directories():
 #     pass
@@ -131,10 +131,13 @@ def _check_summary_output(
 
 
 @pytest.mark.parametrize("detailed", [False, True])
-def test_models_print_summary(detailed, capsys, fake_context, fake_environment_directory, fake_config_home):
+@pytest.mark.parametrize("ignore_cache", [False, True])
+def test_models_print_summary(
+    detailed, ignore_cache, capsys, fake_context, fake_environment_directory, fake_config_home
+):
     # list empty
     with mock.patch.dict(fake_context.environment.paths, {"models": []}):
-        print_summary(fake_context, detailed=detailed)
+        print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)
         out, err = capsys.readouterr()
         for line in out.split("\n"):
             assert line in ["Models Summary", "Paths:", "Models:", "Groups:", ""]
@@ -144,7 +147,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
 
     # single path, no models
     with mock.patch.dict(fake_context.environment.paths, {"models": [PathConfig(env_models_dir)]}):
-        print_summary(fake_context, detailed=detailed)
+        print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)
         out, err = capsys.readouterr()
         _check_summary_output(
             out,
@@ -154,10 +157,12 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
 
     _create_fake_models(env_models_dir, ["model0"], with_metadata=True)
     _create_fake_models(env_models_dir, ["model1", "model2"])
+    if not ignore_cache:
+        reset_models_cache()
 
     # single path, 3 models
     with mock.patch.dict(fake_context.environment.paths, {"models": [PathConfig(env_models_dir)]}):
-        print_summary(fake_context, detailed=detailed)
+        print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)
         out, err = capsys.readouterr()
         _check_summary_output(
             out,
@@ -173,7 +178,7 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
     with mock.patch.dict(
         fake_context.environment.paths, {"models": [PathConfig(env_models_dir), PathConfig(user_models_dir)]}
     ):
-        print_summary(fake_context, detailed=detailed)
+        print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)
         out, err = capsys.readouterr()
         _check_summary_output(
             out,
@@ -186,13 +191,15 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
 
     user_models_dir.mkdir()
     _create_fake_models(fake_config_home / "models", ["model2", "model3"])
+    if not ignore_cache:
+        reset_models_cache()
 
     # two paths, 5 models, 1 duplicate
     with mock.patch.dict(
         fake_context.environment.paths,
         {"models": [PathConfig(fake_environment_directory / "models"), PathConfig(fake_config_home / "models")]},
     ):
-        print_summary(fake_context, detailed=detailed)
+        print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)
         out, err = capsys.readouterr()
         _check_summary_output(
             out,
@@ -210,9 +217,8 @@ def test_models_print_summary(detailed, capsys, fake_context, fake_environment_d
         fake_context.environment.paths,
         {"models": [PathConfig(fake_environment_directory / "models"), PathConfig(fake_config_home / "models")]},
     ):
-        print_summary(fake_context, detailed=detailed)
+        print_summary(fake_context, detailed=detailed, ignore_cache=ignore_cache)
         out, err = capsys.readouterr()
-        print("OUT", out)
         _check_summary_output(
             out,
             detailed=detailed,

@@ -64,7 +64,7 @@ def _handle(args, context):
     config.update(new_config)
     frontends = extract_frontend_names(args, context=context)
     postprocesses = extract_postprocess_names(args, context=context)
-    session = context.get_session(label=args.label, resume=args.resume, config=config)
+    session = context.get_session(label=args.label, resume=args.resume, config=config, dest=args.dest)
     models = apply_modelgroups(args.models, context=context)
     for model in models:
         for f in gen_features:

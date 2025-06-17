@@ -164,13 +164,14 @@ class Model(Workload):
         "inputs_path": None,
         "outputs_path": None,
         "output_labels_path": None,
+        "params_path": None,
     }
 
     def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
         super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
-            self.paths = [self.path]
+            self.paths = [self.paths]
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
@@ -260,6 +261,15 @@ class Model(Workload):
         return value
 
     @property
+    def params_path(self):
+        value = self.config["params_path"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
+
+    @property
     def skip_check(self):
         if len(self.formats) == 0:
             return True
@@ -331,7 +341,7 @@ class MathisProgram(Program):
     def size(self):
         value = self.config["size"]
         if isinstance(value, str):
-            value = str(value)
+            value = int(value)
         assert isinstance(value, int)
         assert value > 0
         return value

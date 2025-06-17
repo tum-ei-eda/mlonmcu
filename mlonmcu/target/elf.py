@@ -77,6 +77,7 @@ def parseElf(inFile):
         # Espressif
         ".flash.appdesc",
         ".iram0.text_end",  # ?
+        ".rtc_noinit",
         # QEMU
         ".htif",
         # Zephyr

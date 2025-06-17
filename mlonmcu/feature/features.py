@@ -157,6 +157,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         "use_vext": "AUTO",
         "use_portable": "AUTO",
         "use_pext": "AUTO",
+        "use_corev": False,
     }
 
     REQUIRED = {"muriscvnn.src_dir"}
@@ -192,6 +193,12 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         value = str2bool(value)
         return "ON" if value else "OFF"
 
+    @property
+    def use_corev(self):
+        value = self.config["use_corev"]
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
     def add_framework_config(self, framework, config):
         assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
         if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
@@ -210,6 +217,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
             "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
+            "MURISCVNN_COREV": self.use_corev,
         }
 
     def get_required_cache_flags(self):
@@ -702,10 +710,11 @@ class Trace(TargetFeature):
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
+    # TODO: add callback to save artifact?
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "etiss", "ovpsim"]
-        if target in ["etiss_pulpino", "etiss"]:
+        assert target in ["etiss_pulpino", "etiss", "etiss_perf", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
             config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
@@ -717,6 +726,39 @@ class Trace(TargetFeature):
                 extra_args_new.append("--tracefile")
                 extra_args_new.append(trace_file)
             config.update({f"{target}.extra_args": extra_args_new})
+
+    def get_target_callbacks(self, target):
+        assert target in [
+            "etiss_pulpino",
+            "etiss",
+            "etiss_perf",
+            "ovpsim",
+            "corev_ovpsim",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            if self.to_file:
+
+                def mem_trace_callback(stdout, metrics, artifacts, directory=None):
+                    """Callback which parses collects the generated artifacts."""
+                    file_name = "trace.txt"
+                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                        file_name = "dBusAccess.csv"
+                    assert directory is not None
+                    file_path = Path(directory) / file_name
+                    assert file_path.is_file()
+                    with open(file_path, "r") as f:
+                        content = f.read()
+                    mem_artifact = Artifact(
+                        f"{target}_mem.log",
+                        content=content,
+                        fmt=ArtifactFormat.TEXT,
+                        flags=(self.name, target),
+                    )
+                    artifacts.append(mem_artifact)
+                    return stdout
+
+                return None, mem_trace_callback
+        return None, None
 
 
 @register_feature("unpacked_api")
@@ -815,7 +857,7 @@ class Usmp(BackendFeature):
 
 @register_feature("fuse_ops")
 class FuseOps(BackendFeature):
-    """TODO"""
+    """Exposes relay.FuseOps.max_depth settings for TVM backends."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -1117,7 +1159,7 @@ class AutoTVM(TVMTuneBase):
 
 @register_feature("autoscheduler", depends=["autotune"])
 class AutoScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM AutoScheduler Tuning Feature."""
 
     # TODO: metascheduler
     # TODO: graphtuner
@@ -1155,7 +1197,7 @@ class AutoScheduler(TVMTuneBase):
 
 @register_feature("metascheduler", depends=["autotune"])
 class MetaScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM MetaScheduler Tuning Feature."""
 
     DEFAULTS = {
         **TVMTuneBase.DEFAULTS,
@@ -1410,7 +1452,7 @@ class LogInstructions(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
+        assert target in ["spike", "etiss_pulpino", "etiss", "etiss_perf", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
         if not self.enabled:
             return
         if target == "spike":
@@ -1422,7 +1464,7 @@ class LogInstructions(TargetFeature):
                 log_file = directory / "instrs.txt"
                 extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target in ["etiss_pulpino", "etiss"]:
+        elif target in ["etiss_pulpino", "etiss", "etiss_perf"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
@@ -1457,6 +1499,7 @@ class LogInstructions(TargetFeature):
             "spike",
             "etiss_pulpino",
             "etiss",
+            "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
             "gvsoc_pulp",
@@ -1468,14 +1511,14 @@ class LogInstructions(TargetFeature):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        if target in ["etiss_pulpino", "etiss"]:
+                        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
                             if self.etiss_experimental_print_to_file:
                                 log_file = Path(directory) / "instr_trace.csv"
                             else:
                                 # TODO: update stdout and remove log_instrs lines
                                 instrs = []
                                 for line in stdout.split("\n"):
-                                    if target in ["etiss_pulpino", "etiss"]:
+                                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
                                         expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                                     match = expr.match(line)
                                     if match is not None:
@@ -2229,7 +2272,7 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
 
 @register_feature("vanilla_accelerator")
 class VanillaAccelerator(TargetFeature):
-    """TODO"""
+    """BYOC Vanilla Accelerator Feature for TVM."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2471,3 +2514,123 @@ class ValidateNew(RunFeature):
     #     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
     #     # return [validate_outputs_postprocess]
     #     return ["validate_outputs"]
+
+
+@register_feature("perf_sim")
+class PerfSim(TargetFeature):
+    """ETISS Performance Estimation/Simulation Feature."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "core": "cv32e40p",
+        "estimator": True,
+        "trace_asm": False,  # TODO: move to owen feature, save files!
+        "trace_instr": False,  # TODO: move to owen feature, save files!
+        "to_file": False,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("perf_sim", features=features, config=config)
+
+    @property
+    def core(self):
+        value = self.config["core"]
+        return value
+
+    @property
+    def estimator(self):
+        value = self.config["estimator"]
+        return str2bool(value)
+
+    @property
+    def trace_asm(self):
+        value = self.config["trace_asm"]
+        return str2bool(value)
+
+    @property
+    def trace_instr(self):
+        value = self.config["trace_instr"]
+        return str2bool(value)
+
+    def to_file(self):
+        value = self.config["to_file"]
+        return str2bool(value, allow_none=True)
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss_perf"]
+        if not self.enabled:
+            return
+        plugins_new = config.get(f"{target}.plugins", [])
+        extra_plugin_config = config.get(f"{target}.extra_plugin_config", {})
+        if self.estimator:
+            plugins_new.append("PerformanceEstimatorPlugin")
+            if self.core is not None:
+                assert self.name not in extra_plugin_config
+                extra_plugin_config["perfEst"] = {}
+                extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
+                if self.to_file:
+                    extra_plugin_config["perfEst"]["print"] = 1
+                extra_plugin_config["perfEst"]["printDir"] = "."
+        if self.trace_asm or self.trace_instr:
+            if self.to_file:
+                assert not (self.trace_asm and self.trace_instr)
+                assert not self.trace_instr or self.core.upper() == "CVA6"
+                plugins_new.append("TracePrinterPlugin")
+                trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
+                # trace = "InstructionTrace_RV64" if self.trace_instr else "CV32E40P"
+                extra_plugin_config["tracePrinter"] = {}
+                extra_plugin_config["tracePrinter"]["trace"] = trace
+                extra_plugin_config["tracePrinter"]["stream.toFile"] = 1
+                # extra_plugin_config["tracePrinter"]["outDir"] = "/tmp/perf_out/"  # TODO: do not hardcode
+                extra_plugin_config["tracePrinter"]["stream.outDir"] = "."
+                extra_plugin_config["tracePrinter"]["stream.fileName"] = (
+                    "instr_trace" if self.trace_instr else "asm_trace"
+                )
+                extra_plugin_config["tracePrinter"]["stream.postfix"] = ".csv"
+                extra_plugin_config["tracePrinter"]["rotateSize"] = 0x100000
+        config.update({f"{target}.plugins": plugins_new})
+        config.update({f"{target}.extra_plugin_config": extra_plugin_config})
+
+    def get_target_callbacks(self, target):
+        assert target in ["etiss_perf"]
+        if self.enabled:
+
+            def metrics_callback(stdout, metrics, artifacts, directory=None):
+                """Callback for extracting perf metrics from stdout"""
+                assert len(metrics) == 1
+                if self.estimator:
+                    instrs_match = re.compile(r" >> Number of instructions: (\d+)").findall(stdout)
+                    assert instrs_match is not None
+                    assert len(instrs_match) == 1
+                    cycles_match = re.compile(r" >> Estimated number of processor cycles: (\d+)").findall(stdout)
+                    assert cycles_match is not None
+                    assert len(cycles_match) == 1
+                    cpi_match = re.compile(
+                        r" >> Estimated average number of processor cycles per instruction: (\d+?\.\d+)"
+                    ).findall(stdout)
+                    assert cpi_match is not None
+                    assert len(cpi_match) == 1
+                    metrics[0].add("PerfSim Instructions", int(instrs_match[0]))
+                    metrics[0].add("PerfSim Cycles", int(cycles_match[0]))
+                    metrics[0].add("PerfSim CPI", float(cpi_match[0]))
+                if self.to_file:
+                    assert directory is not None
+                    assert self.core is not None
+                    csv_files = list(Path(directory).glob(f"{self.core.upper()}_*.csv"))
+                    if self.trace_asm:
+                        csv_files_ = list(Path(directory).glob("asm_trace_*.csv"))
+                        csv_files += csv_files_
+                    for file in csv_files:
+                        with open(file, "r") as f:
+                            content = f.read()
+                        artifact = Artifact(
+                            file.name,
+                            content=content,
+                            fmt=ArtifactFormat.TEXT,
+                            flags=(self.name, target),
+                        )
+                        artifacts.append(artifact)
+                return stdout
+
+            return None, metrics_callback
+        return None, None

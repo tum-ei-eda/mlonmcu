@@ -74,6 +74,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "networkx",
                 "numpy",
                 "openpyxl",  # xlsx reports
+                "packaging",
                 "pandas",
                 "paramiko",  # ssh
                 "pyelftools",

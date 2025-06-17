@@ -42,7 +42,7 @@ repos:
     ref: 040da18234b597867bd54d736ca4ceae545b2853
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 379f5eabe7c0e939518dff69795aaff9d6dfad72
+    ref: fff2298f457326e800791f5e990f54a15b471f94
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
     ref: 2d31cafc941d3889b042af9c0a72b5f768ac4606
@@ -140,12 +140,10 @@ vars:
   spikepk.default_abi: "lp64d"
   spikepk.enable_rv32: false
   spikepk.enable_rv64: true
-  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_20.1.7/clang+llvm-20.1.7-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_19.1.1/clang+llvm-19.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
   riscv_gcc.enable_rv32: false
   riscv_gcc.enable_rv64: true
   riscv_gcc_rv64.name: riscv64-unknown-linux-gnu
-  # riscv_gcc_rv64.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gc_lp64d_linux_medany.tar.xz"  # gcc14
-  # riscv_gcc_rv64.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gcv_lp64d_linux_medany.tar.xz"  # gcc14
-  riscv_gcc_rv64.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.06.13/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gc_lp64d_linux_medany.tar.xz"  # gcc15
-  riscv_gcc_rv64.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.06.13/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gcv_lp64d_linux_medany.tar.xz"  # gcc15
+  riscv_gcc_rv64.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gc_lp64d_linux_medany.tar.xz"  # gcc14
+  riscv_gcc_rv64.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gcv_lp64d_linux_medany.tar.xz"  # gcc14
 flags: {}

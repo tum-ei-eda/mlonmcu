@@ -24,6 +24,7 @@ import time
 # from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.config import str2bool
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.ssh_target import SSHTarget
@@ -43,11 +44,17 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
         **RVVTarget.DEFAULTS,
         "xlen": 64,
         "vlen": 128,
+        "use_qemu": False,
     }
     REQUIRED = SSHTarget.REQUIRED | RVVTarget.REQUIRED
 
     def __init__(self, name="canmv_k230_ssh", features=None, config=None):
         super().__init__(name, features=features, config=config)
+
+    @property
+    def use_qemu(self):
+        value = self.config["use_qemu"]
+        return str2bool(value)
 
     def exec(self, program, *args, cwd=os.getcwd(), handle_exit=None, **kwargs):
         """Use target to execute a executable with given arguments"""
@@ -58,7 +65,10 @@ class CanMvK230SSHTarget(SSHTarget, RVVTarget):
         if self.timeout_sec > 0:
             raise NotImplementedError
 
-        output = self.exec_via_ssh(program, *args, **kwargs)
+        qemu = None
+        if self.use_qemu:
+            qemu = f"qemu-riscv{self.xlen}-static"
+        output = self.exec_via_ssh(program, *args, qemu=qemu, **kwargs)
         if handle_exit:
             exit_code = handle_exit(0, out=output)
             assert exit_code == 0

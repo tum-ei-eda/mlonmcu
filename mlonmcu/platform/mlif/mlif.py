@@ -587,7 +587,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / self.goal
-        map_file = self.build_dir / "linker.map"  # TODO: optional
+        map_file = self.build_dir / "generic" / "linker.map"  # TODO: optional
         hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
@@ -613,7 +613,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if map_file.is_file():
             with open(map_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT)
+                is_llvm_map = self.toolchain == "llvm" and self.fuse_ld != "ld"
+                map_type = "lld" if is_llvm_map else "ld"
+                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT, flags=(map_type,))
                 artifacts.append(artifact)
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:

@@ -4,11 +4,12 @@ from typing import Optional
 
 import pandas as pd
 
-pd.set_option('display.max_rows', None)
+pd.set_option("display.max_rows", None)
 
 
 def unmangle_helper(func_name: Optional[str]):
     from cpp_demangle import demangle
+
     if func_name is None:
         return None
     if not func_name.startswith("_Z"):
@@ -19,6 +20,7 @@ def unmangle_helper(func_name: Optional[str]):
 def parse_elf(elf_path):
     from elftools.elf.elffile import ELFFile
     from elftools.elf.sections import SymbolTableSection
+
     with open(elf_path, "rb") as f:
         elffile = ELFFile(f)
 
@@ -44,6 +46,7 @@ def parse_elf(elf_path):
 
 def analyze_linker_map_helper(mapFile):
     from mapfile_parser import mapfile
+
     ret = []
     data = mapFile.toJson(humanReadable=False)
     # print("data", data)
@@ -190,6 +193,7 @@ def main():
     mem_footprint_df = parse_elf(elf_file)
 
     from mapfile_parser import mapfile
+
     mapFile = mapfile.MapFile()
     mapFile.readMapFile(linker_map_file)
 

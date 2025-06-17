@@ -1976,14 +1976,10 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         if (platform != "mlif").any():
             return []
         ret_artifacts = []
-        elf_artifact = lookup_artifacts(
-            artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True
-        )
+        elf_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True)
         assert len(elf_artifact) == 1, "ELF artifact not found!"
         elf_artifact = elf_artifact[0]
-        map_artifact = lookup_artifacts(
-            artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True
-        )
+        map_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True)
         assert len(map_artifact) == 1, "Linker map artifact not found!"
         map_artifact = map_artifact[0]
         is_ld = "ld" in map_artifact.flags
@@ -1992,6 +1988,7 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         mem_footprint_df = parse_elf(elf_artifact.path)
 
         from mapfile_parser import mapfile
+
         mapFile = mapfile.MapFile()
         mapFile.readMapFile(map_artifact.path)
 
@@ -2015,7 +2012,11 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
             mem_footprint_per_func_data = generate_pie_data(mem_footprint_df, x="func", y="bytes", topk=topk)
             # print("per_func\n", mem_footprint_per_func_data, mem_footprint_per_func_data["bytes"].sum())
             if self.to_file:
-                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_func.csv", content=mem_footprint_per_func_data.to_csv(index=False), fmt=ArtifactFormat.TEXT)
+                mem_footprint_per_func_artifact = Artifact(
+                    "mem_footprint_per_func.csv",
+                    content=mem_footprint_per_func_data.to_csv(index=False),
+                    fmt=ArtifactFormat.TEXT,
+                )
                 ret_artifacts.append(mem_footprint_per_func_artifact)
             if self.to_df:
                 post_df = report.post_df.copy()
@@ -2027,7 +2028,11 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
             mem_footprint_per_library_data = generate_pie_data(library_footprint_df, x="library", y="bytes", topk=topk)
             # print("per_library\n", mem_footprint_per_library_data, mem_footprint_per_library_data["bytes"].sum())
             if self.to_file:
-                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_library.csv", content=mem_footprint_per_library_data.to_csv(index=False), fmt=ArtifactFormat.TEXT)
+                mem_footprint_per_func_artifact = Artifact(
+                    "mem_footprint_per_library.csv",
+                    content=mem_footprint_per_library_data.to_csv(index=False),
+                    fmt=ArtifactFormat.TEXT,
+                )
                 ret_artifacts.append(mem_footprint_per_func_artifact)
             if self.to_df:
                 post_df = report.post_df.copy()
@@ -2037,7 +2042,9 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
                 # print("if1")
                 if "libmuriscvnn.a" in mem_footprint_per_library_data["library"].unique():
                     # print("if2")
-                    muriscvnn_bytes = mem_footprint_per_library_data[mem_footprint_per_library_data["library"] == "libmuriscvnn.a"]["bytes"].iloc[0]
+                    muriscvnn_bytes = mem_footprint_per_library_data[
+                        mem_footprint_per_library_data["library"] == "libmuriscvnn.a"
+                    ]["bytes"].iloc[0]
                     # print("muriscvnn_bytes", muriscvnn_bytes)
                     post_df = report.post_df.copy()
                     post_df["ROM code (libmuriscvnn.a)"] = muriscvnn_bytes
@@ -2048,7 +2055,11 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
             mem_footprint_per_object_data = generate_pie_data(object_footprint_df, x="object", y="bytes", topk=topk)
             # print("per_object\n", mem_footprint_per_object_data, mem_footprint_per_object_data["bytes"].sum())
             if self.to_file:
-                mem_footprint_per_func_artifact = Artifact("mem_footprint_per_object.csv", content=mem_footprint_per_object_data.to_csv(index=False), fmt=ArtifactFormat.TEXT)
+                mem_footprint_per_func_artifact = Artifact(
+                    "mem_footprint_per_object.csv",
+                    content=mem_footprint_per_object_data.to_csv(index=False),
+                    fmt=ArtifactFormat.TEXT,
+                )
                 ret_artifacts.append(mem_footprint_per_func_artifact)
             if self.to_df:
                 post_df = report.post_df.copy()

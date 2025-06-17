@@ -1,10 +1,21 @@
 import sys
+import shutil
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
 
+import mlonmcu.setup.utils as utils
+
 pd.set_option("display.max_rows", None)
+
+
+def demangle_fallback(func_name: str):
+
+    exe = shutil.which("c++filt")
+    assert exe is not None, "Could not find c++filt program"
+    output = utils.execute(*[exe, func_name])
+    return output
 
 
 def unmangle_helper(func_name: Optional[str]):
@@ -14,7 +25,11 @@ def unmangle_helper(func_name: Optional[str]):
         return None
     if not func_name.startswith("_Z"):
         return func_name
-    return demangle(func_name)
+    try:
+        return demangle(func_name)
+    except ValueError:
+        return demangle_fallback(func_name)
+    raise ValueError(f"Could not demangle symbol: {func_name}")
 
 
 def parse_elf(elf_path):

@@ -1935,6 +1935,8 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         "per_func": True,
         "per_object": True,
         "per_library": True,
+        "ignore": [],
+        "sum": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -1968,6 +1970,20 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
     def per_library(self):
         """Get per_library property."""
         value = self.config["per_library"]
+        return str2bool(value)
+
+    @property
+    def ignore(self):
+        """Get ignore property."""
+        value = self.config["ignore"]
+        if not isinstance(value, list):
+            return str2list(value)
+        return value
+
+    @property
+    def sum(self):
+        """Get sum property."""
+        value = self.config["sum"]
         return str2bool(value)
 
     def post_run(self, report, artifacts):
@@ -2009,6 +2025,10 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         topk = None
 
         if self.per_func:
+            if self.to_df and self.sum:
+                post_df = report.post_df.copy()
+                post_df["ROM code (Func sum)"] = mem_footprint_df["bytes"].sum()
+                report.post_df = post_df
             mem_footprint_per_func_data = generate_pie_data(mem_footprint_df, x="func", y="bytes", topk=topk)
             # print("per_func\n", mem_footprint_per_func_data, mem_footprint_per_func_data["bytes"].sum())
             if self.to_file:
@@ -2020,11 +2040,19 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
                 ret_artifacts.append(mem_footprint_per_func_artifact)
             if self.to_df:
                 post_df = report.post_df.copy()
-                post_df["ROM code (by func)"] = mem_footprint_per_func_data.to_dict()
+                post_df["ROM code (by func)"] = str(
+                    mem_footprint_per_func_data.groupby("func", dropna=False).sum().to_dict()["bytes"]
+                )
                 report.post_df = post_df
 
         if self.per_library:
             library_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="library", col="bytes")
+            if self.ignore:
+                library_footprint_df = library_footprint_df[~library_footprint_df["library"].isin(self.ignore)]
+            if self.to_df and self.sum:
+                post_df = report.post_df.copy()
+                post_df["ROM code (Lib sum)"] = library_footprint_df["bytes"].sum()
+                report.post_df = post_df
             mem_footprint_per_library_data = generate_pie_data(library_footprint_df, x="library", y="bytes", topk=topk)
             # print("per_library\n", mem_footprint_per_library_data, mem_footprint_per_library_data["bytes"].sum())
             if self.to_file:
@@ -2036,7 +2064,9 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
                 ret_artifacts.append(mem_footprint_per_func_artifact)
             if self.to_df:
                 post_df = report.post_df.copy()
-                post_df["ROM code (by library)"] = mem_footprint_per_library_data.to_dict()
+                post_df["ROM code (by library)"] = str(
+                    mem_footprint_per_library_data.groupby("library", dropna=False).sum().to_dict()["bytes"]
+                )
                 report.post_df = post_df
             if True:  # TODO: generalize
                 # print("if1")
@@ -2052,6 +2082,12 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
 
         if self.per_object:
             object_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="object", col="bytes")
+            if self.ignore:
+                object_footprint_df = object_footprint_df[~object_footprint_df["object"].isin(self.ignore)]
+            if self.to_df and self.sum:
+                post_df = report.post_df.copy()
+                post_df["ROM code (Obj sum)"] = object_footprint_df["bytes"].sum()
+                report.post_df = post_df
             mem_footprint_per_object_data = generate_pie_data(object_footprint_df, x="object", y="bytes", topk=topk)
             # print("per_object\n", mem_footprint_per_object_data, mem_footprint_per_object_data["bytes"].sum())
             if self.to_file:
@@ -2063,7 +2099,9 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
                 ret_artifacts.append(mem_footprint_per_func_artifact)
             if self.to_df:
                 post_df = report.post_df.copy()
-                post_df["ROM code (by object)"] = mem_footprint_per_object_data.to_dict()
+                post_df["ROM code (by object)"] = str(
+                    mem_footprint_per_object_data.groupby("object", dropna=False).sum().to_dict()["bytes"]
+                )
                 report.post_df = post_df
 
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"

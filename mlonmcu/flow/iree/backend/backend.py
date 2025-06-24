@@ -27,7 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
-
+from mlonmcu.target.elf import get_code_size_from_static_lib
 from mlonmcu.flow.tvm.backend.model_info import (
     get_model_info,
     # get_fallback_model_info,
@@ -1024,6 +1024,7 @@ class IREEBackend(Backend):
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
+        metrics = Metrics()
         assert self.model is not None
         with tempfile.TemporaryDirectory() as temp_dir:
             out_dir = Path(temp_dir)
@@ -1107,6 +1108,8 @@ class IREEBackend(Backend):
                     static_lib_raw = f.read()
                 with open(header_path, "r") as f:
                     header_content = f.read()
+                kernels_code_size = get_code_size_from_static_lib(static_lib_path)
+                metrics.add("Kernels Size", kernels_code_size, True)
 
                 artifacts.append(
                     Artifact(
@@ -1217,7 +1220,7 @@ class IREEBackend(Backend):
             )  # TODO: rename to tvmaot_out.log?
             artifacts.append(stdout_artifact)
         print("artifacts", artifacts)
-        return {"default": artifacts}, {"default": Metrics()}
+        return {"default": artifacts}, {"default": metrics}
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)

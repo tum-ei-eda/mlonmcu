@@ -18,11 +18,11 @@ logger = get_logger()
 CPU_THREADS = multiprocessing.cpu_count()
 
 
-SSH_HOST = "return.eda.cit.tum.de"
-SSH_PORT = 22
-SSH_USER = "ga87puy"
-SSH_PASSWORD = None
-SSH_WORKDIR = "/tmp/workdir"
+SSH_HOST = os.environ.get("SSH_HOST", "example.com")
+SSH_PORT = int(os.environ.get("SSH_PORT", 22))
+SSH_USER = os.environ.get("SSH_USER", "username")
+SSH_PASSWORD = os.environ.get("SSH_PASSWORD", None)
+SSH_WORKDIR = os.environ.get("SSH_WORKDIR", "/tmp/workdir")
 
 
 MEM_ONLY = False
@@ -58,9 +58,6 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
             axis=1,
         )
         # TODO: allow combinations
-        # print("dfA", df["config_muriscvnn.use_vext"])
-        # print("dfB", df["config_muriscvnn.use_pext"])
-        # input("A")
         df["Mode"] = df.apply(
             lambda row: (
                 (
@@ -105,8 +102,6 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
             ),
             axis=1,
         )
-        # print("df[AV]", df["AutoVectorize"])
-        # input("123")
         # df["Arch"] = df.apply(
         #     lambda row: "RV32GCPV"
         #     if row.get("feature_vext") and row.get("feature_pext")
@@ -257,7 +252,6 @@ def get_target_features(
         ],
     }
     temp = TARGET_FEATURES[target]
-    # print("temp", temp)
     # hacky way to remove duplicates
     temp2 = []
     temp3 = []
@@ -267,8 +261,6 @@ def get_target_features(
             continue
         temp3.append(y)
         temp2.append(x)
-    # print("temp2", temp2)
-    # input("111")
     return temp2
 
 

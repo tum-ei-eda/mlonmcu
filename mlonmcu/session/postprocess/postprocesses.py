@@ -1976,6 +1976,7 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
     def ignore(self):
         """Get ignore property."""
         value = self.config["ignore"]
+        # print("value", value)
         if not isinstance(value, list):
             return str2list(value)
         return value
@@ -2048,7 +2049,9 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
         if self.per_library:
             library_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="library", col="bytes")
             if self.ignore:
+                # print("self.ignore", self.ignore)
                 library_footprint_df = library_footprint_df[~library_footprint_df["library"].isin(self.ignore)]
+                # print("library_footprint_df", library_footprint_df)
             if self.to_df and self.sum:
                 post_df = report.post_df.copy()
                 post_df["ROM code (Lib sum)"] = library_footprint_df["bytes"].sum()
@@ -2068,6 +2071,7 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
                     mem_footprint_per_library_data.groupby("library", dropna=False).sum().to_dict()["bytes"]
                 )
                 report.post_df = post_df
+                # print("post_df", post_df)
             if True:  # TODO: generalize
                 # print("if1")
                 if "libmuriscvnn.a" in mem_footprint_per_library_data["library"].unique():

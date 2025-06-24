@@ -28,7 +28,6 @@ def parse_mlir_signature(mlir_text):
     match1 = re.search(r"util\.func\s+.*?@(\w+)\((.*?)\)\s*->\s*\((.*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
         match2 = re.search(r"func\.func\s+@(\w+)\((.*)\)\s*->\s*((.*))\s+{", mlir_text, re.DOTALL)
-        print("match2", match2)
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")
         func_name = match2.group(1)
@@ -39,9 +38,6 @@ def parse_mlir_signature(mlir_text):
         func_name = match1.group(1)
         input_args = match1.group(2)
         output_args = match1.group(3)
-    print("func_name", func_name)
-    print("input_args", input_args)
-    print("output_args", output_args)
 
     inputs = []
     outputs = []
@@ -386,9 +382,6 @@ class MLIRModelInfo(ModelInfo):
         in_tensors = []
         out_tensors = []
         func_name, inputs, outputs = parse_mlir_signature(mod_text)
-        print("func_name", func_name)
-        print("inputs", inputs)
-        print("outputs", outputs)
         type_lookup = {
             "i8": "int8",
             "i32": "int32",
@@ -408,9 +401,6 @@ class MLIRModelInfo(ModelInfo):
             output_shape = outp["shape"]
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             out_tensors.append(output_tensor)
-        print("in_tensors", in_tensors)
-        print("out_tensors", out_tensors)
-        # input("!")
 
         super().__init__(in_tensors, out_tensors, main_func_name=func_name)
 

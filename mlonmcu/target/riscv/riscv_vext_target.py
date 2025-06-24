@@ -121,3 +121,10 @@ class RVVTarget(RISCVTarget):
                     model = f"{model}-zvl{self.vlen}b"
             ret["target_model"] = model
         return ret
+
+    def get_vector_width(self):
+        # TODO: num bytes/bits or num elements?
+        return (self.vlen / 8) if self.enable_vext else 0
+
+    def has_scalable_vectorization(self):
+        return self.enable_vext  # TODO: allow disabling scalabe -> fixed

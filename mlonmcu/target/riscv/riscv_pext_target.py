@@ -74,3 +74,10 @@ class RVPTarget(RISCVTarget):
             ret["RISCV_RVP_MAJOR"] = major
             ret["RISCV_RVP_MINOR"] = minor
         return ret
+
+    def get_vector_width(self):
+        # TODO: num bytes or num elements?
+        return (self.xlen / 8) if self.enable_pext else 0
+
+    def has_scalable_vectorization(self):
+        return False

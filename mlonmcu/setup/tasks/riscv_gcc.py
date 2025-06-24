@@ -67,6 +67,7 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
         or context.environment.has_target("spike")
         or context.environment.has_target("ovpsim")
         or context.environment.has_target("ara")
+        or context.environment.has_target("tgc")
     ):
         return False
     if params:
@@ -79,7 +80,7 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
         if vext:
             if not context.environment.has_feature("vext"):
                 return False
-        elif pext:
+        if pext:
             if not context.environment.has_feature("pext"):
                 return False
         if xlen == 32 and not enable_rv32:

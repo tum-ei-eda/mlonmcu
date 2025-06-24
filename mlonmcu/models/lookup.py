@@ -58,15 +58,19 @@ def find_metadata(directory, model_name=None):
 MODELS_CACHE = {}
 
 
-def list_models(directory, depth=1, formats=None, config=None):  # TODO: get config from environment or cmdline!
+def list_models(
+    directory, depth=1, formats=None, config=None, ignore_cache: bool = False
+):  # TODO: get config from environment or cmdline!
     config = config if config is not None else {}
     formats = formats if formats else [ModelFormats.TFLITE]
     assert len(formats) > 0, "No formats provided for model lookup"
-    cache_key = (directory, depth, tuple(formats), tuple(config))  # TODO: hash!
-    if cache_key in MODELS_CACHE:
-        logger.debug("Model cache hit.")
-        return MODELS_CACHE[cache_key]
-    logger.debug("Model cache miss.")
+    if not ignore_cache:
+        cache_key = (directory, depth, tuple(formats), tuple(config))  # TODO: hash!
+        if cache_key in MODELS_CACHE:
+            logger.debug("Model cache hit.")
+            temp = MODELS_CACHE[cache_key]
+            return temp
+        logger.debug("Model cache miss.")
     models = []
     for fmt in formats:
         if depth != 1:
@@ -133,19 +137,28 @@ def list_models(directory, depth=1, formats=None, config=None):  # TODO: get con
                         )
                     )
 
-    MODELS_CACHE[cache_key] = models
+    if not ignore_cache:
+        MODELS_CACHE[cache_key] = models
     return models
 
 
 MODELGROUPS_CACHE = {}
 
 
-def list_modelgroups(directory):
-    cache_key = (directory,)
-    if cache_key in MODELGROUPS_CACHE:
-        logger.info("Modelgroup cache hit.")
-        return MODELGROUPS_CACHE[cache_key]
-    logger.info("Modelgroup cache miss.")
+def reset_models_cache():
+    global MODELS_CACHE, MODELGROUPS_CACHE
+    logger.debug("Model caches cleared.")
+    MODELS_CACHE = {}
+    MODELGROUPS_CACHE = {}
+
+
+def list_modelgroups(directory, ignore_cache: bool = False):
+    if not ignore_cache:
+        cache_key = (directory,)
+        if cache_key in MODELGROUPS_CACHE:
+            logger.info("Modelgroup cache hit.")
+            return MODELGROUPS_CACHE[cache_key]
+        logger.info("Modelgroup cache miss.")
     if not os.path.isdir(directory):
         logger.debug("Not a directory: %s", str(directory))
         return []
@@ -168,19 +181,20 @@ def list_modelgroups(directory):
                 except yaml.YAMLError as err:
                     raise RuntimeError("Could not open YAML file") from err
             break
-    MODELGROUPS_CACHE[cache_key] = groups
+    if not ignore_cache:
+        MODELGROUPS_CACHE[cache_key] = groups
     return groups
 
 
-def lookup_models_and_groups(directories, formats, config=None):
+def lookup_models_and_groups(directories, formats, config=None, ignore_cache: bool = False):
     all_models = []
     all_groups = []
     duplicates = {}
     group_duplicates = {}
     for directory in directories:
-        models = list_models(directory, formats=formats, config=config)
+        models = list_models(directory, formats=formats, config=config, ignore_cache=ignore_cache)
         if len(all_models) == 0:
-            all_models = models
+            all_models = models.copy()
         else:
             all_model_names = [m.name for m in all_models]
             for model in models:
@@ -192,7 +206,7 @@ def lookup_models_and_groups(directories, formats, config=None):
                         duplicates[name] = 1
                 else:
                     all_models.append(model)
-        groups = list_modelgroups(directory)
+        groups = list_modelgroups(directory, ignore_cache=ignore_cache)
         if len(all_groups) == 0:
             all_groups = groups
         else:
@@ -264,13 +278,15 @@ def print_groups(groups, all_models=[], duplicates=[], detailed=False):
             print()
 
 
-def print_summary(context, detailed=False):
+def print_summary(context, detailed: bool = False, ignore_cache: bool = False):
     # TODO: get from context!
     formats = [ModelFormats.TFLITE]
 
     directories = get_model_directories(context)
 
-    models, groups, duplicates, group_duplicates = lookup_models_and_groups(directories, formats)
+    models, groups, duplicates, group_duplicates = lookup_models_and_groups(
+        directories, formats, ignore_cache=ignore_cache
+    )
 
     print("Models Summary\n")
     print_paths(directories)
@@ -278,7 +294,7 @@ def print_summary(context, detailed=False):
     print_groups(groups, duplicates=group_duplicates, all_models=models, detailed=detailed)
 
 
-def lookup_models(names, frontends=None, config=None, context=None):
+def lookup_models(names, frontends=None, config=None, context=None, ignore_cache: bool = False):
     if frontends is None:
         assert context is not None
         # TODO: Get defaults frontends from environment (with no config/features)
@@ -290,7 +306,7 @@ def lookup_models(names, frontends=None, config=None, context=None):
 
     if context:
         directories = get_model_directories(context)
-        models, _, _, _ = lookup_models_and_groups(directories, allowed_fmts, config=config)
+        models, _, _, _ = lookup_models_and_groups(directories, allowed_fmts, config=config, ignore_cache=ignore_cache)
     else:
         models = []
     model_names = [model.name for model in models]

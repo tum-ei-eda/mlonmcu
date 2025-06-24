@@ -72,6 +72,6 @@ idf_component_register(SRCS ${CODEGEN_SRCS} ${MLIF_SRCS} ${MODEL_SUPPORT_SRCS} $
                     INCLUDE_DIRS ${CODEGEN_INCS} ${MODEL_SUPPORT_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include
                     REQUIRES ${LIB_NAME})
 
-component_compile_options(-Wno-error=missing-braces)
+component_compile_options(-Wno-error=missing-braces -Wno-incompatible-pointer-types -Wno-error=unused-const-variable)
 
 target_compile_definitions(${COMPONENT_LIB} PUBLIC NUM_RUNS=${NUM_RUNS})

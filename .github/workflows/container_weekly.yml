@@ -35,6 +35,8 @@ on:
     # Disabled as Ubuntu 22 (Debian 11) bender version is not provided
     # - cron: "0 18 * * 6"  # develop, ara
     - cron: "0 20 * * 6"  # develop, vicuna
+    - cron: "0 10 * * 6"  # develop, tgc
+    - cron: "0 8 * * 6"  # develop, minimal
 
 jobs:
   minimal:
@@ -77,6 +79,14 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=vicuna" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 10 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=tgc" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 8 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=minimal" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1

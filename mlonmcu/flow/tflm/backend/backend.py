@@ -42,7 +42,10 @@ class TFLMBackend(Backend):
         assert isinstance(cls.name, str)
         cls.registry[cls.name] = cls
 
-    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
+    def load_model(
+        self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None
+    ):
+        assert params_path is None
         self.model = model
         ext = os.path.splitext(model)[1][1:]
         fmt = ModelFormats.from_extension(ext)

@@ -69,6 +69,7 @@ def build_utvm_staticrt_codegen(
     flags = utils.makeFlags((params["dbg"], "dbg"))
     utvmcgName = utils.makeDirName("utvmcg", flags=flags)
     utvmcgSrcDir = context.cache["utvmcg.src_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
     utvmcgBuildDir = context.environment.paths["deps"].path / "build" / utvmcgName
     utvmcgInstallDir = context.environment.paths["deps"].path / "install" / utvmcgName
     utvmcgExe = utvmcgInstallDir / "compiler"
@@ -88,6 +89,7 @@ def build_utvm_staticrt_codegen(
             cwd=utvmcgBuildDir,
             debug=params["dbg"],
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=utvmcgBuildDir, threads=threads, live=verbose)
         utils.mkdirs(utvmcgInstallDir)

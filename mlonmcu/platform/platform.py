@@ -57,6 +57,7 @@ class Platform:
         self.features = self.process_features(features)
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.artifacts = []
+        self.supported_targets_cache = {}
 
     def init_directory(self, path=None, context=None):
         raise NotImplementedError
@@ -101,8 +102,23 @@ class Platform:
     def get_supported_backends(self):
         return []
 
-    def get_supported_targets(self):
-        return []
+    @abstractmethod
+    def _get_supported_targets(self):
+        raise NotImplementedError
+
+    def get_supported_targets(self, ignore_cache: bool = False):
+        if ignore_cache:
+            return self._get_supported_targets()
+        # TODO: share between all instances of the same platform?
+        cache_key = ("default",)
+        if cache_key in self.supported_targets_cache:
+            logger.debug("Supported targets cache hit.")
+            temp = self.supported_targets_cache[cache_key]
+            return temp
+        logger.debug("Supported targets cache miss.")
+        ret = self._get_supported_targets()
+        self.supported_targets_cache[cache_key] = ret
+        return ret
 
 
 class BuildPlatform(Platform):

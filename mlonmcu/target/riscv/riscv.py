@@ -58,7 +58,7 @@ class RISCVTarget(Target):
 
     OPTIONAL = {
         # TODO: just a workaround until tc components are implemented
-        "llvm.install_dir",
+        # "llvm.install_dir",
         "mlif.toolchain",
         "riscv_gcc_rv32.install_dir",
         "riscv_gcc_rv32.name",

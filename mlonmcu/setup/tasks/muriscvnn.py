@@ -104,6 +104,7 @@ def clone_muriscvnn(
 
 @Tasks.needs(["muriscvnn.src_dir", "riscv_gcc_rv{xlen}.install_dir", "riscv_gcc_rv{xlen}.name"])
 # @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
+@Tasks.optional(["cmake.exe"])
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 # @Tasks.param("dbg", [False, True])
 @Tasks.param("dbg", [False])  # disable due to bug with vext gcc
@@ -131,6 +132,7 @@ def build_muriscvnn(
     flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
     muriscvnnBuildDir = context.environment.paths["deps"].path / "build" / muriscvnnName
     muriscvnnInstallDir = context.environment.paths["deps"].path / "install" / muriscvnnName
     muriscvnnLib = muriscvnnInstallDir / "libmuriscvnn.a"
@@ -177,6 +179,7 @@ def build_muriscvnn(
             cwd=muriscvnnBuildDir,
             debug=params["dbg"],
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=muriscvnnBuildDir, threads=threads, live=verbose)
         utils.mkdirs(muriscvnnInstallDir)

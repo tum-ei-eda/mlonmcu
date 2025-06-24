@@ -87,6 +87,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "garbage_collect": True,
         "strip_strings": False,
         "unroll_loops": None,
+        "inline_functions": None,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
         "set_inputs": False,
         "set_inputs_interface": None,
@@ -105,7 +106,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -263,6 +264,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["llvm.install_dir"]
 
     @property
+    def cmake_exe(self):
+        return self.config["cmake.exe"]
+
+    @property
     def srecord_dir(self):
         return self.config["srecord.install_dir"]
 
@@ -385,9 +390,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def unroll_loops(self):
         value = self.config["unroll_loops"]
+        if isinstance(value, str) and value.strip().lower() in ["auto", ""]:
+            return None
         return str2bool(value, allow_none=True)
 
-    def get_supported_targets(self):
+    @property
+    def inline_functions(self):
+        value = self.config["inline_functions"]
+        if isinstance(value, str) and value.strip().lower() in ["auto", ""]:
+            return None
+        return str2bool(value, allow_none=True)
+
+    def _get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
 
@@ -441,6 +455,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:
             definitions["UNROLL_LOOPS"] = self.unroll_loops
+        if self.inline_functions is not None:
+            definitions["INLINE_FUNCTIONS"] = self.inline_functions
         if self.ccache:
             definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
             definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
@@ -542,6 +558,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             debug=self.debug,
             live=self.print_outputs,
             env=env,
+            cmake_exe=self.cmake_exe,
         )
         return out, artifacts
 
@@ -579,7 +596,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / self.goal
-        map_file = self.build_dir / "linker.map"  # TODO: optional
+        map_file = self.build_dir / "generic" / "linker.map"  # TODO: optional
         hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
@@ -605,7 +622,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if map_file.is_file():
             with open(map_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT)
+                is_llvm_map = self.toolchain == "llvm" and self.fuse_ld != "ld"
+                map_type = "lld" if is_llvm_map else "ld"
+                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT, flags=(map_type,))
                 artifacts.append(artifact)
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:

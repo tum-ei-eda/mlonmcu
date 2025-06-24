@@ -32,13 +32,18 @@ repos:
   tensorflow:
     url: "https://github.com/tensorflow/tflite-micro.git"
     ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
+    options:
+      single_branch: true
   tvm:
     url: "https://github.com/apache/tvm.git"
-    # ref: de6d8067754d746d88262c530b5241b5577b9aae
-    # ref: a9fcac1a47f4b57c1d9d828c7ed1d77452b02cc5
     ref: v0.17.0
     options:
       recursive: true
+      submodules:
+        - 3rdparty/dlpack
+        - 3rdparty/dmlc-core
+        - 3rdparty/libbacktrace
+        - 3rdparty/rang
   tvm_extensions:
     url: "https://github.com/tum-ei-eda/tvm_extensions.git"
     ref: 859bbc89519b610d8adcdba0869d8b087887aabd
@@ -55,20 +60,18 @@ repos:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
     ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
   cmsis:
-    # url: "https://github.com/PhilippvK/CMSIS_5.git"
     url: "https://github.com/ARM-software/CMSIS_5.git"
     ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
-    # ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
   cmsisnn:
-    # url: "https://github.com/PhilippvK/CMSIS-NN.git"
     url: "https://github.com/ARM-software/CMSIS-NN.git"
-    # ref: 35ce20560794ddc9e6d87006cad7a3bc665f8319  # v4.0.0 + portability patch
-    # ref: 040da18234b597867bd54d736ca4ceae545b2853
-    # ref: 5a11800c20b3f41ce78b8c3c6ea1e92b4f9d2549
     ref: v6.0.0
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 3d950d03143644b48e69e22e0ce0fa4b340e1c7a
+    ref: 379f5eabe7c0e939518dff69795aaff9d6dfad72
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4  # TODO: v5.2

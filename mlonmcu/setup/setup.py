@@ -50,8 +50,10 @@ class Setup:
             tasks_factory = get_task_factory()
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.context = context
+        if self.context is not None:
+            self.context.environment.vars.update(self.config)
+        self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.tasks_factory = tasks_factory
         self.num_threads = int(
             self.config["num_threads"] if self.config["num_threads"] else multiprocessing.cpu_count()
@@ -109,7 +111,7 @@ class Setup:
 
     def get_dependency_order(self):
         task_graph = self._get_task_graph()
-        V, E = task_graph.get_graph()
+        # V, E = task_graph.get_graph()
         order = task_graph.get_order()
         order_str = " -> ".join(order)
         logger.debug("Determined dependency order: %s" % order_str)

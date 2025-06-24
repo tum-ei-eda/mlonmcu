@@ -151,7 +151,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         # TODO: get this via tvmc run --help
         target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
 

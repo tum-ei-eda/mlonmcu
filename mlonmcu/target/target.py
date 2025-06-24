@@ -64,6 +64,7 @@ class Target:
         "print_outputs": False,
         "repeat": None,
         "temp_dir_base": None,
+        "fclk": None,
     }
 
     REQUIRED = set()
@@ -106,6 +107,10 @@ class Target:
     def temp_dir_base(self):
         return self.config["temp_dir_base"]
 
+    def fclk(self):
+        value = self.config["fclk"]
+        return int(float(value)) if value is not None else None
+
     def __repr__(self):
         return f"Target({self.name})"
 
@@ -133,7 +138,7 @@ class Target:
 
     def parse_exit(self, out):
         exit_code = None
-        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+        exit_match = re.search(r"MLONMCU EXIT: (\d*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
         return exit_code

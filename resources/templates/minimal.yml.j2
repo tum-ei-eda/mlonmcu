@@ -31,7 +31,7 @@ paths:
 repos:
   tensorflow:
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: f868a900f1f788fd0a55b5655b47fc352f9a0239
+    ref: ca5358f4680dbd94717a4c6bd77186bc1c799e1b
   tflite_micro_compiler:
     url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
     ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
@@ -63,7 +63,7 @@ repos:
     ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
+    ref: 99624237110838fb564f2e6fce838f1962744635
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
@@ -231,6 +231,9 @@ vars:
   llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
   riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
+  cmake.use_system: true
+  llvm.use_system: true
+  boost.use_system: true
 flags:
   tflmc.exe:
   - x86

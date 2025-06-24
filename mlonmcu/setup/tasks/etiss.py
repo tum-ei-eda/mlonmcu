@@ -44,6 +44,20 @@ def _validate_etiss(context: MlonMcuContext, params={}):
     return context.environment.has_target("etiss_pulpino") or context.environment.has_target("etiss")
 
 
+def _validate_etiss_clone(context: MlonMcuContext, params={}):
+    user_vars = context.environment.vars
+    if "etiss.src_dir" in user_vars:
+        return False
+    return _validate_etiss(context, params=params)
+
+
+def _validate_etiss_build(context: MlonMcuContext, params={}):
+    user_vars = context.environment.vars
+    if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
+        return False
+    return _validate_etiss(context, params=params)
+
+
 def _validate_etiss_clean(context: MlonMcuContext, params={}):
     if not _validate_etiss(context, params=params):
         return False
@@ -53,7 +67,7 @@ def _validate_etiss_clean(context: MlonMcuContext, params={}):
 
 
 @Tasks.provides(["etiss.src_dir"])
-@Tasks.validate(_validate_etiss)
+@Tasks.validate(_validate_etiss_clone)
 @Tasks.register(category=TaskType.TARGET)
 def clone_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -74,10 +88,10 @@ def clone_etiss(
 
 # @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
 @Tasks.needs(["etiss.src_dir"])
-@Tasks.optional(["etiss.plugins_dir"])  # Just as a dummy target to enforce order
+@Tasks.optional(["etiss.plugins_dir", "cmake.exe", "boost.install_dir"])  # Just as a dummy target to enforce order
 @Tasks.provides(["etiss.build_dir", "etiss.install_dir"])
 @Tasks.param("dbg", [False, True])
-@Tasks.validate(_validate_etiss)
+@Tasks.validate(_validate_etiss_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -90,12 +104,16 @@ def build_etiss(
     etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
     etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
     # llvmInstallDir = context.cache["llvm.install_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
     user_vars = context.environment.vars
+    boost_dir = context.cache.get("boost.install_dir")
     if "etiss.build_dir" in user_vars or "etiss.install_dir" in user_vars:
         return False
     if rebuild or not utils.is_populated(etissBuildDir):
         utils.mkdirs(etissBuildDir)
         env = os.environ.copy()
+        if boost_dir is not None:
+            env["BOOST_ROOT"] = str(boost_dir)
         # env["LLVM_DIR"] = str(llvmInstallDir)
         utils.cmake(
             context.cache["etiss.src_dir"],
@@ -104,6 +122,7 @@ def build_etiss(
             debug=params["dbg"],
             env=env,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.build_dir", flags] = etissBuildDir
@@ -113,7 +132,7 @@ def build_etiss(
 @Tasks.needs(["etiss.build_dir"])
 @Tasks.provides(["etiss.install_dir", "etissvp.exe", "etissvp.script"])
 @Tasks.param("dbg", [False, True])
-@Tasks.validate(_validate_etiss)
+@Tasks.validate(_validate_etiss_build)
 @Tasks.register(category=TaskType.TARGET)
 def install_etiss(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

@@ -146,7 +146,7 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
                 self.config,
                 [
                     f"spike.pk_rv{self.xlen}",
-                    f"spike.pk",
+                    "spike.pk",
                 ],
             )
         )

@@ -23,7 +23,6 @@
 from mlonmcu.logging import get_logger
 
 # from mlonmcu.target.metrics import Metrics
-from mlonmcu.artifact import Artifact, ArtifactFormat
 from .backend import IREEBackend
 
 logger = get_logger()

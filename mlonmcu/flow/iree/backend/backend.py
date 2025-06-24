@@ -30,15 +30,16 @@ from mlonmcu.logging import get_logger
 
 from mlonmcu.flow.tvm.backend.model_info import (
     get_model_info,
-    get_fallback_model_info,
+    # get_fallback_model_info,
     # get_supported_formats,
     get_supported_formats_iree,
-    get_model_format,
+    # get_model_format,
 )
 from mlonmcu.flow.tvm.backend.wrapper import getSizes
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.models.model import ModelFormats
+
+# from mlonmcu.models.model import ModelFormats
 
 # from .python_utils import prepare_python_environment
 # from .tvmc_utils import (
@@ -500,200 +501,6 @@ size_t IREE_GetNumOutputs()
 }
 """
     )
-    ret_emitc = (
-        """
-#include "iree/hal/drivers/local_sync/sync_device.h"
-#include "iree/hal/local/loaders/static_library_loader.h"
-#include "iree/modules/hal/module.h"
-#include "iree/runtime/api.h"
-
-// Initial buffer contents for 4 * 2 = 8.
-// const int32_t kInt4[] = {4, 4, 4, 4};
-// const int32_t kInt2[] = {2, 2, 2, 2};
-// int32_t results[] = {0, 0, 0, 0};
-"""
-        + tensorBufs
-        + """
-
-iree_status_t module_create(iree_vm_instance_t* v1, iree_allocator_t v2, iree_vm_module_t** v3);
-
-extern const iree_hal_executable_library_header_t**
-"""
-        + identifier2
-        + """_library_query(
-    iree_hal_executable_library_version_t max_version,
-    const iree_hal_executable_environment_v0_t* environment);
-// A function to create the bytecode or C module.
-// extern iree_status_t create_module(iree_vm_instance_t* instance,
-//                                    iree_vm_module_t** out_module);
-
-
-// A function to create the HAL device from the different backend targets.
-// The HAL device is returned based on the implementation, and it must be
-// released by the caller.
-iree_status_t create_device_with_static_loader(iree_allocator_t host_allocator,
-                                               iree_hal_device_t** out_device) {
-  // Set parameters for the device created in the next step.
-  iree_hal_sync_device_params_t params;
-  iree_hal_sync_device_params_initialize(&params);
-
-  // Register the statically linked executable library.
-  const iree_hal_executable_library_query_fn_t libraries[] = {
-      """
-        + identifier2
-        + """_library_query,
-  };
-  iree_hal_executable_loader_t* library_loader = NULL;
-  IREE_RETURN_IF_ERROR(iree_hal_static_library_loader_create(
-      IREE_ARRAYSIZE(libraries), libraries,
-      iree_hal_executable_import_provider_null(), host_allocator,
-      &library_loader));
-
-  // Use the default host allocator for buffer allocations.
-  iree_string_view_t identifier = iree_make_cstring_view("local-sync");
-  iree_hal_allocator_t* device_allocator = NULL;
-  IREE_RETURN_IF_ERROR(iree_hal_allocator_create_heap(identifier, host_allocator,
-                                            host_allocator, &device_allocator));
-
-  // Create the device and release the executor and loader afterwards.
-  IREE_RETURN_IF_ERROR(iree_hal_sync_device_create(
-        identifier, &params, /*loader_count=*/1, &library_loader,
-        device_allocator, host_allocator, out_device));
-
-  iree_hal_allocator_release(device_allocator);
-  iree_hal_executable_loader_release(library_loader);
-  return iree_ok_status();
-}
-
-static iree_runtime_instance_t* instance = NULL;
-static iree_runtime_call_t call;
-static iree_hal_device_t *device = NULL;
-static iree_runtime_session_t* session = NULL;
-static iree_vm_module_t* module = NULL;
-
-iree_status_t Prepare() {
-
-  // Instance configuration (this should be shared across sessions).
-  iree_runtime_instance_options_t instance_options;
-  iree_runtime_instance_options_initialize(&instance_options);
-  iree_runtime_instance_options_use_all_available_drivers(&instance_options);
-
-  IREE_RETURN_IF_ERROR(iree_runtime_instance_create(&instance_options,
-                                          iree_allocator_system(), &instance));
-
-  // Create local device with static loader.
-  IREE_RETURN_IF_ERROR(create_device_with_static_loader(iree_allocator_system(), &device));
-
-  // Session configuration (one per loaded module to hold module state).
-  iree_runtime_session_options_t session_options;
-  iree_runtime_session_options_initialize(&session_options);
-  IREE_RETURN_IF_ERROR(iree_runtime_session_create_with_device(
-        instance, &session_options, device,
-        iree_runtime_instance_host_allocator(instance), &session));
-
-  // Load bytecode module from the embedded data. Append to the session.
-
-  IREE_RETURN_IF_ERROR(create_module(iree_runtime_instance_vm_instance(instance), &module));
-
-  IREE_RETURN_IF_ERROR(iree_runtime_session_append_module(session, module));
-
-  // Lookup the entry point function call.
-  const char kMainFunctionName[] = \"module."""
-        + main_func_name
-        + """\";
-  memset(&call, 0, sizeof(call));
-  IREE_RETURN_IF_ERROR(iree_runtime_call_initialize_by_name(
-        session, iree_make_cstring_view(kMainFunctionName), &call));
-
-  // Populate initial values for 4 * 2 = 8.
-  // const int kElementCount = 4;
-  // iree_hal_dim_t shape[1] = {kElementCount};
-  // iree_hal_buffer_view_t* arg0_buffer_view = NULL;
-  // iree_hal_buffer_view_t* arg1_buffer_view = NULL;
-  // const int32_t kInt4[] = {4, 4, 4, 4};
-  // const int32_t kInt2[] = {2, 2, 2, 2};
-
-  // IREE_RETURN_IF_ERROR(iree_hal_buffer_view_allocate_buffer_copy(
-  //     device, iree_hal_device_allocator(device), IREE_ARRAYSIZE(shape), shape,
-  //     IREE_HAL_ELEMENT_TYPE_SINT_32, IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR,
-  //     (iree_hal_buffer_params_t){
-  //         .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL,
-  //         .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,
-  //     },
-  //     iree_make_const_byte_span((void*)kInt4, sizeof(kInt4)),
-  //     &arg0_buffer_view));
-  // IREE_RETURN_IF_ERROR(iree_hal_buffer_view_allocate_buffer_copy(
-  //     device, iree_hal_device_allocator(device), IREE_ARRAYSIZE(shape), shape,
-  //     IREE_HAL_ELEMENT_TYPE_SINT_32, IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR,
-  //     (iree_hal_buffer_params_t){
-  //         .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL,
-  //         .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,
-  //     },
-  //     iree_make_const_byte_span((void*)kInt2, sizeof(kInt2)),
-  //     &arg1_buffer_view));
-
-  // // Queue buffer views for input.
-  // IREE_RETURN_IF_ERROR(iree_runtime_call_inputs_push_back_buffer_view(&call, arg0_buffer_view));
-  // iree_hal_buffer_view_release(arg0_buffer_view);
-
-  // IREE_RETURN_IF_ERROR(iree_runtime_call_inputs_push_back_buffer_view(&call, arg1_buffer_view));
-  // iree_hal_buffer_view_release(arg1_buffer_view);
-"""
-        + setupInputsOutputs
-        + """
-  return iree_ok_status();
-}
-
-iree_status_t Run() {
-
-  // Invoke call.
-  // IREE_RETURN_IF_ERROR(iree_runtime_call_invoke(&call, /*flags=*/0));
-  iree_status_t status = iree_runtime_call_invoke(&call, /*flags=*/0);
-  iree_status_fprint(stdout, status);
-
-  return status;
-  // return iree_ok_status();
-}
-
-iree_status_t Cleanup() {
-  // Retrieve output buffer view with results from the invocation.
-  // TODO: generate outputs code!
-  iree_hal_buffer_view_t* ret_buffer_view = NULL;
-  IREE_RETURN_IF_ERROR(iree_runtime_call_outputs_pop_front_buffer_view(&call,
-                                                             &ret_buffer_view));
-
-  // Read back the results and ensure we got the right values.
-  // int32_t results[] = {0, 0, 0, 0};
-  IREE_RETURN_IF_ERROR(iree_hal_device_transfer_d2h(
-      device, iree_hal_buffer_view_buffer(ret_buffer_view), 0, outputs[0],
-      sizeof(*outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,
-      iree_infinite_timeout()));
-  // for (iree_host_size_t i = 0; i < IREE_ARRAYSIZE(results); ++i) {
-  //   if (results[i] != 8) {
-  //     return iree_make_status(IREE_STATUS_UNKNOWN, "result mismatches");
-  //   }
-  // }
-  """
-        # + copyOutputs
-        + """
-
-  // Print statistics (no-op if statistics are not enabled).
-  iree_hal_allocator_statistics_fprint(stdout,
-                                       iree_hal_device_allocator(device));
-
-  // Cleanup call and buffers.
-  iree_hal_buffer_view_release(ret_buffer_view);
-  iree_runtime_call_deinitialize(&call);
-
-  // Cleanup session and instance.
-  iree_hal_device_release(device);
-  iree_runtime_session_release(session);
-  iree_runtime_instance_release(instance);
-  iree_vm_module_release(module);
-  return iree_ok_status();
-}
-"""
-    )
     header = """#ifndef IREE_WRAPPER_H
 #define IREE_WRAPPER_H
 
@@ -871,12 +678,11 @@ iree_status_t create_module(iree_vm_instance_t* instance,
 }
 """
     )
-    # return (ret_emitc if use_emitc else ret) + epilog, ret2, (ret3_vmvx if vmvx else ret3)
     prolog = ""
     sync = sync_vmvx if vmvx else sync_static
     wrapper = prolog + wrapper_main + epilog
-    utils = utils_vmvx if vmvx else (utils_emitc if use_emitc else utils_bytecode)
-    return wrapper, header, sync, utils
+    utils_ = utils_vmvx if vmvx else (utils_emitc if use_emitc else utils_bytecode)
+    return wrapper, header, sync, utils_
 
 
 class IREEBackend(Backend):
@@ -1199,7 +1005,8 @@ class IREEBackend(Backend):
         #         # TODO: also handle output_shapes
         #         # TODO: take care of refresh_model_info
         #         if self.input_shapes:
-        #             self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
+        #             self.model_info.in_tensors = [t for t in self.model_info.in_tensors
+        #                                               if t.name in self.input_shapes]
         #             assert (
         #                 len(self.model_info.in_tensors) > 0
         #             ), "Missmatch between provided input names and detected ones"

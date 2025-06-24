@@ -117,6 +117,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionPostprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.validate_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_validate_metrics</span><span class="p">,</span> <span class="n">parse_classify_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.calc_lib_mem_footprints</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_elf</span><span class="p">,</span> <span class="n">analyze_linker_map_helper</span><span class="p">,</span> <span class="n">generate_pie_data</span><span class="p">,</span> <span class="n">agg_library_footprint</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -131,7 +132,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_cfg</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^((?:[a-zA-Z\d\-_ \.\[\]\(\)]+)(?:,[a-zA-Z\d\-_ \.\[\]\(\)]+)*)$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span>
@@ -2101,6 +2102,200 @@
         <span class="k">if</span> <span class="n">temp_dir</span><span class="p">:</span>
             <span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">artifacts</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnalyseLinkerMapPostprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalyseLinkerMapPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate memory footprints.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="c1"># &quot;to_df&quot;: True,</span>
+        <span class="s2">&quot;to_df&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;to_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;per_func&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;per_object&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;per_library&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;ignore&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;sum&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;analyse_linker_map&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_df property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_df&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get to_file property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;to_file&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">per_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get per_func property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;per_func&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">per_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get per_object property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;per_object&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">per_library</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get per_library property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;per_library&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ignore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get ignore property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ignore&quot;</span><span class="p">]</span>
+        <span class="c1"># print(&quot;value&quot;, value)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get sum property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnalyseLinkerMapPostprocess.post_run">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.post_run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">[</span><span class="s2">&quot;Platform&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">&quot;mlif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">elf_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generic_mlonmcu&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">elf_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;ELF artifact not found!&quot;</span>
+        <span class="n">elf_artifact</span> <span class="o">=</span> <span class="n">elf_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">map_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;generic_mlonmcu.map&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">map_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Linker map artifact not found!&quot;</span>
+        <span class="n">map_artifact</span> <span class="o">=</span> <span class="n">map_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># is_ld = &quot;ld&quot; in map_artifact.flags</span>
+        <span class="c1"># assert is_ld, &quot;Non ld linker currently unsupported&quot;</span>
+
+        <span class="n">mem_footprint_df</span> <span class="o">=</span> <span class="n">parse_elf</span><span class="p">(</span><span class="n">elf_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mapfile_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">mapfile</span>
+
+        <span class="n">mapFile</span> <span class="o">=</span> <span class="n">mapfile</span><span class="o">.</span><span class="n">MapFile</span><span class="p">()</span>
+        <span class="n">mapFile</span><span class="o">.</span><span class="n">readMapFile</span><span class="p">(</span><span class="n">map_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">symbol_map</span> <span class="o">=</span> <span class="n">analyze_linker_map_helper</span><span class="p">(</span><span class="n">mapFile</span><span class="p">)</span>
+        <span class="n">symbol_map_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">symbol_map</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;segment&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;section&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;symbol&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;object_full&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;library&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;library_full&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">topk</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_func</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (Func sum)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem_footprint_df</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+            <span class="n">mem_footprint_per_func_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;func&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
+            <span class="c1"># print(&quot;per_func\n&quot;, mem_footprint_per_func_data, mem_footprint_per_func_data[&quot;bytes&quot;].sum())</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">mem_footprint_per_func_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">&quot;mem_footprint_per_func.csv&quot;</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">mem_footprint_per_func_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mem_footprint_per_func_artifact</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (by func)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">mem_footprint_per_func_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;func&quot;</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_library</span><span class="p">:</span>
+            <span class="n">library_footprint_df</span> <span class="o">=</span> <span class="n">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">:</span>
+                <span class="c1"># print(&quot;self.ignore&quot;, self.ignore)</span>
+                <span class="n">library_footprint_df</span> <span class="o">=</span> <span class="n">library_footprint_df</span><span class="p">[</span><span class="o">~</span><span class="n">library_footprint_df</span><span class="p">[</span><span class="s2">&quot;library&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">)]</span>
+                <span class="c1"># print(&quot;library_footprint_df&quot;, library_footprint_df)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (Lib sum)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">library_footprint_df</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+            <span class="n">mem_footprint_per_library_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">library_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
+            <span class="c1"># print(&quot;per_library\n&quot;, mem_footprint_per_library_data, mem_footprint_per_library_data[&quot;bytes&quot;].sum())</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">mem_footprint_per_func_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">&quot;mem_footprint_per_library.csv&quot;</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">mem_footprint_per_library_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mem_footprint_per_func_artifact</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (by library)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">mem_footprint_per_library_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+                <span class="c1"># print(&quot;post_df&quot;, post_df)</span>
+            <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># TODO: generalize</span>
+                <span class="c1"># print(&quot;if1&quot;)</span>
+                <span class="k">if</span> <span class="s2">&quot;libmuriscvnn.a&quot;</span> <span class="ow">in</span> <span class="n">mem_footprint_per_library_data</span><span class="p">[</span><span class="s2">&quot;library&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+                    <span class="c1"># print(&quot;if2&quot;)</span>
+                    <span class="n">muriscvnn_bytes</span> <span class="o">=</span> <span class="n">mem_footprint_per_library_data</span><span class="p">[</span>
+                        <span class="n">mem_footprint_per_library_data</span><span class="p">[</span><span class="s2">&quot;library&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;libmuriscvnn.a&quot;</span>
+                    <span class="p">][</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># print(&quot;muriscvnn_bytes&quot;, muriscvnn_bytes)</span>
+                    <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (libmuriscvnn.a)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnn_bytes</span>
+                    <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">per_object</span><span class="p">:</span>
+            <span class="n">object_footprint_df</span> <span class="o">=</span> <span class="n">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">:</span>
+                <span class="n">object_footprint_df</span> <span class="o">=</span> <span class="n">object_footprint_df</span><span class="p">[</span><span class="o">~</span><span class="n">object_footprint_df</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (Obj sum)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">object_footprint_df</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+            <span class="n">mem_footprint_per_object_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">object_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
+            <span class="c1"># print(&quot;per_object\n&quot;, mem_footprint_per_object_data, mem_footprint_per_object_data[&quot;bytes&quot;].sum())</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+                <span class="n">mem_footprint_per_func_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">&quot;mem_footprint_per_object.csv&quot;</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">mem_footprint_per_object_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mem_footprint_per_func_artifact</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+                <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">post_df</span><span class="p">[</span><span class="s2">&quot;ROM code (by object)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">mem_footprint_per_object_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">&quot;Either to_file or to_df have to be true&quot;</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div>
 </div>
 
 

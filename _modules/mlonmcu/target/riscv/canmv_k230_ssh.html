@@ -107,6 +107,7 @@
 <span class="c1"># from pathlib import Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.ssh_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">SSHTarget</span>
@@ -128,11 +129,17 @@
         <span class="o">**</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
         <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="s2">&quot;use_qemu&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">SSHTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;canmv_k230_ssh&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_qemu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_qemu&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CanMvK230SSHTarget.exec">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.canmv_k230_ssh.CanMvK230SSHTarget.exec">[docs]</a>
@@ -145,7 +152,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_via_ssh</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">qemu</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_qemu</span><span class="p">:</span>
+            <span class="n">qemu</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;qemu-riscv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">-static&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_via_ssh</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">qemu</span><span class="o">=</span><span class="n">qemu</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">handle_exit</span><span class="p">:</span>
             <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>

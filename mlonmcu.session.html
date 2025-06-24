@@ -114,6 +114,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mlonmcu.session.postprocess.html">mlonmcu.session.postprocess package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.postprocess.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.calc_lib_mem_footprints">mlonmcu.session.postprocess.calc_lib_mem_footprints module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.agg_library_footprint"><code class="docutils literal notranslate"><span class="pre">agg_library_footprint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.analyze_linker_map_helper"><code class="docutils literal notranslate"><span class="pre">analyze_linker_map_helper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.demangle_fallback"><code class="docutils literal notranslate"><span class="pre">demangle_fallback()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.generate_pie_data"><code class="docutils literal notranslate"><span class="pre">generate_pie_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.parse_elf"><code class="docutils literal notranslate"><span class="pre">parse_elf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.unmangle_helper"><code class="docutils literal notranslate"><span class="pre">unmangle_helper()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.postprocess">mlonmcu.session.postprocess.postprocess module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess"><code class="docutils literal notranslate"><span class="pre">Postprocess</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">Postprocess.DEFAULTS</span></code></a></li>
@@ -158,6 +168,18 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.to_df"><code class="docutils literal notranslate"><span class="pre">AnalyseInstructionsPostprocess.to_df</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.to_file"><code class="docutils literal notranslate"><span class="pre">AnalyseInstructionsPostprocess.to_file</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.top"><code class="docutils literal notranslate"><span class="pre">AnalyseInstructionsPostprocess.top</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.ignore"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.ignore</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.per_func"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.per_func</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.per_library"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.per_library</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.per_object"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.per_object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.post_run"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.post_run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.sum"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.sum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_df"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.to_df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_file"><code class="docutils literal notranslate"><span class="pre">AnalyseLinkerMapPostprocess.to_file</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess"><code class="docutils literal notranslate"><span class="pre">Artifact2ColumnPostprocess</span></code></a><ul>

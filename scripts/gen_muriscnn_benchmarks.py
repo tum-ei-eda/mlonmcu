@@ -71,7 +71,13 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
                 )
                 if not (row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc"))
                 else (
-                    "Vector" + (" (Portable)" if row.get("config_muriscvnn.use_portable") == 1 or row.get("config_muriscvnnbyoc.use_portable") == 1 else "")
+                    "Vector"
+                    + (
+                        " (Portable)"
+                        if row.get("config_muriscvnn.use_portable") == 1
+                        or row.get("config_muriscvnnbyoc.use_portable") == 1
+                        else ""
+                    )
                     if row.get("config_muriscvnn.use_vext") == 1 or row.get("config_muriscvnnbyoc.use_vext") == 1
                     else (
                         "Packed"
@@ -220,11 +226,14 @@ def get_target_features(
     CMSISNN_DSP = [["cmsisnn", "arm_dsp"] if enable_dsp else []]
     CMSISNN_MVEI = [["cmsisnn", "arm_mvei", "arm_dsp"] if enable_mvei else []]
     TARGET_FEATURES = {
-        **{t: [
-            *([*DEFAULT_SCALAR, *DEFAULT_VEXT, *DEFAULT_PEXT] if enable_default else []),
-            *([*MURISCVNN_SCALAR, *MURISCVNN_VEXT, *MURISCVNN_PEXT] if enable_muriscvnn else []),
-            *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
-        ] for t in SPIKE_TARGETS},
+        **{
+            t: [
+                *([*DEFAULT_SCALAR, *DEFAULT_VEXT, *DEFAULT_PEXT] if enable_default else []),
+                *([*MURISCVNN_SCALAR, *MURISCVNN_VEXT, *MURISCVNN_PEXT] if enable_muriscvnn else []),
+                *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
+            ]
+            for t in SPIKE_TARGETS
+        },
         "canmv_k230_ssh": [
             *([*DEFAULT_SCALAR, *DEFAULT_VEXT] if enable_default else []),
             *([*MURISCVNN_SCALAR, *MURISCVNN_VEXT] if enable_muriscvnn else []),
@@ -350,7 +359,7 @@ BACKEND_DEFAULT_CONFIG = {
     "tvmaot": {"usmp.algorithm": "hill_climb"},
     "tvmaotplus": {"usmp.algorithm": "hill_climb"},
     "tvmrt": {},
-    "tvmllvm": {}
+    "tvmllvm": {},
 }
 
 VLENS = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
@@ -714,7 +723,9 @@ def benchmark(args):
                                                                 run.add_target_by_name(target, context=context)
                                                                 if args.post:
                                                                     run.add_postprocesses_by_name(POSTPROCESSES_0)
-                                                                    run.add_postprocess(CustomPostprocess(), append=True)
+                                                                    run.add_postprocess(
+                                                                        CustomPostprocess(), append=True
+                                                                    )
                                                                     run.add_postprocesses_by_name(
                                                                         POSTPROCESSES_1, append=True
                                                                     )
@@ -727,7 +738,11 @@ def benchmark(args):
             else:
                 stage = RunStage.COMPILE if MEM_ONLY else RunStage.RUN
             success = session.process_runs(
-                until=stage, num_workers=args.parallel, progress=args.progress, context=context, per_stage=args.runs_per_stage,
+                until=stage,
+                num_workers=args.parallel,
+                progress=args.progress,
+                context=context,
+                per_stage=args.runs_per_stage,
             )
             report = session.get_reports()
         report_file = args.output

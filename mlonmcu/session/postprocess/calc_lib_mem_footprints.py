@@ -62,47 +62,23 @@ def parse_elf(elf_path):
 def analyze_linker_map_helper(mapFile):
     ret = []
     data = mapFile.toJson(humanReadable=False)
-    # print("data", data)
-    # input("!!!!")
     segments = data["segments"]
     for segment in segments:
         segment_name = segment["name"]
         files = segment["files"]
         for file in files:
-            # print("file", file)
             filepath = file["filepath"]
-            # print("filepath", filepath)
             if "(" in filepath:  # TODO: use regex instead
-                # print("if")
                 library, obj = filepath[:-1].split("(", 1)
             else:
-                # print("else")
                 library = None
                 obj = filepath
-            # STOP = False
-            # if obj == "fileops.o":
-            #     print("FOUND")
-            #     print("file", file)
-            #     STOP = True
-            #     input("123")
-            # print("library", library)
-            # print("obj", obj)
-            # input("123")
             obj_short = Path(obj).name
             library_short = Path(library).name if library is not None else library
             section_type = file["sectionType"]
-            # if section_type == ".text._ZN6tflite22MicroMutableOpResolverILj1EED0Ev":
-            #     print("section_type", section_type)
-            #     symbol_name = unmangle_helper(section_type.split(".", 2)[-1])
-            #     print("symbol_name", symbol_name)
-            #     print("file", file)
-            #     input("55")
             symbols = file["symbols"]
-            # if len(symbols) == 0:
-            # print("section_type", section_type)
             if section_type.startswith(".text."):
                 symbol_name = unmangle_helper(section_type.split(".", 2)[-1])
-                # print("unmangled", unmangled)
                 new = {
                     "segment": segment_name,
                     "section": section_type,
@@ -112,17 +88,11 @@ def analyze_linker_map_helper(mapFile):
                     "object": obj_short,
                     "object_full": obj,
                 }
-                # print("new", new)
                 ret.append(new)
-                # input("^")
-            # else:
             if ".text" not in section_type:
                 continue
             for symbol in symbols:
                 symbol_name = symbol["name"]
-                # if symbol_name == "_IO_file_close_mmap":
-                #     print("456")
-                #     input()
                 new = {
                     "segment": segment_name,
                     "section": section_type,
@@ -152,45 +122,10 @@ def generate_pie_data(df, x: str, y: str, topk: Optional[int] = None):
 
 
 def agg_library_footprint(mem_footprint_df, symbol_map_df, by: str = "library", col: str = "bytes"):
-    # ret = mem_footprint_df.copy()
-    # print("agg", by, col)
-    # input("&")
-    # print("mem_footprint_df")
     mem_footprint_df["func_unmangled"] = mem_footprint_df["func"].apply(unmangle_helper)
-    # print(mem_footprint_df[["func", "bytes"]])
-    # print("---")
-    # input("?")
-    # print("symbol_map_df")
-    # pd.set_option('display.max_columns', None)
-    # pd.set_option('display.max_rows', None)
-    # pd.set_option('display.width', 0)
-    # pd.set_option('display.max_colwidth', 1000000)
-    # print(symbol_map_df[["symbol", "object", "library"]])
-    # print("---")
-    # input("!")
-    # ret = mem_footprint_df.set_index("func").join(symbol_map_df.set_index("symbol"), how="left")
     ret = mem_footprint_df.set_index("func_unmangled").join(symbol_map_df.set_index("symbol"), how="left")
-    # print("ret.columns", ret.reset_index().columns)
-    # print("temp")
-    # for idx, row in ret.reset_index().iterrows():
-    #     # print("row", row)
-    #     if pd.isna(row["object"]):
-    #         # if "tflite" in row["func"]:
-    #         if True:
-    #             print("NONE")
-    #             print(row)
-    #             func_unmangled = row["func_unmangled"]
-    #             print("111", list(symbol_map_df["symbol"].unique()))
-    #             print("func_unmangled", func_unmangled)
-    #             input("!@#")
-    # print("---")
-    # input("$")
     ret = ret[[by, col]]
     ret = ret.groupby(by, as_index=False, dropna=False).sum()
-    # print("ret")
-    # print(ret)
-    # print("---")
-    # input("%")
     return ret
 
 

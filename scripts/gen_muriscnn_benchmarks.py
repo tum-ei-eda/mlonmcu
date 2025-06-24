@@ -108,24 +108,6 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
             ),
             axis=1,
         )
-        # df["Arch"] = df.apply(
-        #     lambda row: "RV32GCPV"
-        #     if row.get("feature_vext") and row.get("feature_pext")
-        #     else (
-        #         "RV32GCV"
-        #         if row.get("feature_vext")
-        #         else (
-        #             "RV32GCP"
-        #             if row.get("feature_pext")
-        #             else (
-        #                 "MVEI+DSP"
-        #                 if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
-        #                 else ("MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else "RV32GC"))
-        #             )
-        #         )
-        #     ),
-        #     axis=1,
-        # )
         df["Arch"] = None
         for target in targets:
             if f"config_{target}.final_arch" in df.columns:
@@ -713,7 +695,8 @@ def benchmark(args):
                                                                     per_stage=args.runs_per_stage,
                                                                 )
                                                                 config.update(user_config)  # TODO
-                                                                # resolve_missing_configs(config, features, target, context)
+                                                                # resolve_missing_configs(config, features,
+                                                                #   target, context)
                                                                 run = session.create_run(config=config)
                                                                 run.add_features_by_name(features, context=context)
                                                                 run.add_platform_by_name(PLATFORM, context=context)

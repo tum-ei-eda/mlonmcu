@@ -121,6 +121,17 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         ),
     ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
+    (
+        "iree",
+        (
+            "Requirements for using iree",
+            [
+                "iree-turbine",
+                "tensorflow",
+                "tflite",
+            ],
+        ),
+    ),
     # Provide support for microtvm.
     (
         "microtvm",
@@ -194,17 +205,6 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             "Requirements for using zephyr",
             [
                 "pyserial",  # for custom monitor
-            ],
-        ),
-    ),
-    (
-        "iree",
-        (
-            "Requirements for using iree",
-            [
-                "iree-turbine",
-                "tensorflow",
-                "tflite",
             ],
         ),
     ),

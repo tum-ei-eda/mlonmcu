@@ -973,7 +973,10 @@ class IREEBackend(Backend):
             ret = self.invoke_iree(self.iree_c_embed_data_exe, *args, cwd=cwd)
         return ret
 
-    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
+    def load_model(
+        self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None
+    ):
+        assert params_path is None
         self.model = model
         self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
         # TODO: path model class instead of path!

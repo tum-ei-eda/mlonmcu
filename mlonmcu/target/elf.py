@@ -37,6 +37,17 @@ Heavility inspired by get_metrics.py found in the ETISS repository
 """
 
 
+def get_code_size_from_static_lib(lib_path):
+    total_size = 0
+    with open(lib_path, "rb") as f:
+        elf = elffile.ELFFile(f)
+        for section in elf.iter_sections():
+            # Look for executable sections whose names start with .text
+            if section.name.startswith(".text"):
+                total_size += section["sh_size"]
+    return total_size
+
+
 def parseElf(inFile):
     """Extract static memory usage details from ELF file by mapping each segment."""
     # TODO: check if this is generic anough for multiple platforms (riscv, arm, x86)

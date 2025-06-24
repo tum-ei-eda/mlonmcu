@@ -32,7 +32,7 @@ from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target.target import Target
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list, str2dict
 
 from ..platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_platform_target, get_espidf_platform_targets
@@ -64,6 +64,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "wait_for_user": True,
         "flash_only": False,
         "newlib_nano_fmt": True,
+        "idf_build_extra_args": None,
+        "extra_cmake_defs": None,
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -126,6 +128,16 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         # TODO: get rid of this
         value = self.config["flash_only"]
         return str2bool(value)
+
+    @property
+    def idf_build_extra_args(self):
+        value = self.config["idf_build_extra_args"]
+        return str2list(value, allow_none=True)
+
+    @property
+    def extra_cmake_defs(self):
+        value = self.config["extra_cmake_defs"]
+        return str2dict(value, allow_none=True)
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()
@@ -300,6 +312,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     def get_idf_cmake_args(self):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
+        if self.extra_cmake_defs:
+            cmake_defs.update(self.extra_cmake_defs)
         return [f"-D{key}={value}" for key, value in cmake_defs.items()]
 
     def compile(self, target, src=None):
@@ -313,6 +327,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             *self.get_idf_cmake_args(),
             "build",
         ]
+        if self.idf_build_extra_args:
+            idfArgs.extend(self.idf_build_extra_args)
         out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
         return out
 

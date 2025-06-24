@@ -107,6 +107,7 @@ class Target:
     def temp_dir_base(self):
         return self.config["temp_dir_base"]
 
+    @property
     def fclk(self):
         value = self.config["fclk"]
         return int(float(value)) if value is not None else None

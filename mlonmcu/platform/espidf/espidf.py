@@ -66,6 +66,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "newlib_nano_fmt": True,
         "idf_build_extra_args": None,
         "extra_cmake_defs": None,
+        "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -224,6 +225,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def baud(self):
         return self.config["baud"]
 
+    @property
+    def optimize(self):
+        val = str(self.config["optimize"])
+        assert val in ["0", "g", "2", "s", "z"]
+        return val
+
     def close(self):
         if self.tempdir:
             self.tempdir.cleanup()
@@ -285,11 +292,18 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write(f"CONFIG_NEWLIB_NANO_FORMAT={newlib_nano_fmt_val}\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")
-                    optimize_for_size = True
-                    if optimize_for_size:
+                    optimize_size = self.optimize in ["s", "z"]
+                    optimize_speed = self.optimize == "2"
+                    optimize_none = self.optimize == "0"
+                    optimize_debug = self.optimize == "g"
+                    if optimize_size:
                         f.write("CONFIG_COMPILER_OPTIMIZATION_SIZE=y\n")
-                    else:
+                    elif optimize_speed:
                         f.write("CONFIG_COMPILER_OPTIMIZATION_PERF=y\n")
+                    elif optimize_none:
+                        f.write("CONFIG_COMPILER_OPTIMIZATION_NONE=y\n")
+                    elif optimize_debug:
+                        f.write("CONFIG_COMPILER_OPTIMIZATION_DEBUG=y\n")  # deprecated with IDF v6
                 watchdog_sec = 60
                 f.write(f"CONFIG_ESP_TASK_WDT_TIMEOUT_S={watchdog_sec}\n")
                 f.write(f'CONFIG_MLONMCU_CODEGEN_DIR="{src}"\n')

@@ -228,7 +228,7 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
         label = lookup_session_label(session_labels, sid)
         if label is None:
             label = "unknown"
-        session = Session(idx=sid, label=label, archived=True, dir=session_directory)
+        session = Session(idx=sid, label=label, archived=True, dest=session_directory)
         session.runs = runs
         session.dir = session_directory
         sessions.append(session)
@@ -346,7 +346,7 @@ class MlonMcuContext:
         self.cache = TaskCache()
         self.export_paths = set()
 
-    def create_session(self, label="", config=None):
+    def create_session(self, label="", config=None, dest: Optional[Union[str, Path]] = None):
         try:
             lock = self.latest_session_link_lock.acquire(timeout=10)
         except filelock.Timeout as err:
@@ -361,7 +361,7 @@ class MlonMcuContext:
                 sessions_directory = temp_directory / "sessions"
                 sessions_directory.mkdir(exist_ok=True, parents=True)
                 session_dir = sessions_directory / str(idx)
-                session = Session(idx=idx, label=label, dir=session_dir, config=config)
+                session = Session(idx=idx, label=label, dest=dest if dest is not None else session_dir, config=config)
                 self.sessions.append(session)
                 self.session_idx = idx
                 # TODO: move this to a helper function
@@ -388,6 +388,10 @@ class MlonMcuContext:
 
     def load_extensions(self):
         """If available load the extensions.py scripts in the plugin directories"""
+        if self.environment:
+            allow_extensions = self.environment.vars.get("allow_extensions", False)
+            if not allow_extensions:
+                return
 
         # TODO: check vars.enable_extensions before!
         def _load(plugins_dir, hint="Unknown"):
@@ -395,7 +399,7 @@ class MlonMcuContext:
                 extensions_file = plugins_dir / "extensions.py"
                 if extensions_file.is_file():
                     logger.info(f"Loading extensions.py ({hint})")
-                    process_extensions(extensions_file)
+                    process_extensions(extensions_file, desc=hint.lower())
 
         # global (user)
         plugins_dir = Path(get_plugins_dir())
@@ -408,7 +412,7 @@ class MlonMcuContext:
                     plugins_dir = self.environment.paths["plugins"].path
                     _load(plugins_dir, hint="Environment")
 
-    def get_session(self, label="", resume=False, config=None) -> Session:
+    def get_session(self, label="", resume=False, config=None, dest=None) -> Session:
         """Get an active session if available, else create a new one.
 
         Returns
@@ -423,8 +427,9 @@ class MlonMcuContext:
             raise NotImplementedError
 
         if self.session_idx < 0 or not self.sessions[-1].active:
-            self.create_session(label=label, config=config)
-        return self.sessions[-1]
+            self.create_session(label=label, config=config, dest=dest)
+        ret = self.sessions[-1]
+        return ret
 
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")

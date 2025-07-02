@@ -63,6 +63,7 @@ class Target:
     DEFAULTS = {
         "print_outputs": False,
         "repeat": None,
+        "fclk": None,
     }
 
     REQUIRED = set()
@@ -101,6 +102,11 @@ class Target:
     def repeat(self):
         return self.config["repeat"]
 
+    @property
+    def fclk(self):
+        value = self.config["fclk"]
+        return int(float(value)) if value is not None else None
+
     def __repr__(self):
         return f"Target({self.name})"
 
@@ -128,7 +134,7 @@ class Target:
 
     def parse_exit(self, out):
         exit_code = None
-        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+        exit_match = re.search(r"MLONMCU EXIT: (\d*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
         return exit_code

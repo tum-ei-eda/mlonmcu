@@ -18,8 +18,6 @@ limitations under the License.
 ]]
 
 
-#SET(COMPONENTS TODO)
-
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS ""
-                    REQUIRES mlif)
+                    REQUIRES mlif esp_timer)

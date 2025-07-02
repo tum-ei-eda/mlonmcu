@@ -32,27 +32,29 @@ from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
-from .riscv import RISCVTarget
+
+# from .riscv import RISCVTarget
+from .riscv_vext_target import RVVTarget
 
 logger = get_logger()
 
 
-class EtissTarget(RISCVTarget):
+# class EtissTarget(RISCVTarget):
+class EtissTarget(RVVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES | {
+    FEATURES = RVVTarget.FEATURES | {
         "gdbserver",
         "etissdbg",
         "trace",
         "log_instrs",
         "pext",
-        "vext",
         "xcorev",
         "vanilla_accelerator",
     }
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
+        **RVVTarget.DEFAULTS,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
@@ -67,9 +69,6 @@ class EtissTarget(RISCVTarget):
         "ram_start": 0x1000000 + 0x800000,
         "ram_size": 0x4000000,  # 64 MB
         "cycle_time_ps": 31250,  # 32 MHz
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
         "enable_pext": False,
         "pext_spec": 0.96,
         "vlen": 0,  # vectorization=off
@@ -98,8 +97,10 @@ class EtissTarget(RISCVTarget):
         "jit_verify": False,
         "jit_debug": False,
         "load_integrated_libraries": True,
+        "fclk": 100e6,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
+    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
+    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -121,6 +122,14 @@ class EtissTarget(RISCVTarget):
     @property
     def etiss_exe(self):
         return self.config["etissvp.exe"]
+
+    @property
+    def boost_install_dir(self):
+        value = self.config["boost.install_dir"]
+        if value is not None:
+            value = Path(value)
+            assert value.is_dir()
+        return value
 
     @property
     def gdbserver_enable(self):
@@ -195,15 +204,12 @@ class EtissTarget(RISCVTarget):
     def cpu_arch(self):
         if self.config.get("cpu_arch", None):
             return self.config["cpu_arch"]
-        elif self.enable_pext or self.enable_vext:
+        elif self.enable_pext and self.enable_vext:
             return f"RV{self.xlen}IMACFDPV"
+        elif self.enable_vext:
+            return f"RV{self.xlen}IMACFDV"
         else:
             return f"RV{self.xlen}IMACFD"
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value)
 
     @property
     def enable_pext(self):
@@ -328,8 +334,6 @@ class EtissTarget(RISCVTarget):
         if self.enable_xcorevhwlp:
             if "xcorevhwlp" not in attrs:
                 attrs.append("+xcvhwlp")
-        if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
-            attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)
 
     @property
@@ -386,15 +390,6 @@ class EtissTarget(RISCVTarget):
     @property
     def load_integrated_libraries(self):
         value = self.config["load_integrated_libraries"]
-        return str2bool(value)
-
-    @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
         return str2bool(value)
 
     @property
@@ -461,12 +456,12 @@ class EtissTarget(RISCVTarget):
             # TODO: do not hardcode cpu_arch
             # TODO: i.e. use cpu_arch_lower
             ret["arch.rv32imacfdpv.mstatus_fs"] = 1
-        if self.enable_vext:
-            ret["arch.rv32imacfdpv.mstatus_vs"] = 1
-            if self.vlen > 0:
-                ret["arch.rv32imacfdpv.vlen"] = self.vlen
-            if self.elen > 0:
-                ret["arch.rv32imacfdpv.elen"] = self.elen
+        # if self.enable_vext:
+        #     ret["arch.rv32imacfdpv.mstatus_vs"] = 1
+        #     if self.vlen > 0:
+        #         ret["arch.rv32imacfdpv.vlen"] = self.vlen
+        #     if self.elen > 0:
+        #         ret["arch.rv32imacfdpv.elen"] = self.elen
         log_level = self.log_level
         if log_level is None and not self.use_run_helper:
             log_level = 5 if self.verbose else 4
@@ -519,18 +514,30 @@ class EtissTarget(RISCVTarget):
             ini_plugin = self.get_ini_plugin_config()
             for plugin_name in self.get_plugin_names():
                 f.write(f"[Plugin {plugin_name}]\n")
-                cfg = ini_plugin.pop(plugin_name, {})
+                LOOKUP = {
+                    "TracePrinterPlugin": "tracePrinter",
+                    "PerformanceEstimatorPlugin": "perfEst",
+                }
+                plugin_name_ = LOOKUP.get(plugin_name, plugin_name)
+                cfg = ini_plugin.pop(plugin_name_, {})
+                for key, value in cfg.items():
+                    if isinstance(value, bool):
+                        val = "true" if value else "false"
+                    else:
+                        val = value
+                    f.write(f"plugin.{plugin_name_}.{key}={val}\n")
+            # Check for remaining configs
+            for plugin_name, cfg in ini_plugin.items():
+                if len(cfg) == 0:
+                    continue
+                # logger.warning("Skipping config %s for disabled plugin %s", cfg, plugin_name)
+                # FIXME: For etiss_perf there is a missmtach between plugin name and config prefix
                 for key, value in cfg.items():
                     if isinstance(value, bool):
                         val = "true" if value else "false"
                     else:
                         val = value
                     f.write(f"plugin.{plugin_name}.{key}={val}\n")
-            # Check for remaining configs
-            for plugin_name, cfg in ini_plugin.items():
-                if len(cfg) == 0:
-                    continue
-                logger.warning("Skipping config %s for disabled plugin %s", cfg, plugin_name)
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
@@ -552,7 +559,7 @@ class EtissTarget(RISCVTarget):
                 etiss_script_args.append("tgdb")
                 if not self.gdbserver_attach:
                     etiss_script_args.append("noattach")
-                etiss_script_args.append("--plugin.gdbserver.port={self.gdbserver_port}")
+                etiss_script_args.append(f"--plugin.gdbserver.port={self.gdbserver_port}")
                 if self.gdbserver_attach:
                     raise NotImplementedError("etiss.gdbserver_attach requires etiss.use_run_helper=1")
         if self.trace_memory:
@@ -567,7 +574,8 @@ class EtissTarget(RISCVTarget):
                 etiss_script_args.append("logpc")
         if not self.enable_dmi:
             if self.use_run_helper:
-                etiss_script_args.append("nodmi")
+                if "nodmi" not in etiss_script_args:
+                    etiss_script_args.append("nodmi")
         if self.verbose:
             etiss_script_args.append("v")
         # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
@@ -588,6 +596,19 @@ class EtissTarget(RISCVTarget):
         # if self.timeout_sec > 0:
         script = self.etiss_script if self.use_run_helper else self.etiss_exe
         script = Path(script).resolve()
+        if "env" in kwargs:
+            env = kwargs["env"]
+        else:
+            env = os.environ.copy()
+        if self.boost_install_dir is not None:
+            boost_lib_dir = self.boost_install_dir / "lib"
+            ld_library_path = env.get("LD_LIBRARY_PATH", None)
+            if len(ld_library_path) > 0:
+                ld_library_path = f"{boost_lib_dir}:{ld_library_path}"
+            else:
+                ld_library_path = boost_lib_dir
+            env["LD_LIBRARY_PATH"] = ld_library_path
+            kwargs["env"] = env
         if False:
             ret = exec_timeout(
                 self.timeout_sec,
@@ -676,6 +697,11 @@ class EtissTarget(RISCVTarget):
         exit_code = 0
         metrics = Metrics()
         self.parse_stdout(out, metrics, exit_code=exit_code)
+        if not metrics.has("Runtime [s]") and self.fclk:
+            if metrics.has("Total Cycles"):
+                cycles = metrics.get("Total Cycles")
+                if cycles > 0:
+                    metrics.add("Runtime [s]", cycles / self.fclk, True)
 
         get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
@@ -757,20 +783,12 @@ class EtissTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         assert platform == "mlif"
         assert self.is_bare, "ETISS Target needs baremetal toolchain (riscv[32|64]-unknown-elf)"
-        ret = super().get_platform_defs(platform)
+        ret = {}
         ret["MEM_ROM_ORIGIN"] = self.rom_start
         ret["MEM_ROM_LENGTH"] = self.rom_size
         ret["MEM_RAM_ORIGIN"] = self.ram_start
         ret["MEM_RAM_LENGTH"] = self.ram_size
-        if self.enable_pext:
-            major, minor = str(self.pext_spec).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(self.vext_spec).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
+        ret.update(RVVTarget.get_platform_defs(self, platform))
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

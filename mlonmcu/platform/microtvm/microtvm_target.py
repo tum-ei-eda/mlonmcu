@@ -45,7 +45,7 @@ MICROTVM_PLATFORM_TARGET_REGISTRY = {}
 
 
 def register_microtvm_platform_target(target_name, t, override=False):
-    global MICROTVM_PLATFORM_TARGET_REGISTRY
+    # global MICROTVM_PLATFORM_TARGET_REGISTRY
 
     if target_name in MICROTVM_PLATFORM_TARGET_REGISTRY and not override:
         raise RuntimeError(f"MicroTVM platform target {target_name} is already registered")

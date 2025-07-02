@@ -44,10 +44,10 @@ class MyPlatformB(TargetPlatform):
             config=config,
         )
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         return ["target_1"]
 
-    def get_supported_backends(self):
+    def _get_supported_backends(self):
         return ["backend_1"]
 
 

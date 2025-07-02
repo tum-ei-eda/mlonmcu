@@ -31,12 +31,12 @@ paths:
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: ca5358f4680dbd94717a4c6bd77186bc1c799e1b
+    ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
     options:
       single_branch: true
   tvm:
-    url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
-    ref: develop-rebased
+    url: "https://github.com/apache/tvm.git"
+    ref: v0.17.0
     options:
       recursive: true
       submodules:
@@ -46,39 +46,49 @@ repos:
         - 3rdparty/rang
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: bc60b2d2f541e1fee6352b9c9ab7cb442ff59bf4
+    ref: cec46aa94277417b3cb48bdb0dcd783abbe670da
+  etiss:
+    url: "https://github.com/danielschloms/etiss.git"
+    ref: 69e4b230ef5e76387a574917e22062036f494efe  # daniel-dev
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: 573c858d9071a2216537f71de651a814f76ee76d
+    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
-    ref: 51263182d16c92649a48144ba56c0945f9fce60e
+    ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
     options:
       single_branch: true
       # Shallow clone could save 200MB clone size, but not really possible with commit
       # shallow: true
   cmsisnn:
     url: "https://github.com/ARM-software/CMSIS-NN.git"
-    ref: ffeca904368926d60caeb2d97858215626892f35
+    ref: v6.0.0
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 5914b4a76218816b5f21539ba7ad72ac1979525b
+    ref: 3d950d03143644b48e69e22e0ce0fa4b340e1c7a
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
+    ref: b1e53bdae24bb35e53d7cdad2917a9090f7fa933
   microtvm_spike:
     url: "https://github.com/PhilippvK/microtvm-spike-template.git"
-    ref: ddaaf4554aaafb0a509cd4d9db3397e07b512d9d
+    ref: ffba460345f5b8682e2a6cb315699ff872c6221e
   tflite_pack:
     url: "https://github.com/tum-ei-eda/tflite-pack.git"
-    ref: 439b78d36456f716629ad9dbaff9734baaa75db9
+    ref: 2d31cafc941d3889b042af9c0a72b5f768ac4606
   vicuna:
     url: "https://github.com/vproc/vicuna.git"
     ref: c1484ec8fa9f1106505a4ca246af39a66420a1d0
+  vicuna2:
+    url: "https://github.com/vproc/vicuna2_tinyml_benchmarking.git"
+    ref: 81b91a89e249e7c40ad45615b3917f040ae18701
   verilator:
     url: "https://github.com/verilator/verilator"
     # ref: tags/v4.210
-    ref: tags/v4.222
+    # ref: tags/v4.222
+    ref: tags/v5.030
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main
@@ -178,30 +188,6 @@ frontends:
     enabled: true
   mibench:
     enabled: true
-# List of supported targets in the environment
-targets:
-  default: vicuna
-  host_x86:
-    enabled: true
-    features:
-      gdbserver: true
-  spike:
-    enabled: true
-    features:
-      vext: true
-      pext: false
-      cachesim: true
-      log_instrs: true
-  vicuna:
-    enabled: true
-    features:
-      vext: true
-  microtvm_host:
-    enabled: true
-  microtvm_spike:
-    enabled: true
-  tvm_cpu:
-    enabled: true
 # Some targets/platforms support multiple toolchains
 toolchains:
   gcc: true
@@ -225,6 +211,44 @@ platforms:
       autotvm: true
       benchmark: true
       tvm_profile: true
+# List of supported targets in the environment
+targets:
+  default: etiss
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+  etiss:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+      vext: true
+  spike:
+    enabled: true
+    features:
+      vext: true
+      pext: false
+      cachesim: true
+      log_instrs: true
+  vicuna:
+    enabled: true
+    features:
+      vext: true
+  vicuna2:
+    enabled: true
+    features:
+      vext: true
+  microtvm_host:
+    enabled: true
+  microtvm_spike:
+    enabled: true
+  microtvm_etiss:
+    enabled: true
+  tvm_cpu:
+    enabled: true
 postprocesses:
   use:
   # - detailed_cycles
@@ -240,13 +264,24 @@ vars:
   runs_per_stage: true
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/16.0.6/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
-  riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32im_ilp32.tar.xz"
-  riscv_gcc_rv32.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32imv_ilp32.tar.xz"
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_19.1.1/clang+llvm-19.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"  # TODO: LLVM 20
+  # riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei-ilp32.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei-ilp32.tar.xz"  # TODO: GCC 14+
+  # riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_zve32x-ilp32.tar.xz"  # TODO: GCC 14+
+  riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_zve32x-ilp32.tar.xz"  # TODO: GCC 14+
+  # TODO: f, zve32f, zhf, zvfh
+  # TODO: vicuna2 target, vicuna2 configs etc.
   spike.keep_build_dir: false
   etiss.keep_build_dir: false
   spikepk.enable_rv32: true
   spikepk.enable_rv64: false
   spikepk_rv32.default_arch: rv32im_zicsr_zifencei
   spikepk_rv32.default_abi: ilp32
+  etiss_rv32.fpu: none
+  etiss_rv32.compressed: false
+  etiss_rv32.atomic: false
+  etiss_rv32.cpu_arch: RV32IMACFDV
+  spike_rv32.fpu: none
+  spike_rv32.compressed: false
+  spike_rv32.atomic: false
 flags: {}

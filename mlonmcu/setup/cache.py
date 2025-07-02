@@ -65,6 +65,11 @@ class TaskCache:
         name = convert_key(name)
         return name in self._vars.keys()
 
+    def get(self, name, default=None):
+        if name in self:
+            return self[name]
+        return default
+
     def find_best_match(self, name: str, flags=[]) -> Any:
         """Utility whih tries to resolve the cache entry with the beste match.
 

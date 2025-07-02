@@ -24,13 +24,16 @@ from .riscv import (
     RiscvQemuTarget,
     GvsocPulpTarget,
     EtissTarget,
+    EtissPerfTarget,
     EtissRV32Target,
     EtissRV64Target,
     AraTarget,
     AraRtlTarget,
     CV32E40PTarget,
     VicunaTarget,
+    Vicuna2Target,
     CanMvK230SSHTarget,
+    TGCTarget,
 )
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
@@ -40,7 +43,7 @@ TARGET_REGISTRY = {}
 
 
 def register_target(target_name, t, override=False):
-    global TARGET_REGISTRY
+    # global TARGET_REGISTRY
 
     if target_name in TARGET_REGISTRY and not override:
         raise RuntimeError(f"Target {target_name} is already registered")
@@ -53,6 +56,7 @@ def get_targets():
 
 register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
+register_target("etiss_perf", EtissPerfTarget)
 register_target("etiss_rv32", EtissRV32Target)
 register_target("etiss_rv64", EtissRV64Target)
 register_target("host_x86", HostX86Target)
@@ -70,4 +74,6 @@ register_target("ara", AraTarget)
 register_target("ara_rtl", AraRtlTarget)
 register_target("cv32e40p", CV32E40PTarget)
 register_target("vicuna", VicunaTarget)
+register_target("vicuna2", Vicuna2Target)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
+register_target("tgc", TGCTarget)

@@ -164,13 +164,14 @@ class Model(Workload):
         "inputs_path": None,
         "outputs_path": None,
         "output_labels_path": None,
+        "params_path": None,
     }
 
     def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
         super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
-            self.paths = [self.path]
+            self.paths = [self.paths]
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
@@ -253,6 +254,15 @@ class Model(Workload):
     def output_labels_path(self):
         # TODO: fall back to metadata
         value = self.config["output_labels_path"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
+
+    @property
+    def params_path(self):
+        value = self.config["params_path"]
         if value is not None:
             if not isinstance(value, Path):
                 assert isinstance(value, str)

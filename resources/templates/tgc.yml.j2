@@ -1,0 +1,162 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: v0.17.0
+    options:
+      recursive: true
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: cec46aa94277417b3cb48bdb0dcd783abbe670da
+  etiss:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: 739573d5f12798074bc7d375a46c005f23f59f67  # develop, 23.01.2024
+  spike:
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+  spikepk:
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
+    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: c8cabf059fb8102890ce32143b93a4d30c032a22
+  tgc:
+    url: "https://github.com/Minres/TGC-ISS.git"
+    ref: b7c0f20db6b66fe23dc1e3e331ee5c65aa3f5989
+    options:
+      recursive: true
+  tgc_bsp:
+    url: "https://git.minres.com/Firmware/MNRS-BM-BSP.git"
+    ref: a33b51a7086b6f03a34c9f1d489aa0370bee9ccd
+  tgc_gen:
+    url: "https://git.minres.com/TGFS/TGC-GEN.git"
+    ref:
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tflm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: false
+      cmsisnn: false
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotune: true
+          autotuned: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: false
+          disable_legalize: false
+          autotune: true
+          autotuned: true
+      tvmllvm:
+        enabled: false
+        features:
+          # unpacked_api: true
+          disable_legalize: true
+          autotune: true
+          autotuned: true
+    features:
+      cmsisnnbyoc: false
+      muriscvnnbyoc: false
+# Some frontends are eperimental and therefore disabled here
+# Features like packing are only available in certain environments
+#
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: false
+  relay:
+    enabled: false
+    features:
+      relayviz: false
+  onnx:
+    enabled: false
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+  microtvm:
+    enabled: false
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: tgc
+  host_x86:
+    enabled: false
+    features:
+      gdbserver: true
+  tgc:
+    enabled: true
+postprocesses:
+  use: []
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  # tvm.make_tool: "ninja"
+  llvm.version: "11.1.0"
+  llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
+  runs_per_stage: true
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei-ilp32.tar.xz"
+flags: {}

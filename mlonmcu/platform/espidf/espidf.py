@@ -227,8 +227,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def optimize(self):
-        val = str(self.config["optimize"])
-        assert val in ["0", "g", "2", "s", "z"]
+        val = self.config["optimize"]
+        if val is None:
+            val = "s"
+        else:
+            val = str(val)
+        assert val in ["0", "g", "2", "s", "z"], f"Unsupported: {val}"
         return val
 
     def close(self):

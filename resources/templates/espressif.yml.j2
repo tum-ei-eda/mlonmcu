@@ -1,0 +1,146 @@
+---
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+paths:
+  deps: deps
+  logs: logs
+  results: results
+  plugins: plugins
+  temp: temp
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: v0.17.0
+    options:
+      recursive: true
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: cec46aa94277417b3cb48bdb0dcd783abbe670da
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 3d950d03143644b48e69e22e0ce0fa4b340e1c7a
+  espidf:
+    url: "https://github.com/espressif/esp-idf.git"
+    ref: v5.4
+    options:
+      recursive: true
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: true
+      cmsisnn: false
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaotplus:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmllvm:
+        enabled: true
+        features:
+          # unpacked_api: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+    features:
+      cmsisnnbyoc: false
+      muriscvnnbyoc: false
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: true
+      split_layers: false
+  relay:
+    enabled: true
+    features:
+      relayviz: true
+toolchains:
+  gcc: true
+  llvm: false
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+      benchmark: true
+  espidf:
+    enabled: true
+    features:
+      debug: true
+  microtvm:
+    enabled: true
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: esp32c3
+  # default: etiss
+  # etiss:
+  #   enabled: true
+  #   features:
+  #     gdbserver: true
+  #     etissdbg: true
+  #     trace: true
+  #     log_instrs: true
+  #     # vext: true
+  #     # pext: true
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+  microtvm_host:
+    enabled: true
+  microtvm_espidf:
+    enabled: false
+postprocesses:
+  use: []
+vars:
+  allow_extensions: false
+  runs_per_stage: true
+  # llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/18.1.8/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
+  # riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
+flags: {}

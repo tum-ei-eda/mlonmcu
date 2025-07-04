@@ -36,11 +36,17 @@
 #define HAS_INSTRUCTIONS 0
 #define HAS_TIME 1
 
+#ifndef PCER_INIT_VAL
+// See: https://www.espressif.com/sites/default/files/documentation/esp32-c3_technical_reference_manual_en.pdf
+// Count cycles by default
+#define PCER_INIT_VAL 1
+#endif
+
 // TODO: move pre and post stuff to mlif or somewhere else?
 
 void target_init() {
     printf("MLonMCU: START\n");
-    RV_WRITE_CSR(CSR_PCER_MACHINE,8);
+    RV_WRITE_CSR(CSR_PCER_MACHINE, PCER_INIT_VAL);
 }
 
 void target_deinit() {

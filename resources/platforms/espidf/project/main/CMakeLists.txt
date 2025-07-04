@@ -21,3 +21,8 @@ limitations under the License.
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS ""
                     REQUIRES mlif esp_timer)
+
+
+set(PCER_INIT_VAL "1" CACHE STRING "Performance counter setting")
+
+target_compile_definitions(${COMPONENT_TARGET} PRIVATE "-DPCER_INIT_VAL=${PCER_INIT_VAL}")

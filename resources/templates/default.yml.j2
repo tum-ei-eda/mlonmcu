@@ -53,6 +53,12 @@ repos:
   etiss:
     url: "https://github.com/tum-ei-eda/etiss.git"
     ref: 739573d5f12798074bc7d375a46c005f23f59f67  # develop, 23.01.2024
+  etiss_perf:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: TODO
+  etiss_perf_plugin:
+    url: "https://github.com/tum-ei-eda/SoftwareEvalLib.git"
+    ref: TODO
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
     ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
@@ -227,6 +233,13 @@ targets:
       log_instrs: true
       # vext: true
       # pext: true
+  etiss_perf:
+    enabled: false
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
   host_x86:
     enabled: true
     features:
@@ -264,6 +277,8 @@ targets:
     enabled: false
   microtvm_etiss:
     enabled: true
+  microtvm_etiss_perf:
+    enabled: false
   microtvm_espidf:
     enabled: false
   tvm_cpu:

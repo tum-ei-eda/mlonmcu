@@ -102,7 +102,7 @@ class EtissTarget(RISCVTarget):
         "load_integrated_libraries": True,
         "fclk": 100e6,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
+    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etiss.exe", "etiss.script"}
     OPTIONAL = RISCVTarget.OPTIONAL | {"boost.install_dir"}
 
     def __init__(self, name="etiss", features=None, config=None):
@@ -120,11 +120,11 @@ class EtissTarget(RISCVTarget):
 
     @property
     def etiss_script(self):
-        return self.config["etissvp.script"]
+        return self.config["etiss.script"]
 
     @property
     def etiss_exe(self):
-        return self.config["etissvp.exe"]
+        return self.config["etiss.exe"]
 
     @property
     def boost_install_dir(self):

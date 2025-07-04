@@ -223,7 +223,7 @@ def build_etiss_perf(
 
 
 @Tasks.needs(["etiss.build_dir"])
-@Tasks.provides(["etiss.install_dir", "etissvp.exe", "etissvp.script"])
+@Tasks.provides(["etiss.install_dir", "etiss.exe", "etiss.script"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss_build)
 @Tasks.register(category=TaskType.TARGET)
@@ -234,7 +234,7 @@ def install_etiss(
     if not params:
         params = {}
     user_vars = context.environment.vars
-    if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
+    if "etiss.install_dir" in user_vars and "etiss.exe" in user_vars and "etiss.script" in user_vars:
         return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)
@@ -245,8 +245,8 @@ def install_etiss(
     if rebuild or not utils.is_populated(etissInstallDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.install_dir", flags] = etissInstallDir
-    context.cache["etissvp.exe", flags] = etissvpExe
-    context.cache["etissvp.script", flags] = etissvpScript
+    context.cache["etiss.exe", flags] = etissvpExe
+    context.cache["etiss.script", flags] = etissvpScript
 
 
 @Tasks.needs(["etiss_perf.build_dir"])
@@ -288,7 +288,7 @@ def clean_etiss(
     if not params:
         params = {}
     user_vars = context.environment.vars
-    if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
+    if "etiss.install_dir" in user_vars and "etiss.exe" in user_vars and "etiss.script" in user_vars:
         return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)

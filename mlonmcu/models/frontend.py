@@ -39,6 +39,7 @@ from mlonmcu.models.model import (
     MathisProgram,
     MibenchProgram,
     OpenASIPProgram,
+    RVVBenchProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -2140,4 +2141,65 @@ class OpenASIPFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["template"] = "openasip"
+        return ret
+
+
+class RVVBenchFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "rvv_bench",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "instructions_scalar",
+            "instructions_rvv",
+            "memcpy",
+            "memset",
+            "utf8_count",
+            "strlen",
+            "mergelines",
+            "mandelbrot",
+            "chacha20",
+            "poly1305",
+            "ascii_to_utf16",
+            "ascii_to_uft32",
+            "byteswap",
+            "LUT4",
+            "LUT6",
+            "hist",
+            "base64_encode",
+        ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("rvv_bench/", "")
+            if name in self.supported_names:
+                hint = RVVBenchProgram(
+                    name,
+                    alt=f"rvv_bench/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "rvv_bench"
         return ret

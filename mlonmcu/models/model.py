@@ -441,3 +441,13 @@ class OpenASIPProgram(Program):
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret
+
+
+class RVVBenchProgram(Program):
+    DEFAULTS = {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["RVV_BENCH_BENCHMARK"] = self.name
+        return ret

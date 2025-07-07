@@ -27,7 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
-from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
+from mlonmcu.models.model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .python_utils import prepare_python_environment

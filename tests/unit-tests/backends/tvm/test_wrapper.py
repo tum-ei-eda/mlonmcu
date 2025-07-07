@@ -19,7 +19,7 @@
 import pytest
 
 from mlonmcu.flow.tvm.backend import wrapper
-from mlonmcu.flow.tvm.backend.model_info import TensorInfo, ModelInfo
+from mlonmcu.models.model_info import TensorInfo, ModelInfo
 
 DUMMY_GRAPH_JSON = "{}"
 DUMMY_PARAMS = bytes()

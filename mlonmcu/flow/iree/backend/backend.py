@@ -28,7 +28,7 @@ from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
 from mlonmcu.target.elf import get_code_size_from_static_lib
-from mlonmcu.flow.tvm.backend.model_info import (
+from mlonmcu.models.model_info import (
     get_model_info,
     # get_fallback_model_info,
     # get_supported_formats,

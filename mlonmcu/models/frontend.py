@@ -40,6 +40,7 @@ from mlonmcu.models.model import (
     MibenchProgram,
     OpenASIPProgram,
     RVVBenchProgram,
+    ISSBenchProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -2202,4 +2203,51 @@ class RVVBenchFrontend(SimpleFrontend):
         ret = {}
         if platform == "mlif":
             ret["template"] = "rvv_bench"
+        return ret
+
+
+class ISSBenchFrontend(SimpleFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "iss_bench",
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "large_block",
+            "branch_heavy",
+            "mem_heavy",
+        ]
+
+    # @property
+    # def skip_backend(self):
+    #     return True
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace("iss_bench/", "")
+            if name in self.supported_names:
+                hint = ISSBenchProgram(
+                    name,
+                    alt=f"iss_bench/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "iss_bench"
         return ret

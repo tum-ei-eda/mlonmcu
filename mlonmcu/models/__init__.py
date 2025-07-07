@@ -35,6 +35,7 @@ from .frontend import (
     LayerGenFrontend,
     OpenASIPFrontend,
     RVVBenchFrontend,
+    ISSBenchFrontend,
 )
 
 SUPPORTED_FRONTENDS = {
@@ -55,6 +56,7 @@ SUPPORTED_FRONTENDS = {
     "layergen": LayerGenFrontend,
     "openasip": OpenASIPFrontend,
     "rvv_bench": RVVBenchFrontend,
+    "iss_bench": ISSBenchFrontend,
 }  # TODO: use registry instead
 
 __all__ = [

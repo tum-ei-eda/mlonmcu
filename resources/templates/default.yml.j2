@@ -71,7 +71,7 @@ repos:
     ref: v6.0.0
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 379f5eabe7c0e939518dff69795aaff9d6dfad72
+    ref: 2ee9827eee98e2a3f80ffcc421b0a1288f2b76f5
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4  # TODO: v5.2
@@ -174,6 +174,12 @@ frontends:
     enabled: true
   layergen:
     enabled: true
+  example:
+    enabled: true
+  rvv_bench:
+    enabled: false
+  iss_bench:
+    enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # Some targets/platforms support multiple toolchains
 toolchains:

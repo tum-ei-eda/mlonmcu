@@ -441,3 +441,43 @@ class OpenASIPProgram(Program):
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret
+
+
+class RVVBenchProgram(Program):
+    DEFAULTS = {}
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["RVV_BENCH_BENCHMARK"] = self.name
+        return ret
+
+
+class ISSBenchProgram(Program):
+    DEFAULTS = {
+        "num_iter": 10000000,
+        "dtype": "uint32_t",
+        "array_size": 1048576,  # mem_heavy only
+    }
+
+    @property
+    def num_iter(self):
+        return int(self.config["num_iter"])
+
+    @property
+    def dtype(self):
+        return self.config["dtype"]
+
+    @property
+    def array_size(self):
+        return int(self.config["array_size"])
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["ISS_BENCH_BENCHMARK"] = self.name
+            ret["ISS_BENCH_ITERATIONS"] = self.num_iter
+            ret["ISS_BENCH_DTYPE"] = self.dtype
+            if self.name == "mem_heavy":
+                ret["ISS_BENCH_ARRAY_SIZE"] = self.array_size
+        return ret

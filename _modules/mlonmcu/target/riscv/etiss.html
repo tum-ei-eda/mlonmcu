@@ -699,6 +699,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
         <span class="c1"># Alternative to stdout parsing: etiss_script_args.append(&quot;--vp.stats_file_path=stats.json&quot;)</span>
+        <span class="c1"># TODO: enable if vp.quiet=true</span>
+        <span class="c1"># TODO: try etiss.log_to_stderr to deal with plugin output?</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_plugin_names</span><span class="p">():</span>
                 <span class="n">etiss_script_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">plugin</span><span class="p">])</span>

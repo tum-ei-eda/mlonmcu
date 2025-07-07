@@ -594,6 +594,8 @@ class EtissTarget(RISCVTarget):
         if self.verbose:
             etiss_script_args.append("v")
         # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
+        # TODO: enable if vp.quiet=true
+        # TODO: try etiss.log_to_stderr to deal with plugin output?
         if self.use_run_helper:
             for plugin in self.get_plugin_names():
                 etiss_script_args.extend(["-p", plugin])

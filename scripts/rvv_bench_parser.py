@@ -8,6 +8,7 @@ parser.add_argument("--title", default="RVV Instruction Benchmark")
 parser.add_argument("--vlen", default="?")
 parser.add_argument("--info", default="")
 parser.add_argument("--comment", default="")
+parser.add_argument("--scalar", action="store_true")
 args = parser.parse_args()
 
 input_file = Path(args.input_file)
@@ -18,22 +19,26 @@ with open(input_file, "r") as f:
     lines = f.readlines()
 
 lines = list(map(lambda x: x.strip(), lines))
-lines = [line for line in lines if len(line) > 0]
+lines = [line for line in lines if len(line) > 1]
 
 # print("lines", lines, len(lines))
 
-group_lines = defaultdict(list)
-group = None
+if args.scalar:
+    group_lines = {"default": lines}
+else:
 
-for line in lines:
-    if line.startswith("<tr>"):
-        assert group is not None
-        group_lines[group].append(line)
-    else:
-        # if group is None:
-        group = line
+    group_lines = defaultdict(list)
+    group = None
 
-css_content = """
+    for line in lines:
+        if line.startswith("<tr>"):
+            assert group is not None
+            group_lines[group].append(line)
+        else:
+            # if group is None:
+            group = line
+
+css_content_rvv = """
 .base {
 	margin: 40px auto;
 	max-width: 1200px;
@@ -91,13 +96,49 @@ h1, h2, h3 { line-height: 1.2 }
 .center { display: flex; justify-content: center; };
 """
 
+css_content_scalar = """
+.base {
+        margin: 40px auto;
+        max-width: 1200px;
+        line-height: 1.6;
+        font-size: 18px;
+        color: #444;
+        padding: 0 10px;
+}
+h1, h2, h3 { line-height: 1.2 }
+
+
+.tblCont {
+        height: 500px;
+        overflow: auto;
+        resize: vertical;
+}
+.tblCont thead th {
+        position: sticky;
+        top: 0px;
+        background: #fff;
+}
+
+.tblCont td:empty::before { content: "--"; }
+.tblCont tr > td, tr > th { text-align: center; white-space: nowrap; }
+.tblCont tr :nth-child(1) { text-align: left; font-family: monospace;  }
+.tblConts tr :nth-child(2n+1) { text-align: left; font-family: monospace;  }
+.tblCont tbody tr:nth-child(odd) { background-color: #f0f0f0; }
+.tblContvf:not(.tblContvf-show) tbody tr :nth-child(2n + 2) { background-color: #e0e0e0; }
+
+
+.center { display: flex; justify-content: center; };
+"""
+
+css_content = css_content_scalar if args.scalar else css_content_rvv
+
 html_top = f"""
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>RVV benchmark SpacemiT X60</title>
+	<title>{args.title}</title>
 	<link rel="stylesheet" href="../base.css">
 	<script type="text/javascript" src="../templates/base.js"></script>
 	<style>
@@ -117,7 +158,26 @@ html_bot = """</body>
 </html>"""
 
 
-def gen_table(group, lines):
+def gen_table_scalar(group, lines):
+    return (
+        """
+<div class="tblCont tblContvf">
+
+<table id="tblMaa" class="tabPage" style="width:100%;">
+<tbody>
+"""
+        + "\n".join(lines)
+        + """
+</table>
+
+</tbody>
+</table>
+</div>
+"""
+    )
+
+
+def gen_table_rvv(group, lines):
     return (
         f"""
 <div class="tab">
@@ -139,12 +199,13 @@ def gen_table(group, lines):
 </tbody>
 </table>
 </div>
-
 """
     )
 
 
-tables_contents = [gen_table(group, lines) for group, lines in group_lines.items()]
+tables_contents = [
+    gen_table_scalar(group, lines) if args.scalar else gen_table_rvv(group, lines) for group, lines in group_lines.items()
+]
 
 html_content = html_top + "\n</br>\n".join(tables_contents) + html_bot
 

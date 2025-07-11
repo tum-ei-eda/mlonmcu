@@ -196,6 +196,10 @@ class Vicuna2Target(RVVTarget):
         riscv_arch = filter_riscv_arch(self.arch)
         ret.append(f"-DRISCV_ARCH={riscv_arch}")
         ret.append(f"-DVREG_W={self.vlen}")
+        if self.trace:
+            ret.append("-DTRACE=ON")
+        if self.trace_full:
+            ret.append("-DTRACE_FULL=ON")
         if self.vmem_width is not None:
             ret.append(f"-DVMEM_W={self.vmem_width}")
         if self.mem_width is not None:

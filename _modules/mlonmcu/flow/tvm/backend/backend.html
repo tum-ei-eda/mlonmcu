@@ -349,7 +349,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvmc_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -400,7 +400,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;relay&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;ll&quot;</span><span class="p">,</span> <span class="s2">&quot;tir&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;relay&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;ll&quot;</span><span class="p">,</span> <span class="s2">&quot;tir&quot;</span><span class="p">,</span> <span class="s2">&quot;tir0&quot;</span><span class="p">,</span> <span class="s2">&quot;tir1&quot;</span><span class="p">,</span> <span class="s2">&quot;tir2&quot;</span><span class="p">,</span> <span class="s2">&quot;tir3&quot;</span><span class="p">,</span> <span class="s2">&quot;dso&quot;</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 

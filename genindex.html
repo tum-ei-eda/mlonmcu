@@ -285,10 +285,10 @@
 </li>
       <li><a href="mlonmcu.cli.html#mlonmcu.cli.setup.add_setup_options">add_setup_options() (in module mlonmcu.cli.setup)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_target">add_target() (mlonmcu.session.run.Run method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_target_by_name">add_target_by_name() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.TargetFeature.add_target_callbacks">add_target_callbacks() (mlonmcu.feature.feature.TargetFeature method)</a>
@@ -322,6 +322,8 @@
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess">AnalyseInstructionsPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess">AnalyseLinkerMapPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
+</li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.dwarf.analyze_dwarf">analyze_dwarf() (in module mlonmcu.session.postprocess.dwarf)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.analyze_enable">analyze_enable (mlonmcu.models.frontend.TfLiteFrontend property)</a>
 
@@ -1241,6 +1243,8 @@
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess attribute)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MyPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.MyPostprocess attribute)</a>
+</li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess attribute)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess attribute)</a>
 </li>
@@ -4655,6 +4659,8 @@
 </li>
       <li><a href="mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_tune_platform.TvmTunePlatform.min_repeat_ms">min_repeat_ms (mlonmcu.platform.tvm.tvm_tune_platform.TvmTunePlatform property)</a>
 </li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.min_weight">min_weight (mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
+</li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.TaskType.MISC">MISC (mlonmcu.setup.task.TaskType attribute)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.mkdirs">mkdirs() (in module mlonmcu.setup.utils)</a>
@@ -5485,6 +5491,13 @@
 
       <ul>
         <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.calc_lib_mem_footprints">module</a>
+</li>
+      </ul></li>
+      <li>
+    mlonmcu.session.postprocess.dwarf
+
+      <ul>
+        <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.dwarf">module</a>
 </li>
       </ul></li>
       <li>
@@ -6357,6 +6370,8 @@
 </li>
         <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.calc_lib_mem_footprints">mlonmcu.session.postprocess.calc_lib_mem_footprints</a>
 </li>
+        <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.dwarf">mlonmcu.session.postprocess.dwarf</a>
+</li>
         <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.postprocess">mlonmcu.session.postprocess.postprocess</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.postprocesses">mlonmcu.session.postprocess.postprocesses</a>
@@ -6902,6 +6917,8 @@
 </li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.elf.parse_cmdline">parse_cmdline() (in module mlonmcu.target.elf)</a>
 </li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.dwarf.parse_dwarf">parse_dwarf() (in module mlonmcu.session.postprocess.dwarf)</a>
+</li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.parse_elf">parse_elf() (in module mlonmcu.session.postprocess.calc_lib_mem_footprints)</a>
 </li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.parse_exit">parse_exit() (mlonmcu.target.riscv.ara.AraTarget method)</a>
@@ -7059,10 +7076,24 @@
       <li><a href="mlonmcu.models.html#mlonmcu.models.model_info.PBModelInfo">PBModelInfo (class in mlonmcu.models.model_info)</a>
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.per_func">per_func (mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.per_func">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
+      </ul></li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.per_library">per_library (mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.per_library">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
+      </ul></li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.per_object">per_object (mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.per_object">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
+</li>
+      </ul></li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.per_pc">per_pc (mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.CompareRowsPostprocess.percent">percent (mlonmcu.session.postprocess.postprocesses.CompareRowsPostprocess property)</a>
 </li>
@@ -7138,6 +7169,8 @@
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess method)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ExportOutputsPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.ExportOutputsPostprocess method)</a>
+</li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess method)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ValidateLabelsPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.ValidateLabelsPostprocess method)</a>
 </li>
@@ -7365,6 +7398,8 @@
       <li><a href="mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform.profile">profile (mlonmcu.platform.tvm.tvm_target_platform.TvmTargetPlatform property)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.profile_stages">profile_stages (mlonmcu.session.run.Run property)</a>
+</li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess">ProfileFunctionsPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.model.Program">Program (class in mlonmcu.models.model)</a>
 </li>
@@ -8443,6 +8478,8 @@
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_df">(mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
 </li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.to_df">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -8454,6 +8491,8 @@
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess property)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
+</li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
       </ul></li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.environment.Environment.to_file">to_file() (mlonmcu.environment.environment.Environment method)</a>
@@ -8486,6 +8525,8 @@
         <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.TVMBackend.tophub_url">(mlonmcu.flow.tvm.backend.TVMBackend property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.topk">topk (mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
+</li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.TopKLabelsMetric">TopKLabelsMetric (class in mlonmcu.session.postprocess.validate_metrics)</a>
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.TopKMetric">TopKMetric (class in mlonmcu.session.postprocess.validate_metrics)</a>

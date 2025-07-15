@@ -308,7 +308,7 @@ class TVMBackend(Backend):
             else:
                 value = [value]
         for v in value:
-            assert v in ["relay", "c", "ll", "tir"]
+            assert v in ["relay", "c", "ll", "tir", "tir0", "tir1", "tir2", "tir3", "dso"]
         assert isinstance(value, list)
         return value
 

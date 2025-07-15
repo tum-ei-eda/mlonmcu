@@ -257,7 +257,7 @@ class TVMBackend(Backend):
 
     @property
     def tvmc_extra_args(self):
-        return self.config["tvmc_extra_args"]
+        return str2list(self.config["tvmc_extra_args"], allow_none=True)
 
     @property
     def tvmc_custom_script(self):

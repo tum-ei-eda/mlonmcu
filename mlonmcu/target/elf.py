@@ -159,11 +159,10 @@ def parseElf(inFile):
                 m["ram_data"] += s.data_size
             elif s.name.endswith(".rodata") or s.name == "rodata":
                 m["rom_rodata"] += s.data_size
-            elif s.name in [
+            elif s.name.startswith(".init_array") or s.name in [
                 ".vectors",
                 "iram0.vectors",
                 ".iram0.vectors",
-                ".init_array",
                 ".fini_array",
                 ".fini",
                 ".init",

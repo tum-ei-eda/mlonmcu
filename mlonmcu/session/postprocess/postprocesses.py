@@ -34,7 +34,15 @@ from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
 from .validate_metrics import parse_validate_metrics, parse_classify_metrics
-from .calc_lib_mem_footprints import parse_elf, analyze_linker_map_helper, generate_pie_data, agg_library_footprint
+from .calc_lib_mem_footprints import (
+    parse_elf,
+    analyze_linker_map_helper,
+    generate_pie_data,
+    agg_library_footprint,
+    unmangle_helper,
+)
+from .dwarf import analyze_dwarf
+
 
 logger = get_logger()
 
@@ -2165,3 +2173,225 @@ class StageTimesGanttPostprocess(SessionPostprocess):
         artifact = Artifact("stage_times.mermaid", content=content, fmt=ArtifactFormat.TEXT)
         artifacts.append(artifact)
         return artifacts
+
+
+class ProfileFunctionsPostprocess(RunPostprocess):
+    """Instr-trace based profiling of pcs/functions/objects/libraries."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "per_func": True,
+        "per_object": False,
+        "per_library": False,
+        "topk": None,
+        "min_weight": None,
+        "to_df": False,
+        "to_file": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("profile_functions", features=features, config=config)
+
+    @property
+    def per_pc(self):
+        """Get per_pc property."""
+        value = self.config["per_pc"]
+        return str2bool(value)
+
+    @property
+    def per_func(self):
+        """Get per_func property."""
+        value = self.config["per_func"]
+        return str2bool(value)
+
+    @property
+    def per_object(self):
+        """Get per_object property."""
+        value = self.config["per_object"]
+        return str2bool(value)
+
+    @property
+    def per_library(self):
+        """Get per_library property."""
+        value = self.config["per_library"]
+        return str2bool(value)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value)
+
+    @property
+    def topk(self):
+        """Get topk property."""
+        value = self.config["topk"]
+        if value is None:
+            return None
+        return int(value)
+
+    @property
+    def min_weight(self):
+        """Get min_weight property."""
+        value = self.config["min_weight"]
+        if value is None:
+            return None
+        return float(value)
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        ret_artifacts = []
+        elf_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True)
+        assert len(elf_artifact) == 1, "ELF artifact not found!"
+        elf_artifact = elf_artifact[0]
+        log_artifact = lookup_artifacts(artifacts, flags=("log_instrs",), fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(log_artifact) == 1, "To use analyse_instructions process, please enable feature log_instrs."
+        log_artifact = log_artifact[0]
+        func2pc_df, file2funcs_df, pc2locs_df = analyze_dwarf(elf_artifact.path)
+        func2pc_df[["start", "end"]] = func2pc_df["pc_range"].apply(pd.Series)
+        is_etiss = "etiss_pulpino" in log_artifact.flags or "etiss" in log_artifact.flags
+        assert is_etiss, "Only etiss traces supported currently"
+        if self.topk is not None:
+            assert NotImplementedError("topk")
+        if self.min_weight is not None:
+            assert NotImplementedError("min_weight")
+        if True:
+
+            def transform_df(df):
+                df["pc"] = df["pc"].apply(lambda x: int(x, 0))
+                df["pc"] = pd.to_numeric(df["pc"])
+                df.drop(columns=["rest"], inplace=True)
+                return df
+
+            log_artifact.uncache()
+            dfs = []
+            with pd.read_csv(
+                log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22
+            ) as reader:  # TODO: expose chunksize
+                for chunk in reader:
+                    df = transform_df(chunk)
+                    dfs.append(df)
+            df = pd.concat(dfs)
+
+        total_num_instrs = len(df)
+
+        def func_pc_helper(x):
+            matches = func2pc_df[func2pc_df["start"] <= x]
+            matches = matches[matches["end"] >= x]
+            if len(matches) == 0:
+                return None
+            func = matches["func"].values[0]
+            return func
+
+        pc_counts = df["pc"].value_counts().sort_values(ascending=False).to_frame().reset_index()
+        pc_counts["func_name"] = pc_counts["pc"].apply(func_pc_helper)
+        symbol_map_df = None
+        if self.per_object or self.per_library:
+            map_artifact = lookup_artifacts(
+                artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True
+            )
+            assert len(map_artifact) == 1, "Linker map artifact not found!"
+            map_artifact = map_artifact[0]
+            from mapfile_parser import mapfile
+
+            mapFile = mapfile.MapFile()
+            mapFile.readMapFile(map_artifact.path)
+
+            symbol_map = analyze_linker_map_helper(mapFile)
+            symbol_map_df = pd.DataFrame(
+                symbol_map,
+                columns=[
+                    "segment",
+                    "section",
+                    "symbol",
+                    "object",
+                    "object_full",
+                    "library",
+                    "library_full",
+                ],
+            )
+
+        def agg_runtime(runtime_df, symbol_map_df, by: str = "library", col: str = "count"):
+            runtime_df["func_unmangled"] = runtime_df["func_name"].apply(unmangle_helper)
+            ret = runtime_df.set_index("func_unmangled").join(symbol_map_df.set_index("symbol"), how="left")
+            ret = ret[[by, col]]
+            ret = ret.groupby(by, as_index=True, dropna=False)[col].sum().sort_values(ascending=False).to_frame()
+            # ret.reset_index(inplace=True)
+            return ret
+
+        if self.per_pc:
+            pc_counts_ = pc_counts.groupby("pc")["count"].sum().sort_values(ascending=False).to_frame()
+            pc_counts_["rel_count"] = pc_counts_["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_pc.csv",
+                    content=pc_counts_[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerPC"] = str(pc_counts_["count"].to_dict())
+                post_df["RelRuntimePerPC"] = str(pc_counts_["rel_count"].to_dict())
+                report.post_df = post_df
+        if self.per_func:
+            func_counts = pc_counts.groupby("func_name")["count"].sum().sort_values(ascending=False).to_frame()
+            func_counts["rel_count"] = func_counts["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_func.csv",
+                    content=func_counts[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerFunc"] = str(func_counts["count"].to_dict())
+                post_df["RelRuntimePerFunc"] = str(func_counts["rel_count"].to_dict())
+                report.post_df = post_df
+        if self.per_object:
+            assert symbol_map_df is not None
+            func_counts = (
+                pc_counts.groupby("func_name")["count"].sum().sort_values(ascending=False).to_frame().reset_index()
+            )
+            object_counts = agg_runtime(func_counts, symbol_map_df, col="count", by="object")
+            object_counts["rel_count"] = object_counts["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_object.csv",
+                    content=object_counts[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerObject"] = str(object_counts["count"].to_dict())
+                post_df["RelRuntimePerObject"] = str(object_counts["rel_count"].to_dict())
+                report.post_df = post_df
+        if self.per_library:
+            assert symbol_map_df is not None
+            func_counts = (
+                pc_counts.groupby("func_name")["count"].sum().sort_values(ascending=False).to_frame().reset_index()
+            )
+            library_counts = agg_runtime(func_counts, symbol_map_df, col="count", by="library")
+            library_counts["rel_count"] = library_counts["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_library.csv",
+                    content=library_counts[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerLibrary"] = str(library_counts["count"].to_dict())
+                post_df["RelRuntimePerLibrary"] = str(library_counts["rel_count"].to_dict())
+                report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts

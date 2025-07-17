@@ -22,6 +22,7 @@ from pathlib import Path
 
 from mlonmcu.flow.framework import Framework
 from mlonmcu.flow.tflm import TFLMBackend
+from mlonmcu.config import str2bool
 
 
 class TFLMFramework(Framework):
@@ -35,6 +36,8 @@ class TFLMFramework(Framework):
         "optimized_kernel": None,
         "optimized_kernel_inc_dirs": [],
         "optimized_kernel_libs": [],
+        "cfu_accelerate": False,
+        "cfu_conv2d_idx_init": 0,
     }
 
     REQUIRED = {"tf.src_dir"}
@@ -57,8 +60,23 @@ class TFLMFramework(Framework):
         return self.config["optimized_kernel_libs"]
 
     @property
+    def optimized_kernel_libs(self):
+        return self.config["optimized_kernel_libs"]
+
+    @property
     def optimized_kernel_inc_dirs(self):
         return self.config["optimized_kernel_inc_dirs"]
+
+    @property
+    def cfu_accelerate(self):
+        return str2bool(self.config["cfu_accelerate"], allow_none=True)
+
+    @property
+    def cfu_conv2d_idx_init(self):
+        value = self.config["cfu_conv2d_idx_init"]
+        if value is not None:
+            value = int(value)
+        return value
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
@@ -77,5 +95,9 @@ class TFLMFramework(Framework):
                 else:
                     temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
+        if self.cfu_accelerate:
+            ret["CFU_ACCELERATE"] = True
+            if self.cfu_conv2d_idx_init is not None:
+                ret["CFU_CONV2D_IDX_INIT"] = self.cfu_conv2d_idx_init
         ret["TF_DIR"] = str(self.tf_src)
         return ret

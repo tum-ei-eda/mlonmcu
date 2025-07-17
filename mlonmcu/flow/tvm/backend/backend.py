@@ -85,6 +85,7 @@ class TVMBackend(Backend):
         "refresh_model_info": False,
         "generate_wrapper": "auto",
         "bool_as_int": True,
+        "ms_db": None,
     }
 
     REQUIRED = set()
@@ -338,6 +339,10 @@ class TVMBackend(Backend):
         return value
 
     @property
+    def ms_db(self):
+        return self.config["ms_db"]
+
+    @property
     def num_threads(self):
         return self.config["num_threads"]
 
@@ -395,6 +400,7 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
+            *(["--ms-db", self.ms_db] if self.ms_db is not None else []),
         ]
         return args
 

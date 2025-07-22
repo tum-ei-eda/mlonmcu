@@ -114,7 +114,7 @@ class TGCTarget(RISCVTarget):
             return
         metrics.add("Simulated Instructions", cycles, True)
         metrics.add("MIPS", mips, optional=True)
-        metrics.add("Simulation Time", duration, optional=True)
+        metrics.add("Simulation Time [s]", duration, optional=True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""

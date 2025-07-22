@@ -21,6 +21,7 @@
 import os
 import re
 import csv
+import json
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
@@ -99,6 +100,7 @@ class EtissTarget(RISCVTarget):
         "jit_debug": False,
         "load_integrated_libraries": True,
         "fclk": 100e6,
+        "use_stats_file": False,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
     OPTIONAL = RISCVTarget.OPTIONAL | {"boost.install_dir"}
@@ -131,6 +133,11 @@ class EtissTarget(RISCVTarget):
             value = Path(value)
             assert value.is_dir()
         return value
+
+    @property
+    def use_stats_file(self):
+        value = self.config["use_stats_file"]
+        return str2bool(value)
 
     @property
     def gdbserver_enable(self):
@@ -593,7 +600,9 @@ class EtissTarget(RISCVTarget):
                     etiss_script_args.append("nodmi")
         if self.verbose:
             etiss_script_args.append("v")
-        # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
+        if self.use_stats_file:
+            stats_file = Path(cwd) / "stats.json"
+            etiss_script_args.append(f"--vp.stats_file_path={stats_file}")
         # TODO: enable if vp.quiet=true
         # TODO: try etiss.log_to_stderr to deal with plugin output?
         if self.use_run_helper:
@@ -655,7 +664,7 @@ class EtissTarget(RISCVTarget):
                 exit_code = int(exit_match.group(1))
         return exit_code
 
-    def parse_stdout(self, out, metrics, exit_code=0):
+    def parse_stdout(self, out, metrics, exit_code=0, cwd=None):
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
@@ -664,16 +673,42 @@ class EtissTarget(RISCVTarget):
                 logger.error(f"An ETISS Error occured during simulation: {error_msg}")
             else:
                 raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
-        sim_insns = re.search(r"CPU Cycles \(estimated\): (.*)", out)
-        sim_insns = int(float(sim_insns.group(1)))
-        metrics.add("Simulated Instructions", sim_insns, True)
-        mips = None  # TODO: parse mips?
-        mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
-        if mips_match:
-            mips_str = mips_match.group(1)
-            mips = float(mips_str)
-        if mips:
+        sim_insns = None
+        runtime = None
+        sim_time = None
+        mips = None
+        if self.use_stats_file:
+            assert cwd is not None
+            stats_file = Path(cwd) / "stats.json"
+            assert stats_file.is_file()
+
+            with open(stats_file) as f:
+                stats_data = json.load(f)
+            mips = stats_data.get("mips", None)
+            sim_insns = stats_data.get("CPU_cycle", None)
+            runtime = stats_data.get("CPU_Time", None)
+            sim_time = stats_data.get("Simulation_Time", None)
+        else:
+            sim_insns_match = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+            if sim_insns_match:
+                sim_insns_str = sim_insns_match.group(1)
+                sim_insns = int(float(sim_insns_str))
+            mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
+            if mips_match:
+                mips_str = mips_match.group(1)
+                mips = float(mips_str)
+        if sim_insns is not None:
+            assert isinstance(sim_insns, int)
+            metrics.add("Simulated Instructions", sim_insns, True)
+        if mips is not None:
+            assert isinstance(mips, float)
             metrics.add("MIPS", mips, optional=True)
+        if runtime is not None:
+            assert isinstance(runtime, float)
+            metrics.add("Runtime [s]", runtime, optional=True)
+        if sim_time is not None:
+            assert isinstance(sim_time, float)
+            metrics.add("Simulation Time [s]", sim_time, optional=True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -713,7 +748,7 @@ class EtissTarget(RISCVTarget):
         # TODO: get exit code
         exit_code = 0
         metrics = Metrics()
-        self.parse_stdout(out, metrics, exit_code=exit_code)
+        self.parse_stdout(out, metrics, exit_code=exit_code, cwd=directory)
         if not metrics.has("Runtime [s]") and self.fclk:
             if metrics.has("Total Cycles"):
                 cycles = metrics.get("Total Cycles")

@@ -19,9 +19,10 @@
 """Definition of MLonMCU features and the feature registry."""
 
 import re
-import pandas as pd
 from typing import Union
 from pathlib import Path
+
+import pandas as pd
 
 from mlonmcu.utils import is_power_of_two, filter_none
 from mlonmcu.config import str2bool, str2list

@@ -49,7 +49,16 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = {"autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt", "uma_backends", "fuse_ops"}
+    FEATURES = {
+        "autotuned",
+        "cmsisnnbyoc",
+        "muriscvnnbyoc",
+        "disable_legalize",
+        "moiopt",
+        "uma_backends",
+        "fuse_ops",
+        "cfu_wca",
+    }
 
     DEFAULTS = {
         "print_outputs": False,

@@ -44,7 +44,7 @@ class TVMFramework(Framework):
 
     name = "tvm"
 
-    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc"}
+    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc", "cfu_wca"}
 
     DEFAULTS = {
         "extra_incs": [],

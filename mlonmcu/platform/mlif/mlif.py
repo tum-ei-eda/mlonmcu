@@ -62,6 +62,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "xpulp",
             "set_inputs",
             "get_outputs",
+            "cfu_wca",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 

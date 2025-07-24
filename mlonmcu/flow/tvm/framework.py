@@ -19,8 +19,8 @@
 """Definitions for TVMFramework."""
 
 import os
-import pkg_resources
 from pathlib import Path
+import pkg_resources
 
 from mlonmcu.flow.framework import Framework
 

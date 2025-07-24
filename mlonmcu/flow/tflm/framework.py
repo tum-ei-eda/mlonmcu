@@ -30,14 +30,16 @@ class TFLMFramework(Framework):
 
     name = "tflm"
 
-    FEATURES = {"muriscvnn", "cmsisnn"}
+    FEATURES = {"muriscvnn", "cmsisnn", "cfu_wca"}
 
     DEFAULTS = {
         "optimized_kernel": None,
         "optimized_kernel_inc_dirs": [],
         "optimized_kernel_libs": [],
-        "cfu_accelerate": False,
-        "cfu_conv2d_idx_init": 0,
+        # "cfu_accelerate": False,
+        # "cfu_conv2d_idx_init": 0,
+        "override_dir": None,
+        "generate_tree": False,
     }
 
     REQUIRED = {"tf.src_dir"}
@@ -50,6 +52,10 @@ class TFLMFramework(Framework):
     @property
     def tf_src(self):
         return Path(self.config["tf.src_dir"])
+
+    @property
+    def override_dir(self):
+        return self.config["override_dir"]
 
     @property
     def optimized_kernel(self):
@@ -68,6 +74,10 @@ class TFLMFramework(Framework):
         return self.config["optimized_kernel_inc_dirs"]
 
     @property
+    def generate_tree(self):
+        return str2bool(self.config["generate_tree"])
+
+    @property
     def cfu_accelerate(self):
         return str2bool(self.config["cfu_accelerate"], allow_none=True)
 
@@ -80,6 +90,8 @@ class TFLMFramework(Framework):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        if self.generate_tree:
+            ret["TFLM_GENERATE_TREE"] = True
         if self.optimized_kernel or self.optimized_kernel_inc_dirs or self.optimized_kernel_libs:
             if self.optimized_kernel:
                 ret["TFLM_OPTIMIZED_KERNEL"] = self.optimized_kernel
@@ -95,9 +107,7 @@ class TFLMFramework(Framework):
                 else:
                     temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
-        if self.cfu_accelerate:
-            ret["CFU_ACCELERATE"] = True
-            if self.cfu_conv2d_idx_init is not None:
-                ret["CFU_CONV2D_IDX_INIT"] = self.cfu_conv2d_idx_init
+        if self.override_dir:
+            ret["TFLM_OVERRIDE"] = self.override_dir
         ret["TF_DIR"] = str(self.tf_src)
         return ret

@@ -159,8 +159,8 @@ def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c
     ]
     if target == "c":
         ret += [
-            *["--target-c-constants-byte-alignment", str(alignment_bytes)],
-            *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
+            # *["--target-c-constants-byte-alignment", str(alignment_bytes)],
+            # *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
             *["--executor-aot-constant-byte-alignment", str(alignment_bytes)],
             *["--executor-aot-workspace-byte-alignment", str(alignment_bytes)],
         ]

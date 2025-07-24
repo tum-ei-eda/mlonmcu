@@ -79,6 +79,7 @@ class TVMBackend(Backend):
         "desired_layout_map": None,  # optional, conv2d=NCHW, ...
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
+        "tir_add_lower_pass": None,  # opt_level1,pass1,opt_level2,pass2,...
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
@@ -178,8 +179,19 @@ class TVMBackend(Backend):
         return extra
 
     @property
+    def tir_add_lower_pass(self):
+        value = self.config["tir_add_lower_pass"]
+        if value is None:
+            return None
+        assert isinstance(value, str)
+        return value
+
+    @property
     def pass_config(self):
         base = {"tir.disable_vectorize": self.disable_vectorize}
+        if self.tir_add_lower_pass:
+            # TODO: do not override?
+            base["tir.add_lower_pass"] = self.tir_add_lower_pass
         extra = self.extra_pass_config
         base.update(extra)
         return base

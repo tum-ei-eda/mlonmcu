@@ -66,6 +66,8 @@ class EtissTarget(RISCVTarget):
         "rom_size": 0x800000,  # 8 MB
         "ram_start": 0x1000000 + 0x800000,
         "ram_size": 0x4000000,  # 64 MB
+        "flash_start": 0x42000000,
+        "flash_size": 0x800000,  # 8 MB
         "cycle_time_ps": 31250,  # 32 MHz
         "enable_vext": False,
         "vext_spec": 1.0,
@@ -195,6 +197,16 @@ class EtissTarget(RISCVTarget):
     @property
     def ram_size(self):
         value = self.config["ram_size"]
+        return int(value, 0) if not isinstance(value, int) else value
+
+    @property
+    def flash_start(self):
+        value = self.config["flash_start"]
+        return int(value, 0) if not isinstance(value, int) else value
+
+    @property
+    def flash_size(self):
+        value = self.config["flash_size"]
         return int(value, 0) if not isinstance(value, int) else value
 
     @property
@@ -463,6 +475,8 @@ class EtissTarget(RISCVTarget):
             "simple_mem_system.memseg_length_00": self.rom_size,
             "simple_mem_system.memseg_origin_01": self.ram_start,
             "simple_mem_system.memseg_length_01": self.ram_size,
+            "simple_mem_system.memseg_origin_02": self.flash_start,
+            "simple_mem_system.memseg_length_02": self.flash_size,
             "arch.cpu_cycle_time_ps": self.cycle_time_ps,
         }
         if self.max_block_size:
@@ -803,6 +817,8 @@ class EtissTarget(RISCVTarget):
         ret["MEM_ROM_LENGTH"] = self.rom_size
         ret["MEM_RAM_ORIGIN"] = self.ram_start
         ret["MEM_RAM_LENGTH"] = self.ram_size
+        ret["MEM_FLASH_ORIGIN"] = self.flash_start
+        ret["MEM_FLASH_LENGTH"] = self.flash_size
         if self.enable_pext:
             major, minor = str(self.pext_spec).split(".")[:2]
             ret["RISCV_RVP_MAJOR"] = major

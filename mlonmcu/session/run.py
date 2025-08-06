@@ -543,13 +543,14 @@ class Run:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
+                assert name in SUPPORTED_FRONTENDS, f"Unsupported frontend: {name}"
                 frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
             except Exception as e:
                 reasons[name] = str(e)
                 continue
         if len(frontends) == 0:
             if reasons:
-                logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
+                logger.error("Initialization of frontends was not successfull. Reasons: %s", reasons)
             raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 

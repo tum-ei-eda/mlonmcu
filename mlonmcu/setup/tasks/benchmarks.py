@@ -58,6 +58,7 @@ def clone_benchmarks(
     benchSrcDir = benchmarksSrcDir / benchName
     utils.mkdirs(benchmarksSrcDir)
     if rebuild or not utils.is_populated(benchSrcDir):
+        assert benchmark in context.environment.repos, f"Benchmark {benchmark} not found in repos"
         benchRepo = context.environment.repos[benchmark]
         utils.clone_wrapper(benchRepo, benchSrcDir, refresh=rebuild)
     context.cache["benchmarks.src_dir"] = benchmarksSrcDir

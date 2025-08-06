@@ -1570,7 +1570,6 @@ class ExampleFrontend(BenchFrontend):
         super().__init__(
             "example",
             ExampleProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1587,7 +1586,6 @@ class EmbenchFrontend(BenchFrontend):
         super().__init__(
             "embench",
             EmbenchProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1634,7 +1632,6 @@ class EmbenchIoTFrontend(BenchFrontend):
         super().__init__(
             "embench_iot",
             EmbenchIoTProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1683,7 +1680,6 @@ class EmbenchDSPFrontend(BenchFrontend):
         super().__init__(
             "embench_dsp",
             EmbenchDSPProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1718,7 +1714,6 @@ class TaclebenchFrontend(BenchFrontend):
         super().__init__(
             "taclebench",
             TaclebenchProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1806,7 +1801,6 @@ class PolybenchFrontend(BenchFrontend):
         super().__init__(
             "polybench",
             PolybenchProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1862,7 +1856,6 @@ class CoremarkFrontend(SingleBenchFrontend):
         super().__init__(
             "coremark",
             CoremarkProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1875,7 +1868,6 @@ class DhrystoneFrontend(SingleBenchFrontend):
         super().__init__(
             "dhrystone",
             DhrystoneProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1888,7 +1880,6 @@ class MathisFrontend(BenchFrontend):
         super().__init__(
             "mathis",
             MathisProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -1926,7 +1917,7 @@ class MibenchFrontend(BenchFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "mibench",
-            MibenchProgram.ModelFormats.NONE,
+            MibenchProgram,
             features=features,
             config=config,
         )
@@ -2062,7 +2053,6 @@ class OpenASIPFrontend(BenchFrontend):
         super().__init__(
             "openasip",
             OpenASIPProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -2082,7 +2072,6 @@ class RVVBenchFrontend(BenchFrontend):
         super().__init__(
             "rvv_bench",
             RVVBenchProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )
@@ -2116,7 +2105,6 @@ class ISSBenchFrontend(BenchFrontend):
         super().__init__(
             "iss_bench",
             ISSBenchProgram,
-            ModelFormats.NONE,
             features=features,
             config=config,
         )

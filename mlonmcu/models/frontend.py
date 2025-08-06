@@ -30,8 +30,11 @@ from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import (
     ModelFormats,
     Model,
+    Program,
     ExampleProgram,
     EmbenchProgram,
+    EmbenchIoTProgram,
+    EmbenchDSPProgram,
     TaclebenchProgram,
     PolybenchProgram,
     CoremarkProgram,
@@ -1517,11 +1520,56 @@ class PaddleFrontend(SimpleFrontend):
         )
 
 
-class ExampleFrontend(SimpleFrontend):
+class BenchFrontend(SimpleFrontend):
+    def __init__(self, name: str, prog_cls: Program, features=None, config=None):
+        super().__init__(
+            name,
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+        self.prog_cls = prog_cls
+
+    def supported_names(self):
+        raise NotImplementedError
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace(f"{self.name}/", "")
+            if name in self.supported_names:
+                hint = self.prog_cls(
+                    name,
+                    alt=f"{self.name}/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = self.name
+        return ret
+
+
+class SingleBenchFrontend(BenchFrontend):
+
+    @property
+    def supported_names(self):
+        return [self.name]
+
+
+class ExampleFrontend(BenchFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "example",
-            ModelFormats.NONE,
+            ExampleProgram,
             features=features,
             config=config,
         )
@@ -1530,38 +1578,14 @@ class ExampleFrontend(SimpleFrontend):
     def supported_names(self):
         return ["hello_world", "foobar"]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("example/", "")
-            if name in self.supported_names:
-                hint = ExampleProgram(
-                    name,
-                    alt=f"example/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
 
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "example"
-        return ret
-
-
-class EmbenchFrontend(SimpleFrontend):
+class EmbenchFrontend(BenchFrontend):
     REQUIRED = {"embench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "embench",
-            ModelFormats.NONE,
+            EmbenchProgram,
             features=features,
             config=config,
         )
@@ -1594,48 +1618,102 @@ class EmbenchFrontend(SimpleFrontend):
             "primecount",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("embench/", "")
-            if name in self.supported_names:
-                hint = EmbenchProgram(
-                    name,
-                    alt=f"embench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
         return ret
 
-    def get_platform_config(self, platform):
+
+class EmbenchIoTFrontend(BenchFrontend):
+    REQUIRED = {"embench_iot.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_iot",
+            EmbenchIoTProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            # "cubic",
+            # "nbody",
+            # "minver",
+            # "st",
+            # "primecount", ???
+            "aha-mont64",
+            "crc32",
+            "depthconv",
+            "edn",
+            "huffbench",
+            "matmult-int",
+            "md5sum",
+            "nettle-aes",
+            "nettle-sha256",
+            "nsichneu",
+            "picojpeg",
+            "qrduino",
+            "sglib-combined",
+            "slre",
+            "statemate",
+            "tarfind",
+            "ud",
+            "wikisort",
+            "xgboost",
+        ]
+
+    def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["template"] = "embench"
+            ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
         return ret
 
 
-class TaclebenchFrontend(SimpleFrontend):
+class EmbenchDSPFrontend(BenchFrontend):
+    REQUIRED = {"embench_dsp.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_dsp",
+            EmbenchDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "biquad_cascade_df2T_f32_sos3_n1",
+            "biquad_cascade_df2T_f32_sos3_n128",
+            "dct4_2048_f32",
+            "dct4_512_f32",
+            "fir_f32_taps256_n1",
+            "fir_f32_taps256_n128",
+            "lms_f32_taps256_n1",
+            "lms_f32_taps256_n128",
+            "rfft2048_f32",
+            "rfft512_f32",
+        ]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
+        return ret
+
+
+class TaclebenchFrontend(BenchFrontend):
     REQUIRED = {"taclebench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "taclebench",
-            ModelFormats.NONE,
+            TaclebenchProgram,
             features=features,
             config=config,
         )
@@ -1703,42 +1781,14 @@ class TaclebenchFrontend(SimpleFrontend):
             "sequential/petrinet",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("taclebench/", "")
-            if name in self.supported_names:
-                hint = TaclebenchProgram(
-                    name,
-                    alt=f"taclebench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "taclebench"
-        return ret
 
-
-class PolybenchFrontend(SimpleFrontend):
+class PolybenchFrontend(BenchFrontend):
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -1750,7 +1800,7 @@ class PolybenchFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "polybench",
-            ModelFormats.NONE,
+            PolybenchProgram,
             features=features,
             config=config,
         )
@@ -1791,28 +1841,6 @@ class PolybenchFrontend(SimpleFrontend):
             "medley/floyd-warshall",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("polybench/", "")
-            if name in self.supported_names:
-                hint = PolybenchProgram(
-                    name,
-                    alt=f"polybench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -1820,104 +1848,38 @@ class PolybenchFrontend(SimpleFrontend):
             ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "polybench"
-        return ret
 
-
-class CoremarkFrontend(SimpleFrontend):
+class CoremarkFrontend(SingleBenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "coremark",
-            ModelFormats.NONE,
+            CoremarkProgram,
             features=features,
             config=config,
         )
 
-    @property
-    def supported_names(self):
-        return [
-            "coremark",
-        ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("coremark/", "")
-            if name in self.supported_names:
-                hint = CoremarkProgram(
-                    name,
-                    alt=f"coremark/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "coremark"
-        return ret
-
-
-class DhrystoneFrontend(SimpleFrontend):
+class DhrystoneFrontend(SingleBenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "dhrystone",
-            ModelFormats.NONE,
+            DhrystoneProgram,
             features=features,
             config=config,
         )
 
-    @property
-    def supported_names(self):
-        return [
-            "dhrystone",
-        ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("dhrystone/", "")
-            if name in self.supported_names:
-                hint = DhrystoneProgram(
-                    name,
-                    alt=f"dhrystone/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "dhrystone"
-        return ret
-
-
-class MathisFrontend(SimpleFrontend):
+class MathisFrontend(BenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "mathis",
-            ModelFormats.NONE,
+            MathisProgram,
             features=features,
             config=config,
         )
@@ -1948,38 +1910,14 @@ class MathisFrontend(SimpleFrontend):
             "transposed_matmul16_b",
         ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("mathis/", "")
-            if name in self.supported_names:
-                hint = MathisProgram(
-                    name,
-                    alt=f"mathis/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
 
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "mathis"
-        return ret
-
-
-class MibenchFrontend(SimpleFrontend):
+class MibenchFrontend(BenchFrontend):
     REQUIRED = {"mibench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "mibench",
-            ModelFormats.NONE,
+            MibenchProgram,
             features=features,
             config=config,
         )
@@ -2000,39 +1938,10 @@ class MibenchFrontend(SimpleFrontend):
             "office/stringsearch",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("mibench/", "")
-            if name in self.supported_names:
-                hint = MibenchProgram(
-                    name,
-                    alt=f"mibench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
-
-        return ret
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "mibench"
 
         return ret
 
@@ -2138,12 +2047,12 @@ class LayerGenFrontend(Frontend):
         return artifacts, {}
 
 
-class OpenASIPFrontend(SimpleFrontend):
+class OpenASIPFrontend(BenchFrontend):
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "openasip",
-            ModelFormats.NONE,
+            OpenASIPProgram,
             features=features,
             config=config,
         )
@@ -2156,41 +2065,13 @@ class OpenASIPFrontend(SimpleFrontend):
             "crc",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("openasip/", "")
-            if name in self.supported_names:
-                hint = OpenASIPProgram(
-                    name,
-                    alt=f"openasip/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "openasip"
-        return ret
-
-
-class RVVBenchFrontend(SimpleFrontend):
+class RVVBenchFrontend(BenchFrontend):
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "rvv_bench",
-            ModelFormats.NONE,
+            RVVBenchProgram,
             features=features,
             config=config,
         )
@@ -2217,41 +2098,13 @@ class RVVBenchFrontend(SimpleFrontend):
             "base64_encode",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("rvv_bench/", "")
-            if name in self.supported_names:
-                hint = RVVBenchProgram(
-                    name,
-                    alt=f"rvv_bench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "rvv_bench"
-        return ret
-
-
-class ISSBenchFrontend(SimpleFrontend):
+class ISSBenchFrontend(BenchFrontend):
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "iss_bench",
-            ModelFormats.NONE,
+            ISSBenchProgram,
             features=features,
             config=config,
         )
@@ -2263,31 +2116,3 @@ class ISSBenchFrontend(SimpleFrontend):
             "branch_heavy",
             "mem_heavy",
         ]
-
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("iss_bench/", "")
-            if name in self.supported_names:
-                hint = ISSBenchProgram(
-                    name,
-                    alt=f"iss_bench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "iss_bench"
-        return ret

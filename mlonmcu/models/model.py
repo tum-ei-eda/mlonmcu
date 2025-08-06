@@ -285,50 +285,52 @@ class Model(Workload):
 
 
 class Program(Workload):
+    def __init__(self, name, config=None, alt=None):
+        super().__init__(name, config=config, alt=alt)
+
     def __repr__(self):
         if self.alt:
             return f"Program({self.name},alt={self.alt})"
         return f"Program({self.name})"
 
 
-class ExampleProgram(Program):
+class MultiBenchProgram(Program):
+
+    def __init__(self, name: str, prefix: str, config=None, alt=None):
+        super().__init__(name, config=config, alt=alt)
+        self.prefix = prefix
+        assert self.prefix == self.prefix.upper()
+
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["EXAMPLE_BENCHMARK"] = self.name
+            ret[f"{self.prefix}_BENCHMARK"] = self.name
         return ret
 
 
-class EmbenchProgram(Program):
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["EMBENCH_BENCHMARK"] = self.name
-        return ret
+class ExampleProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("EXAMPLE", config=config, alt=alt)
 
 
-class TaclebenchProgram(Program):
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["TACLEBENCH_BENCHMARK"] = self.name
-        return ret
+class EmbenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("EMEBENCH", config=config, alt=alt)
 
 
-class PolybenchProgram(Program):
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["POLYBENCH_BENCHMARK"] = self.name
-        return ret
+class TaclebenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("TACLEBENCH", config=config, alt=alt)
 
 
-class MibenchProgram(Program):
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["MIBENCH_BENCHMARK"] = self.name
-        return ret
+class PolybenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("POLYBENCH", config=config, alt=alt)
+
+
+class MibenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("MIBENCH", config=config, alt=alt)
 
 
 class MathisProgram(Program):
@@ -425,40 +427,40 @@ class DhrystoneProgram(Program):
         return ret
 
 
-class OpenASIPProgram(Program):
+class OpenASIPProgram(MultiBenchProgram):
     DEFAULTS = {
         "crc_mode": "both",
     }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("OPENASIP", config=config, alt=alt)
 
     @property
     def crc_mode(self):
         return str(self.config["crc_mode"])
 
     def get_platform_defs(self, platform):
-        ret = {}
+        ret = super().get_platform_defs(platform)
         if platform == "mlif":
-            ret["OPENASIP_BENCHMARK"] = self.name
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret
 
 
-class RVVBenchProgram(Program):
-    DEFAULTS = {}
-
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["RVV_BENCH_BENCHMARK"] = self.name
-        return ret
+class RVVBenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("RVV_BENCH", config=config, alt=alt)
 
 
-class ISSBenchProgram(Program):
+class ISSBenchProgram(MultiBenchProgram):
     DEFAULTS = {
         "num_iter": 10000000,
         "dtype": "uint32_t",
         "array_size": 1048576,  # mem_heavy only
     }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("ISS_BENCH", config=config, alt=alt)
 
     @property
     def num_iter(self):
@@ -473,9 +475,8 @@ class ISSBenchProgram(Program):
         return int(self.config["array_size"])
 
     def get_platform_defs(self, platform):
-        ret = {}
+        ret = super().get_platform_defs(platform)
         if platform == "mlif":
-            ret["ISS_BENCH_BENCHMARK"] = self.name
             ret["ISS_BENCH_ITERATIONS"] = self.num_iter
             ret["ISS_BENCH_DTYPE"] = self.dtype
             if self.name == "mem_heavy":

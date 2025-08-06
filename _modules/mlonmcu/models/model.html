@@ -105,7 +105,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span><span class="p">,</span> <span class="n">str2bool</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_metadata</span>
 
@@ -403,6 +403,9 @@
 <div class="viewcode-block" id="Program">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.Program">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Program</span><span class="p">(</span><span class="n">Workload</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Program(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,alt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alt</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -410,29 +413,97 @@
 
 
 
-<div class="viewcode-block" id="ExampleProgram">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ExampleProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ExampleProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
-<div class="viewcode-block" id="ExampleProgram.get_platform_defs">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ExampleProgram.get_platform_defs">[docs]</a>
+<div class="viewcode-block" id="MultiBenchProgram">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.MultiBenchProgram">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiBenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MultiBenchProgram.get_platform_defs">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.MultiBenchProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;EXAMPLE_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
 
 
 
+<div class="viewcode-block" id="ExampleProgram">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ExampleProgram">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;EXAMPLE&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="EmbenchProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EmbenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
-<div class="viewcode-block" id="EmbenchProgram.get_platform_defs">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchProgram.get_platform_defs">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmbenchProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;EMBENCH&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EmbenchIoTProgram">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchIoTProgram">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmbenchIoTProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;global_scale_factor&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># TODO: move to frontend?</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;EMBENCH_IOT&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">global_scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;global_scale_factor&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="EmbenchIoTProgram.get_platform_defs">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchIoTProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;EMBENCH_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_scale_factor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;EMBENCH_IOT_GLOBAL_SCALE_FACTOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_scale_factor</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EmbenchDSPProgram">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchDSPProgram">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmbenchDSPProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;no_snr_check&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: move to frontend?</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;EMBENCH_DSP&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">no_snr_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;no_snr_check&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EmbenchDSPProgram.get_platform_defs">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchDSPProgram.get_platform_defs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_snr_check</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;EMBENCH_DSP_NO_SNR_CHECK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_snr_check</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
 
@@ -440,43 +511,25 @@
 
 <div class="viewcode-block" id="TaclebenchProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.TaclebenchProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TaclebenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
-<div class="viewcode-block" id="TaclebenchProgram.get_platform_defs">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.TaclebenchProgram.get_platform_defs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;TACLEBENCH_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-</div>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaclebenchProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;TACLEBENCH&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="PolybenchProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.PolybenchProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PolybenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
-<div class="viewcode-block" id="PolybenchProgram.get_platform_defs">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.PolybenchProgram.get_platform_defs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;POLYBENCH_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-</div>
+<span class="k">class</span><span class="w"> </span><span class="nc">PolybenchProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;POLYBENCH&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="MibenchProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.MibenchProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MibenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
-<div class="viewcode-block" id="MibenchProgram.get_platform_defs">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.MibenchProgram.get_platform_defs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MIBENCH_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-</div>
+<span class="k">class</span><span class="w"> </span><span class="nc">MibenchProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;MIBENCH&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span></div>
 
 
 
@@ -600,10 +653,13 @@
 
 <div class="viewcode-block" id="OpenASIPProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.OpenASIPProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OpenASIPProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenASIPProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;crc_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span>
     <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;OPENASIP&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">crc_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -612,9 +668,8 @@
 <div class="viewcode-block" id="OpenASIPProgram.get_platform_defs">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.OpenASIPProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;OPENASIP_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;crc&quot;</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;OPENASIP_CRC_MODE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crc_mode</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -624,28 +679,23 @@
 
 <div class="viewcode-block" id="RVVBenchProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.RVVBenchProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">RVVBenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
-    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{}</span>
-
-<div class="viewcode-block" id="RVVBenchProgram.get_platform_defs">
-<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.RVVBenchProgram.get_platform_defs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RVV_BENCH_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-</div>
+<span class="k">class</span><span class="w"> </span><span class="nc">RVVBenchProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;RVV_BENCH&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ISSBenchProgram">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ISSBenchProgram">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ISSBenchProgram</span><span class="p">(</span><span class="n">Program</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ISSBenchProgram</span><span class="p">(</span><span class="n">MultiBenchProgram</span><span class="p">):</span>
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;num_iter&quot;</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">,</span>
         <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="s2">&quot;uint32_t&quot;</span><span class="p">,</span>
         <span class="s2">&quot;array_size&quot;</span><span class="p">:</span> <span class="mi">1048576</span><span class="p">,</span>  <span class="c1"># mem_heavy only</span>
     <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;ISS_BENCH&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -662,9 +712,8 @@
 <div class="viewcode-block" id="ISSBenchProgram.get_platform_defs">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ISSBenchProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ISS_BENCH_BENCHMARK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ISS_BENCH_ITERATIONS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_iter</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;ISS_BENCH_DTYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;mem_heavy&quot;</span><span class="p">:</span>

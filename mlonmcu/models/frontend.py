@@ -33,6 +33,8 @@ from mlonmcu.models.model import (
     Program,
     ExampleProgram,
     EmbenchProgram,
+    EmbenchIoTProgram,
+    EmbenchDSPProgram,
     TaclebenchProgram,
     PolybenchProgram,
     CoremarkProgram,
@@ -1622,6 +1624,90 @@ class EmbenchFrontend(BenchFrontend):
         ret = {}
         if platform == "mlif":
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
+        return ret
+
+
+class EmbenchIoTFrontend(BenchFrontend):
+    REQUIRED = {"embench_iot.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_iot",
+            EmbenchIoTProgram,
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            # "cubic",
+            # "nbody",
+            # "minver",
+            # "st",
+            # "primecount", ???
+            "aha-mont64",
+            "crc32",
+            "depthconv",
+            "edn",
+            "huffbench",
+            "matmult-int",
+            "md5sum",
+            "nettle-aes",
+            "nettle-sha256",
+            "nsichneu",
+            "picojpeg",
+            "qrduino",
+            "sglib-combined",
+            "slre",
+            "statemate",
+            "tarfind",
+            "ud",
+            "wikisort",
+            "xgboost",
+        ]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
+        return ret
+
+
+class EmbenchDSPFrontend(BenchFrontend):
+    REQUIRED = {"embench_dsp.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_dsp",
+            EmbenchDSPProgram,
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "biquad_cascade_df2T_f32_sos3_n1",
+            "biquad_cascade_df2T_f32_sos3_n128",
+            "dct4_2048_f32",
+            "dct4_512_f32",
+            "fir_f32_taps256_n1",
+            "fir_f32_taps256_n128",
+            "lms_f32_taps256_n1",
+            "lms_f32_taps256_n128",
+            "rfft2048_f32",
+            "rfft512_f32",
+        ]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
         return ret
 
 

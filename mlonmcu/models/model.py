@@ -318,6 +318,16 @@ class EmbenchProgram(MultiBenchProgram):
         super().__init__("EMEBENCH", config=config, alt=alt)
 
 
+class EmbenchIoTProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("EMEBENCH_IOT", config=config, alt=alt)
+
+
+class EmbenchDSPProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__("EMEBENCH_DSP", config=config, alt=alt)
+
+
 class TaclebenchProgram(MultiBenchProgram):
     def __init__(self, name: str, config=None, alt=None):
         super().__init__("TACLEBENCH", config=config, alt=alt)

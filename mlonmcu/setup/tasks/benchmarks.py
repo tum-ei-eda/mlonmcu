@@ -45,7 +45,7 @@ def _validate_benchmarks(context: MlonMcuContext, params=None):
 
 # Cloning all benchmarks in a single task saves a lot of code
 @Tasks.provides(["benchmarks.src_dir"])
-@Tasks.param("benchmark", ["embench", "taclebench", "polybench", "mibench"])
+@Tasks.param("benchmark", ["embench", "embench_iot", "embench_dsp", "taclebench", "polybench", "mibench"])
 @Tasks.validate(_validate_benchmarks)
 @Tasks.register(category=TaskType.FRONTEND)
 def clone_benchmarks(

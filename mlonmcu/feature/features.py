@@ -2750,8 +2750,6 @@ class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
             ret["CFU_ACCELERATE"] = True
             if self.conv2d_idx_init is not None:
                 ret["CFU_CONV2D_IDX_INIT"] = self.conv2d_idx_init
-        print("ret", ret)
-        input(">>")
         return ret
 
     def get_required_cache_flags(self):

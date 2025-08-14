@@ -366,6 +366,14 @@ def clone(
                 repo.git.submodule("update", "--init", "--recursive", "--", *submodules)
             else:
                 repo.git.submodule("update", "--init", "--recursive")
+        else:
+            # TODO: share code
+            if submodules:
+                for submodule in submodules:
+                    assert isinstance(submodule, str), f"Submodules should be a list of str. {submodule} is not str."
+                repo.git.submodule("update", "--init", "--", *submodules)
+            else:
+                repo.git.submodule("update", "--init")
 
     if is_populated(dest):
         if refresh:

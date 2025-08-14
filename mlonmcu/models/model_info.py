@@ -22,6 +22,79 @@ import os
 from mlonmcu.models.model import ModelFormats
 
 
+def parse_mlir_signature(mlir_text):
+
+    # Find the util.func @main signature
+    match1 = re.search(r"util\.func\s+.*?@(\w+)\((.*?)\)\s*->\s*\((.*?)\)\s*\{", mlir_text, re.DOTALL)
+    if not match1:
+        match2 = re.search(r"func\.func\s+@(\w+)\((.*)\)\s*->\s*((.*))\s+{", mlir_text, re.DOTALL)
+        if not match2:
+            raise ValueError("No util.func @main(...) -> (...) { } found.")
+        func_name = match2.group(1)
+        input_args = match2.group(2)
+        output_args = match2.group(3)
+    else:
+
+        func_name = match1.group(1)
+        input_args = match1.group(2)
+        output_args = match1.group(3)
+
+    inputs = []
+    outputs = []
+
+    # Parse inputs
+    if input_args.strip():
+        for arg in input_args.split(","):
+            parts = arg.strip().split(":", maxsplit=1)
+            if len(parts) < 2:
+                continue
+            arg_name = parts[0].strip()
+            tensor_info = parts[1].strip()
+
+            shape_dtype_match = re.search(r"tensor<([^>]+)>", tensor_info)
+            identifier_match = re.search(r'ml_program.identifier\s*=\s*"([^"]+)"', tensor_info)
+
+            if shape_dtype_match:
+                shape_dtype_str = shape_dtype_match.group(1)
+                shape_dtype_parts = shape_dtype_str.split("x")
+                *shape_parts, dtype = shape_dtype_parts
+                shape = [None if dim == "?" else int(dim) for dim in shape_parts]
+            else:
+                shape = []
+                dtype = None
+
+            inputs.append(
+                {
+                    "arg": arg_name,
+                    "shape": shape,
+                    "dtype": dtype,
+                    "name": identifier_match.group(1) if identifier_match else None,
+                }
+            )
+
+    # Parse outputs
+    if output_args.strip():
+        for out in output_args.split(","):
+            out = out.strip()
+            shape_dtype_match = re.search(r"tensor<([^>]+)>", out)
+            identifier_match = re.search(r'ml_program.identifier\s*=\s*"([^"]+)"', out)
+
+            if shape_dtype_match:
+                shape_dtype_str = shape_dtype_match.group(1)
+                shape_dtype_parts = shape_dtype_str.split("x")
+                *shape_parts, dtype = shape_dtype_parts
+                shape = [None if dim == "?" else int(dim) for dim in shape_parts]
+            else:
+                shape = []
+                dtype = None
+
+            outputs.append(
+                {"shape": shape, "dtype": dtype, "name": identifier_match.group(1) if identifier_match else None}
+            )
+
+    return func_name, inputs, outputs
+
+
 class TensorInfo:
     def __init__(self, name, shape, dtype, fix_names=False):
         self.name = name
@@ -40,10 +113,15 @@ class TensorInfo:
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
 
+    def __repr__(self):
+        return f"TensorInfo({self.name}, {self.shape}, {self.dtype}, size={self.size})"
+
     @property
     def size(self):
         ret = self.type_size
         for dim in self.shape:
+            if dim is None:  # assume 1
+                continue
             if isinstance(dim, complex):
                 real = dim.real
                 imag = dim.imag
@@ -81,9 +159,10 @@ class RelayTensorInfo(TensorInfo):
 
 
 class ModelInfo:
-    def __init__(self, in_tensors, out_tensors, fix_names=False):
+    def __init__(self, in_tensors, out_tensors, main_func_name=None, fix_names=False):
         self.in_tensors = in_tensors
         self.out_tensors = out_tensors
+        self.main_func_name = main_func_name
 
     def validate(self):
         assert len(self.in_tensors) > 0, "Missing inputs"
@@ -298,6 +377,34 @@ class PaddleModelInfo(ModelInfo):
         # super().__init__(in_tensors, out_tensors)
 
 
+class MLIRModelInfo(ModelInfo):
+    def __init__(self, mod_text, fix_names=False):
+        in_tensors = []
+        out_tensors = []
+        func_name, inputs, outputs = parse_mlir_signature(mod_text)
+        type_lookup = {
+            "i8": "int8",
+            "i32": "int32",
+            "f32": "float32",
+        }
+        for inp in inputs:
+            input_name = inp["name"]
+            dtype = inp["dtype"]
+            input_type = type_lookup[dtype]
+            input_shape = inp["shape"]
+            input_tensor = TensorInfo(input_name, input_shape, input_type)
+            in_tensors.append(input_tensor)
+        for outp in outputs:
+            output_name = outp["name"]
+            dtype = outp["dtype"]
+            output_type = type_lookup[dtype]
+            output_shape = outp["shape"]
+            output_tensor = TensorInfo(output_name, output_shape, output_type)
+            out_tensors.append(output_tensor)
+
+        super().__init__(in_tensors, out_tensors, main_func_name=func_name)
+
+
 def get_tflite_model_info(model_buf):
     # Local imports to get rid of tflite dependency for non-tflite models
     import tflite
@@ -309,6 +416,11 @@ def get_tflite_model_info(model_buf):
 
 def get_relay_model_info(mod_text):
     model_info = RelayModelInfo(mod_text)
+    return model_info
+
+
+def get_mlir_model_info(mod_text):
+    model_info = MLIRModelInfo(mod_text)
     return model_info
 
 
@@ -346,6 +458,10 @@ def get_model_info(model, backend_name="unknown"):
         return "onnx", get_onnx_model_info(model)
     elif fmt == ModelFormats.PADDLE:
         return "pdmodel", get_pb_model_info(model)
+    elif fmt == ModelFormats.MLIR:
+        with open(model, "r") as handle:
+            mod_text = handle.read()
+        return "mlir", get_mlir_model_info(mod_text)
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 
@@ -372,6 +488,8 @@ def get_fallback_model_info(model, input_shapes, output_shapes, input_types, out
         return "onnx", info
     elif fmt == ModelFormats.PADDLE:
         return "pdmodel", info
+    elif fmt == ModelFormats.MLIR:
+        return "mlir", info
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 
@@ -388,3 +506,7 @@ def get_model_format(model):
 
 def get_supported_formats():
     return [ModelFormats.TFLITE, ModelFormats.RELAY, ModelFormats.PB, ModelFormats.ONNX, ModelFormats.PADDLE]
+
+
+def get_supported_formats_iree():
+    return [ModelFormats.TFLITE, ModelFormats.ONNX, ModelFormats.SAVED_MODEL, ModelFormats.MLIR]

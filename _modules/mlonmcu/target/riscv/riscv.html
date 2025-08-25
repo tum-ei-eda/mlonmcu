@@ -134,6 +134,7 @@
         <span class="s2">&quot;fpu&quot;</span><span class="p">:</span> <span class="s2">&quot;double&quot;</span><span class="p">,</span>  <span class="c1"># allowed: none, single, double</span>
         <span class="s2">&quot;arch&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Please use above properties if possible</span>
         <span class="s2">&quot;abi&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Please use above properties if possible</span>
+        <span class="s2">&quot;cmodel&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;attr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Please avoid using this directly</span>
         <span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
@@ -387,6 +388,11 @@
         <span class="k">return</span> <span class="n">attrs</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cmodel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cmodel&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">temp</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span>
         <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">attrs</span><span class="p">))</span>
@@ -474,6 +480,8 @@
         <span class="c1"># llvm/clang only!</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_ATTR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_LINUX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_bare</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmodel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_CMODEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmodel</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">feature_helper</span><span class="p">(</span><span class="n">attrs</span><span class="p">):</span>
             <span class="c1"># TODO</span>

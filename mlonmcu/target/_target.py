@@ -19,6 +19,8 @@ from .riscv import (
     SpikeRV32Target,
     SpikeRV32MinTarget,
     SpikeRV64Target,
+    SpikeBMTarget,
+    SpikePKTarget,
     OVPSimTarget,
     COREVOVPSimTarget,
     RiscvQemuTarget,
@@ -65,6 +67,8 @@ register_target("spike", SpikeTarget)
 register_target("spike_rv32", SpikeRV32Target)
 register_target("spike_rv32_min", SpikeRV32MinTarget)
 register_target("spike_rv64", SpikeRV64Target)
+register_target("spike_bm", SpikeBMTarget)
+register_target("spike_pk", SpikePKTarget)
 register_target("ovpsim", OVPSimTarget)
 register_target("corev_ovpsim", COREVOVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)

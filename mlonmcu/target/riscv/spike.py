@@ -100,7 +100,7 @@ def filter_unsupported_extensions(exts, legacy: bool = False):
     return ret
 
 
-class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
+class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
     """Target using the riscv-isa-sim (Spike) RISC-V simulator."""
 
     FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | RVBTarget.FEATURES | {"cachesim", "log_instrs"}
@@ -109,26 +109,14 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         **RVPTarget.DEFAULTS,
         **RVVTarget.DEFAULTS,
         **RVBTarget.DEFAULTS,
-        "spikepk_extra_args": [],
-        "build_pk": False,
         "legacy": True,
     }
     REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED
 
-    OPTIONAL = (
-        RVPTarget.OPTIONAL
-        | RVVTarget.OPTIONAL
-        | RVBTarget.OPTIONAL
-        | {"spike.exe", "spike.pk", "spike.pk_rv32", "spike.pk_rv64", "spikepk.src_dir"}
-    )
+    OPTIONAL = RVPTarget.OPTIONAL | RVVTarget.OPTIONAL | RVBTarget.OPTIONAL | {"spike.exe"}
 
-    def __init__(self, name="spike", features=None, config=None):
+    def __init__(self, name, features=None, config=None):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def build_pk(self):
-        value = self.config["build_pk"]
-        return str2bool(value)
 
     @property
     def legacy(self):
@@ -138,27 +126,6 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
     @property
     def spike_exe(self):
         return Path(self.config["spike.exe"])
-
-    @property
-    def spike_pk(self):
-        return Path(
-            pick_first(
-                self.config,
-                [
-                    f"spike.pk_rv{self.xlen}",
-                    "spike.pk",
-                ],
-            )
-        )
-
-    @property
-    def spike_pk_src_dir(self):
-        value = self.config["spikepk.src_dir"]
-        return value if value is None else Path(value)
-
-    @property
-    def spikepk_extra_args(self):
-        return self.config["spikepk_extra_args"]
 
     @property
     def extensions(self):
@@ -177,28 +144,9 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
         exts_str = join_extensions(sort_extensions_canonical(exts, lower=True))
         return f"rv{self.xlen}{exts_str}"
 
-    def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
-        """Use target to execute a executable with given arguments"""
+    def get_spike_args(self):
         spike_args = []
-        spikepk_args = []
-
         spike_args.append(f"--isa={self.isa}")
-
-        if len(self.extra_args) > 0:
-            if isinstance(self.extra_args, str):
-                extra_args = self.extra_args.split(" ")
-            else:
-                extra_args = self.extra_args
-            spike_args.extend(extra_args)
-
-        spikepk_args.append("-s")
-
-        if len(self.spikepk_extra_args) > 0:
-            if isinstance(self.spikepk_extra_args, str):
-                extra_args = self.spikepk_extra_args.split(" ")
-            else:
-                extra_args = self.spikepk_extra_args
-            spikepk_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
 
         if self.enable_vext:
             assert self.vlen < 8192, "Spike does not support VLEN >= 8192"
@@ -208,40 +156,16 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
             # assert self.vlen == 0
             pass
 
-        if self.timeout_sec > 0:
-            raise NotImplementedError
+        return spike_args
 
-        if self.build_pk:
-            # TODO: tempdir
-            assert cwd is not None
-            cwd = Path(cwd)
-            assert cwd.is_dir()
-            pk = cwd / ".temp_spike_pk"
-            arch = self.isa
-            if "zicsr" not in arch:
-                arch += "_zicsr"
-            if "zifencei" not in arch:
-                arch += "_zifencei"
-            _build_spike_pk(pk, self.spike_pk_src_dir, self.riscv_gcc_prefix, self.riscv_gcc_basename, arch, self.abi)
-        else:
-            pk = self.spike_pk.resolve()
-
-        ret = execute(
-            self.spike_exe.resolve(),
-            *spike_args,
-            pk,
-            *spikepk_args,
-            program,
-            *args,
-            cwd=cwd,
-            **kwargs,
-        )
-        return ret, []
+    def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        """Use target to execute a executable with given arguments"""
+        raise NotImplementedError()  # TODO: abstract!
 
     def parse_stdout(self, out, metrics, exit_code=0):
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         sim_insns = re.search(r"(\d*) cycles", out)
-        if sim_insns:
+        if sim_insns:  # PK only
             sim_insns = int(float(sim_insns.group(1)))
             metrics.add("Simulated Instructions", sim_insns, True)
 
@@ -304,6 +228,186 @@ class SpikeTarget(RVPTarget, RVVTarget, RVBTarget):
                         }
                     )
         return ret
+
+
+class SpikePKTarget(SpikeBaseTarget):
+
+    DEFAULTS = {
+        **SpikeBaseTarget.DEFAULTS,
+        "spikepk_extra_args": [],
+        "build_pk": False,
+    }
+
+    OPTIONAL = SpikeBaseTarget.OPTIONAL | {
+        "spike.pk",
+        "spike.pk_rv32",
+        "spike.pk_rv64",
+        "spikepk.src_dir",
+        "spike_pk.pk",
+        "spike_pk.pk_rv32",
+        "spike_pk.pk_rv64",
+    }
+
+    @property
+    def build_pk(self):
+        value = self.config["build_pk"]
+        return str2bool(value)
+
+    @property
+    def spike_pk(self):
+        print("spike_pk")
+        ret = Path(
+            pick_first(
+                self.config,
+                [
+                    f"{self.name}.pk_rv{self.xlen}",
+                    f"{self.name}.pk",
+                    f"spike.pk_rv{self.xlen}",
+                    "spike.pk",
+                ],
+            )
+        )
+        print("ret", ret)
+        # input(">")
+        return ret
+
+    @property
+    def spike_pk_src_dir(self):
+        value = self.config["spikepk.src_dir"]
+        return value if value is None else Path(value)
+
+    @property
+    def spikepk_extra_args(self):
+        return self.config["spikepk_extra_args"]
+
+    def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        """Use target to execute a executable with given arguments"""
+        spike_args = self.get_spike_args()
+        spikepk_args = []
+
+        if len(self.extra_args) > 0:
+            if isinstance(self.extra_args, str):
+                extra_args = self.extra_args.split(" ")
+            else:
+                extra_args = self.extra_args
+            spike_args.extend(extra_args)
+
+        spikepk_args.append("-s")
+
+        if len(self.spikepk_extra_args) > 0:
+            if isinstance(self.spikepk_extra_args, str):
+                extra_args = self.spikepk_extra_args.split(" ")
+            else:
+                extra_args = self.spikepk_extra_args
+            spikepk_args.extend(extra_args)  # I rename args to extra_args because otherwise it overwrites *args
+
+        if self.timeout_sec > 0:
+            raise NotImplementedError
+
+        if self.build_pk:
+            # TODO: tempdir
+            assert cwd is not None
+            cwd = Path(cwd)
+            assert cwd.is_dir()
+            pk = cwd / ".temp_spike_pk"
+            arch = self.isa
+            if "zicsr" not in arch:
+                arch += "_zicsr"
+            if "zifencei" not in arch:
+                arch += "_zifencei"
+            _build_spike_pk(pk, self.spike_pk_src_dir, self.riscv_gcc_prefix, self.riscv_gcc_basename, arch, self.abi)
+        else:
+            pk = self.spike_pk.resolve()
+
+        ret = execute(
+            self.spike_exe.resolve(),
+            *spike_args,
+            pk,
+            *spikepk_args,
+            program,
+            *args,
+            cwd=cwd,
+            **kwargs,
+        )
+        return ret, []
+
+
+class SpikeBMTarget(SpikeBaseTarget):
+
+    DEFAULTS = {
+        **SpikeBaseTarget.DEFAULTS,
+        "htif": True,
+        "htif_nano": True,
+        "htif_wrap": True,
+        "htif_argv": False,
+    }
+
+    # def get_target_system(self):
+    #     return "generic_riscv_bm"
+
+    def __init__(self, name="spike_bm", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+    @property
+    def htif(self):
+        value = self.config["htif"]
+        return str2bool(value)
+
+    @property
+    def htif_nano(self):
+        value = self.config["htif_nano"]
+        return str2bool(value)
+
+    @property
+    def htif_wrap(self):
+        value = self.config["htif_wrap"]
+        return str2bool(value)
+
+    @property
+    def htif_argv(self):
+        value = self.config["htif_argv"]
+        return str2bool(value)
+
+    def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
+        """Use target to execute a executable with given arguments"""
+        spike_args = self.get_spike_args()
+
+        if len(self.extra_args) > 0:
+            if isinstance(self.extra_args, str):
+                extra_args = self.extra_args.split(" ")
+            else:
+                extra_args = self.extra_args
+            spike_args.extend(extra_args)
+
+        if self.timeout_sec > 0:
+            raise NotImplementedError
+
+        ret = execute(
+            self.spike_exe.resolve(),
+            *spike_args,
+            program,
+            *args,
+            cwd=cwd,
+            **kwargs,
+        )
+        return ret, []
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        ret.update(
+            {
+                "HTIF": self.htif,
+                "HTIF_NANO": self.htif_nano,
+                "HTIF_WRAP": self.htif_wrap,
+                "HTIF_ARGV": self.htif_argv,
+            }
+        )
+        return ret
+
+
+class SpikeTarget(SpikePKTarget):  # Alias for compatibility reasons
+    def __init__(self, name="spike", features=None, config=None):
+        super().__init__(name, features=features, config=config)
 
 
 class SpikeRV32Target(SpikeTarget):

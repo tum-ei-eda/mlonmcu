@@ -475,6 +475,18 @@
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">LayerGenFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
+<p>Example input:
+1,1024 1 fully_connected ,10,relu
+1,1024 1 fully_connected ,100,relu
+1,1024 1 fully_connected ,2,relu
+1,1024 1 fully_connected ,4,relu
+1,1024 1 fully_connected ,8,relu
+1,1024 1 fully_connected ,16,relu
+1,1024 1 fully_connected ,32,relu
+1,1024 1 fully_connected ,64,relu
+1,1024 1 fully_connected ,128,relu
+1,1024 1 fully_connected ,256,relu
+1,1024 1 fully_connected ,512,relu</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.frontend.LayerGenFrontend.DEFAULTS" title="Link to this definition"></a></dt>
@@ -1556,6 +1568,18 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">LayerGenFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
+<p>Example input:
+1,1024 1 fully_connected ,10,relu
+1,1024 1 fully_connected ,100,relu
+1,1024 1 fully_connected ,2,relu
+1,1024 1 fully_connected ,4,relu
+1,1024 1 fully_connected ,8,relu
+1,1024 1 fully_connected ,16,relu
+1,1024 1 fully_connected ,32,relu
+1,1024 1 fully_connected ,64,relu
+1,1024 1 fully_connected ,128,relu
+1,1024 1 fully_connected ,256,relu
+1,1024 1 fully_connected ,512,relu</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.DEFAULTS">
 <span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'fmt':</span> <span class="pre">'tflite',</span> <span class="pre">'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></em><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.DEFAULTS" title="Link to this definition"></a></dt>

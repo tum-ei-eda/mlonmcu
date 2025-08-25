@@ -1947,6 +1947,20 @@ class MibenchFrontend(BenchFrontend):
 
 
 class LayerGenFrontend(Frontend):
+    """Example input:
+    1,1024 1 fully_connected ,10,relu
+    1,1024 1 fully_connected ,100,relu
+    1,1024 1 fully_connected ,2,relu
+    1,1024 1 fully_connected ,4,relu
+    1,1024 1 fully_connected ,8,relu
+    1,1024 1 fully_connected ,16,relu
+    1,1024 1 fully_connected ,32,relu
+    1,1024 1 fully_connected ,64,relu
+    1,1024 1 fully_connected ,128,relu
+    1,1024 1 fully_connected ,256,relu
+    1,1024 1 fully_connected ,512,relu
+    """
+
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {

@@ -1,0 +1,30 @@
+---
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+paths:
+  deps: deps
+  logs: logs
+  results: results
+  plugins: plugins
+  temp: temp
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+repos: {}
+frameworks: {}
+frontends: {}
+toolchains: {}
+platforms: {}
+targets: {}
+postprocesses:
+  use: []
+vars:
+  runs_per_stage: false
+  session.executor: process_pool
+flags: {}

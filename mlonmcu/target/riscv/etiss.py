@@ -629,7 +629,7 @@ class EtissTarget(RISCVTarget):
         if self.boost_install_dir is not None:
             boost_lib_dir = self.boost_install_dir / "lib"
             ld_library_path = env.get("LD_LIBRARY_PATH", None)
-            if len(ld_library_path) > 0:
+            if ld_library_path is not None and len(ld_library_path) > 0:
                 ld_library_path = f"{boost_lib_dir}:{ld_library_path}"
             else:
                 ld_library_path = boost_lib_dir

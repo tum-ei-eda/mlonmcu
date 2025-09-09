@@ -25,7 +25,9 @@ from .frontend import (
     RelayFrontend,
     PaddleFrontend,
     ExampleFrontend,
-    EmbenchFrontend,
+    EmbenchFrontend,  # 1.0
+    EmbenchIoTFrontend,  # 2.0
+    EmbenchDSPFrontend,
     TaclebenchFrontend,
     PolybenchFrontend,
     CoremarkFrontend,
@@ -34,6 +36,9 @@ from .frontend import (
     MibenchFrontend,
     LayerGenFrontend,
     OpenASIPFrontend,
+    RVVBenchFrontend,
+    ISSBenchFrontend,
+    CryptoBenchFrontend,
     CmsisDSPFrontend,
     CmsisNNFrontend,
 )
@@ -47,6 +52,8 @@ SUPPORTED_FRONTENDS = {
     "paddle": PaddleFrontend,
     "example": ExampleFrontend,
     "embench": EmbenchFrontend,
+    "embench_iot": EmbenchIoTFrontend,
+    "embench_dsp": EmbenchDSPFrontend,
     "taclebench": TaclebenchFrontend,
     "coremark": CoremarkFrontend,
     "dhrystone": DhrystoneFrontend,
@@ -55,6 +62,9 @@ SUPPORTED_FRONTENDS = {
     "mibench": MibenchFrontend,
     "layergen": LayerGenFrontend,
     "openasip": OpenASIPFrontend,
+    "rvv_bench": RVVBenchFrontend,
+    "iss_bench": ISSBenchFrontend,
+    "crypto_bench": CryptoBenchFrontend,
     "cmsis_dsp": CmsisDSPFrontend,
     "cmsis_nn": CmsisNNFrontend,
 }  # TODO: use registry instead

@@ -22,7 +22,7 @@ import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
 
 import numpy as np
 
@@ -30,8 +30,11 @@ from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import (
     ModelFormats,
     Model,
+    Program,
     ExampleProgram,
     EmbenchProgram,
+    EmbenchIoTProgram,
+    EmbenchDSPProgram,
     TaclebenchProgram,
     PolybenchProgram,
     CoremarkProgram,
@@ -39,6 +42,9 @@ from mlonmcu.models.model import (
     MathisProgram,
     MibenchProgram,
     OpenASIPProgram,
+    RVVBenchProgram,
+    ISSBenchProgram,
+    CryptoBenchProgram,
     CmsisDSPProgram,
     CmsisNNProgram,
 )
@@ -53,6 +59,22 @@ from mlonmcu.logging import get_logger
 
 
 logger = get_logger()
+
+
+def check_integrity(algorithm: str, value: str, file_path: Union[str, Path], check: bool = True):
+    import hashlib
+
+    hash_func = hashlib.new(algorithm)
+    with open(file_path, "rb") as file:
+        # Read the file in chunks of 8192 bytes
+        while chunk := file.read(8192):
+            hash_func.update(chunk)
+
+    file_hash = hash_func.hexdigest()
+    hash_matches = file_hash == value
+    if check:
+        assert hash_matches, f"Model hash ({algorithm}) missmatch: {file_hash} vs. {value}"
+    return hash_matches
 
 
 class Frontend(ABC):
@@ -941,6 +963,7 @@ class TfLiteFrontend(SimpleFrontend):
         "pack_script": None,
         "analyze_enable": False,
         "analyze_script": None,
+        "check_integrity": False,
     }
 
     REQUIRED = Frontend.REQUIRED
@@ -954,6 +977,29 @@ class TfLiteFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
+
+    def process_metadata(self, model, cfg=None):
+        ret = super().process_metadata(model, cfg=cfg)
+        metadata = model.metadata
+        if self.check_integrity:
+            checked = False
+            if metadata is not None:
+                network_data = metadata.get("network")
+                if network_data is not None:
+                    hash_data = network_data.get("hash")
+                    if hash_data is not None:
+                        algorithm = hash_data.get("algorithm", "sha1")
+                        value = hash_data.get("value", None)
+                        check_integrity(algorithm, value, model.paths[0])
+                        checked = True
+            if not checked:
+                logger.debug("Skipping integrity check (missing hash)")
+        return ret
+
+    @property
+    def check_integrity(self):
+        value = self.config["check_integrity"]
+        return str2bool(value)
 
     @property
     def visualize_enable(self):
@@ -1477,11 +1523,56 @@ class PaddleFrontend(SimpleFrontend):
         )
 
 
-class ExampleFrontend(SimpleFrontend):
+class BenchFrontend(SimpleFrontend):
+    def __init__(self, name: str, prog_cls: Program, features=None, config=None):
+        super().__init__(
+            name,
+            ModelFormats.NONE,
+            features=features,
+            config=config,
+        )
+        self.prog_cls = prog_cls
+
+    def supported_names(self):
+        raise NotImplementedError
+
+    def generate(self, model) -> Tuple[dict, dict]:
+        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+
+        return {"default": artifacts}, {}
+
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace(f"{self.name}/", "")
+            if name in self.supported_names:
+                hint = self.prog_cls(
+                    name,
+                    alt=f"{self.name}/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = self.name
+        return ret
+
+
+class SingleBenchFrontend(BenchFrontend):
+
+    @property
+    def supported_names(self):
+        return [self.name]
+
+
+class ExampleFrontend(BenchFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "example",
-            ModelFormats.NONE,
+            ExampleProgram,
             features=features,
             config=config,
         )
@@ -1489,40 +1580,22 @@ class ExampleFrontend(SimpleFrontend):
     @property
     def supported_names(self):
         # return ["hello_world", "foobar"]
-        return ["hello_world", "foobar", "load_filter", "basic_hash"]
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("example/", "")
-            if name in self.supported_names:
-                hint = ExampleProgram(
-                    name,
-                    alt=f"example/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "example"
-        return ret
+        return [
+            "hello_world",
+            "foobar",
+            "load_filter",
+            "basic_hash",
+            "temp_crypto",
+        ]
 
 
-class EmbenchFrontend(SimpleFrontend):
+class EmbenchFrontend(BenchFrontend):
     REQUIRED = {"embench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "embench",
-            ModelFormats.NONE,
+            EmbenchProgram,
             features=features,
             config=config,
         )
@@ -1555,48 +1628,102 @@ class EmbenchFrontend(SimpleFrontend):
             "primecount",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("embench/", "")
-            if name in self.supported_names:
-                hint = EmbenchProgram(
-                    name,
-                    alt=f"embench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
         return ret
 
-    def get_platform_config(self, platform):
+
+class EmbenchIoTFrontend(BenchFrontend):
+    REQUIRED = {"embench_iot.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_iot",
+            EmbenchIoTProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            # "cubic",
+            # "nbody",
+            # "minver",
+            # "st",
+            # "primecount", ???
+            "aha-mont64",
+            "crc32",
+            "depthconv",
+            "edn",
+            "huffbench",
+            "matmult-int",
+            "md5sum",
+            "nettle-aes",
+            "nettle-sha256",
+            "nsichneu",
+            "picojpeg",
+            "qrduino",
+            "sglib-combined",
+            "slre",
+            "statemate",
+            "tarfind",
+            "ud",
+            "wikisort",
+            "xgboost",
+        ]
+
+    def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["template"] = "embench"
+            ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
         return ret
 
 
-class TaclebenchFrontend(SimpleFrontend):
+class EmbenchDSPFrontend(BenchFrontend):
+    REQUIRED = {"embench_dsp.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_dsp",
+            EmbenchDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "biquad_cascade_df2T_f32_sos3_n1",
+            "biquad_cascade_df2T_f32_sos3_n128",
+            "dct4_2048_f32",
+            "dct4_512_f32",
+            "fir_f32_taps256_n1",
+            "fir_f32_taps256_n128",
+            "lms_f32_taps256_n1",
+            "lms_f32_taps256_n128",
+            "rfft2048_f32",
+            "rfft512_f32",
+        ]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
+        return ret
+
+
+class TaclebenchFrontend(BenchFrontend):
     REQUIRED = {"taclebench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "taclebench",
-            ModelFormats.NONE,
+            TaclebenchProgram,
             features=features,
             config=config,
         )
@@ -1664,42 +1791,14 @@ class TaclebenchFrontend(SimpleFrontend):
             "sequential/petrinet",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("taclebench/", "")
-            if name in self.supported_names:
-                hint = TaclebenchProgram(
-                    name,
-                    alt=f"taclebench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "taclebench"
-        return ret
 
-
-class PolybenchFrontend(SimpleFrontend):
+class PolybenchFrontend(BenchFrontend):
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -1711,7 +1810,7 @@ class PolybenchFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "polybench",
-            ModelFormats.NONE,
+            PolybenchProgram,
             features=features,
             config=config,
         )
@@ -1752,28 +1851,6 @@ class PolybenchFrontend(SimpleFrontend):
             "medley/floyd-warshall",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("polybench/", "")
-            if name in self.supported_names:
-                hint = PolybenchProgram(
-                    name,
-                    alt=f"polybench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -1781,104 +1858,38 @@ class PolybenchFrontend(SimpleFrontend):
             ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "polybench"
-        return ret
 
-
-class CoremarkFrontend(SimpleFrontend):
+class CoremarkFrontend(SingleBenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "coremark",
-            ModelFormats.NONE,
+            CoremarkProgram,
             features=features,
             config=config,
         )
 
-    @property
-    def supported_names(self):
-        return [
-            "coremark",
-        ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("coremark/", "")
-            if name in self.supported_names:
-                hint = CoremarkProgram(
-                    name,
-                    alt=f"coremark/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "coremark"
-        return ret
-
-
-class DhrystoneFrontend(SimpleFrontend):
+class DhrystoneFrontend(SingleBenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "dhrystone",
-            ModelFormats.NONE,
+            DhrystoneProgram,
             features=features,
             config=config,
         )
 
-    @property
-    def supported_names(self):
-        return [
-            "dhrystone",
-        ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("dhrystone/", "")
-            if name in self.supported_names:
-                hint = DhrystoneProgram(
-                    name,
-                    alt=f"dhrystone/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "dhrystone"
-        return ret
-
-
-class MathisFrontend(SimpleFrontend):
+class MathisFrontend(BenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "mathis",
-            ModelFormats.NONE,
+            MathisProgram,
             features=features,
             config=config,
         )
@@ -1909,38 +1920,14 @@ class MathisFrontend(SimpleFrontend):
             "transposed_matmul16_b",
         ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("mathis/", "")
-            if name in self.supported_names:
-                hint = MathisProgram(
-                    name,
-                    alt=f"mathis/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
 
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "mathis"
-        return ret
-
-
-class MibenchFrontend(SimpleFrontend):
+class MibenchFrontend(BenchFrontend):
     REQUIRED = {"mibench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "mibench",
-            ModelFormats.NONE,
+            MibenchProgram,
             features=features,
             config=config,
         )
@@ -1961,28 +1948,6 @@ class MibenchFrontend(SimpleFrontend):
             "office/stringsearch",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("mibench/", "")
-            if name in self.supported_names:
-                hint = MibenchProgram(
-                    name,
-                    alt=f"mibench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -1990,15 +1955,22 @@ class MibenchFrontend(SimpleFrontend):
 
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "mibench"
-
-        return ret
-
 
 class LayerGenFrontend(Frontend):
+    """Example input:
+    1,1024 1 fully_connected ,10,relu
+    1,1024 1 fully_connected ,100,relu
+    1,1024 1 fully_connected ,2,relu
+    1,1024 1 fully_connected ,4,relu
+    1,1024 1 fully_connected ,8,relu
+    1,1024 1 fully_connected ,16,relu
+    1,1024 1 fully_connected ,32,relu
+    1,1024 1 fully_connected ,64,relu
+    1,1024 1 fully_connected ,128,relu
+    1,1024 1 fully_connected ,256,relu
+    1,1024 1 fully_connected ,512,relu
+    """
+
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
@@ -2099,12 +2071,12 @@ class LayerGenFrontend(Frontend):
         return artifacts, {}
 
 
-class OpenASIPFrontend(SimpleFrontend):
+class OpenASIPFrontend(BenchFrontend):
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "openasip",
-            ModelFormats.NONE,
+            OpenASIPProgram,
             features=features,
             config=config,
         )
@@ -2117,32 +2089,126 @@ class OpenASIPFrontend(SimpleFrontend):
             "crc",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("openasip/", "")
-            if name in self.supported_names:
-                hint = OpenASIPProgram(
-                    name,
-                    alt=f"openasip/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
+class RVVBenchFrontend(BenchFrontend):
 
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "rvv_bench",
+            RVVBenchProgram,
+            features=features,
+            config=config,
+        )
 
-        return {"default": artifacts}, {}
+    @property
+    def supported_names(self):
+        return [
+            "instructions_scalar",
+            "instructions_rvv",
+            "memcpy",
+            "memset",
+            "utf8_count",
+            "strlen",
+            "mergelines",
+            "mandelbrot",
+            "chacha20",
+            "poly1305",
+            "ascii_to_utf16",
+            "ascii_to_uft32",
+            "byteswap",
+            "LUT4",
+            "LUT6",
+            "hist",
+            "base64_encode",
+        ]
+
+
+class ISSBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "iss_bench",
+            ISSBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "large_block",
+            "branch_heavy",
+            "mem_heavy",
+        ]
+
+
+class CryptoBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "crypto_bench",
+            CryptoBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "mceliece348864_encrypt",
+            "mceliece348864_encrypt_rvv",
+            "mceliece348864_decrypt",
+            "mceliece348864_decrypt_rvv",
+            "mceliece348864_keypair",
+            "mceliece348864_keypair_rvv",
+        ]
+
+
+class CmsisDSPFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_dsp",
+            CmsisDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_abs_q15",
+            "arm_abs_q31",
+        ]
 
     def get_platform_config(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["template"] = "openasip"
+            ret["template"] = "cmsis_dsp_bench"
+        return ret
+
+
+class CmsisNNFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_nn",
+            CmsisNNProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_nn_activation_s16_tanh",
+            "arm_nn_activation_s16_sigmoid",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_nn_bench"
         return ret
 
 

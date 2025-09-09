@@ -49,6 +49,7 @@ class RISCVTarget(Target):
         "fpu": "double",  # allowed: none, single, double
         "arch": None,  # Please use above properties if possible
         "abi": None,  # Please use above properties if possible
+        "cmodel": None,
         "attr": "",  # Please avoid using this directly
         "cpu": None,
     }
@@ -299,6 +300,11 @@ class RISCVTarget(Target):
         return attrs
 
     @property
+    def cmodel(self):
+        temp = self.config["cmodel"]
+        return temp
+
+    @property
     def attr(self):
         attrs = self.attrs
         return ",".join(sorted(attrs))
@@ -381,6 +387,8 @@ class RISCVTarget(Target):
         # llvm/clang only!
         ret["RISCV_ATTR"] = self.attr
         ret["RISCV_LINUX"] = not self.is_bare
+        if self.cmodel is not None:
+            ret["RISCV_CMODEL"] = self.cmodel
 
         def feature_helper(attrs):
             # TODO

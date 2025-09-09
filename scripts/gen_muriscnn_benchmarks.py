@@ -1,4 +1,5 @@
 import os
+import re
 import argparse
 import multiprocessing
 import logging
@@ -14,6 +15,19 @@ logger = get_logger()
 
 # MURISCVNN_TOOLCHAIN = "gcc"
 
+CPU_THREADS = multiprocessing.cpu_count()
+
+
+SSH_HOST = os.environ.get("SSH_HOST", "example.com")
+SSH_PORT = int(os.environ.get("SSH_PORT", 22))
+SSH_USER = os.environ.get("SSH_USER", "username")
+SSH_PASSWORD = os.environ.get("SSH_PASSWORD", None)
+SSH_WORKDIR = os.environ.get("SSH_WORKDIR", "/tmp/workdir")
+
+
+MEM_ONLY = False
+FUSE_LD = "ld"  # llvm only
+
 
 class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
     """TODO"""
@@ -23,7 +37,9 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
 
     def post_session(self, report):
         """Called at the end of a session."""
+        targets = report.pre_df["Target"].unique()
         df = report.post_df.copy()
+        df["Backend"] = report.pre_df["Backend"]
         df["Kernels"] = df.apply(
             lambda row: (
                 "muRISCV-NN"
@@ -31,60 +47,109 @@ class CustomPostprocess(SessionPostprocess):  # RunPostprocess?
                 else (
                     "CMSIS-NN"
                     if row.get("feature_cmsisnn") or row.get("feature_cmsisnnbyoc")
-                    else ("Autotuned" if row.get("feature_autotuned") else "Default")
-                )
-            ),
-            axis=1,
-        )
-        # TODO: allow combinations
-        df["Extensions"] = df.apply(
-            lambda row: (
-                "VEXT+PEXT"
-                if row.get("feature_vext") and row.get("feature_pext")
-                else (
-                    "VEXT"
-                    if row.get("feature_vext")
+                    # else ("Autotuned" if row.get("feature_autotuned") else "Default")
                     else (
-                        "PEXT"
-                        if row.get("feature_pext")
-                        else (
-                            "MVEI+DSP"
-                            if row.get("feature_arm_mvei") and row.get("feature_arm_dsp")
-                            else (
-                                "MVEI" if row.get("feature_arm_mvei") else ("DSP" if row.get("feature_arm_dsp") else "")
-                            )
-                        )
+                        "TVM"
+                        if "tvm" in row.get("Backend")
+                        else ("TFLM" if "tflm" in row.get("Backend") else "Unknown")
                     )
                 )
             ),
             axis=1,
         )
+        # TODO: allow combinations
+        df["Mode"] = df.apply(
+            lambda row: (
+                (
+                    "Autotuned"
+                    if row.get("feature_autotuned")
+                    else (
+                        "Fallback"
+                        if "tvm" in row.get("Backend")
+                        else ("Reference" if "tflm" in row.get("Backend") else "-")
+                    )
+                )
+                if not (row.get("feature_muriscvnn") or row.get("feature_muriscvnnbyoc"))
+                else (
+                    "Vector"
+                    + (
+                        " (Portable)"
+                        if row.get("config_muriscvnn.use_portable") == 1
+                        or row.get("config_muriscvnnbyoc.use_portable") == 1
+                        else ""
+                    )
+                    if row.get("config_muriscvnn.use_vext") == 1 or row.get("config_muriscvnnbyoc.use_vext") == 1
+                    else (
+                        "Packed"
+                        if row.get("config_muriscvnn.use_pext") == 1 or row.get("config_muriscvnnbyoc.use_pext") == 1
+                        else "Scalar"
+                    )
+                )
+            ),
+            axis=1,
+        )
+        if "config_tvmaot.desired_layout" in df.columns:
+            df["Layout"] = df["config_tvmaot.desired_layout"].fillna("NHWC")
+        if "config_tvmaotplus.desired_layout" in df.columns:
+            df["Layout"] = df["config_tvmaotplus.desired_layout"].fillna("NHWC")
+        if "config_tvmrt.desired_layout" in df.columns:
+            df["Layout"] = df["config_tvmrt.desired_layout"].fillna("NHWC")
+        if "config_tvmllvm.desired_layout" in df.columns:
+            df["Layout"] = df["config_tvmllvm.desired_layout"].fillna("NHWC")
+        df["AutoVectorize"] = df.apply(
+            lambda row: (
+                "Loop+SLP"
+                if row.get("config_auto_vectorize.loop") and row.get("config_auto_vectorize.slp")
+                else (
+                    "Loop"
+                    if row.get("config_auto_vectorize.loop")
+                    else ("SLP" if row.get("config_auto_vectorize.slp") else "-")
+                )
+            ),
+            axis=1,
+        )
+        df["Arch"] = None
+        for target in targets:
+            if f"config_{target}.final_arch" in df.columns:
+                df["Arch"] = df["Arch"].combine_first(df[f"config_{target}.final_arch"])
+        df["Arch"] = df["Arch"].fillna("?")
+        df["Arch"] = df["Arch"].apply(lambda x: re.sub(r"_ZVL\d+B", "", x.upper()))
+        del df["Backend"]
         report.post_df = df
 
 
 FRONTEND = "tflite"
 
-TARGETS = [
-    "spike",
+
+SPIKE_TARGETS = ["spike_rv32", "spike_rv32_min", "spike_rv64"]
+RISCV_TARGETS = SPIKE_TARGETS + ["etiss", "etiss_pulpino", "ovpsim", "canmv_k230_ssh"]
+RVV_TARGETS = SPIKE_TARGETS + ["canmv_k230_ssh", "ovpsim"]
+SSH_TARGETS = ["canmv_k230_ssh", "host_x64_ssh"]
+OTHER_TARGETS = [
     "host_x86",
-    "etiss",
     "corstone300",
 ]
 
-AUTOTUNED_TARGETS = ["spike", "etiss"]
+TARGETS = RISCV_TARGETS + OTHER_TARGETS
+
+
+AUTOTUNED_TARGETS = ["spike_rv32", "ovpsim", "etiss_pulpino"]
 
 DEFAULT_TARGETS = [
-    "spike",
+    "spike_rv32",
     # "host_x86",
-    # "etiss",
-    "corstone300",
+    # "etiss_pulpino",
+    # "corstone300",
 ]
 
 PLATFORM = "mlif"
 
 BACKENDS = [
     "tflmi",
+    "tvmaot",
     "tvmaotplus",
+    "tvmllvm",
+    "tvmllvm",
 ]
 DEFAULT_BACKENDS = [
     "tflmi",
@@ -94,71 +159,126 @@ DEFAULT_BACKENDS = [
 FEATURES = [
     "muriscvnn",
     "cmsisnn",
-    "none",
+    "vext",
+    "pext",
+    "arm_dsp",
+    "arm_mvei",
+    "auto_vectorize",
+    "debug",
+    "none",  # TODO: needed?
 ]
 
 DEFAULT_FEATURES = [
     "muriscvnn",
     "cmsisnn",
+    "vext",
+    "pext",
+    # "arm_dsp",
+    # "arm_mvei",
 ]
 
 TUNING_RECORDS = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "resources",
-    "frameworks",
-    "tvm",
-    "tuning_records",
-    "riscv_cpu_v0.01.log.best",
+    "riscv_cpu_v0.01.log.best",  # TODO: replace?
 )
 
 
-def get_target_features(target, enable_default=True, enable_muriscvnn=False, enable_cmsisnn=False):
+def get_target_features(
+    target,
+    enable_default=True,
+    enable_scalar=True,
+    enable_vext=True,
+    enable_pext=True,
+    enable_dsp=False,
+    enable_mvei=False,
+    enable_muriscvnn=False,
+    enable_cmsisnn=False,
+    scalar_default_only=False,
+):
+    # print("get_target_features", target, enable_default, enable_vext, enable_pext, enable_muriscvnn, enable_cmsisnn)
+    DEFAULT_SCALAR = [[] if enable_scalar else []]
+    DEFAULT_VEXT = [["vext"] if not scalar_default_only and enable_vext else []]
+    DEFAULT_PEXT = [["pext"] if not scalar_default_only and enable_pext else []]
+    DEFAULT_DSP = [["dsp"] if not scalar_default_only and enable_dsp else []]
+    DEFAULT_MVEI = [["mvei"] if not scalar_default_only and enable_mvei else []]
+    MURISCVNN_SCALAR = [["muriscvnn"] if enable_scalar else []]
+    MURISCVNN_VEXT = [["muriscvnn", "vext"] if enable_vext else []]
+    MURISCVNN_PEXT = [["muriscvnn", "pext"] if enable_pext else []]
+    CMSISNN_SCALAR = [["cmsisnn"] if enable_scalar else []]
+    CMSISNN_DSP = [["cmsisnn", "arm_dsp"] if enable_dsp else []]
+    CMSISNN_MVEI = [["cmsisnn", "arm_mvei", "arm_dsp"] if enable_mvei else []]
     TARGET_FEATURES = {
-        "spike": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"], ["muriscvnn", "vext"], ["muriscvnn", "pext"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
+        **{
+            t: [
+                *([*DEFAULT_SCALAR, *DEFAULT_VEXT, *DEFAULT_PEXT] if enable_default else []),
+                *([*MURISCVNN_SCALAR, *MURISCVNN_VEXT, *MURISCVNN_PEXT] if enable_muriscvnn else []),
+                *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
+            ]
+            for t in SPIKE_TARGETS
+        },
+        "canmv_k230_ssh": [
+            *([*DEFAULT_SCALAR, *DEFAULT_VEXT] if enable_default else []),
+            *([*MURISCVNN_SCALAR, *MURISCVNN_VEXT] if enable_muriscvnn else []),
+            *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
+        ],
+        "ovpsim": [
+            *([*DEFAULT_SCALAR, *DEFAULT_VEXT, *DEFAULT_PEXT] if enable_default else []),
+            *([*MURISCVNN_SCALAR, *MURISCVNN_VEXT, *MURISCVNN_PEXT] if enable_muriscvnn else []),
+            *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
         ],
         "host_x86": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
+            *([*DEFAULT_SCALAR] if enable_default else []),
+            *([*MURISCVNN_SCALAR] if enable_muriscvnn else []),
+            *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
         ],
-        "etiss": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
+        "etiss_pulpino": [
+            *([*DEFAULT_SCALAR] if enable_default else []),
+            *([*MURISCVNN_SCALAR] if enable_muriscvnn else []),
+            *([*CMSISNN_SCALAR] if enable_cmsisnn else []),
         ],
         "corstone300": [
-            *([[]] if enable_default else []),
-            *([["muriscvnn"]] if enable_muriscvnn else []),
-            *([["cmsisnn"]] if enable_cmsisnn else []),
-            *([["cmsisnn", "arm_mvei", "arm_dsp"], ["cmsisnn", "arm_dsp"]] if enable_cmsisnn else []),
+            *([*DEFAULT_SCALAR, *DEFAULT_DSP, *DEFAULT_MVEI] if enable_default else []),
+            *([*MURISCVNN_SCALAR] if enable_muriscvnn else []),
+            *([*CMSISNN_SCALAR, *CMSISNN_DSP, *CMSISNN_MVEI] if enable_cmsisnn else []),
         ],
     }
-    return TARGET_FEATURES[target]
+    temp = TARGET_FEATURES[target]
+    # hacky way to remove duplicates
+    temp2 = []
+    temp3 = []
+    for x in temp:
+        y = ";".join(x)
+        if y in temp3:
+            continue
+        temp3.append(y)
+        temp2.append(x)
+    return temp2
 
 
 VALIDATE_FEATURES = ["validate", "debug"]
 
 TARGET_ARCH = {
-    "spike": "riscv",
+    **{t: "riscv" for t in RISCV_TARGETS},
     "x86": "x86",
-    "etiss": "riscv",
     "corstone300": "arm",
 }
 
 BACKEND_DEFAULT_FEATURES = {
     "tflmi": [],
+    "tvmaot": ["unpacked_api", "usmp"],
     "tvmaotplus": [],
+    "tvmrt": [],
+    "tvmllvm": [],
 }
 
 
 def get_backend_features(backend, target, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [[]],
+        "tvmaot": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
         "tvmaotplus": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
+        "tvmrt": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
+        "tvmllvm": [[], *([["autotuned"]] if enable_autotuned and target in AUTOTUNED_TARGETS else [])],
     }
     return BACKEND_FEATURES[backend]
 
@@ -166,6 +286,14 @@ def get_backend_features(backend, target, enable_autotuned=False):
 def get_backend_config(backend, features, enable_autotuned=False):
     BACKEND_FEATURES = {
         "tflmi": [{}],
+        "tvmaot": [
+            *([{}] if "muriscvnn" in features or "cmsisnn" in features else []),
+            *(
+                [{"tvmaot.desired_layout": "NCHW"}, {"tvmaot.desired_layout": "NHWC"}]
+                if "muriscvnn" not in features and "cmsisnn" not in features
+                else []
+            ),
+        ],
         "tvmaotplus": [
             *([{}] if "muriscvnn" in features or "cmsisnn" in features else []),
             *(
@@ -174,27 +302,59 @@ def get_backend_config(backend, features, enable_autotuned=False):
                 else []
             ),
         ],
+        "tvmrt": [
+            *([{}] if "muriscvnn" in features or "cmsisnn" in features else []),
+            *(
+                [{"tvmrt.desired_layout": "NCHW"}, {"tvmrt.desired_layout": "NHWC"}]
+                if "muriscvnn" not in features and "cmsisnn" not in features
+                else []
+            ),
+        ],
+        "tvmllvm": [
+            *([{}] if "muriscvnn" in features or "cmsisnn" in features else []),
+            *(
+                [{"tvmllvm.desired_layout": "NCHW"}, {"tvmllvm.desired_layout": "NHWC"}]
+                if "muriscvnn" not in features and "cmsisnn" not in features
+                else []
+            ),
+        ],
     }
     ret = BACKEND_FEATURES[backend]
-    if enable_autotuned and backend == "tvmaotplus":
+    if enable_autotuned and backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]:
         for cfg in ret:
             cfg.update({"autotuned.results_file": TUNING_RECORDS})
     return ret
 
 
 DEFAULT_CONFIG = {
-    "mlif.num_threads": 4,
-    "mlif.optimize": "s",
+    # "mlif.optimize": "s",
+    # "mlif.fuse_ld": "none",
+    "mlif.fuse_ld": FUSE_LD,
+    "mlif.strip_strings": MEM_ONLY,
+    "run.export_optional": True,
+    "mlif.verbose_makefile": True,
+    "mlif.print_outputs": False,
 }
 
 BACKEND_DEFAULT_CONFIG = {
     "tflmi": {},
+    "tvmaot": {"usmp.algorithm": "hill_climb"},
     "tvmaotplus": {"usmp.algorithm": "hill_climb"},
+    "tvmrt": {},
+    "tvmllvm": {},
 }
 
-VLENS = [128, 256, 512, 1024, 2048]
+VLENS = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
 
-DEFAULT_VLENS = [128, 256, 512, 1024, 2048]
+DEFAULT_VLENS = [64, 128, 256, 512, 1024, 2048]
+
+DEFAULT_OPTIMIZE = ["s"]
+DEFAULT_CUSTOM_UNROLL = [0]
+DEFAULT_UNROLL = ["AUTO"]
+
+TOOLCHAINS = ["gcc", "llvm"]
+
+DEFAULT_TOOLCHAINS = ["gcc"]
 
 MODELS = [
     # "sine_model",
@@ -214,6 +374,7 @@ POSTPROCESSES_0 = [
 ]
 
 POSTPROCESSES_1 = [
+    "analyse_linker_map",
     "rename_cols",
     "filter_cols",
 ]
@@ -223,41 +384,84 @@ POSTPROCESS_CONFIG = {
         "Model",
         "Backend",
         "Target",
-        "Cycles",
+        "Run Cycles",
+        "Run Cycles (rel.)",
         "Runtime [s]",
         "Total ROM",
+        "Total ROM (rel.)",
         "Total RAM",
+        "Total RAM (rel.)",
         "ROM read-only",
         "ROM code",
+        "ROM code (libmuriscvnn.a)",
         # "ROM read-only",
         # "ROM code",
         # "ROM misc",
         # "RAM data",
         # "RAM zero-init data",
-        "Incomplete",
+        # "Incomplete",
         "Failing",
         "Features",
         # "Comment",
-        "Validation",
+        # "Validation",
         "Kernels",
-        "Extensions",
+        # "Extensions",
+        "Arch",
         "VLEN",
         "Layout",
+        "Toolchain",
+        "AutoVectorize",
+        # "Loop",
+        # "SLP",
+        # "USE_PEXT",
+        # "USE_VEXT",
+        "Mode",
+        "Optimize",
+        "Linker",
+        # TODO: unrolling?
+        "Baseline",
+        "Arena Usage",
+        "Unroll",
+        "CustomUnroll",
+        "Arch2",
+        "Abi2",
     ],
     "rename_cols.mapping": {
-        "config_spike.vlen": "VLEN",
+        **{f"config_{t}.vlen": "VLEN" for t in RVV_TARGETS},
+        "config_ovpsim.vlen": "VLEN",
+        "config_tvmaot.desired_layout": "Layout",
         "config_tvmaotplus.desired_layout": "Layout",
+        "config_tvmrt.desired_layout": "Layout",
+        "config_tvmllvm.desired_layout": "Layout",
+        "config_mlif.toolchain": "Toolchain",
+        # "config_auto_vectorize.loop": "Loop",
+        # "config_auto_vectorize.slp": "SLP",
+        # "config_muriscvnn.use_vext": "USE_VEXT",
+        # "config_muriscvnnbyoc.use_vext": "USE_VEXT",
+        # "config_muriscvnn.use_pext": "USE_PEXT",
+        # "config_muriscvnnbyoc.use_pext": "USE_PEXT",
+        # "feature_auto_vectorize": "AutoVectorize",
+        "config_mlif.optimize": "Optimize",
+        "config_mlif.fuse_ld": "Linker",
+        "config_compare_rows.baseline": "Baseline",
+        "config_mlif.unroll_loops": "Unroll",
+        "config_auto_vectorize.custom_unroll": "CustomUnroll",
     },
     "filter_cols.drop_nan": True,
+    "compare_rows.to_compare": None,  # Figure out automatically (All metrics, expects those filtered out later)
+    "compare_rows.group_by": None,  # Figure out outomatically
+    "compare_rows.percent": False,  # Set to True to multiply values by 100.0
+    "compare_rows.invert": False,  # Set to True to 1/x values, which might make sense when considering speedups
+    "compare_rows.substract": False,  # Set to True to make the baseline 0.0 instead of 1.0
 }
 
 
-def gen_features(backend, features, validate=False):
+def gen_features(backend, features, validate=False, auto_vectorize=False):
     ret = []
     ret.extend(BACKEND_DEFAULT_FEATURES[backend])
     if validate:
         ret += VALIDATE_FEATURES
-    if backend == "tvmaotplus":
+    if backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]:
         # Rename muriscvnn -> muriscvnnbyoc etc.
         for feature in features:
             if "muriscvnn" in feature:
@@ -267,101 +471,269 @@ def gen_features(backend, features, validate=False):
             else:
                 ret.append(feature)
     else:
+        if backend == "tflmi":
+            ret.append("debug_arena")
         ret += features
+    if auto_vectorize:
+        ret.append("auto_vectorize")
     return ret
 
 
-def gen_config(backend, backend_config, features, vlen, enable_postprocesses=False):
+def gen_config(
+    backend,
+    backend_config,
+    target,
+    features,
+    vlen,
+    toolchain,
+    enable_postprocesses=False,
+    baseline=None,
+    scalar_default_only=False,
+    loop=True,
+    slp=True,
+    use_vext="AUTO",
+    use_pext="AUTO",
+    use_portable="AUTO",
+    unroll="AUTO",
+    custom_unroll=False,
+    optimize="s",
+    parallel=None,
+    # embedded=False,
+    per_stage=False,
+):
     ret = {}
+    ret["mlif.toolchain"] = toolchain
+    ret["mlif.optimize"] = optimize
+    ret["mlif.unroll_loops"] = None if unroll == "AUTO" else unroll
     ret.update(DEFAULT_CONFIG)
     ret.update(BACKEND_DEFAULT_CONFIG[backend])
     ret.update(backend_config)
     if enable_postprocesses:
         ret.update(POSTPROCESS_CONFIG)
-    if "muriscvnn" in features or "muriscvnnbyoc" in features:
-        for feature in features:
-            if feature == "pext":
-                assert vlen == 0
-                if backend == "tvmaotplus":
-                    ret["muriscvnnbyoc.mcpu"] = "cortex-m33"
-            elif feature == "vext":
-                if backend == "tvmaotplus":
+    if "pext" in features and use_pext != 0:
+        assert "vext" not in features
+        assert vlen == 0
+        if "muriscvnn" in features or "muriscvnnbyoc" in features:
+            if backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]:
+                ret["muriscvnnbyoc.mcpu"] = "cortex-m33"
+    if "vext" in features or use_portable:
+        if use_vext != 0:
+            assert "pext" not in features or use_portable
+            if "muriscvnn" in features or "muriscvnnbyoc" in features:
+                if backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]:
                     ret["muriscvnnbyoc.mcpu"] = "cortex-m55"
-                ret["vext.vlen"] = vlen
-            # else:
-            # assert vlen == 0
+        # if not scalar_default_only or "muriscvnn" in features or "muriscvnnbyoc" in features:
+        ret["vext.vlen"] = vlen
+        # ret["vext.embedded"] = embedded
+    # if embedded and target in RISCV_TARGETS:
+    #     ret[f"{target}.fpu"] = "none"
+    #     ret[f"{target}.compressed"] = False
+    #     ret[f"{target}.atomic"] = False
+    # else:
+    # assert vlen == 0
     if "cmsisnnbyoc" in features:
-        assert backend == "tvmaotplus"
+        assert backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]
         if "arm_mvei" in features:
             ret["cmsisnnbyoc.mcpu"] = "cortex-m55"
         elif "arm_dsp" in features:
             ret["cmsisnnbyoc.mcpu"] = "cortex-m33"
+    if toolchain == "llvm" or backend == "tvmllvm":
+        ret["auto_vectorize.custom_unroll"] = custom_unroll
+    if baseline is not None:
+        ret["compare_rows.baseline"] = baseline
+    ret["auto_vectorize.loop"] = loop
+    ret["auto_vectorize.slp"] = slp
+    ret["muriscvnn.use_vext"] = use_vext
+    ret["muriscvnn.use_pext"] = use_pext
+    ret["muriscvnn.use_portable"] = use_portable
+    ret["muriscvnnbyoc.use_vext"] = use_vext
+    ret["muriscvnnbyoc.use_pext"] = use_pext
+    ret["muriscvnnbyoc.use_portable"] = use_portable
+    is_ssh = target in SSH_TARGETS
+    if is_ssh:
+        assert parallel == 1
+        ret[f"{target}.hostname"] = SSH_HOST
+        ret[f"{target}.port"] = SSH_PORT
+        ret[f"{target}.username"] = SSH_USER
+        ret[f"{target}.password"] = SSH_PASSWORD
+        ret[f"{target}.workdir"] = SSH_WORKDIR
+    ret["mlif.num_threads"] = CPU_THREADS if per_stage and parallel == 1 else 4
     return ret
 
 
 def benchmark(args):
     with MlonMcuContext() as context:
         user_config = context.environment.vars  # TODO: get rid of this workaround
-        session = context.create_session()
-        models = apply_modelgroups(args.models, context=context)
-        for model in models:
-            for backend in args.backend:
-                for target in args.target:
-                    enable_default = not args.skip_default
-                    enable_muriscvnn = "muriscvnn" in args.feature
-                    enable_cmsisnn = "cmsisnn" in args.feature
-                    for target_features in get_target_features(
-                        target,
-                        enable_default=enable_default,
-                        enable_muriscvnn=enable_muriscvnn,
-                        enable_cmsisnn=enable_cmsisnn,
-                    ):
-                        enable_autotuned = False
-                        if args.autotuned:
-                            if (
-                                "cmsisnn" not in target_features
-                                and "muriscvnn" not in target_features
-                                and backend == "tvmaotplus"
-                            ):
-                                enable_autotuned = True
-                        for backend_features in get_backend_features(
-                            backend, target, enable_autotuned=enable_autotuned
-                        ):
-                            features = list(set(target_features + backend_features))
-                            for backend_config in get_backend_config(
-                                backend, features, enable_autotuned=enable_autotuned
-                            ):
-                                vlens = [0]
-                                if "vext" in features:
-                                    vlens = args.vlen
-                                features = gen_features(backend, features, validate=args.validate)
-                                for vlen in vlens:
-                                    config = gen_config(
-                                        backend, backend_config, features, vlen, enable_postprocesses=args.post
-                                    )
-                                    config.update(user_config)  # TODO
-                                    # resolve_missing_configs(config, features, target, context)
-                                    run = session.create_run(config=config)
-                                    run.add_features_by_name(features, context=context)
-                                    run.add_platform_by_name(PLATFORM, context=context)
-                                    run.add_frontend_by_name(FRONTEND, context=context)
-                                    run.add_model_by_name(model, context=context)
-                                    run.add_backend_by_name(backend, context=context)
-                                    run.add_target_by_name(target, context=context)
-                                    if args.post:
-                                        run.add_postprocesses_by_name(POSTPROCESSES_0)
-                                        run.add_postprocess(CustomPostprocess(), append=True)
-                                        run.add_postprocesses_by_name(POSTPROCESSES_1, append=True)
-        if args.noop:
-            stage = RunStage.LOAD
-        else:
-            stage = RunStage.RUN
-        session.process_runs(until=stage, num_workers=args.parallel, progress=args.progress, context=context)
-        report = session.get_reports()
+        with context.create_session(label=args.label) as session:
+            models = apply_modelgroups(args.models, context=context)
+            for model in models:
+                # print("model", model)
+                for backend in args.backend:
+                    # print("backend", backend)
+                    for target in args.target:
+                        # print("target", target)
+                        for toolchain in args.toolchain:
+                            # print("toolchain", toolchain)
+                            enable_default = not args.skip_default
+                            enable_portable = args.portable
+                            enable_vext = "vext" in args.feature
+                            enable_pext = "pext" in args.feature
+                            enable_dsp = "arm_dsp" in args.feature
+                            enable_mvei = "arm_mvei" in args.feature
+                            enable_muriscvnn = "muriscvnn" in args.feature
+                            enable_cmsisnn = "cmsisnn" in args.feature
+                            enable_auto_vectorize = "auto_vectorize" in args.feature
+                            enable_debug = "debug" in args.feature
+                            if enable_debug:
+                                opts = ["0"]
+                            else:
+                                opts = args.optimize
+                            if toolchain == "llvm" or backend == "tvmllvm":
+                                custom_unrolls = args.custom_unroll
+                            else:
+                                custom_unrolls = [None]
+                            unrolls = args.unroll
+                            for opt in opts:
+                                # print("opt", opt)
+                                for unroll in unrolls:
+                                    # print("unroll", unroll)
+                                    custom_unrolls_ = custom_unrolls if unroll else [False]
+                                    for custom_unroll in custom_unrolls_:
+                                        # print("custom_unroll", custom_unroll)
+                                        scalar_default_only = args.scalar_default_only
+                                        for target_features in get_target_features(
+                                            target,
+                                            enable_default=enable_default,
+                                            enable_vext=enable_vext,
+                                            enable_pext=enable_pext,
+                                            enable_dsp=enable_dsp,
+                                            enable_mvei=enable_mvei,
+                                            enable_muriscvnn=enable_muriscvnn,
+                                            enable_cmsisnn=enable_cmsisnn,
+                                            scalar_default_only=scalar_default_only,
+                                        ):
+                                            # print("tf", target_features)
+                                            if toolchain == "llvm" and "pext" in target_features:
+                                                # print("CONT")
+                                                continue  # LLVM does not support pext!
+                                            enable_autotuned = False
+                                            if args.autotuned:
+                                                if (
+                                                    "cmsisnn" not in target_features
+                                                    and "muriscvnn" not in target_features
+                                                    and backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]
+                                                ):
+                                                    enable_autotuned = True
+                                            for backend_features in get_backend_features(
+                                                backend, target, enable_autotuned=enable_autotuned
+                                            ):
+                                                # print("bf", backend_features)
+                                                features = list(set(target_features + backend_features))
+                                                for backend_config in get_backend_config(
+                                                    backend, features, enable_autotuned=enable_autotuned
+                                                ):
+                                                    # print("bc", backend_config)
+                                                    vlens = [0]
+                                                    if "vext" in features:
+                                                        vlens = args.vlen
+                                                    features = gen_features(
+                                                        backend, features, validate=args.validate, auto_vectorize=True
+                                                    )
+                                                    # print("features", features)
+                                                    # input("AAA")
+                                                    cfg = [(None, None, None)] if enable_default else []
+                                                    if "muriscvnn" in features or "muriscvnnbyoc" in features:
+                                                        if "vext" in features:
+                                                            cfg = [(0, 0, 0), (1, 0, 0)]
+                                                            if enable_portable:
+                                                                cfg += [(1, 0, 1)]
+                                                        elif "pext" in features:
+                                                            cfg = [(0, 0, 0), (0, 1, 0)]
+                                                        else:
+                                                            cfg = [(0, 0, 0)]
+                                                            if enable_portable:
+                                                                cfg += [(1, 0, 1)]
+                                                    for use_vext, use_pext, use_portable in cfg:
+                                                        # print("cfg", use_vext, use_pext, use_portable)
+                                                        avs = [(0, 0)]
+                                                        if enable_auto_vectorize:
+                                                            if "vext" in features:
+                                                                # avs.append((1, 1))
+                                                                if use_vext and not use_portable:
+                                                                    avs = [(0, 0)]
+                                                                else:
+                                                                    avs = [(1, 1)]
+
+                                                        # print("fff", features)
+                                                        for vlen in vlens:
+                                                            # print("vlen", vlen)
+                                                            for av in avs:
+                                                                # print("av", av)
+                                                                loop, slp = av
+                                                                # print("vl", vlen)
+                                                                # input("9")
+                                                                config = gen_config(
+                                                                    backend,
+                                                                    backend_config,
+                                                                    target,
+                                                                    features,
+                                                                    vlen,
+                                                                    toolchain=toolchain,
+                                                                    enable_postprocesses=args.post,
+                                                                    baseline=args.baseline,
+                                                                    scalar_default_only=scalar_default_only,
+                                                                    loop=loop,
+                                                                    slp=slp,
+                                                                    use_vext=use_vext,
+                                                                    use_pext=use_pext,
+                                                                    use_portable=use_portable,
+                                                                    unroll=unroll,
+                                                                    custom_unroll=custom_unroll,
+                                                                    optimize=opt,
+                                                                    # embedded=args.embedded,
+                                                                    parallel=args.parallel,
+                                                                    per_stage=args.runs_per_stage,
+                                                                )
+                                                                config.update(user_config)  # TODO
+                                                                # resolve_missing_configs(config, features,
+                                                                #   target, context)
+                                                                run = session.create_run(config=config)
+                                                                run.add_features_by_name(features, context=context)
+                                                                run.add_platform_by_name(PLATFORM, context=context)
+                                                                run.add_frontend_by_name(FRONTEND, context=context)
+                                                                run.add_model_by_name(model, context=context)
+                                                                run.add_backend_by_name(backend, context=context)
+                                                                run.add_target_by_name(target, context=context)
+                                                                if args.post:
+                                                                    run.add_postprocesses_by_name(POSTPROCESSES_0)
+                                                                    run.add_postprocess(
+                                                                        CustomPostprocess(), append=True
+                                                                    )
+                                                                    run.add_postprocesses_by_name(
+                                                                        POSTPROCESSES_1, append=True
+                                                                    )
+                                                                    if args.baseline is not None:
+                                                                        run.add_postprocess_by_name(
+                                                                            "compare_rows", append=True
+                                                                        )
+            if args.noop:
+                stage = RunStage.LOAD
+            else:
+                stage = RunStage.COMPILE if MEM_ONLY else RunStage.RUN
+            success = session.process_runs(
+                until=stage,
+                num_workers=args.parallel,
+                progress=args.progress,
+                context=context,
+                per_stage=args.runs_per_stage,
+            )
+            report = session.get_reports()
         report_file = args.output
         report.export(report_file)
         print()
         print(report.df)
+        if args.fail:
+            assert success
 
 
 def main():
@@ -406,6 +778,16 @@ def main():
         help=f"features to use (default: {DEFAULT_FEATURES})",
     )
     parser.add_argument(
+        "--optimize",
+        "--opt",
+        type=str,
+        action="append",
+        choices=["0", "1", "2", "3", "s", "fast"],
+        # default=default_features,
+        default=[],
+        help=f"-O flags to use (default: {DEFAULT_OPTIMIZE})",
+    )
+    parser.add_argument(
         "--vlen",
         type=int,
         action="append",
@@ -413,6 +795,21 @@ def main():
         # default=DEFAULT_VLENS,
         default=[],
         help=f"VLENS to use (RISC-V only) (default: {DEFAULT_VLENS})",
+    )
+    parser.add_argument(
+        "--toolchain",
+        type=str,
+        action="append",
+        choices=TOOLCHAINS,
+        # default=DEFAULT_TOOLCHAINS,
+        default=[],
+        help=f"toolchains to use (RISC-V only) (default: {DEFAULT_TOOLCHAINS})",
+    )
+    parser.add_argument(
+        "--baseline",
+        type=int,
+        default=None,
+        help="Compare results with this row (default: skip comparison)",
     )
     parser.add_argument(
         "--validate",
@@ -425,10 +822,47 @@ def main():
         help="Use tuning records, if available (default: %(default)s)",
     )
     parser.add_argument(
+        "--runs-per-stage",
+        action="store_true",
+        help="Process one stage (build/compile/run) at a time (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--unroll",
+        action="append",
+        type=int,
+        choices=[0, 1, "AUTO"],
+        default=[],
+        help=f"Force Unroll (1) or don't unroll (0) scalar loops (default: {DEFAULT_UNROLL})",
+    )
+    parser.add_argument(
+        "--custom-unroll",
+        action="append",
+        type=int,
+        choices=[0, 1],
+        default=[],
+        help=f"Custom Unroll (1) or don't unroll (0) scalar loops, LLVM only (default: {DEFAULT_CUSTOM_UNROLL})",
+    )
+    parser.add_argument(
         "--skip-default",
         dest="skip_default",
         action="store_true",
         help="Do not generate benchmarks for reference runs (default: %(default)s)",
+    )
+    # parser.add_argument(
+    #     "--embedded",
+    #     dest="embedded",
+    #     action="store_true",
+    #     help="Use embedded vector extension (default: %(default)s)",
+    # )
+    parser.add_argument(
+        "--portable",
+        action="store_true",
+        help="Use portable kernels (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--scalar-default-only",
+        action="store_true",
+        help="TODO",
     )
     parser.add_argument(
         "--post",
@@ -459,6 +893,13 @@ def main():
         help="""Output CSV file (default: %(default)s)""",
     )
     parser.add_argument(
+        "--label",
+        metavar="NAME",
+        type=str,
+        default="",
+        help="Used name for storing report in MLonMCU environment",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -469,6 +910,11 @@ def main():
         action="store_true",
         help="Skip processing runs. (default: %(default)s)",
     )
+    parser.add_argument(
+        "--fail",
+        action="store_true",
+        help="Fail on error (default: %(default)s)",
+    )
     args = parser.parse_args()
     if not args.backend:
         args.backend = DEFAULT_BACKENDS
@@ -478,6 +924,14 @@ def main():
         args.feature = DEFAULT_FEATURES
     if not args.vlen:
         args.vlen = DEFAULT_VLENS
+    if not args.optimize:
+        args.optimize = DEFAULT_OPTIMIZE
+    if not args.unroll:
+        args.unroll = DEFAULT_UNROLL
+    if not args.custom_unroll:
+        args.custom_unroll = DEFAULT_CUSTOM_UNROLL
+    if not args.toolchain:
+        args.toolchain = DEFAULT_TOOLCHAINS
     if "none" in args.feature:
         assert len(args.feature) == 1
         args.feature = []
@@ -485,7 +939,7 @@ def main():
         set_log_level(logging.DEBUG)
     else:
         set_log_level(logging.INFO)
-    print("args", args)
+    # print("args", args)
     benchmark(args)
 
 

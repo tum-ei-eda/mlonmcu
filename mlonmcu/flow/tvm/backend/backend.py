@@ -27,7 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
-from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
+from mlonmcu.models.model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .python_utils import prepare_python_environment
@@ -257,7 +257,7 @@ class TVMBackend(Backend):
 
     @property
     def tvmc_extra_args(self):
-        return self.config["tvmc_extra_args"]
+        return str2list(self.config["tvmc_extra_args"], allow_none=True)
 
     @property
     def tvmc_custom_script(self):
@@ -308,7 +308,7 @@ class TVMBackend(Backend):
             else:
                 value = [value]
         for v in value:
-            assert v in ["relay", "c", "ll", "tir"]
+            assert v in ["relay", "c", "ll", "tir", "tir0", "tir1", "tir2", "tir3", "dso"]
         assert isinstance(value, list)
         return value
 
@@ -544,6 +544,19 @@ class TVMBackend(Backend):
                             optional=True,
                         )
                     )
+            for fmt in ["tir", "tir0", "tir1", "tir2", "tir3"]:
+                if fmt in dump:
+                    with open(str(out_path) + f".{fmt}", "r") as handle:
+                        mod_tir = handle.read()
+                        artifacts.append(
+                            Artifact(
+                                f"{self.prefix}.{fmt}",
+                                content=mod_tir,
+                                fmt=ArtifactFormat.SOURCE,
+                                optional=True,
+                            )
+                        )
+            # TODO: Handle DSO dump?
             if self.executor == "graph":
                 if self.fmt == "so":
                     pass

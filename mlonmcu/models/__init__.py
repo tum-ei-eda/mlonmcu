@@ -26,7 +26,9 @@ from .frontend import (
     RelayFrontend,
     PaddleFrontend,
     ExampleFrontend,
-    EmbenchFrontend,
+    EmbenchFrontend,  # 1.0
+    EmbenchIoTFrontend,  # 2.0
+    EmbenchDSPFrontend,
     TaclebenchFrontend,
     PolybenchFrontend,
     CoremarkFrontend,
@@ -49,6 +51,8 @@ SUPPORTED_FRONTENDS = {
     "paddle": PaddleFrontend,
     "example": ExampleFrontend,
     "embench": EmbenchFrontend,
+    "embench_iot": EmbenchIoTFrontend,
+    "embench_dsp": EmbenchDSPFrontend,
     "taclebench": TaclebenchFrontend,
     "coremark": CoremarkFrontend,
     "dhrystone": DhrystoneFrontend,

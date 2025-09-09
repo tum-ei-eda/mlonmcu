@@ -531,6 +531,11 @@ class ISSBenchProgram(MultiBenchProgram):
                 ret["ISS_BENCH_ARRAY_SIZE"] = self.array_size
 
 
+class CryptoBenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CRYPTO_BENCH", config=config, alt=alt)
+
+
 class CmsisDSPProgram(MultiBenchProgram):
     DEFAULTS = {
         "size": 16,  # hoch much data to operate on

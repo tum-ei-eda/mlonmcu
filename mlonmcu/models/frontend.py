@@ -44,6 +44,7 @@ from mlonmcu.models.model import (
     OpenASIPProgram,
     RVVBenchProgram,
     ISSBenchProgram,
+    CryptoBenchProgram,
     CmsisDSPProgram,
     CmsisNNProgram,
 )
@@ -1579,7 +1580,13 @@ class ExampleFrontend(BenchFrontend):
     @property
     def supported_names(self):
         # return ["hello_world", "foobar"]
-        return ["hello_world", "foobar", "load_filter", "basic_hash"]
+        return [
+            "hello_world",
+            "foobar",
+            "load_filter",
+            "basic_hash",
+            "temp_crypto",
+        ]
 
 
 class EmbenchFrontend(BenchFrontend):
@@ -2132,6 +2139,28 @@ class ISSBenchFrontend(BenchFrontend):
             "large_block",
             "branch_heavy",
             "mem_heavy",
+        ]
+
+
+class CryptoBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "crypto_bench",
+            CryptoBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "mceliece348864_encrypt",
+            "mceliece348864_encrypt_rvv",
+            "mceliece348864_decrypt",
+            "mceliece348864_decrypt_rvv",
+            "mceliece348864_keypair",
+            "mceliece348864_keypair_rvv",
         ]
 
 

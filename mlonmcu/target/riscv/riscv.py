@@ -22,7 +22,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
+from mlonmcu.flow import SUPPORTED_TVM_BACKENDS, SUPPORTED_IREE_LLVM_BACKENDS
 from mlonmcu.target import Target
 from mlonmcu.config import str2list, str2bool, pick_first
 from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
@@ -400,6 +400,12 @@ class RISCVTarget(Target):
     def get_arch(self):
         return "riscv"
 
+    def get_vector_width(self):
+        return 0
+
+    def has_scalable_vectorization(self):
+        return False
+
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
         if backend in SUPPORTED_TVM_BACKENDS:
@@ -440,4 +446,17 @@ class RISCVTarget(Target):
                         "target_keys": None,
                     }
                 )
+        elif backend in SUPPORTED_IREE_LLVM_BACKENDS:
+            arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
+            ret.update(
+                {
+                    # "target_march": self.llvm_arch,
+                    "target_triple": self.riscv_gcc_basename,
+                    "target_abi": self.abi,
+                    "target_cpu_features": self.attr,
+                    "target_cpu": self.cpu,
+                    "target_vector_width": self.get_vector_width(),
+                    "target_scalable_vectorization": self.has_scalable_vectorization(),
+                }
+            )
         return ret

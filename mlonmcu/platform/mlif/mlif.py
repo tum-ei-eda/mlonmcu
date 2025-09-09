@@ -60,8 +60,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
+            "memgraph_llvm_cdfg",
+            "llvm_basic_block_sections",
+            "global_isel",
             "set_inputs",
             "get_outputs",
+            "memgraph_llvm_cdfg",
+            "global_isel",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 

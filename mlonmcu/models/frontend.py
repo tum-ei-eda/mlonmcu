@@ -44,6 +44,9 @@ from mlonmcu.models.model import (
     OpenASIPProgram,
     RVVBenchProgram,
     ISSBenchProgram,
+    CryptoBenchProgram,
+    CmsisDSPProgram,
+    CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -1586,7 +1589,14 @@ class ExampleFrontend(BenchFrontend):
 
     @property
     def supported_names(self):
-        return ["hello_world", "foobar"]
+        # return ["hello_world", "foobar"]
+        return [
+            "hello_world",
+            "foobar",
+            "load_filter",
+            "basic_hash",
+            "temp_crypto",
+        ]
 
 
 class EmbenchFrontend(BenchFrontend):
@@ -2140,3 +2150,73 @@ class ISSBenchFrontend(BenchFrontend):
             "branch_heavy",
             "mem_heavy",
         ]
+
+
+class CryptoBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "crypto_bench",
+            CryptoBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "mceliece348864_encrypt",
+            "mceliece348864_encrypt_rvv",
+            "mceliece348864_decrypt",
+            "mceliece348864_decrypt_rvv",
+            "mceliece348864_keypair",
+            "mceliece348864_keypair_rvv",
+        ]
+
+
+class CmsisDSPFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_dsp",
+            CmsisDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_abs_q15",
+            "arm_abs_q31",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_dsp_bench"
+        return ret
+
+
+class CmsisNNFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_nn",
+            CmsisNNProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_nn_activation_s16_tanh",
+            "arm_nn_activation_s16_sigmoid",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_nn_bench"
+        return ret

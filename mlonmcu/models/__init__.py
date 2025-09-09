@@ -39,6 +39,9 @@ from .frontend import (
     OpenASIPFrontend,
     RVVBenchFrontend,
     ISSBenchFrontend,
+    CryptoBenchFrontend,
+    CmsisDSPFrontend,
+    CmsisNNFrontend,
 )
 
 SUPPORTED_FRONTENDS = {
@@ -63,6 +66,9 @@ SUPPORTED_FRONTENDS = {
     "openasip": OpenASIPFrontend,
     "rvv_bench": RVVBenchFrontend,
     "iss_bench": ISSBenchFrontend,
+    "crypto_bench": CryptoBenchFrontend,
+    "cmsis_dsp": CmsisDSPFrontend,
+    "cmsis_nn": CmsisNNFrontend,
 }  # TODO: use registry instead
 
 __all__ = [

@@ -692,7 +692,7 @@ class ETISSDebug(SetupFeature, TargetFeature):
         return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
 
     def get_target_config(self, target):
-        assert target in ["etiss_pulpino", "etiss"]
+        assert target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64"]
         return {f"{target}.debug_etiss": self.enabled}
 
 
@@ -713,8 +713,8 @@ class Trace(TargetFeature):
     # TODO: add callback to save artifact?
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "etiss", "etiss_perf", "ovpsim"]
-        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+        assert target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
             config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
@@ -731,6 +731,8 @@ class Trace(TargetFeature):
         assert target in [
             "etiss_pulpino",
             "etiss",
+            "etiss_rv32",
+            "etiss_rv64",
             "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
@@ -741,7 +743,7 @@ class Trace(TargetFeature):
                 def mem_trace_callback(stdout, metrics, artifacts, directory=None):
                     """Callback which parses collects the generated artifacts."""
                     file_name = "trace.txt"
-                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                    if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
                         file_name = "dBusAccess.csv"
                     assert directory is not None
                     file_path = Path(directory) / file_name
@@ -1456,6 +1458,8 @@ class LogInstructions(TargetFeature):
             "spike",
             "etiss_pulpino",
             "etiss",
+            "etiss_rv32",
+            "etiss_rv64",
             "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
@@ -1473,7 +1477,7 @@ class LogInstructions(TargetFeature):
                 log_file = directory / "instrs.txt"
                 extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+        elif target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
@@ -1510,6 +1514,8 @@ class LogInstructions(TargetFeature):
             "spike",
             "etiss_pulpino",
             "etiss",
+            "etiss_rv32",
+            "etiss_rv64",
             "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
@@ -1523,14 +1529,16 @@ class LogInstructions(TargetFeature):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                        if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
                             if self.etiss_experimental_print_to_file:
                                 log_file = Path(directory) / "instr_trace.csv"
+                                with open(log_file, "r") as f:
+                                    content = f.read()
                             else:
                                 # TODO: update stdout and remove log_instrs lines
                                 instrs = []
                                 for line in stdout.split("\n"):
-                                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                                    if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
                                         expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                                     match = expr.match(line)
                                     if match is not None:
@@ -1978,6 +1986,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
     def add_target_config(self, target, config):
         assert target in [
             "etiss",
+            "etiss_rv32",
             "microtvm_etiss",
             "corev_ovpsim",
             "cv32e40p",

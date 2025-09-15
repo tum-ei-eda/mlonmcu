@@ -106,7 +106,9 @@ def gen_extra_target_details_args(extra_target_details, bool_as_int: bool = True
     return sum(ret, [])
 
 
-def get_target_tvmc_args(target="c", extra_targets=[], target_details={}, extra_target_details={}, bool_as_int: bool = True):
+def get_target_tvmc_args(
+    target="c", extra_targets=[], target_details={}, extra_target_details={}, bool_as_int: bool = True
+):
     if extra_targets:
         assert isinstance(extra_targets, list)
     else:
@@ -146,7 +148,9 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
     )
 
 
-def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c", system_lib=False, bool_as_int: bool = True):
+def get_tvmaot_tvmc_args(
+    alignment_bytes, unpacked_api, runtime="crt", target="c", system_lib=False, bool_as_int: bool = True
+):
     ret = []
     if runtime == "crt":
         if unpacked_api:

@@ -40,40 +40,40 @@ else:
 
 css_content_rvv = """
 .base {
-	margin: 40px auto;
-	max-width: 1200px;
-	line-height: 1.6;
-	font-size: 18px;
-	color: #444;
-	padding: 0 10px;
+  margin: 40px auto;
+  max-width: 1200px;
+  line-height: 1.6;
+  font-size: 18px;
+  color: #444;
+  padding: 0 10px;
 }
 h1, h2, h3 { line-height: 1.2 }
 
 .tab {
-	overflow: hidden;
-	border: 1px solid #ccc;
-	background-color: #f0f0f0;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
 }
 .tab button {
-	float: left;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	padding: 15px;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 15px;
 }
 .tab button:hover { background-color: #ddd; }
 .tab button.active { background-color: #ccc; }
 
 
 .tblCont {
-	height: 500px;
-	overflow: auto;
-	resize: vertical;
+  height: 500px;
+  overflow: auto;
+  resize: vertical;
 }
 .tblCont thead th {
-	position: sticky;
-	top: 0px;
-	background: #fff;
+  position: sticky;
+  top: 0px;
+  background: #fff;
 }
 
 .tblCont td:empty::before { content: "--"; }
@@ -136,12 +136,12 @@ html_top = f"""
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{args.title}</title>
-	<link rel="stylesheet" href="../base.css">
-	<script type="text/javascript" src="../templates/base.js"></script>
-	<style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{args.title}</title>
+  <link rel="stylesheet" href="../base.css">
+  <script type="text/javascript" src="../templates/base.js"></script>
+  <style>
 {css_content}
   </style>
 </head>
@@ -181,9 +181,9 @@ def gen_table_rvv(group, lines):
     return (
         f"""
 <div class="tab">
-	<button class="tabSel active" onclick="switchTbl(event, 'tblMaa')">vl={group}</button>
+  <button class="tabSel active" onclick="switchTbl(event, 'tblMaa')">vl={group}</button>
 
-	<button class="tabSel"><b>Note: VLEN={args.vlen} {args.info}</b></button>
+  <button class="tabSel"><b>Note: VLEN={args.vlen} {args.info}</b></button>
 </div>
 
 <div class="tblCont tblContvf">
@@ -204,7 +204,8 @@ def gen_table_rvv(group, lines):
 
 
 tables_contents = [
-    gen_table_scalar(group, lines) if args.scalar else gen_table_rvv(group, lines) for group, lines in group_lines.items()
+    gen_table_scalar(group, lines) if args.scalar else gen_table_rvv(group, lines)
+    for group, lines in group_lines.items()
 ]
 
 html_content = html_top + "\n</br>\n".join(tables_contents) + html_bot

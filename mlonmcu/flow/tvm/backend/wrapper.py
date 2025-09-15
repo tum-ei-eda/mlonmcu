@@ -71,6 +71,7 @@ def generate_common_includes():
 #include "tvm/runtime/crt/error_codes.h"
 #include "tvm/runtime/c_runtime_api.h"
 #include "printing.h"
+#include "exit.h"
 """
 
 
@@ -139,8 +140,12 @@ def generate_tvmrt_wrapper(graph, params, model_info, workspace_size, debug_aren
                 out += "{kDLUInt, 8, 1}"
             elif t.dtype == "int8":
                 out += "{kDLInt, 8, 1}"
+            elif t.dtype == "uint64":
+                out += "{kDLUInt, 64, 1}"
+            elif t.dtype == "int64":
+                out += "{kDLInt, 64, 1}"
             else:
-                raise "Invalid type"
+                raise RuntimeError(f"Invalid type: {t.dtype}")
             out += ", "
         out += "};\n    "
 
@@ -211,7 +216,7 @@ TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);
 
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
-    exit(1);
+    mlonmcu_exit(1);
 }
 
 void TVMLogf(const char* msg, ...)
@@ -530,7 +535,7 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev)
     mainCode += """
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
-    exit(1);
+    mlonmcu_exit(1);
 }
 
 TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)

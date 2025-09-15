@@ -93,4 +93,4 @@ def test_target_tvm(user_context, model_name, backend_name, target_name, models_
         "tvm", backend_name, target_name, user_context, model_name, models_dir, feature_names, config
     )
 
-    assert len(lookup_artifacts(artifacts, name="tvmc_run_out.log")) == 1
+    assert len(lookup_artifacts(artifacts, name="tvm_cpu_out.log")) == 1

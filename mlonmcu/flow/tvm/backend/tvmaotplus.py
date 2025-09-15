@@ -26,16 +26,29 @@ class TVMAOTPlusBackend(TVMAOTBackend):
         **TVMAOTBackend.DEFAULTS,
         "arena_size": 0,
         "unpacked_api": True,
-        "extra_pass_config": {
-            "tir.usmp.enable": True,
-            "tir.usmp.algorithm": "hill_climb",
-        },
     }
 
     name = "tvmaotplus"
 
     def __init__(self, runtime="crt", fmt="mlf", system_lib=False, features=None, config=None):
         super().__init__(runtime=runtime, fmt=fmt, system_lib=False, features=features, config=config)
+
+    @property
+    def extra_pass_config(self):
+        # Make sure that defaults are not dropped
+        defaults = {
+            "tir.usmp.algorithm": "hill_climb",
+        }
+        forced = {
+            "tir.usmp.enable": True,
+        }
+        new = super().extra_pass_config
+        ret = {
+            **defaults,
+            **new,
+            **forced,
+        }
+        return ret
 
 
 if __name__ == "__main__":

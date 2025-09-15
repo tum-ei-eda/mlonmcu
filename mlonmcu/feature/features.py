@@ -127,7 +127,7 @@ class Validate(FrontendFeature, PlatformFeature):
     @property
     def allow_missing(self):
         value = self.config["allow_missing"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fail_on_error(self):
@@ -155,7 +155,9 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "use_vext": "AUTO",
+        "use_portable": "AUTO",
         "use_pext": "AUTO",
+        "use_corev": False,
     }
 
     REQUIRED = {"muriscvnn.src_dir"}
@@ -172,8 +174,15 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         value = self.config["use_vext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_portable(self):
+        value = self.config["use_portable"]
+        if value == "AUTO" or value is None:
+            return value
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     @property
@@ -181,8 +190,13 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         value = self.config["use_pext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_corev(self):
+        value = self.config["use_corev"]
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     def add_framework_config(self, framework, config):
@@ -200,8 +214,10 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
+            "MURISCVNN_COREV": self.use_corev,
         }
 
     def get_required_cache_flags(self):
@@ -341,6 +357,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         "mattr": None,  # for +nodsp, +nomve
         "debug_last_error": False,
         "use_vext": "AUTO",
+        "use_portable": "AUTO",
         "use_pext": "AUTO",
     }
 
@@ -370,8 +387,15 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         value = self.config["use_vext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
+        return "ON" if value else "OFF"
+
+    @property
+    def use_portable(self):
+        value = self.config["use_portable"]
+        if value == "AUTO" or value is None:
+            return value
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     @property
@@ -379,8 +403,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         value = self.config["use_pext"]
         if value == "AUTO" or value is None:
             return value
-        if not isinstance(value, (bool, int)):
-            value = str2bool(value)
+        value = str2bool(value)
         return "ON" if value else "OFF"
 
     def add_backend_config(self, backend, config):
@@ -413,6 +436,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
+            "MURISCVNN_PORTABLE": self.use_portable,
             "MURISCVNN_VEXT": self.use_vext,
             "MURISCVNN_PEXT": self.use_pext,
         }
@@ -464,8 +488,8 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
-        assert is_power_of_two(self.vlen)
-        assert self.vlen >= VEXT_MIN_ALLOWED_VLEN
+        assert self.vlen is None or is_power_of_two(self.vlen)
+        assert self.vlen is None or self.vlen >= VEXT_MIN_ALLOWED_VLEN
         return filter_none(
             {
                 f"{target}.enable_vext": True,
@@ -535,7 +559,11 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
             "muriscvnn.lib": ["pext"],
             "tflmc.exe": ["pext"],
             "riscv_gcc.install_dir": ["pext"],
+            "riscv_gcc32.install_dir": ["pext"],
+            "riscv_gcc64.install_dir": ["pext"],
             "riscv_gcc.name": ["pext"],
+            "riscv_gcc32.name": ["pext"],
+            "riscv_gcc64.name": ["pext"],
         }
 
 
@@ -563,22 +591,22 @@ class Bext(SetupFeature, TargetFeature, PlatformFeature):
     @property
     def zba(self):
         value = self.config["zba"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def zbb(self):
         value = self.config["zbb"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def zbc(self):
         value = self.config["zbc"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def zbs(self):
         value = self.config["zbs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def get_target_config(self, target):
         return filter_none(
@@ -636,14 +664,14 @@ class GdbServer(TargetFeature):
     @property
     def attach(self):
         value = self.config["attach"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def port(self):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim"]
+        assert target in ["host_x86", "etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "ovpsim", "corev_ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,
@@ -661,7 +689,7 @@ class ETISSDebug(SetupFeature, TargetFeature):
         super().__init__("etissdbg", features=features, config=config)
 
     def get_required_cache_flags(self):
-        return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
+        return {"etiss.install_dir": ["dbg"], "etiss.script": ["dbg"]} if self.enabled else {}
 
     def get_target_config(self, target):
         assert target in ["etiss_pulpino", "etiss"]
@@ -677,15 +705,16 @@ class Trace(TargetFeature):
     @property
     def to_file(self):
         value = self.config["to_file"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
 
+    # TODO: add callback to save artifact?
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "etiss", "ovpsim"]
-        if target in ["etiss_pulpino", "etiss"]:
+        assert target in ["etiss_pulpino", "etiss", "etiss_perf", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
             config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
@@ -697,6 +726,39 @@ class Trace(TargetFeature):
                 extra_args_new.append("--tracefile")
                 extra_args_new.append(trace_file)
             config.update({f"{target}.extra_args": extra_args_new})
+
+    def get_target_callbacks(self, target):
+        assert target in [
+            "etiss_pulpino",
+            "etiss",
+            "etiss_perf",
+            "ovpsim",
+            "corev_ovpsim",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
+        if self.enabled:
+            if self.to_file:
+
+                def mem_trace_callback(stdout, metrics, artifacts, directory=None):
+                    """Callback which parses collects the generated artifacts."""
+                    file_name = "trace.txt"
+                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                        file_name = "dBusAccess.csv"
+                    assert directory is not None
+                    file_path = Path(directory) / file_name
+                    assert file_path.is_file()
+                    with open(file_path, "r") as f:
+                        content = f.read()
+                    mem_artifact = Artifact(
+                        f"{target}_mem.log",
+                        content=content,
+                        fmt=ArtifactFormat.TEXT,
+                        flags=(self.name, target),
+                    )
+                    artifacts.append(mem_artifact)
+                    return stdout
+
+                return None, mem_trace_callback
+        return None, None
 
 
 @register_feature("unpacked_api")
@@ -752,6 +814,7 @@ class Usmp(BackendFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "algorithm": "greedy_by_conflicts",  # options: greedy_by_conflicts, greedy_by_size, hill_climb
+        "use_workspace_io": False,
     }
 
     def __init__(self, features=None, config=None):
@@ -760,6 +823,11 @@ class Usmp(BackendFeature):
     @property
     def algorithm(self):
         return str(self.config["algorithm"])
+
+    @property
+    def use_workspace_io(self):
+        value = self.config["use_workspace_io"]
+        return str2bool(value)
 
     def add_backend_config(self, backend, config):
         assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -775,6 +843,7 @@ class Usmp(BackendFeature):
             tmp = ast.literal_eval(tmp)
         assert isinstance(tmp, dict)
         tmp["tir.usmp.enable"] = self.enabled
+        tmp["tir.usmp.use_workspace_io"] = self.use_workspace_io
         if self.algorithm in ["greedy_by_size", "greedy_by_conflicts", "hill_climb"]:
             tmp["tir.usmp.algorithm"] = self.algorithm
         else:
@@ -788,7 +857,7 @@ class Usmp(BackendFeature):
 
 @register_feature("fuse_ops")
 class FuseOps(BackendFeature):
-    """TODO"""
+    """Exposes relay.FuseOps.max_depth settings for TVM backends."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -1090,7 +1159,7 @@ class AutoTVM(TVMTuneBase):
 
 @register_feature("autoscheduler", depends=["autotune"])
 class AutoScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM AutoScheduler Tuning Feature."""
 
     # TODO: metascheduler
     # TODO: graphtuner
@@ -1128,7 +1197,7 @@ class AutoScheduler(TVMTuneBase):
 
 @register_feature("metascheduler", depends=["autotune"])
 class MetaScheduler(TVMTuneBase):
-    """TODO"""
+    """TVM MetaScheduler Tuning Feature."""
 
     DEFAULTS = {
         **TVMTuneBase.DEFAULTS,
@@ -1279,7 +1348,7 @@ class CacheSim(TargetFeature):
     @property
     def ic_enable(self):
         value = self.config["ic_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def ic_config(self):
@@ -1288,7 +1357,7 @@ class CacheSim(TargetFeature):
     @property
     def dc_enable(self):
         value = self.config["dc_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def dc_config(self):
@@ -1297,7 +1366,7 @@ class CacheSim(TargetFeature):
     @property
     def l2_enable(self):
         value = self.config["l2_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def l2_config(self):
@@ -1306,12 +1375,12 @@ class CacheSim(TargetFeature):
     @property
     def log_misses(self):
         value = self.config["log_misses"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def detailed(self):
         value = self.config["detailed"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1366,17 +1435,33 @@ class LogInstructions(TargetFeature):
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
 
+    OPTIONAL = {"etiss.experimental_print_to_file"}
+
     def __init__(self, features=None, config=None):
         super().__init__("log_instrs", features=features, config=config)
 
     @property
     def to_file(self):
         value = self.config["to_file"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
+
+    @property
+    def etiss_experimental_print_to_file(self):
+        value = self.config["etiss.experimental_print_to_file"]
+        return str2bool(value, allow_none=True)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
+        assert target in [
+            "spike",
+            "etiss_pulpino",
+            "etiss",
+            "etiss_perf",
+            "ovpsim",
+            "corev_ovpsim",
+            "gvsoc_pulp",
+            "vicuna2",
+        ]
         if not self.enabled:
             return
         if target == "spike":
@@ -1388,10 +1473,15 @@ class LogInstructions(TargetFeature):
                 log_file = directory / "instrs.txt"
                 extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target in ["etiss_pulpino", "etiss"]:
+        elif target in ["etiss_pulpino", "etiss", "etiss_perf"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
+            if self.etiss_experimental_print_to_file:
+                extra_bool_config_new = config.get("extra_bool_config", {})
+                if self.to_file:
+                    extra_bool_config_new["plugin.printinstruction.print_to_file"] = True
+                config.update({f"{target}.extra_bool_config": extra_bool_config_new})
         elif target in ["ovpsim", "corev_ovpsim"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("--trace")
@@ -1412,15 +1502,19 @@ class LogInstructions(TargetFeature):
             else:
                 extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
+        elif target == "vicuna2":
+            config.update({f"{target}.log_instrs": True})
 
     def get_target_callbacks(self, target):
         assert target in [
             "spike",
             "etiss_pulpino",
             "etiss",
+            "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
             "gvsoc_pulp",
+            "vicuna2",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             if not target == "gvsoc_pulp":
@@ -1429,19 +1523,26 @@ class LogInstructions(TargetFeature):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        if target in ["etiss_pulpino", "etiss"]:
-                            # TODO: update stdout and remove log_instrs lines
-                            instrs = []
-                            for line in stdout.split("\n"):
-                                if target in ["etiss_pulpino", "etiss"]:
-                                    expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
-                                match = expr.match(line)
-                                if match is not None:
-                                    instrs.append(line)
-                                else:
-                                    new_lines.append(line)
-                            content = "\n".join(instrs)
-                            stdout = "\n".join(new_lines)
+                        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                            if self.etiss_experimental_print_to_file:
+                                log_file = Path(directory) / "instr_trace.csv"
+                            else:
+                                # TODO: update stdout and remove log_instrs lines
+                                instrs = []
+                                for line in stdout.split("\n"):
+                                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                                        expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
+                                    match = expr.match(line)
+                                    if match is not None:
+                                        instrs.append(line)
+                                    else:
+                                        new_lines.append(line)
+                                content = "\n".join(instrs)
+                                stdout = "\n".join(new_lines)
+                        elif target == "vicuna2":
+                            log_file = Path(directory) / "log_instrs.csv"
+                            with open(log_file, "r") as f:
+                                content = f.read()
                         else:
                             assert target in ["spike", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
@@ -1520,12 +1621,12 @@ class TargetOptimized(RunFeature):
     @property
     def layouts(self):
         value = self.config["layouts"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def schedules(self):
         value = self.config["schedules"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def __init__(self, features=None, config=None):
         super().__init__("target_optimized", features=features, config=config)
@@ -1564,7 +1665,7 @@ class AutoVectorize(PlatformFeature):
     @property
     def verbose(self):
         value = self.config["verbose"]
-        # return str2bool(value) if not isinstance(value, (bool, int)) else value
+        # return str2bool(value)
         if value is None or not value:
             return "OFF"
         assert isinstance(value, str)
@@ -1575,12 +1676,12 @@ class AutoVectorize(PlatformFeature):
     @property
     def loop(self):
         value = self.config["loop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def slp(self):
         value = self.config["slp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def force_vector_width(self):
@@ -1611,7 +1712,7 @@ class AutoVectorize(PlatformFeature):
     @property
     def custom_unroll(self):
         value = self.config["custom_unroll"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def get_platform_defs(self, platform):
         return {
@@ -1653,7 +1754,7 @@ class Benchmark(PlatformFeature, TargetFeature):
     @property
     def total(self):
         value = self.config["total"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def aggregate(self):
@@ -1700,11 +1801,12 @@ class Benchmark(PlatformFeature, TargetFeature):
                 metrics_ = metrics[1:]  # drop first run (warmup)
 
                 # TODO: this currently processes all numeric metrics, should probably ignore stuff like MIPS etc.
+                candidates = ["cycle", "time", "instruction"]  # TODO: allow overriding via config
                 data_ = [
                     {
                         key: (float(value) / self.num_runs) if self.num_runs > 1 else value
                         for key, value in m.data.items()
-                        if "cycle" in key.lower() or "time" in key.lower()
+                        if any(x in key.lower() for x in candidates)
                     }
                     for m in metrics_
                 ]
@@ -1722,7 +1824,9 @@ class Benchmark(PlatformFeature, TargetFeature):
                 elif self.aggregate == "none":
                     aggs = []
 
-                if len(aggs) == 0:
+                if len(df.columns) == 0:
+                    data = {}
+                elif len(aggs) == 0:
                     data = {}
                 else:
                     df_ = df.agg(aggs)
@@ -1838,37 +1942,37 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
     @property
     def mac(self):
         value = self.config["mac"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def mem(self):
         value = self.config["mem"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def bi(self):
         value = self.config["bi"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def alu(self):
         value = self.config["alu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def bitmanip(self):
         value = self.config["bitmanip"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def simd(self):
         value = self.config["simd"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def hwlp(self):
         value = self.config["hwlp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1930,8 +2034,8 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 
     # Default getter functions:
     @staticmethod
-    def generalized_str2bool(input: Union[str, bool, int]) -> bool:
-        return str2bool(input) if isinstance(input, str) else input
+    def generalized_str2bool(inp: Union[str, bool, int]) -> bool:
+        return str2bool(inp)
 
     def getter_bool(self, key_name: Union[str, bool, int]) -> bool:
         return self.generalized_str2bool(self.config[key_name])
@@ -2184,7 +2288,7 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
 
 @register_feature("vanilla_accelerator")
 class VanillaAccelerator(TargetFeature):
-    """TODO"""
+    """BYOC Vanilla Accelerator Feature for TVM."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2217,3 +2321,424 @@ class VanillaAccelerator(TargetFeature):
             assert self.name not in extra_plugin_config
             extra_plugin_config[self.name]["baseaddr"] = self.base_addr
             config.update({f"{target}.extra_plugin_config": extra_plugin_config})
+
+
+@register_feature("memgraph_llvm_cdfg")
+class MemgraphLlvmCdfg(PlatformFeature):
+    """TODO"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "host": None,  # localhost
+        "port": None,  # 7687
+        "purge": None,  # false
+        "session": None,  # default,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("memgraph_llvm_cdfg", features=features, config=config)
+
+    @property
+    def host(self):
+        value = self.config["host"]
+        return value
+
+    @property
+    def port(self):
+        value = self.config["port"]
+        return value
+
+    @property
+    def purge(self):
+        value = self.config["purge"]
+        return str2bool(value, allow_none=True)
+
+    @property
+    def session(self):
+        value = self.config["session"]
+        return value
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none(
+            {
+                "MEMGRAPH_LLVM_CDFG": self.enabled,
+                "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_SESSION": self.session,
+            }
+        )
+
+
+@register_feature("global_isel")
+class GlobalIsel(PlatformFeature):
+    """LLVM's -global-isel=1 mode (replacing ISelDAG)"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "abort": None,  # 0: fallback, 1: abort 2: fallback+msg
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("global_isel", features=features, config=config)
+
+    @property
+    def abort(self):
+        value = self.config["abort"]
+        assert value is None or str(value) in ["0", "1", "2"]
+        return value
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none(
+            {
+                "GLOBAL_ISEL": self.enabled,
+                "GLOBAL_ISEL_ABORT": self.abort,
+            }
+        )
+
+
+@register_feature("gen_data")
+class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """Generate input data for validation."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "fill_mode": "file",  # Allowed: random, ones, zeros, file, dataset
+        "file": "auto",  # Only relevant if fill_mode=file
+        "number": 10,  # generate up to number samples (may be less if file has less inputs)
+        "fmt": "npy",  # Allowed: npy, npz
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_data", features=features, config=config)
+
+    @property
+    def fill_mode(self):
+        value = self.config["fill_mode"]
+        assert value in ["random", "ones", "zeros", "file", "dataset"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def number(self):
+        return int(self.config["number"])
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_data": self.enabled,
+            f"{frontend}.gen_data_fill_mode": self.fill_mode,
+            f"{frontend}.gen_data_file": self.file,
+            f"{frontend}.gen_data_number": self.number,
+            f"{frontend}.gen_data_fmt": self.fmt,
+        }
+
+
+@register_feature("gen_ref_data", depends=["gen_data"])
+class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """Generate reference outputs for validation."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mode": "file",  # Allowed: file, model
+        "file": "auto",  # Only relevant if mode=file
+        "fmt": "npy",  # Allowed: npy, npz
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_ref_data", features=features, config=config)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_ref_data": self.enabled,
+            f"{frontend}.gen_ref_data_mode": self.mode,
+            f"{frontend}.gen_ref_data_file": self.file,
+            f"{frontend}.gen_ref_data_fmt": self.fmt,
+        }
+
+
+@register_feature("gen_ref_labels", depends=["gen_data"])
+class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
+    """Generate reference labels for classification."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "mode": "file",  # Allowed: file, model
+        "file": "auto",  # Only relevant if mode=file
+        "fmt": "npy",  # Allowed: npy, npz, txt
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("gen_ref_labels", features=features, config=config)
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def file(self):
+        value = self.config["file"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_frontend_config(self, frontend):
+        assert frontend in ["tflite"]
+        return {
+            f"{frontend}.gen_ref_labels": self.enabled,
+            f"{frontend}.gen_ref_labels_mode": self.mode,
+            f"{frontend}.gen_ref_labels_file": self.file,
+            f"{frontend}.gen_ref_labels_fmt": self.fmt,
+        }
+
+
+@register_feature("set_inputs")
+class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
+    """Apply test inputs to model."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "interface": "auto",  # Allowed: auto, rom, filesystem, stdin, stdin_raw, uart
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("set_inputs", features=features, config=config)
+
+    @property
+    def interface(self):
+        value = self.config["interface"]
+        assert value in ["auto", "rom", "filesystem", "stdin", "stdin_raw", "uart"]
+        return value
+
+    def get_platform_config(self, platform):
+        assert platform in ["mlif", "tvm", "microtvm"]
+        # if tvm/microtvm: allow using --fill-mode provided by tvmc run
+        return {
+            f"{platform}.set_inputs": self.enabled,
+            f"{platform}.set_inputs_interface": self.interface,
+        }
+
+
+@register_feature("get_outputs")
+class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
+    """Extract resulting outputs from model."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "interface": "auto",  # Allowed: auto, filesystem, stdout, stdout_raw, uart
+        "fmt": "npy",  # Allowed: npz, npz
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("get_outputs", features=features, config=config)
+
+    @property
+    def interface(self):
+        value = self.config["interface"]
+        assert value in ["auto", "filesystem", "stdout", "stdout_raw", "uart"]
+        return value
+
+    @property
+    def fmt(self):
+        value = self.config["fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    def get_platform_config(self, platform):
+        assert platform in ["mlif", "tvm", "microtvm"]
+        return {
+            f"{platform}.get_outputs": self.enabled,
+            f"{platform}.get_outputs_interface": self.interface,
+            f"{platform}.get_outputs_fmt": self.fmt,
+        }
+
+
+@register_feature("validate_new", depends=["gen_data", "gen_ref_data", "set_inputs", "get_outputs"])
+class ValidateNew(RunFeature):
+    """Wrapper feature for enabling all validatioon related features at once."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_new", features=features, config=config)
+
+    # def get_postprocesses(self):
+    #     # config = {}
+    #     # from mlonmcu.session.postprocess import ValidateOutputsPostprocess
+    #     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
+    #     # return [validate_outputs_postprocess]
+    #     return ["validate_outputs"]
+
+
+@register_feature("perf_sim")
+class PerfSim(TargetFeature):
+    """ETISS Performance Estimation/Simulation Feature."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "core": "cv32e40p",
+        "estimator": True,
+        "trace_asm": False,  # TODO: move to owen feature, save files!
+        "trace_instr": False,  # TODO: move to owen feature, save files!
+        "to_file": False,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("perf_sim", features=features, config=config)
+
+    @property
+    def core(self):
+        value = self.config["core"]
+        return value
+
+    @property
+    def estimator(self):
+        value = self.config["estimator"]
+        return str2bool(value)
+
+    @property
+    def trace_asm(self):
+        value = self.config["trace_asm"]
+        return str2bool(value)
+
+    @property
+    def trace_instr(self):
+        value = self.config["trace_instr"]
+        return str2bool(value)
+
+    def to_file(self):
+        value = self.config["to_file"]
+        return str2bool(value, allow_none=True)
+
+    def add_target_config(self, target, config):
+        assert target in ["etiss_perf"]
+        if not self.enabled:
+            return
+        plugins_new = config.get(f"{target}.plugins", [])
+        extra_plugin_config = config.get(f"{target}.extra_plugin_config", {})
+        if self.estimator:
+            plugins_new.append("PerformanceEstimatorPlugin")
+            if self.core is not None:
+                assert self.name not in extra_plugin_config
+                extra_plugin_config["perfEst"] = {}
+                extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
+                if self.to_file:
+                    extra_plugin_config["perfEst"]["print"] = 1
+                extra_plugin_config["perfEst"]["printDir"] = "."
+        if self.trace_asm or self.trace_instr:
+            if self.to_file:
+                assert not (self.trace_asm and self.trace_instr)
+                assert not self.trace_instr or self.core.upper() == "CVA6"
+                plugins_new.append("TracePrinterPlugin")
+                trace = "InstructionTrace_RV64" if self.trace_instr else "AssemblyTrace"
+                # trace = "InstructionTrace_RV64" if self.trace_instr else "CV32E40P"
+                extra_plugin_config["tracePrinter"] = {}
+                extra_plugin_config["tracePrinter"]["trace"] = trace
+                extra_plugin_config["tracePrinter"]["stream.toFile"] = 1
+                # extra_plugin_config["tracePrinter"]["outDir"] = "/tmp/perf_out/"  # TODO: do not hardcode
+                extra_plugin_config["tracePrinter"]["stream.outDir"] = "."
+                extra_plugin_config["tracePrinter"]["stream.fileName"] = (
+                    "instr_trace" if self.trace_instr else "asm_trace"
+                )
+                extra_plugin_config["tracePrinter"]["stream.postfix"] = ".csv"
+                extra_plugin_config["tracePrinter"]["rotateSize"] = 0x100000
+        config.update({f"{target}.plugins": plugins_new})
+        config.update({f"{target}.extra_plugin_config": extra_plugin_config})
+
+    def get_target_callbacks(self, target):
+        assert target in ["etiss_perf"]
+        if self.enabled:
+
+            def metrics_callback(stdout, metrics, artifacts, directory=None):
+                """Callback for extracting perf metrics from stdout"""
+                assert len(metrics) == 1
+                if self.estimator:
+                    instrs_match = re.compile(r" >> Number of instructions: (\d+)").findall(stdout)
+                    assert instrs_match is not None
+                    assert len(instrs_match) == 1
+                    cycles_match = re.compile(r" >> Estimated number of processor cycles: (\d+)").findall(stdout)
+                    assert cycles_match is not None
+                    assert len(cycles_match) == 1
+                    cpi_match = re.compile(
+                        r" >> Estimated average number of processor cycles per instruction: (\d+?\.\d+)"
+                    ).findall(stdout)
+                    assert cpi_match is not None
+                    assert len(cpi_match) == 1
+                    metrics[0].add("PerfSim Instructions", int(instrs_match[0]))
+                    metrics[0].add("PerfSim Cycles", int(cycles_match[0]))
+                    metrics[0].add("PerfSim CPI", float(cpi_match[0]))
+                if self.to_file:
+                    assert directory is not None
+                    assert self.core is not None
+                    csv_files = list(Path(directory).glob(f"{self.core.upper()}_*.csv"))
+                    if self.trace_asm:
+                        csv_files_ = list(Path(directory).glob("asm_trace_*.csv"))
+                        csv_files += csv_files_
+                    for file in csv_files:
+                        with open(file, "r") as f:
+                            content = f.read()
+                        artifact = Artifact(
+                            file.name,
+                            content=content,
+                            fmt=ArtifactFormat.TEXT,
+                            flags=(self.name, target),
+                        )
+                        artifacts.append(artifact)
+                return stdout
+
+            return None, metrics_callback
+        return None, None
+
+
+@register_feature("llvm_basic_block_sections")
+class BasicBlockSections(PlatformFeature):
+    """LLVM's -fbasic-block-sections=labels feature"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("llvm_basic_block_sections", features=features, config=config)
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none(
+            {
+                "LLVM_BASIC_BLOCK_SECTIONS": self.enabled,
+            }
+        )

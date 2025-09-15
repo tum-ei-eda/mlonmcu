@@ -52,12 +52,12 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
     @property
     def experimental_tvmc_print_time(self):
         value = self.config["experimental_tvmc_print_time"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def skip_flash(self):
         value = self.config["skip_flash"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def invoke_tvmc_micro_flash(self, target=None, list_options=False, **kwargs):
         all_args = []

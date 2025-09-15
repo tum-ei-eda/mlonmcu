@@ -26,7 +26,7 @@ from mlonmcu.flow.backend import main
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from .tvmc_utils import get_tvmrt_tvmc_args
-from .model_info import get_relay_model_info
+from mlonmcu.models.model_info import get_relay_model_info
 
 
 # Warning: This is only ment to be used with the TvmPlatform!
@@ -42,6 +42,7 @@ class TVMLLVMBackend(TVMBackend):
         **TVMBackend.DEFAULTS,
         "arena_size": 2**20,  # Can not be detemined automatically (Very large)
         "debug_arena": False,
+        "link_params": True,
     }
 
     name = "tvmllvm"
@@ -65,11 +66,18 @@ class TVMLLVMBackend(TVMBackend):
     @property
     def debug_arena(self):
         value = self.config["debug_arena"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
+
+    @property
+    def link_params(self):
+        value = self.config["link_params"]
+        return str2bool(value)
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(
-            self.runtime, system_lib=self.system_lib
+            self.runtime,
+            system_lib=self.system_lib,
+            link_params=self.link_params,
         )
 
     def get_graph_and_params_from_mlf(self, path):

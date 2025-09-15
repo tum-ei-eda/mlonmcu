@@ -93,14 +93,14 @@ def build_verilator(
         if rebuild or not utils.is_populated(verilatorBuildDir):
             env = os.environ.copy()
             env["VERILATOR_ROOT"] = ""
-            utils.exec_getout(
+            utils.execute(
                 "autoconf",
                 env=env,
                 cwd=verilatorSrcDir,
                 live=verbose,
             )
             env = os.environ.copy()
-            utils.exec_getout(
+            utils.execute(
                 str(verilatorSrcDir / "configure"),
                 f"--prefix={verilatorInstallDir}",
                 env=env,
@@ -136,7 +136,7 @@ def install_verilator(
     else:
         if rebuild or not utils.is_populated(verilatorInstallDir):
             env = os.environ.copy()
-            utils.exec_getout(
+            utils.execute(
                 "make",
                 "install",
                 env=env,

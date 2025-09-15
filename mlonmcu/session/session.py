@@ -19,12 +19,13 @@
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
 import os
 import shutil
-import filelock
 import tempfile
 from typing import Optional, Union
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+
+import filelock
 
 from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
@@ -64,10 +65,10 @@ class Session:
         "rpc_key": None,
     }
 
-    def __init__(self, label="", idx=None, archived=False, dir=None, config=None):
+    def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.label = (
-            label if len(label) > 0 else ("unnamed" + "_" + self.timestamp)
+            label if isinstance(label, str) and len(label) > 0 else ("unnamed" + "_" + self.timestamp)
         )  # TODO: decide if named sessions should also get a timestamp?
         self.idx = idx
         self.config = config if config else {}
@@ -80,7 +81,7 @@ class Session:
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
-        self.dir = dir
+        self.dir = Path(dest) if dest is not None else None
         self.tempdir = None
         self.session_lock = None
 
@@ -258,17 +259,14 @@ class Session:
         # TODO: Add configurable callbacks for stage/run complete
         assert self.active, "Session needs to be opened first"
 
-        assert len(self.runs), "List of runs is empty"
+        assert len(self.runs) > 0, "List of runs is empty"
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
         remote_config = None
         if self.rpc_tracker:
             assert self.executor == "rpc"
-            remote_config = RemoteConfig(
-                self.rpc_tracker,
-                self.rpc_key
-            )
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
         else:
             assert self.executor != "rpc"
         scheduler = SessionScheduler(
@@ -343,13 +341,16 @@ class Session:
         """Open this session."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
-        if dir is None:
+        if self.dir is None:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)
         else:
             if not self.dir.is_dir():
                 self.dir.mkdir(parents=True)
+        label_file = self.dir / "label.txt"
+        with open(label_file, "w") as f:
+            f.write(self.label)
         self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
         try:
             self.session_lock.acquire(timeout=10)

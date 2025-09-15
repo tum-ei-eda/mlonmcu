@@ -15,9 +15,21 @@ pyelftools
 # Misc
 pyyaml
 pandas
-numpy
+numpy<2.0; python_version <= '3.8'
+numpy>=2.0; python_version >= '3.10'
+
 psutil
 
 # Sessions
 tqdm
 filelock
+
+# SSH
+paramiko  # TODO: make optional
+
+# Postprocesses
+mapfile_parser
+cpp-demangle
+
+# Other
+packaging

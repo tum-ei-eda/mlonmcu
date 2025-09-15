@@ -24,8 +24,8 @@ from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
+from mlonmcu.models.model_info import get_relay_model_info
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
-from .model_info import get_relay_model_info
 from .tvmc_utils import get_tvmaot_tvmc_args
 
 
@@ -43,9 +43,6 @@ class TVMAOTBackend(TVMBackend):
         "arena_size": None,  # Determined automatically
         "unpacked_api": False,
         "alignment_bytes": 16,
-        "extra_pass_config": {
-            "tir.usmp.enable": False,
-        },
     }
 
     name = "tvmaot"
@@ -56,6 +53,13 @@ class TVMAOTBackend(TVMBackend):
         )
 
     @property
+    def extra_pass_config(self):
+        default = {"tir.usmp.enable": False}
+        extra = super().extra_pass_config
+        default.update(extra)
+        return default
+
+    @property
     def arena_size(self):
         size = self.config["arena_size"]
         return int(size) if size is not None else None
@@ -63,12 +67,12 @@ class TVMAOTBackend(TVMBackend):
     @property
     def unpacked_api(self):
         value = self.config["unpacked_api"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def debug_arena(self):
         value = self.config["debug_arena"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def alignment_bytes(self):

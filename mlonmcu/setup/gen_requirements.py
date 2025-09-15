@@ -66,13 +66,17 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             [
                 "GitPython",
                 "Pillow",  # convert data
+                "cpp-demangle",
                 "filelock",
                 "humanize",
                 "jinja2",
+                "mapfile_parser",
                 "networkx",
                 "numpy",
                 "openpyxl",  # xlsx reports
+                "packaging",
                 "pandas",
+                "paramiko",  # ssh
                 "pyelftools",
                 "pyyaml",
                 "tqdm",
@@ -117,6 +121,17 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         ),
     ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
+    (
+        "iree",
+        (
+            "Requirements for using iree",
+            [
+                "iree-turbine",
+                "tensorflow",
+                "tflite",
+            ],
+        ),
+    ),
     # Provide support for microtvm.
     (
         "microtvm",
@@ -125,6 +140,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["matplotlib", "pyserial", "pyusb"],
         ),
     ),
+    ("microtvm_gvsoc", ("Requirements for microtvm_gvsoc target", ["hydra-core"])),
     # Provide support for moiopt.
     ("moiopt", ("Requirements for moiopt", ["ortools"])),
     # Provide support for onnx.
@@ -157,6 +173,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         (
             "Requirements for using tvm",
             [
+                "anytree",
                 "attrs",
                 "cloudpickle",
                 "decorator",
@@ -222,13 +239,14 @@ CONSTRAINTS = [
     ("gdbgui", "==0.13.2.0"),
     ("graphviz", None),
     ("humanize", None),
+    ("hydra-core", None),
     ("idf-component-manager", "~=1.0"),
     ("itsdangerous", "<2.1"),
-    ("jinja2", "<3.1"),
+    ("jinja2", ">=3.1.3"),
     ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),
-    ("numpy", None),
+    ("numpy", "<2.0"),
     ("onnx", None),
     ("openpyxl", None),
     ("ortools", None),
@@ -245,12 +263,13 @@ CONSTRAINTS = [
     ("reedsolo", ">=1.5.3,<=1.5.4"),
     ("scipy", None),
     ("synr", None),
-    ("tensorflow", ">=2.11.1"),
+    # ("tensorflow", "~=2.13.0"),
+    ("tensorflow", "~=2.18.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
     ("typing_extensions", None),
     ("xdg", None),
-    ("xgboost", ">=1.7.0"),
+    ("xgboost", ">=1.7.0,<2.0"),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]

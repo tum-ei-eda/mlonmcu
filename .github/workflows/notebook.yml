@@ -31,7 +31,7 @@ on:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -40,16 +40,16 @@ jobs:
       uses: easimon/maximize-build-space@master
       with:
         root-reserve-mb: 32768
-        temp-reserve-mb: 1024
+        temp-reserve-mb: 4096
         remove-dotnet: 'true'
         remove-android: 'true'
         remove-haskell: 'true'
         remove-codeql: 'true'
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     # TODO: caching
@@ -61,7 +61,7 @@ jobs:
     - name: Run Notebooks
       run: |
         cd ipynb
-        find ${{ github.event.inputs.path }} -name '*.ipynb' -print0 | xargs -n1 -0 ./run_notebook.sh --html --pdf --mill --cleanup
+        find ${{ github.event.inputs.path }} -name '*.ipynb' -print0 | xargs --no-run-if-empty -n1 -0 ./run_notebook.sh --html --pdf --mill --cleanup --dump
     - name: Archive reports
       uses: actions/upload-artifact@v4
       with:
@@ -73,7 +73,7 @@ jobs:
     - name: Get date
       run: echo "timestamp=`date +%FT%T`" >> $GITHUB_ENV
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
+      uses: peter-evans/create-pull-request@v6
       if: github.event_name == 'workflow_dispatch' && github.event.inputs.branch != ''
       with:
         # token: ${{ secrets.PAT }}

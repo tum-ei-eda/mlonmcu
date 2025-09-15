@@ -18,6 +18,7 @@
 #
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
 import itertools
+import time
 import copy
 import shutil
 import tempfile
@@ -277,7 +278,7 @@ class RunResult:
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    FEATURES = {"autotune", "target_optimized"}
+    FEATURES = {"autotune", "target_optimized", "validate_new"}
 
     DEFAULTS = {
         "export_optional": False,
@@ -286,6 +287,7 @@ class Run:
         "target_optimized_layouts": False,
         "target_optimized_schedules": False,
         "stage_subdirs": False,
+        "profile_stages": False,
     }
 
     REQUIRED = set()
@@ -334,7 +336,8 @@ class Run:
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.sub_names = []
         self.sub_parents = {}
-        # self.result = None
+        self.result = None
+        self.times = {}
         self.failing = False  # -> RunStatus
         self.reason = None
         self.failed_stage = None
@@ -363,36 +366,41 @@ class Run:
     def tune_enabled(self):
         """Get tune_enabled property."""
         value = self.run_config["tune_enabled"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_to_backend(self):
         """Get target_to_backend property."""
         value = self.run_config["target_to_backend"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_optimized_layouts(self):
         """Get target_optimized_layouts property."""
         value = self.run_config["target_optimized_layouts"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def target_optimized_schedules(self):
         """Get target_optimized_schedules property."""
         value = self.run_config["target_optimized_schedules"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def export_optional(self):
         """Get export_optional property."""
         value = self.run_config["export_optional"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def stage_subdirs(self):
         value = self.run_config["stage_subdirs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
+
+    @property
+    def profile_stages(self):
+        value = self.run_config["profile_stages"]
+        return str2bool(value)
 
     @property
     def build_platform(self):
@@ -570,6 +578,7 @@ class Run:
     def add_model(self, model):
         """Setter for the model instance."""
         self.model = model
+        assert model is not None
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
         for platform in self.platforms:
             self.model.add_platform_config(platform, platform.config)
@@ -671,13 +680,37 @@ class Run:
         """Setter for the list of postprocesses."""
         self.postprocesses = add_any(postprocesses, self.postprocesses, append=append)
 
+    def get_unclean_components(self):
+        ret = []
+        if self.framework is not None:
+            ret.append(self.framework.name)
+        if self.frontends is not None and len(self.frontends) > 0:
+            ret.extend([frontend.name for frontend in self.frontends])
+        if self.backend is not None:
+            ret.append(self.backend.name)
+        if self.target is not None:
+            ret.append(self.target.name)
+        if self.platforms is not None and len(self.platforms) > 0:
+            ret.extend([platform.name for platform in self.platforms])
+        return list(set(ret))  # Eliminate duplicate names
+
+    def check_unclean_components(self):
+        unclean = self.get_unclean_components()
+        if len(unclean) > 0:
+            unclean_str = ", ".join(unclean)
+            logger.warning("Added features after components leads to unexpected results: %s", unclean_str)
+
     def add_feature(self, feature, append=True):
         """Setter for a feature instance."""
+        self.check_unclean_components()
         self.features = add_any(feature, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
+        if len(features) == 0:
+            return
+        self.check_unclean_components()
         self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
@@ -718,15 +751,21 @@ class Run:
     def add_frontends_by_name(self, frontend_names, context=None):
         """Helper function to initialize and configure frontends by their names."""
         frontends = []
+        reasons = {}
         for name in frontend_names:
             try:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
+                assert name in SUPPORTED_FRONTENDS, f"Unsupported frontend: {name}"
                 frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
-            except Exception:
+            except Exception as e:
+                reasons[name] = str(e)
                 continue
-        assert len(frontends) > 0, "No compatible frontend was found"
+        if len(frontends) == 0:
+            if reasons:
+                logger.error("Initialization of frontends was not successfull. Reasons: %s", reasons)
+            raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 
     def add_backend_by_name(self, backend_name, context=None):
@@ -828,7 +867,9 @@ class Run:
     @property
     def artifacts(self):
         sub = "default"
-        ret = sum(list(itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items() if sub in subs])), [])
+        ret = sum(
+            list(itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items() if sub in subs])), []
+        )
         return ret
 
     def get_all_sub_artifacts(self, sub, stage=None):
@@ -1098,16 +1139,23 @@ class Run:
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
                     model_artifact.export(self.dir)
-                input_shapes = self.model.input_shapes
-                output_shapes = self.model.output_shapes
-                input_types = self.model.input_types
-                output_types = self.model.output_types
+                input_shapes = None
+                output_shapes = None
+                input_types = None
+                output_types = None
+                if model_artifact.name.split(".", 1)[0] == self.model.name:
+                    input_shapes = self.model.input_shapes
+                    output_shapes = self.model.output_shapes
+                    input_types = self.model.input_types
+                    output_types = self.model.output_types
+                    params_path = self.model.params_path
                 self.backend.load_model(
                     model=model_artifact.path,
                     input_shapes=input_shapes,
                     output_shapes=output_shapes,
                     input_types=input_types,
                     output_types=output_types,
+                    params_path=params_path,
                 )
                 _build()
 
@@ -1123,16 +1171,23 @@ class Run:
                 model_artifact = model_artifact[0]
                 if not model_artifact.exported:
                     model_artifact.export(self.dir)
-                input_shapes = self.model.input_shapes
-                output_shapes = self.model.output_shapes
-                input_types = self.model.input_types
-                output_types = self.model.output_types
+                input_shapes = None
+                output_shapes = None
+                input_types = None
+                output_types = None
+                if model_artifact.name.split(".", 1)[0] == self.model.name:
+                    input_shapes = self.model.input_shapes
+                    output_shapes = self.model.output_shapes
+                    input_types = self.model.input_types
+                    output_types = self.model.output_types
+                    params_path = self.model.params_path
                 self.backend.load_model(
                     model=model_artifact.path,
                     input_shapes=input_shapes,
                     output_shapes=output_shapes,
                     input_types=input_types,
                     output_types=output_types,
+                    params_path=params_path,
                 )
                 _build()
 
@@ -1195,7 +1250,15 @@ class Run:
         # The following is very very dirty but required to update arena sizes via model metadata...
         cfg_new = {}
         if isinstance(self.model, Model):
-            self.frontend.process_metadata(self.model, cfg=cfg_new)
+            artifacts_ = self.frontend.process_metadata(self.model, cfg=cfg_new)
+            if artifacts_ is not None:
+                if isinstance(artifacts, dict):
+                    assert "default" in artifacts.keys()
+                    artifacts["default"].extend(artifacts_)
+                    # ignore subs for now
+                else:
+                    assert isinstance(artifacts, list)
+                    artifacts.extend(artifacts_)
             if len(cfg_new) > 0:
                 for key, value in cfg_new.items():
                     component, name = key.split(".")[:2]
@@ -1226,12 +1289,12 @@ class Run:
         self.completed[RunStage.LOAD] = True
         self.unlock()
 
-    def process(self, until=RunStage.RUN, skip=None, export=False):
+    def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
         """Process the run until a given stage."""
         skip = skip if skip is not None else []
         if until == RunStage.DONE:
             until = RunStage.DONE - 1
-        start = self.next_stage  # self.stage hold the max finished stage
+        start = self.next_stage if start is None else start
         if until < start:
             logger.debug("%s Nothing to do", self.prefix)
             return self.get_report()
@@ -1274,7 +1337,12 @@ class Run:
             if func:
                 self.failing = False
                 try:
+                    if self.profile_stages:
+                        start = time.time()
                     func()
+                    if self.profile_stages:
+                        end = time.time()
+                        self.times[stage] = (start, end)
                 except Exception as e:
                     self.failing = True
                     self.reason = e
@@ -1491,6 +1559,12 @@ class Run:
                 main = metrics_by_sub[sub].get_data(include_optional=self.export_optional)
             else:
                 main = {}
+            if self.profile_stages:
+                for stage, stage_times in self.times.items():
+                    assert len(stage_times) == 2
+                    start, end = stage_times
+                    main[f"{RunStage(stage).name.capitalize()} Stage Start Time [s]"] = start
+                    main[f"{RunStage(stage).name.capitalize()} Stage End Time [s]"] = end
             mains.append(main if len(main) > 0 else {"Incomplete": True})
             posts.append(post)  # TODO: omit for subs?
         report.set(pre=pres, main=mains, post=posts)

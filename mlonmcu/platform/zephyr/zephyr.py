@@ -94,13 +94,13 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
     @property
     def wait_for_user(self):
         value = self.config["wait_for_user"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def flash_only(self):
         # TODO: get rid of this
         value = self.config["flash_only"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def optimize(self):
@@ -111,7 +111,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         env["ZEPHYR_BASE"] = str(self.zephyr_install_dir / "zephyr")
         env["ZEPHYR_SDK_INSTALL_DIR"] = str(self.zephyr_sdk_dir)
         cmd = ". " + str(self.zephyr_venv_dir / "bin" / "activate") + " && west " + " ".join([str(arg) for arg in args])
-        out = utils.exec_getout(
+        out = utils.execute(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out
@@ -143,7 +143,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         self.project_dir.mkdir(exist_ok=True)
         return self.project_dir
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         with tempfile.TemporaryDirectory() as temp:
             f = Path(temp) / "CMakeLists.txt"
             # f.touch()

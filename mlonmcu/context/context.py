@@ -22,7 +22,7 @@ import sys
 import os
 import shutil
 import tempfile
-from typing import List, Union
+from typing import List, Union, Optional, Dict
 from pathlib import Path
 import filelock
 
@@ -149,6 +149,39 @@ def get_ids(directory: Path) -> List[int]:
     return sorted(ids)  # TODO: sort by session datetime?
 
 
+def lookup_session_label(session_labels: Dict[str, int], sess_idx: int) -> Optional[int]:
+    for label, session in session_labels.items():
+        if session == sess_idx:
+            return label
+    return None
+
+
+def get_session_labels(env: Environment) -> Dict[str, int]:
+    # TODO: write session label to sess dir instead!
+    ret = {}
+    results_dir = env.paths["results"].path
+    # TODO: handle excel reports was well?
+    csv_files = results_dir.glob("*.csv")
+    for csv_file in csv_files:
+        # print("csv_file", csv_file)
+        label = csv_file.stem
+        import pandas as pd
+
+        report_df = pd.read_csv(csv_file)
+        # not all reports will have session col
+        if "Session" not in report_df.columns:
+            continue
+        if len(report_df) == 0:
+            continue
+        sessions = list(report_df["Session"].unique())
+        assert len(sessions) == 1
+        session = sessions[0]
+        # print("label", label)
+        # print("session", session)
+        ret[label] = session
+    return ret
+
+
 def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     """Get a list of recent sessions for the environment.
 
@@ -174,6 +207,8 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     # TODO: in the future also strs (custom or hash) should be allowed
     session_ids = get_ids(sessions_directory)
 
+    session_labels = get_session_labels(env)
+
     for sid in session_ids:
         session_directory = sessions_directory / str(sid)
         # session_file = sessions_directory / str(sid) / "session.txt"
@@ -190,7 +225,10 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
             # run.archived = True
             # run.dir = run_directory
             runs.append(run)
-        session = Session(idx=sid, archived=True, dir=session_directory)
+        label = lookup_session_label(session_labels, sid)
+        if label is None:
+            label = "unknown"
+        session = Session(idx=sid, label=label, archived=True, dest=session_directory)
         session.runs = runs
         session.dir = session_directory
         sessions.append(session)
@@ -226,6 +264,7 @@ def resolve_environment_file(name: str = None, path: str = None) -> Path:
         env_file = lookup_environment()
         if not env_file:
             raise RuntimeError("Lookup for mlonmcu environment was not successful.")
+    assert env_file is not None, "Environment not found!"
     return Path(env_file)
 
 
@@ -307,12 +346,7 @@ class MlonMcuContext:
         self.cache = TaskCache()
         self.export_paths = set()
 
-    def create_session(self, label="", config=None, custom_dir=None):
-        if custom_dir is not None:
-            logger.debug("Creating a new session with idx %s", idx)
-            session_dir = Path(custom_dir)
-            session = Session(idx=None, label=label, dir=session_dir, config=config)
-            return session
+    def create_session(self, label="", config=None, dest: Optional[Union[str, Path]] = None):
         try:
             lock = self.latest_session_link_lock.acquire(timeout=10)
         except filelock.Timeout as err:
@@ -327,7 +361,7 @@ class MlonMcuContext:
                 sessions_directory = temp_directory / "sessions"
                 sessions_directory.mkdir(exist_ok=True, parents=True)
                 session_dir = sessions_directory / str(idx)
-                session = Session(idx=idx, label=label, dir=session_dir, config=config)
+                session = Session(idx=idx, label=label, dest=dest if dest is not None else session_dir, config=config)
                 self.sessions.append(session)
                 self.session_idx = idx
                 # TODO: move this to a helper function
@@ -354,6 +388,10 @@ class MlonMcuContext:
 
     def load_extensions(self):
         """If available load the extensions.py scripts in the plugin directories"""
+        if self.environment:
+            allow_extensions = self.environment.vars.get("allow_extensions", False)
+            if not allow_extensions:
+                return
 
         # TODO: check vars.enable_extensions before!
         def _load(plugins_dir, hint="Unknown"):
@@ -361,7 +399,7 @@ class MlonMcuContext:
                 extensions_file = plugins_dir / "extensions.py"
                 if extensions_file.is_file():
                     logger.info(f"Loading extensions.py ({hint})")
-                    process_extensions(extensions_file)
+                    process_extensions(extensions_file, desc=hint.lower())
 
         # global (user)
         plugins_dir = Path(get_plugins_dir())
@@ -374,7 +412,7 @@ class MlonMcuContext:
                     plugins_dir = self.environment.paths["plugins"].path
                     _load(plugins_dir, hint="Environment")
 
-    def get_session(self, label="", resume=False, config=None) -> Session:
+    def get_session(self, label="", resume=False, config=None, dest=None) -> Session:
         """Get an active session if available, else create a new one.
 
         Returns
@@ -389,8 +427,9 @@ class MlonMcuContext:
             raise NotImplementedError
 
         if self.session_idx < 0 or not self.sessions[-1].active:
-            self.create_session(label=label, config=config)
-        return self.sessions[-1]
+            self.create_session(label=label, config=config, dest=dest)
+        ret = self.sessions[-1]
+        return ret
 
     def __enter__(self):
         logger.debug("Enter MlonMcuContext")
@@ -494,43 +533,74 @@ class MlonMcuContext:
             return user_vars[key]
         return self.cache[key, flags]
 
-    def export(self, dest, session_ids=None, run_ids=None, interactive=True):
+    def export(self, dest, session_ids=None, run_ids=None, session_labels=None, interactive=True):
         dest = Path(dest)
         if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):
             if not ask_user("Destination is already populated! Overwrite?", default=True, interactive=interactive):
                 print("Aborted")
                 return
         dest_, ext = os.path.splitext(dest)
+        if session_labels is None:
+            session_labels = []
         if session_ids is None:
+            session_ids = []
+        if len(session_ids) == 0 and len(session_labels) == 0:
             # Can not select all sessions, fall back to latest session
             session_ids = [-1]
 
         if run_ids is not None:
             assert len(session_ids) == 1, "Can only choose runs of a single session"
 
-        def find_session(sid):
+        def find_session(session_id: Optional[int] = None, session_label: Optional[str] = None):
+            assert (session_id is None) ^ (session_label is None)
             if len(self.sessions) == 0:
                 return None
 
-            if sid == -1:
-                assert len(self.sessions) > 0
-                return self.sessions[-1]
+            if session_id is not None:
+                if session_id == -1:
+                    assert len(self.sessions) > 0
+                    return self.sessions[-1]
 
-            for session in self.sessions:
-                if session.idx == sid:
-                    return session
+                for session in self.sessions:
+                    if session.idx == session_id:
+                        return session
+
+            if session_label is not None:
+                ret = []
+                for session in reversed(self.sessions):
+                    if session.label == session_label:
+                        ret.append(session)
+                if len(ret) == 0:
+                    return None
+                if len(ret) > 1:
+                    logger.warning("Found multiple matches for label %s. Picking most recent session!", session_label)
+                ret = ret[0]
+                return ret
+
             return None
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
+            sessions = []
+            for label in session_labels:
+                session = find_session(session_label=label)
+                if session is None:
+                    print(
+                        f"Lookup for session label {label} failed. Available:",
+                        " ".join(set([str(s.label) for s in self.sessions])),
+                    )
+                    sys.exit(1)
+                sessions.append(session)
             for sid in session_ids:
-                session = find_session(sid)
+                session = find_session(session_id=sid)
                 if session is None:
                     print(
                         f"Lookup for session id {sid} failed. Available:", " ".join([str(s.idx) for s in self.sessions])
                     )
                     sys.exit(1)
-                if len(session_ids) == 1:
+                sessions.append(session)
+            for session in sessions:
+                if len(sessions) == 1:
                     base = tmpdir
                 else:
                     base = tmpdir / str(sid)

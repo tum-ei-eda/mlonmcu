@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """TVM Target Platform"""
+import os
 from mlonmcu.config import str2bool
 from .tvm_rpc_platform import TvmRpcPlatform
 from ..platform import TargetPlatform
@@ -28,6 +29,9 @@ from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_data_tvmc_args,
     get_rpc_tvmc_args,
 )
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
@@ -39,6 +43,8 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
         | {
             "benchmark",
             "tvm_profile",
+            "set_inputs",
+            "get_outputs",
         }
     )
 
@@ -54,6 +60,11 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
         "number": 1,
         "aggregate": "none",  # Allowed: avg, max, min, none, all
         "total_time": False,
+        "set_inputs": False,
+        "set_inputs_interface": None,
+        "get_outputs": False,
+        "get_outputs_interface": None,
+        "get_outputs_fmt": None,
     }
 
     REQUIRED = TargetPlatform.REQUIRED | TvmRpcPlatform.REQUIRED
@@ -72,12 +83,13 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
 
     @property
     def print_top(self):
-        return self.config["print_top"]
+        value = self.config["print_top"]
+        return int(value) if isinstance(value, str) else None
 
     @property
     def profile(self):
         value = self.config["profile"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def repeat(self):
@@ -96,7 +108,42 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     @property
     def total_time(self):
         value = self.config["total_time"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
+
+    @property
+    def set_inputs(self):
+        value = self.config["set_inputs"]
+        return str2bool(value)
+
+    @property
+    def set_inputs_interface(self):
+        value = self.config["set_inputs_interface"]
+        return value
+
+    @property
+    def get_outputs(self):
+        value = self.config["get_outputs"]
+        return str2bool(value)
+
+    @property
+    def get_outputs_interface(self):
+        value = self.config["get_outputs_interface"]
+        return value
+
+    @property
+    def get_outputs_fmt(self):
+        value = self.config["get_outputs_fmt"]  # TODO: use
+        return value
+
+    @property
+    def inputs_artifact(self):
+        # THIS IS A HACK (get inputs fom artifacts!)
+        lookup_path = self.project_dir.parent / "inputs.npy"
+        if lookup_path.is_file():
+            return lookup_path
+        else:
+            logger.warning("Artifact 'inputs.npz' not found!")
+            return None
 
     def flash(self, elf, target, timeout=120):
         raise NotImplementedError
@@ -104,7 +151,7 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         # TODO: get this via tvmc run --help
         target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
 
@@ -121,29 +168,36 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
             base = Target
         return create_tvm_platform_target(name, self, base=base)
 
-    def get_tvmc_run_args(self):
+    def get_tvmc_run_args(self, ins_file=None, outs_file=None, print_top=None):
         return [
-            *get_data_tvmc_args(
-                mode=self.fill_mode, ins_file=self.ins_file, outs_file=self.outs_file, print_top=self.print_top
-            ),
+            *get_data_tvmc_args(mode=self.fill_mode, ins_file=ins_file, outs_file=outs_file, print_top=print_top),
             *get_bench_tvmc_args(
                 print_time=True, profile=self.profile, end_to_end=False, repeat=self.repeat, number=self.number
             ),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
 
-    def invoke_tvmc_run(self, *args, target=None):
+    def invoke_tvmc_run(self, *args, target=None, **kwargs):
         assert target is not None, "Target required for tvmc run"
         combined_args = []
         combined_args.extend(["--device", target.device])
-        return self.invoke_tvmc("run", *args)
+        return self.invoke_tvmc("run", *args, **kwargs)
 
-    def run(self, elf, target, timeout=120):
+    def run(self, elf, target, timeout=120, cwd=os.getcwd(), ins_file=None, outs_file=None, print_top=None):
+        artifacts = []
         # TODO: implement timeout
         # Here, elf is actually a directory
         # TODO: replace workaround with possibility to pass TAR directly
         tar_path = str(elf)
-        args = [tar_path] + self.get_tvmc_run_args()
-        output = self.invoke_tvmc_run(*args, target=target)
+        # in_path = self.ins_file
+        # out_path = self.outs_file
+        # set_inputs = False
+        # if set_inputs and in_path is None:
+        #     in_path = Path(cwd) / "ins.npz"
+        #     # TODO: populate
+        # if self.get_outputs and self.get_outputs_interface == "filesystem" and out_path is None:
+        #     out_path = Path(cwd) / "outs.npz"
+        args = [tar_path] + self.get_tvmc_run_args(ins_file=ins_file, outs_file=outs_file, print_top=print_top)
+        output = self.invoke_tvmc_run(*args, target=target, cwd=cwd)
 
-        return output
+        return output, artifacts

@@ -19,10 +19,8 @@
 """Definition of MLonMCU session schedulers."""
 import random
 import concurrent.futures
-from pathlib import Path
 from typing import List, Optional
 
-# from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.session.run import Run, RunInitializer, RunResult, RunStage
 from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
@@ -37,7 +35,7 @@ logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
 
 
 # class SessionExecutor(ABC):
@@ -62,6 +60,7 @@ class ProcessPoolSessionExecutor(concurrent.futures.ProcessPoolExecutor):
         cleanup=False,
     ):
         fn = _process_pickable
+        needs_post = any(run.has_stage(RunStage.POSTPROCESS) for run in runs) and RunStage.POSTPROCESS not in skip
         args = [
             runs,
         ]
@@ -73,6 +72,7 @@ class ProcessPoolSessionExecutor(concurrent.futures.ProcessPoolExecutor):
             "runs_dir": runs_dir,
             "save": save,
             "cleanup": cleanup,
+            "needs_post": needs_post,
         }
         return self.submit(fn, *args, **kwargs)
 
@@ -93,6 +93,7 @@ class ThreadPoolSessionExecutor(concurrent.futures.ThreadPoolExecutor):
         cleanup=False,
     ):
         fn = _process_default
+        needs_post = any(run.has_stage(RunStage.POSTPROCESS) for run in runs) and RunStage.POSTPROCESS not in skip
         args = [
             runs,
         ]
@@ -104,6 +105,7 @@ class ThreadPoolSessionExecutor(concurrent.futures.ThreadPoolExecutor):
             "runs_dir": runs_dir,
             "save": save,
             "cleanup": cleanup,
+            "needs_post": needs_post,
         }
         return self.submit(fn, *args, **kwargs)
 
@@ -117,7 +119,7 @@ class CmdlineSessionExecutor(concurrent.futures.ProcessPoolExecutor):
     # def submit_batch(self, fn, /, *args, **kwargs):
     #    fn =
     # def get_process(self):
-        # TODO: move args
+    # TODO: move args
     def submit_runs(
         self,
         runs,
@@ -163,6 +165,7 @@ class ContextSessionExecutor(concurrent.futures.ProcessPoolExecutor):
         save=True,
         cleanup=False,
     ):
+        del context
         fn = _process_context
         # TODO: do not realize jobs (just dump initializer)
         args = [
@@ -189,7 +192,7 @@ class RPCSessionExecutor(concurrent.futures.ProcessPoolExecutor):
         remote_config: Optional[RemoteConfig] = None,
         blocking: bool = True,
         # batch_size?
-        parallel_jobs: int = 1
+        parallel_jobs: int = 1,
     ):
         super().__init__(max_workers)
         self.remote_config = remote_config
@@ -235,12 +238,14 @@ def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     return context
 
 
-def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup):
+def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup, needs_post):
     """Helper function to invoke the run."""
     assert isinstance(runs, list)
     rets = []
     for run in runs:
         run.process(until=until, skip=skip, export=export)
+        if needs_post:
+            run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
         ret = run.result()
         rets.append(ret)
         if save:
@@ -253,7 +258,7 @@ def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup
     return rets
 
 
-def _process_pickable(run_initializers, until, skip, export, context, runs_dir, save, cleanup):
+def _process_pickable(run_initializers, until, skip, export, context, runs_dir, save, cleanup, needs_post):
     """Helper function to invoke the run."""
     rets = []
     for run_initializer in run_initializers:
@@ -264,6 +269,8 @@ def _process_pickable(run_initializers, until, skip, export, context, runs_dir, 
         assert skip is None
         skip = [stage for stage in RunStage if stage not in used_stages]
         run.process(until=until, skip=skip, export=export)
+        if needs_post:
+            run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
         ret = run.result()
         rets.append(ret)
         save = True
@@ -281,7 +288,20 @@ def _process_cmdline(run_initializers, until, skip, export, context, runs_dir, s
     """Helper function to invoke the run."""
     rets = []
     # parallel_jobs = 1
-    args = ["-m", "mlonmcu.cli.main", "flow", until.name.lower(), "_", "--parallel", str(parallel_jobs), "-c", "runs_per_stage=0", "-c", "session.use_init_stage=1", "--initializer"]
+    args = [
+        "-m",
+        "mlonmcu.cli.main",
+        "flow",
+        until.name.lower(),
+        "_",
+        "--parallel",
+        str(parallel_jobs),
+        "-c",
+        "runs_per_stage=0",
+        "-c",
+        "session.use_init_stage=1",
+        "--initializer",
+    ]
     for run_initializer in run_initializers:
         run = run_initializer.realize(context=context)
         run.init_directory(parent=runs_dir)
@@ -301,6 +321,7 @@ def _process_context(run_initializers, until, skip, export, runs_dir, save, clea
     rets = []
     # TODO: allow overriding home
     from mlonmcu.context.context import MlonMcuContext
+
     with MlonMcuContext(deps_lock="read") as context:
         with context.get_session(resume=False) as session:
             for run_initializer in run_initializers:
@@ -642,7 +663,9 @@ class SessionScheduler:
                     close_progress(pbar2)
             else:
                 if self.progress:
-                    pbar = init_progress(len(batches), msg="Processing batches" if self.use_batches else "Processing all runs")
+                    pbar = init_progress(
+                        len(batches), msg="Processing batches" if self.use_batches else "Processing all runs"
+                    )
                 else:
                     logger.info(self.prefix + "Processing all stages")
                 for b, runs in enumerate(batches):

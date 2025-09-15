@@ -80,7 +80,7 @@ def install_pulp_gcc(
                     pulpGccArgs.append("--with-arch=rv32imc")
                     pulpGccArgs.append("--with-cmodel=medlow")
                     pulpGccArgs.append("--enable-multilib")
-                    utils.exec_getout(
+                    utils.execute(
                         str(pulpGccSrcDir / "configure"),
                         *pulpGccArgs,
                         cwd=pulpGccBuildDir,

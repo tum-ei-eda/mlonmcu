@@ -23,7 +23,9 @@ import ast
 import tempfile
 from pathlib import Path
 from io import StringIO
+from collections import defaultdict
 
+import numpy as np
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
@@ -31,6 +33,16 @@ from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
 
 from .postprocess import SessionPostprocess, RunPostprocess
+from .validate_metrics import parse_validate_metrics, parse_classify_metrics
+from .calc_lib_mem_footprints import (
+    parse_elf,
+    analyze_linker_map_helper,
+    generate_pie_data,
+    agg_library_footprint,
+    unmangle_helper,
+)
+from .dwarf import analyze_dwarf
+
 
 logger = get_logger()
 
@@ -42,7 +54,7 @@ def match_rows(df, cols):
 
 
 def _check_cfg(value):
-    res = re.compile(r"^((?:[a-zA-Z\d\-_ \.\[\]]+)(?:,[a-zA-Z\d\-_ \.\[\]]+)*)$").match(value)
+    res = re.compile(r"^((?:[a-zA-Z\d\-_ \.\[\]\(\)]+)(?:,[a-zA-Z\d\-_ \.\[\]\(\)]+)*)$").match(value)
     if res is None:
         return False
     return True
@@ -90,19 +102,19 @@ class FilterColumnsPostprocess(SessionPostprocess):
     def drop_nan(self):
         """Get drop_nan property."""
         value = self.config["drop_nan"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def drop_empty(self):
         """Get drop_empty property."""
         value = self.config["drop_empty"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def drop_const(self):
         """Get drop_const property."""
         value = self.config["drop_const"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -212,7 +224,7 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     def drop(self):
         """Get drop property."""
         value = self.config["drop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         df = report.post_df
@@ -261,7 +273,7 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     def drop(self):
         """Get drop property."""
         value = self.config["drop"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_session(self, report):
         """Called at the end of a session."""
@@ -568,13 +580,13 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def groups(self):
         """Get groups property."""
         value = self.config["groups"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def sequences(self):
         """get sequences property."""
         value = self.config["sequences"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def seq_depth(self):
@@ -590,19 +602,19 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def corev(self):
         """Get corev property."""
         value = self.config["corev"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -621,13 +633,72 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             if self.sequences:
                 names = re.compile(r"core\s+\d+:\s0x[0-9abcdef]+\s\(0x[0-9abcdef]+\)\s([\w.]+).*").findall(content)
         elif is_etiss:
-            content = log_artifact.content
+
+            # TODO: generalize
+            def transform_df(df):
+                df["pc"] = df["pc"].apply(lambda x: int(x, 0))
+                df["pc"] = pd.to_numeric(df["pc"])
+                # TODO: normalize instr names
+                df[["instr", "rest"]] = df["rest"].str.split(" # ", n=1, expand=True)
+                df["instr"] = df["instr"].apply(lambda x: x.strip())
+                df["instr"] = df["instr"].astype("category")
+                df[["bytecode", "operands"]] = df["rest"].str.split(" ", n=1, expand=True)
+
+                def detect_size(bytecode):
+                    if bytecode[:2] == "0x":
+                        return len(bytecode[2:]) / 2
+                    elif bytecode[:2] == "0b":
+                        return len(bytecode[2:]) / 8
+                    else:
+                        assert len(set(bytecode)) == 2
+                        return len(bytecode) / 8
+
+                df["size"] = df["bytecode"].apply(detect_size)
+                df["bytecode"] = df["bytecode"].apply(
+                    lambda x: int(x, 16) if "0x" in x else (int(x, 2) if "0b" in x else int(x, 2))
+                )
+                df["bytecode"] = pd.to_numeric(df["bytecode"])
+                df.drop(columns=["rest"], inplace=True)
+                return df
+
+            def process_df(df):
+                encodings = None
+                names = None
+                if self.groups:
+                    # encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+                    # encodings = [f"{enc}" for enc in encodings]
+                    encodings = [bin(enc) for enc in df["bytecode"].values]
+                if self.sequences:
+                    # names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
+                    names = list(df["instr"].values)
+                return encodings, names
+
+            log_artifact.uncache()
+            encodings = None
+            names = None
             if self.groups:
-                encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
-                encodings = [f"0b{enc}" for enc in encodings]
-                # encodings = [f"{enc}" for enc in encodings]
+                encodings = []
             if self.sequences:
-                names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
+                names = []
+            with pd.read_csv(
+                log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22
+            ) as reader:  # TODO: expose chunksize
+                for chunk in reader:
+                    df = transform_df(chunk)
+
+                    encodings_, names_ = process_df(df)
+                    # input(">")
+
+                    encodings = encodings_
+                    names += names_
+            # df = None
+            # content = log_artifact.content
+            # if self.groups:
+            #     encodings = re.compile(r"0x[0-9abcdef]+:\s\w+\s#\s([0-9a-fx]+)\s.*").findall(content)
+            #     encodings = [f"0b{enc}" for enc in encodings]
+            #     # encodings = [f"{enc}" for enc in encodings]
+            # if self.sequences:
+            #     names = re.compile(r"0x[0-9abcdef]+:\s(\w+)\s#\s[0-9a-fx]+\s.*").findall(content)
         elif is_ovpsim:
             content = log_artifact.content
             if self.groups:
@@ -648,7 +719,7 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
             return dict(counts.head(top)), dict(probs.head(top))
 
         def _gen_csv(label, counts, probs):
-            lines = [f"{label},Count,Probablity"]
+            lines = [f"{label},Count,Probability"]
             for x in counts:
                 line = f"{x},{counts[x]},{probs[x]:.3f}"
                 lines.append(line)
@@ -1027,14 +1098,16 @@ class CompareRowsPostprocess(SessionPostprocess):
         post_df = report.post_df
         group_by = self.group_by
         if group_by is None:
-            group_by = [x for x in pre_df.columns if x != "Run"]
+            group_by = [x for x in pre_df.columns if x not in ["Run", "Sub"]]
         assert isinstance(group_by, list)
         assert all(col in list(pre_df.columns) + list(post_df.columns) for col in group_by), "Cols mssing in df"
         to_compare = self.to_compare
         if to_compare is None:
             to_compare = list(main_df.columns)
         assert isinstance(to_compare, list)
-        assert all(col in main_df.columns for col in to_compare)
+        assert all(
+            col in main_df.columns for col in to_compare
+        ), f"Missing cols? ({to_compare} vs {list(main_df.columns)})"
         full_df = pd.concat([pre_df, main_df, post_df], axis=1)
         grouped = full_df.groupby(group_by, axis=0, group_keys=False, dropna=False)
         new_df = pd.DataFrame()
@@ -1077,13 +1150,13 @@ class AnalyseDumpPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1094,7 +1167,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
         dump_artifact = lookup_artifacts(
             artifacts, name="generic_mlonmcu.dump", fmt=ArtifactFormat.TEXT, first_only=True
         )
-        assert len(dump_artifact) == 1, "To use analyse_dump postprocess, please set mlif.enable_asmdump=1"
+        assert len(dump_artifact) == 1, "Dump artifact not found!"
         dump_artifact = dump_artifact[0]
         is_llvm = "llvm" in dump_artifact.flags
         assert is_llvm, "Non-llvm objdump currently unsupported"
@@ -1108,10 +1181,25 @@ class AnalyseDumpPostprocess(RunPostprocess):
                 continue
             insn = splitted[1]
             args = splitted[2]
+            # stop = insn == "cv.lh" and args == "t2, (a0), 0x2"
+            if "seal5." in insn:
+                insn = insn.replace("seal5.", "")
             if "cv." in insn:
                 if "(" in args and ")" in args:
                     m = re.compile(r"(.*)\((.*)\)").match(args)
-                    if m:
+                    m2 = re.compile(r"(.*)\((.*)\),\s*(.*)").match(args)
+                    if m2:
+                        g = m2.groups()
+                        assert len(g) == 3
+                        _, base, offset = g
+                        fmt = "ri"
+                        try:
+                            offset = int(offset)
+                        except ValueError:
+                            fmt = "rr"
+                        insn += f"_{fmt}"
+                        insn += "_inc"
+                    elif m:
                         g = m.groups()
                         assert len(g) == 2
                         offset, base = g
@@ -1121,7 +1209,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
                         except ValueError:
                             fmt = "rr"
                         insn += f"_{fmt}"
-                        if "!" in base:
+                        if "!" in base or ")," in base:
                             insn += "_inc"
             if insn in counts:
                 counts[insn] += 1
@@ -1158,13 +1246,13 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
     def to_df(self):
         """Get to_df property."""
         value = self.config["to_df"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def to_file(self):
         """Get to_file property."""
         value = self.config["to_file"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1453,5 +1541,859 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
             post_df["XCVExtCounts"] = str(cv_ext_counts)
             post_df["XCVExtUniqueCounts"] = str(cv_ext_unique_counts)
             report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts
+
+
+class ValidateOutputsPostprocess(RunPostprocess):
+    """Postprocess for comparing model outputs with golden reference."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "report": False,
+        "validate_metrics": "topk(n=1);topk(n=2)",
+        "validate_range": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_outputs", features=features, config=config)
+
+    @property
+    def validate_metrics(self):
+        """Get validate_metrics property."""
+        value = self.config["validate_metrics"]
+        return value
+
+    @property
+    def report(self):
+        """Get report property."""
+        value = self.config["report"]
+        return str2bool(value)
+
+    @property
+    def validate_range(self):
+        """Get validate_range property."""
+        value = self.config["validate_range"]
+        return str2bool(value)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
+        assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
+        outputs_ref_artifact = outputs_ref_artifact[0]
+        import numpy as np
+
+        outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
+        # import copy
+        # outputs = copy.deepcopy(outputs_ref)
+        # outputs[1][list(outputs[1].keys())[0]][0] = 42
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        in_data = None
+        # compared = 0
+        # matching = 0
+        # missing = 0
+        # metrics = {
+        #     "allclose(atol=0.0,rtol=0.0)": None,
+        #     "allclose(atol=0.05,rtol=0.05)": None,
+        #     "allclose(atol=0.1,rtol=0.1)": None,
+        #     "topk(n=1)": None,
+        #     "topk(n=2)": None,
+        #     "topk(n=inf)": None,
+        #     "toy": None,
+        #     "mse(thr=0.1)": None,
+        #     "mse(thr=0.05)": None,
+        #     "mse(thr=0.01)": None,
+        #     "+-1": None,
+        # }
+        validate_metrics_str = self.validate_metrics
+        validate_metrics = parse_validate_metrics(validate_metrics_str)
+        for i, output_ref in enumerate(outputs_ref):
+            if i >= len(outputs):
+                logger.warning("Missing output sample")
+                # missing += 1
+                break
+            output = outputs[i]
+            ii = 0
+            for out_name, out_ref_data in output_ref.items():
+                if out_name in output:
+                    out_data = output[out_name]
+                elif ii < len(output):
+                    if isinstance(output, dict):
+                        # fallback for custom name-based npy dict
+                        out_data = list(output.values())[ii]
+                    else:  # fallback for index-based npy array
+                        assert isinstance(output, (list, np.array)), "expected dict, list or np.array type"
+                        out_data = output[ii]
+                else:
+                    RuntimeError(f"Output not found: {out_name}")
+                # optional dequantize
+                # print("out_data_before_quant", out_data)
+                # print("sum(out_data_before_quant", np.sum(out_data))
+
+                quant = model_info_data.get("output_quant_details", None)
+                rng = model_info_data.get("output_ranges", None)
+                if quant:
+
+                    def ref_quant_helper(quant, data):  # TODO: move somewhere else
+                        if quant is None:
+                            return data
+                        quant_scale, quant_zero_point, quant_dtype, quant_range = quant
+                        if quant_dtype is None or data.dtype.name == quant_dtype:
+                            return data
+                        assert data.dtype.name in ["float32"], "Quantization only supported for float32 input"
+                        assert quant_dtype in ["int8"], "Quantization only supported for int8 output"
+                        if quant_range and self.validate_range:
+                            assert len(quant_range) == 2, "Range should be a tuple (lower, upper)"
+                            lower, upper = quant_range
+                            # print("quant_range", quant_range)
+                            # print("np.min(data)", np.min(data))
+                            # print("np.max(data)", np.max(data))
+                            assert lower <= upper
+                            assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
+
+                        return np.around((data / quant_scale) + quant_zero_point).astype("int8")
+
+                    def dequant_helper(quant, data):  # TODO: move somewhere else
+                        if quant is None:
+                            return data
+                        quant_scale, quant_zero_point, quant_dtype, quant_range = quant
+                        if quant_dtype is None or data.dtype.name == quant_dtype:
+                            return data
+                        assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                        assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                        ret = (data.astype("float32") - quant_zero_point) * quant_scale
+                        if quant_range and self.validate_range:
+                            assert len(quant_range) == 2, "Range should be a tuple (lower, upper)"
+                            # print("quant_range", quant_range)
+                            # print("np.min(ret)", np.min(ret))
+                            # print("np.max(ret)", np.max(ret))
+                            lower, upper = quant_range
+                            assert lower <= upper
+                            assert np.min(ret) >= lower and np.max(ret) <= upper, "Range missmatch"
+                        return ret
+
+                    assert ii < len(rng)
+                    rng_ = rng[ii]
+                    if rng_ and self.validate_range:
+                        assert len(rng_) == 2, "Range should be a tuple (lower, upper)"
+                        lower, upper = rng_
+                        assert lower <= upper
+                        # print("rng_", rng_)
+                        # print("np.min(out_data)", np.min(out_data))
+                        # print("np.max(out_data)", np.max(out_data))
+                        assert np.min(out_data) >= lower and np.max(out_data) <= upper, "Range missmatch"
+                    assert ii < len(quant)
+                    quant_ = quant[ii]
+                    if quant_ is not None:
+                        out_ref_data_quant = ref_quant_helper(quant_, out_ref_data)
+                        for vm in validate_metrics:
+                            vm.process(out_data, out_ref_data_quant, in_data=in_data, quant=True)
+                        out_data = dequant_helper(quant_, out_data)
+                # print("out_data", out_data)
+                # print("sum(out_data)", np.sum(out_data))
+                # print("out_ref_data", out_ref_data)
+                # print("sum(out_ref_data)", np.sum(out_ref_data))
+                # input("TIAW")
+                assert out_data.dtype == out_ref_data.dtype, "dtype missmatch"
+                assert out_data.shape == out_ref_data.shape, "shape missmatch"
+
+                for vm in validate_metrics:
+                    vm.process(out_data, out_ref_data, in_data=in_data, quant=False)
+                ii += 1
+        if self.report:
+            raise NotImplementedError
+        for vm in validate_metrics:
+            res = vm.get_summary()
+            report.post_df[f"{vm.name}"] = res
+        return []
+
+
+class ValidateLabelsPostprocess(RunPostprocess):
+    """Postprocess for comparing model outputs with golden reference."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "report": False,
+        "classify_metrics": "topk_label(n=1);topk_label(n=2)",
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("validate_labels", features=features, config=config)
+
+    @property
+    def classify_metrics(self):
+        """Get classify_metrics property."""
+        value = self.config["classify_metrics"]
+        return value
+
+    @property
+    def report(self):
+        """Get report property."""
+        value = self.config["report"]
+        return str2bool(value)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        labels_ref_artifact = lookup_artifacts(artifacts, name="labels_ref.npy", first_only=True)
+        assert (
+            len(labels_ref_artifact) == 1
+        ), "Could not find artifact: labels_ref.npy (Run classify_labels postprocess first!)"
+        labels_ref_artifact = labels_ref_artifact[0]
+        import numpy as np
+
+        labels_ref = np.load(labels_ref_artifact.path, allow_pickle=True)
+        outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+        assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+        outputs_artifact = outputs_artifact[0]
+        outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        # missing = 0
+        classify_metrics_str = self.classify_metrics
+        classify_metrics = parse_classify_metrics(classify_metrics_str)
+        for i, output in enumerate(outputs):
+            if isinstance(output, dict):  # name based lookup
+                pass
+            else:  # index based lookup
+                assert isinstance(output, (list, np.array)), "expected dict, list or np.array"
+                output_names = model_info_data["output_names"]
+                assert len(output) == len(output_names)
+                output = {output_names[idx]: out for idx, out in enumerate(output)}
+            assert len(output) == 1, "Only supporting single-output models"
+            out_data = output[list(output.keys())[0]]
+            # print("out_data", out_data)
+            assert i < len(labels_ref), "Missing reference labels"
+            label_ref = labels_ref[i]
+            # print("label_ref", label_ref)
+            for cm in classify_metrics:
+                cm.process(out_data, label_ref, quant=False)
+        if self.report:
+            raise NotImplementedError
+        for cm in classify_metrics:
+            res = cm.get_summary()
+            report.post_df[f"{cm.name}"] = res
+        return []
+
+
+class ExportOutputsPostprocess(RunPostprocess):
+    """Postprocess for writing model outputs to a directory."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "dest": None,  # if none: export as artifact
+        "use_ref": False,
+        "skip_dequant": False,
+        "fmt": "bin",
+        "archive_fmt": None,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("export_outputs", features=features, config=config)
+
+    @property
+    def dest(self):
+        """Get dest property."""
+        value = self.config["dest"]
+        if value is not None:
+            if not isinstance(value, Path):
+                assert isinstance(value, str)
+                value = Path(value)
+        return value
+
+    @property
+    def use_ref(self):
+        """Get use_ref property."""
+        value = self.config["use_ref"]
+        return str2bool(value)
+
+    @property
+    def skip_dequant(self):
+        """Get skip_dequant property."""
+        value = self.config["skip_dequant"]
+        return str2bool(value)
+
+    @property
+    def fmt(self):
+        """Get fmt property."""
+        return self.config["fmt"]
+
+    @property
+    def archive_fmt(self):
+        """Get archive_fmt property."""
+        return self.config["archive_fmt"]
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        model_info_artifact = lookup_artifacts(artifacts, name="model_info.yml", first_only=True)
+        assert len(model_info_artifact) == 1, "Could not find artifact: model_info.yml"
+        model_info_artifact = model_info_artifact[0]
+        import yaml
+
+        model_info_data = yaml.safe_load(model_info_artifact.content)
+        # print("model_info_data", model_info_data)
+        if len(model_info_data["output_names"]) > 1:
+            raise NotImplementedError("Multi-outputs not yet supported.")
+        if self.use_ref:
+            outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
+            assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
+            outputs_ref_artifact = outputs_ref_artifact[0]
+            outputs_ref = np.load(outputs_ref_artifact.path, allow_pickle=True)
+            outputs = outputs_ref
+        else:
+            outputs_artifact = lookup_artifacts(artifacts, name="outputs.npy", first_only=True)
+            assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
+            outputs_artifact = outputs_artifact[0]
+            outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        if self.dest is None:
+            temp_dir = tempfile.TemporaryDirectory()
+            dest_ = Path(temp_dir.name)
+        else:
+            temp_dir = None
+            assert self.dest.is_dir(), f"Not a directory: {self.dest}"
+            dest_ = self.dest
+        assert self.fmt in ["bin", "npy"], f"Invalid format: {self.fmt}"
+        filenames = []
+        for i, output in enumerate(outputs):
+            if isinstance(output, dict):  # name based lookup
+                pass
+            else:  # index based lookup
+                assert isinstance(output, (list, np.array)), "expected dict, list or np.array"
+                output_names = model_info_data["output_names"]
+                assert len(output) == len(output_names)
+                output = {output_names[idx]: out for idx, out in enumerate(output)}
+            quant = model_info_data.get("output_quant_details", None)
+            if quant and not self.skip_dequant:
+
+                def dequant_helper(quant, data):
+                    if quant is None:
+                        return data
+                    quant_scale, quant_zero_point, quant_dtype, quant_range = quant
+                    if quant_dtype is None or data.dtype.name == quant_dtype:
+                        return data
+                    assert data.dtype.name in ["int8"], "Dequantization only supported for int8 input"
+                    assert quant_dtype in ["float32"], "Dequantization only supported for float32 output"
+                    return (data.astype("float32") - quant_zero_point) * quant_scale
+
+                output = {
+                    out_name: dequant_helper(quant[j], output[out_name]) for j, out_name in enumerate(output.keys())
+                }
+            if self.fmt == "npy":
+                raise NotImplementedError("npy export")
+            elif self.fmt == "bin":
+                assert len(output.keys()) == 1, "Multi-outputs not supported"
+                output_data = list(output.values())[0]
+                data = output_data.tobytes(order="C")
+                file_name = f"{i}.bin"
+                file_dest = dest_ / file_name
+                filenames.append(file_dest)
+                with open(file_dest, "wb") as f:
+                    f.write(data)
+            else:
+                assert False, f"fmt not supported: {self.fmt}"
+        artifacts = []
+        archive_fmt = self.archive_fmt
+        create_artifact = self.dest is None or archive_fmt is not None
+        if create_artifact:
+            if archive_fmt is None:
+                assert self.dest is None
+                archive_fmt = "tar.gz"  # Default fallback
+            assert archive_fmt in ["tar.xz", "tar.gz", "zip"]
+            archive_name = f"output_data.{archive_fmt}"
+            archive_path = f"{dest_}.{archive_fmt}"
+            if archive_fmt == "tar.gz":
+                import tarfile
+
+                with tarfile.open(archive_path, "w:gz") as tar:
+                    for filename in filenames:
+                        tar.add(filename, arcname=filename.name)
+            else:
+                raise NotImplementedError(f"archive_fmt={archive_fmt}")
+            with open(archive_path, "rb") as f:
+                raw = f.read()
+            artifact = Artifact(archive_name, raw=raw, fmt=ArtifactFormat.BIN)
+            artifacts.append(artifact)
+        if temp_dir:
+            temp_dir.cleanup()
+        return artifacts
+
+
+class AnalyseLinkerMapPostprocess(RunPostprocess):
+    """Calculate memory footprints."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        # "to_df": True,
+        "to_df": False,
+        "to_file": True,
+        "per_func": True,
+        "per_object": True,
+        "per_library": True,
+        "ignore": [],
+        "sum": False,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_linker_map", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value)
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value)
+
+    @property
+    def per_func(self):
+        """Get per_func property."""
+        value = self.config["per_func"]
+        return str2bool(value)
+
+    @property
+    def per_object(self):
+        """Get per_object property."""
+        value = self.config["per_object"]
+        return str2bool(value)
+
+    @property
+    def per_library(self):
+        """Get per_library property."""
+        value = self.config["per_library"]
+        return str2bool(value)
+
+    @property
+    def ignore(self):
+        """Get ignore property."""
+        value = self.config["ignore"]
+        # print("value", value)
+        if not isinstance(value, list):
+            return str2list(value)
+        return value
+
+    @property
+    def sum(self):
+        """Get sum property."""
+        value = self.config["sum"]
+        return str2bool(value)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        platform = report.pre_df["Platform"]
+        if (platform != "mlif").any():
+            return []
+        ret_artifacts = []
+        elf_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True)
+        assert len(elf_artifact) == 1, "ELF artifact not found!"
+        elf_artifact = elf_artifact[0]
+        map_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(map_artifact) == 1, "Linker map artifact not found!"
+        map_artifact = map_artifact[0]
+        # is_ld = "ld" in map_artifact.flags
+        # assert is_ld, "Non ld linker currently unsupported"
+
+        mem_footprint_df = parse_elf(elf_artifact.path)
+
+        from mapfile_parser import mapfile
+
+        mapFile = mapfile.MapFile()
+        mapFile.readMapFile(map_artifact.path)
+
+        symbol_map = analyze_linker_map_helper(mapFile)
+        symbol_map_df = pd.DataFrame(
+            symbol_map,
+            columns=[
+                "segment",
+                "section",
+                "symbol",
+                "object",
+                "object_full",
+                "library",
+                "library_full",
+            ],
+        )
+
+        topk = None
+
+        if self.per_func:
+            if self.to_df and self.sum:
+                post_df = report.post_df.copy()
+                post_df["ROM code (Func sum)"] = mem_footprint_df["bytes"].sum()
+                report.post_df = post_df
+            mem_footprint_per_func_data = generate_pie_data(mem_footprint_df, x="func", y="bytes", topk=topk)
+            # print("per_func\n", mem_footprint_per_func_data, mem_footprint_per_func_data["bytes"].sum())
+            if self.to_file:
+                mem_footprint_per_func_artifact = Artifact(
+                    "mem_footprint_per_func.csv",
+                    content=mem_footprint_per_func_data.to_csv(index=False),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(mem_footprint_per_func_artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["ROM code (by func)"] = str(
+                    mem_footprint_per_func_data.groupby("func", dropna=False).sum().to_dict()["bytes"]
+                )
+                report.post_df = post_df
+
+        if self.per_library:
+            library_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="library", col="bytes")
+            if self.ignore:
+                # print("self.ignore", self.ignore)
+                library_footprint_df = library_footprint_df[~library_footprint_df["library"].isin(self.ignore)]
+                # print("library_footprint_df", library_footprint_df)
+            if self.to_df and self.sum:
+                post_df = report.post_df.copy()
+                post_df["ROM code (Lib sum)"] = library_footprint_df["bytes"].sum()
+                report.post_df = post_df
+            mem_footprint_per_library_data = generate_pie_data(library_footprint_df, x="library", y="bytes", topk=topk)
+            # print("per_library\n", mem_footprint_per_library_data, mem_footprint_per_library_data["bytes"].sum())
+            if self.to_file:
+                mem_footprint_per_func_artifact = Artifact(
+                    "mem_footprint_per_library.csv",
+                    content=mem_footprint_per_library_data.to_csv(index=False),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(mem_footprint_per_func_artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["ROM code (by library)"] = str(
+                    mem_footprint_per_library_data.groupby("library", dropna=False).sum().to_dict()["bytes"]
+                )
+                report.post_df = post_df
+                # print("post_df", post_df)
+            if True:  # TODO: generalize
+                # print("if1")
+                if "libmuriscvnn.a" in mem_footprint_per_library_data["library"].unique():
+                    # print("if2")
+                    muriscvnn_bytes = mem_footprint_per_library_data[
+                        mem_footprint_per_library_data["library"] == "libmuriscvnn.a"
+                    ]["bytes"].iloc[0]
+                    # print("muriscvnn_bytes", muriscvnn_bytes)
+                    post_df = report.post_df.copy()
+                    post_df["ROM code (libmuriscvnn.a)"] = muriscvnn_bytes
+                    report.post_df = post_df
+
+        if self.per_object:
+            object_footprint_df = agg_library_footprint(mem_footprint_df, symbol_map_df, by="object", col="bytes")
+            if self.ignore:
+                object_footprint_df = object_footprint_df[~object_footprint_df["object"].isin(self.ignore)]
+            if self.to_df and self.sum:
+                post_df = report.post_df.copy()
+                post_df["ROM code (Obj sum)"] = object_footprint_df["bytes"].sum()
+                report.post_df = post_df
+            mem_footprint_per_object_data = generate_pie_data(object_footprint_df, x="object", y="bytes", topk=topk)
+            # print("per_object\n", mem_footprint_per_object_data, mem_footprint_per_object_data["bytes"].sum())
+            if self.to_file:
+                mem_footprint_per_func_artifact = Artifact(
+                    "mem_footprint_per_object.csv",
+                    content=mem_footprint_per_object_data.to_csv(index=False),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(mem_footprint_per_func_artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["ROM code (by object)"] = str(
+                    mem_footprint_per_object_data.groupby("object", dropna=False).sum().to_dict()["bytes"]
+                )
+                report.post_df = post_df
+
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts
+
+
+class StageTimesGanttPostprocess(SessionPostprocess):
+    """Write Mermaid markdown file for stage times."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("stage_times_gantt", features=features, config=config)
+
+    def post_session(self, report):
+        """Called at the end of a session."""
+        artifacts = []
+        content = """gantt
+  title Flow
+  dateFormat x
+  axisFormat %H:%M:%S
+"""
+        for i, row in report.main_df.iterrows():
+            content += f"    section Run {i}\n"
+            stage_times = defaultdict(dict)
+            for key, value in row.items():
+                # if " Stage Time [s]" in key:
+                #     key = key.replace(" Stage Time [s]", "")
+                #     stage_times[key]["time_s"] = value
+                if " Start Time [s]" in key:
+                    key = key.replace(" Start Time [s]", "")
+                    stage_times[key]["start"] = value
+                if " End Time [s]" in key:
+                    key = key.replace(" End Time [s]", "")
+                    stage_times[key]["end"] = value
+            # stage_times = dict(reversed(list(stage_times.items())))
+            # print("stage_times", stage_times)
+            first = True
+            for stage, times in stage_times.items():
+                start = times.get("start")
+                end = times.get("end")
+                # time_s = times.get("time_s")
+                time_s = None
+                start = int(start * 1e3)
+                end = int(end * 1e3)
+                if False:
+                    if first:
+                        first = False
+                        content += f"      {stage} : 0, {time_s}s\n"
+                    else:
+
+                        content += f"      {stage} : {time_s}s\n"
+                else:
+                    content += f"      {stage} : {start}, {end}\n"
+        artifact = Artifact("stage_times.mermaid", content=content, fmt=ArtifactFormat.TEXT)
+        artifacts.append(artifact)
+        return artifacts
+
+
+class ProfileFunctionsPostprocess(RunPostprocess):
+    """Instr-trace based profiling of pcs/functions/objects/libraries."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "per_func": True,
+        "per_object": False,
+        "per_library": False,
+        "topk": None,
+        "min_weight": None,
+        "to_df": False,
+        "to_file": True,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("profile_functions", features=features, config=config)
+
+    @property
+    def per_pc(self):
+        """Get per_pc property."""
+        value = self.config["per_pc"]
+        return str2bool(value)
+
+    @property
+    def per_func(self):
+        """Get per_func property."""
+        value = self.config["per_func"]
+        return str2bool(value)
+
+    @property
+    def per_object(self):
+        """Get per_object property."""
+        value = self.config["per_object"]
+        return str2bool(value)
+
+    @property
+    def per_library(self):
+        """Get per_library property."""
+        value = self.config["per_library"]
+        return str2bool(value)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value)
+
+    @property
+    def topk(self):
+        """Get topk property."""
+        value = self.config["topk"]
+        if value is None:
+            return None
+        return int(value)
+
+    @property
+    def min_weight(self):
+        """Get min_weight property."""
+        value = self.config["min_weight"]
+        if value is None:
+            return None
+        return float(value)
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value)
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        ret_artifacts = []
+        elf_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True)
+        assert len(elf_artifact) == 1, "ELF artifact not found!"
+        elf_artifact = elf_artifact[0]
+        log_artifact = lookup_artifacts(artifacts, flags=("log_instrs",), fmt=ArtifactFormat.TEXT, first_only=True)
+        assert len(log_artifact) == 1, "To use analyse_instructions process, please enable feature log_instrs."
+        log_artifact = log_artifact[0]
+        func2pc_df, file2funcs_df, pc2locs_df = analyze_dwarf(elf_artifact.path)
+        func2pc_df[["start", "end"]] = func2pc_df["pc_range"].apply(pd.Series)
+        is_etiss = "etiss_pulpino" in log_artifact.flags or "etiss" in log_artifact.flags
+        assert is_etiss, "Only etiss traces supported currently"
+        if self.topk is not None:
+            assert NotImplementedError("topk")
+        if self.min_weight is not None:
+            assert NotImplementedError("min_weight")
+        if True:
+
+            def transform_df(df):
+                df["pc"] = df["pc"].apply(lambda x: int(x, 0))
+                df["pc"] = pd.to_numeric(df["pc"])
+                df.drop(columns=["rest"], inplace=True)
+                return df
+
+            log_artifact.uncache()
+            dfs = []
+            with pd.read_csv(
+                log_artifact.path, sep=":", names=["pc", "rest"], chunksize=2**22
+            ) as reader:  # TODO: expose chunksize
+                for chunk in reader:
+                    df = transform_df(chunk)
+                    dfs.append(df)
+            df = pd.concat(dfs)
+
+        total_num_instrs = len(df)
+
+        def func_pc_helper(x):
+            matches = func2pc_df[func2pc_df["start"] <= x]
+            matches = matches[matches["end"] >= x]
+            if len(matches) == 0:
+                return None
+            func = matches["func"].values[0]
+            return func
+
+        pc_counts = df["pc"].value_counts().sort_values(ascending=False).to_frame().reset_index()
+        pc_counts["func_name"] = pc_counts["pc"].apply(func_pc_helper)
+        symbol_map_df = None
+        if self.per_object or self.per_library:
+            map_artifact = lookup_artifacts(
+                artifacts, name="generic_mlonmcu.map", fmt=ArtifactFormat.TEXT, first_only=True
+            )
+            assert len(map_artifact) == 1, "Linker map artifact not found!"
+            map_artifact = map_artifact[0]
+            from mapfile_parser import mapfile
+
+            mapFile = mapfile.MapFile()
+            mapFile.readMapFile(map_artifact.path)
+
+            symbol_map = analyze_linker_map_helper(mapFile)
+            symbol_map_df = pd.DataFrame(
+                symbol_map,
+                columns=[
+                    "segment",
+                    "section",
+                    "symbol",
+                    "object",
+                    "object_full",
+                    "library",
+                    "library_full",
+                ],
+            )
+
+        def agg_runtime(runtime_df, symbol_map_df, by: str = "library", col: str = "count"):
+            runtime_df["func_unmangled"] = runtime_df["func_name"].apply(unmangle_helper)
+            ret = runtime_df.set_index("func_unmangled").join(symbol_map_df.set_index("symbol"), how="left")
+            ret = ret[[by, col]]
+            ret = ret.groupby(by, as_index=True, dropna=False)[col].sum().sort_values(ascending=False).to_frame()
+            # ret.reset_index(inplace=True)
+            return ret
+
+        if self.per_pc:
+            pc_counts_ = pc_counts.groupby("pc")["count"].sum().sort_values(ascending=False).to_frame()
+            pc_counts_["rel_count"] = pc_counts_["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_pc.csv",
+                    content=pc_counts_[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerPC"] = str(pc_counts_["count"].to_dict())
+                post_df["RelRuntimePerPC"] = str(pc_counts_["rel_count"].to_dict())
+                report.post_df = post_df
+        if self.per_func:
+            func_counts = pc_counts.groupby("func_name")["count"].sum().sort_values(ascending=False).to_frame()
+            func_counts["rel_count"] = func_counts["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_func.csv",
+                    content=func_counts[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerFunc"] = str(func_counts["count"].to_dict())
+                post_df["RelRuntimePerFunc"] = str(func_counts["rel_count"].to_dict())
+                report.post_df = post_df
+        if self.per_object:
+            assert symbol_map_df is not None
+            func_counts = (
+                pc_counts.groupby("func_name")["count"].sum().sort_values(ascending=False).to_frame().reset_index()
+            )
+            object_counts = agg_runtime(func_counts, symbol_map_df, col="count", by="object")
+            object_counts["rel_count"] = object_counts["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_object.csv",
+                    content=object_counts[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerObject"] = str(object_counts["count"].to_dict())
+                post_df["RelRuntimePerObject"] = str(object_counts["rel_count"].to_dict())
+                report.post_df = post_df
+        if self.per_library:
+            assert symbol_map_df is not None
+            func_counts = (
+                pc_counts.groupby("func_name")["count"].sum().sort_values(ascending=False).to_frame().reset_index()
+            )
+            library_counts = agg_runtime(func_counts, symbol_map_df, col="count", by="library")
+            library_counts["rel_count"] = library_counts["count"] / total_num_instrs
+            if self.to_file:
+                artifact = Artifact(
+                    "runtime_per_library.csv",
+                    content=library_counts[["count", "rel_count"]].to_csv(index=True),
+                    fmt=ArtifactFormat.TEXT,
+                )
+                ret_artifacts.append(artifact)
+            if self.to_df:
+                post_df = report.post_df.copy()
+                post_df["RuntimePerLibrary"] = str(library_counts["count"].to_dict())
+                post_df["RelRuntimePerLibrary"] = str(library_counts["rel_count"].to_dict())
+                report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

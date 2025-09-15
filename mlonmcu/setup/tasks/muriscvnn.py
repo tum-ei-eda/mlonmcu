@@ -102,11 +102,13 @@ def clone_muriscvnn(
     context.cache["muriscvnn.inc_dir"] = muriscvnnIncludeDir
 
 
-@Tasks.needs(["muriscvnn.src_dir", "riscv_gcc.install_dir", "riscv_gcc.name"])
+@Tasks.needs(["muriscvnn.src_dir", "riscv_gcc_rv{xlen}.install_dir", "riscv_gcc_rv{xlen}.name"])
 # @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
+@Tasks.optional(["cmake.exe"])
 @Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
 # @Tasks.param("dbg", [False, True])
 @Tasks.param("dbg", [False])  # disable due to bug with vext gcc
+@Tasks.param("xlen", [32])
 @Tasks.param("vext", [False])
 @Tasks.param("pext", [False])
 @Tasks.param("toolchain", ["gcc"])
@@ -119,6 +121,7 @@ def build_muriscvnn(
     """Build muRISCV-NN."""
     if not params:
         params = {}
+    xlen = params["xlen"]
     flags = utils.makeFlags(
         (params["dbg"], "dbg"),
         (params["vext"], "vext"),
@@ -129,6 +132,7 @@ def build_muriscvnn(
     flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
     muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
     muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
     muriscvnnBuildDir = context.environment.paths["deps"].path / "build" / muriscvnnName
     muriscvnnInstallDir = context.environment.paths["deps"].path / "install" / muriscvnnName
     muriscvnnLib = muriscvnnInstallDir / "libmuriscvnn.a"
@@ -145,10 +149,10 @@ def build_muriscvnn(
             assert (
                 gccName == "riscv32-unknown-elf" or toolchain != "llvm"
             ), "muRISCV-NN requires a non-multilib toolchain!"
-            if "riscv_gcc.install_dir" in user_vars:
-                riscv_gcc = user_vars["riscv_gcc.install_dir"]
+            if f"riscv_gcc_rv{xlen}.install_dir" in user_vars:
+                riscv_gcc = user_vars[f"riscv_gcc_rv{xlen}.install_dir"]
             else:
-                riscv_gcc = context.cache["riscv_gcc.install_dir", flags_]
+                riscv_gcc = context.cache[f"riscv_gcc_rv{xlen}.install_dir", flags_]
             muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
             muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
             vext = params.get("vext", False)
@@ -175,6 +179,7 @@ def build_muriscvnn(
             cwd=muriscvnnBuildDir,
             debug=params["dbg"],
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=muriscvnnBuildDir, threads=threads, live=verbose)
         utils.mkdirs(muriscvnnInstallDir)

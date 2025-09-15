@@ -50,8 +50,10 @@ class Setup:
             tasks_factory = get_task_factory()
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.context = context
+        if self.context is not None:
+            self.context.environment.vars.update(self.config)
+        self.config = filter_config(self.config, "setup", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.tasks_factory = tasks_factory
         self.num_threads = int(
             self.config["num_threads"] if self.config["num_threads"] else multiprocessing.cpu_count()
@@ -60,7 +62,7 @@ class Setup:
     @property
     def verbose(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def clean_cache(self, interactive=True):
         assert self.context is not None
@@ -109,7 +111,7 @@ class Setup:
 
     def get_dependency_order(self):
         task_graph = self._get_task_graph()
-        V, E = task_graph.get_graph()
+        # V, E = task_graph.get_graph()
         order = task_graph.get_order()
         order_str = " -> ".join(order)
         logger.debug("Determined dependency order: %s" % order_str)
@@ -248,6 +250,10 @@ class Setup:
                     logger.info("add dependencies for etiss")
                     break
             for config in config_pools:
+                if "microtvm_gvsoc" in config.name and config.enabled:
+                    for d in requirements["microtvm_gvsoc"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for microtvm_gvsoc")
                 if "gvsoc_pulp" in config.name and config.enabled:
                     for d in requirements["gvsoc_pulp"][1]:
                         f.write(f"{d}{os.linesep}")
@@ -295,6 +301,12 @@ class Setup:
                     for d in requirements["visualize_tflite"][1]:
                         f.write(f"{d}{os.linesep}")
                     logger.info("add dependencies for tflite visualization")
+                    break
+            for config in config_pools:
+                if "iree" in config.name and config.enabled:
+                    for d in requirements["iree"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for iree")
                     break
         logger.info("Finished generating requirements_addition.txt")
         return True

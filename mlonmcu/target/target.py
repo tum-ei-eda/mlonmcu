@@ -36,6 +36,7 @@ from mlonmcu.config import str2bool
 
 
 from mlonmcu.setup.utils import execute
+from mlonmcu.target.bench import add_bench_metrics
 from .metrics import Metrics
 
 
@@ -62,6 +63,8 @@ class Target:
     DEFAULTS = {
         "print_outputs": False,
         "repeat": None,
+        "temp_dir_base": None,
+        "fclk": None,
     }
 
     REQUIRED = set()
@@ -94,11 +97,20 @@ class Target:
     @property
     def print_outputs(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def repeat(self):
         return self.config["repeat"]
+
+    @property
+    def temp_dir_base(self):
+        return self.config["temp_dir_base"]
+
+    @property
+    def fclk(self):
+        value = self.config["fclk"]
+        return int(float(value)) if value is not None else None
 
     def __repr__(self):
         return f"Target({self.name})"
@@ -127,10 +139,13 @@ class Target:
 
     def parse_exit(self, out):
         exit_code = None
-        exit_match = re.search(r"MLONMCU EXIT: (.*)", out)
+        exit_match = re.search(r"MLONMCU EXIT: (\d*)", out)
         if exit_match:
             exit_code = int(exit_match.group(1))
         return exit_code
+
+    def parse_stdout(self, out, metrics, exit_code=0):
+        add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         # This should not be accurate, just a fallback which should be overwritten
@@ -157,7 +172,9 @@ class Target:
         diff = end_time - start_time
         # size instead of readelf?
         metrics = Metrics()
-        metrics.add("Runtime [s]", diff)
+        metrics.add("End-to-End Runtime [s]", diff)
+        exit_code = 0  # TODO: get from handler?
+        self.parse_stdout(out, metrics, exit_code=exit_code)
 
         return metrics, out, artifacts
 
@@ -166,11 +183,11 @@ class Target:
         metrics = []
         total = 1 + (self.repeat if self.repeat else 0)
         # We only save the stdout and artifacts of the last execution
-        # Callect metrics from all runs to aggregate them in a callback with high priority
+        # Collect metrics from all runs to aggregate them in a callback with high priority
         artifacts_ = []
         # if self.dir is None:
         #    self.dir = Path(
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory(dir=self.temp_dir_base) as temp_dir:
             for n in range(total):
                 args = []
                 for callback in self.pre_callbacks:
@@ -278,3 +295,23 @@ class Target:
             "max-vthread-extent": 0,
             "warp-size": 0,
         }
+
+    @property
+    def supports_filesystem(self):
+        return False
+
+    @property
+    def supports_stdout(self):
+        return True
+
+    @property
+    def supports_stdin(self):
+        return False
+
+    @property
+    def supports_argv(self):
+        return False
+
+    @property
+    def supports_uart(self):
+        return False

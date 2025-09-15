@@ -99,8 +99,8 @@ class EtissTarget(RVVTarget):
         "fclk": 100e6,
         "use_stats_file": False,
     }
-    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etiss.exe", "etiss.script"}
-    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir"}
+    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir"}
+    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir", "etiss.exe", "etiss.script", "etissvp.exe", "etissvp.script"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -117,11 +117,19 @@ class EtissTarget(RVVTarget):
 
     @property
     def etiss_script(self):
-        return self.config["etiss.script"]
+        ret = self.config["etiss.script"]
+        if ret is None:  # Fallback to old name:
+            ret = self.config["etissvp.script"]
+            assert ret is not None, "Missing dependency etiss.script/etissvp.script"
+        return ret
 
     @property
     def etiss_exe(self):
-        return self.config["etiss.exe"]
+        ret = self.config["etiss.exe"]
+        if ret is None:  # Fallback to old name:
+            ret = self.config["etissvp.exe"]
+            assert ret is not None, "Missing dependency etiss.exe/etissvp.exe"
+        return ret
 
     @property
     def boost_install_dir(self):

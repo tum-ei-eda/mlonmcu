@@ -28,7 +28,7 @@ import filelock
 
 from mlonmcu.utils import ask_user
 from mlonmcu.logging import get_logger, set_log_file
-from mlonmcu.session.run import Run, ArchivedRun
+from mlonmcu.session.run import ArchivedRun
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils

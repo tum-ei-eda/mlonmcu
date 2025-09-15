@@ -17,7 +17,6 @@
 # limitations under the License.
 #
 """Definition of MLonMCU rpc utilities."""
-import struct
 import socket
 from dataclasses import dataclass
 from typing import Optional, List
@@ -76,6 +75,7 @@ class RPCSession(object):
         import codecs
         import pickle
         import cloudpickle  # TODO: update requirements.txt
+
         run_initializers = [codecs.encode(cloudpickle.dumps(x), "base64").decode("utf8") for x in run_initializers]
         msg = {"operation": "execute", "run_initializers": run_initializers, "until": until, "parallel": parallel}
         # print("msg", msg)
@@ -185,17 +185,13 @@ class TrackerSession:
 
     def free_server(self, server):
         assert self._sock is not None
-        base.sendjson(self._sock, {
-            'action': 'update_status',
-            'key': server.key,
-            'addr': [server.url, server.port],
-            'status': 'free'
-        })
+        base.sendjson(
+            self._sock,
+            {"action": "update_status", "key": server.key, "addr": [server.url, server.port], "status": "free"},
+        )
         # TODO: response?
 
-    def request_server(
-        self, key, priority=1, session_timeout=0, max_retry=5
-    ):
+    def request_server(self, key, priority=1, session_timeout=0, max_retry=5):
         # print("request_server", key, priority, session_timeout, max_retry)
         # TODO: implement priority
         """Request a new connection from the tracker.
@@ -226,7 +222,7 @@ class TrackerSession:
                     self._connect()
                 # print("connected")
                 # base.sendjson(self._sock, [base.TrackerCode.REQUEST, key, "", priority])
-                base.sendjson(self._sock, {'action': 'request_server', 'key': key})
+                base.sendjson(self._sock, {"action": "request_server", "key": key})
                 # print("requested")
                 # value = base.recvjson(self._sock)
                 server_info = base.recvjson(self._sock)
@@ -235,7 +231,7 @@ class TrackerSession:
                 # if value[0] != base.TrackerCode.SUCCESS:
                 #     raise RuntimeError(f"Invalid return value {str(value)}")
                 # url, port, matchkey = value[1]
-                server_address = server_info.get('server_address')
+                server_address = server_info.get("server_address")
                 # print("server_address", server_address)
                 assert server_address
                 url, port = server_address
@@ -252,13 +248,14 @@ class TrackerSession:
                 last_err = err
             # except TVMError as err:
             #     last_err = err
-        raise RuntimeError(
-            f"Cannot request {key} after {max_retry} retry, last_error:{str(last_err)}"
-        )
+        raise RuntimeError(f"Cannot request {key} after {max_retry} retry, last_error:{str(last_err)}")
 
 
 def connect(
-    url, port, key="", session_timeout=0,
+    url,
+    port,
+    key="",
+    session_timeout=0,
 ):
     """Connect to RPC Server
 
@@ -323,6 +320,7 @@ def connect_tracker(tracker_host: str, tracker_port: int, timeout_sec=10, check=
     def _connect():
         nonlocal tracker
         tracker = _connect_tracker(tracker_host, tracker_port)
+
     if check:
         t = Thread(target=_connect)
         t.start()

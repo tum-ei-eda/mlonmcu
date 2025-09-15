@@ -198,7 +198,5 @@ def connect_with_retry(addr, timeout=60, retry_period=5):
             period = time.time() - tstart
             if period > timeout:
                 raise RuntimeError(f"Failed to connect to server {str(addr)}")
-            logger.warning(
-                f"Cannot connect to tracker {str(addr)}, retry in {retry_period:g} secs..."
-            )
+            logger.warning(f"Cannot connect to tracker {str(addr)}, retry in {retry_period:g} secs...")
             time.sleep(retry_period)

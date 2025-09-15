@@ -21,17 +21,6 @@ import logging
 from .config import (
     DefaultsConfig,
     PathConfig,
-    RepoConfig,
-    FrameworkConfig,
-    FrameworkFeatureConfig,
-    BackendConfig,
-    BackendFeatureConfig,
-    TargetConfig,
-    TargetFeatureConfig,
-    PlatformConfig,
-    PlatformFeatureConfig,
-    FrontendConfig,
-    FrontendFeatureConfig,
 )
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
@@ -45,8 +34,7 @@ def _feature_helper(obj, name):
     features = obj.features
     if name:
         return [feature for feature in features if feature.name == name]
-    else:
-        return features
+    return features
 
 
 def _extract_names(objs):

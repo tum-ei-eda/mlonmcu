@@ -34,13 +34,11 @@ from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 
-# from .riscv import RISCVTarget
 from .riscv_vext_target import RVVTarget
 
 logger = get_logger()
 
 
-# class EtissTarget(RISCVTarget):
 class EtissTarget(RVVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
@@ -101,7 +99,7 @@ class EtissTarget(RVVTarget):
         "fclk": 100e6,
         "use_stats_file": False,
     }
-    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
+    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etiss.exe", "etiss.script"}
     OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir"}
 
     def __init__(self, name="etiss", features=None, config=None):
@@ -119,11 +117,11 @@ class EtissTarget(RVVTarget):
 
     @property
     def etiss_script(self):
-        return self.config["etissvp.script"]
+        return self.config["etiss.script"]
 
     @property
     def etiss_exe(self):
-        return self.config["etissvp.exe"]
+        return self.config["etiss.exe"]
 
     @property
     def boost_install_dir(self):

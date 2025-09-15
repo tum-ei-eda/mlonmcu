@@ -62,7 +62,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "microtvm_etiss.src_dir",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
-        "etissvp.script",
+        "etiss.script",
         "llvm.install_dir",
     }
 
@@ -96,7 +96,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def etiss_script(self):
-        return Path(self.config["etissvp.script"])
+        return Path(self.config["etiss.script"])
 
     @property
     def etiss_extra_args(self):
@@ -311,3 +311,14 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         # to support accepting user-vars
         new = {key: value for key, value in new.items() if config.get(key, None) is None}
         config.update(new)
+
+
+class EtissPerfMicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED | {
+        "etiss_perf.script",
+    }
+
+    @property
+    def etiss_script(self):
+        return Path(self.config["etiss_perf.script"])

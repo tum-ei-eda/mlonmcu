@@ -9,7 +9,6 @@ build-backend = "setuptools.build_meta"
 name = "mlonmcu"
 dynamic = ["version", "dependencies", "optional-dependencies"]
 requires-python = ">=3.8"
-version = "0.8.dev0"
 license = {text = "Apache-2.0"}
 
 [tool.setuptools.dynamic]
@@ -20,3 +19,6 @@ dependencies = {file = ["requirements.txt"]}
 mlonmcu = "mlonmcu.cli.main:main"
 
 [tool.setuptools_scm]
+
+[tool.setuptools]
+packages = ["mlonmcu"]

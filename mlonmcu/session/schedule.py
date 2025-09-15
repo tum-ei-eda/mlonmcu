@@ -17,23 +17,12 @@
 # limitations under the License.
 #
 """Definition of MLonMCU session schedulers."""
-import os
-import shutil
-import filelock
-import tempfile
 import multiprocessing
-from datetime import datetime
-from enum import Enum
-from pathlib import Path
 import concurrent.futures
-from typing import List, Optional
-
-from tqdm import tqdm
+from typing import List
 
 from mlonmcu.session.run import Run
 from mlonmcu.logging import get_logger
-from mlonmcu.report import Report
-from mlonmcu.config import filter_config
 
 from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage

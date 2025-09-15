@@ -19,24 +19,19 @@
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
 import os
 import shutil
-import filelock
 import tempfile
-import multiprocessing
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-import concurrent.futures
 
-from tqdm import tqdm
+import filelock
 
 from mlonmcu.session.run import Run
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
 from mlonmcu.config import filter_config
 
-from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage
-from .progress import init_progress, update_progress, close_progress
 from .schedule import SessionScheduler
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger

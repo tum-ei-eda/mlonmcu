@@ -144,7 +144,7 @@ jobs:
     - name: Install package into virtualenv
       run: |
         source .venv/bin/activate
-        make install
+        pip install -e .
     - name: Run Unit Tests and generate coverage report
       if: ${{ github.event_name }} != "workflow_dispatch"
       run: |

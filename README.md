@@ -90,7 +90,9 @@ Then you should be able to install the `mlonmcu` python package like this
 ```
 # Optionally remove an older version first: pip uninstall mlonmcu
 
-make install  # Alternative: python setup.py install
+pip install .
+# or editable version:
+pip install -e .  # editable version
 ```
 
 #### Docker (Any other OS)

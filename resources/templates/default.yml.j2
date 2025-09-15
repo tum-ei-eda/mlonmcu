@@ -77,7 +77,7 @@ repos:
     ref: v6.0.0
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 379f5eabe7c0e939518dff69795aaff9d6dfad72
+    ref: a3a89535a6a731f88a321426621446ebe8235967
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4  # TODO: v5.2
@@ -101,6 +101,15 @@ repos:
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main
+  embench:  # legacy Embench-IoT 1.0
+    url: "https://github.com/embench/embench-iot.git"
+    ref: d9b30cdf805133bef9db5f7ecf84ae1ce8124291
+  embench_iot:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: embench-2.0-branch
+  embench_dsp:
+    url: "https://github.com/embench/embench-dsp.git"
+    ref: rc1
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -180,6 +189,18 @@ frontends:
     enabled: true
   layergen:
     enabled: true
+  example:
+    enabled: true
+  rvv_bench:
+    enabled: false
+  iss_bench:
+    enabled: false
+  embench:
+    enabled: false
+  embench_iot:
+    enabled: false
+  embench_dsp:
+    enabled: false
   # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
 # Some targets/platforms support multiple toolchains
 toolchains:

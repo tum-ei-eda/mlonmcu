@@ -466,13 +466,37 @@ class Run:
         """Setter for the list of postprocesses."""
         self.postprocesses = add_any(postprocesses, self.postprocesses, append=append)
 
+    def get_unclean_components(self):
+        ret = []
+        if self.framework is not None:
+            ret.append(self.framework.name)
+        if self.frontends is not None and len(self.frontends) > 0:
+            ret.extend([frontend.name for frontend in self.frontends])
+        if self.backend is not None:
+            ret.append(self.backend.name)
+        if self.target is not None:
+            ret.append(self.target.name)
+        if self.platforms is not None and len(self.platforms) > 0:
+            ret.extend([platform.name for platform in self.platforms])
+        return list(set(ret))  # Eliminate duplicate names
+
+    def check_unclean_components(self):
+        unclean = self.get_unclean_components()
+        if len(unclean) > 0:
+            unclean_str = ", ".join(unclean)
+            logger.warning("Added features after components leads to unexpected results: %s", unclean_str)
+
     def add_feature(self, feature, append=True):
         """Setter for a feature instance."""
+        self.check_unclean_components()
         self.features = add_any(feature, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
     def add_features(self, features, append=False):
         """Setter for the list of features."""
+        if len(features) == 0:
+            return
+        self.check_unclean_components()
         self.features = add_any(features, self.features, append=append)
         self.run_features = self.process_features(self.features)
 
@@ -519,13 +543,14 @@ class Run:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
+                assert name in SUPPORTED_FRONTENDS, f"Unsupported frontend: {name}"
                 frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
             except Exception as e:
                 reasons[name] = str(e)
                 continue
         if len(frontends) == 0:
             if reasons:
-                logger.error("Initialization of frontends was no successfull. Reasons: %s", reasons)
+                logger.error("Initialization of frontends was not successfull. Reasons: %s", reasons)
             raise RuntimeError("No compatible frontend was found.")
         self.add_frontends(frontends)
 

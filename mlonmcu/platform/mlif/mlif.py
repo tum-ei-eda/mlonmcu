@@ -60,8 +60,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
+            "memgraph_llvm_cdfg",
+            "llvm_basic_block_sections",
+            "global_isel",
             "set_inputs",
             "get_outputs",
+            "memgraph_llvm_cdfg",
+            "global_isel",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -106,7 +111,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "cmake.exe"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -270,6 +275,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def srecord_dir(self):
         return self.config["srecord.install_dir"]
+
+    @property
+    def iree_install_dir(self):
+        return self.config["iree.install_dir"]
 
     @property
     def template(self):
@@ -476,6 +485,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.srecord_dir:
             path_old = env["PATH"]
             path_new = f"{self.srecord_dir}:{path_old}"
+            env["PATH"] = path_new
+        # TODO: refactor
+        if self.iree_install_dir:
+            path_old = env["PATH"]
+            path_new = f"{self.iree_install_dir}/bin:{path_old}"
             env["PATH"] = path_new
         return env
 

@@ -81,10 +81,14 @@ repos:
   vicuna:
     url: "https://github.com/vproc/vicuna.git"
     ref: c1484ec8fa9f1106505a4ca246af39a66420a1d0
+  vicuna2:
+    url: "https://github.com/vproc/vicuna2_tinyml_benchmarking.git"
+    ref: 81b91a89e249e7c40ad45615b3917f040ae18701
   verilator:
     url: "https://github.com/verilator/verilator"
     # ref: tags/v4.210
-    ref: tags/v4.222
+    # ref: tags/v4.222
+    ref: tags/v5.030
   dtc:
     url: "https://github.com/dgibson/dtc.git"
     ref: main
@@ -233,6 +237,10 @@ targets:
     enabled: true
     features:
       vext: true
+  vicuna2:
+    enabled: true
+    features:
+      vext: true
   microtvm_host:
     enabled: true
   microtvm_spike:
@@ -256,13 +264,24 @@ vars:
   runs_per_stage: true
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/16.0.6/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
-  riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32im_ilp32.tar.xz"
-  riscv_gcc_rv32.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32imv_ilp32.tar.xz"
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_19.1.1/clang+llvm-19.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"  # TODO: LLVM 20
+  # riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei-ilp32.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei-ilp32.tar.xz"  # TODO: GCC 14+
+  # riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_zve32x-ilp32.tar.xz"  # TODO: GCC 14+
+  riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_zve32x-ilp32.tar.xz"  # TODO: GCC 14+
+  # TODO: f, zve32f, zhf, zvfh
+  # TODO: vicuna2 target, vicuna2 configs etc.
   spike.keep_build_dir: false
   etiss.keep_build_dir: false
   spikepk.enable_rv32: true
   spikepk.enable_rv64: false
   spikepk_rv32.default_arch: rv32im_zicsr_zifencei
   spikepk_rv32.default_abi: ilp32
+  etiss_rv32.fpu: none
+  etiss_rv32.compressed: false
+  etiss_rv32.atomic: false
+  etiss_rv32.cpu_arch: RV32IMACFDV
+  spike_rv32.fpu: none
+  spike_rv32.compressed: false
+  spike_rv32.atomic: false
 flags: {}

@@ -19,6 +19,8 @@ from .riscv import (
     SpikeRV32Target,
     SpikeRV32MinTarget,
     SpikeRV64Target,
+    SpikeBMTarget,
+    SpikePKTarget,
     OVPSimTarget,
     COREVOVPSimTarget,
     RiscvQemuTarget,
@@ -31,6 +33,7 @@ from .riscv import (
     AraRtlTarget,
     CV32E40PTarget,
     VicunaTarget,
+    Vicuna2Target,
     CanMvK230SSHTarget,
     TGCTarget,
 )
@@ -65,6 +68,8 @@ register_target("spike", SpikeTarget)
 register_target("spike_rv32", SpikeRV32Target)
 register_target("spike_rv32_min", SpikeRV32MinTarget)
 register_target("spike_rv64", SpikeRV64Target)
+register_target("spike_bm", SpikeBMTarget)
+register_target("spike_pk", SpikePKTarget)
 register_target("ovpsim", OVPSimTarget)
 register_target("corev_ovpsim", COREVOVPSimTarget)
 register_target("riscv_qemu", RiscvQemuTarget)
@@ -73,5 +78,6 @@ register_target("ara", AraTarget)
 register_target("ara_rtl", AraRtlTarget)
 register_target("cv32e40p", CV32E40PTarget)
 register_target("vicuna", VicunaTarget)
+register_target("vicuna2", Vicuna2Target)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
 register_target("tgc", TGCTarget)

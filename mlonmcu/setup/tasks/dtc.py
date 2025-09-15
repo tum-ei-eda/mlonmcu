@@ -33,8 +33,9 @@ Tasks = get_task_factory()
 
 
 def _validate_dtc(context: MlonMcuContext, params=None):
-    # TODO: require this for: ???
+    # TODO: require this for: spike + ?
     # TODO: cleanup after build
+    # add use_system_mode!
     # return True
     return False
 

@@ -22,7 +22,7 @@ from enum import Enum
 from pathlib import Path
 from collections import namedtuple
 
-from mlonmcu.config import filter_config
+from mlonmcu.config import filter_config, str2bool
 
 from .metadata import parse_metadata
 
@@ -54,6 +54,8 @@ class ModelFormats(Enum):
     PB = ModelFormat(6, ["pb"])
     PADDLE = ModelFormat(7, ["pdmodel"])
     TEXT = ModelFormat(8, ["txt"])
+    MLIR = ModelFormat(9, ["mlir"])
+    SAVED_MODEL = ModelFormat(9, [""])  # tf
 
 
 def parse_metadata_from_path(path):
@@ -285,50 +287,100 @@ class Model(Workload):
 
 
 class Program(Workload):
+    def __init__(self, name, config=None, alt=None):
+        super().__init__(name, config=config, alt=alt)
+
     def __repr__(self):
         if self.alt:
             return f"Program({self.name},alt={self.alt})"
         return f"Program({self.name})"
 
 
-class ExampleProgram(Program):
+class MultiBenchProgram(Program):
+
+    def __init__(self, name: str, prefix: str, config=None, alt=None):
+        super().__init__(name, config=config, alt=alt)
+        self.prefix = prefix
+        assert self.prefix == self.prefix.upper()
+
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["EXAMPLE_BENCHMARK"] = self.name
+            ret[f"{self.prefix}_BENCHMARK"] = self.name
         return ret
 
 
-class EmbenchProgram(Program):
+class ExampleProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "EXAMPLE", config=config, alt=alt)
+
+
+class EmbenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "EMBENCH", config=config, alt=alt)
+
+
+class EmbenchIoTProgram(MultiBenchProgram):
+
+    DEFAULTS = {
+        "global_scale_factor": 1,  # TODO: move to frontend?
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "EMBENCH_IOT", config=config, alt=alt)
+
+    @property
+    def global_scale_factor(self):
+        value = self.config["global_scale_factor"]
+        if value is None:
+            return None
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
     def get_platform_defs(self, platform):
-        ret = {}
+        ret = super().get_platform_defs(platform)
         if platform == "mlif":
-            ret["EMBENCH_BENCHMARK"] = self.name
+            if self.global_scale_factor is not None:
+                ret["EMBENCH_IOT_GLOBAL_SCALE_FACTOR"] = self.global_scale_factor
         return ret
 
 
-class TaclebenchProgram(Program):
+class EmbenchDSPProgram(MultiBenchProgram):
+    DEFAULTS = {
+        "no_snr_check": False,  # TODO: move to frontend?
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "EMBENCH_DSP", config=config, alt=alt)
+
+    @property
+    def no_snr_check(self):
+        return str2bool(self.config["no_snr_check"], allow_none=True)
+
     def get_platform_defs(self, platform):
-        ret = {}
+        ret = super().get_platform_defs(platform)
         if platform == "mlif":
-            ret["TACLEBENCH_BENCHMARK"] = self.name
+            if self.no_snr_check is not None:
+                ret["EMBENCH_DSP_NO_SNR_CHECK"] = self.no_snr_check
         return ret
 
 
-class PolybenchProgram(Program):
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["POLYBENCH_BENCHMARK"] = self.name
-        return ret
+class TaclebenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "TACLEBENCH", config=config, alt=alt)
 
 
-class MibenchProgram(Program):
-    def get_platform_defs(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["MIBENCH_BENCHMARK"] = self.name
-        return ret
+class PolybenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "POLYBENCH", config=config, alt=alt)
+
+
+class MibenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "MIBENCH", config=config, alt=alt)
 
 
 class MathisProgram(Program):
@@ -425,19 +477,154 @@ class DhrystoneProgram(Program):
         return ret
 
 
-class OpenASIPProgram(Program):
+class OpenASIPProgram(MultiBenchProgram):
     DEFAULTS = {
         "crc_mode": "both",
     }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "OPENASIP", config=config, alt=alt)
 
     @property
     def crc_mode(self):
         return str(self.config["crc_mode"])
 
     def get_platform_defs(self, platform):
-        ret = {}
+        ret = super().get_platform_defs(platform)
         if platform == "mlif":
-            ret["OPENASIP_BENCHMARK"] = self.name
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
+        return ret
+
+
+class RVVBenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "RVV_BENCH", config=config, alt=alt)
+
+
+class ISSBenchProgram(MultiBenchProgram):
+    DEFAULTS = {
+        "num_iter": 10000000,
+        "dtype": "uint32_t",
+        "array_size": 1048576,  # mem_heavy only
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "ISS_BENCH", config=config, alt=alt)
+
+    @property
+    def num_iter(self):
+        return int(self.config["num_iter"])
+
+    @property
+    def dtype(self):
+        return self.config["dtype"]
+
+    @property
+    def array_size(self):
+        return int(self.config["array_size"])
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["ISS_BENCH_ITERATIONS"] = self.num_iter
+            ret["ISS_BENCH_DTYPE"] = self.dtype
+            if self.name == "mem_heavy":
+                ret["ISS_BENCH_ARRAY_SIZE"] = self.array_size
+
+
+class CryptoBenchProgram(MultiBenchProgram):
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CRYPTO_BENCH", config=config, alt=alt)
+
+
+class CmsisDSPProgram(MultiBenchProgram):
+    DEFAULTS = {
+        "size": 16,  # hoch much data to operate on
+        "batch_size": 16,  # num_batches=ceil(size/batch_size)
+        "number": 10,  # how often to repeat (TODO: use existing bench feature)
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CMSIS_DSP", config=config, alt=alt)
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return min(value, self.size)  # batch size should not exceed size
+
+    @property
+    def number(self):
+        value = self.config["number"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["CMSIS_DSP_SIZE"] = self.size
+            ret["CMSIS_DSP_BATCH_SIZE"] = self.batch_size
+            ret["CMSIS_DSP_NUMBER"] = self.number
+        return ret
+
+
+class CmsisNNProgram(MultiBenchProgram):
+    DEFAULTS = {
+        "size": 16,  # hoch much data to operate on
+        "batch_size": 16,  # num_batches=ceil(size/batch_size)
+        "number": 10,  # how often to repeat (TODO: use existing bench feature)
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CMSIS_NN", config=config, alt=alt)
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return min(value, self.size)  # batch size should not exceed size
+
+    @property
+    def number(self):
+        value = self.config["number"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["CMSIS_NN_SIZE"] = self.size
+            ret["CMSIS_NN_BATCH_SIZE"] = self.batch_size
+            ret["CMSIS_NN_NUMBER"] = self.number
         return ret

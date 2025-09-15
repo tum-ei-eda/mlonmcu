@@ -84,7 +84,8 @@ def download_cmake(
     if "cmake.exe" in user_vars:
         return False
     # TODO: compile or download?
-    if rebuild or not utils.is_populated(cmakeSrcDir):
+    # if rebuild or not utils.is_populated(cmakeSrcDir):
+    if not utils.is_populated(cmakeSrcDir):
         # TODO: use clone url instead?
         if "cmake.dl_url" in user_vars:
             cmakeUrl = user_vars["cmake.dl_url"]

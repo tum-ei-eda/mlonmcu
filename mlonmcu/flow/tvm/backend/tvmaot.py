@@ -24,8 +24,8 @@ from .backend import TVMBackend
 from mlonmcu.flow.backend import main
 from mlonmcu.config import str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
+from mlonmcu.models.model_info import get_relay_model_info
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
-from .model_info import get_relay_model_info
 from .tvmc_utils import get_tvmaot_tvmc_args
 
 

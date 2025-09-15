@@ -167,7 +167,10 @@ def get_session_labels(env: Environment) -> Dict[str, int]:
         label = csv_file.stem
         import pandas as pd
 
-        report_df = pd.read_csv(csv_file)
+        try:
+            report_df = pd.read_csv(csv_file)
+        except pd.errors.EmptyDataError:
+            continue
         # not all reports will have session col
         if "Session" not in report_df.columns:
             continue

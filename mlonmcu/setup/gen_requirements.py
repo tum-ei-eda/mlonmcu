@@ -62,6 +62,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
     (
         "core",
         (
+            # TODO: keep in sync with requirements.txt inlcuding versions!
             "Base requirements needed to install MLonMCU",
             [
                 "GitPython",

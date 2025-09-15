@@ -41,10 +41,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project"):
-    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "espidf"))
+    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "espidf"))
     if name not in espidf_templates:
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "platforms", "espidf", name))
+    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "espidf", name))
     return fname
 
 

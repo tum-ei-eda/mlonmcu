@@ -84,6 +84,7 @@ class TVMBackend(Backend):
         "relay_debug": None,  # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
         "refresh_model_info": False,
         "generate_wrapper": "auto",
+        "bool_as_int": True,
     }
 
     REQUIRED = set()
@@ -225,6 +226,10 @@ class TVMBackend(Backend):
     # "target_fast_math_nsz": ?,
     # "target_fast_math_reassoc": ?,
     # "target_fast_math_arcp": ?,
+
+    @property
+    def bool_as_int(self):
+        return str2bool(self.config["bool_as_int"])
 
     @property
     def extra_targets(self):
@@ -376,6 +381,7 @@ class TVMBackend(Backend):
                 extra_targets=self.extra_targets,
                 target_details=self.get_target_details(),
                 extra_target_details=self.extra_target_details,
+                bool_as_int=self.bool_as_int,
             ),
             *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),

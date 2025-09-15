@@ -9,14 +9,14 @@ name: Create Release
 jobs:
   build:
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v0.4.3
+        uses: metcalfc/changelog-generator@v4.3.1
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
@@ -36,11 +36,11 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Build package
       run: make dist
     - name: Publish to PyPI

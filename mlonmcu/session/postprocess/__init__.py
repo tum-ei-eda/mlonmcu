@@ -32,6 +32,12 @@ from .postprocesses import (
     CompareRowsPostprocess,
     AnalyseDumpPostprocess,
     AnalyseCoreVCountsPostprocess,
+    ValidateOutputsPostprocess,
+    ValidateLabelsPostprocess,
+    ExportOutputsPostprocess,
+    AnalyseLinkerMapPostprocess,
+    StageTimesGanttPostprocess,
+    ProfileFunctionsPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -48,4 +54,10 @@ SUPPORTED_POSTPROCESSES = {
     "compare_rows": CompareRowsPostprocess,
     "analyse_dump": AnalyseDumpPostprocess,
     "analyse_corev_counts": AnalyseCoreVCountsPostprocess,
+    "validate_outputs": ValidateOutputsPostprocess,
+    "validate_labels": ValidateLabelsPostprocess,
+    "export_outputs": ExportOutputsPostprocess,
+    "analyse_linker_map": AnalyseLinkerMapPostprocess,
+    "stage_times_gantt": StageTimesGanttPostprocess,
+    "profile_functions": ProfileFunctionsPostprocess,
 }

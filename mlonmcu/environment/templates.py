@@ -57,10 +57,29 @@ def fill_template(name, data={}):
     return None
 
 
+def get_ubuntu_version():
+    name = ""
+    if Path("/etc/lsb-release").is_file():
+        with open("/etc/lsb-release", "r") as f:
+            lines = f.read().split("\n")
+        for line in lines:
+            if line.startswith("DISTRIB_RELEASE="):
+                name = line.split("=")[1]
+                if name[0] == '"' and name[-1] == '"':
+                    return name[1:-1]
+                return name
+    return None
+
+
 def fill_environment_yaml(template_name, home_dir, config=None):
     if not config:
         config = {}
-    return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir()), **config})
+    ubuntu_version = get_ubuntu_version()
+    defaults = {"home_dir": str(home_dir), "config_dir": str(get_config_dir())}
+    if ubuntu_version is not None:
+        defaults["ubuntu_version"] = ubuntu_version
+    return fill_template(template_name, {**defaults, **config})
+    # return fill_template(template_name, {"home_dir": str(home_dir), "config_dir": str(get_config_dir()), **config})
 
 
 def write_environment_yaml_from_template(path, template_name, home_dir, config=None):

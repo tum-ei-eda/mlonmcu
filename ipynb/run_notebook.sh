@@ -1,9 +1,9 @@
 #!/bin/bash
 
-set -e
+set -eE
 
 SHORT=h:,:,e:
-LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,help
+LONG=home:,environment:,skip,cleanup,clear,noop,html,pdf,mill,dump,help
 OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
 
 eval set -- "$OPTS"
@@ -14,12 +14,14 @@ SKIP=0
 CLEANUP=0
 CLEAR=0
 NOOP=0
+FAIL=0
 HTML=0
 PDF=0
 MILL=0
+DUMP=0
 
 function print_usage() {
-    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill]"
+    echo "Usage: $0 path/to/notebook.ipynb [-h MLONMCU_HOME] [-e VENV] [--skip] [--cleanup] [--clear] [--noop] [--html] [--pdf] [--mill] [--dump]"
 }
 
 while :
@@ -49,6 +51,10 @@ do
       NOOP=1
       shift
       ;;
+    --fail )
+      FAIL=1
+      shift
+      ;;
     --html )
       HTML=1
       shift
@@ -59,6 +65,10 @@ do
       ;;
     --mill )
       MILL=1
+      shift
+      ;;
+    --dump )
+      DUMP=1
       shift
       ;;
     --help)
@@ -84,6 +94,11 @@ do
 done
 
 
+if [[ -z $NOTEBOOK ]]
+then
+    echo "No NOTEBOOK specified. Aborting..."
+    exit 1
+fi
 NOTEBOOK=$(readlink -f $NOTEBOOK)
 if [[ ! -f $NOTEBOOK ]]
 then
@@ -95,7 +110,21 @@ NAME=$(basename $NOTEBOOK | cut -d. -f1)
 DIRECTORY=$(dirname $NOTEBOOK)
 YAML=$DIRECTORY/environment.yml.j2
 REQUIREMENTS=$DIRECTORY/requirements.txt
+PLUGINS_DIR=$DIRECTORY/plugins
 TEMPDIR=$(mktemp -d -t $NAME-XXXX)
+
+function __error_handing__(){
+    local last_status_code=$1;
+    local error_line_number=$2;
+    echo 1>&2 "Error - exited with status $last_status_code at line $error_line_number";
+    if [[ $CLEANUP -eq 1 ]]
+    then
+        echo "Cleaning up after failure..."
+        rm -rf $TEMPDIR
+    fi
+}
+trap  '__error_handing__ $? $LINENO' ERR
+
 if [[ "$HOME_" != "" ]]
 then
     WORKSPACE=$HOME_
@@ -148,11 +177,17 @@ then
             echo "(No template found. Falling back to default...)"
             python3 -m mlonmcu.cli.main init -t default $WORKSPACE --non-interactive --clone-models --allow-exists
         fi
+        if [[ -d $PLUGINS_DIR ]]
+        then
+            echo "Adding plugins to workspace"
+            cp -r $PLUGINS_DIR/* $WORKSPACE/plugins/
+        fi
         echo "Setting up MLonMCU environment..."
         python3 -m mlonmcu.cli.main setup -v
     fi
 fi
 
+FAILING=0
 if [[ $NOOP -eq 0 ]]
 then
     echo "Executing notebook..."
@@ -160,12 +195,30 @@ then
     if [[ $MILL -eq 1 ]]
     then
         python3 -m pip install papermill
-        python3 -m papermill $NOTEBOOK $NOTEBOOK --cwd $DIRECTORY
+        python3 -m papermill $NOTEBOOK $NOTEBOOK --cwd $DIRECTORY 2>&1 | tee $TEMPDIR/out.txt
+        EXIT=$?
     else
-        python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace
+        python3 -m jupyter nbconvert --to notebook --execute $NOTEBOOK --inplace 2>&1 | tee $TEMPDIR/out.txt
+        EXIT=$?
+    fi
+    if [[ $EXIT -eq 0 ]]
+    then
+        (cat out.txt | grep -q "Traceback") && FAILING=1 || FAILING=0
+    else
+        FAILING=1
     fi
 else
     echo "Skipping execution of notebook..."
+fi
+
+if [[ $DUMP -eq 1 ]]
+then
+   echo "Dumping environment.yml.j2..."
+   cat $WORKSPACE/environment.yml
+   echo
+   echo "Dumping python packages..."
+   python3 -m pip freeze
+   echo
 fi
 
 if [[ $HTML -eq 1 ]]
@@ -180,11 +233,22 @@ then
     python3 -m jupyter nbconvert --to pdf $NOTEBOOK
 fi
 
-
 if [[ $CLEAR -eq 1 ]]
 then
     echo "Clearing output cells..."
     python3 -m jupyter nbconvert --clear-output --inplace $NOTEBOOK
+fi
+
+if [[ $FAILING -eq 1 ]]
+then
+    echo "Errors occured during notebook execution..."
+    echo "Outputs:"
+    cat $TEMPDIR/out.txt
+    if [[ $FAIL -eq 1 ]]
+    then
+        echo "Aborting:"
+        exit 1
+    fi
 fi
 
 cd -
@@ -192,7 +256,9 @@ cd -
 if [[ $CLEANUP -eq 1 ]]
 then
     echo "Cleaning up..."
+    df
     rm -rf $TEMPDIR
+    df
 fi
 
 echo "Done."

@@ -27,7 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
-from .model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
+from mlonmcu.models.model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .python_utils import prepare_python_environment
@@ -84,6 +84,7 @@ class TVMBackend(Backend):
         "relay_debug": None,  # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
         "refresh_model_info": False,
         "generate_wrapper": "auto",
+        "bool_as_int": True,
     }
 
     REQUIRED = set()
@@ -96,6 +97,7 @@ class TVMBackend(Backend):
         super().__init__(framework="tvm", features=features, config=config)
 
         self.model = None  # Actual filename!
+        self.params_path = None
         self.model_info = None
         self.input_shapes = None
         self.model_format = None
@@ -154,14 +156,21 @@ class TVMBackend(Backend):
         return str2bool(temp)
 
     @property
-    def pass_config(self):
-        base = {"tir.disable_vectorize": self.disable_vectorize}
+    def extra_pass_config(self):
         extra = self.config["extra_pass_config"]
+        if extra is None:
+            extra = {}
         if isinstance(extra, str):
             import ast
 
             extra = ast.literal_eval(extra)
         assert isinstance(extra, dict)
+        return extra
+
+    @property
+    def pass_config(self):
+        base = {"tir.disable_vectorize": self.disable_vectorize}
+        extra = self.extra_pass_config
         base.update(extra)
         return base
 
@@ -219,6 +228,10 @@ class TVMBackend(Backend):
     # "target_fast_math_arcp": ?,
 
     @property
+    def bool_as_int(self):
+        return str2bool(self.config["bool_as_int"])
+
+    @property
     def extra_targets(self):
         return str2list(self.config["extra_targets"], allow_none=True)
 
@@ -245,11 +258,11 @@ class TVMBackend(Backend):
     @property
     def use_tuning_results(self):
         value = self.config["use_tuning_results"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def tvmc_extra_args(self):
-        return self.config["tvmc_extra_args"]
+        return str2list(self.config["tvmc_extra_args"], allow_none=True)
 
     @property
     def tvmc_custom_script(self):
@@ -258,7 +271,7 @@ class TVMBackend(Backend):
     @property
     def disabled_passes(self):
         value = self.config["disabled_passes"]
-        return str2list(value) if isinstance(value, str) else value
+        return str2list(value)
 
     @property
     def tvm_pythonpath(self):
@@ -279,17 +292,17 @@ class TVMBackend(Backend):
     @property
     def print_outputs(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def use_tlcpack(self):
         value = self.config["tvm.use_tlcpack"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def custom_unroll(self):
         value = self.config["custom_unroll"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def dump(self):
@@ -300,7 +313,7 @@ class TVMBackend(Backend):
             else:
                 value = [value]
         for v in value:
-            assert v in ["relay", "c", "ll", "tir"]
+            assert v in ["relay", "c", "ll", "tir", "tir0", "tir1", "tir2", "tir3", "dso"]
         assert isinstance(value, list)
         return value
 
@@ -311,7 +324,7 @@ class TVMBackend(Backend):
     @property
     def refresh_model_info(self):
         value = self.config["refresh_model_info"]
-        return str2bool(value, allow_none=True) if not isinstance(value, (bool, int)) else value
+        return str2bool(value, allow_none=True)
 
     @property
     def generate_wrapper(self):
@@ -362,11 +375,13 @@ class TVMBackend(Backend):
         assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
         args = [
             self.model,
+            *(["--relay-params", self.params_path] if self.params_path is not None else []),
             *get_target_tvmc_args(
                 self.target,
                 extra_targets=self.extra_targets,
                 target_details=self.get_target_details(),
                 extra_target_details=self.extra_target_details,
+                bool_as_int=self.bool_as_int,
             ),
             *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),
@@ -394,7 +409,7 @@ class TVMBackend(Backend):
         )
         if self.use_tlcpack:
             pre = ["tvmc"]
-            return utils.exec_getout(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
+            return utils.execute(*pre, command, *args, live=self.print_outputs, env=env, cwd=cwd)
         else:
             if self.tvmc_custom_script is None:
                 pre = ["-m", "tvm.driver.tvmc"]
@@ -418,8 +433,11 @@ class TVMBackend(Backend):
             ret = self.invoke_tvmc("compile", *args, cwd=cwd)
         return ret
 
-    def load_model(self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None):
+    def load_model(
+        self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None
+    ):
         self.model = model
+        self.params_path = params_path
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
         need_model_info = True
@@ -430,6 +448,8 @@ class TVMBackend(Backend):
                 self.model_format, self.model_info = get_fallback_model_info(
                     model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name
                 )
+        else:
+            self.input_shapes = None  # Relevant for multiple subs using the same backend
         if need_model_info:
             try:
                 self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
@@ -446,11 +466,15 @@ class TVMBackend(Backend):
             if self.model_info:
                 # TODO: also handle output_shapes
                 # TODO: take care of refresh_model_info
-                if input_shapes:
+                if self.input_shapes:
                     self.model_info.in_tensors = [t for t in self.model_info.in_tensors if t.name in self.input_shapes]
+                    assert (
+                        len(self.model_info.in_tensors) > 0
+                    ), "Missmatch between provided input names and detected ones"
                 else:
                     self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
-        self.model_info.validate()
+        if self.model_info:
+            self.model_info.validate()
 
     def get_graph_and_params_from_mlf(self, path):
         graph = None
@@ -526,6 +550,19 @@ class TVMBackend(Backend):
                             optional=True,
                         )
                     )
+            for fmt in ["tir", "tir0", "tir1", "tir2", "tir3"]:
+                if fmt in dump:
+                    with open(str(out_path) + f".{fmt}", "r") as handle:
+                        mod_tir = handle.read()
+                        artifacts.append(
+                            Artifact(
+                                f"{self.prefix}.{fmt}",
+                                content=mod_tir,
+                                fmt=ArtifactFormat.SOURCE,
+                                optional=True,
+                            )
+                        )
+            # TODO: Handle DSO dump?
             if self.executor == "graph":
                 if self.fmt == "so":
                     pass

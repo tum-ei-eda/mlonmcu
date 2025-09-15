@@ -61,7 +61,7 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "mlif.src_dir",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
-        "etissvp.script",
+        "etiss.script",
         "llvm.install_dir",
     }
 
@@ -95,7 +95,7 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def etiss_script(self):
-        return Path(self.config["etissvp.script"])
+        return Path(self.config["etiss.script"])
 
     @property
     def etiss_extra_args(self):
@@ -104,37 +104,37 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     @property
     def enable_xcorevmac(self):
         value = self.config["enable_xcorevmac"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevmem(self):
         value = self.config["enable_xcorevmem"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevbi(self):
         value = self.config["enable_xcorevbi"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevalu(self):
         value = self.config["enable_xcorevalu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevbitmanip(self):
         value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevsimd(self):
         value = self.config["enable_xcorevsimd"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_xcorevhwlp(self):
         value = self.config["enable_xcorevhwlp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def get_project_options(self):
         ret = super().get_project_options()

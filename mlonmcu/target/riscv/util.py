@@ -223,8 +223,8 @@ def update_extensions(
             else:
                 assert fpu == "double"
                 require.add("v")
-        # if vlen:
-        #     require.add(f"zvl{vlen}b")
+        if vlen:
+            require.add(f"zvl{vlen}b")
 
     if not minimal:
         if fpu in ["single", "double"] and not minimal:

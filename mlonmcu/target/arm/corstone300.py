@@ -69,22 +69,22 @@ class Corstone300Target(Target):
     @property
     def enable_ethosu(self):
         value = self.config["enable_ethosu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_fpu(self):
         value = self.config["enable_fpu"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_mvei(self):
         value = self.config["enable_mvei"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def enable_dsp(self):
         value = self.config["enable_dsp"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def ethosu_num_macs(self):

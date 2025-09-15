@@ -22,20 +22,31 @@ import tempfile
 import multiprocessing
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Union
+
+import numpy as np
 
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.models.model import (
     ModelFormats,
     Model,
+    Program,
     ExampleProgram,
     EmbenchProgram,
+    EmbenchIoTProgram,
+    EmbenchDSPProgram,
     TaclebenchProgram,
     PolybenchProgram,
     CoremarkProgram,
     DhrystoneProgram,
     MathisProgram,
     MibenchProgram,
+    OpenASIPProgram,
+    RVVBenchProgram,
+    ISSBenchProgram,
+    CryptoBenchProgram,
+    CmsisDSPProgram,
+    CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -50,12 +61,42 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
+def check_integrity(algorithm: str, value: str, file_path: Union[str, Path], check: bool = True):
+    import hashlib
+
+    hash_func = hashlib.new(algorithm)
+    with open(file_path, "rb") as file:
+        # Read the file in chunks of 8192 bytes
+        while chunk := file.read(8192):
+            hash_func.update(chunk)
+
+    file_hash = hash_func.hexdigest()
+    hash_matches = file_hash == value
+    if check:
+        assert hash_matches, f"Model hash ({algorithm}) missmatch: {file_hash} vs. {value}"
+    return hash_matches
+
+
 class Frontend(ABC):
     FEATURES = {"validate"}
 
     DEFAULTS = {
         "use_inout_data": False,
-        # TODO: print_outputs for frontends
+        # the following should be configured using gen_data feature
+        "gen_data": False,
+        "gen_data_fill_mode": None,
+        "gen_data_file": None,
+        "gen_data_number": None,
+        "gen_data_fmt": None,
+        # the following should be configured using gen_ref_data feature
+        "gen_ref_data": False,
+        "gen_ref_data_mode": None,
+        "gen_ref_data_file": None,
+        "gen_ref_data_fmt": None,
+        "gen_ref_labels": False,
+        "gen_ref_labels_mode": None,
+        "gen_ref_labels_file": None,
+        "gen_ref_labels_fmt": None,
     }
 
     REQUIRED = set()
@@ -82,7 +123,80 @@ class Frontend(ABC):
     @property
     def use_inout_data(self):
         value = self.config["use_inout_data"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
+
+    @property
+    def gen_data(self):
+        value = self.config["gen_data"]
+        return str2bool(value)
+
+    @property
+    def gen_data_fill_mode(self):
+        value = self.config["gen_data_fill_mode"]
+        assert value in ["random", "ones", "zeros", "file", "dataset"]
+        return value
+
+    @property
+    def gen_data_file(self):
+        return self.config["gen_data_file"]
+
+    @property
+    def gen_data_number(self):
+        return int(self.config["gen_data_number"])
+
+    @property
+    def gen_data_fmt(self):
+        value = self.config["gen_data_fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    @property
+    def gen_ref_data(self):
+        value = self.config["gen_ref_data"]
+        return str2bool(value)
+
+    @property
+    def gen_ref_data_mode(self):
+        value = self.config["gen_ref_data_mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def gen_ref_data_file(self):
+        return self.config["gen_ref_data_file"]
+
+    @property
+    def gen_ref_data_fmt(self):
+        value = self.config["gen_ref_data_fmt"]
+        assert value in ["npy", "npz"]
+        return value
+
+    @property
+    def gen_ref_labels(self):
+        value = self.config["gen_ref_labels"]
+        return str2bool(value)
+
+    @property
+    def gen_ref_labels_mode(self):
+        value = self.config["gen_ref_labels_mode"]
+        assert value in ["file", "model"]
+        return value
+
+    @property
+    def gen_ref_labels_file(self):
+        return self.config["gen_ref_labels_file"]
+
+    @property
+    def gen_ref_labels_fmt(self):
+        value = self.config["gen_ref_labels_fmt"]
+        assert value in ["npy", "npz", "txt", "csv"]
+        return value
+
+    def inference(self, model: Model, input_data: Dict[str, np.array]):
+        raise NotImplementedError
+
+    def extract_model_info(self, model: Model):
+        raise NotImplementedError
 
     def supports_formats(self, ins=None, outs=None):
         """Returs true if the frontend can handle at least one combination of input and output formats."""
@@ -124,15 +238,362 @@ class Frontend(ABC):
     def produce_artifacts(self, model):
         pass
 
+    def generate_input_data(self, input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths):
+        # TODO: drop self and move method out of frontends.py, support non-tflite models
+        assert self.gen_data
+        inputs_data = []
+        if self.gen_data_fill_mode in ["zeros", "ones", "random"]:
+            for i in range(self.gen_data_number):
+                data = {}
+                NEW = True
+                for ii, input_name in enumerate(input_names):
+                    assert input_name in input_types, f"Unknown dtype for input: {input_name}"
+                    dtype = input_types[input_name]
+                    quant = input_quant_details.get(input_name, None)
+                    rng = input_ranges.get(input_name, None)
+                    gen_dtype = dtype
+                    if quant:
+                        _, _, ty = quant
+                        assert "float" in ty, "Input already quantized?"
+                        if NEW:
+                            gen_dtype = ty
+                    assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
+                    shape = input_shapes[input_name]
+                    if self.gen_data_fill_mode == "zeros":
+                        arr = np.zeros(shape, dtype=gen_dtype)
+                    elif self.gen_data_fill_mode == "ones":
+                        arr = np.ones(shape, dtype=gen_dtype)
+                    elif self.gen_data_fill_mode == "random":
+                        DIST = "uniform"
+                        if DIST == "uniform":
+                            UPPER = None
+                            LOWER = None
+                            if rng is not None:
+                                assert len(rng) == 2, "Range should be a tuple (lower, upper)"
+                                LOWER, UPPER = rng
+                            if "float" in gen_dtype:
+                                if UPPER is None:
+                                    # UPPER = 1.0
+                                    UPPER = 0.5
+                                if LOWER is None:
+                                    # LOWER = -1.0
+                                    LOWER = -0.5
+                            elif "int" in gen_dtype:
+                                dtype_info = (np.iinfo(gen_dtype),)
+                                if UPPER is None:
+                                    UPPER = dtype_info.max
+                                else:
+                                    assert UPPER <= dtype_info.max, "Out of dtype bound"
+                                if LOWER is None:
+                                    LOWER = dtype_info.min
+                                else:
+                                    assert LOWER >= dtype_info.min, "Out of dtype bound"
+                            else:
+                                raise RuntimeError(f"Unsupported dtype: {gen_dtype}")
+                            assert LOWER <= UPPER
+                            RANGE = UPPER - LOWER
+                            assert RANGE > 0
+                            arr = np.random.uniform(LOWER, UPPER, shape)
+                            arr = arr.astype(gen_dtype)
+                            # input("?=")
+                            # if "float" in dtype:
+                            #     arr = np.random.rand(*shape).astype(dtype)
+                            # elif "int" in dtype:
+                            #     arr = np.random.randint(np.iinfo(dtype).min,
+                            #     np.iinfo(dtype).max, size=shape, dtype=dtype)
+                            # else:
+                            #     assert False
+                        # Quantize if required
+                        # if gen_dtype != dtype:
+                        if quant:
+                            assert "int" in dtype
+                            # assert quant
+                            scale, shift, ty = quant
+                            arr = (arr / scale) + shift
+                            arr = np.around(arr)
+                            arr = arr.astype(dtype)
+                            # input("!=")
+                        else:
+                            raise RuntimeError(f"Unsupported distribution: {DIST}")
+                    else:
+                        assert False
+                    data[input_name] = arr
+                assert len(data) > 0
+                inputs_data.append(data)
+        elif self.gen_data_fill_mode == "file":
+            if self.gen_data_file == "auto":
+                assert len(in_paths) > 0, "in_paths is empty"
+                if len(in_paths) == 1:
+                    if in_paths[0].is_dir():
+                        files = list(in_paths[0].iterdir())
+                else:
+                    files = in_paths
+                temp = {}
+                NEW = True
+                for file in files:
+                    if not isinstance(file, Path):
+                        file = Path(file)
+                    assert file.is_file(), f"Not found: {file}"
+                    basename, ext = file.stem, file.suffix
+                    if ext == ".bin":
+                        if "_" in basename:
+                            i, ii = basename.split("_", 1)
+                            i = int(i)
+                            ii = int(ii)
+                        else:
+                            i = int(basename)
+                            ii = 0
+                        with open(file, "rb") as f:
+                            data = f.read()
+                        if i not in temp:
+                            temp[i] = {}
+                        temp[i][ii] = data
+                    elif ext in [".npy", ".npz"]:
+                        raise NotImplementedError
+                    else:
+                        raise RuntimeError(f"Unsupported ext: {ext}")
+                assert len(temp) > 0
+                for i in range(min(self.gen_data_number, len(temp))):
+                    assert i in temp
+                    data = {}
+                    for ii, input_name in enumerate(input_names):
+                        assert ii in temp[i]
+                        assert input_name in input_types, f"Unknown dtype for input: {input_name}"
+                        dtype = input_types[input_name]
+                        quant = input_quant_details.get(input_name, None)
+                        rng = input_ranges.get(input_name, None)
+                        gen_dtype = dtype
+                        if quant:
+                            _, _, ty, _ = quant
+                            # assert "float" in ty, "Input already quantized?"
+                            if NEW:
+                                gen_dtype = ty
+                        arr = np.frombuffer(temp[i][ii], dtype=gen_dtype)
+                        assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
+                        shape = input_shapes[input_name]
+                        arr = np.reshape(arr, shape)
+                        # Quantize if required
+                        # if gen_dtype != dtype:
+                        if True:
+                            assert "int" in dtype
+                            # assert quant
+                            scale, shift, ty, qrng = quant
+                            if qrng is not None:
+                                assert len(qrng) == 2, "Range should be a tuple (lower, upper)"
+                                lower, upper = qrng
+                                assert lower <= upper
+                                CLIP_INPUTS = True
+                                if CLIP_INPUTS:
+                                    arr = np.clip(arr, lower, upper)
+                                else:
+                                    assert np.min(arr) >= lower or np.isclose(
+                                        np.min(arr), lower
+                                    ), "Range missmatch (lower)"
+                                    assert np.max(arr) <= upper or np.isclose(
+                                        np.max(arr), upper
+                                    ), "Range missmatch (upper)"
+                            arr = (arr / scale) + shift
+                            arr = np.around(arr)
+                            arr = arr.astype(dtype)
+                            # input("!=")
+                        if rng is not None:
+                            # TODO: Move shared code!
+                            assert len(rng) == 2, "Range should be a tuple (lower, upper)"
+                            lower, upper = rng
+                            assert lower <= upper
+                            CLIP_INPUTS = True
+                            if CLIP_INPUTS:
+                                arr = np.clip(arr, lower, upper)
+                            else:
+                                assert np.min(arr) >= lower or np.isclose(np.min(arr), lower), "Range missmatch (lower)"
+                                assert np.max(arr) <= upper or np.isclose(np.max(arr), upper), "Range missmatch (upper)"
+                        data[input_name] = arr
+                    inputs_data.append(data)
+            else:
+                assert self.gen_data_file is not None, "Missing value for gen_data_file"
+                file = Path(self.gen_data_file)
+                assert file.is_file(), f"File not found: {file}"
+            # for i, input_name in enumerate(input_names):
+
+        elif self.gen_data_fill_mode == "dataset":
+            raise NotImplementedError
+        else:
+            raise RuntimeError(f"unsupported fill_mode: {self.gen_data_fill_mode}")
+        return inputs_data
+
+    def generate_output_ref_data(
+        self, inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
+    ):
+        assert self.gen_ref_data
+        outputs_data = []
+        if self.gen_ref_data_mode == "model":
+            assert len(inputs_data) > 0
+            for i, input_data in enumerate(inputs_data):
+                # input("321?")
+                output_data = self.inference(model, input_data, quant=False, dequant=True)
+                outputs_data.append(output_data)
+                # input("321!")
+
+        elif self.gen_ref_data_mode == "file":
+            if self.gen_ref_data_file == "auto":
+                assert len(out_paths) > 0, "out_paths is empty"
+                if len(out_paths) == 1:
+                    if out_paths[0].is_dir():
+                        files = list(out_paths[0].iterdir())
+                else:
+                    files = out_paths
+                temp = {}
+                assert len(inputs_data) <= len(
+                    files
+                ), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
+                for file in files:
+                    if not isinstance(file, Path):
+                        file = Path(file)
+                    assert file.is_file()
+                    basename, ext = file.stem, file.suffix
+                    if ext == ".bin":
+                        if "_" in basename:
+                            i, ii = basename.split("_", 1)
+                            i = int(i)
+                            ii = int(ii)
+                        else:
+                            i = int(basename)
+                            ii = 0
+                        with open(file, "rb") as f:
+                            data = f.read()
+                        if i not in temp:
+                            temp[i] = {}
+                        temp[i][ii] = data
+                    elif ext in [".npy", ".npz"]:
+                        raise NotImplementedError
+                    else:
+                        raise RuntimeError(f"Unsupported ext: {ext}")
+                # TODO: handle case where there are more output samples than input samples?
+                for i in range(len(temp)):
+                    assert i in temp
+                    data = {}
+                    for ii, output_name in enumerate(output_names):
+                        assert ii in temp[i]
+                        assert output_name in output_types, f"Unknown dtype for output: {output_name}"
+                        dtype = output_types[output_name]
+                        dequant = output_quant_details.get(output_name, None)
+                        if dequant:
+                            _, _, ty, _ = dequant
+                            dtype = ty
+                        arr = np.frombuffer(temp[i][ii], dtype=dtype)
+                        assert output_name in output_shapes, f"Unknown shape for output: {output_name}"
+                        shape = output_shapes[output_name]
+                        arr = np.reshape(arr, shape)
+                        data[output_name] = arr
+                    outputs_data.append(data)
+            else:
+                assert self.gen_ref_data_file is not None, "Missing value for gen_ref_data_file"
+                file = Path(self.gen_data_file)
+                assert file.is_file(), f"File not found: {file}"
+                raise NotImplementedError
+        else:
+            raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_data_mode}")
+        return outputs_data
+
+    def generate_ref_labels(
+        self, inputs_data, model, out_labels_paths, output_names, output_types, output_shapes, output_quant_details
+    ):
+        assert self.gen_ref_labels
+        labels = []
+        if self.gen_ref_labels_mode == "model":
+            assert len(inputs_data) > 0
+            for i, input_data in enumerate(inputs_data):
+                output_data = self.inference(model, input_data, quant=False, dequant=True)
+                assert len(output_data) == 1, "Does not support multi-output classification"
+                output_data = output_data[list(output_data)[0]]
+                top_label = np.argmax(output_data)
+                labels.append(top_label)
+
+        elif self.gen_ref_labels_mode == "file":
+            if self.gen_ref_labels_file == "auto":
+                assert len(out_labels_paths) > 0, "labels_paths is empty"
+                assert len(out_labels_paths) == 1
+                file = Path(out_labels_paths[0])
+            else:
+                assert self.gen_ref_labels_file is not None, "Missing value for gen_ref_labels_file"
+                file = Path(self.gen_ref_labels_file)
+            assert file.is_file(), f"File not found: {file}"
+            ext = file.suffix
+            assert len(ext) > 1
+            fmt = ext[1:].lower()
+            if fmt == "csv":
+                import pandas as pd
+
+                labels_df = pd.read_csv(file, sep=",")
+                assert "i" in labels_df.columns
+                assert "label_idx" in labels_df.columns
+                assert len(inputs_data) <= len(labels_df)
+                labels_df.sort_values("i", inplace=True)
+                labels = list(labels_df["label_idx"].astype(int))[: len(inputs_data)]
+            else:
+                raise NotImplementedError(f"Fmt not supported: {fmt}")
+        else:
+            raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_labels_mode}")
+        return labels
+
+    def generate_model_info(
+        self,
+        input_names,
+        output_names,
+        input_shapes,
+        output_shapes,
+        input_types,
+        output_types,
+        input_ranges,
+        output_ranges,
+        input_quant_details,
+        output_quant_details,
+    ):
+        model_info_dict = {
+            "input_names": input_names,
+            "output_names": output_names,
+            "input_shapes": list(input_shapes.values()),
+            "output_shapes": list(output_shapes.values()),
+            "input_types": list(input_types.values()),
+            "output_types": list(output_types.values()),
+            "input_ranges": list(input_ranges.values()),
+            "output_ranges": list(output_ranges.values()),
+            "input_quant_details": list(input_quant_details.values()),
+            "output_quant_details": list(output_quant_details.values()),
+        }
+        # nested version
+        # model_info_dict = {
+        #     "inputs": [
+        #         {
+        #             "name": "input_1",
+        #             "shape": [1, 1014],
+        #             "type": "int8",
+        #         }
+        #     ],
+        #     "outputs": [
+        #         {
+        #             "name": "output",
+        #             "shape": [1, 10],
+        #             "type": "int8",
+        #         }
+        #     ],
+        # }
+        return model_info_dict  # TODO: turn into class
+
     def process_metadata(self, model, cfg=None):
         model_dir = Path(model.paths[0]).parent.resolve()
         metadata = model.metadata
         in_paths = []
         out_paths = []
+        labels_paths = []
         input_shapes = {}
         output_shapes = {}
         input_types = {}
         output_types = {}
+        input_ranges = {}
+        output_ranges = {}
+        input_quant_details = {}
+        output_quant_details = {}
         if metadata is not None and "network_parameters" in metadata:
             network = metadata["network_parameters"]
             assert "input_nodes" in network
@@ -140,12 +601,27 @@ class Frontend(ABC):
             for inp in ins:
                 name = inp.get("name", None)
                 shape = inp.get("shape", None)
-                ty = inp.get("type", None)
+                ty = inp.get("dtype", None)
+                if ty is None:
+                    ty = inp.get("type", None)  # legacy
+                rng = inp.get("range", None)
+                quantize = inp.get("quantize", None)
                 if name and shape:
                     input_shapes[name] = shape
                 if name and ty:
                     input_types[name] = ty
-                if self.use_inout_data:
+                if name and rng:
+                    input_ranges[name] = rng
+                if name and quantize:
+                    quant_scale = quantize.get("scale", None)
+                    quant_zero_shift = quantize.get("zero_shift", None)
+                    quant_dtype = quantize.get("dtype", None)
+                    quant_range = quantize.get("range", None)
+                    quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
+                    input_quant_details[name] = quant_details
+                if self.use_inout_data or (
+                    self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"
+                ):
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
                         # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
@@ -159,19 +635,42 @@ class Frontend(ABC):
             for outp in outs:
                 name = outp.get("name", None)
                 shape = outp.get("shape", None)
-                ty = outp.get("type", None)
+                ty = outp.get("dtype", None)
+                if ty is None:
+                    ty = outp.get("type", None)  # legacy
+                rng = outp.get("range", None)
+                dequantize = outp.get("dequantize", None)
                 if name and shape:
                     output_shapes[name] = shape
                 if name and ty:
                     output_types[name] = ty
-                if self.use_inout_data:
+                if name and rng:
+                    output_ranges[name] = rng
+                if name and dequantize:
+                    quant_scale = dequantize.get("scale", None)
+                    quant_zero_shift = dequantize.get("zero_shift", None)
+                    quant_dtype = dequantize.get("dtype", None)
+                    quant_range = dequantize.get("range", None)
+                    quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
+                    output_quant_details[name] = quant_details
+                if self.use_inout_data or (
+                    self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"
+                ):
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])
                         out_path = model_dir / out_data_dir
                         assert (
-                            in_path.is_dir()
+                            out_path.is_dir()
                         ), f"Output data directory defined in model metadata does not exist: {out_path}"
                         out_paths.append(out_path)
+                if self.gen_ref_labels and self.gen_ref_labels_mode == "file" and self.gen_ref_labels_file == "auto":
+                    if "test_labels_file" in outp:
+                        labels_file = Path(outp["test_labels_file"])
+                        labels_path = model_dir / labels_file
+                        assert (
+                            labels_path.is_file()
+                        ), f"Labels file defined in model metadata does not exist: {labels_path}"
+                        labels_paths.append(labels_path)
         else:
             fallback_in_path = model_dir / "input"
             if fallback_in_path.is_dir():
@@ -179,6 +678,18 @@ class Frontend(ABC):
             fallback_out_path = model_dir / "output"
             if fallback_out_path.is_dir():
                 out_paths.append(fallback_out_path)
+            fallback_labels_path = model_dir / "output_labels.csv"
+            if fallback_labels_path.is_file():
+                labels_paths.append(fallback_labels_path)
+        if model.inputs_path:
+            logger.info("Overriding default model input data with user path")
+            in_paths = [model.inputs_path]
+        if model.outputs_path:
+            logger.info("Overriding default model output data with user path")
+            out_paths = [model.outputs_path]
+        if model.output_labels_path:  # TODO
+            logger.info("Overriding default model output labels with user path")
+            labels_paths = [model.output_labels_path]
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -188,12 +699,39 @@ class Frontend(ABC):
                     flattened = {f"{backend}.{key}": value for key, value in backend_options[backend].items()}
                     cfg.update(flattened)
 
+        if len(input_shapes) > 0:
+            assert len(input_types) in [len(input_shapes), 0]
+            input_names = list(input_shapes.keys())
+        elif len(input_types) > 0:
+            input_names = list(input_types.keys())
+        else:
+            input_names = []
+
+        if metadata is None:
+            try:
+                (
+                    input_names,
+                    input_shapes,
+                    input_types,
+                    input_quant_details,
+                    output_names,
+                    output_shapes,
+                    output_types,
+                    output_quant_details,
+                ) = self.extract_model_info(model)
+            except NotImplementedError:
+                logger.warning("Model info could not be extracted.")
+
         # Detect model support code (Allow overwrite in metadata YAML)
-        support_path = model_dir / "support"
+        if model.support_path:
+            support_path = model.support_path
+        else:
+            support_path = model_dir / "support"
         if support_path.is_dir():
             assert cfg is not None
             # TODO: onlu overwrite if unset?
-            cfg.update({"mlif.model_support_dir": support_path})
+            if cfg.get("mlif.model_support_dir", None) is not None:
+                cfg.update({"mlif.model_support_dir": support_path})
             # cfg.update({"espidf.model_support_dir": support_path})
             # cfg.update({"zephyr.model_support_dir": support_path})
         if len(in_paths) > 0:
@@ -204,6 +742,8 @@ class Frontend(ABC):
             cfg.update({"mlif.output_data_path": out_paths})
             # cfg.update({"espidf.output_data_path": out_paths})
             # cfg.update({"zephyr.output_data_path": out_paths})
+        if len(labels_paths) > 0:
+            cfg.update({"mlif.output_labels_path": labels_paths})
         if len(input_shapes) > 0:
             cfg.update({f"{model.name}.input_shapes": input_shapes})
         if len(output_shapes) > 0:
@@ -212,6 +752,100 @@ class Frontend(ABC):
             cfg.update({f"{model.name}.input_types": input_types})
         if len(output_types) > 0:
             cfg.update({f"{model.name}.output_types": output_types})
+        # flattened version
+        if len(output_shapes) > 0:
+            assert len(output_types) in [len(output_shapes), 0]
+            output_names = list(output_shapes.keys())
+        elif len(output_shapes) > 0:
+            output_names = list(output_types.keys())
+        else:
+            output_names = []
+        artifacts = []
+        inputs_data = None
+        gen_model_info = True  # TODO: move to self (configurable)
+        if gen_model_info:
+            model_info_dict = self.generate_model_info(
+                input_names,
+                output_names,
+                input_shapes,
+                output_shapes,
+                input_types,
+                output_types,
+                input_ranges,
+                output_ranges,
+                input_quant_details,
+                output_quant_details,
+            )
+            import yaml
+
+            content = yaml.dump(model_info_dict)
+            model_info_artifact = Artifact(
+                "model_info.yml", content=content, fmt=ArtifactFormat.TEXT, flags=("model_info",)
+            )
+            artifacts.append(model_info_artifact)
+        if self.gen_data:
+            inputs_data = self.generate_input_data(
+                input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths
+            )
+            fmt = self.gen_data_fmt
+            if fmt == "npy":
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tempfilename = Path(tmpdirname) / "inputs.npy"
+                    np.save(tempfilename, inputs_data)
+                    with open(tempfilename, "rb") as f:
+                        raw = f.read()
+            elif fmt == "npz":
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f"Unsupported fmt: {fmt}")
+            assert raw
+            inputs_data_artifact = Artifact(f"inputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("inputs", fmt))
+            artifacts.append(inputs_data_artifact)
+        if self.gen_ref_data:
+            outputs_ref_data = self.generate_output_ref_data(
+                inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
+            )
+            fmt = self.gen_data_fmt
+            if fmt == "npy":
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tempfilename = Path(tmpdirname) / "outputs_ref.npy"
+                    np.save(tempfilename, outputs_ref_data)
+                    with open(tempfilename, "rb") as f:
+                        raw = f.read()
+            elif fmt == "npz":
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f"Unsupported fmt: {fmt}")
+            assert raw
+            outputs_ref_artifact = Artifact(
+                f"outputs_ref.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("outputs_ref", fmt)
+            )
+            artifacts.append(outputs_ref_artifact)
+        if self.gen_ref_labels:
+            labels_ref = self.generate_ref_labels(
+                inputs_data, model, labels_paths, output_names, output_types, output_shapes, output_quant_details
+            )
+            fmt = self.gen_ref_labels_fmt
+            if fmt == "npy":
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    tempfilename = Path(tmpdirname) / "labels.npy"
+                    np.save(tempfilename, labels_ref)
+                    with open(tempfilename, "rb") as f:
+                        raw = f.read()
+            elif fmt == "npz":
+                raise NotImplementedError
+            elif fmt == "txt":
+                raise NotImplementedError
+            elif fmt == "csv":
+                raise NotImplementedError
+            else:
+                raise RuntimeError(f"Unsupported fmt: {fmt}")
+            assert raw
+            labels_ref_artifact = Artifact(
+                f"labels_ref.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("labels_ref", fmt)
+            )
+            artifacts.append(labels_ref_artifact)
+        return artifacts
 
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
@@ -299,6 +933,7 @@ class SimpleFrontend(Frontend):
         assert len(self.input_formats) == len(self.output_formats) == len(model.paths) == 1
         artifacts = []
         name = model.name
+        assert "/" not in name
         path = model.paths[0]
         ext = self.input_formats[0].extension
         with open(path, "rb") as handle:  # TODO: is an onnx model raw data or text?
@@ -311,7 +946,14 @@ class SimpleFrontend(Frontend):
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
 class TfLiteFrontend(SimpleFrontend):
-    FEATURES = Frontend.FEATURES | {"visualize", "split_layers", "tflite_analyze"}
+    FEATURES = Frontend.FEATURES | {
+        "visualize",
+        "split_layers",
+        "tflite_analyze",
+        "gen_data",
+        "gen_ref_data",
+        "gen_ref_labels",
+    }
 
     DEFAULTS = {
         **Frontend.DEFAULTS,
@@ -321,6 +963,7 @@ class TfLiteFrontend(SimpleFrontend):
         "pack_script": None,
         "analyze_enable": False,
         "analyze_script": None,
+        "check_integrity": False,
     }
 
     REQUIRED = Frontend.REQUIRED
@@ -335,15 +978,38 @@ class TfLiteFrontend(SimpleFrontend):
             config=config,
         )
 
+    def process_metadata(self, model, cfg=None):
+        ret = super().process_metadata(model, cfg=cfg)
+        metadata = model.metadata
+        if self.check_integrity:
+            checked = False
+            if metadata is not None:
+                network_data = metadata.get("network")
+                if network_data is not None:
+                    hash_data = network_data.get("hash")
+                    if hash_data is not None:
+                        algorithm = hash_data.get("algorithm", "sha1")
+                        value = hash_data.get("value", None)
+                        check_integrity(algorithm, value, model.paths[0])
+                        checked = True
+            if not checked:
+                logger.debug("Skipping integrity check (missing hash)")
+        return ret
+
+    @property
+    def check_integrity(self):
+        value = self.config["check_integrity"]
+        return str2bool(value)
+
     @property
     def visualize_enable(self):
         value = self.config["visualize_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def split_layers(self):
         value = self.config["split_layers"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def visualize_script(self):
@@ -356,11 +1022,109 @@ class TfLiteFrontend(SimpleFrontend):
     @property
     def analyze_enable(self):
         value = self.config["analyze_enable"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def analyze_script(self):
         return self.config["analyze_script"]
+
+    def extract_model_info(self, model: Model):
+        import tensorflow as tf
+
+        model_path = str(model.paths[0])
+        interpreter = tf.lite.Interpreter(model_path=model_path)
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        input_names = []
+        input_shapes = {}
+        input_types = {}
+        input_quant_details = {}
+        output_names = []
+        output_shapes = {}
+        output_types = {}
+        output_quant_details = {}
+        for inp in input_details:
+            name = str(inp["name"])
+            input_names.append(name)
+            input_shapes[name] = inp["shape"].tolist()
+            input_types[name] = np.dtype(inp["dtype"]).name
+            if "quantization" in inp:
+                scale, zero_point = inp["quantization"]
+                quant = [scale, zero_point, "float32"]
+                input_quant_details[name] = quant
+        for outp in output_details:
+            name = str(outp["name"])
+            output_names.append(name)
+            output_shapes[name] = outp["shape"].tolist()
+            output_types[name] = np.dtype(outp["dtype"]).name
+            if "quantization" in outp:
+                scale, zero_point = outp["quantization"]
+                quant = [scale, zero_point, "float32"]
+                output_quant_details[name] = quant
+        return (
+            input_names,
+            input_shapes,
+            input_types,
+            input_quant_details,
+            output_names,
+            output_shapes,
+            output_types,
+            output_quant_details,
+        )
+
+    def inference(self, model: Model, input_data: Dict[str, np.array], quant=False, dequant=False, verbose=False):
+        import tensorflow as tf
+
+        model_path = str(model.paths[0])
+        interpreter = tf.lite.Interpreter(model_path=model_path)
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        interpreter.allocate_tensors()
+        if verbose:
+            print()
+            print("Input details:")
+            print(input_details)
+            print()
+            print("Output details:")
+            print(output_details)
+            print()
+        assert len(input_details) == 1, "Multi-inputs not yet supported"
+        input_type = input_details[0]["dtype"]
+        input_name = input_details[0]["name"]
+        input_shape = input_details[0]["shape"]
+        assert input_name in input_data, f"Input {input_name} fot found in data"
+        np_features = input_data[input_name]
+        if quant and input_type == np.int8:
+            input_scale, input_zero_point = input_details[0]["quantization"]
+            if verbose:
+                print("Input scale:", input_scale)
+                print("Input zero point:", input_zero_point)
+                print()
+            np_features = (np_features / input_scale) + input_zero_point
+            np_features = np.around(np_features)
+        np_features = np_features.astype(input_type)
+        np_features = np_features.reshape(input_shape)
+        interpreter.set_tensor(input_details[0]["index"], np_features)
+        interpreter.invoke()
+        output = interpreter.get_tensor(output_details[0]["index"])
+
+        # If the output type is int8 (quantized model), rescale data
+        assert len(output_details) == 1, "Multi-outputs not yet supported"
+        output_type = output_details[0]["dtype"]
+        output_name = output_details[0]["name"]
+        if dequant and output_type == np.int8:
+            output_scale, output_zero_point = output_details[0]["quantization"]
+            if verbose:
+                print("Raw output scores:", output)
+                print("Output scale:", output_scale)
+                print("Output zero point:", output_zero_point)
+                print()
+            output = output_scale * (output.astype(np.float32) - output_zero_point)
+
+        if verbose:
+            # Print the results of inference
+            print("Inference output:", output, type(output))
+        return {output_name: output}
 
     def produce_artifacts(self, model):
         assert len(self.input_formats) == len(model.paths) == 1
@@ -452,7 +1216,7 @@ class TfLiteFrontend(SimpleFrontend):
 
                 def get_num_layers(file):
                     tflite_pack_args = [path, "--count-layers", "--noop"]
-                    out = utils.exec_getout(self.pack_script, *tflite_pack_args)
+                    out = utils.execute(self.pack_script, *tflite_pack_args)
                     matches = re.compile(r"Found\s(\d+)\slayers.").findall(out)
                     assert len(matches) == 1
                     num = int(matches[0])
@@ -476,7 +1240,7 @@ class TfLiteFrontend(SimpleFrontend):
                         out_name = f"layer{i}"
                         out_file = Path(dest) / out_name
                         tflite_pack_args = [path, "-k", str(i), "--out", out_file]
-                        utils.exec_getout(self.pack_script, *tflite_pack_args)
+                        utils.execute(self.pack_script, *tflite_pack_args)
                         assert out_file.is_file()
                         results.append(out_file)
                     return results
@@ -522,7 +1286,7 @@ class RelayFrontend(SimpleFrontend):
     @property
     def visualize_graph(self):
         value = self.config["visualize_graph"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def relayviz_plotter(self):
@@ -650,22 +1414,22 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
     @property
     def ignore_existing(self):
         value = self.config["ignore_existing"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def fake_pack(self):
         value = self.config["fake_pack"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def use_packed(self):
         value = self.config["use_packed"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def check(self):
         value = self.config["check"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def produce_artifacts(self, model):
         tflite_data = None
@@ -702,7 +1466,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
                 with open(in_file, "wb") as handle:
                     handle.write(tflite_data)
                 out_file = Path(tmpdirname) / "out.tflm"
-                utils.exec_getout(packer_exe, in_file, out_file)
+                utils.execute(packer_exe, in_file, out_file)
                 with open(out_file, "rb") as handle:
                     packed_data = handle.read()
 
@@ -721,7 +1485,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             raw=packed_data,
             fmt=ArtifactFormat.RAW,
             optional=not self.use_packed,
-            flags=["model"],
         )
 
         if self.use_packed:
@@ -735,6 +1498,16 @@ class ONNXFrontend(SimpleFrontend):
         super().__init__(
             "onnx",
             ModelFormats.ONNX,
+            features=features,
+            config=config,
+        )
+
+
+class MLIRFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "mlir",
+            ModelFormats.MLIR,
             features=features,
             config=config,
         )
@@ -760,51 +1533,79 @@ class PaddleFrontend(SimpleFrontend):
         )
 
 
-class ExampleFrontend(SimpleFrontend):
-    def __init__(self, features=None, config=None):
+class BenchFrontend(SimpleFrontend):
+    def __init__(self, name: str, prog_cls: Program, features=None, config=None):
         super().__init__(
-            "example",
+            name,
             ModelFormats.NONE,
             features=features,
             config=config,
         )
+        self.prog_cls = prog_cls
 
-    @property
     def supported_names(self):
-        return ["hello_world", "foobar"]
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("example/", "")
-            if name in self.supported_names:
-                hint = ExampleProgram(
-                    name,
-                    alt=f"example/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
+        raise NotImplementedError
 
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
 
         return {"default": artifacts}, {}
 
+    def lookup_models(self, names, config=None, context=None):
+        ret = []
+        for name in names:
+            name = name.replace(f"{self.name}/", "")
+            if name in self.supported_names:
+                hint = self.prog_cls(
+                    name,
+                    alt=f"{self.name}/{name}",
+                    config=config,
+                )
+                ret.append(hint)
+        return ret
+
     def get_platform_config(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["template"] = "example"
+            ret["template"] = self.name
         return ret
 
 
-class EmbenchFrontend(SimpleFrontend):
+class SingleBenchFrontend(BenchFrontend):
+
+    @property
+    def supported_names(self):
+        return [self.name]
+
+
+class ExampleFrontend(BenchFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "example",
+            ExampleProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # return ["hello_world", "foobar"]
+        return [
+            "hello_world",
+            "foobar",
+            "load_filter",
+            "basic_hash",
+            "temp_crypto",
+        ]
+
+
+class EmbenchFrontend(BenchFrontend):
     REQUIRED = {"embench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "embench",
-            ModelFormats.NONE,
+            EmbenchProgram,
             features=features,
             config=config,
         )
@@ -837,48 +1638,102 @@ class EmbenchFrontend(SimpleFrontend):
             "primecount",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("embench/", "")
-            if name in self.supported_names:
-                hint = EmbenchProgram(
-                    name,
-                    alt=f"embench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
         return ret
 
-    def get_platform_config(self, platform):
+
+class EmbenchIoTFrontend(BenchFrontend):
+    REQUIRED = {"embench_iot.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_iot",
+            EmbenchIoTProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            # "cubic",
+            # "nbody",
+            # "minver",
+            # "st",
+            # "primecount", ???
+            "aha-mont64",
+            "crc32",
+            "depthconv",
+            "edn",
+            "huffbench",
+            "matmult-int",
+            "md5sum",
+            "nettle-aes",
+            "nettle-sha256",
+            "nsichneu",
+            "picojpeg",
+            "qrduino",
+            "sglib-combined",
+            "slre",
+            "statemate",
+            "tarfind",
+            "ud",
+            "wikisort",
+            "xgboost",
+        ]
+
+    def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
-            ret["template"] = "embench"
+            ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
         return ret
 
 
-class TaclebenchFrontend(SimpleFrontend):
+class EmbenchDSPFrontend(BenchFrontend):
+    REQUIRED = {"embench_dsp.src_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "embench_dsp",
+            EmbenchDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        # TODO: automatic lookup
+        return [
+            "biquad_cascade_df2T_f32_sos3_n1",
+            "biquad_cascade_df2T_f32_sos3_n128",
+            "dct4_2048_f32",
+            "dct4_512_f32",
+            "fir_f32_taps256_n1",
+            "fir_f32_taps256_n128",
+            "lms_f32_taps256_n1",
+            "lms_f32_taps256_n128",
+            "rfft2048_f32",
+            "rfft512_f32",
+        ]
+
+    def get_platform_defs(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
+        return ret
+
+
+class TaclebenchFrontend(BenchFrontend):
     REQUIRED = {"taclebench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "taclebench",
-            ModelFormats.NONE,
+            TaclebenchProgram,
             features=features,
             config=config,
         )
@@ -946,48 +1801,26 @@ class TaclebenchFrontend(SimpleFrontend):
             "sequential/petrinet",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("taclebench/", "")
-            if name in self.supported_names:
-                hint = TaclebenchProgram(
-                    name,
-                    alt=f"taclebench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "taclebench"
-        return ret
 
+class PolybenchFrontend(BenchFrontend):
 
-class PolybenchFrontend(SimpleFrontend):
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "dataset": "large",  # mini/small/medium/large/extralarge
+    }
+
     REQUIRED = {"polybench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "polybench",
-            ModelFormats.NONE,
+            PolybenchProgram,
             features=features,
             config=config,
         )
@@ -1028,132 +1861,45 @@ class PolybenchFrontend(SimpleFrontend):
             "medley/floyd-warshall",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("polybench/", "")
-            if name in self.supported_names:
-                hint = PolybenchProgram(
-                    name,
-                    alt=f"polybench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
             ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
-        return ret
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "polybench"
+            ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
 
 
-class CoremarkFrontend(SimpleFrontend):
+class CoremarkFrontend(SingleBenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "coremark",
-            ModelFormats.NONE,
+            CoremarkProgram,
             features=features,
             config=config,
         )
 
-    @property
-    def supported_names(self):
-        return [
-            "coremark",
-        ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("coremark/", "")
-            if name in self.supported_names:
-                hint = CoremarkProgram(
-                    name,
-                    alt=f"coremark/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "coremark"
-        return ret
-
-
-class DhrystoneFrontend(SimpleFrontend):
+class DhrystoneFrontend(SingleBenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "dhrystone",
-            ModelFormats.NONE,
+            DhrystoneProgram,
             features=features,
             config=config,
         )
 
-    @property
-    def supported_names(self):
-        return [
-            "dhrystone",
-        ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("dhrystone/", "")
-            if name in self.supported_names:
-                hint = DhrystoneProgram(
-                    name,
-                    alt=f"dhrystone/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "dhrystone"
-        return ret
-
-
-class MathisFrontend(SimpleFrontend):
+class MathisFrontend(BenchFrontend):
     REQUIRED = set()
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "mathis",
-            ModelFormats.NONE,
+            MathisProgram,
             features=features,
             config=config,
         )
@@ -1184,38 +1930,14 @@ class MathisFrontend(SimpleFrontend):
             "transposed_matmul16_b",
         ]
 
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("mathis/", "")
-            if name in self.supported_names:
-                hint = MathisProgram(
-                    name,
-                    alt=f"mathis/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
 
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "mathis"
-        return ret
-
-
-class MibenchFrontend(SimpleFrontend):
+class MibenchFrontend(BenchFrontend):
     REQUIRED = {"mibench.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
             "mibench",
-            ModelFormats.NONE,
+            MibenchProgram,
             features=features,
             config=config,
         )
@@ -1236,28 +1958,6 @@ class MibenchFrontend(SimpleFrontend):
             "office/stringsearch",
         ]
 
-    # @property
-    # def skip_backend(self):
-    #     return True
-
-    def lookup_models(self, names, config=None, context=None):
-        ret = []
-        for name in names:
-            name = name.replace("mibench/", "")
-            if name in self.supported_names:
-                hint = MibenchProgram(
-                    name,
-                    alt=f"mibench/{name}",
-                    config=config,
-                )
-                ret.append(hint)
-        return ret
-
-    def generate(self, model) -> Tuple[dict, dict]:
-        artifacts = [Artifact("dummy_model", raw=bytes(), fmt=ArtifactFormat.RAW, flags=["model", "dummy"])]
-
-        return {"default": artifacts}, {}
-
     def get_platform_defs(self, platform):
         ret = {}
         if platform == "mlif":
@@ -1265,15 +1965,22 @@ class MibenchFrontend(SimpleFrontend):
 
         return ret
 
-    def get_platform_config(self, platform):
-        ret = {}
-        if platform == "mlif":
-            ret["template"] = "mibench"
-
-        return ret
-
 
 class LayerGenFrontend(Frontend):
+    """Example input:
+    1,1024 1 fully_connected ,10,relu
+    1,1024 1 fully_connected ,100,relu
+    1,1024 1 fully_connected ,2,relu
+    1,1024 1 fully_connected ,4,relu
+    1,1024 1 fully_connected ,8,relu
+    1,1024 1 fully_connected ,16,relu
+    1,1024 1 fully_connected ,32,relu
+    1,1024 1 fully_connected ,64,relu
+    1,1024 1 fully_connected ,128,relu
+    1,1024 1 fully_connected ,256,relu
+    1,1024 1 fully_connected ,512,relu
+    """
+
     FEATURES = Frontend.FEATURES
 
     DEFAULTS = {
@@ -1372,3 +2079,144 @@ class LayerGenFrontend(Frontend):
             artifact = Artifact(f"{name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"])
             artifacts[name] = [artifact]
         return artifacts, {}
+
+
+class OpenASIPFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "openasip",
+            OpenASIPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "sha256",
+            "aes",
+            "crc",
+        ]
+
+
+class RVVBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "rvv_bench",
+            RVVBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "instructions_scalar",
+            "instructions_rvv",
+            "memcpy",
+            "memset",
+            "utf8_count",
+            "strlen",
+            "mergelines",
+            "mandelbrot",
+            "chacha20",
+            "poly1305",
+            "ascii_to_utf16",
+            "ascii_to_uft32",
+            "byteswap",
+            "LUT4",
+            "LUT6",
+            "hist",
+            "base64_encode",
+        ]
+
+
+class ISSBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "iss_bench",
+            ISSBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "large_block",
+            "branch_heavy",
+            "mem_heavy",
+        ]
+
+
+class CryptoBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "crypto_bench",
+            CryptoBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "mceliece348864_encrypt",
+            "mceliece348864_encrypt_rvv",
+            "mceliece348864_decrypt",
+            "mceliece348864_decrypt_rvv",
+            "mceliece348864_keypair",
+            "mceliece348864_keypair_rvv",
+        ]
+
+
+class CmsisDSPFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_dsp",
+            CmsisDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_abs_q15",
+            "arm_abs_q31",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_dsp_bench"
+        return ret
+
+
+class CmsisNNFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_nn",
+            CmsisNNProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_nn_activation_s16_tanh",
+            "arm_nn_activation_s16_sigmoid",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_nn_bench"
+        return ret

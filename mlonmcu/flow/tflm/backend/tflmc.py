@@ -50,7 +50,7 @@ class TFLMCBackend(TFLMBackend):
     @property
     def print_outputs(self):
         value = self.config["print_outputs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
@@ -106,7 +106,7 @@ size_t model_outputs();
             args.append(str(self.model))
             args.append(str(Path(tmpdirname) / f"{self.prefix}.cc"))
             args.append(f"{self.prefix}_")
-            out = utils.exec_getout(tflmc_exe, *args, live=self.print_outputs)
+            out = utils.execute(tflmc_exe, *args, live=self.print_outputs)
             files = [f for f in os.listdir(tmpdirname) if os.path.isfile(os.path.join(tmpdirname, f))]
             # TODO: ensure that main file is processed first
             for filename in files:

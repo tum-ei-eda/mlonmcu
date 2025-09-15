@@ -19,6 +19,7 @@ limitations under the License.
 cmake_minimum_required(VERSION 3.5)
 
 SET(TVM_SRC ${CONFIG_TVM_DIR})
+SET(TVM_CRT_CONFIG_DIR ${CONFIG_TVM_CRT_CONFIG_DIR})
 
 IF (NOT ${TVM_SRC} STREQUAL "")
 
@@ -35,8 +36,8 @@ SET(TVM_HEADERS
 
 IF(TVM_CRT_CONFIG_DIR)
     LIST(APPEND TVM_HEADERS ${TVM_CRT_CONFIG_DIR})
-ELSE()
-    LIST(APPEND TVM_HEADERS ${TVM_SRC}/apps/bundle_deploy/crt_config)
+# ELSE()
+#     LIST(APPEND TVM_HEADERS ${TVM_SRC}/apps/bundle_deploy/crt_config)
 ENDIF()
 
     idf_component_register(
@@ -55,7 +56,7 @@ ENDIF()
     )
 
 
-component_compile_options(-Wno-error=unused-but-set-parameter)
+component_compile_options(-Wno-error=unused-but-set-parameter -Wno-error=format -Wno-error=incompatible-pointer-types)
 
 TARGET_INCLUDE_DIRECTORIES(${COMPONENT_LIB} PUBLIC
     -DTVM_RUNTIME_ALLOC_ALIGNMENT_BYTES=${TVM_ALIGNMENT_BYTES}
@@ -63,4 +64,3 @@ TARGET_INCLUDE_DIRECTORIES(${COMPONENT_LIB} PUBLIC
 ELSE()
     idf_component_register()
 ENDIF()
-

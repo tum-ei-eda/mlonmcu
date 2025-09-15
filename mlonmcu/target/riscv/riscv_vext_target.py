@@ -58,7 +58,7 @@ class RVVTarget(RISCVTarget):
         value = int(self.config["vlen"])
         assert value == 0 or is_power_of_two(value), "VLEN needs to be a power of 2."
         assert value == 0 or value >= 32, "VLEN < 32 not allowed"
-        if value < 128:
+        if 0 < value < 128:
             assert self.embedded_vext, "VLEN < 128 imples embedded_vext=false"
         return value
 
@@ -77,7 +77,7 @@ class RVVTarget(RISCVTarget):
     @property
     def embedded_vext(self):
         value = self.config["embedded_vext"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def extensions(self):
@@ -121,3 +121,10 @@ class RVVTarget(RISCVTarget):
                     model = f"{model}-zvl{self.vlen}b"
             ret["target_model"] = model
         return ret
+
+    def get_vector_width(self):
+        # TODO: num bytes/bits or num elements?
+        return (self.vlen / 8) if self.enable_vext else 0
+
+    def has_scalable_vectorization(self):
+        return self.enable_vext  # TODO: allow disabling scalabe -> fixed

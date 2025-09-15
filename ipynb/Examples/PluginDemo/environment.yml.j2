@@ -1,0 +1,80 @@
+---
+home: "{{ home_dir }}"
+logging:
+  level: INFO
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 5
+paths:
+  deps: deps
+  logs: logs
+  results: results
+  plugins: plugins  # Store plugins in environment dir!
+  temp: temp
+  models:
+    - "{{ home_dir }}/models"
+repos:
+  abc:
+    url: https://github.com/PhilippvK/mlonmcu-abc
+    ref: main
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: f868a900f1f788fd0a55b5655b47fc352f9a0239
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: 3f8e66b956fe1cf0d85a18d39d684816e92e2751
+frameworks:
+  default: tflm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmc:
+        enabled: false
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: false
+      cmsisnn: false
+frontends:
+  tflite:
+    enabled: true
+    features: []
+toolchains:
+  gcc: true
+  llvm: false
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+targets:
+  default: host_x86
+  abc:
+    enabled: true
+    features: []
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
+vars:
+  allow_extensions: true
+  llvm.version: "11.1.0"
+  llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
+  runs_per_stage: true
+  riscv_gcc.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/20.04/rv32gc_ilp32d.tar.xz"
+flags: {}

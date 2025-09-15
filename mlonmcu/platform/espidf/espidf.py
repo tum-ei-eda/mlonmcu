@@ -63,6 +63,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "use_idf_monitor": True,
         "wait_for_user": True,
         "flash_only": False,
+        "newlib_nano_fmt": True,
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -76,6 +77,22 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
+        self._idf_version = None
+
+    def detect_idf_version(self):
+        text = self.invoke_idf_exe("--version", live=False).strip()
+        version = text.splitlines()[-1].split(" ")[-1]
+        assert version[0] == "v"
+        version = version[1:]
+        if "-" in version:
+            version = version.split("-", 1)[0]
+        return version
+
+    @property
+    def idf_version(self):
+        if self._idf_version is None:
+            self._idf_version = self.detect_idf_version()
+        return self._idf_version
 
     @property
     def espidf_install_dir(self):
@@ -92,18 +109,23 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     @property
     def use_idf_monitor(self):
         value = self.config["use_idf_monitor"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     @property
     def wait_for_user(self):
         value = self.config["wait_for_user"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
+
+    @property
+    def newlib_nano_fmt(self):
+        value = self.config["newlib_nano_fmt"]
+        return str2bool(value)
 
     @property
     def flash_only(self):
         # TODO: get rid of this
         value = self.config["flash_only"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()
@@ -116,7 +138,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             # + f" > /dev/null && {self.idf_exe} "
             + " ".join([str(arg) for arg in args])
         )
-        out = utils.exec_getout(
+        out = utils.execute(
             cmd, shell=True, env=env, **kwargs, executable="/bin/bash"
         )  # TODO: using shell=True is insecure but right now we can not avoid it?
         return out
@@ -147,7 +169,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         text = self.invoke_idf_exe("--list-targets", live=self.print_outputs)
         # Warning: This will fail if a python executable is NOT available in the system. Aliasing
         # python3 to python will not work. Not sure how this would handle a system which only has python2 installed?
@@ -215,6 +237,22 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             defs = self.definitions
             with open(filename, "w", encoding="utf-8") as f:
                 f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
+                # TODO: append to existing file instead?
+                if self.project_template == "micro_kws_esp32devboard":
+                    f.write("CONFIG_MICRO_KWS_NUM_CLASSES=10\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_TRIGGER_THRESHOLD_SINGLE=180\n")
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_0="silence"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_1="unkown"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_2="yes"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_3="no"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_4="up"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_5="down"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_6="left"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_7="right"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_8="on"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_9="off"\n')
                 if self.debug:
                     f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y\n")
@@ -231,7 +269,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write("CONFIG_LOG_DEFAULT_LEVEL_NONE=y\n")
                     f.write("CONFIG_LOG_DEFAULT_LEVEL=0\n")
                     f.write("CONFIG_LOG_MAXIMUM_LEVEL=0\n")
-                    f.write("CONFIG_NEWLIB_NANO_FORMAT=y\n")
+                    newlib_nano_fmt_val = "y" if self.newlib_nano_fmt else "n"
+                    f.write(f"CONFIG_NEWLIB_NANO_FORMAT={newlib_nano_fmt_val}\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     optimize_for_size = True
@@ -304,7 +343,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         if self.port:
             args.extend(["-p", self.port])
         if self.baud:
-            args.extend(["-B" if monitor else "-b", self.baud])
+            from packaging.version import Version
+
+            if Version(self.idf_version) < Version("v5.0.0"):
+                args.extend(["-B" if monitor else "-b", self.baud])
+            else:
+                args.extend(["-b", self.baud])
         return args
 
     def flash(self, elf, target, timeout=120):

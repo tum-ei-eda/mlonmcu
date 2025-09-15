@@ -74,7 +74,7 @@ def _validate_build_tflite_micro_compiler(context: MlonMcuContext, params=None):
 
 
 @Tasks.needs(["tflmc.src_dir", "tf.src_dir"])
-@Tasks.optional(["muriscvnn.lib", "muriscvnn.inc_dir", "cmsisnn.dir"])
+@Tasks.optional(["muriscvnn.lib", "muriscvnn.inc_dir", "cmsisnn.dir", "cmake.exe"])
 @Tasks.provides(["tflmc.build_dir", "tflmc.exe"])
 @Tasks.param("muriscvnn", [False])
 @Tasks.param("cmsisnn", [False, True])
@@ -98,6 +98,7 @@ def build_tflite_micro_compiler(
     tflmcExe = tflmcInstallDir / "compiler"
     tfSrcDir = context.cache["tf.src_dir"]
     tflmcSrcDir = context.cache["tflmc.src_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
     if rebuild or not utils.is_populated(tflmcBuildDir) or not tflmcExe.is_file():
         cmakeArgs = [
             "-DTF_SRC=" + str(tfSrcDir),
@@ -133,6 +134,7 @@ def build_tflite_micro_compiler(
             debug=dbg,
             cwd=tflmcBuildDir,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=tflmcBuildDir, threads=threads, live=verbose)
         utils.mkdirs(tflmcInstallDir)

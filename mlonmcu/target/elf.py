@@ -37,6 +37,17 @@ Heavility inspired by get_metrics.py found in the ETISS repository
 """
 
 
+def get_code_size_from_static_lib(lib_path):
+    total_size = 0
+    with open(lib_path, "rb") as f:
+        elf = elffile.ELFFile(f)
+        for section in elf.iter_sections():
+            # Look for executable sections whose names start with .text
+            if section.name.startswith(".text"):
+                total_size += section["sh_size"]
+    return total_size
+
+
 def parseElf(inFile):
     """Extract static memory usage details from ELF file by mapping each segment."""
     # TODO: check if this is generic anough for multiple platforms (riscv, arm, x86)
@@ -47,6 +58,13 @@ def parseElf(inFile):
     m["rom_misc"] = 0
     m["ram_data"] = 0
     m["ram_zdata"] = 0
+
+    # TODO: handle
+    # WARNING - ignored: .tbss / size: 64
+    # WARNING - ignored: .preinit_array / size: 8
+    # WARNING - ignored: .got.plt / size: 24
+    # WARNING - ignored: .tdata / size: 24
+    # WARNING - ignored: .tbss / size: 64
 
     ignoreSections = [
         "",
@@ -70,6 +88,7 @@ def parseElf(inFile):
         # Espressif
         ".flash.appdesc",
         ".iram0.text_end",  # ?
+        ".rtc_noinit",
         # QEMU
         ".htif",
         # Zephyr
@@ -140,11 +159,10 @@ def parseElf(inFile):
                 m["ram_data"] += s.data_size
             elif s.name.endswith(".rodata") or s.name == "rodata":
                 m["rom_rodata"] += s.data_size
-            elif s.name in [
+            elif s.name.startswith(".init_array") or s.name in [
                 ".vectors",
                 "iram0.vectors",
                 ".iram0.vectors",
-                ".init_array",
                 ".fini_array",
                 ".fini",
                 ".init",

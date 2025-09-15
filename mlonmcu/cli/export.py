@@ -69,6 +69,15 @@ def add_export_options(parser):
         action="append",
         help="Which run(s) should be exported (default: all runs of the selected session/latest run id)",
     )
+    export_parser.add_argument(
+        "--label",
+        metavar="LABEL",
+        type=str,
+        nargs="?",
+        default=None,
+        action="append",
+        help="Session-labels used to lookup runs",
+    )
 
 
 def get_parser(subparsers):
@@ -90,4 +99,5 @@ def handle(args):
         interactive = not args.force
         sids = args.session
         rids = args.run
-        context.export(dest, session_ids=sids, run_ids=rids, interactive=interactive)
+        labels = args.label
+        context.export(dest, session_ids=sids, run_ids=rids, session_labels=labels, interactive=interactive)

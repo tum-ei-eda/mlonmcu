@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-""" MLonMCU Features API"""
+"""MLonMCU Features API"""
 
 from abc import ABC
 
@@ -48,7 +48,7 @@ class FeatureBase(ABC):
     @property
     def enabled(self):
         value = self.config["enabled"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
+        return str2bool(value)
 
     def remove_config_prefix(self, config):  # TODO: move to different place
         def helper(key):
@@ -229,3 +229,9 @@ class RunFeature(FeatureBase):
 
     def add_run_config(self, config):
         config.update(self.get_run_config())
+
+    # def get_postprocesses(self):
+    #     return []
+
+    # def add_postprocesses(self, postprocesses):
+    #     postprocesses.extend(self.get_postprocesses())

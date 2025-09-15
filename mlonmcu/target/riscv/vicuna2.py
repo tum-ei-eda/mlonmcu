@@ -255,9 +255,6 @@ class Vicuna2Target(RVVTarget):
             # trace_vcd,
         ]
         env = os.environ.copy()
-        print("vicuna_exe", vicuna_exe)
-        print("cwd", cwd)
-        input(">")
         out = execute(
             vicuna_exe,
             *vicuna_args,
@@ -266,10 +263,6 @@ class Vicuna2Target(RVVTarget):
             *args,
             **kwargs,
         )
-        input(">")
-        # print("prj", self.prj_dir)
-        # print("out", out)
-        # input("!")
         self.prj_dir.cleanup()
         self.build_dir = None
         return out, []
@@ -290,8 +283,6 @@ class Vicuna2Target(RVVTarget):
                 exit_code = -3
             elif "Program finish." not in out:
                 exit_code = -2  # did not finish
-            # elif "EXCEP" in out:
-            #     exit_code = -1  # unhandled exception
         return exit_code
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
@@ -351,4 +342,4 @@ class Vicuna2Target(RVVTarget):
 
 
 if __name__ == "__main__":
-    cli(target=VicunaTarget)
+    cli(target=Vicuna2Target)

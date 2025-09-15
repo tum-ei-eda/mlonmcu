@@ -209,7 +209,7 @@ class SessionScheduler:
                             if pbar2:
                                 print()
                             logger.warning(
-                                "The chosen configuration leads to a maximum of %d being processed which"
+                                "The chosen configuration leads to a maximum of %d threads being processed which"
                                 + " heavily exceeds the available CPU resources (%d)."
                                 + " It is recommended to lower the value of 'mlif.num_threads'!",
                                 total_threads,

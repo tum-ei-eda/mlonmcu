@@ -206,6 +206,14 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=vicuna" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 10 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=tgc" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 8 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=minimal" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -318,6 +326,14 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=vicuna" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 10 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=tgc" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 8 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=minimal" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1

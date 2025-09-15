@@ -116,29 +116,31 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.bench</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_bench_metrics</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.riscv</span><span class="w"> </span><span class="kn">import</span> <span class="n">RISCVTarget</span>
+
+<span class="c1"># from .riscv import RISCVTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.riscv_vext_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">RVVTarget</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
+<span class="c1"># class EtissTarget(RISCVTarget):</span>
 <div class="viewcode-block" id="EtissTarget">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EtissTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EtissTarget</span><span class="p">(</span><span class="n">RVVTarget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Target using a simple RISC-V VP running in the ETISS simulator&quot;&quot;&quot;</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span>
         <span class="s2">&quot;gdbserver&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span>
         <span class="s2">&quot;trace&quot;</span><span class="p">,</span>
         <span class="s2">&quot;log_instrs&quot;</span><span class="p">,</span>
         <span class="s2">&quot;pext&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;vext&quot;</span><span class="p">,</span>
         <span class="s2">&quot;xcorev&quot;</span><span class="p">,</span>
         <span class="s2">&quot;vanilla_accelerator&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">&quot;gdbserver_enable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;gdbserver_attach&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;gdbserver_port&quot;</span><span class="p">:</span> <span class="mi">2222</span><span class="p">,</span>
@@ -153,9 +155,6 @@
         <span class="s2">&quot;ram_start&quot;</span><span class="p">:</span> <span class="mh">0x1000000</span> <span class="o">+</span> <span class="mh">0x800000</span><span class="p">,</span>
         <span class="s2">&quot;ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
         <span class="s2">&quot;cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
-        <span class="s2">&quot;enable_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;vext_spec&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;embedded_vext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;pext_spec&quot;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">,</span>
         <span class="s2">&quot;vlen&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># vectorization=off</span>
@@ -187,8 +186,8 @@
         <span class="s2">&quot;fclk&quot;</span><span class="p">:</span> <span class="mf">100e6</span><span class="p">,</span>
         <span class="s2">&quot;use_stats_file&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -300,15 +299,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">cpu_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cpu_arch&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;cpu_arch&quot;</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;RV</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">IMACFDPV&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;RV</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">IMACFDV&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;RV</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">IMACFD&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;enable_vext&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">enable_pext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -433,8 +429,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_xcorevhwlp</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;xcorevhwlp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
                 <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;+xcvhwlp&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;+zvl</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
-            <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;+zvl</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">b&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -491,15 +485,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_integrated_libraries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;load_integrated_libraries&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;vext_spec&quot;</span><span class="p">])</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">embedded_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;embedded_vext&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -574,12 +559,12 @@
             <span class="c1"># TODO: do not hardcode cpu_arch</span>
             <span class="c1"># TODO: i.e. use cpu_arch_lower</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.mstatus_fs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.mstatus_vs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.vlen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;arch.rv32imacfdpv.elen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elen</span>
+        <span class="c1"># if self.enable_vext:</span>
+        <span class="c1">#     ret[&quot;arch.rv32imacfdpv.mstatus_vs&quot;] = 1</span>
+        <span class="c1">#     if self.vlen &gt; 0:</span>
+        <span class="c1">#         ret[&quot;arch.rv32imacfdpv.vlen&quot;] = self.vlen</span>
+        <span class="c1">#     if self.elen &gt; 0:</span>
+        <span class="c1">#         ret[&quot;arch.rv32imacfdpv.elen&quot;] = self.elen</span>
         <span class="n">log_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span>
         <span class="k">if</span> <span class="n">log_level</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_run_helper</span><span class="p">:</span>
             <span class="n">log_level</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="mi">4</span>
@@ -955,20 +940,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_bare</span><span class="p">,</span> <span class="s2">&quot;ETISS Target needs baremetal toolchain (riscv[32|64]-unknown-elf)&quot;</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_ROM_ORIGIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_start</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_ROM_LENGTH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_size</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_RAM_ORIGIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_start</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_RAM_LENGTH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span><span class="p">:</span>
-            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_vext</span><span class="p">:</span>
-            <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vext_spec</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVV_VLEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 

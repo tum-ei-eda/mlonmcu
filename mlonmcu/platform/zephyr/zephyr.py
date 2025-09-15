@@ -120,7 +120,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
             logger.debug("Project directory already initialized")
-            return
+            return self.project_dir
         dir_name = self.name
         if path is not None:
             self.project_dir = Path(path)
@@ -141,6 +141,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
                 self.project_dir = Path(self.tempdir.name) / dir_name
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
+        return self.project_dir
 
     def _get_supported_targets(self):
         with tempfile.TemporaryDirectory() as temp:

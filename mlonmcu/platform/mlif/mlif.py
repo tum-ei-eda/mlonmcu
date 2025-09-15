@@ -229,7 +229,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.build_dir is not None:
             self.build_dir.mkdir(exist_ok=True)
             logger.debug("Build directory already initialized")
-            return
+            return self.build_dir
         dir_name = self.name
         if path is not None:
             self.build_dir = Path(path)
@@ -250,6 +250,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
         self.build_dir.mkdir(exist_ok=True)
+        return self.build_dir
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
@@ -478,7 +479,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return cmakeArgs
 
     def prepare(self):
-        self.init_directory()
+        pass  # TODO: is this used?
 
     def prepare_environment(self):
         env = os.environ.copy()

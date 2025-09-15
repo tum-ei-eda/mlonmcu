@@ -20,18 +20,21 @@
 import os
 import shutil
 import tempfile
+from typing import Optional, Union
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
 import filelock
 
-from mlonmcu.session.run import Run
+from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
 from mlonmcu.config import filter_config
+from mlonmcu.config import str2bool
 
 from .run import RunStage
+from .rpc import RemoteConfig
 from .schedule import SessionScheduler
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
@@ -51,6 +54,15 @@ class Session:
 
     DEFAULTS = {
         "report_fmt": "csv",
+        # "process_pool": False,
+        "executor": "thread_pool",
+        "use_init_stage": False,
+        # "cleanup_runs": False,
+        "shuffle": False,
+        "batch_size": 1,  # TODO: auto
+        "parallel_jobs": 1,
+        "rpc_tracker": None,
+        "rpc_key": None,
     }
 
     def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
@@ -65,6 +77,7 @@ class Session:
         self.opened_at = None
         self.closed_at = None
         self.runs = []
+        self.results = []
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
@@ -97,23 +110,98 @@ class Session:
         """get report_fmt property."""
         return str(self.config["report_fmt"])
 
+    # @property
+    # def process_pool(self):
+    #     """get process_pool property."""
+    #     value = self.config["process_pool"]
+    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def executor(self):
+        """get executor property."""
+        return str(self.config["executor"])
+
+    @property
+    def use_init_stage(self):
+        """get use_init_stage property."""
+        value = self.config["use_init_stage"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def shuffle(self):
+        """get shuffle property."""
+        value = self.config["shuffle"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def batch_size(self):
+        """get batch_size property."""
+        return int(self.config["batch_size"])
+
+    @property
+    def parallel_jobs(self):
+        """get parallel_jobs property."""
+        return int(self.config["parallel_jobs"])
+
+    @property
+    def rpc_tracker(self):
+        """get rpc_tracker property."""
+        return self.config["rpc_tracker"]
+
+    @property
+    def rpc_key(self):
+        """get rpc_key property."""
+        return self.config["rpc_key"]
+
+    @property
+    def needs_initializer(self):
+        """TODO"""
+        return self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage
+
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
         idx = len(self.runs)
         logger.debug("Creating a new run with id %s", idx)
-        run = Run(*args, idx=idx, session=self, **kwargs)
+        if self.needs_initializer:
+            run = RunInitializer(*args, idx=idx, **kwargs)
+        else:
+            run = Run(*args, idx=idx, **kwargs)
         self.runs.append(run)
         return run
+
+    def add_run(self, run: Union[Run, RunInitializer], ignore_idx: bool = True):
+        """TODO."""
+        if ignore_idx:
+            idx = len(self.runs)
+        else:
+            raise NotImplementedError
+        if isinstance(run, RunInitializer):
+            self.runs.append(run)
+        elif isinstance(run, Run):
+            raise NotImplementedError
+        else:
+            assert False
+        logger.debug("Importing run with id %s", idx)
 
     #  def update_run(self): # TODO TODO
     #      pass
 
-    def get_reports(self):
+    def get_reports(self, results: Optional[RunResult] = None):
         """Returns a full report which includes all runs in this session."""
         if self.report:
             return self.report
 
-        reports = [run.get_report() for run in self.runs]
+        if results is None:
+            logger.warning("Use of session.get_reports without args is deprecated. Please pass list of RunResults!")
+
+            reports = [run.get_report(session=self) for run in self.runs if not isinstance(run, RunInitializer)]
+        else:
+            assert isinstance(results, list)
+            if len(results) == 0:
+                logger.warning("The session results are empty")
+            # TODO: warn if None!
+            reports = [res.get_report(session=self) for res in results if res is not None]
+
         merged = Report()
         merged.add(reports)
         return merged
@@ -123,14 +211,19 @@ class Session:
         # Find start index
         max_idx = -1
         for run in self.runs:
-            if run.archived:
+            if not isinstance(run, RunInitializer) and run.archived:
                 max_idx = max(max_idx, run.idx)
         run_idx = max_idx + 1
         last_run_idx = None
         for run in self.runs:
-            if not run.archived:
+            if isinstance(run, RunInitializer):
                 run.idx = run_idx
-                run.init_directory()
+                run_idx += 1
+                last_run_idx = run.idx
+            elif not run.archived:
+                run.idx = run_idx
+                # run.init_directory(session=self)
+                run.init_directory(parent=self.runs_dir)
                 run_idx += 1
                 last_run_idx = run.idx
         self.next_run_idx = run_idx
@@ -159,21 +252,44 @@ class Session:
         progress=False,
         export=False,
         context=None,
+        noop=False,
     ):
         """Process a runs in this session until a given stage."""
 
         # TODO: Add configurable callbacks for stage/run complete
         assert self.active, "Session needs to be opened first"
 
+        assert len(self.runs) > 0, "List of runs is empty"
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
-        executor = "thread_pool"
+        remote_config = None
+        if self.rpc_tracker:
+            assert self.executor == "rpc"
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
+        else:
+            assert self.executor != "rpc"
         scheduler = SessionScheduler(
-            self.runs, until, executor=executor, per_stage=per_stage, progress=progress, num_workers=num_workers
+            self.runs,
+            until,
+            executor=self.executor,
+            per_stage=per_stage,
+            progress=progress,
+            num_workers=num_workers,
+            use_init_stage=self.use_init_stage,
+            session=self,
+            shuffle=self.shuffle,
+            batch_size=self.batch_size,
+            parallel_jobs=self.parallel_jobs,
+            remote_config=remote_config,
         )
-        self.runs = scheduler.process(export=export, context=context)
-        report = self.get_reports()
+        if noop:
+            logger.info(self.prefix + "Skipping processing of runs")
+            scheduler.initialize(context=context)
+            return 0
+
+        self.runs, self.results = scheduler.process(export=export, context=context)
+        report = self.get_reports(results=self.results)
         scheduler.print_summary()
         report = scheduler.postprocess(report, dest=self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
@@ -222,7 +338,7 @@ class Session:
         return False
 
     def open(self):
-        """Open this run."""
+        """Open this session."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
         if self.dir is None:

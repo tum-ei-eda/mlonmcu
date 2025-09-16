@@ -37,6 +37,7 @@ on:
     - cron: "0 20 * * 6"  # develop, vicuna
     - cron: "0 10 * * 6"  # develop, tgc
     - cron: "0 8 * * 6"  # develop, minimal
+    - cron: "0 14 * * 6"  # develop, iree
 
 jobs:
   minimal:
@@ -87,6 +88,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=minimal" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 14 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=iree31" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -228,6 +233,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=minimal" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 14 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=iree31" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -362,6 +371,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=minimal" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 14 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=iree31" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1

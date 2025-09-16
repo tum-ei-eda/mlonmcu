@@ -397,6 +397,7 @@ jobs:
           build-args: |
             ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
+            ENABLE_CONAN=true
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest

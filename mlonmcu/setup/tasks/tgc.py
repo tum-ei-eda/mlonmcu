@@ -18,6 +18,8 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import os
+from pathlib import Path
 import multiprocessing
 
 from mlonmcu.setup.task import TaskType
@@ -153,20 +155,17 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
                 #             cwd=tgcSrcDir,
                 #             shell=True,
                 #         )
-        utils.execute(
-            "cmake",
-            "-S",
-            tgcSrcDir,
-            "-B",
-            ".",
-            cwd=tgcBuildDir,
-            live=verbose,
-        )
+        env = os.environ.copy()
+        if cmake_exe is not None:
+            path_old = env.get("PATH")
+            cmake_bin_dir = Path(cmake_exe).parent
+            path_new = f"{cmake_bin_dir}:{path_old}"
+            env["PATH"] = path_new
         utils.cmake(
             tgcSrcDir,
             cwd=tgcBuildDir,
             # debug=params["dbg"],
-            # env=env,
+            env=env,
             live=verbose,
             cmake_exe=cmake_exe,
         )

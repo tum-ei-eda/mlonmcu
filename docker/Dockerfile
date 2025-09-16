@@ -95,8 +95,15 @@ WORKDIR /environment
 RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --clone-models
 ENV MLONMCU_HOME=/environment
 
-RUN if [ "${ENABLE_CONAN}" = "true" ] ; \
-    then . /venv/bin/activate && pip install "conan~=${CONAN_VERSION}" --no-cache-dir && conan profile detect; \
+SHELL ["/bin/bash", "-c"]
+RUN if [[ "${ENABLE_CONAN}" = "true" ]] && [[ "${CONAN_VERSION}" != "" ]] ; \
+    then . /venv/bin/activate && pip install "conan~=${CONAN_VERSION}" --no-cache-dir; \
+    fi
+
+RUN if [[ "${ENABLE_CONAN}" = "true" ]] && [[ "${CONAN_VERSION}" != "" ]] && [[ "${CONAN_VERSION}" =~ ^1\. ]] ; \
+    then echo "Using legacy conan" && . /venv/bin/activate && conan profile new --detect default; conan remote add gitea https://git.minres.com/api/packages/Tooling/conan; \
+    elif [[ "${ENABLE_CONAN}" = "true" ]] && [[ "${CONAN_VERSION}" != "" ]] ; \
+    then echo "Using new conan" && . /venv/bin/activate && conan profile detect; \
     fi
 
 RUN mlonmcu setup -g

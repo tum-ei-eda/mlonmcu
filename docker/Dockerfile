@@ -37,8 +37,7 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists \
-    && rm -rf /var/lib/apt/lists \
-    && rm -rf /var/lib/dpkg/info; \
+    && rm -rf /var/lib/apt/lists; \
     fi
 
 # Install modern CMake
@@ -68,8 +67,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists \
-    && rm -rf /var/lib/apt/lists \
-    && rm -rf /var/lib/dpkg/info
+    && rm -rf /var/lib/apt/lists
 
 RUN dpkg -l
 

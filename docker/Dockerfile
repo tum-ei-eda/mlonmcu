@@ -36,7 +36,9 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && apt-get -y install --no-install-recommends wget ca-certificates \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
-    && rm -rf /var/cache/apt/lists; \
+    && rm -rf /var/cache/apt/lists \
+    && rm -rf /var/lib/apt/lists \
+    && rm -rf /var/lib/dpkg/info; \
     fi
 
 # Install modern CMake
@@ -61,11 +63,13 @@ RUN apt-get update \
     autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools python3-venv libtinfo5 libzstd-dev \
-    gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
+    gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran cmake ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
     libfl-dev lsb-release libelf-dev \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
-    && rm -rf /var/cache/apt/lists
+    && rm -rf /var/cache/apt/lists \
+    && rm -rf /var/lib/apt/lists \
+    && rm -rf /var/lib/dpkg/info
 
 RUN dpkg -l
 

@@ -141,7 +141,7 @@ jobs:
           push: true
           target: cmake-install
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ github.steps.cfg.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
@@ -156,7 +156,7 @@ jobs:
           push: true
           target: mlonmcu-ci
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ github.steps.cfg.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
@@ -276,7 +276,7 @@ jobs:
           push: true
           target: mlonmcu
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
@@ -395,7 +395,7 @@ jobs:
           push: true
           target: mlonmcu-bench
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest

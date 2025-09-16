@@ -86,12 +86,18 @@ RUN . /venv/bin/activate && pip install . --no-cache-dir
 CMD ["mlonmcu"]
 
 ARG MLONMCU_TEMPLATE=default
+ARG ENABLE_CONAN="false"
+ARG CONAN_VERSION="2.20.1"
 FROM mlonmcu AS mlonmcu-bench
 
 WORKDIR /environment
 
 RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --clone-models
 ENV MLONMCU_HOME=/environment
+
+RUN if [ "${ENABLE_CONAN}" = "true" ] ; \
+    then . /venv/bin/activate && pip install "conan~=${CONAN_VERSION}" --no-cache-dir && conan profile detect; \
+    fi
 
 RUN mlonmcu setup -g
 

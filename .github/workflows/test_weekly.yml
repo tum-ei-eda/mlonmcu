@@ -56,8 +56,8 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force
-          sudo docker builder prune -a
+          sudo docker image prune --force
+          sudo docker builder prune
           echo "Available storage after:"
           sudo df -h
           echo
@@ -139,8 +139,8 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force
-          sudo docker builder prune -a
+          sudo docker image prune --force
+          sudo docker builder prune
           echo "Available storage after:"
           sudo df -h
           echo

@@ -18,6 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import shutil
 import multiprocessing
 
 from mlonmcu.setup.task import TaskType
@@ -99,7 +100,7 @@ def download_cmake(
 
 
 @Tasks.optional(["cmake.src_dir"])
-@Tasks.provides(["cmake.install_dir", "cmake.exe", "cmake.version"])
+@Tasks.provides(["cmake.build_dir", "cmake.install_dir", "cmake.exe", "cmake.version"])
 @Tasks.validate(_validate_cmake_build)
 @Tasks.register(category=TaskType.MISC)
 def build_cmake(
@@ -136,6 +137,28 @@ def build_cmake(
         utils.make("install", cwd=cmakeBuildDir, threads=threads, live=verbose)
     if cmakeVersion is None:
         cmakeVersion = utils.detect_cmake_version(cmakeExe)
-    context.cache["cmake.install_dir"] = cmakeBuildDir
+    context.cache["cmake.build_dir"] = cmakeBuildDir
+    context.cache["cmake.install_dir"] = cmakeInstallDir
     context.cache["cmake.exe"] = cmakeExe
     context.cache["cmake.version"] = cmakeVersion
+
+
+def _validate_cmake_clean(context: MlonMcuContext, params={}):
+    if not _validate_cmake(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("cmake.keep_build_dir", False)
+    return not keep_build_dir
+
+
+@Tasks.needs(["cmake.exe", "cmake.build_dir"])
+@Tasks.removes(["cmake.build_dir"])  # TODO: implement
+@Tasks.validate(_validate_cmake_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_cmake(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup CMake build dir."""
+    cmakeBuildDir = context.cache["cmake.build_dir"]
+    shutil.rmtree(cmakeBuildDir)
+    del context.cache["cmake.build_dir"]

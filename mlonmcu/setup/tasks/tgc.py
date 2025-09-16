@@ -107,7 +107,7 @@ def clone_tgc_gen(
 
 
 @Tasks.needs(["tgc.src_dir"])
-@Tasks.optional(["tgc.gen_src_dir"])
+@Tasks.optional(["tgc.gen_src_dir", "cmake.exe"])
 @Tasks.validate(_validate_tgc)
 @Tasks.provides(["tgc.build_dir", "tgc.exe"])
 @Tasks.register(category=TaskType.TARGET)
@@ -125,6 +125,7 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     tgcInstallDir = context.environment.paths["deps"].path / "install" / tgcName
     tgcExe = tgcInstallDir / "tgc-sim"
     user_vars = context.environment.vars
+    cmake_exe = context.cache.get("cmake.exe")
     # backends = ["interp", "asmjit"]
     # versions = ["TGC5A", "TGC5B"]
     if "tgc.exe" in user_vars:  # TODO: also check command line flags?
@@ -161,7 +162,16 @@ def build_tgc(context: MlonMcuContext, params=None, rebuild=False, verbose=False
             cwd=tgcBuildDir,
             live=verbose,
         )
+        utils.cmake(
+            tgcSrcDir,
+            cwd=tgcBuildDir,
+            # debug=params["dbg"],
+            # env=env,
+            live=verbose,
+            cmake_exe=cmake_exe,
+        )
         utils.make(cwd=tgcBuildDir, threads=threads, live=verbose)
+        # TODO: install!
         # utils.make(target="install", cwd=spikeBuildDir, threads=threads, live=verbose)
         utils.mkdirs(tgcInstallDir)
         utils.move(tgcBuildDir / "dbt-rise-tgc" / "tgc-sim", tgcExe)

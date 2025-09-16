@@ -123,7 +123,10 @@ def build_cmake(
         cmakeExe = cmakeExe_
     elif rebuild or not utils.is_populated(cmakeInstallDir) or not cmakeExe.is_file():
         assert cmakeSrcDir is not None
-        bootstrapArgs = [f"--prefix={cmakeInstallDir}", "--", "-DCMAKE_USE_OPENSSL=OFF"]
+        # For ssl support:
+        # sudo apt-get install curl
+        # sudo apt-get install libssl-dev libcurl4-openssl-dev
+        bootstrapArgs = ["--system-curl", f"--prefix={cmakeInstallDir}", "--", "-DCMAKE_USE_OPENSSL=OFF"]
         # env = os.environ.copy()
         utils.mkdirs(cmakeBuildDir)
         utils.execute(

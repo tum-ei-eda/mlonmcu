@@ -202,12 +202,13 @@ def build_spike(
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
+    full = user_vars.get("spike.full", False)
     spikeName = utils.makeDirName("spike")
     spikeSrcDir = context.cache["spike.src_dir"]
     boostDir = context.cache.get("boost.install_dir")
     spikeBuildDir = context.environment.paths["deps"].path / "build" / spikeName
     spikeInstallDir = context.environment.paths["deps"].path / "install" / spikeName
-    spikeExe = spikeInstallDir / "spike"
+    spikeExe = spikeInstallDir / "bin" / "spike"
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
@@ -227,9 +228,11 @@ def build_spike(
             live=False,
         )
         utils.make(cwd=spikeBuildDir, threads=threads, live=verbose)
-        utils.make("install", cwd=spikeBuildDir, threads=threads, live=verbose)
-        utils.mkdirs(spikeInstallDir)
-        utils.move(spikeBuildDir / "spike", spikeExe)
+        utils.mkdirs(spikeExe.parent)
+        if full:
+            utils.make("install", cwd=spikeBuildDir, threads=threads, live=verbose)
+        else:
+            utils.move(spikeBuildDir / "spike", spikeExe)
     context.cache["spike.build_dir"] = spikeBuildDir
     context.cache["spike.install_dir"] = spikeInstallDir
     context.cache["spike.exe"] = spikeExe

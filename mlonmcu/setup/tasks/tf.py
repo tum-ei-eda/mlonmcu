@@ -54,7 +54,6 @@ def clone_tensorflow(
 
 
 @Tasks.needs(["tf.src_dir"])
-@Tasks.optional(["cmake.exe"])
 @Tasks.provides(["tf.dl_dir", "tf.lib_path"])
 # @Tasks.param("dbg", False)
 @Tasks.param("dbg", True)
@@ -123,6 +122,7 @@ def clone_tflite_pack(
 
 
 @Tasks.needs(["tflite_pack.src_dir"])
+@Tasks.optional(["cmake.exe"])
 @Tasks.provides(["tflite_pack.exe"])
 @Tasks.validate(_validate_tflite_pack)
 @Tasks.register(category=TaskType.FEATURE)

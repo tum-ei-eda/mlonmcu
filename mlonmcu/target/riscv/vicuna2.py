@@ -80,6 +80,7 @@ class Vicuna2Target(RVVTarget):
         "vicuna2.src_dir",
         "verilator.install_dir",  # for simulation
     }
+    OPTIONAL = RVVTarget.OPTIONAL | {"cmake.exe"}
 
     def __init__(self, name="vicuna2", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -95,6 +96,10 @@ class Vicuna2Target(RVVTarget):
     @property
     def vicuna2_src_dir(self):
         return Path(self.config["vicuna2.src_dir"])
+
+    @property
+    def cmake_exe(self):
+        return self.config["cmake.exe"]
 
     @property
     def core(self):
@@ -225,6 +230,7 @@ class Vicuna2Target(RVVTarget):
             *self.get_model_cmake_args(),
             env=env,
             cwd=self.model_build_dir,
+            cmake_exe=self.cmake_exe,
             **kwargs,
         )
         out += utils.make(env=env, cwd=self.model_build_dir, **kwargs)

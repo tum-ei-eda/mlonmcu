@@ -78,7 +78,7 @@ def clone_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
     return True
 
 
-@Tasks.needs(["iree.src_dir"])
+@Tasks.needs(["iree.src_dir", "cmake.exe"])
 @Tasks.provides(["iree.build_dir"])
 # @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_iree_build)
@@ -115,6 +115,7 @@ def build_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
             "-DIREE_TARGET_BACKEND_METAL_SPIRV=OFF",
             "-DIREE_BUILD_PYTHON_BINDINGS=ON",
         ]
+        cmake_exe = context.cache["cmake.exe"]
         utils.cmake(
             ireeSrcDir,
             *iree_cmake_args,
@@ -122,6 +123,7 @@ def build_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
             debug=dbg,
             use_ninja=ninja,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=ireeBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["iree.build_dir"] = ireeBuildDir

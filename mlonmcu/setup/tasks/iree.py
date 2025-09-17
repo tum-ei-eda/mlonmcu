@@ -18,6 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import shutil
 import multiprocessing
 
 # from pathlib import Path
@@ -58,6 +59,14 @@ def _validate_iree_build(context: MlonMcuContext, params=None):
 
 def _validate_iree_install(context: MlonMcuContext, params=None):
     return _validate_iree_build(context, params=params)
+
+
+def _validate_iree_clean(context: MlonMcuContext, params={}):
+    if not _validate_iree(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("iree.keep_build_dir", True)
+    return not keep_build_dir
 
 
 @Tasks.provides(["iree.src_dir"])
@@ -154,4 +163,12 @@ def install_iree(
     return True
 
 
-# TODO: cleanup build dir
+@Tasks.needs(["iree.install_dir", "iree.build_dir"])
+@Tasks.removes(["iree.build_dir"])  # TODO: implement
+@Tasks.validate(_validate_iree_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
+    """Cleanup IREE build dir."""
+    ireeBuildDir = context.cache["iree.build_dir"]
+    shutil.rmtree(ireeBuildDir)
+    del context.cache["iree.build_dir"]

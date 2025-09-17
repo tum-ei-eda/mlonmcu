@@ -136,6 +136,7 @@ def install_tflite_pack(
     if rebuild or not utils.is_populated(installDir):
         installScript = srcDir / "install.sh"
         env = os.environ.copy()
+        cmake_exe = context.cache.get("cmake.exe")
         if cmake_exe is not None:
             path_old = env.get("PATH")
             cmake_bin_dir = Path(cmake_exe).parent

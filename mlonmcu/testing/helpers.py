@@ -94,7 +94,7 @@ def _test_frontend(frontend_name, user_context, model_name, models_dir, feature_
         run.add_frontend_by_name(frontend_name, context=user_context)
         run.add_model_by_name(model_name, context=user_context)
         assert session.process_runs(until=RunStage.LOAD, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df, artifacts = report.df, run.artifacts
 
     assert len(df) == 1
@@ -126,7 +126,7 @@ def _test_backend(backend_name, user_context, model_name, models_dir, feature_na
         run.add_model_by_name(model_name, context=user_context)
         run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
         assert session.process_runs(until=RunStage.BUILD, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df, artifacts = report.df, run.artifacts
 
     assert len(df) == 1
@@ -161,7 +161,7 @@ def _test_compile_platform(
         run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
         run.add_target_by_name(target_name, context=user_context)
         assert session.process_runs(until=RunStage.COMPILE, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df, artifacts = report.df, run.artifacts
 
     assert len(df) == 1
@@ -197,7 +197,7 @@ def _test_run_platform(
         run.add_backend_by_name(backend_name, context=user_context)  # TODO: implicit Framework
         run.add_target_by_name(target_name, context=user_context)
         assert session.process_runs(until=RunStage.RUN, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df, artifacts = report.df, run.artifacts
 
     assert len(df) == 1

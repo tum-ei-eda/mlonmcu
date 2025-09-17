@@ -101,7 +101,7 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     ]
 )
 @Tasks.param("vext", [False, True])
-@Tasks.param("pext", [False, True])
+@Tasks.param("pext", [False])  # TODO: support pytest style: "vext,pext": [(False, False), ...]
 @Tasks.param("xlen", [32, 64])  # TODO
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)

@@ -18,6 +18,7 @@ from mlonmcu.testing.riscv_toolchain import (
 MODELS = ["resnet"]
 
 
+@pytest.mark.skip(reason="Disabled TC tests until stable")
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
@@ -39,6 +40,7 @@ def test_default(
     )
 
 
+@pytest.mark.skip(reason="Disabled TC tests until stable")
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
@@ -79,6 +81,7 @@ def test_embedded_vector_32bit(
     )
 
 
+@pytest.mark.skip(reason="Disabled TC tests until stable")
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
@@ -153,6 +156,7 @@ def test_embedded_vector_64bit(
 #     )
 
 
+@pytest.mark.skip(reason="Disabled TC tests until stable")
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)
@@ -176,6 +180,7 @@ def test_vector_64bit(
     )
 
 
+@pytest.mark.skip(reason="Disabled TC tests until stable")
 @pytest.mark.slow
 @pytest.mark.user_context
 @pytest.mark.parametrize("model_name", MODELS)

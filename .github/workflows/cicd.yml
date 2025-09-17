@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -71,7 +71,7 @@ jobs:
       run: |
         source .venv/bin/activate
         pip install wheel
-        pip install -r requirements.txt
+        pip install -r requirements_dev.txt
     - name: Run package creation
       run: |
         source .venv/bin/activate
@@ -144,7 +144,7 @@ jobs:
     - name: Install package into virtualenv
       run: |
         source .venv/bin/activate
-        make install
+        pip install -e .
     - name: Run Unit Tests and generate coverage report
       if: ${{ github.event_name }} != "workflow_dispatch"
       run: |

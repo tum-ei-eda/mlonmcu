@@ -62,8 +62,10 @@ def create_mlif_platform_target(name, platform, base=Target):
             out_interface = None
             batch_size = 1
             encoding = "utf-8"
-            model_info_file = self.platform.model_info_file  # TODO: replace workaround (add model info to platform?)
             if self.platform.set_inputs or self.platform.get_outputs:
+                model_info_file = (
+                    self.platform.model_info_file
+                )  # TODO: replace workaround (add model info to platform?)
                 # first figure out how many inputs are provided
                 if model_info_file is not None:
                     import yaml

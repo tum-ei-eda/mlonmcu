@@ -61,7 +61,7 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "mlif.src_dir",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
-        "etissvp.script",
+        "etiss.script",
         "llvm.install_dir",
     }
 
@@ -95,7 +95,7 @@ class MlonmcuMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def etiss_script(self):
-        return Path(self.config["etissvp.script"])
+        return Path(self.config["etiss.script"])
 
     @property
     def etiss_extra_args(self):

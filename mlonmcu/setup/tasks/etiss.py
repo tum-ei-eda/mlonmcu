@@ -44,11 +44,27 @@ def _validate_etiss(context: MlonMcuContext, params={}):
     return context.environment.has_target("etiss_pulpino") or context.environment.has_target("etiss")
 
 
+def _validate_etiss_perf(context: MlonMcuContext, params={}):
+    if "dbg" in params:
+        dbg = params["dbg"]
+        if dbg:
+            if not context.environment.has_feature("etissdbg"):
+                return False
+    return context.environment.has_target("etiss_perf")
+
+
 def _validate_etiss_clone(context: MlonMcuContext, params={}):
     user_vars = context.environment.vars
     if "etiss.src_dir" in user_vars:
         return False
     return _validate_etiss(context, params=params)
+
+
+def _validate_etiss_perf_clone(context: MlonMcuContext, params={}):
+    user_vars = context.environment.vars
+    if "etiss_perf.src_dir" in user_vars:
+        return False
+    return _validate_etiss_perf(context, params=params)
 
 
 def _validate_etiss_build(context: MlonMcuContext, params={}):
@@ -58,11 +74,26 @@ def _validate_etiss_build(context: MlonMcuContext, params={}):
     return _validate_etiss(context, params=params)
 
 
+def _validate_etiss_perf_build(context: MlonMcuContext, params={}):
+    user_vars = context.environment.vars
+    if "etiss_perf.build_dir" in user_vars or "etiss_perf.install_dir" in user_vars:
+        return False
+    return _validate_etiss_perf(context, params=params)
+
+
 def _validate_etiss_clean(context: MlonMcuContext, params={}):
     if not _validate_etiss(context, params=params):
         return False
     user_vars = context.environment.vars
     keep_build_dir = user_vars.get("etiss.keep_build_dir", True)
+    return not keep_build_dir
+
+
+def _validate_etiss_perf_clean(context: MlonMcuContext, params={}):
+    if not _validate_etiss_perf(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("etiss_perf.keep_build_dir", True)
     return not keep_build_dir
 
 
@@ -84,6 +115,26 @@ def clone_etiss(
         etissRepo = context.environment.repos["etiss"]
         utils.clone_wrapper(etissRepo, etissSrcDir, refresh=rebuild)
     context.cache["etiss.src_dir"] = etissSrcDir
+
+
+@Tasks.provides(["etiss_perf.src_dir"])
+@Tasks.validate(_validate_etiss_perf_clone)
+@Tasks.register(category=TaskType.TARGET)
+def clone_etiss_perf(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the ETISS Perf repository."""
+    etissName = utils.makeDirName("etiss_perf")
+    user_vars = context.environment.vars
+    if "etiss_perf.src_dir" in user_vars:
+        etissSrcDir = Path(user_vars["etiss_perf.src_dir"])
+        rebuild = False
+    else:
+        etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
+    if rebuild or not utils.is_populated(etissSrcDir):
+        etissRepo = context.environment.repos["etiss"]
+        utils.clone_wrapper(etissRepo, etissSrcDir, refresh=rebuild)
+    context.cache["etiss_perf.src_dir"] = etissSrcDir
 
 
 # @Tasks.needs(["etiss.src_dir", "llvm.install_dir"])
@@ -129,8 +180,50 @@ def build_etiss(
     context.cache["etiss.install_dir", flags] = etissInstallDir
 
 
+@Tasks.needs(["etiss_perf.src_dir"])
+@Tasks.optional(["etiss_perf.plugins_dir", "cmake.exe", "boost.install_dir"])  # Just as a dummy target to enforce order
+@Tasks.provides(["etiss_perf.build_dir", "etiss_perf.install_dir"])
+@Tasks.param("dbg", [False, True])
+@Tasks.validate(_validate_etiss_perf_build)
+@Tasks.register(category=TaskType.TARGET)
+def build_etiss_perf(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Build the ETISS Perf simulator."""
+    if not params:
+        params = {}
+    flags = utils.makeFlags((params["dbg"], "dbg"))
+    etissName = utils.makeDirName("etiss_perf", flags=flags)
+    etissBuildDir = context.environment.paths["deps"].path / "build" / etissName
+    etissInstallDir = context.environment.paths["deps"].path / "install" / etissName
+    # llvmInstallDir = context.cache["llvm.install_dir"]
+    cmake_exe = context.cache.get("cmake.exe")
+    user_vars = context.environment.vars
+    boost_dir = context.cache.get("boost.install_dir")
+    if "etiss_perf.build_dir" in user_vars or "etiss_perf.install_dir" in user_vars:
+        return False
+    if rebuild or not utils.is_populated(etissBuildDir):
+        utils.mkdirs(etissBuildDir)
+        env = os.environ.copy()
+        if boost_dir is not None:
+            env["BOOST_ROOT"] = str(boost_dir)
+        # env["LLVM_DIR"] = str(llvmInstallDir)
+        utils.cmake(
+            context.cache["etiss_perf.src_dir"],
+            "-DCMAKE_INSTALL_PREFIX=" + str(etissInstallDir),
+            cwd=etissBuildDir,
+            debug=params["dbg"],
+            env=env,
+            live=verbose,
+            cmake_exe=cmake_exe,
+        )
+        utils.make(cwd=etissBuildDir, threads=threads, live=verbose)
+    context.cache["etiss_perf.build_dir", flags] = etissBuildDir
+    context.cache["etiss_perf.install_dir", flags] = etissInstallDir
+
+
 @Tasks.needs(["etiss.build_dir"])
-@Tasks.provides(["etiss.install_dir", "etissvp.exe", "etissvp.script"])
+@Tasks.provides(["etiss.install_dir", "etiss.exe", "etiss.script"])
 @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_etiss_build)
 @Tasks.register(category=TaskType.TARGET)
@@ -141,7 +234,7 @@ def install_etiss(
     if not params:
         params = {}
     user_vars = context.environment.vars
-    if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
+    if "etiss.install_dir" in user_vars and "etiss.exe" in user_vars and "etiss.script" in user_vars:
         return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)
@@ -152,8 +245,35 @@ def install_etiss(
     if rebuild or not utils.is_populated(etissInstallDir) or not etissvpExe.is_file():
         utils.make("install", cwd=etissBuildDir, threads=threads, live=verbose)
     context.cache["etiss.install_dir", flags] = etissInstallDir
-    context.cache["etissvp.exe", flags] = etissvpExe
-    context.cache["etissvp.script", flags] = etissvpScript
+    context.cache["etiss.exe", flags] = etissvpExe
+    context.cache["etiss.script", flags] = etissvpScript
+
+
+@Tasks.needs(["etiss_perf.build_dir"])
+@Tasks.provides(["etiss_perf.install_dir", "etiss_perf.exe", "etiss_perf.script"])
+@Tasks.param("dbg", [False, True])
+@Tasks.validate(_validate_etiss_perf_build)
+@Tasks.register(category=TaskType.TARGET)
+def install_etiss_perf(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Install ETISS Perf."""
+    if not params:
+        params = {}
+    user_vars = context.environment.vars
+    if "etiss_perf.install_dir" in user_vars and "etiss_perf.exe" in user_vars and "etiss_perf.script" in user_vars:
+        return False
+    flags = utils.makeFlags((params["dbg"], "dbg"))
+    # etissName = utils.makeDirName("etiss", flags=flags)
+    etissBuildDir = Path(context.cache["etiss_perf.build_dir", flags])
+    etissInstallDir = Path(context.cache["etiss_perf.install_dir", flags])
+    etissvpExe = etissInstallDir / "bin" / "bare_etiss_processor"
+    etissvpScript = etissInstallDir / "bin" / "run_helper.sh"
+    if rebuild or not utils.is_populated(etissInstallDir) or not etissvpExe.is_file():
+        utils.make("install", cwd=etissBuildDir, threads=threads, live=verbose)
+    context.cache["etiss_perf.install_dir", flags] = etissInstallDir
+    context.cache["etiss_perf.exe", flags] = etissvpExe
+    context.cache["etiss_perf.script", flags] = etissvpScript
 
 
 @Tasks.needs(["etiss.install_dir", "etiss.build_dir"])  # TODO: make sure install has finished
@@ -168,13 +288,34 @@ def clean_etiss(
     if not params:
         params = {}
     user_vars = context.environment.vars
-    if "etiss.install_dir" in user_vars and "etissvp.exe" in user_vars and "etissvp.script" in user_vars:
+    if "etiss.install_dir" in user_vars and "etiss.exe" in user_vars and "etiss.script" in user_vars:
         return False
     flags = utils.makeFlags((params["dbg"], "dbg"))
     # etissName = utils.makeDirName("etiss", flags=flags)
     etissBuildDir = context.cache["etiss.build_dir", flags]
     shutil.rmtree(etissBuildDir)
     del context.cache["etiss.build_dir", flags]
+
+
+@Tasks.needs(["etiss_perf.install_dir", "etiss_perf.build_dir"])  # TODO: make sure install has finished
+@Tasks.removes(["etiss_perf.build_dir"])  # TODO: implement
+@Tasks.param("dbg", [False, True])
+@Tasks.validate(_validate_etiss_perf_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_etiss_perf(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup ETISS Perf build dir."""
+    if not params:
+        params = {}
+    user_vars = context.environment.vars
+    if "etiss_perf.install_dir" in user_vars and "etiss_perf.exe" in user_vars and "etiss_perf.script" in user_vars:
+        return False
+    flags = utils.makeFlags((params["dbg"], "dbg"))
+    # etissName = utils.makeDirName("etiss_perf", flags=flags)
+    etissBuildDir = context.cache["etiss_perf.build_dir", flags]
+    shutil.rmtree(etissBuildDir)
+    del context.cache["etiss_perf.build_dir", flags]
 
 
 def _validate_microtvm_etiss(context: MlonMcuContext, params=None):
@@ -230,3 +371,37 @@ def clone_etiss_accelerator_plugins(
             utils.symlink(srcDir / plugin, dest)
     context.cache["etiss_accelerator_plugins.src_dir"] = srcDir
     context.cache["etiss.plugins_dir"] = pluginsDir
+
+
+def _validate_etiss_perf_plugin(context: MlonMcuContext, params=None):
+    return _validate_etiss_perf(context, params=params)
+
+
+@Tasks.needs(["etiss_perf.src_dir"])
+@Tasks.provides(["etiss_perf_plugin.src_dir", "etiss_perf.plugins_dir"])
+@Tasks.validate(_validate_etiss_perf_plugin)
+@Tasks.register(category=TaskType.FEATURE)
+def clone_etiss_perf_plugin(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the SoftwareEvalLib repository."""
+    name = utils.makeDirName("etiss_perf_plugin")
+    user_vars = context.environment.vars
+    pluginsDir = Path(context.cache["etiss_perf.src_dir"]) / "PluginImpl"
+    if "etiss_perf_plugin.src_dir" in user_vars:
+        srcDir = Path(user_vars["etiss_perf_plugin.src_dir"])
+        rebuild = False
+    else:
+        srcDir = context.environment.paths["deps"].path / "src" / name
+    # TODO: lookup directories automatically
+    if rebuild or not utils.is_populated(srcDir):
+        repo = context.environment.repos["etiss_perf_plugin"]
+        utils.clone_wrapper(repo, srcDir, refresh=rebuild)
+    plugin = "SoftwareEvalLib"
+    dest = pluginsDir / plugin
+    if rebuild or not dest.is_symlink():
+        if dest.is_symlink():
+            dest.unlink()
+        utils.symlink(srcDir, dest)
+    context.cache["etiss_perf_plugin.src_dir"] = srcDir
+    context.cache["etiss_perf.plugins_dir"] = pluginsDir

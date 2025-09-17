@@ -111,6 +111,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 extra_targets=backend.extra_targets,
                 target_details=backend.get_target_details(),
                 extra_target_details=backend.extra_target_details,
+                bool_as_int=backend.bool_as_int,
             ),
             # *(["--desired-layout", desired_layout] if desired_layout is not None else []),
             *get_desired_layout_args(desired_layout, desired_layout_ops, desired_layout_map),

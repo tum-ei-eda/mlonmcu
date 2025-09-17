@@ -107,7 +107,7 @@ def _test_compile_platform2(
         # toolchain = run.platform.toolchain
         # _check_available_multilibs(user_context, arch, abi,... , toolchain)
         # assert session.process_runs(until=RunStage.COMPILE, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df, artifacts = report.df, run.artifacts
 
     assert len(df) == 1

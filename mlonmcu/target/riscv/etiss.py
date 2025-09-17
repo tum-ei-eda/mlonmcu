@@ -34,13 +34,11 @@ from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 
-# from .riscv import RISCVTarget
 from .riscv_vext_target import RVVTarget
 
 logger = get_logger()
 
 
-# class EtissTarget(RISCVTarget):
 class EtissTarget(RVVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
@@ -101,8 +99,8 @@ class EtissTarget(RVVTarget):
         "fclk": 100e6,
         "use_stats_file": False,
     }
-    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
-    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir"}
+    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir"}
+    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir", "etiss.exe", "etiss.script", "etissvp.exe", "etissvp.script"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -119,11 +117,19 @@ class EtissTarget(RVVTarget):
 
     @property
     def etiss_script(self):
-        return self.config["etissvp.script"]
+        ret = self.config["etiss.script"]
+        if ret is None:  # Fallback to old name:
+            ret = self.config["etissvp.script"]
+            assert ret is not None, "Missing dependency etiss.script/etissvp.script"
+        return ret
 
     @property
     def etiss_exe(self):
-        return self.config["etissvp.exe"]
+        ret = self.config["etiss.exe"]
+        if ret is None:  # Fallback to old name:
+            ret = self.config["etissvp.exe"]
+            assert ret is not None, "Missing dependency etiss.exe/etissvp.exe"
+        return ret
 
     @property
     def boost_install_dir(self):
@@ -740,71 +746,73 @@ class EtissTarget(RVVTarget):
                 if cycles > 0:
                     metrics.add("Runtime [s]", cycles / self.fclk, True)
 
-        get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
-        if os.path.exists(etiss_ini):
-            get_metrics_args.extend(["--ini", etiss_ini])
-        if trace_file:
-            get_metrics_args.extend(["--trace", trace_file])
-        get_metrics_args.extend(["--out", metrics_file])
-        if self.print_outputs:
-            out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
-        else:
-            out += execute(
-                self.metrics_script.resolve(),
-                *get_metrics_args,
-                live=False,
-                cwd=directory,
-                print_func=lambda *args, **kwargs: None,
-            )
+        needs_get_metrics = self.trace_memory
+        if needs_get_metrics:
+            get_metrics_args = [elf]
+            if os.path.exists(etiss_ini):
+                get_metrics_args.extend(["--ini", etiss_ini])
+            if trace_file:
+                get_metrics_args.extend(["--trace", trace_file])
+            get_metrics_args.extend(["--out", metrics_file])
+            if self.print_outputs:
+                out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
+            else:
+                out += execute(
+                    self.metrics_script.resolve(),
+                    *get_metrics_args,
+                    live=False,
+                    cwd=directory,
+                    print_func=lambda *args, **kwargs: None,
+                )
 
-        metrics_file = os.path.join(directory, "metrics.csv")
-        with open(metrics_file, "r") as handle:
-            metrics_content = handle.read()
-            lines = metrics_content.splitlines()
-            reader = csv.DictReader(lines)
-            data = list(reader)[0]
+            metrics_file = os.path.join(directory, "metrics.csv")
+            with open(metrics_file, "r") as handle:
+                metrics_content = handle.read()
+                lines = metrics_content.splitlines()
+                reader = csv.DictReader(lines)
+                data = list(reader)[0]
 
-            def get_rom_sizes(data):
-                assert "rom_rodata" in data
-                rom_ro = int(data["rom_rodata"])
-                assert "rom_code" in data
-                rom_code = int(data["rom_code"])
-                assert "rom_misc" in data
-                rom_misc = int(data["rom_misc"])
+                # def get_rom_sizes(data):
+                #     assert "rom_rodata" in data
+                #     rom_ro = int(data["rom_rodata"])
+                #     assert "rom_code" in data
+                #     rom_code = int(data["rom_code"])
+                #     assert "rom_misc" in data
+                #     rom_misc = int(data["rom_misc"])
 
-                rom_total = rom_ro + rom_code + rom_misc
-                return rom_total, rom_ro, rom_code, rom_misc
+                #     rom_total = rom_ro + rom_code + rom_misc
+                #     return rom_total, rom_ro, rom_code, rom_misc
 
-            def get_ram_sizes(data):
-                assert "ram_data" in data
-                ram_data = int(data["ram_data"])
-                assert "ram_zdata" in data
-                ram_zdata = int(data["ram_zdata"])
-                ram_total = ram_data + ram_zdata
+                def get_ram_sizes(data):
+                    assert "ram_data" in data
+                    ram_data = int(data["ram_data"])
+                    assert "ram_zdata" in data
+                    ram_zdata = int(data["ram_zdata"])
+                    ram_total = ram_data + ram_zdata
+                    if self.trace_memory:
+                        assert "ram_stack" in data
+                        ram_stack = int(data["ram_stack"])
+                        assert "ram_heap" in data
+                        ram_heap = int(data["ram_heap"])
+                        ram_total += ram_stack + ram_heap
+                    else:
+                        ram_stack = None
+                        ram_heap = None
+                    return ram_total, ram_data, ram_zdata, ram_stack, ram_heap
+
+                # rom_total, rom_ro, rom_code, rom_misc = get_rom_sizes(data)
+                ram_total, ram_data, ram_zdata, ram_stack, ram_heap = get_ram_sizes(data)
+                # metrics.add("Total ROM", rom_total)
+                metrics.add("Total RAM", ram_total)
+                # metrics.add("ROM read-only", rom_ro)
+                # metrics.add("ROM code", rom_code)
+                # metrics.add("ROM misc", rom_misc)
+                metrics.add("RAM data", ram_data)
+                metrics.add("RAM zero-init data", ram_zdata)
                 if self.trace_memory:
-                    assert "ram_stack" in data
-                    ram_stack = int(data["ram_stack"])
-                    assert "ram_heap" in data
-                    ram_heap = int(data["ram_heap"])
-                    ram_total += ram_stack + ram_heap
-                else:
-                    ram_stack = None
-                    ram_heap = None
-                return ram_total, ram_data, ram_zdata, ram_stack, ram_heap
-
-            rom_total, rom_ro, rom_code, rom_misc = get_rom_sizes(data)
-            ram_total, ram_data, ram_zdata, ram_stack, ram_heap = get_ram_sizes(data)
-            metrics.add("Total ROM", rom_total)
-            metrics.add("Total RAM", ram_total)
-            metrics.add("ROM read-only", rom_ro)
-            metrics.add("ROM code", rom_code)
-            metrics.add("ROM misc", rom_misc)
-            metrics.add("RAM data", ram_data)
-            metrics.add("RAM zero-init data", ram_zdata)
-            if self.trace_memory:
-                metrics.add("RAM stack", ram_stack)
-                metrics.add("RAM heap", ram_heap)
+                    metrics.add("RAM stack", ram_stack)
+                    metrics.add("RAM heap", ram_heap)
 
         ini_content = open(etiss_ini, "r").read()
         ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)

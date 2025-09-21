@@ -118,7 +118,7 @@ def build_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
             "-DIREE_ENABLE_CPUINFO=OFF",
             "-DIREE_ERROR_ON_MISSING_SUBMODULES=OFF",
             "-DIREE_INPUT_STABLEHLO=OFF",
-            "-DIREE_INPUT_TORCH=OFF",
+            "-DIREE_INPUT_TORCH=ON",
             "-DIREE_INPUT_TOSA=ON",
             "-DIREE_HAL_DRIVER_VULKAN=OFF",
             "-DIREE_TARGET_BACKEND_METAL_SPIRV=OFF",

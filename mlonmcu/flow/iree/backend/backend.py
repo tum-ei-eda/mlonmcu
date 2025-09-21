@@ -123,7 +123,11 @@ def get_iree_compile_llvmcpu_vectorization_unroll_args(
         f"--iree-llvmcpu-loop-vectorization={int(supports_vectorization)}",
         f"--iree-llvmcpu-disable-vector-peeling={1-int(supports_vectorization)}",
         # "--iree-llvmcpu-check-linalg-vectorization=0",
-        f"--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}",
+        *(
+            [f"--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}"]
+            if target_scalable_vector is not None
+            else []
+        ),
         f"--iree-llvmcpu-fail-on-large-vector={1-int(supports_vectorization)}",
         *([f"--iree-llvmcpu-loop-unrolling={int(loop_unroll)}"] if loop_unroll is not None else []),
     ]
@@ -790,6 +794,10 @@ class IREEBackend(Backend):
         return Path(self.iree_src_dir) / "integrations" / "tensorflow" / "python_projects" / "iree_tflite"
 
     @property
+    def iree_tf_path(self):
+        return Path(self.iree_src_dir) / "integrations" / "tensorflow" / "python_projects" / "iree_tf"
+
+    @property
     def print_outputs(self):
         value = self.config["print_outputs"]
         return str2bool(value)
@@ -801,7 +809,7 @@ class IREEBackend(Backend):
     def prepare_environment(self):
         env = os.environ.copy()
         pythonpath = env.get("PYTHONPATH", "")
-        pythonpath = f"{self.iree_tflite_path}:{pythonpath}"
+        pythonpath = f"{self.iree_tflite_path}:{self.iree_tf_path}:{pythonpath}"
         print("pythonpath", pythonpath)
         env["PYTHONPATH"] = pythonpath
         return env
@@ -1050,15 +1058,18 @@ class IREEBackend(Backend):
                     python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
                     needs_mlirbc2mlir = True
                 elif self.model_format == "onnx":
+                    # opset_version = 17
+                    opset_version = None
                     python_args = [
                         "-m",
-                        "iree.tools.onnx.scripts.iree_import_onnx",
+                        # "iree.tools.onnx.scripts.iree_import_onnx",
+                        "iree.compiler.tools.import_onnx",
                         model_path,
                         "-o",
                         mlir_path,
-                        "--opset-version=17",
+                        *([f"--opset-version={opset_version}"] if opset_version is not None else []),
                     ]
-                elif self.model_format == "saved_model":
+                elif self.model_format in ["saved_model", "pb"]:
                     python_args = [
                         "-m",
                         "iree.tools.tf.scripts.iree_import_tf",

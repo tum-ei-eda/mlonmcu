@@ -61,7 +61,6 @@ class ProcessPoolSessionExecutor(concurrent.futures.ProcessPoolExecutor):
         cleanup=False,
     ):
         fn = _process_pickable
-        needs_post = any(run.has_stage(RunStage.POSTPROCESS) for run in runs) and RunStage.POSTPROCESS not in skip
         args = [
             runs,
         ]
@@ -73,7 +72,6 @@ class ProcessPoolSessionExecutor(concurrent.futures.ProcessPoolExecutor):
             "runs_dir": runs_dir,
             "save": save,
             "cleanup": cleanup,
-            "needs_post": needs_post,
         }
         return self.submit(fn, *args, **kwargs)
 
@@ -259,7 +257,7 @@ def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup
     return rets
 
 
-def _process_pickable(run_initializers, until, skip, export, context, runs_dir, save, cleanup, needs_post):
+def _process_pickable(run_initializers, until, skip, export, context, runs_dir, save, cleanup):
     """Helper function to invoke the run."""
     rets = []
     for run_initializer in run_initializers:
@@ -270,6 +268,7 @@ def _process_pickable(run_initializers, until, skip, export, context, runs_dir, 
         assert skip is None
         skip = [stage for stage in RunStage if stage not in used_stages]
         run.process(until=until, skip=skip, export=export)
+        needs_post = run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip
         if needs_post:
             run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
         ret = run.result()
@@ -510,8 +509,8 @@ class SessionScheduler:
             # raise RuntimeError("RunInitializer needs init stage or process_pool executor")  # TODO: change default
         if self.executor in ["process_pool", "cmdline", "context", "rpc"]:
             # assert not self.progress, "progress bar not supported if session.process_pool=1"
-            assert not self.per_stage, "per stage not supported if session.process_pool=1"
-            assert not self.use_init_stage, "use_init_stage not supported if session.process_pool=1"
+            assert not self.per_stage, f"per stage not supported if session.executor={self.executor}"
+            assert not self.use_init_stage, f"use_init_stage not supported if session.executor={self.executor}"
 
     def prepare(self):
         if self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage:

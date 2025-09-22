@@ -531,11 +531,27 @@ class ISSBenchProgram(MultiBenchProgram):
             ret["ISS_BENCH_DTYPE"] = self.dtype
             if self.name == "mem_heavy":
                 ret["ISS_BENCH_ARRAY_SIZE"] = self.array_size
+        return ret
 
 
 class CryptoBenchProgram(MultiBenchProgram):
+
+    DEFAULTS = {
+        "verbose": False,  # Enable printfs, only for hqc
+    }
+
     def __init__(self, name: str, config=None, alt=None):
         super().__init__(name, "CRYPTO_BENCH", config=config, alt=alt)
+
+    @property
+    def verbose(self):
+        return str2bool(self.config["verbose"])
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["CRYPTO_BENCH_VERBOSE"] = self.verbose
+        return ret
 
 
 class CmsisDSPProgram(MultiBenchProgram):

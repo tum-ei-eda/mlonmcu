@@ -34,6 +34,17 @@ repos:
   iree:
     url: "https://github.com/iree-org/iree"
     ref: iree-3.4.0rc20250414
+    options:
+      single_branch: true
+      shallow: true
+      recursive: false
+      submodules:
+      - third_party/googletest
+      - third_party/llvm-project
+      - third_party/benchmark
+      - third_party/flatcc
+      - third_party/cpuinfo
+      - third_party/torch-mlir
 frameworks:
   default: iree
   iree:
@@ -64,6 +75,15 @@ frontends:
     enabled: true
     features: {}
   tflite:
+    enabled: true
+    features: {}
+  onnx:
+    enabled: true
+    features: {}
+  saved_model:
+    enabled: true
+    features: {}
+  pb:
     enabled: true
     features: {}
 toolchains:
@@ -107,4 +127,7 @@ vars:
   riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
   riscv_gcc_rv32.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcv_ilp32d.tar.xz"
   riscv_gcc_rv32.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcp_ilp32d.tar.xz"
+  spike.keep_build_dir: false
+  etiss.keep_build_dir: false
+  iree.keep_build_dir: false
 flags: {}

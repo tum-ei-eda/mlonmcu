@@ -28,14 +28,10 @@ from mlonmcu.flow.framework import Framework
 
 
 def get_crt_config_dir():
-    files = pkg_resources.resource_listdir(
-        "mlonmcu", os.path.join("..", "resources", "frameworks", "tvm", "crt_config")
-    )
+    files = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "frameworks", "tvm", "crt_config"))
     if "crt_config.h" not in files:
         return None
-    fname = pkg_resources.resource_filename(
-        "mlonmcu", os.path.join("..", "resources", "frameworks", "tvm", "crt_config")
-    )
+    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "frameworks", "tvm", "crt_config"))
     return fname
 
 

@@ -18,7 +18,7 @@
 ##
 ARG ENABLE_CMAKE="false"
 
-FROM debian:bullseye AS cmake-install
+FROM debian:bullseye-slim AS cmake-install
 ARG CMAKE_REPO="https://github.com/Kitware/CMake"
 ARG CMAKE_VERSION="3.22.2"
 ARG CMAKE_TARGET="Linux-x86_64"
@@ -36,7 +36,8 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && apt-get -y install --no-install-recommends wget ca-certificates \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
-    && rm -rf /var/cache/apt/lists; \
+    && rm -rf /var/cache/apt/lists \
+    && rm -rf /var/lib/apt/lists; \
     fi
 
 # Install modern CMake
@@ -47,7 +48,7 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && rm ./cmake.sh ; \
     fi
 
-FROM debian:bullseye AS mlonmcu-ci
+FROM debian:bullseye-slim AS mlonmcu-ci
 
 COPY --from=cmake-install /opt/tools/cmake/ /opt/tools/cmake/
 ENV PATH="/opt/tools/cmake/bin:${PATH}"
@@ -56,16 +57,17 @@ ENV CMAKE_DIR="/opt/tools/cmake"
 # Install APT dependencies  (TODO: update list)
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends wget unzip vim openssh-client \
+    && apt-get -y install --no-install-recommends wget ca-certificates unzip vim openssh-client \
     g++ graphviz doxygen libtinfo-dev zlib1g-dev \
-    autoconf automake autotools-dev curl python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
+    autoconf automake autotools-dev curl libcurl4-openssl-dev libssl-dev python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools python3-venv libtinfo5 libzstd-dev \
-    gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran cmake unzip ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
-    libfl-dev lsb-release libelf-dev \
+    gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
+    libfl-dev lsb-release libelf-dev direnv help2man \
     && apt-get clean \
     && rm -rf /var/cache/apt/archives/ \
-    && rm -rf /var/cache/apt/lists
+    && rm -rf /var/cache/apt/lists \
+    && rm -rf /var/lib/apt/lists
 
 RUN dpkg -l
 
@@ -84,12 +86,25 @@ RUN . /venv/bin/activate && pip install . --no-cache-dir
 CMD ["mlonmcu"]
 
 ARG MLONMCU_TEMPLATE=default
+ARG ENABLE_CONAN="false"
+ARG CONAN_VERSION="2.20.1"
 FROM mlonmcu AS mlonmcu-bench
 
 WORKDIR /environment
 
 RUN mlonmcu init --template ${MLONMCU_TEMPLATE} --non-interactive /environment --clone-models
 ENV MLONMCU_HOME=/environment
+
+SHELL ["/bin/bash", "-c"]
+RUN if [[ "${ENABLE_CONAN}" = "true" ]] && [[ "${CONAN_VERSION}" != "" ]] ; \
+    then . /venv/bin/activate && pip install "conan~=${CONAN_VERSION}" --no-cache-dir; \
+    fi
+
+RUN if [[ "${ENABLE_CONAN}" = "true" ]] && [[ "${CONAN_VERSION}" != "" ]] && [[ "${CONAN_VERSION}" =~ ^1\. ]] ; \
+    then echo "Using legacy conan" && . /venv/bin/activate && conan profile new --detect default; conan remote add gitea https://git.minres.com/api/packages/Tooling/conan; \
+    elif [[ "${ENABLE_CONAN}" = "true" ]] && [[ "${CONAN_VERSION}" != "" ]] ; \
+    then echo "Using new conan" && . /venv/bin/activate && conan profile detect; \
+    fi
 
 RUN mlonmcu setup -g
 

@@ -18,6 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import shutil
 import multiprocessing
 
 # from pathlib import Path
@@ -60,6 +61,14 @@ def _validate_iree_install(context: MlonMcuContext, params=None):
     return _validate_iree_build(context, params=params)
 
 
+def _validate_iree_clean(context: MlonMcuContext, params={}):
+    if not _validate_iree(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("iree.keep_build_dir", True)
+    return not keep_build_dir
+
+
 @Tasks.provides(["iree.src_dir"])
 @Tasks.validate(_validate_iree_clone)
 @Tasks.register(category=TaskType.FRAMEWORK)
@@ -78,7 +87,7 @@ def clone_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
     return True
 
 
-@Tasks.needs(["iree.src_dir"])
+@Tasks.needs(["iree.src_dir", "cmake.exe"])
 @Tasks.provides(["iree.build_dir"])
 # @Tasks.param("dbg", [False, True])
 @Tasks.validate(_validate_iree_build)
@@ -109,12 +118,13 @@ def build_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
             "-DIREE_ENABLE_CPUINFO=OFF",
             "-DIREE_ERROR_ON_MISSING_SUBMODULES=OFF",
             "-DIREE_INPUT_STABLEHLO=OFF",
-            "-DIREE_INPUT_TORCH=OFF",
+            "-DIREE_INPUT_TORCH=ON",
             "-DIREE_INPUT_TOSA=ON",
             "-DIREE_HAL_DRIVER_VULKAN=OFF",
             "-DIREE_TARGET_BACKEND_METAL_SPIRV=OFF",
             "-DIREE_BUILD_PYTHON_BINDINGS=ON",
         ]
+        cmake_exe = context.cache["cmake.exe"]
         utils.cmake(
             ireeSrcDir,
             *iree_cmake_args,
@@ -122,6 +132,7 @@ def build_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
             debug=dbg,
             use_ninja=ninja,
             live=verbose,
+            cmake_exe=cmake_exe,
         )
         utils.make(cwd=ireeBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["iree.build_dir"] = ireeBuildDir
@@ -152,4 +163,12 @@ def install_iree(
     return True
 
 
-# TODO: cleanup build dir
+@Tasks.needs(["iree.install_dir", "iree.build_dir"])
+@Tasks.removes(["iree.build_dir"])  # TODO: implement
+@Tasks.validate(_validate_iree_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
+    """Cleanup IREE build dir."""
+    ireeBuildDir = context.cache["iree.build_dir"]
+    shutil.rmtree(ireeBuildDir)
+    del context.cache["iree.build_dir"]

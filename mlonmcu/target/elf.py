@@ -62,12 +62,12 @@ def parseElf(inFile):
     # TODO: handle
     # WARNING - ignored: .tbss / size: 64
     # WARNING - ignored: .preinit_array / size: 8
-    # WARNING - ignored: .got.plt / size: 24
     # WARNING - ignored: .tdata / size: 24
     # WARNING - ignored: .tbss / size: 64
 
     ignoreSections = [
         "",
+        ".got.plt",
         ".stack",
         ".comment",
         ".riscv.attributes",
@@ -159,11 +159,10 @@ def parseElf(inFile):
                 m["ram_data"] += s.data_size
             elif s.name.endswith(".rodata") or s.name == "rodata":
                 m["rom_rodata"] += s.data_size
-            elif s.name in [
+            elif s.name.startswith(".init_array") or s.name in [
                 ".vectors",
                 "iram0.vectors",
                 ".iram0.vectors",
-                ".init_array",
                 ".fini_array",
                 ".fini",
                 ".init",

@@ -25,9 +25,9 @@ from mlonmcu.models.model import ModelFormats
 def parse_mlir_signature(mlir_text):
 
     # Find the util.func @main signature
-    match1 = re.search(r"util\.func\s+.*?@(\w+)\((.*?)\)\s*->\s*\((.*?)\)\s*\{", mlir_text, re.DOTALL)
+    match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
-        match2 = re.search(r"func\.func\s+@(\w+)\((.*)\)\s*->\s*((.*))\s+{", mlir_text, re.DOTALL)
+        match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")
         func_name = match2.group(1)
@@ -44,20 +44,27 @@ def parse_mlir_signature(mlir_text):
 
     # Parse inputs
     if input_args.strip():
-        for arg in input_args.split(","):
+        for arg in input_args.split(", "):
             parts = arg.strip().split(":", maxsplit=1)
             if len(parts) < 2:
                 continue
             arg_name = parts[0].strip()
             tensor_info = parts[1].strip()
 
-            shape_dtype_match = re.search(r"tensor<([^>]+)>", tensor_info)
+            shape_dtype_match = re.search(r"[v]?tensor<([^>]+)>", tensor_info)
             identifier_match = re.search(r'ml_program.identifier\s*=\s*"([^"]+)"', tensor_info)
 
             if shape_dtype_match:
                 shape_dtype_str = shape_dtype_match.group(1)
-                shape_dtype_parts = shape_dtype_str.split("x")
-                *shape_parts, dtype = shape_dtype_parts
+                if shape_dtype_str.count("x") == 0:  # vtensor
+                    assert shape_dtype_str[0] == "["
+                    shape_dtype_str = shape_dtype_str[1:]
+                    shape_dtype_parts = shape_dtype_str.split("],", 1)
+                    shape_parts, dtype = shape_dtype_parts
+                    shape_parts = shape_parts.split(",")
+                else:
+                    shape_dtype_parts = shape_dtype_str.split("x")
+                    *shape_parts, dtype = shape_dtype_parts
                 shape = [None if dim == "?" else int(dim) for dim in shape_parts]
             else:
                 shape = []
@@ -74,15 +81,22 @@ def parse_mlir_signature(mlir_text):
 
     # Parse outputs
     if output_args.strip():
-        for out in output_args.split(","):
+        for out in output_args.split("},"):
             out = out.strip()
-            shape_dtype_match = re.search(r"tensor<([^>]+)>", out)
+            shape_dtype_match = re.search(r"[v]?tensor<([^>]+)>", out)
             identifier_match = re.search(r'ml_program.identifier\s*=\s*"([^"]+)"', out)
 
             if shape_dtype_match:
                 shape_dtype_str = shape_dtype_match.group(1)
-                shape_dtype_parts = shape_dtype_str.split("x")
-                *shape_parts, dtype = shape_dtype_parts
+                if shape_dtype_str.count("x") == 0:  # vtensor
+                    assert shape_dtype_str[0] == "["
+                    shape_dtype_str = shape_dtype_str[1:]
+                    shape_dtype_parts = shape_dtype_str.split("],", 1)
+                    shape_parts, dtype = shape_dtype_parts
+                    shape_parts = shape_parts.split(",")
+                else:
+                    shape_dtype_parts = shape_dtype_str.split("x")
+                    *shape_parts, dtype = shape_dtype_parts
                 shape = [None if dim == "?" else int(dim) for dim in shape_parts]
             else:
                 shape = []
@@ -306,7 +320,9 @@ class ONNXModelInfo(ModelInfo):
     def __init__(self, model_file):
         from google.protobuf.json_format import MessageToDict
         import onnx
-        from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE
+
+        # from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE
+        from onnx.helper import tensor_dtype_to_np_dtype
 
         model = onnx.load(model_file)
 
@@ -319,7 +335,8 @@ class ONNXModelInfo(ModelInfo):
                 elem_type = tensor_type["elemType"]
                 dims = tensor_type["shape"]["dim"]
                 shape = [int(x["dimValue"]) if "dimValue" in x else 40 for x in dims]  # TODO: dyn shape
-                dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])
+                # dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])
+                dtype = str(tensor_dtype_to_np_dtype(elem_type))
                 ret.append(TensorInfo(name, shape, dtype))
             return ret
 
@@ -509,4 +526,4 @@ def get_supported_formats():
 
 
 def get_supported_formats_iree():
-    return [ModelFormats.TFLITE, ModelFormats.ONNX, ModelFormats.SAVED_MODEL, ModelFormats.MLIR]
+    return [ModelFormats.TFLITE, ModelFormats.ONNX, ModelFormats.SAVED_MODEL, ModelFormats.MLIR, ModelFormats.PB]

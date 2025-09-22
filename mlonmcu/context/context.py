@@ -28,7 +28,7 @@ import filelock
 
 from mlonmcu.utils import ask_user
 from mlonmcu.logging import get_logger, set_log_file
-from mlonmcu.session.run import Run
+from mlonmcu.session.run import ArchivedRun
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
@@ -167,7 +167,10 @@ def get_session_labels(env: Environment) -> Dict[str, int]:
         label = csv_file.stem
         import pandas as pd
 
-        report_df = pd.read_csv(csv_file)
+        try:
+            report_df = pd.read_csv(csv_file)
+        except pd.errors.EmptyDataError:
+            continue
         # not all reports will have session col
         if "Session" not in report_df.columns:
             continue
@@ -221,9 +224,9 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
             run_directory = runs_directory / str(rid)
             # run_file = run_directory / "run.txt"
             # run = Run.from_file(run_file)  # TODO: actually implement run restore
-            run = Run()  # TODO: fix
-            run.archived = True
-            run.dir = run_directory
+            run = ArchivedRun.from_dir(run_directory)
+            # run.archived = True
+            # run.dir = run_directory
             runs.append(run)
         label = lookup_session_label(session_labels, sid)
         if label is None:
@@ -649,3 +652,13 @@ class MlonMcuContext:
             logger.debug("Releasing lock on context")
             self.deps_lock.release()
         return False
+
+    def get_read_only_context(self):
+        return MlonMcuContextMinimal(self)
+
+
+class MlonMcuContextMinimal:
+
+    def __init__(self, context: MlonMcuContext):
+        self.environment = context.environment
+        self.cache = context.cache

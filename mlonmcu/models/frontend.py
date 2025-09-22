@@ -2171,6 +2171,9 @@ class CryptoBenchFrontend(BenchFrontend):
             "mceliece348864_decrypt_rvv",
             "mceliece348864_keypair",
             "mceliece348864_keypair_rvv",
+            "hqc-128",
+            "hqc-192",
+            "hqc-256",
         ]
 
 

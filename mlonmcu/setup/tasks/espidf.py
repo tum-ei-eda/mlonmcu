@@ -38,8 +38,22 @@ def _validate_espidf(context: MlonMcuContext, params=None):
     return context.environment.has_platform("espidf")
 
 
+def _validate_espidf_clone(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    if "espidf.src_dir" in user_vars:  # TODO: also check command line flags?
+        return False
+    return _validate_espidf(context, params=params)
+
+
+def _validate_espidf_install(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    if "espidf.install_dir" in user_vars:  # TODO: also check command line flags?
+        return False
+    return _validate_espidf(context, params=params)
+
+
 @Tasks.provides(["espidf.src_dir"])
-@Tasks.validate(_validate_espidf)
+@Tasks.validate(_validate_espidf_clone)
 @Tasks.register(category=TaskType.PLATFORM)
 def clone_espidf(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -58,7 +72,7 @@ def clone_espidf(
 
 @Tasks.needs(["espidf.src_dir"])
 @Tasks.provides(["espidf.install_dir"])
-@Tasks.validate(_validate_espidf)
+@Tasks.validate(_validate_espidf_install)
 @Tasks.register(category=TaskType.PLATFORM)
 def install_espidf(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

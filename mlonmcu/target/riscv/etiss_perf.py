@@ -22,6 +22,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from .etiss import EtissTarget
+from .riscv import RISCVTarget
 
 logger = get_logger()
 
@@ -37,7 +38,7 @@ class EtissPerfTarget(EtissTarget):
         **EtissTarget.DEFAULTS,
         "use_run_helper": False,
     }
-    REQUIRED = EtissTarget.REQUIRED | {
+    REQUIRED = RISCVTarget.REQUIRED | {
         "etiss_perf.src_dir",
         "etiss_perf.install_dir",
         "etiss_perf.exe",

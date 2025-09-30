@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
+import sys
 import multiprocessing
 from pathlib import Path
 
@@ -87,16 +88,28 @@ def install_espidf(
     boards = ["all"]
     if "espidf.boards" in user_vars:
         boards = user_vars["espidf.boards"]
+    setup_python = user_vars.get("espidf.setup_python", False)
     if not isinstance(boards, str):
         assert isinstance(boards, list)
         boards = ",".join(boards)
     if not utils.is_populated(espidfInstallDir) or rebuild:
-        # Using idf_tools.py directory instead of ./install.sh because we
-        # don't want to use espe-idfs python environment
-        espidfInstallScript = Path(espidfSrcDir) / "tools" / "idf_tools.py"
-        espidfInstallArgs = ["install", f"--targets={boards}"]
         env = os.environ.copy()
         env["IDF_TOOLS_PATH"] = str(espidfInstallDir)
-        utils.python(espidfInstallScript, *espidfInstallArgs, live=verbose, env=env)
+        env.pop("VIRTUAL_ENV", None)
+        if setup_python:
+            venv_bin_prefix = os.path.dirname(sys.executable)  # e.g., /home/user/venv/bin
+            env["PATH"] = ":".join(
+                p for p in env["PATH"].split(":")
+                if os.path.abspath(p) != os.path.abspath(venv_bin_prefix)
+            )
+            espidfInstallScript = Path(espidfSrcDir) / "install.sh"
+            espidfInstallArgs = [boards]
+            utils.execute(" ".join(map(str, [espidfInstallScript] + espidfInstallArgs)), live=verbose, env=env, executable="/bin/bash", shell=True)
+        else:
+            # Using idf_tools.py directory instead of ./install.sh because we
+            # don't want to use espe-idfs python environment
+            espidfInstallScript = Path(espidfSrcDir) / "tools" / "idf_tools.py"
+            espidfInstallArgs = ["install", f"--targets={boards}"]
+            utils.python(espidfInstallScript, *espidfInstallArgs, live=verbose, env=env)
     context.cache["espidf.install_dir"] = espidfInstallDir
     context.export_paths.add(espidfInstallDir / "bin")

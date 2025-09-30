@@ -369,88 +369,88 @@ class DefaultEnvironment(Environment):
             ],
         }
         self.repos = {
-            "tensorflow": RepoConfig("https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"),
-            "tflite_micro_compiler": RepoConfig(
-                "https://github.com/cpetig/tflite_micro_compiler.git", ref="master"
-            ),  # TODO: freeze ref?
-            "tvm": RepoConfig(
-                "https://github.com/tum-ei-eda/tvm.git", ref="tumeda"
-            ),  # TODO: use upstream repo with suitable commit?
-            "utvm_staticrt_codegen": RepoConfig(
-                "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git", ref="master"
-            ),  # TODO: freeze ref?
-            "etiss": RepoConfig("https://github.com/tum-ei-eda/etiss.git", ref="master"),  # TODO: freeze ref?
+            # "tensorflow": RepoConfig("https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"),
+            # "tflite_micro_compiler": RepoConfig(
+            #     "https://github.com/cpetig/tflite_micro_compiler.git", ref="master"
+            # ),  # TODO: freeze ref?
+            # "tvm": RepoConfig(
+            #     "https://github.com/tum-ei-eda/tvm.git", ref="tumeda"
+            # ),  # TODO: use upstream repo with suitable commit?
+            # "utvm_staticrt_codegen": RepoConfig(
+            #     "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git", ref="master"
+            # ),  # TODO: freeze ref?
+            # "etiss": RepoConfig("https://github.com/tum-ei-eda/etiss.git", ref="master"),  # TODO: freeze ref?
         }
         self.frameworks = [
-            FrameworkConfig(
-                "tflm",
-                enabled=True,
-                backends=[
-                    BackendConfig("tflmc", enabled=True, features=[]),
-                    BackendConfig("tflmi", enabled=True, features=[]),
-                ],
-                features=[
-                    FrameworkFeatureConfig("muriscvnn", framework="tflm", supported=False),
-                ],
-            ),
-            FrameworkConfig(
-                "utvm",
-                enabled=True,
-                backends=[
-                    BackendConfig(
-                        "tvmaot",
-                        enabled=True,
-                        features=[
-                            BackendFeatureConfig("unpacked_api", backend="tvmaot", supported=True),
-                        ],
-                    ),
-                    BackendConfig("tvmrt", enabled=True, features=[]),
-                    BackendConfig("tvmcg", enabled=True, features=[]),
-                ],
-                features=[
-                    FrameworkFeatureConfig("memplan", framework="utvm", supported=False),
-                ],
-            ),
+            # FrameworkConfig(
+            #     "tflm",
+            #     enabled=True,
+            #     backends=[
+            #         BackendConfig("tflmc", enabled=True, features=[]),
+            #         BackendConfig("tflmi", enabled=True, features=[]),
+            #     ],
+            #     features=[
+            #         FrameworkFeatureConfig("muriscvnn", framework="tflm", supported=False),
+            #     ],
+            # ),
+            # FrameworkConfig(
+            #     "utvm",
+            #     enabled=True,
+            #     backends=[
+            #         BackendConfig(
+            #             "tvmaot",
+            #             enabled=True,
+            #             features=[
+            #                 BackendFeatureConfig("unpacked_api", backend="tvmaot", supported=True),
+            #             ],
+            #         ),
+            #         BackendConfig("tvmrt", enabled=True, features=[]),
+            #         BackendConfig("tvmcg", enabled=True, features=[]),
+            #     ],
+            #     features=[
+            #         FrameworkFeatureConfig("memplan", framework="utvm", supported=False),
+            #     ],
+            # ),
         ]
         self.frontends = [
-            FrontendConfig("saved_model", enabled=False),
-            FrontendConfig("ipynb", enabled=False),
-            FrontendConfig(
-                "tflite",
-                enabled=True,
-                features=[
-                    FrontendFeatureConfig("packing", frontend="tflite", supported=False),
-                ],
-            ),
+            # FrontendConfig("saved_model", enabled=False),
+            # FrontendConfig("ipynb", enabled=False),
+            # FrontendConfig(
+            #     "tflite",
+            #     enabled=True,
+            #     features=[
+            #         FrontendFeatureConfig("packing", frontend="tflite", supported=False),
+            #     ],
+            # ),
         ]
         self.vars = {
-            "TEST": "abc",
+            # "TEST": "abc",
         }
         self.flags = {}
         self.platforms = [
-            PlatformConfig(
-                "mlif",
-                enabled=True,
-                features=[PlatformFeatureConfig("debug", platform="mlif", supported=True)],
-            )
+            # PlatformConfig(
+            #     "mlif",
+            #     enabled=True,
+            #     features=[PlatformFeatureConfig("debug", platform="mlif", supported=True)],
+            # )
         ]
         self.toolchains = {}
         self.targets = [
-            TargetConfig(
-                "etiss_pulpino",
-                features=[
-                    TargetFeatureConfig("debug", target="etiss_pulpino", supported=True),
-                    TargetFeatureConfig("attach", target="etiss_pulpino", supported=True),
-                    TargetFeatureConfig("trace", target="etiss_pulpino", supported=True),
-                ],
-            ),
-            TargetConfig(
-                "host_x86",
-                features=[
-                    TargetFeatureConfig("debug", target="host_x86", supported=True),
-                    TargetFeatureConfig("attach", target="host_x86", supported=True),
-                ],
-            ),
+            # TargetConfig(
+            #     "etiss_pulpino",
+            #     features=[
+            #         TargetFeatureConfig("debug", target="etiss_pulpino", supported=True),
+            #         TargetFeatureConfig("attach", target="etiss_pulpino", supported=True),
+            #         TargetFeatureConfig("trace", target="etiss_pulpino", supported=True),
+            #     ],
+            # ),
+            # TargetConfig(
+            #     "host_x86",
+            #     features=[
+            #         TargetFeatureConfig("debug", target="host_x86", supported=True),
+            #         TargetFeatureConfig("attach", target="host_x86", supported=True),
+            #     ],
+            # ),
         ]
 
 

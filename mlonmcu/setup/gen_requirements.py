@@ -66,7 +66,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             [
                 "GitPython",
                 "Pillow",  # convert data
-                "cpp-demangle",
+                # "cpp-demangle",
                 "filelock",
                 "humanize",
                 "jinja2",

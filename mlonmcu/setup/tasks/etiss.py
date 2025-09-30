@@ -132,7 +132,7 @@ def clone_etiss_perf(
     else:
         etissSrcDir = context.environment.paths["deps"].path / "src" / etissName
     if rebuild or not utils.is_populated(etissSrcDir):
-        etissRepo = context.environment.repos["etiss"]
+        etissRepo = context.environment.repos["etiss_perf"]
         utils.clone_wrapper(etissRepo, etissSrcDir, refresh=rebuild)
     context.cache["etiss_perf.src_dir"] = etissSrcDir
 
@@ -374,6 +374,10 @@ def clone_etiss_accelerator_plugins(
 
 
 def _validate_etiss_perf_plugin(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    skip = user_vars.get("etiss_perf_plugin.skip_link", False)
+    if skip:
+        return False
     return _validate_etiss_perf(context, params=params)
 
 
@@ -387,12 +391,12 @@ def clone_etiss_perf_plugin(
     """Clone the SoftwareEvalLib repository."""
     name = utils.makeDirName("etiss_perf_plugin")
     user_vars = context.environment.vars
-    pluginsDir = Path(context.cache["etiss_perf.src_dir"]) / "PluginImpl"
     if "etiss_perf_plugin.src_dir" in user_vars:
         srcDir = Path(user_vars["etiss_perf_plugin.src_dir"])
         rebuild = False
     else:
         srcDir = context.environment.paths["deps"].path / "src" / name
+    pluginsDir = Path(context.cache["etiss_perf.src_dir"]) / "PluginImpl"
     # TODO: lookup directories automatically
     if rebuild or not utils.is_populated(srcDir):
         repo = context.environment.repos["etiss_perf_plugin"]

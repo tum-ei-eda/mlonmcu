@@ -318,9 +318,9 @@ def execute(
     return out_str
 
 
-def python(*args, **kwargs):
+def python(*args, executable=sys.executable, **kwargs):
     """Run a python script with the current interpreter."""
-    return execute(sys.executable, *args, **kwargs)
+    return execute(executable, *args, **kwargs)
 
 
 # Makes sure all directories at the given path are created.

@@ -67,6 +67,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "idf_build_extra_args": None,
         "extra_cmake_defs": None,
         "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
+        # "setup_python": False,
+        "setup_python": True
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -131,6 +133,12 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         return str2bool(value)
 
     @property
+    def setup_python(self):
+        # TODO: get rid of this
+        value = self.config["setup_python"]
+        return str2bool(value)
+
+    @property
     def idf_build_extra_args(self):
         value = self.config["idf_build_extra_args"]
         return str2list(value, allow_none=True)
@@ -142,12 +150,19 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()
+        if self.setup_python:
+            env.pop("VIRTUAL_ENV", None)
+            venv_bin_prefix = os.path.dirname(sys.executable)  # e.g., /home/user/venv/bin
+            env["PATH"] = ":".join(
+                p for p in env["PATH"].split(":")
+                if os.path.abspath(p) != os.path.abspath(venv_bin_prefix)
+            )
         env["IDF_PATH"] = str(self.espidf_src_dir)
         env["IDF_TOOLS_PATH"] = str(self.espidf_install_dir)
         cmd = (
             ". "
             + str(self.espidf_src_dir / "export.sh")
-            + f" && {self.idf_exe} "
+            + f" && env && which python && which python3 && python --version && python3 --version && {self.idf_exe} "
             # + f" > /dev/null && {self.idf_exe} "
             + " ".join([str(arg) for arg in args])
         )

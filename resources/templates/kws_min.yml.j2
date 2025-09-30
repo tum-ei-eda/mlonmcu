@@ -119,7 +119,8 @@ vars:
   runs_per_stage: true
   llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/18.1.8/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
   riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2024.09.03_gcc14/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
-  espidf.install_dir: /usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif_py310
+  # espidf.install_dir: /usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif_py310
+  espidf.install_dir: /usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif
   espidf.src_dir: /usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/esp-idf
   riscv_gcc_rv32.install_dir: /usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif_py310/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf
   etiss_perf.src_dir: /usr/local/research/projects/SystemDesign/work/performance-evaluation/varghese/PerformanceSimulation_workspace/etiss-perf-sim/etiss/

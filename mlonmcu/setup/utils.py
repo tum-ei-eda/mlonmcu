@@ -335,6 +335,8 @@ def clone(
     url: str,
     dest: Union[str, bytes, os.PathLike],
     branch: str = "",
+    single_branch: bool = False,
+    depth: Optional[int] = None,
     submodules: list = [],
     recursive: bool = False,
     refresh: bool = False,
@@ -359,13 +361,21 @@ def clone(
     mkdirs(dest)
 
     def update_submodules():
+        cmd = ["update", "--init"]
+        if not recursive:
+            return  # TODO: refactor
         if recursive:
-            if submodules:
-                for submodule in submodules:
-                    assert isinstance(submodule, str), f"Submodules should be a list of str. {submodule} is not str."
-                repo.git.submodule("update", "--init", "--recursive", "--", *submodules)
-            else:
-                repo.git.submodule("update", "--init", "--recursive")
+            cmd.append("--recursive")
+        if depth is not None:
+            cmd.append(f"--depth={depth}")
+        if submodules:
+            for submodule in submodules:
+                assert isinstance(submodule, str), (
+                    f"Submodules should be a list of str. {submodule} is not str."
+                )
+            cmd.append("--")
+            cmd.extend(submodules)
+        repo.git.submodule(*cmd)
 
     if is_populated(dest):
         if refresh:
@@ -378,15 +388,21 @@ def clone(
             update_submodules()
     else:
         if branch:
-            repo = Repo.clone_from(url, dest, recursive=recursive, no_checkout=True)
-            repo.git.checkout(branch)
+            if single_branch:
+                repo = Repo.clone_from(url, dest, branch=branch, single_branch=single_branch, depth=depth)
+            else:
+                # assert depth is None, "depth can only be used if using a branch/tag"
+                repo = Repo.clone_from(url, dest, no_checkout=True)
+                repo.git.checkout(branch)
             update_submodules()
         else:
-            Repo.clone_from(url, dest, recursive=recursive)
+            assert depth is None, "depth can only be used if using a branch/tag"
+            Repo.clone_from(url, dest, single_branch=single_branch)
+            update_submodules()
 
 
 def clone_wrapper(cfg: RepoConfig, dest: Union[str, bytes, os.PathLike], refresh: bool = False):
-    clone(cfg.url, dest, branch=cfg.ref, submodules=cfg.submodules, recursive=cfg.recursive, refresh=refresh)
+    clone(cfg.url, dest, branch=cfg.ref, submodules=cfg.submodules, recursive=cfg.recursive, refresh=refresh, single_branch=cfg.single_branch, depth=cfg.depth)
 
 
 def apply(

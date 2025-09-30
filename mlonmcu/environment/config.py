@@ -141,6 +141,12 @@ class RepoConfig(BaseConfig):
         return value
 
     @property
+    def depth(self):
+        value = self.options.get("depth", None)
+        assert value is None or isinstance(value, int)
+        return value
+
+    @property
     def recursive(self):
         value = self.options.get("recursive", True)
         assert isinstance(value, bool)

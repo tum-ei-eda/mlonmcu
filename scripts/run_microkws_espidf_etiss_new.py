@@ -33,6 +33,10 @@ ESP32C3_GCC_INSTALL = os.environ.get(
     "ESP32C3_GCC_INSTALL",
     MLONMCU_HOME / "deps/install/espidf/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf"
 )
+ESP32C3_GCC_INSTALL_MIN = os.environ.get(
+    "ESP32C3_GCC_INSTALL",
+    "/usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf",
+)
 
 
 def get_results_csv_path():
@@ -114,6 +118,8 @@ def main():
     parser.add_argument(
         "--print", action="store_true", help="Increase verbosity")
     parser.add_argument(
+        "--min", action="store_true", help="Use local dependencies")
+    parser.add_argument(
         "-w", "--wait", type=int, choices=[0, 1], default=1, help="Set espidf.wait_for_user to 1 or 0 (default: 0)"
     )
     parser.add_argument(
@@ -124,6 +130,7 @@ def main():
     if args.print:
         extra_args = "-v"
 
+    gcc_install = ESP32C3_GCC_INSTALL_MIN if args.min else ESP32C3_GCC_INSTALL
     cmd_esp32_perf = textwrap.dedent(
         f"""\
         python3 -m mlonmcu.cli.main flow run {MICRO_KWS_MODEL} \
@@ -132,7 +139,7 @@ def main():
         --backend tvmaotplus -c tvmaotplus.desired_layout=NCHW -c tvmaot.desired_layout=NCHW \
         -f autotuned -c autotuned.results_file={AUTOTUNED_RESULTS} \
         -c espidf.project_template=micro_kws_esp32devboard_perf -c espidf.wait_for_user={args.wait} \
-        -c riscv_gcc_rv32.install_dir={ESP32C3_GCC_INSTALL} -c riscv_gcc_rv32.name=riscv32-esp-elf \
+        -c riscv_gcc_rv32.install_dir={gcc_install} -c riscv_gcc_rv32.name=riscv32-esp-elf \
         -c espidf.extra_cmake_defs="{{'CMAKE_C_FLAGS': '-march=rv32im_zicsr_zifencei', 'CMAKE_ASM_FLAGS': '-march=rv32im_zicsr_zifencei', 'CMAKE_CXX_FLAGS': '-march=rv32im_zicsr_zifencei', 'CMAKE_EXE_LINKER_FLAGS': '-nostartfiles -march=rv32im_zicsr_zifencei --specs=nosys.specs'}}" \
         --config-gen espidf.extra_cmake_defs="{{'PCER_INIT_VAL': 1, 'ENABLE_PERF_EVAL': 1}}" \
         --config-gen espidf.extra_cmake_defs="{{'PCER_INIT_VAL': 2, 'ENABLE_PERF_EVAL': 1}}" \
@@ -147,7 +154,7 @@ def main():
         -c etiss_perf.print_outputs={int(args.print)} \
         --backend tvmaotplus -c tvmaotplus.desired_layout=NCHW -c tvmaot.desired_layout=NCHW \
         -f autotuned -c autotuned.results_file={AUTOTUNED_RESULTS} \
-        -c riscv_gcc_rv32.install_dir={ESP32C3_GCC_INSTALL} -c riscv_gcc_rv32.name=riscv32-esp-elf \
+        -c riscv_gcc_rv32.install_dir={gcc_install} -c riscv_gcc_rv32.name=riscv32-esp-elf \
         -c etiss_perf.fpu=none -c etiss_perf.atomic=0 -c etiss_perf.compressed=0 \
         -f perf_sim -c mlif.optimize={args.opt} -c perf_sim.core=esp32c3 -c etiss_perf.flash_start=0x42000000 -c etiss_perf.flash_size=0x800000 {extra_args}
     """
@@ -161,7 +168,7 @@ def main():
         --backend tvmaotplus -c tvmaotplus.desired_layout=NCHW -c tvmaot.desired_layout=NCHW \
         -f autotuned -c autotuned.results_file={AUTOTUNED_RESULTS} \
         -c espidf.project_template=micro_kws_esp32devboard_perf -c espidf.wait_for_user={args.wait} \
-        -c riscv_gcc_rv32.install_dir={ESP32C3_GCC_INSTALL} -c riscv_gcc_rv32.name=riscv32-esp-elf \
+        -c riscv_gcc_rv32.install_dir={gcc_install} -c riscv_gcc_rv32.name=riscv32-esp-elf \
         -c espidf.optimize={args.opt} -c espidf.extra_cmake_defs="{{'CONFIG_ENABLE_WIFI': 1}}" {extra_args}
     """
     )

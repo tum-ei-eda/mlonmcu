@@ -69,7 +69,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "extra_cmake_defs": None,
         "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
         # "setup_python": False,
-        "setup_python": True
+        "setup_python": True,
+        "append_sdkconfig_defaults": False,
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -148,6 +149,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def extra_cmake_defs(self):
         value = self.config["extra_cmake_defs"]
         return str2dict(value, allow_none=True)
+
+    @property
+    def append_sdkconfig_defaults(self):
+        value = self.config["append_sdkconfig_defaults"]
+        return str2bool(value)
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()
@@ -274,10 +280,14 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
         def write_defaults(filename):
             defs = self.definitions
-            with open(filename, "w", encoding="utf-8") as f:
+            # mode = "a" if filename.is_file() else "w"
+            mode = "a" if self.append_sdkconfig_defaults else "w"
+            with open(filename, mode, encoding="utf-8") as f:
                 f.write("CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y\n")
+                template_name = Path(self.project_template).name
+                print("template_name", template_name)
                 # TODO: append to existing file instead?
-                if self.project_template == "micro_kws_esp32devboard":
+                if template_name == "micro_kws_esp32devboard":
                     f.write("CONFIG_MICRO_KWS_NUM_CLASSES=10\n")
                     f.write("CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800\n")
                     f.write("CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50\n")
@@ -292,7 +302,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write('CONFIG_MICRO_KWS_CLASS_LABEL_7="right"\n')
                     f.write('CONFIG_MICRO_KWS_CLASS_LABEL_8="on"\n')
                     f.write('CONFIG_MICRO_KWS_CLASS_LABEL_9="off"\n')
-                if self.project_template == "micro_kws_esp32devboard_perf":
+                elif template_name == "micro_kws_esp32devboard_perf":
                     f.write("CONFIG_MICRO_KWS_NUM_CLASSES=10\n")
                     f.write("CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800\n")
                     f.write("CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50\n")

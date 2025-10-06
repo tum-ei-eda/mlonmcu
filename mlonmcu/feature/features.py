@@ -1454,6 +1454,8 @@ class LogInstructions(TargetFeature):
     def add_target_config(self, target, config):
         assert target in [
             "spike",
+            "spike_rv32",
+            "spike_rv64",
             "etiss_pulpino",
             "etiss",
             "etiss_perf",
@@ -1464,7 +1466,7 @@ class LogInstructions(TargetFeature):
         ]
         if not self.enabled:
             return
-        if target == "spike":
+        if target in ["spike", "spike_rv32", "spike_rv64"]:
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("-l")
             if self.to_file:
@@ -1508,6 +1510,8 @@ class LogInstructions(TargetFeature):
     def get_target_callbacks(self, target):
         assert target in [
             "spike",
+            "spike_rv32",
+            "spike_rv64",
             "etiss_pulpino",
             "etiss",
             "etiss_perf",
@@ -1544,7 +1548,7 @@ class LogInstructions(TargetFeature):
                             with open(log_file, "r") as f:
                                 content = f.read()
                         else:
-                            assert target in ["spike", "ovpsim", "corev_ovpsim"]
+                            assert target in ["spike", "spike_rv32", "spike_rv64", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
                             with open(log_file, "r") as f:
                                 content = f.read()

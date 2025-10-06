@@ -1,54 +1,44 @@
+---
 name: Lint
-
 on: [push, pull_request]
-
 jobs:
   run-linters:
     name: Run linters
     runs-on: ubuntu-22.04
-
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-
+          python-version: '3.10'
       - name: Install Python dependencies
         run: pip install black flake8
-
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
           black: true
-          black_args: "--line-length=120"
+          black_args: --line-length=120
           flake8: true
-          flake8_args: "--max-line-length=120 --ignore=E203,W503"
-
+          flake8_args: --max-line-length=120 --ignore=E203,W503
   check-license:
     name: Check for License headers
     runs-on: ubuntu-22.04
-
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-
       - name: Install Python dependencies
         run: pip install licenseheaders
-
       - name: Download template file
         run: wget https://raw.githubusercontent.com/johann-petrak/licenseheaders/master/templates/apache-2.tmpl
-
       - name: Run check
         run: |
           licenseheaders -t apache-2.tmpl -y "${YEARS}" -o "${OWNER}" -n "${PROJECT}" -u "${URL}" -d . -E "${EXTENSIONS}"
           test -z "$(git status --untracked-files=no --porcelain)" || (echo "Please check your license headers!" ; git status --untracked-files=no --porcelain ; false) && echo "License check was successful."
         env:
-          OWNER: "TUM Department of Electrical and Computer Engineering"
-          PROJECT: "MLonMCU"
-          YEARS: "2022"
-          URL: "https://github.com/tum-ei-eda/mlonmcu.git"
-          EXTENSIONS: "py c cpp"
-          EXCLUDE: ".venv models"
+          OWNER: TUM Department of Electrical and Computer Engineering
+          PROJECT: MLonMCU
+          YEARS: '2022'
+          URL: https://github.com/tum-ei-eda/mlonmcu.git
+          EXTENSIONS: py c cpp
+          EXCLUDE: .venv models

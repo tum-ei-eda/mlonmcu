@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -21,18 +22,17 @@ on:
   workflow_dispatch:
     inputs:
       base_image:
-        description: 'Base Image'
+        description: Base Image
         required: true
-        default: "?"
+        default: '?'
       out_image:
-        description: 'Output Image'
+        description: Output Image
         required: true
-        default: "?"
+        default: '?'
       template:
-        description: 'Used environment.yml template'
+        description: Used environment.yml template
         required: true
-        default: "default"
-
+        default: default
 jobs:
   refresh:
     name: Refresh large image for benchmarking

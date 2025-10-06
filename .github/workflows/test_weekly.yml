@@ -45,15 +45,20 @@ jobs:
           - {branch: main, template: default, path: tests --ignore tests/integration-tests/toolchains}
           - {branch: develop, template: dev, path: tests --ignore tests/integration-tests/toolchains}
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 32768
-          temp-reserve-mb: 4096
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
+      - name: Remove unused software
+        run: |
+          echo "Available storage before:"
+          sudo df -h
+          echo
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --force
+          sudo docker builder prune
+          echo "Available storage after:"
+          sudo df -h
+          echo
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -116,17 +121,20 @@ jobs:
           - {branch: develop, image: tumeda/mlonmcu-bench:dev-develop-latest, path: tests/integration-tests
               --ignore tests/integration-tests/toolchains}
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          # root-reserve-mb: 32768
-          root-reserve-mb: 34816
-          # temp-reserve-mb: 4096
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
+      - name: Remove unused software
+        run: |
+          echo "Available storage before:"
+          sudo df -h
+          echo
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --force
+          sudo docker builder prune
+          echo "Available storage after:"
+          sudo df -h
+          echo
       - name: Checkout
         uses: actions/checkout@v4
         with:

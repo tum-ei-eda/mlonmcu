@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -19,204 +20,203 @@
 
 # GitHub CI build pipeline
 name: CI build
-
 on:
   push:
-    branches:
-      - main
-      - develop
-    tags:
-      - 'v*'
+    branches: [main, develop]
+    tags: [v*]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   workflow_dispatch:
     inputs:
       integration_tests:
-        description: 'Run slow integration tests in CI'
+        description: Run slow integration tests in CI
         required: true
-        default: "false"
+        default: 'false'
 jobs:
   build:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v4
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v4
+        id: cache-venv  # name for referring later
+        with:
+          path: |
+            .venv/
+            dist/
         # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-
-    - name: Cleanup old artifacts
-      run: |
-        rm -rf .venv  # Clear venv because of a cache bug...
-        make clean
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-    - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        pip install wheel
-        pip install -r requirements.txt
-    - name: Run package creation
-      run: |
-        source .venv/bin/activate
-        make dist
+          key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{
+            hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-
+      - name: Cleanup old artifacts
+        run: |
+          rm -rf .venv  # Clear venv because of a cache bug...
+          make clean
+      - name: Initialize Virtualenv
+        run: |
+          python -m pip install --upgrade pip virtualenv
+          python -m venv .venv
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install wheel
+          pip install -r requirements.txt
+      - name: Run package creation
+        run: |
+          source .venv/bin/activate
+          make dist
   release:
     needs: build
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ['3.10']
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v4
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v4
+        id: cache-venv  # name for referring later
+        with:
+          path: |
+            .venv/
+            dist/
         # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
-        restore-keys: |
-          build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-    - name: Archive package
-      uses: actions/upload-artifact@v4
-      with:
-        name: mlonmcu
-        path: dist/
-    - name: Publish package
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
-        skip_existing: true
+          key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{
+            hashFiles('**/requirements*.txt') }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+      - name: Archive package
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlonmcu
+          path: dist/
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') &&
+          ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip_existing: true
   coverage:
     needs: build
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ['3.10']
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v4
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v4
+        id: cache-venv  # name for referring later
+        with:
+          path: |
+            .venv/
+            dist/
         # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
-        restore-keys: |
-          build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-    - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        pip install -r requirements_dev.txt
-    - name: Install package into virtualenv
-      run: |
-        source .venv/bin/activate
-        make install
-    - name: Run Unit Tests and generate coverage report
-      if: ${{ github.event_name }} != "workflow_dispatch"
-      run: |
-        source .venv/bin/activate
-        make coverage
-    - name: Run Unit & Integration Tests and generate coverage report
-      if: ${{ github.event.inputs.integration_tests }} == "true"
-      run: |
-        source .venv/bin/activate
-        make coverage-full
-    - name: Archive code coverage html report
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-report
-        path: htmlcov
-    - name: Get coverage percentage
-      id: report
-      run: |
-        source .venv/bin/activate
-        echo "name=percent::$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')" >> $GITHUB_OUTPUT
-    - name: Test coverage Text
-      run: echo "|${{ steps.report.outputs.percent }}|"
-    - name: Create coverage badge
-      uses: RubbaBoy/BYOB@v1.2.1
-      with:
-        NAME: coverage
-        LABEL: 'Coverage'
-        STATUS: "${{ steps.report.outputs.percent }}"
-        COLOR: blue
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{
+            hashFiles('**/requirements*.txt') }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+      - name: Initialize Virtualenv
+        run: |
+          python -m pip install --upgrade pip virtualenv
+          python -m venv .venv
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements_dev.txt
+      - name: Install package into virtualenv
+        run: |
+          source .venv/bin/activate
+          make install
+      - name: Run Unit Tests and generate coverage report
+        if: ${{ github.event_name }} != "workflow_dispatch"
+        run: |
+          source .venv/bin/activate
+          make coverage
+      - name: Run Unit & Integration Tests and generate coverage report
+        if: ${{ github.event.inputs.integration_tests }} == "true"
+        run: |
+          source .venv/bin/activate
+          make coverage-full
+      - name: Archive code coverage html report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: htmlcov
+      - name: Get coverage percentage
+        id: report
+        run: |
+          source .venv/bin/activate
+          echo "name=percent::$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')" >> $GITHUB_OUTPUT
+      - name: Test coverage Text
+        run: echo "|${{ steps.report.outputs.percent }}|"
+      - name: Create coverage badge
+        uses: RubbaBoy/BYOB@v1.2.1
+        with:
+          NAME: coverage
+          LABEL: Coverage
+          STATUS: ${{ steps.report.outputs.percent }}
+          COLOR: blue
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   docs:
     needs: build
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ['3.10']
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v4
-      id: cache-venv  # name for referring later
-      with:
-        path: |
-          .venv/
-          dist/
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v4
+        id: cache-venv  # name for referring later
+        with:
+          path: |
+            .venv/
+            dist/
         # The cache key depends on requirements[_dev].txt
-        key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}-${{ github.sha }}
-        restore-keys: |
-          build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip virtualenv
-        python -m venv .venv
-    - name: Install dependencies
-      run: | # TODO: get rid of if-else
-        source .venv/bin/activate
-        pip install -r requirements.txt
-        pip install -r docs/requirements.txt
-    - name: Install package into virtualenv
-      run: |
-        source .venv/bin/activate
-        make install
-    - name: Build docs
-      run: |
-        source .venv/bin/activate
-        make docs
-    - name: Deploy docs
-      uses: peaceiris/actions-gh-pages@v4
-      if: ${{ github.ref == 'refs/heads/main' }}
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/_build/html
+          key: ${{ github.job }}-${{ runner.os }}-${{ matrix.python-version }}-venv-${{
+            hashFiles('**/requirements*.txt') }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('**/requirements*.txt') }}
+      - name: Initialize Virtualenv
+        run: |
+          python -m pip install --upgrade pip virtualenv
+          python -m venv .venv
+      - name: Install dependencies
+        run: |  # TODO: get rid of if-else
+          source .venv/bin/activate
+          pip install -r requirements.txt
+          pip install -r docs/requirements.txt
+      - name: Install package into virtualenv
+        run: |
+          source .venv/bin/activate
+          make install
+      - name: Build docs
+        run: |
+          source .venv/bin/activate
+          make docs
+      - name: Deploy docs
+        uses: peaceiris/actions-gh-pages@v4
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/_build/html

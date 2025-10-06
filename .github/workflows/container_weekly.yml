@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -21,29 +22,28 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch name"
+        description: Branch name
         required: true
-        default: "develop"
+        default: develop
       template:
-        description: "Environment template"
+        description: Environment template
         required: true
-        default: "dev"
+        default: dev
   schedule:
-    - cron: "0 0 * * 6"  # main, default
-    - cron: "0 6 * * 6"  # develop, corev
-    - cron: "0 12 * * 6"  # develop, dev
+    - cron: 0 0 * * 6  # main, default
+    - cron: 0 6 * * 6  # develop, corev
+    - cron: 0 12 * * 6  # develop, dev
     # Disabled as Ubuntu 22 (Debian 11) bender version is not provided
     # - cron: "0 18 * * 6"  # develop, ara
-    - cron: "0 20 * * 6"  # develop, vicuna
-    - cron: "0 10 * * 6"  # develop, tgc
-    - cron: "0 8 * * 6"  # develop, minimal
-
+    - cron: 0 20 * * 6  # develop, vicuna
+    - cron: 0 10 * * 6  # develop, tgc
+    - cron: 0 8 * * 6  # develop, minimal
 jobs:
   minimal:
     name: Build minimal image for CI
     runs-on: ubuntu-22.04
     steps:
-      - name: "Set current date as env variable"
+      - name: Set current date as env variable
         run: |
           echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
         id: timestamp
@@ -170,7 +170,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: minimal
     steps:
-      - name: "Set current date as env variable"
+      - name: Set current date as env variable
         run: |
           echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
         id: timestamp
@@ -290,7 +290,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: base
     steps:
-      - name: "Set current date as env variable"
+      - name: Set current date as env variable
         run: |
           echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
         id: timestamp
@@ -401,6 +401,6 @@ jobs:
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest
           cache-to: type=inline
-          tags: |
+          tags: |-
             ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}latest
             ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_NAMESPACE }}/mlonmcu-bench:${{ steps.template_str.outputs.template }}${{ steps.branch_str.outputs.branch }}${{ steps.timestamp.outputs.builddate }}

@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -20,8 +21,13 @@
 # ML on MCU demonstration (also serves as end-to-end testj
 # TODO: provide docker image with apt packages
 name: Usage Demo
-
 on:
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
   workflow_dispatch:
     inputs:
       # template:
@@ -44,91 +50,85 @@ on:
         type: boolean
         description: Upload artifacts
         required: true
-  # push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
 jobs:
   demo:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ['3.10']
     steps:
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
-      with:
-        root-reserve-mb: 16384
-        temp-reserve-mb: 8192
-        remove-dotnet: 'true'
-        remove-android: 'true'
-        remove-haskell: 'true'
-        remove-codeql: 'true'
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    # TODO: caching
-    - name: Install APT packages
-      run: |
-        sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
-        sudo apt -qq install -y ninja-build
-        sudo apt remove clang-11* llvm-11*
-    - name: Initialize Virtualenv
-      run: |
-        python -m pip install --upgrade pip
-        python -m venv .venv
-    - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        pip install -r requirements.txt
-    - name: Run package creation
-      run: |
-        source .venv/bin/activate
-        make install
-    - name: Initialize MLonMCU environment
-      run: |
-        source .venv/bin/activate
-        mlonmcu init home/ --non-interactive --template ${{ github.event.inputs.template }}
-    - name: Setup MLonMCU dependencies
-      run: |
-        source .venv/bin/activate
-        mlonmcu setup -H home/ -v
-    - name: Check Disk
-      run: df -h
-    - name: Install environment-specific Python packages
-      run: |
-        source .venv/bin/activate
-        MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
-        pip install -r home/requirements_addition.txt
-    - name: Run MLonMCU flow
-      run: |
-        source .venv/bin/activate
-        mlonmcu flow run sine_model -H home/ -v
-        mlonmcu export -H home/ session.zip
-    - name: Prepare complex integration tests (optional)
-      run: |
-        source .venv/bin/activate
-        pip install -r requirements_dev.txt
-      if: ${{ github.event.inputs.test == 'true' }}
-    - name: Run complex integration tests (optional)
-      run: |
-        source .venv/bin/activate
-        MLONMCU_HOME=$(pwd)/home/ make test-full
-      if: ${{ github.event.inputs.test == 'true' }}
-    - name: Remove dependencies (too large for artifact)
-      run: |
-        source .venv/bin/activate
-        mlonmcu cleanup -H home/ -f --deps
-      if: ${{ github.event.inputs.artifact == 'true' }}
-    - name: Archive environment (without deps)
-      uses: actions/upload-artifact@v4
-      with:
-        name: mlonmcu_home
-        path: home/
-      if: ${{ github.event.inputs.artifact == 'true' }}
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 16384
+          temp-reserve-mb: 8192
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # TODO: caching
+      - name: Install APT packages
+        run: |
+          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
+          sudo apt -qq install -y ninja-build
+          sudo apt remove clang-11* llvm-11*
+      - name: Initialize Virtualenv
+        run: |
+          python -m pip install --upgrade pip
+          python -m venv .venv
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements.txt
+      - name: Run package creation
+        run: |
+          source .venv/bin/activate
+          make install
+      - name: Initialize MLonMCU environment
+        run: |
+          source .venv/bin/activate
+          mlonmcu init home/ --non-interactive --template ${{ github.event.inputs.template }}
+      - name: Setup MLonMCU dependencies
+        run: |
+          source .venv/bin/activate
+          mlonmcu setup -H home/ -v
+      - name: Check Disk
+        run: df -h
+      - name: Install environment-specific Python packages
+        run: |
+          source .venv/bin/activate
+          MLONMCU_HOME=$(pwd)/home/ mlonmcu setup -g
+          pip install -r home/requirements_addition.txt
+      - name: Run MLonMCU flow
+        run: |
+          source .venv/bin/activate
+          mlonmcu flow run sine_model -H home/ -v
+          mlonmcu export -H home/ session.zip
+      - name: Prepare complex integration tests (optional)
+        run: |
+          source .venv/bin/activate
+          pip install -r requirements_dev.txt
+        if: ${{ github.event.inputs.test == 'true' }}
+      - name: Run complex integration tests (optional)
+        run: |
+          source .venv/bin/activate
+          MLONMCU_HOME=$(pwd)/home/ make test-full
+        if: ${{ github.event.inputs.test == 'true' }}
+      - name: Remove dependencies (too large for artifact)
+        run: |
+          source .venv/bin/activate
+          mlonmcu cleanup -H home/ -f --deps
+        if: ${{ github.event.inputs.artifact == 'true' }}
+      - name: Archive environment (without deps)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlonmcu_home
+          path: home/
+        if: ${{ github.event.inputs.artifact == 'true' }}

@@ -628,7 +628,13 @@ def resolve_llvm(
         llvm_dir = user_llvm_dir
     elif use_system_llvm:
         llvm_version_major = Version(llvm_version).major if llvm_version is not None else None
-        system_llvm_dir = detect_system_llvm(major_version_hint=llvm_version_major)
+        system_llvm_dir = None
+        if llvm_version_major is not None:
+            system_llvm_dir = detect_system_llvm(major_version_hint=llvm_version_major, allow_none=True)
+            if system_llvm_dir is None and llvm_version_major is not None:
+                llvm_version_major = None
+                logger.warning("Falling back to default clang version")
+                system_llvm_dir = detect_system_llvm(major_version_hint=None, allow_none=True)
         if system_llvm_dir is None:
             assert allow_none, "Could not find system LLVM install"
             return None, None

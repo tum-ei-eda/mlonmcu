@@ -1386,7 +1386,7 @@ class CacheSim(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["spike", "spike_rv32", "spike_rv64"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             spike_args = config.get(f"{target}.extra_args", [])
             if self.ic_enable:
@@ -1403,7 +1403,7 @@ class CacheSim(TargetFeature):
             config.update({f"{target}.extra_args": spike_args})
 
     def get_target_callbacks(self, target):
-        assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in ["spike", "spike_rv32", "spike_rv64"], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             def cachesim_callback(stdout, metrics, artifacts, directory=None):
@@ -1456,6 +1456,8 @@ class LogInstructions(TargetFeature):
     def add_target_config(self, target, config):
         assert target in [
             "spike",
+            "spike_rv32",
+            "spike_rv64",
             "etiss_pulpino",
             "etiss",
             "etiss_rv32",
@@ -1468,7 +1470,7 @@ class LogInstructions(TargetFeature):
         ]
         if not self.enabled:
             return
-        if target == "spike":
+        if target.startswith("spike"):
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("-l")
             if self.to_file:
@@ -1512,6 +1514,8 @@ class LogInstructions(TargetFeature):
     def get_target_callbacks(self, target):
         assert target in [
             "spike",
+            "spike_rv32",
+            "spike_rv64",
             "etiss_pulpino",
             "etiss",
             "etiss_rv32",
@@ -1552,7 +1556,7 @@ class LogInstructions(TargetFeature):
                             with open(log_file, "r") as f:
                                 content = f.read()
                         else:
-                            assert target in ["spike", "ovpsim", "corev_ovpsim"]
+                            assert target in ["spike", "spike_rv32", "spike_rv64", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
                             with open(log_file, "r") as f:
                                 content = f.read()

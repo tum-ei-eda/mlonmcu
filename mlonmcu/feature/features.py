@@ -2755,19 +2755,3 @@ class PerfSim(TargetFeature):
 
             return None, metrics_callback
         return None, None
-
-
-@register_feature("llvm_basic_block_sections")
-class BasicBlockSections(PlatformFeature):
-    """LLVM's -fbasic-block-sections=labels feature"""
-
-    def __init__(self, features=None, config=None):
-        super().__init__("llvm_basic_block_sections", features=features, config=config)
-
-    def get_platform_defs(self, platform):
-        assert platform in ["mlif"]
-        return filter_none(
-            {
-                "LLVM_BASIC_BLOCK_SECTIONS": self.enabled,
-            }
-        )

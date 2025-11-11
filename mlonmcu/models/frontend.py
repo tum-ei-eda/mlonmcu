@@ -326,6 +326,9 @@ class Frontend(ABC):
                 if len(in_paths) == 1:
                     if in_paths[0].is_dir():
                         files = list(in_paths[0].iterdir())
+                    else:
+                        assert in_paths[0].is_file(), "in_paths not found"
+                        files = [in_paths[0]]
                 else:
                     files = in_paths
                 temp = {}

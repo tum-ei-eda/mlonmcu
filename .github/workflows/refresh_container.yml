@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -21,18 +22,17 @@ on:
   workflow_dispatch:
     inputs:
       base_image:
-        description: 'Base Image'
+        description: Base Image
         required: true
-        default: "?"
+        default: '?'
       out_image:
-        description: 'Output Image'
+        description: Output Image
         required: true
-        default: "?"
+        default: '?'
       template:
-        description: 'Used environment.yml template'
+        description: Used environment.yml template
         required: true
-        default: "default"
-
+        default: default
 jobs:
   refresh:
     name: Refresh large image for benchmarking
@@ -52,15 +52,6 @@ jobs:
           echo "Available storage after:"
           sudo df -h
           echo
-      # - name: Maximize build space
-      #   uses: easimon/maximize-build-space@master
-      #   with:
-      #     root-reserve-mb: 32768
-      #     temp-reserve-mb: 4096
-      #     remove-dotnet: 'true'
-      #     remove-android: 'true'
-      #     remove-haskell: 'true'
-      #     remove-codeql: 'true'
       - name: Checkout
         uses: actions/checkout@v4
         with:

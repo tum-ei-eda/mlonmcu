@@ -92,7 +92,11 @@ class ThreadPoolSessionExecutor(concurrent.futures.ThreadPoolExecutor):
         cleanup=False,
     ):
         fn = _process_default
-        needs_post = any(run.has_stage(RunStage.POSTPROCESS) for run in runs) and RunStage.POSTPROCESS not in skip
+        needs_post = (
+            any(run.has_stage(RunStage.POSTPROCESS) for run in runs)
+            and RunStage.POSTPROCESS not in skip
+            and until != RunStage.POSTPROCESS
+        )
         args = [
             runs,
         ]
@@ -268,7 +272,9 @@ def _process_pickable(run_initializers, until, skip, export, context, runs_dir, 
         assert skip is None
         skip = [stage for stage in RunStage if stage not in used_stages]
         run.process(until=until, skip=skip, export=export)
-        needs_post = run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip
+        needs_post = (
+            run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip and until != RunStage.POSTPROCESS
+        )
         if needs_post:
             run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
         ret = run.result()
@@ -631,6 +637,7 @@ class SessionScheduler:
                     pbar2 = init_progress(len(self.used_stages), msg="Processing stages")
                 for stage in self.used_stages:
                     run_stage = RunStage(stage).name
+                    is_last = stage == self.used_stages[-1]
                     if self.progress:
                         pbar = init_progress(len(batches), msg=f"Processing stage {run_stage}")
                     else:
@@ -642,10 +649,13 @@ class SessionScheduler:
                         if len(runs_) < len(runs):
                             logger.warning("Skiping stage '%s' for failed run", run_stage)
                         else:
+                            skip = [stage for stage in self.skipped_stages]
+                            if not is_last:
+                                skip.append(RunStage.POSTPROCESS)
                             f = executor.submit_runs(
                                 runs_,
                                 until=stage,
-                                skip=self.skipped_stages,
+                                skip=skip,
                                 export=export,
                                 context=context_,
                                 runs_dir=self.runs_dir,

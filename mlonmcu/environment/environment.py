@@ -267,6 +267,8 @@ class Environment:
         return len(configs) > 0
 
     def has_backend(self, name):
+        if name == "none":
+            return True
         configs = self.lookup_backend_configs(backend=name)
         return len(configs) > 0
 

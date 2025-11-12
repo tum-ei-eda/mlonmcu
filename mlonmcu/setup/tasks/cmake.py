@@ -150,6 +150,9 @@ def _validate_cmake_clean(context: MlonMcuContext, params={}):
     if not _validate_cmake(context, params=params):
         return False
     user_vars = context.environment.vars
+    use_system_cmake = user_vars.get("cmake.use_system", False)
+    if "cmake.exe" in user_vars or use_system_cmake:
+        return False
     keep_build_dir = user_vars.get("cmake.keep_build_dir", False)
     keep_src_dir = user_vars.get("cmake.keep_src_dir", False)
     return (not keep_build_dir) or (not keep_src_dir)

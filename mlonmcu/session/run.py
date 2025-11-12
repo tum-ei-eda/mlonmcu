@@ -1683,18 +1683,35 @@ class Run:
 
 class ArchivedRun(Run):
 
-    def __init__(self, TODO):
-        pass
+    def __init__(self, **kwargs):
+        super().__init__(
+            self,
+            archived=True,
+            **kwargs,
+        )
 
     @staticmethod
     def from_file(path: Union[Path, str]):
-        # TODO: yml, yaml, txt, tar, zip
-        pass
+        path = Path(path)
+        assert path.is_file()
+        with open(path, "r") as f:
+            yaml_data = yaml.safe_load(f)
+        print("yaml_data", yaml_data)
+        return ArchivedRun(**yaml_data)
 
     @staticmethod
-    def from_dir(path: Union[Path, str]):
-        pass
+    def from_dir(path: Union[Path, str], allow_missing: bool = True):
+        path = Path(path)
+        assert path.is_dir()
+        run_yaml = path / "run.yml"
+        print("run_yaml", run_yaml)
+        if not run_yaml.is_file():
+            assert allow_missing, f"Run YAML does not exist: {path}"
+            ret = ArchivedRun()
+            ret.dir = path
+            return ret
+        return ArchivedRun.from_file(run_yaml, allow_missing=allow_missing)
 
     @staticmethod
     def restore(self):
-        pass
+        raise NotImplementedError

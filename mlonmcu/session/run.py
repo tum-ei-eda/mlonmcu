@@ -1704,7 +1704,6 @@ class ArchivedRun(Run):
         path = Path(path)
         assert path.is_dir()
         run_yaml = path / "run.yml"
-        print("run_yaml", run_yaml)
         if not run_yaml.is_file():
             assert allow_missing, f"Run YAML does not exist: {path}"
             ret = ArchivedRun()

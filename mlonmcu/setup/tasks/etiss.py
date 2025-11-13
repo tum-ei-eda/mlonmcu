@@ -84,6 +84,8 @@ def _validate_etiss_perf_build(context: MlonMcuContext, params={}):
 def _validate_etiss_clean(context: MlonMcuContext, params={}):
     if not _validate_etiss(context, params=params):
         return False
+    if not _validate_etiss_build(context, params=params):
+        return False
     user_vars = context.environment.vars
     keep_build_dir = user_vars.get("etiss.keep_build_dir", True)
     return not keep_build_dir

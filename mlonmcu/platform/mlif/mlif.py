@@ -607,6 +607,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
         srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
+        compile_commands_file = self.build_dir / "compile_commands.json"  # TODO: optional
 
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
@@ -644,6 +645,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 data = handle.read()
                 artifact = Artifact(
                     "generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
+                artifacts.append(artifact)
+        if compile_commands_file.is_file():
+            with open(compile_commands_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact(
+                    "compile_commands.json", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
                 )
                 artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)

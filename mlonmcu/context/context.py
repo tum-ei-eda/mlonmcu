@@ -626,6 +626,7 @@ class MlonMcuContext:
                             )
                             sys.exit(1)
                         run = session.runs[rid]  # TODO: We currently do not check if the index actually exists
+                        assert run is not None
                         if len(run_ids) == 1 and len(session_ids) == 1:
                             run_base = tmpdir
                         else:

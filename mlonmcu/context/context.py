@@ -161,9 +161,12 @@ def get_session_labels(env: Environment) -> Dict[str, int]:
     ret = {}
     results_dir = env.paths["results"].path
     # TODO: handle excel reports was well?
-    csv_files = results_dir.glob("*.csv")
+    csv_files = list(results_dir.glob("*.csv"))
+    max_csv_files = 50
+    if len(csv_files) > max_csv_files:
+        logger.warning("Too many (%d) CSV files in results directory. Reading only %d reports...", len(csv_files), max_csv_files)
+        csv_files = list(sorted(csv_files))[-max_csv_files:]
     for csv_file in csv_files:
-        # print("csv_file", csv_file)
         label = csv_file.stem
         import pandas as pd
 
@@ -179,8 +182,6 @@ def get_session_labels(env: Environment) -> Dict[str, int]:
         sessions = list(report_df["Session"].unique())
         assert len(sessions) == 1
         session = sessions[0]
-        # print("label", label)
-        # print("session", session)
         ret[label] = session
     return ret
 

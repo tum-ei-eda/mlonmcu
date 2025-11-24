@@ -25,6 +25,7 @@ import tarfile
 import zipfile
 import shutil
 import tempfile
+import hashlib
 import urllib.request
 from pathlib import Path
 from packaging.version import Version
@@ -454,7 +455,50 @@ def cmake(src, *args, debug=False, use_ninja=False, cwd=None, cmake_exe: Optiona
 #     a.replace(b)
 
 
-def download(url, dest, progress=False):
+def validate_checksum(path: Path, checksum: str, mode: str = "auto", allow_missmatch: bool = False):
+    if isinstance(path, str):
+        path = Path(path)
+    assert path.is_file(), "File does not exists: {path}"
+    if ":" in checksum:
+        mode_, checksum = checksum.split(":", 1)
+    else:
+        mode_ = None
+    if mode == "auto":
+        assert mode_ is not None, "Could not infer mode from checksum"
+        mode = mode_
+    else:
+        if mode_ is not None:
+            assert mode == mode_, "Checksum mode missmatch"
+    mode_lookup = {
+        "sha256": hashlib.sha256,
+        "md5": hashlib.md5,
+    }
+    mode_lib = mode_lookup.get(mode)
+    assert mode_lib is not None, f"Unhandled checksum mode: {mode}"
+    mode_lib = mode_lib()
+    # See: https://gist.github.com/airtower-luna/a5df5d6143c8e9ffe7eb5deb5797a0e0
+    with open(path, "rb") as fh:
+        # Read and hash the file in 4K chunks. Reading the whole
+        # file at once might consume a lot of memory if it is
+        # large.
+        while True:
+            data = fh.read(4096)
+            if len(data) == 0:
+                break
+            else:
+                mode_lib.update(data)
+    checksum_ = mode_lib.hexdigest()
+    checksum_matches = checksum == checksum_
+    if not checksum_matches:
+        msg = f"Checksum missmatch for {path.name}: {checksum} vs. {checksum_}"
+        if allow_missmatch:
+            logger.warning(msg)
+        else:
+            raise RuntimeError(msg)
+    return checksum_matches
+
+
+def download(url, dest, checksum: str = None, progress=False):
     logger.debug("- Downloading: %s", url)
 
     def hook(t):
@@ -482,6 +526,8 @@ def download(url, dest, progress=False):
             urllib.request.urlretrieve(url, dest, reporthook=hook(t))
     else:
         urllib.request.urlretrieve(url, dest)
+    if checksum:
+        _ = validate_checksum(dest, checksum, allow_missmatch=False)
 
 
 def extract(archive, dest, progress=False):
@@ -527,7 +573,7 @@ def is_populated(path):
     return path.is_dir() and os.listdir(path.resolve())
 
 
-def download_and_extract(url, archive, dest, progress=False, force=True):
+def download_and_extract(url, archive, dest, checksum: str = None, progress=False, force=True):
     if isinstance(dest, str):
         dest = Path(dest)
     assert isinstance(dest, Path)
@@ -538,7 +584,7 @@ def download_and_extract(url, archive, dest, progress=False, force=True):
             base_name = Path(base_name).stem
         if url[-1] != "/":
             url += "/"
-        download(url + archive, tmp_archive, progress=progress)
+        download(url + archive, tmp_archive, checksum=checksum, progress=progress)
         extract(tmp_archive, tmp_dir, progress=progress)
         remove(os.path.join(tmp_dir, tmp_archive))
         mkdirs(dest.parent)

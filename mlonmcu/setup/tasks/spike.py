@@ -40,9 +40,34 @@ Tasks = get_task_factory()
 def _validate_spike(context: MlonMcuContext, params=None):
     if not context.environment.has_target("spike") and not _validate_ara_rtl(context, params=params):
         return False
+    # user_vars = context.environment.vars
+    # if "spike.exe" in user_vars:  # TODO: also check command line flags?
+    #     return False
+    return True
+
+
+def _validate_spike_clone(context: MlonMcuContext, params=None):
+    if not _validate_spike(context, params=params):
+        return False
     user_vars = context.environment.vars
-    if "spike.exe" not in user_vars:  # TODO: also check command line flags?
+    if "spike.dl_url" in user_vars:  # TODO: also check command line flags?
+        return False
         assert "spike" in context.environment.repos, "Undefined repository: 'spike'"
+    return True
+
+
+def _validate_spike_download(context: MlonMcuContext, params=None):
+    if not _validate_spike(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    if "spike.dl_url" not in user_vars:  # TODO: also check command line flags?
+        return False
+    return True
+
+
+def _validate_spike_build(context: MlonMcuContext, params=None):
+    if not _validate_spike_clone(context, params=params):
+        return False
     return True
 
 
@@ -170,8 +195,34 @@ def build_spike_pk(
     context.export_paths.add(spikepkInstallDir)
 
 
+@Tasks.provides(["spike.exe"])
+@Tasks.validate(_validate_spike_download)
+@Tasks.register(category=TaskType.TARGET)
+def download_spike(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Clone the spike simulator."""
+    spikeName = utils.makeDirName("spike")
+    spikeInstallDir = context.environment.paths["deps"].path / "install" / spikeName
+    spikeExe = spikeInstallDir / "bin" / "spike"
+    user_vars = context.environment.vars
+    if "spike.exe" in user_vars:  # TODO: also check command line flags?
+        return False
+    if rebuild or not utils.is_populated(spikeInstallDir) or not spikeExe.is_file():
+        assert "spike.dl_url" in user_vars
+        spikeUrl, spikeArchive = user_vars["spike.dl_url"].rsplit("/", 1)
+        checksum = user_vars.get("spike.checksum")
+        utils.download_and_extract(spikeUrl, spikeArchive, spikeInstallDir, checksum=checksum, progress=verbose)
+        if not spikeExe.is_file():
+            spikeExe_ = spikeInstallDir / "spike"
+            assert spikeExe_.is_file(), "spikeExe not found in {spikeExe} or {spikeExe_}"
+            utils.mkdirs(spikeExe.parent)
+            utils.move(spikeExe_, spikeExe)
+    context.cache["spike.exe"] = spikeExe
+
+
 @Tasks.provides(["spike.src_dir"])
-@Tasks.validate(_validate_spike)
+@Tasks.validate(_validate_spike_clone)
 @Tasks.register(category=TaskType.TARGET)
 def clone_spike(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -191,7 +242,7 @@ def clone_spike(
 @Tasks.needs(["spike.src_dir"])
 @Tasks.optional(["boost.install_dir"])
 @Tasks.provides(["spike.build_dir", "spike.exe"])
-@Tasks.validate(_validate_spike)
+@Tasks.validate(_validate_spike_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

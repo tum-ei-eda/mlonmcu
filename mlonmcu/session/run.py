@@ -1618,7 +1618,7 @@ class Run:
         # else:
         #     raise ValueError(f"Unsupported format: {fmt}")
 
-    def save_artifacts(self, dest: Union[str, Path], fmt: Optional[str] = None):
+    def save_artifacts(self, dest: Union[str, Path], fmt: Optional[str] = None, full: bool = False):
         if not isinstance(dest, Path):
             assert isinstance(dest, str)
             dest = Path(dest)
@@ -1635,7 +1635,7 @@ class Run:
             with open(dest, "wb") as f:
                 pickle.dump(data, f)
         elif fmt.lower() in ["yml", "yaml"]:
-            data = {"artifacts": [artifact.serialize() for artifact in artifacts]}
+            data = {"artifacts": [artifact.serialize(full=full) for artifact in artifacts]}
             import yaml
 
             with open(dest, "w") as f:

@@ -101,18 +101,24 @@ class Artifact:
         self.optional = optional
         self.validate()
 
-    def serialize(self):
-        return {
+    def serialize(self, full: bool = False):
+        ret = {
             "name": self.name,
-            "content": self.content,
             "path": str(self.path) if self.path else None,
-            "data": self.data,
-            "raw": self.raw,
             "fmt": self.fmt.value,
             "flags": list(self.flags),
             "archive": self.archive,
             "optional": self.optional,
+            **(
+                {
+                    "content": self.content,
+                    "data": self.data,
+                    "raw": self.raw,
+                }
+                if full else {}
+            ),
         }
+        return ret
 
     # TODO: unserialize
 

@@ -164,7 +164,9 @@ def get_session_labels(env: Environment) -> Dict[str, int]:
     csv_files = list(results_dir.glob("*.csv"))
     max_csv_files = 50
     if len(csv_files) > max_csv_files:
-        logger.warning("Too many (%d) CSV files in results directory. Reading only %d reports...", len(csv_files), max_csv_files)
+        logger.warning(
+            "Too many (%d) CSV files in results directory. Reading only %d reports...", len(csv_files), max_csv_files
+        )
         csv_files = list(sorted(csv_files))[-max_csv_files:]
     for csv_file in csv_files:
         label = csv_file.stem
@@ -627,6 +629,7 @@ class MlonMcuContext:
                             )
                             sys.exit(1)
                         run = session.runs[rid]  # TODO: We currently do not check if the index actually exists
+                        assert run is not None
                         if len(run_ids) == 1 and len(session_ids) == 1:
                             run_base = tmpdir
                         else:

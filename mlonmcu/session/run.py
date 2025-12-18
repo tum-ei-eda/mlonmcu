@@ -27,6 +27,8 @@ from pathlib import Path
 from enum import IntEnum
 from collections import defaultdict
 
+import yaml
+
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2bool
@@ -84,8 +86,6 @@ class RunInitializer:
         assert len(fmt) > 0
         fmt = fmt[1:].lower()
         if fmt in ["yml", "yaml"]:
-            import yaml
-
             with open(src, "r") as f:
                 data = yaml.safe_load(f)
         else:
@@ -162,8 +162,6 @@ class RunInitializer:
             if fmt[0] == ".":
                 fmt = fmt[1:]
         if fmt.lower() in ["yml", "yaml"]:
-            import yaml
-
             with open(dest, "w") as f:
                 yaml.dump(data, f, allow_unicode=True)
         else:
@@ -1618,7 +1616,7 @@ class Run:
         # else:
         #     raise ValueError(f"Unsupported format: {fmt}")
 
-    def save_artifacts(self, dest: Union[str, Path], fmt: Optional[str] = None):
+    def save_artifacts(self, dest: Union[str, Path], fmt: Optional[str] = None, full: bool = False):
         if not isinstance(dest, Path):
             assert isinstance(dest, str)
             dest = Path(dest)
@@ -1635,8 +1633,7 @@ class Run:
             with open(dest, "wb") as f:
                 pickle.dump(data, f)
         elif fmt.lower() in ["yml", "yaml"]:
-            data = {"artifacts": [artifact.serialize() for artifact in artifacts]}
-            import yaml
+            data = {"artifacts": [artifact.serialize(full=full) for artifact in artifacts]}
 
             with open(dest, "w") as f:
                 yaml.dump(data, f, allow_unicode=True)
@@ -1683,18 +1680,34 @@ class Run:
 
 class ArchivedRun(Run):
 
-    def __init__(self, TODO):
-        pass
+    def __init__(self, **kwargs):
+        super().__init__(
+            self,
+            archived=True,
+            **kwargs,
+        )
 
     @staticmethod
     def from_file(path: Union[Path, str]):
-        # TODO: yml, yaml, txt, tar, zip
-        pass
+        path = Path(path)
+        assert path.is_file()
+        with open(path, "r") as f:
+            yaml_data = yaml.safe_load(f)
+        print("yaml_data", yaml_data)
+        return ArchivedRun(**yaml_data)
 
     @staticmethod
-    def from_dir(path: Union[Path, str]):
-        pass
+    def from_dir(path: Union[Path, str], allow_missing: bool = True):
+        path = Path(path)
+        assert path.is_dir()
+        run_yaml = path / "run.yml"
+        if not run_yaml.is_file():
+            assert allow_missing, f"Run YAML does not exist: {path}"
+            ret = ArchivedRun()
+            ret.dir = path
+            return ret
+        return ArchivedRun.from_file(run_yaml, allow_missing=allow_missing)
 
     @staticmethod
     def restore(self):
-        pass
+        raise NotImplementedError

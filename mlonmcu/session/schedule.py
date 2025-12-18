@@ -254,7 +254,7 @@ def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup
         if save:
             # run.save(run.dir / "run.pkl")
             # run.save_artifacts(run.dir / "artifacts.pkl")
-            run.save_artifacts(run.dir / "artifacts.yml")
+            run.save_artifacts(run.dir / "artifacts.yml", full=False)
         if cleanup:
             run.cleanup_artifacts(dirs=True)
             run.cleanup_directories()
@@ -283,7 +283,7 @@ def _process_pickable(run_initializers, until, skip, export, context, runs_dir, 
         if save:
             # run.save(run.dir / "run.pkl")
             # run.save_artifacts(run.dir / "artifacts.pkl")
-            run.save_artifacts(run.dir / "artifacts.yml")
+            run.save_artifacts(run.dir / "artifacts.yml", full=False)
         if cleanup:
             run.cleanup_artifacts(dirs=True)
             run.cleanup_directories()

@@ -555,6 +555,7 @@ class CryptoBenchProgram(MultiBenchProgram):
 
 
 class CmsisDSPProgram(MultiBenchProgram):
+
     DEFAULTS = {
         "size": 16,  # hoch much data to operate on
         "batch_size": 16,  # num_batches=ceil(size/batch_size)

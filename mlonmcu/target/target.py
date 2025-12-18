@@ -139,8 +139,9 @@ class Target:
 
     def parse_exit(self, out):
         exit_code = None
-        exit_match = re.search(r"MLONMCU EXIT: (\d*)", out)
+        exit_match = re.search(r"MLONMCU EXIT: ([-=]?\d*)", out)
         if exit_match:
+            assert len(exit_match.group(1)) > 0
             exit_code = int(exit_match.group(1))
         return exit_code
 

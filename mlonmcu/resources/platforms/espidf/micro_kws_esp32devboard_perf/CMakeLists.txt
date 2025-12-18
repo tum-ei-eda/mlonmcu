@@ -17,12 +17,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
+# The following lines of boilerplate have to be in your project's
+# CMakeLists in this exact order for cmake to work correctly
+cmake_minimum_required(VERSION 3.5)
 
-idf_component_register(SRCS "main.c"
-                    INCLUDE_DIRS ""
-                    REQUIRES mlif esp_timer)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 
-set(PCER_INIT_VAL "1" CACHE STRING "Performance counter setting")
+set(COMPONENTS )
 
-target_compile_definitions(${COMPONENT_TARGET} PRIVATE "-DPCER_INIT_VAL=${PCER_INIT_VAL}")
+project(app)

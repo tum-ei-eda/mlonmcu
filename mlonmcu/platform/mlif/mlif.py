@@ -108,6 +108,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "global_isel": False,
         "extend_attrs": False,
         "ccache": False,
+        "custom_entry": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -407,6 +408,11 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             return None
         return str2bool(value, allow_none=True)
 
+    @property
+    def custom_entry(self):
+        value = self.config["custom_entry"]
+        return value
+
     def _get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -466,6 +472,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.ccache:
             definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
             definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
+        if self.custom_entry is not None:
+            definitions["CUSTOM_ENTRY"] = self.custom_entry
 
         return definitions
 

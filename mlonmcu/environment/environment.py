@@ -21,17 +21,6 @@ import logging
 from .config import (
     DefaultsConfig,
     PathConfig,
-    RepoConfig,
-    FrameworkConfig,
-    FrameworkFeatureConfig,
-    BackendConfig,
-    BackendFeatureConfig,
-    TargetConfig,
-    TargetFeatureConfig,
-    PlatformConfig,
-    PlatformFeatureConfig,
-    FrontendConfig,
-    FrontendFeatureConfig,
 )
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
@@ -45,8 +34,7 @@ def _feature_helper(obj, name):
     features = obj.features
     if name:
         return [feature for feature in features if feature.name == name]
-    else:
-        return features
+    return features
 
 
 def _extract_names(objs):
@@ -279,6 +267,8 @@ class Environment:
         return len(configs) > 0
 
     def has_backend(self, name):
+        if name == "none":
+            return True
         configs = self.lookup_backend_configs(backend=name)
         return len(configs) > 0
 
@@ -368,90 +358,14 @@ class DefaultEnvironment(Environment):
                 PathConfig("./models"),
             ],
         }
-        self.repos = {
-            "tensorflow": RepoConfig("https://github.com/tensorflow/tensorflow.git", ref="v2.5.2"),
-            "tflite_micro_compiler": RepoConfig(
-                "https://github.com/cpetig/tflite_micro_compiler.git", ref="master"
-            ),  # TODO: freeze ref?
-            "tvm": RepoConfig(
-                "https://github.com/tum-ei-eda/tvm.git", ref="tumeda"
-            ),  # TODO: use upstream repo with suitable commit?
-            "utvm_staticrt_codegen": RepoConfig(
-                "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git", ref="master"
-            ),  # TODO: freeze ref?
-            "etiss": RepoConfig("https://github.com/tum-ei-eda/etiss.git", ref="master"),  # TODO: freeze ref?
-        }
-        self.frameworks = [
-            FrameworkConfig(
-                "tflm",
-                enabled=True,
-                backends=[
-                    BackendConfig("tflmc", enabled=True, features=[]),
-                    BackendConfig("tflmi", enabled=True, features=[]),
-                ],
-                features=[
-                    FrameworkFeatureConfig("muriscvnn", framework="tflm", supported=False),
-                ],
-            ),
-            FrameworkConfig(
-                "utvm",
-                enabled=True,
-                backends=[
-                    BackendConfig(
-                        "tvmaot",
-                        enabled=True,
-                        features=[
-                            BackendFeatureConfig("unpacked_api", backend="tvmaot", supported=True),
-                        ],
-                    ),
-                    BackendConfig("tvmrt", enabled=True, features=[]),
-                    BackendConfig("tvmcg", enabled=True, features=[]),
-                ],
-                features=[
-                    FrameworkFeatureConfig("memplan", framework="utvm", supported=False),
-                ],
-            ),
-        ]
-        self.frontends = [
-            FrontendConfig("saved_model", enabled=False),
-            FrontendConfig("ipynb", enabled=False),
-            FrontendConfig(
-                "tflite",
-                enabled=True,
-                features=[
-                    FrontendFeatureConfig("packing", frontend="tflite", supported=False),
-                ],
-            ),
-        ]
-        self.vars = {
-            "TEST": "abc",
-        }
+        self.repos = {}
+        self.frameworks = []
+        self.frontends = []
+        self.vars = {}
         self.flags = {}
-        self.platforms = [
-            PlatformConfig(
-                "mlif",
-                enabled=True,
-                features=[PlatformFeatureConfig("debug", platform="mlif", supported=True)],
-            )
-        ]
+        self.platforms = []
         self.toolchains = {}
-        self.targets = [
-            TargetConfig(
-                "etiss_pulpino",
-                features=[
-                    TargetFeatureConfig("debug", target="etiss_pulpino", supported=True),
-                    TargetFeatureConfig("attach", target="etiss_pulpino", supported=True),
-                    TargetFeatureConfig("trace", target="etiss_pulpino", supported=True),
-                ],
-            ),
-            TargetConfig(
-                "host_x86",
-                features=[
-                    TargetFeatureConfig("debug", target="host_x86", supported=True),
-                    TargetFeatureConfig("attach", target="host_x86", supported=True),
-                ],
-            ),
-        ]
+        self.targets = []
 
 
 class UserEnvironment(DefaultEnvironment):

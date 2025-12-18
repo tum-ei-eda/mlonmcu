@@ -1,11 +1,10 @@
+---
 on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v\d+.\d+.\d+' # Push events for v0.1.0, v20.15.10 but not v0.1.0dev0
-
+      - v\d+.\d+.\d+  # Push events for v0.1.0, v20.15.10 but not v0.1.0dev0
 name: Create Release
-
 jobs:
   build:
     name: Create Release
@@ -23,7 +22,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
@@ -32,18 +31,16 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
           draft: true
           prerelease: false
-
-
   publish:
     name: Publish to PyPI
     runs-on: ubuntu-22.04
     if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Build package
-      run: make dist
-    - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build package
+        run: make dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

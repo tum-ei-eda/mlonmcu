@@ -62,6 +62,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
     (
         "core",
         (
+            # TODO: keep in sync with requirements.txt inlcuding versions!
             "Base requirements needed to install MLonMCU",
             [
                 "GitPython",
@@ -121,6 +122,17 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         ),
     ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
+    (
+        "iree",
+        (
+            "Requirements for using iree",
+            [
+                "iree-turbine",
+                "tensorflow",
+                "tflite",
+            ],
+        ),
+    ),
     # Provide support for microtvm.
     (
         "microtvm",
@@ -252,7 +264,8 @@ CONSTRAINTS = [
     ("reedsolo", ">=1.5.3,<=1.5.4"),
     ("scipy", None),
     ("synr", None),
-    ("tensorflow", "~=2.13.0"),
+    # ("tensorflow", "~=2.13.0"),
+    ("tensorflow", "~=2.18.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
     ("typing_extensions", None),

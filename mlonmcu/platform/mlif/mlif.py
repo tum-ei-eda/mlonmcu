@@ -60,8 +60,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "auto_vectorize",
             "benchmark",
             "xpulp",
+            "memgraph_llvm_cdfg",
+            "llvm_basic_block_sections",
+            "global_isel",
             "set_inputs",
             "get_outputs",
+            "memgraph_llvm_cdfg",
+            "global_isel",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -107,7 +112,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "cmake.exe"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -225,7 +230,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.build_dir is not None:
             self.build_dir.mkdir(exist_ok=True)
             logger.debug("Build directory already initialized")
-            return
+            return self.build_dir
         dir_name = self.name
         if path is not None:
             self.build_dir = Path(path)
@@ -246,6 +251,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
         self.build_dir.mkdir(exist_ok=True)
+        return self.build_dir
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
@@ -271,6 +277,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def srecord_dir(self):
         return self.config["srecord.install_dir"]
+
+    @property
+    def iree_install_dir(self):
+        return self.config["iree.install_dir"]
 
     @property
     def template(self):
@@ -477,13 +487,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return cmakeArgs
 
     def prepare(self):
-        self.init_directory()
+        pass  # TODO: is this used?
 
     def prepare_environment(self):
         env = os.environ.copy()
         if self.srecord_dir:
             path_old = env["PATH"]
             path_new = f"{self.srecord_dir}:{path_old}"
+            env["PATH"] = path_new
+        # TODO: refactor
+        if self.iree_install_dir:
+            path_old = env["PATH"]
+            path_new = f"{self.iree_install_dir}/bin:{path_old}"
             env["PATH"] = path_new
         return env
 
@@ -600,6 +615,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
         srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
+        compile_commands_file = self.build_dir / "compile_commands.json"  # TODO: optional
 
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
@@ -637,6 +653,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 data = handle.read()
                 artifact = Artifact(
                     "generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
+                artifacts.append(artifact)
+        if compile_commands_file.is_file():
+            with open(compile_commands_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact(
+                    "compile_commands.json", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
                 )
                 artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)

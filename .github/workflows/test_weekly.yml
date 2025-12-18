@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -29,8 +30,7 @@ on:
         description: Run tests in prebuilt docker image (fast)
         required: true
   schedule:
-    - cron: "0 12 * * 0"  # Sundays @ 12:00
-
+    - cron: 0 12 * * 0  # Sundays @ 12:00
 jobs:
   test_local:
     name: Weekly Tests (Local)
@@ -39,23 +39,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.10"
-        os:
-          - ubuntu-22.04
+        python-version: ['3.10']
+        os: [ubuntu-22.04]
         config:
-          - {branch: main, template: default, path: "tests --ignore tests/integration-tests/toolchains"}
-          - {branch: develop, template: dev, path: "tests --ignore tests/integration-tests/toolchains"}
+          - {branch: main, template: default, path: tests --ignore tests/integration-tests/toolchains}
+          - {branch: develop, template: dev, path: tests --ignore tests/integration-tests/toolchains}
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          root-reserve-mb: 32768
-          temp-reserve-mb: 4096
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
+      - name: Remove unused software
+        run: |
+          echo "Available storage before:"
+          sudo df -h
+          echo
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --force
+          sudo docker builder prune
+          echo "Available storage after:"
+          sudo df -h
+          echo
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -66,7 +69,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install APT packages
         run: |
-          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler
+          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler git-lfs
           sudo apt -qq install -y ninja-build
           sudo apt remove clang-11* llvm-11*
       - name: Initialize Virtualenv
@@ -80,7 +83,7 @@ jobs:
       - name: Run package creation
         run: |
           source .venv/bin/activate
-          make install
+          pip install -e .
       - name: Initialize MLonMCU environment
         run: |
           source .venv/bin/activate
@@ -111,22 +114,27 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/unit-tests"}
-          - {branch: main, image: "tumeda/mlonmcu-bench:latest", path: "tests/integration-tests --ignore tests/integration-tests/toolchains"}
-          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/unit-tests"}
-          - {branch: develop, image: "tumeda/mlonmcu-bench:dev-develop-latest", path: "tests/integration-tests --ignore tests/integration-tests/toolchains"}
+          - {branch: main, image: tumeda/mlonmcu-bench:latest, path: tests/unit-tests}
+          - {branch: main, image: tumeda/mlonmcu-bench:latest, path: tests/integration-tests
+              --ignore tests/integration-tests/toolchains}
+          - {branch: develop, image: tumeda/mlonmcu-bench:dev-develop-latest, path: tests/unit-tests}
+          - {branch: develop, image: tumeda/mlonmcu-bench:dev-develop-latest, path: tests/integration-tests
+              --ignore tests/integration-tests/toolchains}
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
-        with:
-          # root-reserve-mb: 32768
-          root-reserve-mb: 34816
-          # temp-reserve-mb: 4096
-          temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
+      - name: Remove unused software
+        run: |
+          echo "Available storage before:"
+          sudo df -h
+          echo
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --force
+          sudo docker builder prune
+          echo "Available storage after:"
+          sudo df -h
+          echo
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -139,7 +147,7 @@ jobs:
           image: ${{ matrix.config.image }}
           options: --workdir /home/runner/work/mlonmcu/mlonmcu -v /home/runner/work/mlonmcu/mlonmcu:/home/runner/work/mlonmcu/mlonmcu
           shell: bash
-          run: |
+          run: |-
             python3 -m pip install --upgrade pip setuptools
             pip3 install -r requirements_dev.txt
             python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

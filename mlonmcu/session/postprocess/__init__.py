@@ -37,6 +37,7 @@ from .postprocesses import (
     ExportOutputsPostprocess,
     AnalyseLinkerMapPostprocess,
     StageTimesGanttPostprocess,
+    ProfileFunctionsPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {
@@ -58,4 +59,5 @@ SUPPORTED_POSTPROCESSES = {
     "export_outputs": ExportOutputsPostprocess,
     "analyse_linker_map": AnalyseLinkerMapPostprocess,
     "stage_times_gantt": StageTimesGanttPostprocess,
+    "profile_functions": ProfileFunctionsPostprocess,
 }

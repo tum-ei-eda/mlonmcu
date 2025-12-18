@@ -671,7 +671,7 @@ class GdbServer(TargetFeature):
         return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
-        assert target in ["host_x86", "etiss_pulpino", "etiss", "ovpsim", "corev_ovpsim"]
+        assert target in ["host_x86", "etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "ovpsim", "corev_ovpsim"]
         return filter_none(
             {
                 f"{target}.gdbserver_enable": self.enabled,
@@ -689,10 +689,10 @@ class ETISSDebug(SetupFeature, TargetFeature):
         super().__init__("etissdbg", features=features, config=config)
 
     def get_required_cache_flags(self):
-        return {"etiss.install_dir": ["dbg"], "etissvp.script": ["dbg"]} if self.enabled else {}
+        return {"etiss.install_dir": ["dbg"], "etiss.script": ["dbg"]} if self.enabled else {}
 
     def get_target_config(self, target):
-        assert target in ["etiss_pulpino", "etiss"]
+        assert target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64"]
         return {f"{target}.debug_etiss": self.enabled}
 
 
@@ -713,8 +713,8 @@ class Trace(TargetFeature):
     # TODO: add callback to save artifact?
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["etiss_pulpino", "etiss", "etiss_perf", "ovpsim"]
-        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+        assert target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf", "ovpsim"]
+        if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
             config.update({f"{target}.trace_memory": self.enabled})
         elif target == "ovpsim":
             extra_args_new = config.get("extra_args", [])
@@ -731,6 +731,8 @@ class Trace(TargetFeature):
         assert target in [
             "etiss_pulpino",
             "etiss",
+            "etiss_rv32",
+            "etiss_rv64",
             "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
@@ -741,7 +743,7 @@ class Trace(TargetFeature):
                 def mem_trace_callback(stdout, metrics, artifacts, directory=None):
                     """Callback which parses collects the generated artifacts."""
                     file_name = "trace.txt"
-                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                    if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
                         file_name = "dBusAccess.csv"
                     assert directory is not None
                     file_path = Path(directory) / file_name
@@ -1384,7 +1386,11 @@ class CacheSim(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in [
+            "spike",
+            "spike_rv32",
+            "spike_rv64",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             spike_args = config.get(f"{target}.extra_args", [])
             if self.ic_enable:
@@ -1401,7 +1407,11 @@ class CacheSim(TargetFeature):
             config.update({f"{target}.extra_args": spike_args})
 
     def get_target_callbacks(self, target):
-        assert target in ["spike"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in [
+            "spike",
+            "spike_rv32",
+            "spike_rv64",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             def cachesim_callback(stdout, metrics, artifacts, directory=None):
@@ -1452,10 +1462,23 @@ class LogInstructions(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "etiss_pulpino", "etiss", "etiss_perf", "ovpsim", "corev_ovpsim", "gvsoc_pulp"]
+        assert target in [
+            "spike",
+            "spike_rv32",
+            "spike_rv64",
+            "etiss_pulpino",
+            "etiss",
+            "etiss_rv32",
+            "etiss_rv64",
+            "etiss_perf",
+            "ovpsim",
+            "corev_ovpsim",
+            "gvsoc_pulp",
+            "vicuna2",
+        ]
         if not self.enabled:
             return
-        if target == "spike":
+        if target.startswith("spike"):
             extra_args_new = config.get("extra_args", [])
             extra_args_new.append("-l")
             if self.to_file:
@@ -1464,7 +1487,7 @@ class LogInstructions(TargetFeature):
                 log_file = directory / "instrs.txt"
                 extra_args_new.append(f"--log={log_file}")
             config.update({f"{target}.extra_args": extra_args_new})
-        elif target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+        elif target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
             plugins_new = config.get("plugins", [])
             plugins_new.append("PrintInstruction")
             config.update({f"{target}.plugins": plugins_new})
@@ -1493,16 +1516,23 @@ class LogInstructions(TargetFeature):
             else:
                 extra_args_new.append("--trace=insn")
             config.update({f"{target}.extra_args": extra_args_new})
+        elif target == "vicuna2":
+            config.update({f"{target}.log_instrs": True})
 
     def get_target_callbacks(self, target):
         assert target in [
             "spike",
+            "spike_rv32",
+            "spike_rv64",
             "etiss_pulpino",
             "etiss",
+            "etiss_rv32",
+            "etiss_rv64",
             "etiss_perf",
             "ovpsim",
             "corev_ovpsim",
             "gvsoc_pulp",
+            "vicuna2",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             if not target == "gvsoc_pulp":
@@ -1511,14 +1541,16 @@ class LogInstructions(TargetFeature):
                     """Callback which parses the targets output and updates the generated metrics and artifacts."""
                     new_lines = []
                     if self.to_file:
-                        if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                        if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
                             if self.etiss_experimental_print_to_file:
                                 log_file = Path(directory) / "instr_trace.csv"
+                                with open(log_file, "r") as f:
+                                    content = f.read()
                             else:
                                 # TODO: update stdout and remove log_instrs lines
                                 instrs = []
                                 for line in stdout.split("\n"):
-                                    if target in ["etiss_pulpino", "etiss", "etiss_perf"]:
+                                    if target in ["etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "etiss_perf"]:
                                         expr = re.compile(r"0x[a-fA-F0-9]+: .* \[.*\]")
                                     match = expr.match(line)
                                     if match is not None:
@@ -1527,8 +1559,12 @@ class LogInstructions(TargetFeature):
                                         new_lines.append(line)
                                 content = "\n".join(instrs)
                                 stdout = "\n".join(new_lines)
+                        elif target == "vicuna2":
+                            log_file = Path(directory) / "log_instrs.csv"
+                            with open(log_file, "r") as f:
+                                content = f.read()
                         else:
-                            assert target in ["spike", "ovpsim", "corev_ovpsim"]
+                            assert target in ["spike", "spike_rv32", "spike_rv64", "ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
                             with open(log_file, "r") as f:
                                 content = f.read()
@@ -1962,6 +1998,7 @@ class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
     def add_target_config(self, target, config):
         assert target in [
             "etiss",
+            "etiss_rv32",
             "microtvm_etiss",
             "corev_ovpsim",
             "cv32e40p",
@@ -2307,6 +2344,82 @@ class VanillaAccelerator(TargetFeature):
             config.update({f"{target}.extra_plugin_config": extra_plugin_config})
 
 
+@register_feature("memgraph_llvm_cdfg")
+class MemgraphLlvmCdfg(PlatformFeature):
+    """Enable LLVM CDFG extraction pass (needs custom LLVM build)."""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "host": None,  # localhost
+        "port": None,  # 7687
+        "purge": None,  # false
+        "session": None,  # default,
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("memgraph_llvm_cdfg", features=features, config=config)
+
+    @property
+    def host(self):
+        value = self.config["host"]
+        return value
+
+    @property
+    def port(self):
+        value = self.config["port"]
+        return value
+
+    @property
+    def purge(self):
+        value = self.config["purge"]
+        return str2bool(value, allow_none=True)
+
+    @property
+    def session(self):
+        value = self.config["session"]
+        return value
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none(
+            {
+                "MEMGRAPH_LLVM_CDFG": self.enabled,
+                "MEMGRAPH_LLVM_CDFG_HOST": self.host,
+                "MEMGRAPH_LLVM_CDFG_PORT": self.port,
+                "MEMGRAPH_LLVM_CDFG_PURGE": self.purge,
+                "MEMGRAPH_LLVM_CDFG_SESSION": self.session,
+            }
+        )
+
+
+@register_feature("global_isel")
+class GlobalIsel(PlatformFeature):
+    """LLVM's -global-isel=1 mode (replacing ISelDAG)"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+        "abort": None,  # 0: fallback, 1: abort 2: fallback+msg
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("global_isel", features=features, config=config)
+
+    @property
+    def abort(self):
+        value = self.config["abort"]
+        assert value is None or str(value) in ["0", "1", "2"]
+        return value
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none(
+            {
+                "GLOBAL_ISEL": self.enabled,
+                "GLOBAL_ISEL_ABORT": self.abort,
+            }
+        )
+
+
 @register_feature("gen_data")
 class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
     """Generate input data for validation."""
@@ -2514,6 +2627,22 @@ class ValidateNew(RunFeature):
     #     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)
     #     # return [validate_outputs_postprocess]
     #     return ["validate_outputs"]
+
+
+@register_feature("llvm_basic_block_sections")
+class BasicBlockSections(PlatformFeature):
+    """LLVM's -fbasic-block-sections=labels feature"""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("llvm_basic_block_sections", features=features, config=config)
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"]
+        return filter_none(
+            {
+                "LLVM_BASIC_BLOCK_SECTIONS": self.enabled,
+            }
+        )
 
 
 @register_feature("perf_sim")

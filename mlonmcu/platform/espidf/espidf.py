@@ -41,10 +41,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project"):
-    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "espidf"))
+    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "espidf"))
     if name not in espidf_templates:
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "platforms", "espidf", name))
+    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "espidf", name))
     return fname
 
 
@@ -160,7 +160,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
             logger.debug("Project directory already initialized")
-            return
+            return self.project_dir
         dir_name = self.name
         if path is not None:
             self.project_dir = Path(path)
@@ -181,6 +181,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 self.project_dir = Path(self.tempdir.name) / dir_name
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
+        return self.project_dir
 
     def _get_supported_targets(self):
         text = self.invoke_idf_exe("--list-targets", live=self.print_outputs)

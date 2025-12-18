@@ -1,3 +1,4 @@
+---
 ##
 ## Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.
 ##
@@ -21,16 +22,15 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch name"
+        description: Branch name
         required: true
-        default: "develop"
+        default: develop
       template:
-        description: "Environment template"
+        description: Environment template
         required: true
-        default: "dev"
+        default: dev
   schedule:
-    - cron: "0 12 * * *"
-
+    - cron: 0 12 * * *
 jobs:
   refresh:
     name: Refresh large image for benchmarking

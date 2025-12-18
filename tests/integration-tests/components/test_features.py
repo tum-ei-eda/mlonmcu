@@ -185,7 +185,7 @@ def test_feature_autotvm(
         run.add_target_by_name(target_name, context=user_context)
         run.add_backend_by_name(backend_name, context=user_context)
         success = session.process_runs(until=RunStage.TUNE, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df = report.df
     assert success
     assert len(df) == 1
@@ -232,7 +232,7 @@ def test_feature_autotuned(
         run.add_model_by_name(model_name, context=user_context)
         run.add_backend_by_name(backend_name, context=user_context)
         success = session.process_runs(until=RunStage.BUILD, context=user_context)
-    report = session.get_reports()
+    report = session.get_reports(results=session.results)
     df = report.df
     assert success
     assert len(df) == 1

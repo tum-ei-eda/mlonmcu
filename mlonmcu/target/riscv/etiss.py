@@ -21,6 +21,7 @@
 import os
 import re
 import csv
+import json
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
@@ -32,27 +33,27 @@ from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
-from .riscv import RISCVTarget
+
+from .riscv_vext_target import RVVTarget
 
 logger = get_logger()
 
 
-class EtissTarget(RISCVTarget):
+class EtissTarget(RVVTarget):
     """Target using a simple RISC-V VP running in the ETISS simulator"""
 
-    FEATURES = RISCVTarget.FEATURES | {
+    FEATURES = RVVTarget.FEATURES | {
         "gdbserver",
         "etissdbg",
         "trace",
         "log_instrs",
         "pext",
-        "vext",
         "xcorev",
         "vanilla_accelerator",
     }
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
+        **RVVTarget.DEFAULTS,
         "gdbserver_enable": False,
         "gdbserver_attach": False,
         "gdbserver_port": 2222,
@@ -69,9 +70,6 @@ class EtissTarget(RISCVTarget):
         "flash_start": None,
         "flash_size": None,
         "cycle_time_ps": 31250,  # 32 MHz
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
         "enable_pext": False,
         "pext_spec": 0.96,
         "vlen": 0,  # vectorization=off
@@ -101,9 +99,10 @@ class EtissTarget(RISCVTarget):
         "jit_debug": False,
         "load_integrated_libraries": True,
         "fclk": 100e6,
+        "use_stats_file": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir", "etissvp.exe", "etissvp.script"}
-    OPTIONAL = RISCVTarget.OPTIONAL | {"boost.install_dir"}
+    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir"}
+    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir", "etiss.exe", "etiss.script", "etissvp.exe", "etissvp.script"}
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -120,11 +119,19 @@ class EtissTarget(RISCVTarget):
 
     @property
     def etiss_script(self):
-        return self.config["etissvp.script"]
+        ret = self.config["etiss.script"]
+        if ret is None:  # Fallback to old name:
+            ret = self.config["etissvp.script"]
+            assert ret is not None, "Missing dependency etiss.script/etissvp.script"
+        return ret
 
     @property
     def etiss_exe(self):
-        return self.config["etissvp.exe"]
+        ret = self.config["etiss.exe"]
+        if ret is None:  # Fallback to old name:
+            ret = self.config["etissvp.exe"]
+            assert ret is not None, "Missing dependency etiss.exe/etissvp.exe"
+        return ret
 
     @property
     def boost_install_dir(self):
@@ -133,6 +140,11 @@ class EtissTarget(RISCVTarget):
             value = Path(value)
             assert value.is_dir()
         return value
+
+    @property
+    def use_stats_file(self):
+        value = self.config["use_stats_file"]
+        return str2bool(value)
 
     @property
     def gdbserver_enable(self):
@@ -221,15 +233,12 @@ class EtissTarget(RISCVTarget):
     def cpu_arch(self):
         if self.config.get("cpu_arch", None):
             return self.config["cpu_arch"]
-        elif self.enable_pext or self.enable_vext:
+        elif self.enable_pext and self.enable_vext:
             return f"RV{self.xlen}IMACFDPV"
+        elif self.enable_vext:
+            return f"RV{self.xlen}IMACFDV"
         else:
             return f"RV{self.xlen}IMACFD"
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value)
 
     @property
     def enable_pext(self):
@@ -354,8 +363,6 @@ class EtissTarget(RISCVTarget):
         if self.enable_xcorevhwlp:
             if "xcorevhwlp" not in attrs:
                 attrs.append("+xcvhwlp")
-        if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
-            attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)
 
     @property
@@ -412,15 +419,6 @@ class EtissTarget(RISCVTarget):
     @property
     def load_integrated_libraries(self):
         value = self.config["load_integrated_libraries"]
-        return str2bool(value)
-
-    @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
         return str2bool(value)
 
     @property
@@ -489,12 +487,12 @@ class EtissTarget(RISCVTarget):
             # TODO: do not hardcode cpu_arch
             # TODO: i.e. use cpu_arch_lower
             ret["arch.rv32imacfdpv.mstatus_fs"] = 1
-        if self.enable_vext:
-            ret["arch.rv32imacfdpv.mstatus_vs"] = 1
-            if self.vlen > 0:
-                ret["arch.rv32imacfdpv.vlen"] = self.vlen
-            if self.elen > 0:
-                ret["arch.rv32imacfdpv.elen"] = self.elen
+        # if self.enable_vext:
+        #     ret["arch.rv32imacfdpv.mstatus_vs"] = 1
+        #     if self.vlen > 0:
+        #         ret["arch.rv32imacfdpv.vlen"] = self.vlen
+        #     if self.elen > 0:
+        #         ret["arch.rv32imacfdpv.elen"] = self.elen
         log_level = self.log_level
         if log_level is None and not self.use_run_helper:
             log_level = 5 if self.verbose else 4
@@ -611,7 +609,11 @@ class EtissTarget(RISCVTarget):
                     etiss_script_args.append("nodmi")
         if self.verbose:
             etiss_script_args.append("v")
-        # Alternative to stdout parsing: etiss_script_args.append("--vp.stats_file_path=stats.json")
+        if self.use_stats_file:
+            stats_file = Path(cwd) / "stats.json"
+            etiss_script_args.append(f"--vp.stats_file_path={stats_file}")
+        # TODO: enable if vp.quiet=true
+        # TODO: try etiss.log_to_stderr to deal with plugin output?
         if self.use_run_helper:
             for plugin in self.get_plugin_names():
                 etiss_script_args.extend(["-p", plugin])
@@ -636,7 +638,7 @@ class EtissTarget(RISCVTarget):
         if self.boost_install_dir is not None:
             boost_lib_dir = self.boost_install_dir / "lib"
             ld_library_path = env.get("LD_LIBRARY_PATH", None)
-            if len(ld_library_path) > 0:
+            if ld_library_path is not None and len(ld_library_path) > 0:
                 ld_library_path = f"{boost_lib_dir}:{ld_library_path}"
             else:
                 ld_library_path = boost_lib_dir
@@ -671,7 +673,7 @@ class EtissTarget(RISCVTarget):
                 exit_code = int(exit_match.group(1))
         return exit_code
 
-    def parse_stdout(self, out, metrics, exit_code=0):
+    def parse_stdout(self, out, metrics, exit_code=0, cwd=None):
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         error_match = re.search(r"ETISS: Error: (.*)", out)
         if error_match:
@@ -680,16 +682,42 @@ class EtissTarget(RISCVTarget):
                 logger.error(f"An ETISS Error occured during simulation: {error_msg}")
             else:
                 raise RuntimeError(f"An ETISS Error occured during simulation: {error_msg}")
-        sim_insns = re.search(r"CPU Cycles \(estimated\): (.*)", out)
-        sim_insns = int(float(sim_insns.group(1)))
-        metrics.add("Simulated Instructions", sim_insns, True)
-        mips = None  # TODO: parse mips?
-        mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
-        if mips_match:
-            mips_str = mips_match.group(1)
-            mips = float(mips_str)
-        if mips:
+        sim_insns = None
+        runtime = None
+        sim_time = None
+        mips = None
+        if self.use_stats_file:
+            assert cwd is not None
+            stats_file = Path(cwd) / "stats.json"
+            assert stats_file.is_file()
+
+            with open(stats_file) as f:
+                stats_data = json.load(f)
+            mips = stats_data.get("mips", None)
+            sim_insns = stats_data.get("CPU_cycle", None)
+            runtime = stats_data.get("CPU_Time", None)
+            sim_time = stats_data.get("Simulation_Time", None)
+        else:
+            sim_insns_match = re.search(r"CPU Cycles \(estimated\): (.*)", out)
+            if sim_insns_match:
+                sim_insns_str = sim_insns_match.group(1)
+                sim_insns = int(float(sim_insns_str))
+            mips_match = re.search(r"MIPS \(estimated\): (.*)", out)
+            if mips_match:
+                mips_str = mips_match.group(1)
+                mips = float(mips_str)
+        if sim_insns is not None:
+            assert isinstance(sim_insns, int)
+            metrics.add("Simulated Instructions", sim_insns, True)
+        if mips is not None:
+            assert isinstance(mips, float)
             metrics.add("MIPS", mips, optional=True)
+        if runtime is not None:
+            assert isinstance(runtime, float)
+            metrics.add("Runtime [s]", runtime, optional=True)
+        if sim_time is not None:
+            assert isinstance(sim_time, float)
+            metrics.add("Simulation Time [s]", sim_time, optional=True)
 
     def get_metrics(self, elf, directory, *args, handle_exit=None):
         out = ""
@@ -729,78 +757,80 @@ class EtissTarget(RISCVTarget):
         # TODO: get exit code
         exit_code = 0
         metrics = Metrics()
-        self.parse_stdout(out, metrics, exit_code=exit_code)
+        self.parse_stdout(out, metrics, exit_code=exit_code, cwd=directory)
         if not metrics.has("Runtime [s]") and self.fclk:
             if metrics.has("Total Cycles"):
                 cycles = metrics.get("Total Cycles")
                 if cycles > 0:
                     metrics.add("Runtime [s]", cycles / self.fclk, True)
 
-        get_metrics_args = [elf]
         etiss_ini = os.path.join(directory, "custom.ini")
-        if os.path.exists(etiss_ini):
-            get_metrics_args.extend(["--ini", etiss_ini])
-        if trace_file:
-            get_metrics_args.extend(["--trace", trace_file])
-        get_metrics_args.extend(["--out", metrics_file])
-        if self.print_outputs:
-            out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
-        else:
-            out += execute(
-                self.metrics_script.resolve(),
-                *get_metrics_args,
-                live=False,
-                cwd=directory,
-                print_func=lambda *args, **kwargs: None,
-            )
+        needs_get_metrics = self.trace_memory
+        if needs_get_metrics:
+            get_metrics_args = [elf]
+            if os.path.exists(etiss_ini):
+                get_metrics_args.extend(["--ini", etiss_ini])
+            if trace_file:
+                get_metrics_args.extend(["--trace", trace_file])
+            get_metrics_args.extend(["--out", metrics_file])
+            if self.print_outputs:
+                out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
+            else:
+                out += execute(
+                    self.metrics_script.resolve(),
+                    *get_metrics_args,
+                    live=False,
+                    cwd=directory,
+                    print_func=lambda *args, **kwargs: None,
+                )
 
-        metrics_file = os.path.join(directory, "metrics.csv")
-        with open(metrics_file, "r") as handle:
-            metrics_content = handle.read()
-            lines = metrics_content.splitlines()
-            reader = csv.DictReader(lines)
-            data = list(reader)[0]
+            metrics_file = os.path.join(directory, "metrics.csv")
+            with open(metrics_file, "r") as handle:
+                metrics_content = handle.read()
+                lines = metrics_content.splitlines()
+                reader = csv.DictReader(lines)
+                data = list(reader)[0]
 
-            def get_rom_sizes(data):
-                assert "rom_rodata" in data
-                rom_ro = int(data["rom_rodata"])
-                assert "rom_code" in data
-                rom_code = int(data["rom_code"])
-                assert "rom_misc" in data
-                rom_misc = int(data["rom_misc"])
+                # def get_rom_sizes(data):
+                #     assert "rom_rodata" in data
+                #     rom_ro = int(data["rom_rodata"])
+                #     assert "rom_code" in data
+                #     rom_code = int(data["rom_code"])
+                #     assert "rom_misc" in data
+                #     rom_misc = int(data["rom_misc"])
 
-                rom_total = rom_ro + rom_code + rom_misc
-                return rom_total, rom_ro, rom_code, rom_misc
+                #     rom_total = rom_ro + rom_code + rom_misc
+                #     return rom_total, rom_ro, rom_code, rom_misc
 
-            def get_ram_sizes(data):
-                assert "ram_data" in data
-                ram_data = int(data["ram_data"])
-                assert "ram_zdata" in data
-                ram_zdata = int(data["ram_zdata"])
-                ram_total = ram_data + ram_zdata
+                def get_ram_sizes(data):
+                    assert "ram_data" in data
+                    ram_data = int(data["ram_data"])
+                    assert "ram_zdata" in data
+                    ram_zdata = int(data["ram_zdata"])
+                    ram_total = ram_data + ram_zdata
+                    if self.trace_memory:
+                        assert "ram_stack" in data
+                        ram_stack = int(data["ram_stack"])
+                        assert "ram_heap" in data
+                        ram_heap = int(data["ram_heap"])
+                        ram_total += ram_stack + ram_heap
+                    else:
+                        ram_stack = None
+                        ram_heap = None
+                    return ram_total, ram_data, ram_zdata, ram_stack, ram_heap
+
+                # rom_total, rom_ro, rom_code, rom_misc = get_rom_sizes(data)
+                ram_total, ram_data, ram_zdata, ram_stack, ram_heap = get_ram_sizes(data)
+                # metrics.add("Total ROM", rom_total)
+                metrics.add("Total RAM", ram_total)
+                # metrics.add("ROM read-only", rom_ro)
+                # metrics.add("ROM code", rom_code)
+                # metrics.add("ROM misc", rom_misc)
+                metrics.add("RAM data", ram_data)
+                metrics.add("RAM zero-init data", ram_zdata)
                 if self.trace_memory:
-                    assert "ram_stack" in data
-                    ram_stack = int(data["ram_stack"])
-                    assert "ram_heap" in data
-                    ram_heap = int(data["ram_heap"])
-                    ram_total += ram_stack + ram_heap
-                else:
-                    ram_stack = None
-                    ram_heap = None
-                return ram_total, ram_data, ram_zdata, ram_stack, ram_heap
-
-            rom_total, rom_ro, rom_code, rom_misc = get_rom_sizes(data)
-            ram_total, ram_data, ram_zdata, ram_stack, ram_heap = get_ram_sizes(data)
-            metrics.add("Total ROM", rom_total)
-            metrics.add("Total RAM", ram_total)
-            metrics.add("ROM read-only", rom_ro)
-            metrics.add("ROM code", rom_code)
-            metrics.add("ROM misc", rom_misc)
-            metrics.add("RAM data", ram_data)
-            metrics.add("RAM zero-init data", ram_zdata)
-            if self.trace_memory:
-                metrics.add("RAM stack", ram_stack)
-                metrics.add("RAM heap", ram_heap)
+                    metrics.add("RAM stack", ram_stack)
+                    metrics.add("RAM heap", ram_heap)
 
         ini_content = open(etiss_ini, "r").read()
         ini_artifact = Artifact("custom.ini", content=ini_content, fmt=ArtifactFormat.TEXT)
@@ -816,7 +846,7 @@ class EtissTarget(RISCVTarget):
     def get_platform_defs(self, platform):
         assert platform == "mlif"
         assert self.is_bare, "ETISS Target needs baremetal toolchain (riscv[32|64]-unknown-elf)"
-        ret = super().get_platform_defs(platform)
+        ret = {}
         ret["MEM_ROM_ORIGIN"] = self.rom_start
         ret["MEM_ROM_LENGTH"] = self.rom_size
         ret["MEM_RAM_ORIGIN"] = self.ram_start
@@ -825,15 +855,7 @@ class EtissTarget(RISCVTarget):
             ret["MEM_FLASH_ORIGIN"] = self.flash_start
         if self.flash_size is not None:
             ret["MEM_FLASH_LENGTH"] = self.flash_size
-        if self.enable_pext:
-            major, minor = str(self.pext_spec).split(".")[:2]
-            ret["RISCV_RVP_MAJOR"] = major
-            ret["RISCV_RVP_MINOR"] = minor
-        if self.enable_vext:
-            major, minor = str(self.vext_spec).split(".")[:2]
-            ret["RISCV_RVV_MAJOR"] = major
-            ret["RISCV_RVV_MINOR"] = minor
-            ret["RISCV_RVV_VLEN"] = self.vlen
+        ret.update(RVVTarget.get_platform_defs(self, platform))
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

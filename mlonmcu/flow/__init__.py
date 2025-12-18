@@ -24,24 +24,6 @@ from mlonmcu.flow.iree.framework import IREEFramework
 
 # from mlonmcu.flow.none.framework import NoneFramework
 
-from .framework import Framework
-
-
-class NoneFramework(Framework):
-    """TODO."""
-
-    name = "none"
-
-    FEATURES = set()
-
-    DEFAULTS = {}
-
-    REQUIRED = set()
-
-    def __init__(self, features=None, config=None):
-        super().__init__(features=features, config=config)
-
-
 from mlonmcu.flow.tflm.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflm.backend.tflmi import TFLMIBackend
 
@@ -59,7 +41,23 @@ from mlonmcu.flow.iree.backend.ireellvmc import IREELLVMCBackend
 from mlonmcu.flow.iree.backend.ireellvmc_inline import IREELLVMCInlineBackend
 
 # from mlonmcu.flow.none.backend.none import NoneBackend
+from .framework import Framework
 from .backend import Backend
+
+
+class NoneFramework(Framework):
+    """TODO."""
+
+    name = "none"
+
+    FEATURES = set()
+
+    DEFAULTS = {}
+
+    REQUIRED = set()
+
+    def __init__(self, features=None, config=None):
+        super().__init__(features=features, config=config)
 
 
 class NoneBackend(Backend):

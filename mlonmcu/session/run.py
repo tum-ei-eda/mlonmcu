@@ -27,6 +27,8 @@ from pathlib import Path
 from enum import IntEnum
 from collections import defaultdict
 
+import yaml
+
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2bool
@@ -84,8 +86,6 @@ class RunInitializer:
         assert len(fmt) > 0
         fmt = fmt[1:].lower()
         if fmt in ["yml", "yaml"]:
-            import yaml
-
             with open(src, "r") as f:
                 data = yaml.safe_load(f)
         else:
@@ -162,8 +162,6 @@ class RunInitializer:
             if fmt[0] == ".":
                 fmt = fmt[1:]
         if fmt.lower() in ["yml", "yaml"]:
-            import yaml
-
             with open(dest, "w") as f:
                 yaml.dump(data, f, allow_unicode=True)
         else:
@@ -1636,7 +1634,6 @@ class Run:
                 pickle.dump(data, f)
         elif fmt.lower() in ["yml", "yaml"]:
             data = {"artifacts": [artifact.serialize(full=full) for artifact in artifacts]}
-            import yaml
 
             with open(dest, "w") as f:
                 yaml.dump(data, f, allow_unicode=True)

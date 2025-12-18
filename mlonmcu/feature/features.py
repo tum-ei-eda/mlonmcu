@@ -2346,7 +2346,7 @@ class VanillaAccelerator(TargetFeature):
 
 @register_feature("memgraph_llvm_cdfg")
 class MemgraphLlvmCdfg(PlatformFeature):
-    """TODO"""
+    """Enable LLVM CDFG extraction pass (needs custom LLVM build)."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
@@ -2384,9 +2384,9 @@ class MemgraphLlvmCdfg(PlatformFeature):
         return filter_none(
             {
                 "MEMGRAPH_LLVM_CDFG": self.enabled,
-                "MEMGRAPH_LLVM_CDFG_HOST": None,  # TODO
-                "MEMGRAPH_LLVM_CDFG_PORT": None,  # TODO
-                "MEMGRAPH_LLVM_CDFG_PURGE": None,  # TODO
+                "MEMGRAPH_LLVM_CDFG_HOST": self.host,
+                "MEMGRAPH_LLVM_CDFG_PORT": self.port,
+                "MEMGRAPH_LLVM_CDFG_PURGE": self.purge,
                 "MEMGRAPH_LLVM_CDFG_SESSION": self.session,
             }
         )

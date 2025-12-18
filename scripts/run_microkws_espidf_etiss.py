@@ -1,11 +1,11 @@
-################# How to run ################
+# flake8: noqa
+# How to run:
 # Inside mlonmcu parent directory
 # Ensure MLonMCU_HOME path is set in shell
 # export MLONMCU_HOME=/nas/ei/share/TUEIEDAprojects/SystemDesign/work/performance-evaluation/varghese/mlonmcu_env
 # Enter virtual environment
 # source .venv/bin/activate
 # python3 scripts/run_microkws_espidf_etiss.py -m <mode>
-#############################################
 
 
 import argparse
@@ -14,34 +14,37 @@ import textwrap
 import csv
 import os
 
+WORK_DIR = "/usr/local/research/projects/SystemDesign/work"
+ETISS_PERF_DIR = f"{WORK_DIR}/performance-evaluation/varghese/PerformanceSimulation_workspace"
+MICRO_KWS_DIR = f"{WORK_DIR}/performance-evaluation/varghese/Micro-KWS/micro-kws"
+TOOLS_DIR = "/usr/local/research/projects/SystemDesign/tools"
+
 # These can be overwritten by defining environement variables
 MICRO_KWS_MODEL = os.environ.get(
     "MICRO_KWS_MODEL",
-    "/usr/local/research/projects/SystemDesign/work/performance-evaluation/varghese/Micro-KWS/micro-kws/2_deploy/data/micro_kws_student_quantized.tflite",
+    f"{MICRO_KWS_DIR}/2_deploy/data/micro_kws_student_quantized.tflite",
 )
-ESPIDF_INSTALL = os.environ.get(
-    "ESPIDF_INSTALL", "/usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif_py310"
-)
-ESPIDF_SRC = os.environ.get("ESPIDF_SRC", "/usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/esp-idf")
+ESPIDF_INSTALL = os.environ.get("ESPIDF_INSTALL", f"{TOOLS_DIR}/esp/v5.4.1/espressif_py310")
+ESPIDF_SRC = os.environ.get("ESPIDF_SRC", f"{TOOLS_DIR}/esp/v5.4.1/esp-idf")
 AUTOTUNED_RESULTS = os.environ.get(
     "AUTOTUNED_RESULTS",
-    "/usr/local/research/projects/SystemDesign/work/performance-evaluation/varghese/Micro-KWS/micro-kws/2_deploy/data/micro_kws_student_tuning_log_nchw_best.txt",
+    f"{MICRO_KWS_DIR}/2_deploy/data/micro_kws_student_tuning_log_nchw_best.txt",
 )
 ESP32C3_GCC_INSTALL = os.environ.get(
     "ESP32C3_GCC_INSTALL",
-    "/usr/local/research/projects/SystemDesign/tools/esp/v5.4.1/espressif_py310/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf",
+    f"{TOOLS_DIR}/esp/v5.4.1/espressif_py310/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf",
 )
 ETISS_SRC = os.environ.get(
     "ETISS_SRC",
-    "/usr/local/research/projects/SystemDesign/work/performance-evaluation/varghese/PerformanceSimulation_workspace/etiss-perf-sim/etiss/",
+    f"{WORK_DIR}/performance-evaluation/varghese/PerformanceSimulation_workspace/etiss-perf-sim/etiss/",
 )
 ETISS_INSTALL = os.environ.get(
     "ETISS_INSTALL",
-    "/usr/local/research/projects/SystemDesign/work/performance-evaluation/varghese/PerformanceSimulation_workspace/etiss-perf-sim/etiss/build_dir/installed",
+    f"{ETISS_PERF_DIR}/etiss-perf-sim/etiss/build_dir/installed",
 )
 ETISS_EXE = os.environ.get(
     "ETISS_EXE",
-    "/usr/local/research/projects/SystemDesign/work/performance-evaluation/varghese/PerformanceSimulation_workspace/etiss-perf-sim/etiss/build_dir/installed/bin/bare_etiss_processor",
+    f"{ETISS_PERF_DIR}/etiss-perf-sim/etiss/build_dir/installed/bin/bare_etiss_processor",
 )
 
 
@@ -83,13 +86,12 @@ def parse_results_csv(mode):
     if mode == "etiss_sim":
         print("Results from Simulation")
         return parse_simulation_results(rows)
-    elif mode == "esp32_perf":
+    if mode == "esp32_perf":
         print("Results from Hardware")
         return parse_esp32_perf_results(rows)
-    elif mode == "esp32_real":
+    if mode == "esp32_real":
         return None
-    else:
-        raise ValueError(f"Unsupported mode: {mode}")
+    raise ValueError(f"Unsupported mode: {mode}")
 
 
 def run_command(command, mode, opt):

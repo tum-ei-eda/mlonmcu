@@ -48,6 +48,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "abi": None,
         "attr": "",
         "cpu_arch": None,
+        "jit": None,
         "etiss_extra_args": "",
         "enable_xcorevmac": False,
         "enable_xcorevmem": False,
@@ -61,7 +62,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "microtvm_etiss.src_dir",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
-        "etissvp.script",
+        "etiss.script",
         "llvm.install_dir",
     }
 
@@ -95,7 +96,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
     @property
     def etiss_script(self):
-        return Path(self.config["etissvp.script"])
+        return Path(self.config["etiss.script"])
 
     @property
     def etiss_extra_args(self):
@@ -151,6 +152,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "arch": self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch,
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch,
+                **({"jit": self.jit} if self.jit is not None else {}),
             }
         )
         return ret
@@ -261,6 +263,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         return tmp
 
     @property
+    def jit(self):
+        return self.config.get("jit", None)
+
+    @property
     def llvm_prefix(self):
         return Path(self.config["llvm.install_dir"])
 
@@ -305,3 +311,14 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         # to support accepting user-vars
         new = {key: value for key, value in new.items() if config.get(key, None) is None}
         config.update(new)
+
+
+class EtissPerfMicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED | {
+        "etiss_perf.script",
+    }
+
+    @property
+    def etiss_script(self):
+        return Path(self.config["etiss_perf.script"])

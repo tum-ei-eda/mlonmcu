@@ -65,6 +65,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "global_isel",
             "set_inputs",
             "get_outputs",
+            "memgraph_llvm_cdfg",
+            "global_isel",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -90,6 +92,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "garbage_collect": True,
         "strip_strings": False,
         "unroll_loops": None,
+        "inline_functions": None,
         "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
         "set_inputs": False,
         "set_inputs_interface": None,
@@ -108,7 +111,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     }
 
     REQUIRED = {"mlif.src_dir"}
-    OPTIONAL = {"llvm.install_dir", "srecord.install_dir"}
+    OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -226,7 +229,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.build_dir is not None:
             self.build_dir.mkdir(exist_ok=True)
             logger.debug("Build directory already initialized")
-            return
+            return self.build_dir
         dir_name = self.name
         if path is not None:
             self.build_dir = Path(path)
@@ -247,6 +250,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 self.build_dir = Path(self.tempdir.name) / dir_name
                 logger.info("Temporary build directory: %s", self.build_dir)
         self.build_dir.mkdir(exist_ok=True)
+        return self.build_dir
 
     def create_target(self, name):
         assert name in self.get_supported_targets(), f"{name} is not a valid MLIF target"
@@ -266,8 +270,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["llvm.install_dir"]
 
     @property
+    def cmake_exe(self):
+        return self.config["cmake.exe"]
+
+    @property
     def srecord_dir(self):
         return self.config["srecord.install_dir"]
+
+    @property
+    def iree_install_dir(self):
+        return self.config["iree.install_dir"]
 
     @property
     def template(self):
@@ -384,9 +396,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def unroll_loops(self):
         value = self.config["unroll_loops"]
+        if isinstance(value, str) and value.strip().lower() in ["auto", ""]:
+            return None
         return str2bool(value, allow_none=True)
 
-    def get_supported_targets(self):
+    @property
+    def inline_functions(self):
+        value = self.config["inline_functions"]
+        if isinstance(value, str) and value.strip().lower() in ["auto", ""]:
+            return None
+        return str2bool(value, allow_none=True)
+
+    def _get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
 
@@ -440,6 +461,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["STRIP_STRINGS"] = self.strip_strings
         if self.unroll_loops is not None:
             definitions["UNROLL_LOOPS"] = self.unroll_loops
+        if self.inline_functions is not None:
+            definitions["INLINE_FUNCTIONS"] = self.inline_functions
         if self.ccache:
             definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
             definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
@@ -456,13 +479,18 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return cmakeArgs
 
     def prepare(self):
-        self.init_directory()
+        pass  # TODO: is this used?
 
     def prepare_environment(self):
         env = os.environ.copy()
         if self.srecord_dir:
             path_old = env["PATH"]
             path_new = f"{self.srecord_dir}:{path_old}"
+            env["PATH"] = path_new
+        # TODO: refactor
+        if self.iree_install_dir:
+            path_old = env["PATH"]
+            path_new = f"{self.iree_install_dir}/bin:{path_old}"
             env["PATH"] = path_new
         return env
 
@@ -536,6 +564,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             debug=self.debug,
             live=self.print_outputs,
             env=env,
+            cmake_exe=self.cmake_exe,
         )
         return out, artifacts
 
@@ -573,11 +602,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         else:
             out, artifacts = self.compile(target, src=src, model=model)
         elf_file = self.build_dir / "bin" / self.goal
-        map_file = self.build_dir / "linker.map"  # TODO: optional
+        map_file = self.build_dir / "generic" / "linker.map"  # TODO: optional
         hex_file = self.build_dir / "bin" / "generic_mlonmcu.hex"
         path_file = self.build_dir / "bin" / "generic_mlonmcu.path"  # TODO: move to dumps
         asmdump_file = self.build_dir / "dumps" / "generic_mlonmcu.dump"  # TODO: optional
         srcdump_file = self.build_dir / "dumps" / "generic_mlonmcu.srcdump"  # TODO: optional
+        compile_commands_file = self.build_dir / "compile_commands.json"  # TODO: optional
 
         # TODO: just use path instead of raw data?
         with open(elf_file, "rb") as handle:
@@ -599,7 +629,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if map_file.is_file():
             with open(map_file, "r") as handle:
                 data = handle.read()
-                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT)
+                is_llvm_map = self.toolchain == "llvm" and self.fuse_ld != "ld"
+                map_type = "lld" if is_llvm_map else "ld"
+                artifact = Artifact("generic_mlonmcu.map", content=data, fmt=ArtifactFormat.TEXT, flags=(map_type,))
                 artifacts.append(artifact)
         if asmdump_file.is_file():
             with open(asmdump_file, "r") as handle:
@@ -613,6 +645,13 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 data = handle.read()
                 artifact = Artifact(
                     "generic_mlonmcu.srcdump", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
+                )
+                artifacts.append(artifact)
+        if compile_commands_file.is_file():
+            with open(compile_commands_file, "r") as handle:
+                data = handle.read()
+                artifact = Artifact(
+                    "compile_commands.json", content=data, fmt=ArtifactFormat.TEXT, flags=(self.toolchain,)
                 )
                 artifacts.append(artifact)
         metrics = self.get_metrics(elf_file)

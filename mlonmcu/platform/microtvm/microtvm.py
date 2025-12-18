@@ -73,7 +73,7 @@ class MicroTvmPlatform(
         )
 
     # The following methods are defined here as they would need to be implemented for compile and target platforms
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         return get_microtvm_platform_targets()
 
     def create_target(self, name):

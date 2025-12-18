@@ -42,10 +42,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project2"):  # Workaround which only support tvmaot!!!
-    zephyr_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "zephyr"))
+    zephyr_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "zephyr"))
     if name not in zephyr_templates:
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "platforms", "zephyr", name))
+    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "zephyr", name))
     return fname
 
 
@@ -120,7 +120,7 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
             logger.debug("Project directory already initialized")
-            return
+            return self.project_dir
         dir_name = self.name
         if path is not None:
             self.project_dir = Path(path)
@@ -141,8 +141,9 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
                 self.project_dir = Path(self.tempdir.name) / dir_name
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
+        return self.project_dir
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         with tempfile.TemporaryDirectory() as temp:
             f = Path(temp) / "CMakeLists.txt"
             # f.touch()

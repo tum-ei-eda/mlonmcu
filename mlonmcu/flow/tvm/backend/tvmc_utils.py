@@ -18,6 +18,14 @@
 #
 
 
+def legalize_bool(inp: bool, bool_as_int: bool = True):
+    assert isinstance(inp, bool)
+    if bool_as_int:
+        return str(int(inp))
+    else:
+        return "true" if inp else "false"
+
+
 def get_runtime_executor_tvmc_args(runtime, executor):
     return ["--runtime", runtime, "--executor", executor]
 
@@ -72,16 +80,17 @@ def check_allowed(target, name):
         return True
 
 
-def gen_target_details_args(target, target_details):
-    def helper(value):
-        if isinstance(value, (bool, int)):
-            # value = "true" if value else "false"
-            value = str(int(value))
+def gen_target_details_args(target, target_details, bool_as_int: bool = True):
+    def helper(value, bool_as_int: bool = True):
+        if isinstance(value, bool):
+            value = legalize_bool(value, bool_as_int=bool_as_int)
+        elif isinstance(value, int):
+            value = str(value)
         return value
 
     return sum(
         [
-            [f"--target-{target}-{key}", helper(value)]
+            [f"--target-{target}-{key}", helper(value, bool_as_int=bool_as_int)]
             for key, value in target_details.items()
             if check_allowed(target, key)
         ],
@@ -89,15 +98,17 @@ def gen_target_details_args(target, target_details):
     )
 
 
-def gen_extra_target_details_args(extra_target_details):
+def gen_extra_target_details_args(extra_target_details, bool_as_int: bool = True):
     ret = []
     for extra_target, target_details in extra_target_details.items():
         if target_details:
-            ret.append(gen_target_details_args(extra_target, target_details))
+            ret.append(gen_target_details_args(extra_target, target_details, bool_as_int=bool_as_int))
     return sum(ret, [])
 
 
-def get_target_tvmc_args(target="c", extra_targets=[], target_details={}, extra_target_details={}):
+def get_target_tvmc_args(
+    target="c", extra_targets=[], target_details={}, extra_target_details={}, bool_as_int: bool = True
+):
     if extra_targets:
         assert isinstance(extra_targets, list)
     else:
@@ -111,7 +122,7 @@ def get_target_tvmc_args(target="c", extra_targets=[], target_details={}, extra_
         "--target",
         ",".join(extra_targets + [target]),
         # TODO: provide a feature which sets these automatically depending on the chosen target
-        *gen_target_details_args(target, target_details),
+        *gen_target_details_args(target, target_details, bool_as_int=bool_as_int),
         *(gen_extra_target_details_args(extra_target_details)),
     ]
 
@@ -137,30 +148,34 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
     )
 
 
-def get_tvmaot_tvmc_args(alignment_bytes, unpacked_api, runtime="crt", target="c", system_lib=False):
+def get_tvmaot_tvmc_args(
+    alignment_bytes, unpacked_api, runtime="crt", target="c", system_lib=False, bool_as_int: bool = True
+):
     ret = []
     if runtime == "crt":
         if unpacked_api:
             assert not system_lib, "Unpacked API is incompatible with system lib"
-        ret += ["--runtime-crt-system-lib", str(int(system_lib))]
+        ret += ["--runtime-crt-system-lib", legalize_bool(system_lib, bool_as_int=bool_as_int)]
 
     ret += [
-        *["--executor-aot-unpacked-api", str(int(unpacked_api))],
+        *["--executor-aot-unpacked-api", legalize_bool(unpacked_api, bool_as_int=bool_as_int)],
         *["--executor-aot-interface-api", "c" if unpacked_api else "packed"],
     ]
     if target == "c":
         ret += [
             *["--target-c-constants-byte-alignment", str(alignment_bytes)],
             *["--target-c-workspace-byte-alignment", str(alignment_bytes)],
+            *["--executor-aot-constant-byte-alignment", str(alignment_bytes)],
+            *["--executor-aot-workspace-byte-alignment", str(alignment_bytes)],
         ]
     return ret
 
 
-def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True):
+def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True, bool_as_int: bool = True):
     ret = []
     if runtime == "crt":
-        ret += ["--runtime-crt-system-lib", str(int(system_lib))]
-    ret += ["--executor-graph-link-params", str(int(link_params))]
+        ret += ["--runtime-crt-system-lib", legalize_bool(system_lib, bool_as_int=bool_as_int)]
+    ret += ["--executor-graph-link-params", legalize_bool(link_params, bool_as_int=bool_as_int)]
     return ret
 
 

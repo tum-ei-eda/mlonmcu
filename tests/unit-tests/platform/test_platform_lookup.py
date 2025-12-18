@@ -35,6 +35,9 @@ class MyPlatformA(TargetPlatform):
             config=config,
         )
 
+    def _get_supported_targets(self):
+        return []
+
 
 class MyPlatformB(TargetPlatform):
     def __init__(self, features=None, config=None):
@@ -44,7 +47,7 @@ class MyPlatformB(TargetPlatform):
             config=config,
         )
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         return ["target_1"]
 
     def get_supported_backends(self):
@@ -59,7 +62,7 @@ class MyPlatformC(TargetPlatform):
             config=config,
         )
 
-    def get_supported_targets(self):
+    def _get_supported_targets(self):
         return ["target_1", "target_2"]
 
     def get_supported_backends(self):

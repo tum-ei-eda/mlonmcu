@@ -20,6 +20,27 @@
 
 from mlonmcu.flow.tflm.framework import TFLMFramework
 from mlonmcu.flow.tvm.framework import TVMFramework
+from mlonmcu.flow.iree.framework import IREEFramework
+
+# from mlonmcu.flow.none.framework import NoneFramework
+
+from .framework import Framework
+
+
+class NoneFramework(Framework):
+    """TODO."""
+
+    name = "none"
+
+    FEATURES = set()
+
+    DEFAULTS = {}
+
+    REQUIRED = set()
+
+    def __init__(self, features=None, config=None):
+        super().__init__(features=features, config=config)
+
 
 from mlonmcu.flow.tflm.backend.tflmc import TFLMCBackend
 from mlonmcu.flow.tflm.backend.tflmi import TFLMIBackend
@@ -30,9 +51,49 @@ from mlonmcu.flow.tvm.backend.tvmcg import TVMCGBackend
 from mlonmcu.flow.tvm.backend.tvmllvm import TVMLLVMBackend
 from mlonmcu.flow.tvm.backend.tvmrt import TVMRTBackend
 
+from mlonmcu.flow.iree.backend.ireevmvx import IREEVMVXBackend
+from mlonmcu.flow.iree.backend.ireevmvx_inline import IREEVMVXInlineBackend
+from mlonmcu.flow.iree.backend.ireellvm import IREELLVMBackend
+from mlonmcu.flow.iree.backend.ireellvm_inline import IREELLVMInlineBackend
+from mlonmcu.flow.iree.backend.ireellvmc import IREELLVMCBackend
+from mlonmcu.flow.iree.backend.ireellvmc_inline import IREELLVMCInlineBackend
+
+# from mlonmcu.flow.none.backend.none import NoneBackend
+from .backend import Backend
+
+
+class NoneBackend(Backend):
+    registry = {}
+
+    name = None
+
+    FEATURES = set()
+
+    DEFAULTS = {}
+
+    OPTIONAL = set()
+
+    REQUIRED = set()
+
+    name = "none"
+
+    def __init__(self, features=None, config=None):
+        super().__init__(framework="none", features=features, config=config)
+
+    def generate(self):
+        return None
+
+    def load_model(
+        self, model, input_shapes=None, output_shapes=None, input_types=None, output_types=None, params_path=None
+    ):
+        pass
+
+
 SUPPORTED_FRAMEWORKS = {
     "tflm": TFLMFramework,
     "tvm": TVMFramework,
+    "iree": IREEFramework,
+    "none": NoneFramework,
 }
 
 SUPPORTED_TFLITE_BACKENDS = {
@@ -48,12 +109,36 @@ SUPPORTED_TVM_BACKENDS = {
     "tvmllvm": TVMLLVMBackend,
 }
 
+SUPPORTED_IREE_LLVM_BACKENDS = {
+    "ireellvm": IREELLVMBackend,
+    "ireellvm_inline": IREELLVMInlineBackend,
+    "ireellvmc": IREELLVMCBackend,
+    "ireellvmc_inline": IREELLVMCInlineBackend,
+}
+
+SUPPORTED_IREE_BACKENDS = {
+    "ireevmvx": IREEVMVXBackend,
+    "ireevmvx_inline": IREEVMVXInlineBackend,
+    **SUPPORTED_IREE_LLVM_BACKENDS,
+}
+
+SUPPORTED_NONE_BACKENDS = {
+    "none": NoneBackend,
+}
+
 SUPPORTED_FRAMEWORK_BACKENDS = {
     "tflm": SUPPORTED_TFLITE_BACKENDS,
     "tvm": SUPPORTED_TVM_BACKENDS,
+    "iree": SUPPORTED_IREE_BACKENDS,
+    "none": SUPPORTED_NONE_BACKENDS,
 }
 
-SUPPORTED_BACKENDS = {**SUPPORTED_TFLITE_BACKENDS, **SUPPORTED_TVM_BACKENDS}
+SUPPORTED_BACKENDS = {
+    **SUPPORTED_TFLITE_BACKENDS,
+    **SUPPORTED_TVM_BACKENDS,
+    **SUPPORTED_IREE_BACKENDS,
+    **SUPPORTED_NONE_BACKENDS,
+}
 
 
 def get_available_backend_names():

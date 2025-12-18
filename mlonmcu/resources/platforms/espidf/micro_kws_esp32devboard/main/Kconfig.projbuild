@@ -1,0 +1,215 @@
+menu "MicroKWS Options"
+
+    menu "MicroKWS Hyperparameters"
+        config MICRO_KWS_NUM_BINS
+            int "Number of used bins in spectrogram"
+            default 40
+            help
+                Configure the bins used according to the model hyperparameters
+
+        config MICRO_KWS_NUM_SLICES
+            int "Number of time slices in the spectrogram"
+            default 49
+            help
+                Configure the slices used according to the model hyperparameters
+
+        config MICRO_KWS_WINDOW_SIZE_MS
+            int "Size of the window used for preprocessing in ms"
+            default 30
+            help
+                Configure ms used for the FFT window.
+
+        config MICRO_KWS_STRIDE_SIZE_MS
+            int "Stride of preprocessing window in ms"
+            default 20
+            help
+                Configure ms used for the FFT stride.
+    endmenu
+
+    config MICRO_KWS_MAX_RATE
+        int "Maximum number of inferences per second"
+        default 100
+        help
+            Limit number of inferences per second to reduce CPU load
+            and make posterior handling more reliable for tiny models.
+
+    menu "MicroKWS Posterior Handler Parameters"
+        config MICRO_KWS_POSTERIOR_SUPPRESSION_MS
+            int "Suppression time in ms for Posterior Handler"
+            default 1000
+            help
+                Blocks detections in the same category which are close to each other.
+
+        config MICRO_KWS_POSTERIOR_HISTORY_LENGTH
+            int "History length of the Posterior Handler"
+            default 35
+            help
+                A larger history needs more memory but can be helpful to filter short spikes
+                in wrong categories. This value has to be adapted to the inference frequency in the main loop.
+
+        config MICRO_KWS_POSTERIOR_TRIGGER_THRESHOLD_SINGLE
+            int "Trigger threshold for the Posterior Handler"
+            default 130
+            help
+                This value will be multiplied with MICRO_KWS_POSTERIOR_HISTORY_LENGTH.
+    endmenu
+
+    config MICRO_KWS_NUM_CLASSES
+        int "Number of classes"
+        range 2 12
+        default 4
+        help
+            Number of classes used in KWS model.
+
+    menu "MicroKWS Class Labels"
+
+        config MICRO_KWS_CLASS_LABEL_0
+            string "MLF Class 0 Label"
+            default "silence"
+            help
+                Configure the label for class 0 (hardcoded).
+
+        config MICRO_KWS_CLASS_LABEL_1
+            string "MLF Class 1 Label"
+            default "unkown"
+            help
+                Configure the label for class 1 (hardcoded).
+
+        config MICRO_KWS_CLASS_LABEL_2
+            string "MLF Class 2 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=3
+            default "yes"
+            help
+                Configure the label for class 2.
+
+        config MICRO_KWS_CLASS_LABEL_3
+            string "MLF Class 3 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=4
+            default "no"
+            help
+                Configure the label for class 3.
+
+        config MICRO_KWS_CLASS_LABEL_4
+            string "MLF Class 4 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=5
+            default "???"
+            help
+                Configure the label for class 4.
+
+        config MICRO_KWS_CLASS_LABEL_5
+            string "MLF Class 5 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=6
+            default "???"
+            help
+                Configure the label for class 5.
+
+        config MICRO_KWS_CLASS_LABEL_6
+            string "MLF Class 6 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=7
+            default "???"
+            help
+                Configure the label for class 6.
+
+        config MICRO_KWS_CLASS_LABEL_7
+            string "MLF Class 7 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=8
+            default "???"
+            help
+                Configure the label for class 7.
+
+        config MICRO_KWS_CLASS_LABEL_8
+            string "MLF Class 8 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=9
+            default "???"
+            help
+                Configure the label for class 8.
+
+        config MICRO_KWS_CLASS_LABEL_9
+            string "MLF Class 9 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=10
+            default "???"
+            help
+                Configure the label for class 9.
+
+        config MICRO_KWS_CLASS_LABEL_10
+            string "MLF Class 10 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=11
+            default "???"
+            help
+                Configure the label for class 10.
+
+        config MICRO_KWS_CLASS_LABEL_11
+            string "MLF Class 11 Label"
+            depends on MICRO_KWS_NUM_CLASSES >=12
+            default "???"
+            help
+                Configure the label for class 11.
+    endmenu
+
+    menu "MicroKWS Debug Settings"
+
+
+        choice MICRO_KWS_MODE
+            prompt "Mode for MicroKWS Execution"
+            default MICRO_KWS_MODE_DEFAULT
+            help
+                Choose a mode from the list:
+                - Default: Normal execution using serial console for printing text.
+                - Debug: Can be used for debugging the model inputs and outputs.
+                - Audio: This mode enables recording and sending a short audio sample from the device to the computer via the serial connection.
+            config MICRO_KWS_MODE_DEFAULT
+                bool "Default: Console only"
+            config MICRO_KWS_MODE_DEBUG
+                bool "Debug: Stream data to debugger GUI (Needs disabled console)"
+            config MICRO_KWS_MODE_DEBUG_AUDIO
+                bool "Audio: Record audio on device and send it to host client (Needs disabled console)"
+        endchoice
+
+        config MICRO_KWS_PRINT_OUTPUTS
+            bool "Print inference results directly to the serial monitor."
+            default y
+            help
+            Can be used for debugging the model without any postprocessing.
+
+        config MICRO_KWS_PRINT_TIME
+            bool "Print measured time between inferences to the serial monitor (in ms)."
+            default y
+            help
+            Can be used for debugging the models performance.
+
+        config MICRO_KWS_PRINT_STATS
+            bool "Print FreeRTOS Task Stats."
+            depends on FREERTOS_GENERATE_RUN_TIME_STATS
+            default n
+            help
+            Can be used for debugging the CPU load.
+
+        config MICRO_KWS_PRINT_STATS_INTERVAL
+            int "Interval between print of stats (in ms)."
+            depends on MICRO_KWS_PRINT_STATS
+            default 5000
+            help
+            Number of ms between print of stats.
+
+        # config MICRO_KWS_SEND_DATA
+        #     bool "Stream binary data to Python debugger application (disable all other UART and print options)."
+        #     default n
+        #     help
+        #     Can be used for debugging the model inputs and outputs.
+
+        config MICRO_KWS_LED_RAW_POSTERIORS
+            bool "Use raw posterior values from model for RGB led and disable backend."
+            default n
+            help
+            Can be used for debugging the model outputs.
+
+        # config MICRO_KWS_MICROPHONE_DEBUG_MODE
+        #     bool "Enter microphone debug mode after startup."
+        #     default n
+        #     help
+        #     This mode enables recording and sending a short audio sample from the device to the computer via the serial connection.
+
+    endmenu
+
+
+endmenu

@@ -22,13 +22,13 @@ import sys
 import os
 import shutil
 import tempfile
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Dict
 from pathlib import Path
 import filelock
 
 from mlonmcu.utils import ask_user
 from mlonmcu.logging import get_logger, set_log_file
-from mlonmcu.session.run import Run
+from mlonmcu.session.run import ArchivedRun
 from mlonmcu.session.session import Session
 from mlonmcu.setup.cache import TaskCache
 import mlonmcu.setup.utils as utils
@@ -149,6 +149,43 @@ def get_ids(directory: Path) -> List[int]:
     return sorted(ids)  # TODO: sort by session datetime?
 
 
+def lookup_session_label(session_labels: Dict[str, int], sess_idx: int) -> Optional[int]:
+    for label, session in session_labels.items():
+        if session == sess_idx:
+            return label
+    return None
+
+
+def get_session_labels(env: Environment) -> Dict[str, int]:
+    # TODO: write session label to sess dir instead!
+    ret = {}
+    results_dir = env.paths["results"].path
+    # TODO: handle excel reports was well?
+    csv_files = list(results_dir.glob("*.csv"))
+    max_csv_files = 50
+    if len(csv_files) > max_csv_files:
+        logger.warning("Too many (%d) CSV files in results directory. Reading only %d reports...", len(csv_files), max_csv_files)
+        csv_files = list(sorted(csv_files))[-max_csv_files:]
+    for csv_file in csv_files:
+        label = csv_file.stem
+        import pandas as pd
+
+        try:
+            report_df = pd.read_csv(csv_file)
+        except pd.errors.EmptyDataError:
+            continue
+        # not all reports will have session col
+        if "Session" not in report_df.columns:
+            continue
+        if len(report_df) == 0:
+            continue
+        sessions = list(report_df["Session"].unique())
+        assert len(sessions) == 1
+        session = sessions[0]
+        ret[label] = session
+    return ret
+
+
 def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     """Get a list of recent sessions for the environment.
 
@@ -174,6 +211,8 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
     # TODO: in the future also strs (custom or hash) should be allowed
     session_ids = get_ids(sessions_directory)
 
+    session_labels = get_session_labels(env)
+
     for sid in session_ids:
         session_directory = sessions_directory / str(sid)
         # session_file = sessions_directory / str(sid) / "session.txt"
@@ -186,11 +225,14 @@ def load_recent_sessions(env: Environment, count: int = None) -> List[Session]:
             run_directory = runs_directory / str(rid)
             # run_file = run_directory / "run.txt"
             # run = Run.from_file(run_file)  # TODO: actually implement run restore
-            run = Run()  # TODO: fix
-            run.archived = True
-            run.dir = run_directory
+            run = ArchivedRun.from_dir(run_directory)
+            # run.archived = True
+            # run.dir = run_directory
             runs.append(run)
-        session = Session(idx=sid, archived=True, dest=session_directory)
+        label = lookup_session_label(session_labels, sid)
+        if label is None:
+            label = "unknown"
+        session = Session(idx=sid, label=label, archived=True, dest=session_directory)
         session.runs = runs
         session.dir = session_directory
         sessions.append(session)
@@ -350,6 +392,10 @@ class MlonMcuContext:
 
     def load_extensions(self):
         """If available load the extensions.py scripts in the plugin directories"""
+        if self.environment:
+            allow_extensions = self.environment.vars.get("allow_extensions", False)
+            if not allow_extensions:
+                return
 
         # TODO: check vars.enable_extensions before!
         def _load(plugins_dir, hint="Unknown"):
@@ -357,7 +403,7 @@ class MlonMcuContext:
                 extensions_file = plugins_dir / "extensions.py"
                 if extensions_file.is_file():
                     logger.info(f"Loading extensions.py ({hint})")
-                    process_extensions(extensions_file)
+                    process_extensions(extensions_file, desc=hint.lower())
 
         # global (user)
         plugins_dir = Path(get_plugins_dir())
@@ -491,43 +537,74 @@ class MlonMcuContext:
             return user_vars[key]
         return self.cache[key, flags]
 
-    def export(self, dest, session_ids=None, run_ids=None, interactive=True):
+    def export(self, dest, session_ids=None, run_ids=None, session_labels=None, interactive=True):
         dest = Path(dest)
         if (dest.is_file() and dest.exists()) or (dest.is_dir() and utils.is_populated(dest)):
             if not ask_user("Destination is already populated! Overwrite?", default=True, interactive=interactive):
                 print("Aborted")
                 return
         dest_, ext = os.path.splitext(dest)
+        if session_labels is None:
+            session_labels = []
         if session_ids is None:
+            session_ids = []
+        if len(session_ids) == 0 and len(session_labels) == 0:
             # Can not select all sessions, fall back to latest session
             session_ids = [-1]
 
         if run_ids is not None:
             assert len(session_ids) == 1, "Can only choose runs of a single session"
 
-        def find_session(sid):
+        def find_session(session_id: Optional[int] = None, session_label: Optional[str] = None):
+            assert (session_id is None) ^ (session_label is None)
             if len(self.sessions) == 0:
                 return None
 
-            if sid == -1:
-                assert len(self.sessions) > 0
-                return self.sessions[-1]
+            if session_id is not None:
+                if session_id == -1:
+                    assert len(self.sessions) > 0
+                    return self.sessions[-1]
 
-            for session in self.sessions:
-                if session.idx == sid:
-                    return session
+                for session in self.sessions:
+                    if session.idx == session_id:
+                        return session
+
+            if session_label is not None:
+                ret = []
+                for session in reversed(self.sessions):
+                    if session.label == session_label:
+                        ret.append(session)
+                if len(ret) == 0:
+                    return None
+                if len(ret) > 1:
+                    logger.warning("Found multiple matches for label %s. Picking most recent session!", session_label)
+                ret = ret[0]
+                return ret
+
             return None
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
+            sessions = []
+            for label in session_labels:
+                session = find_session(session_label=label)
+                if session is None:
+                    print(
+                        f"Lookup for session label {label} failed. Available:",
+                        " ".join(set([str(s.label) for s in self.sessions])),
+                    )
+                    sys.exit(1)
+                sessions.append(session)
             for sid in session_ids:
-                session = find_session(sid)
+                session = find_session(session_id=sid)
                 if session is None:
                     print(
                         f"Lookup for session id {sid} failed. Available:", " ".join([str(s.idx) for s in self.sessions])
                     )
                     sys.exit(1)
-                if len(session_ids) == 1:
+                sessions.append(session)
+            for session in sessions:
+                if len(sessions) == 1:
                     base = tmpdir
                 else:
                     base = tmpdir / str(sid)
@@ -550,6 +627,7 @@ class MlonMcuContext:
                             )
                             sys.exit(1)
                         run = session.runs[rid]  # TODO: We currently do not check if the index actually exists
+                        assert run is not None
                         if len(run_ids) == 1 and len(session_ids) == 1:
                             run_base = tmpdir
                         else:
@@ -576,3 +654,13 @@ class MlonMcuContext:
             logger.debug("Releasing lock on context")
             self.deps_lock.release()
         return False
+
+    def get_read_only_context(self):
+        return MlonMcuContextMinimal(self)
+
+
+class MlonMcuContextMinimal:
+
+    def __init__(self, context: MlonMcuContext):
+        self.environment = context.environment
+        self.cache = context.cache

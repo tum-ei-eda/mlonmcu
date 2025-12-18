@@ -19,23 +19,23 @@
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
 import os
 import shutil
-import filelock
 import tempfile
-import multiprocessing
+from typing import Optional, Union
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-import concurrent.futures
 
-from tqdm import tqdm
+import filelock
 
-from mlonmcu.session.run import Run
+from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
 from mlonmcu.config import filter_config
+from mlonmcu.config import str2bool
 
-from .postprocess.postprocess import SessionPostprocess
 from .run import RunStage
+from .rpc import RemoteConfig
+from .schedule import SessionScheduler
 
 logger = get_logger()  # TODO: rename to get_mlonmcu_logger
 
@@ -54,6 +54,15 @@ class Session:
 
     DEFAULTS = {
         "report_fmt": "csv",
+        # "process_pool": False,
+        "executor": "thread_pool",
+        "use_init_stage": False,
+        # "cleanup_runs": False,
+        "shuffle": False,
+        "batch_size": 1,  # TODO: auto
+        "parallel_jobs": 1,
+        "rpc_tracker": None,
+        "rpc_key": None,
     }
 
     def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
@@ -68,6 +77,7 @@ class Session:
         self.opened_at = None
         self.closed_at = None
         self.runs = []
+        self.results = []
         self.report = None
         self.next_run_idx = 0
         self.archived = archived
@@ -100,23 +110,98 @@ class Session:
         """get report_fmt property."""
         return str(self.config["report_fmt"])
 
+    # @property
+    # def process_pool(self):
+    #     """get process_pool property."""
+    #     value = self.config["process_pool"]
+    #     return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def executor(self):
+        """get executor property."""
+        return str(self.config["executor"])
+
+    @property
+    def use_init_stage(self):
+        """get use_init_stage property."""
+        value = self.config["use_init_stage"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def shuffle(self):
+        """get shuffle property."""
+        value = self.config["shuffle"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def batch_size(self):
+        """get batch_size property."""
+        return int(self.config["batch_size"])
+
+    @property
+    def parallel_jobs(self):
+        """get parallel_jobs property."""
+        return int(self.config["parallel_jobs"])
+
+    @property
+    def rpc_tracker(self):
+        """get rpc_tracker property."""
+        return self.config["rpc_tracker"]
+
+    @property
+    def rpc_key(self):
+        """get rpc_key property."""
+        return self.config["rpc_key"]
+
+    @property
+    def needs_initializer(self):
+        """TODO"""
+        return self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage
+
     def create_run(self, *args, **kwargs):
         """Factory method to create a run and add it to this session."""
         idx = len(self.runs)
         logger.debug("Creating a new run with id %s", idx)
-        run = Run(*args, idx=idx, session=self, **kwargs)
+        if self.needs_initializer:
+            run = RunInitializer(*args, idx=idx, **kwargs)
+        else:
+            run = Run(*args, idx=idx, **kwargs)
         self.runs.append(run)
         return run
+
+    def add_run(self, run: Union[Run, RunInitializer], ignore_idx: bool = True):
+        """TODO."""
+        if ignore_idx:
+            idx = len(self.runs)
+        else:
+            raise NotImplementedError
+        if isinstance(run, RunInitializer):
+            self.runs.append(run)
+        elif isinstance(run, Run):
+            raise NotImplementedError
+        else:
+            assert False
+        logger.debug("Importing run with id %s", idx)
 
     #  def update_run(self): # TODO TODO
     #      pass
 
-    def get_reports(self):
+    def get_reports(self, results: Optional[RunResult] = None):
         """Returns a full report which includes all runs in this session."""
         if self.report:
             return self.report
 
-        reports = [run.get_report() for run in self.runs]
+        if results is None:
+            logger.warning("Use of session.get_reports without args is deprecated. Please pass list of RunResults!")
+
+            reports = [run.get_report(session=self) for run in self.runs if not isinstance(run, RunInitializer)]
+        else:
+            assert isinstance(results, list)
+            if len(results) == 0:
+                logger.warning("The session results are empty")
+            # TODO: warn if None!
+            reports = [res.get_report(session=self) for res in results if res is not None]
+
         merged = Report()
         merged.add(reports)
         return merged
@@ -126,14 +211,19 @@ class Session:
         # Find start index
         max_idx = -1
         for run in self.runs:
-            if run.archived:
+            if not isinstance(run, RunInitializer) and run.archived:
                 max_idx = max(max_idx, run.idx)
         run_idx = max_idx + 1
         last_run_idx = None
         for run in self.runs:
-            if not run.archived:
+            if isinstance(run, RunInitializer):
                 run.idx = run_idx
-                run.init_directory()
+                run_idx += 1
+                last_run_idx = run.idx
+            elif not run.archived:
+                run.idx = run_idx
+                # run.init_directory(session=self)
+                run.init_directory(parent=self.runs_dir)
                 run_idx += 1
                 last_run_idx = run.idx
         self.next_run_idx = run_idx
@@ -162,189 +252,46 @@ class Session:
         progress=False,
         export=False,
         context=None,
+        noop=False,
     ):
         """Process a runs in this session until a given stage."""
 
         # TODO: Add configurable callbacks for stage/run complete
         assert self.active, "Session needs to be opened first"
 
+        assert len(self.runs) > 0, "List of runs is empty"
         self.enumerate_runs()
         self.report = None
         assert num_workers > 0, "num_workers can not be < 1"
-        workers = []
-        # results = []
-        workers = []
-        pbar = None  # Outer progress bar
-        pbar2 = None  # Inner progress bar
-        num_runs = len(self.runs)
-        num_failures = 0
-        stage_failures = {}
-        worker_run_idx = []
-
-        def _init_progress(total, msg="Processing..."):
-            """Helper function to initialize a progress bar for the session."""
-            return tqdm(
-                total=total,
-                desc=msg,
-                ncols=100,
-                bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}s]",
-                leave=None,
-            )
-
-        def _update_progress(pbar, count=1):
-            """Helper function to update the progress bar for the session."""
-            pbar.update(count)
-
-        def _close_progress(pbar):
-            """Helper function to close the session progressbar, if available."""
-            if pbar:
-                pbar.close()
-
-        def _process(pbar, run, until, skip):
-            """Helper function to invoke the run."""
-            run.process(until=until, skip=skip, export=export)
-            if not per_stage and run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in skip:
-                # run.postprocess()
-                run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
-            if progress:
-                _update_progress(pbar)
-
-        def _join_workers(workers):
-            """Helper function to collect all worker threads."""
-            nonlocal num_failures
-            results = []
-            for i, w in enumerate(workers):
-                try:
-                    results.append(w.result())
-                except Exception as e:
-                    logger.exception(e)
-                    logger.error("An exception was thrown by a worker during simulation")
-                run_index = worker_run_idx[i]
-                run = self.runs[run_index]
-                if run.failing:
-                    num_failures += 1
-                    failed_stage = RunStage(run.next_stage).name
-                    if failed_stage in stage_failures:
-                        stage_failures[failed_stage].append(run_index)
-                    else:
-                        stage_failures[failed_stage] = [run_index]
-            if progress:
-                _close_progress(pbar)
-            return results
-
-        def _used_stages(runs, until):
-            """Determines the stages which are used by at least one run."""
-            used = []
-            for stage_index in list(range(RunStage.LOAD, until + 1)) + [RunStage.POSTPROCESS]:
-                stage = RunStage(stage_index)
-                if any(run.has_stage(stage) for run in runs):
-                    used.append(stage)
-            return used
-
-        used_stages = _used_stages(self.runs, until)
-        skipped_stages = [stage for stage in RunStage if stage not in used_stages]
-
-        with concurrent.futures.ThreadPoolExecutor(num_workers) as executor:
-            if per_stage:
-                if progress:
-                    pbar2 = _init_progress(len(used_stages), msg="Processing stages")
-                for stage in used_stages:
-                    run_stage = RunStage(stage).name
-                    if progress:
-                        pbar = _init_progress(len(self.runs), msg=f"Processing stage {run_stage}")
-                    else:
-                        logger.info("%s Processing stage %s", self.prefix, run_stage)
-                    for i, run in enumerate(self.runs):
-                        if i == 0:
-                            total_threads = min(len(self.runs), num_workers)
-                            cpu_count = multiprocessing.cpu_count()
-                            if (stage == RunStage.COMPILE) and run.compile_platform:
-                                total_threads *= run.compile_platform.num_threads
-                            if total_threads > 2 * cpu_count:
-                                if pbar2:
-                                    print()
-                                logger.warning(
-                                    "The chosen configuration leads to a maximum of %d threads being"
-                                    + " processed which heavily exceeds the available CPU resources (%d)."
-                                    + " It is recommended to lower the value of 'mlif.num_threads'!",
-                                    total_threads,
-                                    cpu_count,
-                                )
-                        if run.failing:
-                            logger.warning("Skiping stage '%s' for failed run", run_stage)
-                        else:
-                            worker_run_idx.append(i)
-                            workers.append(executor.submit(_process, pbar, run, until=stage, skip=skipped_stages))
-                    _join_workers(workers)
-                    workers = []
-                    worker_run_idx = []
-                    if progress:
-                        _update_progress(pbar2)
-                if progress:
-                    _close_progress(pbar2)
-            else:
-                if progress:
-                    pbar = _init_progress(len(self.runs), msg="Processing all runs")
-                else:
-                    logger.info(self.prefix + "Processing all stages")
-                for i, run in enumerate(self.runs):
-                    if i == 0:
-                        total_threads = min(len(self.runs), num_workers)
-                        cpu_count = multiprocessing.cpu_count()
-                        if (
-                            (until >= RunStage.COMPILE)
-                            and run.compile_platform is not None
-                            and run.compile_platform.name == "mlif"
-                        ):
-                            total_threads *= (
-                                run.compile_platform.num_threads
-                            )  # TODO: This should also be used for non-mlif platforms
-                        if total_threads > 2 * cpu_count:
-                            if pbar2:
-                                print()
-                            logger.warning(
-                                "The chosen configuration leads to a maximum of %d being processed which"
-                                + " heavily exceeds the available CPU resources (%d)."
-                                + " It is recommended to lower the value of 'mlif.num_threads'!",
-                                total_threads,
-                                cpu_count,
-                            )
-                    worker_run_idx.append(i)
-                    workers.append(executor.submit(_process, pbar, run, until=until, skip=skipped_stages))
-                _join_workers(workers)
-        if num_failures == 0:
-            logger.info("All runs completed successfuly!")
-        elif num_failures == num_runs:
-            logger.error("All runs have failed to complete!")
+        remote_config = None
+        if self.rpc_tracker:
+            assert self.executor == "rpc"
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
         else:
-            num_success = num_runs - num_failures
-            logger.warning("%d out or %d runs completed successfully!", num_success, num_runs)
-            summary = "\n".join(
-                [
-                    f"\t{stage}: \t{len(failed)} failed run(s): " + " ".join([str(idx) for idx in failed])
-                    for stage, failed in stage_failures.items()
-                    if len(failed) > 0
-                ]
-            )
-            logger.info("Summary:\n%s", summary)
+            assert self.executor != "rpc"
+        scheduler = SessionScheduler(
+            self.runs,
+            until,
+            executor=self.executor,
+            per_stage=per_stage,
+            progress=progress,
+            num_workers=num_workers,
+            use_init_stage=self.use_init_stage,
+            session=self,
+            shuffle=self.shuffle,
+            batch_size=self.batch_size,
+            parallel_jobs=self.parallel_jobs,
+            remote_config=remote_config,
+        )
+        if noop:
+            logger.info(self.prefix + "Skipping processing of runs")
+            scheduler.initialize(context=context)
+            return 0
 
-        report = self.get_reports()
-        logger.info("Postprocessing session report")
-        # Warning: currently we only support one instance of the same type of postprocess,
-        # also it will be applied to all rows!
-        session_postprocesses = []
-        for run in self.runs:
-            for postprocess in run.postprocesses:
-                if isinstance(postprocess, SessionPostprocess):
-                    if postprocess.name not in [p.name for p in session_postprocesses]:
-                        session_postprocesses.append(postprocess)
-        for postprocess in session_postprocesses:
-            artifacts = postprocess.post_session(report)
-            if artifacts is not None:
-                for artifact in artifacts:
-                    # Postprocess has an artifact: write to disk!
-                    logger.debug("Writting postprocess artifact to disk: %s", artifact.name)
-                    artifact.export(self.dir)
+        self.runs, self.results = scheduler.process(export=export, context=context)
+        report = self.get_reports(results=self.results)
+        scheduler.print_summary()
+        report = scheduler.postprocess(report, dest=self.dir)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
@@ -355,7 +302,7 @@ class Session:
         if print_report:
             logger.info("Report:\n%s", str(report.df))
 
-        return num_failures == 0
+        return scheduler.num_failures == 0
 
     def discard(self):
         """Discard a run and remove its directory."""
@@ -391,7 +338,7 @@ class Session:
         return False
 
     def open(self):
-        """Open this run."""
+        """Open this session."""
         self.status = SessionStatus.OPEN
         self.opened_at = datetime.now()
         if self.dir is None:

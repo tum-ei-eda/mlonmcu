@@ -80,7 +80,8 @@ class VicunaTarget(RVVTarget):
         # memory config
         "mem_width": 32,
         # "mem_size": 262144,
-        "mem_size": 262144 * 2,
+        # "mem_size": 262144 * 2,
+        "mem_size": 4071424,
         "mem_latency": 1,
         # cache config
         "ic_size": 0,  # off

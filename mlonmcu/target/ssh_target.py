@@ -133,7 +133,11 @@ class SSHTarget(Target):
             remote_program = workdir / program.name
             self.copy_to_remote(ssh, program, remote_program)
             args_str = " ".join(args)
-            command = f"cd {workdir} && chmod +x {remote_program} && {remote_program} {args_str}; echo SSH EXIT=$?"
+            qemu = kwargs.get("qemu")
+            pre = qemu if qemu is not None else ""
+            command = (
+                f"cd {workdir} && chmod +x {remote_program} && {pre} {remote_program} {args_str}; echo SSH EXIT=$?"
+            )
             stdin, stdout, stderr = ssh.exec_command(command)
             # print("stdin", stdin)
             # print("stdout", stdout)

@@ -164,7 +164,9 @@ def get_session_labels(env: Environment) -> Dict[str, int]:
     csv_files = list(results_dir.glob("*.csv"))
     max_csv_files = 50
     if len(csv_files) > max_csv_files:
-        logger.warning("Too many (%d) CSV files in results directory. Reading only %d reports...", len(csv_files), max_csv_files)
+        logger.warning(
+            "Too many (%d) CSV files in results directory. Reading only %d reports...", len(csv_files), max_csv_files
+        )
         csv_files = list(sorted(csv_files))[-max_csv_files:]
     for csv_file in csv_files:
         label = csv_file.stem

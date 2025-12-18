@@ -326,6 +326,7 @@ class TVMBackend(Backend):
 
         def helper(val):
             return val
+
         attr_strs = [f"-{key}={helper(val)}" for key, val in attrs.items() if val is not None]
         if len(attr_strs) > 0:
             attrs_str = " ".join(attr_strs)

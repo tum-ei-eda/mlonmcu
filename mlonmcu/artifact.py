@@ -115,7 +115,8 @@ class Artifact:
                     "data": self.data,
                     "raw": self.raw,
                 }
-                if full else {}
+                if full
+                else {}
             ),
         }
         return ret

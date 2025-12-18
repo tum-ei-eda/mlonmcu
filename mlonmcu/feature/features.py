@@ -1386,7 +1386,11 @@ class CacheSim(TargetFeature):
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
-        assert target in ["spike", "spike_rv32", "spike_rv64"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in [
+            "spike",
+            "spike_rv32",
+            "spike_rv64",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             spike_args = config.get(f"{target}.extra_args", [])
             if self.ic_enable:
@@ -1403,7 +1407,11 @@ class CacheSim(TargetFeature):
             config.update({f"{target}.extra_args": spike_args})
 
     def get_target_callbacks(self, target):
-        assert target in ["spike", "spike_rv32", "spike_rv64"], f"Unsupported feature '{self.name}' for target '{target}'"
+        assert target in [
+            "spike",
+            "spike_rv32",
+            "spike_rv64",
+        ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
             def cachesim_callback(stdout, metrics, artifacts, directory=None):

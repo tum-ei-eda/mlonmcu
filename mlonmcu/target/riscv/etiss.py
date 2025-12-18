@@ -67,7 +67,7 @@ class EtissTarget(RISCVTarget):
         "ram_start": 0x1000000 + 0x800000,
         "ram_size": 0x4000000,  # 64 MB
         "flash_start": None,
-        "flash_size": None,  
+        "flash_size": None,
         "cycle_time_ps": 31250,  # 32 MHz
         "enable_vext": False,
         "vext_spec": 1.0,
@@ -202,14 +202,14 @@ class EtissTarget(RISCVTarget):
     @property
     def flash_start(self):
         value = self.config["flash_start"]
-        if value == None:
+        if value is None:
             return None
         return int(value, 0) if not isinstance(value, int) else value
 
     @property
     def flash_size(self):
         value = self.config["flash_size"]
-        if value == None:
+        if value is None:
             return None
         return int(value, 0) if not isinstance(value, int) else value
 

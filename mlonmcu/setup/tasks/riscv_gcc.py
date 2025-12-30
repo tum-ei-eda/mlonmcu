@@ -74,15 +74,19 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
         vext = params.get("vext", False)
         pext = params.get("pext", False)
         xlen = params.get("xlen", False)
+        multilib = params.get("multilib", False)
         user_vars = context.environment.vars
         enable_rv32 = str2bool(user_vars.get("riscv_gcc.enable_rv32", True))
         enable_rv64 = str2bool(user_vars.get("riscv_gcc.enable_rv64", False))
+        enable_multilib = str2bool(user_vars.get("riscv_gcc.enable_multilib", False))
         if vext:
             if not context.environment.has_feature("vext"):
                 return False
         if pext:
             if not context.environment.has_feature("pext"):
                 return False
+        if multilib and not enable_multilib:
+            return False
         if xlen == 32 and not enable_rv32:
             return False
         if xlen == 64 and not enable_rv64:
@@ -102,7 +106,8 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
 )
 @Tasks.param("vext", [False, True])
 @Tasks.param("pext", [False])  # TODO: support pytest style: "vext,pext": [(False, False), ...]
-@Tasks.param("xlen", [32, 64])  # TODO
+@Tasks.param("multilib,xlen", [(True, 32), (False, 32), (True, 64), (False, 64)])
+# @Tasks.param("multilib", [True, False])  # TODO
 @Tasks.validate(_validate_riscv_gcc)
 @Tasks.register(category=TaskType.TOOLCHAIN)
 def install_riscv_gcc(
@@ -115,12 +120,24 @@ def install_riscv_gcc(
     vext = params["vext"]
     pext = params["pext"]
     xlen = params["xlen"]
+    multilib = params["multilib"]
     variant = user_vars.get(f"riscv_gcc_rv{xlen}.variant", "unknown")
     flags = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
+    enable_multilib = str2bool(user_vars.get("riscv_gcc.enable_multilib", False))
+    if enable_multilib and not multilib:
+        multilib = True
     # TODO: if the used gcc supports both pext and vext we do not need to download it 3 times!
-    riscvName = utils.makeDirName(f"riscv_gcc_rv{xlen}", flags=flags)
+    if multilib:
+        riscvName = utils.makeDirName("riscv_gcc_multilib")
+    else:
+        riscvName = utils.makeDirName(f"riscv_gcc_rv{xlen}", flags=flags)
     riscvInstallDir = context.environment.paths["deps"].path / "install" / riscvName
-    if (not vext) and (not pext) and f"riscv_gcc_rv{xlen}.install_dir_default" in user_vars:
+    if multilib and "riscv_gcc_multilib.install_dir" in user_vars:
+        riscvInstallDir = Path(user_vars["riscv_gcc_multilib.install_dir_default"])
+        multilib = user_vars.get("riscv_gcc_multilib.multilib_default", None)
+        default_multilib = user_vars.get("riscv_gcc_multilib.default_multilib_default", None)
+        multilibs = user_vars.get("riscv_gcc_multlib.multilibs_default", None)
+    elif (not vext) and (not pext) and f"riscv_gcc_rv{xlen}.install_dir_default" in user_vars:
         riscvInstallDir = Path(user_vars[f"riscv_gcc_rv{xlen}.install_dir_default"])
         multilib = user_vars.get(f"riscv_gcc_rv{xlen}.multilib_default", None)
         default_multilib = user_vars.get(f"riscv_gcc_rv{xlen}.default_multilib_default", None)
@@ -149,13 +166,17 @@ def install_riscv_gcc(
             riscvFileName, riscvFileExtension = fullUrlSplit[-1].split(".", 1)
             return riscvUrl, riscvFileName, riscvFileExtension
 
-        if vext and f"riscv_gcc_rv{xlen}.dl_url_vext" in user_vars:
+        if multilib and "riscv_gcc_multilib.dl_url" in user_vars:
+            riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars["riscv_gcc_multilib.dl_url"])
+        elif vext and f"riscv_gcc_rv{xlen}.dl_url_vext" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url_vext"])
         elif pext and f"riscv_gcc_rv{xlen}.dl_url_pext" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url_pext"])
         elif f"riscv_gcc_rv{xlen}.dl_url" in user_vars:
             riscvUrl, riscvFileName, riscvFileExtension = _helper(user_vars[f"riscv_gcc_rv{xlen}.dl_url"])
         else:
+            assert multilib, "Default Toolchains are multilib TCs"
+            # TODO: use riscv-tools dist
             riscvVersion = (
                 user_vars["riscv.version"]
                 if "riscv.version" in user_vars

@@ -159,7 +159,7 @@ class TaskGraph:
         for dest, deps in self.dependencies.items():
             for dep in deps:
                 if dep not in self.providers.keys():
-                    raise RuntimeError(f"Unable to resolve dependency '{dep}'")
+                    raise RuntimeError(f"Unable to resolve dependency '{dep}' for task {dest}")
                 src = self.providers[dep]
                 edge = (src, dest)
                 edges.append(edge)

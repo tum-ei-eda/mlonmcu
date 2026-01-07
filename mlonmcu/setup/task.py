@@ -86,7 +86,8 @@ def get_combs_new(data) -> List[dict]:
     Examples
     --------
     >>> get_combs_new({"foo": [False, True], "bar,baz": [(5, 123), (10, 456)]})
-    [{"foo": False, "bar": 5, "baz": 123}, {"foo": False, "bar": 10, "baz": 456}, {"foo": True, "bar": 5, "baz": 123}, {"foo": True, "bar": 10, "baz": 456}]
+    [{"foo": False, "bar": 5, "baz": 123}, {"foo": False, "bar": 10, "baz": 456},
+     {"foo": True, "bar": 5, "baz": 123}, {"foo": True, "bar": 10, "baz": 456}]
     """
     keys = [k.split(",") for k in data]
     values = list(data.values())

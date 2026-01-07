@@ -58,13 +58,18 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         "project_template": None,
         "project_dir": None,
         "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
+        "mlif_template": None,
         # "device": "digilent_arty",
         # "use_renode": True,
         # "use_verilator": True,
     }
 
-    REQUIRED = {"cfu_playground.src_dir", "yosys.install_dir", "mlif.src_dir"}  # TODO: yosys, riscv tc?
-    OPTIONAL = {"tvm.src_dir"}
+    REQUIRED = {
+        "cfu_playground.src_dir",
+        "yosys.install_dir",
+        "mlif.src_dir",
+    }  # TODO: yosys, riscv tc?
+    OPTIONAL = {"tvm.src_dir", "mlif.template"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -91,6 +96,14 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def yosys_install_dir(self):
         return Path(self.config["yosys.install_dir"])
+
+    @property
+    def mlif_template(self):
+        value = self.config["mlif_template"]
+        value2 = self.config["mlif.template"]
+        if value is None:
+            return None
+        return Path(value)
 
     @property
     def use_renode(self):
@@ -195,7 +208,10 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # print("cp", template_dir, self.project_dir)
         # TODO: pass backend to platform?
         backend = None
-        if (src / "aot_wrapper.c").is_file():
+        if (src / "dummy_model").is_file():
+            assert self.mlif_template is not None, "Undefined cfu_playground.mlif_template"
+            backend = "none"
+        elif (src / "aot_wrapper.c").is_file():
             backend = "tvmaot"
         elif (src / "rt_wrapper.c").is_file():
             backend = "tvmrt"
@@ -206,7 +222,17 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         shutil.copytree(template_dir, self.project_dir, dirs_exist_ok=True)
         print("src", src)
         dest_base = self.project_dir / "src"
-        if backend in ["tvmaot", "tvmrt"]:
+        if backend == "none":
+            to_copy = []
+            mlif_template_dir = self.mlif_template
+            if not self.mlif_template.is_dir():
+                mlif_template_dir = self.mlif_src_dir / "lib" / self.mlif_template
+            print("mlif_template_dir", mlif_template_dir)
+            assert mlif_template_dir.is_dir()
+            bench_name = "hello_world"  # TODO: expose
+            to_copy += [(mlif_template_dir / f"{bench_name}.c", dest_base)]
+
+        elif backend in ["tvmaot", "tvmrt"]:
             crt_config_dir = Path(get_crt_config_dir())
             assert crt_config_dir.is_dir()
             to_copy = [

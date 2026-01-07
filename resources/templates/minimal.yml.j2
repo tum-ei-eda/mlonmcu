@@ -227,9 +227,8 @@ postprocesses:
 vars:
   allow_extensions: false
   # tvm.make_tool: "ninja"
-  llvm.version: "11.1.0"
-  llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
   riscv_gcc_rv32.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gc_ilp32d.tar.xz"
   cmake.use_system: true
   llvm.use_system: true

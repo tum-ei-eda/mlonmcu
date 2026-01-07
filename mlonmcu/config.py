@@ -232,7 +232,13 @@ def str2dict(value, allow_none=False):
         return value
     assert isinstance(value, str)
     # TODO: parse key=value,key2=value2 via regex
-    return dict(ast.literal_eval(value))
+    try:
+        temp = ast.literal_eval(value)
+        ret = dict(temp)
+    except ValueError as ex:
+        logger.error("Failed to parse as dict: %s", value)
+        raise ex
+    return ret
 
 
 def str2list(value, allow_none=False):

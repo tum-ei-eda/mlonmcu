@@ -22,6 +22,7 @@ import multiprocessing
 import logging
 import argparse
 
+from mlonmcu.config import str2bool
 from mlonmcu.platform import get_platforms
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
@@ -94,6 +95,14 @@ def add_flow_options(parser):
         help="Enabled features for target/framework/backend (choices: %(choices)s)",
     )
     flow_parser.add_argument(
+        "--initializer",
+        type=str,
+        metavar="INITIALIZER",
+        nargs="+",
+        # action="append",
+        help="List of yml files for initializing runs",
+    )
+    flow_parser.add_argument(
         "-c",
         "--config",
         metavar="KEY=VALUE",
@@ -153,6 +162,11 @@ def add_flow_options(parser):
         "--progress",
         action="store_true",
         help="Display progress bar (default: %(default)s)",
+    )
+    flow_parser.add_argument(
+        "--noop",
+        action="store_true",
+        help="Skip processing of runs, just initialize (default: %(default)s)",
     )
     flow_parser.add_argument(
         "--resume",
@@ -225,16 +239,18 @@ def kickoff_runs(args, until, context):
     assert len(context.sessions) > 0
     session = context.sessions[-1]
     # session.label = args.label
-    config = extract_config(args)
+    config, config_gen = extract_config(args)
     # TODO: move into context/session
     per_stage = True
     print_report = True
     if "runs_per_stage" in config:
-        per_stage = bool(config["runs_per_stage"])
+        value = config["runs_per_stage"]
+        per_stage = str2bool(value) if isinstance(value, str) else value
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])
     if "print_report" in config:
-        print_report = bool(config["print_report"])
+        value = config["print_report"]
+        print_report = str2bool(value) if isinstance(value, str) else value
     elif "print_report" in context.environment.vars:
         print_report = bool(context.environment.vars["print_report"])
     with session:
@@ -246,6 +262,7 @@ def kickoff_runs(args, until, context):
             progress=args.progress,
             context=context,
             export=True,
+            noop=args.noop,
         )
     if not success:
         logger.error("At least one error occured!")

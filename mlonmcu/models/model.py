@@ -54,6 +54,8 @@ class ModelFormats(Enum):
     PB = ModelFormat(6, ["pb"])
     PADDLE = ModelFormat(7, ["pdmodel"])
     TEXT = ModelFormat(8, ["txt"])
+    MLIR = ModelFormat(9, ["mlir"])
+    SAVED_MODEL = ModelFormat(9, [""])  # tf
 
 
 def parse_metadata_from_path(path):
@@ -529,4 +531,117 @@ class ISSBenchProgram(MultiBenchProgram):
             ret["ISS_BENCH_DTYPE"] = self.dtype
             if self.name == "mem_heavy":
                 ret["ISS_BENCH_ARRAY_SIZE"] = self.array_size
+        return ret
+
+
+class CryptoBenchProgram(MultiBenchProgram):
+
+    DEFAULTS = {
+        "verbose": False,  # Enable printfs, only for hqc
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CRYPTO_BENCH", config=config, alt=alt)
+
+    @property
+    def verbose(self):
+        return str2bool(self.config["verbose"])
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["CRYPTO_BENCH_VERBOSE"] = self.verbose
+        return ret
+
+
+class CmsisDSPProgram(MultiBenchProgram):
+
+    DEFAULTS = {
+        "size": 16,  # hoch much data to operate on
+        "batch_size": 16,  # num_batches=ceil(size/batch_size)
+        "number": 10,  # how often to repeat (TODO: use existing bench feature)
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CMSIS_DSP", config=config, alt=alt)
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return min(value, self.size)  # batch size should not exceed size
+
+    @property
+    def number(self):
+        value = self.config["number"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["CMSIS_DSP_SIZE"] = self.size
+            ret["CMSIS_DSP_BATCH_SIZE"] = self.batch_size
+            ret["CMSIS_DSP_NUMBER"] = self.number
+        return ret
+
+
+class CmsisNNProgram(MultiBenchProgram):
+    DEFAULTS = {
+        "size": 16,  # hoch much data to operate on
+        "batch_size": 16,  # num_batches=ceil(size/batch_size)
+        "number": 10,  # how often to repeat (TODO: use existing bench feature)
+    }
+
+    def __init__(self, name: str, config=None, alt=None):
+        super().__init__(name, "CMSIS_NN", config=config, alt=alt)
+
+    @property
+    def size(self):
+        value = self.config["size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    @property
+    def batch_size(self):
+        value = self.config["batch_size"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return min(value, self.size)  # batch size should not exceed size
+
+    @property
+    def number(self):
+        value = self.config["number"]
+        if isinstance(value, str):
+            value = int(value)
+        assert isinstance(value, int)
+        assert value > 0
+        return value
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        if platform == "mlif":
+            ret["CMSIS_NN_SIZE"] = self.size
+            ret["CMSIS_NN_BATCH_SIZE"] = self.batch_size
+            ret["CMSIS_NN_NUMBER"] = self.number
         return ret

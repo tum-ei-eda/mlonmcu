@@ -156,9 +156,9 @@ def list_modelgroups(directory, ignore_cache: bool = False):
     if not ignore_cache:
         cache_key = (directory,)
         if cache_key in MODELGROUPS_CACHE:
-            logger.info("Modelgroup cache hit.")
+            logger.debug("Modelgroup cache hit.")
             return MODELGROUPS_CACHE[cache_key]
-        logger.info("Modelgroup cache miss.")
+        logger.debug("Modelgroup cache miss.")
     if not os.path.isdir(directory):
         logger.debug("Not a directory: %s", str(directory))
         return []

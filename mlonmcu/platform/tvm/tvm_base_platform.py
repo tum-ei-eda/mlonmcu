@@ -54,7 +54,7 @@ class TvmBasePlatform(Platform):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
             logger.debug("Project directory already initialized")
-            return
+            return self.project_dir
         dir_name = self.name
         if path is not None:
             self.project_dir = Path(path)
@@ -75,6 +75,7 @@ class TvmBasePlatform(Platform):
                 self.project_dir = Path(self.tempdir.name) / dir_name
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
+        return self.project_dir
 
     @property
     def tvmc_custom_script(self):

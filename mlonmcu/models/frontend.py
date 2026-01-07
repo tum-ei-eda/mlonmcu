@@ -44,6 +44,9 @@ from mlonmcu.models.model import (
     OpenASIPProgram,
     RVVBenchProgram,
     ISSBenchProgram,
+    CryptoBenchProgram,
+    CmsisDSPProgram,
+    CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
@@ -323,6 +326,9 @@ class Frontend(ABC):
                 if len(in_paths) == 1:
                     if in_paths[0].is_dir():
                         files = list(in_paths[0].iterdir())
+                    else:
+                        assert in_paths[0].is_file(), "in_paths not found"
+                        files = [in_paths[0]]
                 else:
                     files = in_paths
                 temp = {}
@@ -1500,6 +1506,16 @@ class ONNXFrontend(SimpleFrontend):
         )
 
 
+class MLIRFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "mlir",
+            ModelFormats.MLIR,
+            features=features,
+            config=config,
+        )
+
+
 class PBFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1576,7 +1592,14 @@ class ExampleFrontend(BenchFrontend):
 
     @property
     def supported_names(self):
-        return ["hello_world", "foobar"]
+        # return ["hello_world", "foobar"]
+        return [
+            "hello_world",
+            "foobar",
+            "load_filter",
+            "basic_hash",
+            "temp_crypto",
+        ]
 
 
 class EmbenchFrontend(BenchFrontend):
@@ -1929,9 +1952,12 @@ class MibenchFrontend(BenchFrontend):
             "telecomm/FFT",
             "telecomm/CRC32",
             "automotive/susan",
-            "automotive/basicmath",
-            "automotive/bitcount",
-            "automotive/qsort",
+            "automotive/basicmath_small",
+            "automotive/basicmath_large",
+            "automotive/bitcount_small",
+            "automotive/bitcount_large",
+            "automotive/qsort_small",
+            "automotive/qsort_large",
             "security/sha",
             "security/rijndael",
             "network/dijkstra",
@@ -2130,3 +2156,76 @@ class ISSBenchFrontend(BenchFrontend):
             "branch_heavy",
             "mem_heavy",
         ]
+
+
+class CryptoBenchFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "crypto_bench",
+            CryptoBenchProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "mceliece348864_encrypt",
+            "mceliece348864_encrypt_rvv",
+            "mceliece348864_decrypt",
+            "mceliece348864_decrypt_rvv",
+            "mceliece348864_keypair",
+            "mceliece348864_keypair_rvv",
+            "hqc-128",
+            "hqc-192",
+            "hqc-256",
+        ]
+
+
+class CmsisDSPFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_dsp",
+            CmsisDSPProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_abs_q15",
+            "arm_abs_q31",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_dsp_bench"
+        return ret
+
+
+class CmsisNNFrontend(BenchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "cmsis_nn",
+            CmsisNNProgram,
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_names(self):
+        return [
+            "arm_nn_activation_s16_tanh",
+            "arm_nn_activation_s16_sigmoid",
+        ]
+
+    def get_platform_config(self, platform):
+        ret = {}
+        if platform == "mlif":
+            ret["template"] = "cmsis_nn_bench"
+        return ret

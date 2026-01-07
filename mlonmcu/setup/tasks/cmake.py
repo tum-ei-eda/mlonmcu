@@ -18,6 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import shutil
 import multiprocessing
 
 from mlonmcu.setup.task import TaskType
@@ -55,22 +56,36 @@ def _validate_cmake(context: MlonMcuContext, params=None):
     return False
 
 
-def _validate_cmake_clone(context: MlonMcuContext, params=None):
+def _validate_cmake_source(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     use_system_cmake = user_vars.get("cmake.use_system", False)
+    from_source = user_vars.get("cmake.from_source", False)
+    if not from_source:
+        return False
+    if "cmake.exe" in user_vars or use_system_cmake:
+        return False
+    return _validate_cmake(context, params=params)
+
+
+def _validate_cmake_dist(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    use_system_cmake = user_vars.get("cmake.use_system", False)
+    from_source = user_vars.get("cmake.from_source", False)
+    if from_source:
+        return False
     if "cmake.exe" in user_vars or use_system_cmake:
         return False
     return _validate_cmake(context, params=params)
 
 
 def _validate_cmake_build(context: MlonMcuContext, params=None):
-    return _validate_cmake(context, params=params)
+    return _validate_cmake_source(context, params=params)
 
 
 @Tasks.provides(["cmake.src_dir"])
-@Tasks.validate(_validate_cmake_clone)
+@Tasks.validate(_validate_cmake_source)
 @Tasks.register(category=TaskType.MISC)
-def download_cmake(
+def download_cmake_source(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """Fetch the cmake sources."""
@@ -84,10 +99,11 @@ def download_cmake(
     if "cmake.exe" in user_vars:
         return False
     # TODO: compile or download?
-    if rebuild or not utils.is_populated(cmakeSrcDir):
+    # if rebuild or not utils.is_populated(cmakeSrcDir):
+    if not utils.is_populated(cmakeSrcDir):
         # TODO: use clone url instead?
-        if "cmake.dl_url" in user_vars:
-            cmakeUrl = user_vars["cmake.dl_url"]
+        if "cmake_source.dl_url" in user_vars:
+            cmakeUrl = user_vars["cmake_source.dl_url"]
             cmakeUrl, cmakeArchive = cmakeUrl.rsplit("/", 1)
         else:
             cmakeUrl = f"https://github.com/Kitware/CMake/releases/download/v{version}/"
@@ -97,8 +113,58 @@ def download_cmake(
     context.cache["cmake.src_dir"] = cmakeSrcDir
 
 
+@Tasks.provides(["cmake.install_dir"])
+@Tasks.validate(_validate_cmake_dist)
+@Tasks.register(category=TaskType.MISC)
+def download_cmake(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Install CMake binary distribution."""
+    del params, threads
+    user_vars = context.environment.vars
+    version = user_vars.get("cmake.version", "3.25.2")
+    # flags = utils.makeFlags((True, version))
+    flags = []
+    cmakeName = utils.makeDirName("cmake", flags=flags)
+    cmakeInstallDir = context.environment.paths["deps"].path / "install" / cmakeName
+    cmakeExe = cmakeInstallDir / "bin" / "cmake"
+    if "cmake.exe" in user_vars:
+        return False
+    cmakeExe_, cmakeVersion = utils.resolve_cmake_wrapper(context, allow_none=True)
+    if cmakeExe_ is not None and cmakeExe_ != cmakeExe:
+        cmakeExe = cmakeExe_
+    elif rebuild or not utils.is_populated(cmakeInstallDir) or not cmakeExe.is_file():
+        # TODO: windows/macos support?
+        dist = user_vars.get("cmake.dist", "Linux-x86_64")
+        utils.mkdirs(cmakeInstallDir)
+        if "cmake.dl_url" in user_vars:
+            cmakeUrl = user_vars["cmake.dl_url"]
+            cmakeUrl, cmakeScript = cmakeUrl.rsplit("/", 1)
+        else:
+            cmakeUrl = f"https://github.com/Kitware/CMake/releases/download/v{version}/"
+            cmakeScript = f"cmake-{version}-{dist}.sh"
+        tempScript = cmakeInstallDir / cmakeScript
+        utils.download(f"{cmakeUrl}/{cmakeScript}", tempScript, progress=verbose)
+        scriptArgs = [f"--prefix={cmakeInstallDir}", "--skip-license"]
+        utils.execute(
+            "bash",
+            tempScript,
+            *scriptArgs,
+            cwd=cmakeInstallDir,
+            # env=env,
+            live=False,
+            # print_output=False,
+        )
+        utils.remove(tempScript)
+    if cmakeVersion is None:
+        cmakeVersion = utils.detect_cmake_version(cmakeExe)
+    context.cache["cmake.install_dir"] = cmakeInstallDir
+    context.cache["cmake.exe"] = cmakeExe
+    context.cache["cmake.version"] = cmakeVersion
+
+
 @Tasks.optional(["cmake.src_dir"])
-@Tasks.provides(["cmake.install_dir", "cmake.exe", "cmake.version"])
+@Tasks.provides(["cmake.build_dir", "cmake.install_dir", "cmake.exe", "cmake.version"])
 @Tasks.validate(_validate_cmake_build)
 @Tasks.register(category=TaskType.MISC)
 def build_cmake(
@@ -121,7 +187,10 @@ def build_cmake(
         cmakeExe = cmakeExe_
     elif rebuild or not utils.is_populated(cmakeInstallDir) or not cmakeExe.is_file():
         assert cmakeSrcDir is not None
-        bootstrapArgs = [f"--prefix={cmakeInstallDir}", "--", "-DCMAKE_USE_OPENSSL=OFF"]
+        # For ssl support:
+        # sudo apt-get install curl
+        # sudo apt-get install libssl-dev libcurl4-openssl-dev
+        bootstrapArgs = ["--system-curl", f"--prefix={cmakeInstallDir}", "--", "-DCMAKE_USE_OPENSSL=OFF"]
         # env = os.environ.copy()
         utils.mkdirs(cmakeBuildDir)
         utils.execute(
@@ -135,6 +204,40 @@ def build_cmake(
         utils.make("install", cwd=cmakeBuildDir, threads=threads, live=verbose)
     if cmakeVersion is None:
         cmakeVersion = utils.detect_cmake_version(cmakeExe)
-    context.cache["cmake.install_dir"] = cmakeBuildDir
+    context.cache["cmake.build_dir"] = cmakeBuildDir
+    context.cache["cmake.install_dir"] = cmakeInstallDir
     context.cache["cmake.exe"] = cmakeExe
     context.cache["cmake.version"] = cmakeVersion
+
+
+def _validate_cmake_clean(context: MlonMcuContext, params={}):
+    if not _validate_cmake_source(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    use_system_cmake = user_vars.get("cmake.use_system", False)
+    if "cmake.exe" in user_vars or use_system_cmake:
+        return False
+    keep_build_dir = user_vars.get("cmake.keep_build_dir", False)
+    keep_src_dir = user_vars.get("cmake.keep_src_dir", False)
+    return (not keep_build_dir) or (not keep_src_dir)
+
+
+@Tasks.needs(["cmake.exe", "cmake.src_dir", "cmake.build_dir"])
+@Tasks.removes(["cmake.build_dir", "cmake.src_dir"])  # TODO: implement
+@Tasks.validate(_validate_cmake_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_cmake(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup CMake build dir."""
+    user_vars = context.environment.vars
+    keep_build_dir = user_vars.get("cmake.keep_build_dir", False)
+    if not keep_build_dir:
+        cmakeBuildDir = context.cache["cmake.build_dir"]
+        shutil.rmtree(cmakeBuildDir)
+        del context.cache["cmake.build_dir"]
+    keep_src_dir = user_vars.get("cmake.keep_src_dir", False)
+    if not keep_src_dir:
+        cmakeSrcDir = context.cache["cmake.src_dir"]
+        shutil.rmtree(cmakeSrcDir)
+        del context.cache["cmake.src_dir"]

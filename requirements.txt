@@ -15,7 +15,9 @@ pyelftools
 # Misc
 pyyaml
 pandas
-numpy<2.0
+numpy<2.0; python_version <= '3.8'
+numpy>=2.0; python_version >= '3.10'
+
 psutil
 
 # Sessions
@@ -27,7 +29,15 @@ paramiko  # TODO: make optional
 
 # Postprocesses
 mapfile_parser
-cpp-demangle
+# cpp-demangle # Broken on py3.13?
+# Needs rustc:
+# cpp-demangle @ git+https://github.com/benfred/py-cpp-demangle@master
 
 # Other
 packaging
+Pillow
+
+# Optional:
+# openpyxl
+# xlsxwriter
+# xlwt

@@ -19,12 +19,15 @@
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
 import itertools
 import time
-import os
 import copy
+import shutil
 import tempfile
+from typing import Union, Optional
 from pathlib import Path
 from enum import IntEnum
 from collections import defaultdict
+
+import yaml
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
@@ -72,6 +75,204 @@ def add_any(new, base=None, append=True):
     return ret
 
 
+class RunInitializer:
+
+    @staticmethod
+    def from_file(src: Union[str, Path]):
+        if not isinstance(src, Path):
+            assert isinstance(src, str)
+            src = Path(src)
+        fmt = src.suffix
+        assert len(fmt) > 0
+        fmt = fmt[1:].lower()
+        if fmt in ["yml", "yaml"]:
+            with open(src, "r") as f:
+                data = yaml.safe_load(f)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+        assert "runs" in data
+        runs = data["runs"]
+        if len(runs) == 0:
+            raise RuntimeError("Empty run initalizer")
+        elif len(runs) == 1:
+            run = runs[0]
+        else:
+            raise NotImplementedError("multiple runs per initializer not supported")
+        initializer = RunInitializer(**run)
+        initializer.frozen = True
+        return initializer
+
+    def __init__(
+        self,
+        idx=None,
+        model_name=None,
+        framework_name=None,
+        frontend_names=None,
+        backend_name=None,
+        target_name=None,
+        platform_names=None,
+        feature_names=None,
+        config=None,
+        postprocess_names=None,
+        comment=None,
+        # from_stage=None,
+        # frozen=False,
+    ):
+        self.idx = idx
+        self.model_name = model_name
+        self.frontend_names = frontend_names
+        self.framework_name = framework_name
+        self.backend_name = backend_name
+        self.platform_names = platform_names
+        self.postprocess_names = postprocess_names
+        self.comment = comment
+        self.target_name = target_name
+        self.config = config
+        self.feature_names = feature_names
+        self.frozen = False
+
+    def _serialize(self):
+        return {
+            "runs": [
+                {
+                    "idx": self.idx,
+                    "model_name": self.model_name,
+                    "frontend_names": self.frontend_names,
+                    "framework_name": self.framework_name,
+                    "backend_name": self.backend_name,
+                    "platform_names": self.platform_names,
+                    "postprocess_names": self.postprocess_names,
+                    "comment": self.comment,
+                    "target_name": self.target_name,
+                    "config": self.config,
+                    "feature_names": self.feature_names,
+                    # not: frozen
+                }
+            ]
+        }
+
+    def save(self, dest: Union[str, Path], fmt: Optional[str] = None):
+        if not isinstance(dest, Path):
+            assert isinstance(dest, str)
+            dest = Path(dest)
+        data = self._serialize()
+        if fmt is None:
+            fmt = dest.suffix
+            assert fmt
+            if fmt[0] == ".":
+                fmt = fmt[1:]
+        if fmt.lower() in ["yml", "yaml"]:
+            with open(dest, "w") as f:
+                yaml.dump(data, f, allow_unicode=True)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+
+    def realize(self, context=None):
+        assert context is not None
+        run = Run(
+            idx=self.idx,
+            config=self.config,
+        )
+        if self.comment:
+            run.comment = self.comment
+        if self.feature_names:
+            run.add_features_by_name(self.feature_names, context=context)
+        if self.frontend_names:
+            run.add_frontends_by_name(self.frontend_names, context=context)
+        if self.model_name:
+            run.add_model_by_name(self.model_name, context=context)
+        if self.platform_names:
+            run.add_platforms_by_name(self.platform_names, context=context)
+        if self.backend_name:
+            run.add_backend_by_name(self.backend_name, context=context)
+        if self.target_name:
+            run.add_target_by_name(self.target_name, context=context)
+        if self.postprocess_names:
+            run.add_postprocesses_by_name(self.postprocess_names, context=context)
+        return run
+
+    def has_target(self):
+        return self.target_name is not None
+
+    def add_model_by_name(self, model_name, context=None):
+        assert self.model_name is None
+        self.model_name = model_name
+
+    def add_frontend_by_name(self, frontend_name, context=None):
+        self.add_frontends_by_name([frontend_name])
+
+    def add_frontends_by_name(self, frontend_names, context=None):
+        if self.frontend_names is None:
+            self.frontend_names = []
+        self.frontend_names.extend(frontend_names)
+
+    def add_backend_by_name(self, backend_name, context=None):
+        assert self.backend_name is None
+        self.backend_name = backend_name
+
+    def add_target_by_name(self, target_name, context=None):
+        # assert self.target_name is None
+        self.target_name = target_name
+
+    def add_platform_by_name(self, platform_name, context=None):
+        self.add_platforms_by_name([platform_name])
+
+    def add_platforms_by_name(self, platform_names, context=None):
+        if self.platform_names is None:
+            self.platform_names = []
+        self.platform_names.extend(platform_names)
+
+    def add_postprocess_by_name(self, postprocess_name, context=None):
+        self.add_postprocesses_by_name([postprocess_name])
+
+    def add_postprocesses_by_name(self, postprocess_names, context=None):
+        if self.postprocess_names is None:
+            self.postprocess_names = []
+        self.postprocess_names.extend(postprocess_names)
+
+    def add_feature_by_name(self, feature_name, context=None):
+        self.add_features_by_name([feature_name])
+
+    def add_features_by_name(self, feature_names, context=None):
+        if self.feature_names is None:
+            self.feature_names = []
+        self.feature_names.extend(feature_names)
+
+    def copy(self, session=None):
+        """Create a new runinitializer based on this instance."""
+        new = copy.deepcopy(self)
+        assert session is not None, "Run.copy() needs session"
+        if session:
+            new_idx = session.request_run_idx()
+            new.idx = new_idx
+            # self.init_directory()
+        return new
+
+
+class RunResult:
+    # def __init__(self, run: "Run", session: "Session"):
+    def __init__(self, run: "Run"):
+        self.idx = run.idx
+        self.dir = run.dir
+        self.failing = run.failing
+        self.failed_stage = run.failed_stage
+        self.reason = run.reason
+        # self.report = run.get_report(session=session)
+        self.report = run.get_report()
+        # self.artifacts_per_stage = {}
+        # self.stage = RunStage.NOP  # max executed stage
+        # self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
+        # self.directories = {}
+
+    def get_report(self, session=None):
+        # TODO: read only?!
+        # if session is not None:
+        #     pre = self.report.pre_df
+        #     pre["Session"] = session.idx
+        #     self.report.pre_df = pre
+        return self.report
+
+
 class Run:
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
@@ -108,7 +309,6 @@ class Run:
         config=None,  # TODO: All config combined or explicit run-config?
         postprocesses=None,
         archived=False,
-        session=None,
         comment="",
     ):
         self.idx = idx
@@ -119,14 +319,12 @@ class Run:
         self.platforms = platforms if platforms is not None else []
         self.artifacts_per_stage = {}
         self.archived = archived
-        self.session = session
         self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
 
         self.directories = {}
-        # self.init_directory()
         self.target = target
         self.cache_hints = []
         self.config = config if config else {}
@@ -136,7 +334,6 @@ class Run:
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.sub_names = []
         self.sub_parents = {}
-        self.result = None
         self.times = {}
         self.failing = False  # -> RunStatus
         self.reason = None
@@ -144,6 +341,7 @@ class Run:
         # self.lock = threading.Lock()  # FIXME: use mutex instead of boolean
         self.locked = False
         self.report = None
+        self.dir = None
 
     def process_features(self, features):
         """Utility which handles postprocess_features."""
@@ -157,6 +355,9 @@ class Run:
             feature.add_run_config(tmp_run_config)
             self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         return features
+
+    def has_target(self):
+        return self.target is not None
 
     @property
     def tune_enabled(self):
@@ -295,33 +496,42 @@ class Run:
         # self.lock.release()
         self.locked = False
 
-    def init_directory(self):
+    def init_directory(self, session=None, parent=None):
         """Initialize the temporary directory for this run."""
-        if self.session is None:
+        if parent is not None:
+            if not isinstance(parent, Path):
+                assert isinstance(parent, str)
+                parent = Path(parent)
+            assert parent.is_dir()
+            self.tempdir = None
+            self.dir = parent / str(self.idx)
+        elif session is not None:
+            logger.warning(
+                "session argument of run.init_directory is deprecated. Please use parent argument in the future."
+            )
+            self.tempdir = None
+            self.dir = session.runs_dir / str(self.idx)
+        else:
             assert not self.archived
             self.tempdir = tempfile.TemporaryDirectory()
             self.dir = Path(self.tempdir.name)
-        else:
-            self.tempdir = None
-            self.dir = self.session.runs_dir / str(self.idx)
-            if not self.dir.is_dir():
-                os.mkdir(self.dir)
-            # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
-            # A solution would be to split up the framework runtime libs from the mlif...
-            for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
-                # The stage_subdirs setting is ignored here because platforms can be multi-stage!
-                # platform.init_directory(path=Path(self.dir) / platform.name)
-                if platform in self.directories:
-                    continue
-                platform_dir = Path(self.dir) / platform.name
-                if platform.init_directory(path=platform_dir):
-                    self.directories[platform.name] = platform_dir
-            # if target not in self.directories:
-            #     target_dir = Path(self.dir) /target.name
-            #     if target.init_directory(path=target_dir)
-            #         self.directories[target.name] = target_dir
+        self.dir.mkdir(exist_ok=True)
+        # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
+        # A solution would be to split up the framework runtime libs from the mlif...
+        for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
+            # The stage_subdirs setting is ignored here because platforms can be multi-stage!
+            # platform.init_directory(path=Path(self.dir) / platform.name)
+            if platform in self.directories:
+                continue
+            platform_dir = Path(self.dir) / platform.name
+            if platform.init_directory(path=platform_dir):
+                self.directories[platform.name] = platform_dir
+        # if target not in self.directories:
+        #     target_dir = Path(self.dir) /target.name
+        #     if target.init_directory(path=target_dir)
+        #         self.directories[target.name] = target_dir
 
-            # TODO: other components
+        # TODO: other components
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -334,11 +544,12 @@ class Run:
                 setattr(result, k, copy.deepcopy(v, memo))
         return result
 
-    def copy(self):
+    def copy(self, session=None):
         """Create a new run based on this instance."""
         new = copy.deepcopy(self)
-        if self.session:
-            new_idx = self.session.request_run_idx()
+        assert session is not None, "Run.copy() needs session"
+        if session:
+            new_idx = session.request_run_idx()
             new.idx = new_idx
             # self.init_directory()
         return new
@@ -653,7 +864,9 @@ class Run:
     @property
     def artifacts(self):
         sub = "default"
-        ret = sum(list(itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items()])), [])
+        ret = sum(
+            list(itertools.chain([subs[sub] for stage, subs in self.artifacts_per_stage.items() if sub in subs])), []
+        )
         return ret
 
     def get_all_sub_artifacts(self, sub, stage=None):
@@ -1156,8 +1369,9 @@ class Run:
     @property
     def prefix(self):
         """Get prefix property."""
+        session = None  # TODO: fix
         return (
-            (f"[session-{self.session.idx}] [run-{self.idx}]" if self.session else f"[run-{self.idx}]")
+            (f"[session-{session.idx}] [run-{self.idx}]" if session else f"[run-{self.idx}]")
             if self.idx is not None
             else ""
         )
@@ -1245,7 +1459,7 @@ class Run:
             ret.update(config_helper(postprocess))
         return ret
 
-    def get_report(self):
+    def get_report(self, session=None):
         """Returns teh complete report of this run."""
         if self.completed[RunStage.POSTPROCESS]:
             if self.report is not None:
@@ -1255,8 +1469,8 @@ class Run:
         # TODO: config or args for stuff like (session id) and run id as well as detailed features and configs
         report = Report()
         pre = {}
-        if self.session is not None:
-            pre["Session"] = self.session.idx
+        if session is not None:
+            pre["Session"] = session.idx
         if self.idx is not None:
             pre["Run"] = self.idx
         if self.model:
@@ -1366,5 +1580,134 @@ class Run:
 
         self.write_run_file()
 
+    def result(self):
+        return RunResult(self)  # TODO: session?
 
-# TODO: implement close()? and use closing contextlib?
+    # Everything in Run is serializable except PlatformTargets and PlatformBackends...
+    # def __getstate__(self):
+    #     state = self.__dict__.copy()
+    #     print("state", state)
+    #     # Don't pickle baz
+    #     # del state["baz"]
+    #     # del state["platforms"]
+    #     del state["target"]
+    #     return state
+
+    # def __setstate__(self, state):
+    #     self.__dict__.update(state)
+    #     # Add baz back since it doesn't exist in the pickle
+    #     # self.baz = 0
+
+    def save(self, dest: Union[str, Path], fmt: Optional[str] = None):
+        raise NotImplementedError
+        # if not isinstance(dest, Path):
+        #     assert isinstance(dest, str)
+        #     dest = Path(dest)
+        # # data = self._serialize()
+        # if fmt is None:
+        #     fmt = dest.suffix
+        #     assert fmt
+        #     if fmt[0] == ".":
+        #         fmt = fmt[1:]
+        # if fmt.lower() in ["pkl", "pickle"]:
+        #     import pickle
+        #     with open(dest, "wb") as f:
+        #         pickle.dump(self, f)
+        # else:
+        #     raise ValueError(f"Unsupported format: {fmt}")
+
+    def save_artifacts(self, dest: Union[str, Path], fmt: Optional[str] = None, full: bool = False):
+        if not isinstance(dest, Path):
+            assert isinstance(dest, str)
+            dest = Path(dest)
+        artifacts = self.artifacts
+        if fmt is None:
+            fmt = dest.suffix
+            assert fmt
+            if fmt[0] == ".":
+                fmt = fmt[1:]
+        if fmt.lower() in ["pkl", "pickle"]:
+            data = {"artifacts": artifacts}
+            import pickle
+
+            with open(dest, "wb") as f:
+                pickle.dump(data, f)
+        elif fmt.lower() in ["yml", "yaml"]:
+            data = {"artifacts": [artifact.serialize(full=full) for artifact in artifacts]}
+
+            with open(dest, "w") as f:
+                yaml.dump(data, f, allow_unicode=True)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+
+    def cleanup_artifacts(self, dirs: bool = False):
+        artifacts = self.artifacts
+        for artifact in artifacts:
+            if artifact.fmt in [ArtifactFormat.ARCHIVE]:
+                logger.warning("Can not cleanup unzipped archives!")
+            if not artifact.exported:
+                continue
+            assert artifact.path.is_absolute()
+            if artifact.path.is_file():
+                artifact.path.unlink()
+            elif artifact.path.is_dir() and dirs:
+                shutil.rmtree(artifact.path)
+            else:
+                assert False
+
+    def cleanup_directories(self):
+        for directory in self.directories.values():
+            assert directory.is_absolute()
+            if not directory.is_dir():
+                continue
+            shutil.rmtree(directory)
+
+    def initializer(self):
+        return RunInitializer(
+            idx=self.idx,
+            model_name=self.model.name,
+            framework_name=self.framework.name,
+            frontend_names=[frontend.name for frontend in self.frontends],
+            backend_name=self.backend.name,
+            target_name=self.target.name,
+            platform_names=[platform.name for platform in self.platforms],
+            feature_names=[feature.name for feature in self.features],
+            config={**self.config},
+            postprocess_names=[postprocess.name for postprocess in self.postprocesses],
+            comment=self.comment,
+        )
+
+
+class ArchivedRun(Run):
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            self,
+            archived=True,
+            **kwargs,
+        )
+
+    @staticmethod
+    def from_file(path: Union[Path, str]):
+        path = Path(path)
+        assert path.is_file()
+        with open(path, "r") as f:
+            yaml_data = yaml.safe_load(f)
+        print("yaml_data", yaml_data)
+        return ArchivedRun(**yaml_data)
+
+    @staticmethod
+    def from_dir(path: Union[Path, str], allow_missing: bool = True):
+        path = Path(path)
+        assert path.is_dir()
+        run_yaml = path / "run.yml"
+        if not run_yaml.is_file():
+            assert allow_missing, f"Run YAML does not exist: {path}"
+            ret = ArchivedRun()
+            ret.dir = path
+            return ret
+        return ArchivedRun.from_file(run_yaml, allow_missing=allow_missing)
+
+    @staticmethod
+    def restore(self):
+        raise NotImplementedError

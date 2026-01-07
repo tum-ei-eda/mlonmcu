@@ -24,7 +24,12 @@ on:
       enable_cmake:
         description: Install up-to-date CMake version
         required: true
-        default: 'true'
+        default: 'false'
+      conan_version:
+        description: Conan version (keep empty to skip conan install)
+        required: true
+        default: '1.59'  # legacy for old tgc-iss
+        # default: "2.20.1"  # new for dbt-rise-riscv
       version:
         description: Version Tag
         required: true
@@ -263,6 +268,8 @@ jobs:
           build-args: |
             ENABLE_CMAKE=${{ github.event.inputs.enable_cmake}}
             MLONMCU_TEMPLATE=${{ github.event.inputs.template }}
+            ENABLE_CONAN=true
+            CONAN_VERSION=${{ github.event.inputs.conan_version }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:${{ github.event.inputs.version }}
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ github.event.inputs.version }}

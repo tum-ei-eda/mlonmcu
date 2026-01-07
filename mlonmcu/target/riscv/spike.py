@@ -255,7 +255,6 @@ class SpikePKTarget(SpikeBaseTarget):
 
     @property
     def spike_pk(self):
-        print("spike_pk")
         ret = Path(
             pick_first(
                 self.config,
@@ -267,8 +266,6 @@ class SpikePKTarget(SpikeBaseTarget):
                 ],
             )
         )
-        print("ret", ret)
-        # input(">")
         return ret
 
     @property

@@ -18,7 +18,7 @@
 #
 """Artifacts defintions internally used to refer to intermediate results."""
 
-from enum import Enum
+from enum import IntFlag, auto
 from pathlib import Path
 
 from mlonmcu.setup import utils
@@ -28,24 +28,25 @@ from mlonmcu.setup import utils
 # TODO: decide if inheritance based scheme would fit better
 
 
-class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
+# class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
+class ArtifactFormat(IntFlag):
     """Enumeration of artifact types."""
 
-    UNKNOWN = 0
-    SOURCE = 1
-    TEXT = 2
-    MLF = 3
-    MODEL = 4
-    IMAGE = 5
-    DATA = 6
-    NUMPY = 7
-    PARAMS = 8
-    JSON = 9  # TODO: how about YAML or more general: DICT?
-    PATH = 10  # NOT A DIRECTORY?
-    RAW = 11
-    BIN = 11
-    SHARED_OBJECT = 12  # Here: the parent tar archive
-    ARCHIVE = 13
+    UNKNOWN = auto()
+    SOURCE = auto()
+    TEXT = auto()
+    MLF = auto()
+    MODEL = auto()
+    IMAGE = auto()
+    DATA = auto()
+    NUMPY = auto()
+    PARAMS = auto()
+    JSON = auto()  # TODO: how about YAML or more general: DICT?
+    PATH = auto()  # NOT A DIRECTORY?
+    RAW = auto()
+    BIN = RAW
+    SHARED_OBJECT = auto()  # Here: the parent tar archive
+    ARCHIVE = auto()
 
 
 def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):
@@ -100,12 +101,34 @@ class Artifact:
         self.optional = optional
         self.validate()
 
+    def serialize(self, full: bool = False):
+        ret = {
+            "name": self.name,
+            "path": str(self.path) if self.path else None,
+            "fmt": self.fmt.value,
+            "flags": list(self.flags),
+            "archive": self.archive,
+            "optional": self.optional,
+            **(
+                {
+                    "content": self.content,
+                    "data": self.data,
+                    "raw": self.raw,
+                }
+                if full
+                else {}
+            ),
+        }
+        return ret
+
+    # TODO: unserialize
+
     def __repr__(self):
         return f"Artifact({self.name}, fmt={self.fmt}, flags={self.flags})"
 
     @property
     def exported(self):
-        """Returns true if the artifact was writtem to disk."""
+        """Returns true if the artifact was written to disk."""
         return bool(self.path is not None)
 
     def validate(self):

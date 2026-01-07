@@ -263,10 +263,10 @@ vars:
   allow_extensions: false
   runs_per_stage: true
   # llvm.version: "15.0.6"  # No llvm 16 build available for ubuntu < 22.04
-  llvm.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/LLVM/default/16.0.6/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/llvm.tar.xz"
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_16.0.6/clang+llvm-16.0.6-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
   riscv_gcc.enable_rv64: true
-  riscv_gcc_rv64.dl_url: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gc_lp64d_medany.tar.xz"
-  riscv_gcc_rv64.dl_url_vext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/default/2023.11.27/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv64gcv_lp64d_medany.tar.xz"
+  riscv_gcc_rv64.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2023.11.27/riscv32-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gc_lp64d_linux_medany.tar.xz"
+  riscv_gcc_rv64.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2023.11.27/riscv32-unknown-linux-glibc-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv64gcv_lp64d_linux_medany.tar.xz"
 flags:
   tflmc.exe:
   - x86

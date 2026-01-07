@@ -268,6 +268,7 @@ vars:
   llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_19.1.1/clang+llvm-19.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"  # TODO: LLVM 20
   riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_ilp32.tar.xz"  # TODO: GCC 14+
   riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32im_zicsr_zifencei_zve32x_ilp32.tar.xz"  # TODO: GCC 14+
+  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
   # TODO: f, zve32f, zhf, zvfh
   # TODO: vicuna2 target, vicuna2 configs etc.
   spike.keep_build_dir: false

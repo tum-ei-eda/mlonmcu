@@ -231,6 +231,7 @@ vars:
   llvm.distribution: "x86_64-linux-gnu-ubuntu-16.04"
   runs_per_stage: true
   riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
+  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
   cmake.use_system: true
   llvm.use_system: true
   boost.use_system: true

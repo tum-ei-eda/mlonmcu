@@ -31,6 +31,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target.target import Target
 from mlonmcu.config import str2bool, str2list, str2dict
+from mlonmcu.flow.tvm.framework import get_crt_config_dir
 
 from ..platform import CompilePlatform, TargetPlatform
 from .cfu_playground_target import create_cfu_playground_platform_target, get_cfu_playground_platform_targets
@@ -62,7 +63,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # "use_verilator": True,
     }
 
-    REQUIRED = {"cfu_playground.src_dir", "yosys.install_dir"}  # TODO: yosys, riscv tc?
+    REQUIRED = {"cfu_playground.src_dir", "yosys.install_dir", "mlif.src_dir"}  # TODO: yosys, riscv tc?
+    OPTIONAL = {"tvm.src_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -77,6 +79,14 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def cfu_playground_src_dir(self):
         return Path(self.config["cfu_playground.src_dir"])
+
+    @property
+    def mlif_src_dir(self):
+        return Path(self.config["mlif.src_dir"])
+
+    @property
+    def tvm_src_dir(self):
+        return Path(self.config["tvm.src_dir"])
 
     @property
     def yosys_install_dir(self):
@@ -182,8 +192,242 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             if not template_dir.is_dir():
                 template_dir = get_project_template(name=str(template_dir))
         assert template_dir is not None, f"Provided project template does not exists: {template_dir}"
-        print("cp", template_dir, self.project_dir)
+        # print("cp", template_dir, self.project_dir)
+        # TODO: pass backend to platform?
+        backend = None
+        if (src / "aot_wrapper.c").is_file():
+            backend = "tvmaot"
+        elif (src / "rt_wrapper.c").is_file():
+            backend = "tvmrt"
+        elif (src / "model.cc.h").is_file():
+            backend = "tflmi"
+        assert backend is not None, "Could not infer used backend"
+        print("backend", backend)
         shutil.copytree(template_dir, self.project_dir, dirs_exist_ok=True)
+        print("src", src)
+        dest_base = self.project_dir / "src"
+        if backend in ["tvmaot", "tvmrt"]:
+            crt_config_dir = Path(get_crt_config_dir())
+            assert crt_config_dir.is_dir()
+            to_copy = [
+                (crt_config_dir, dest_base),
+                (src / "tvm_wrapper.h", dest_base),
+                (src / "codegen" / "host" / "src", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/default_data.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/ml_interface.h", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/ml_interface.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/ml_interface_tvm.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/default_model_support/process_input.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/default_model_support/process_output.c", dest_base),
+            ]
+            if backend == "tvmrt":
+                assert self.tvm_src_dir is not None
+                assert self.tvm_src_dir.is_dir()
+                to_copy += [
+                    (src / "rt_wrapper.c", dest_base),
+                    (self.tvm_src_dir / "3rdparty/dlpack/include/dlpack", dest_base / "dlpack"),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/error_codes.h",
+                        dest_base / "tvm/runtime/crt/error_codes.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/logging.h",
+                        dest_base / "tvm/runtime/crt/logging.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/platform.h",
+                        dest_base / "tvm/runtime/crt/platform.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/packed_func.h",
+                        dest_base / "tvm/runtime/crt/packed_func.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/module.h",
+                        dest_base / "tvm/runtime/crt/module.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/func_registry.h",
+                        dest_base / "tvm/runtime/crt/func_registry.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/crt.h",
+                        dest_base / "tvm/runtime/crt/crt.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/graph_executor.h",
+                        dest_base / "tvm/runtime/crt/graph_executor.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/page_allocator.h",
+                        dest_base / "tvm/runtime/crt/page_allocator.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/include/tvm/runtime/crt/internal/memory/page_allocator.h",
+                        dest_base / "tvm/runtime/crt/internal/memory/page_allocator.h",
+                    ),
+                    (
+                        self.tvm_src_dir
+                        / "src/runtime/crt/include/tvm/runtime/crt/internal/graph_executor/graph_executor.h",
+                        dest_base / "tvm/runtime/crt/internal/graph_executor/graph_executor.h",
+                    ),
+                    (
+                        self.tvm_src_dir
+                        / "src/runtime/crt/include/tvm/runtime/crt/internal/graph_executor/load_json.h",
+                        dest_base / "tvm/runtime/crt/internal/graph_executor/load_json.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/include/tvm/runtime/crt/internal/common/ndarray.h",
+                        dest_base / "tvm/runtime/crt/internal/common/ndarray.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/graph_executor/graph_executor.c",
+                        dest_base / "tvm/runtime/crt/graph_executor/graph_executor.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/graph_executor/load_json.c",
+                        dest_base / "tvm/runtime/crt/graph_executor/load_json.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/c_runtime_api.h",
+                        dest_base / "tvm/runtime/c_runtime_api.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/c_backend_api.h",
+                        dest_base / "tvm/runtime/c_backend_api.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/metadata_types.h",
+                        dest_base / "tvm/runtime/metadata_types.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "include/tvm/runtime/crt/stack_allocator.h",
+                        dest_base / "tvm/runtime/crt/stack_allocator.h",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/common/func_registry.c",
+                        dest_base / "tvm/runtime/crt/common/func_registry.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/common/crt_runtime_api.c",
+                        dest_base / "tvm/runtime/crt/common/crt_runtime_api.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/common/ndarray.c",
+                        dest_base / "tvm/runtime/crt/common/ndarray.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/common/packed_func.c",
+                        dest_base / "tvm/runtime/crt/common/packed_func.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/common/crt_backend_api.c",
+                        dest_base / "tvm/runtime/crt/common/crt_backend_api.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/memory/stack_allocator.c",
+                        dest_base / "tvm/runtime/crt/memory/stack_allocator.c",
+                    ),
+                    (
+                        self.tvm_src_dir / "src/runtime/crt/memory/page_allocator.c",
+                        dest_base / "tvm/runtime/crt/memory/page_allocator.c",
+                    ),
+                ]
+            elif backend == "tvmaot":
+                to_copy += [
+                    (src / "aot_wrapper.c", dest_base),
+                    (src / "codegen" / "host" / "include", dest_base),
+                    (src / "runtime" / "include" / "dlpack", dest_base / "dlpack"),
+                    (
+                        src / "runtime/include/tvm/runtime/crt/error_codes.h",
+                        dest_base / "tvm/runtime/crt/error_codes.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/crt/logging.h",
+                        dest_base / "tvm/runtime/crt/logging.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/crt/platform.h",
+                        dest_base / "tvm/runtime/crt/platform.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/crt/page_allocator.h",
+                        dest_base / "tvm/runtime/crt/page_allocator.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/crt/internal/memory/page_allocator.h",
+                        dest_base / "tvm/runtime/crt/internal/memory/page_allocator.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/c_runtime_api.h",
+                        dest_base / "tvm/runtime/c_runtime_api.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/c_backend_api.h",
+                        dest_base / "tvm/runtime/c_backend_api.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/metadata_types.h",
+                        dest_base / "tvm/runtime/metadata_types.h",
+                    ),
+                    (
+                        src / "runtime/include/tvm/runtime/crt/stack_allocator.h",
+                        dest_base / "tvm/runtime/crt/stack_allocator.h",
+                    ),
+                    (
+                        src / "runtime/src/runtime/crt/common/crt_backend_api.c",
+                        dest_base / "tvm/runtime/crt/common/crt_backend_api.c",
+                    ),
+                    (
+                        src / "runtime/src/runtime/crt/memory/stack_allocator.c",
+                        dest_base / "tvm/runtime/crt/memory/stack_allocator.c",
+                    ),
+                    (
+                        src / "runtime/src/runtime/crt/memory/page_allocator.c",
+                        dest_base / "tvm/runtime/crt/memory/page_allocator.c",
+                    ),
+                ]
+        elif backend == "tflmi":
+            to_copy = [
+                (src / "model.cc", dest_base),
+                (src / "model.cc.h", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/default_data.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/ml_interface.h", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/ml_interface.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/ml_interface_tflm.cc", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/default_model_support/process_input.c", dest_base),
+                (self.mlif_src_dir / "lib/ml_interface/v1/default_model_support/process_output.c", dest_base),
+            ]
+        else:
+            raise ValueError(f"Unsupported Backend: {backend}")
+
+        # Patch makefile
+        if backend != "tflmi":
+            to_append = """
+# This says to NOT compile the TFLM library or any models
+export SKIP_TFLM=1
+"""
+            makefile_path = self.project_dir / "Makefile"
+            assert makefile_path.is_file()
+            with open(makefile_path, "r") as f:
+                makefile_lines = f.readlines()
+            makefile_lines = makefile_lines[:-2] + to_append.split("\n") + [makefile_lines[-1]]
+            with open(makefile_path, "w") as f:
+                f.write("\n".join(makefile_lines))
+
+        # print("to_copy", to_copy)
+        for file_or_dir, dest in to_copy:
+            # print("file_or_dir")
+            assert file_or_dir.exists(), f"Missing file or dir: {file_or_dir}"
+            if file_or_dir.is_dir():
+                shutil.copytree(file_or_dir, dest, dirs_exist_ok=True)
+            else:
+                if dest.is_dir():
+                    dest_ = dest / file_or_dir.name
+                else:
+                    dest_ = dest
+                dest.parent.mkdir(exist_ok=True, parents=True)
+                shutil.copyfile(file_or_dir, dest_)
         # TODO: call make (without renode)?
         out = ""
 

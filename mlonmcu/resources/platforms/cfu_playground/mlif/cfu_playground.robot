@@ -15,8 +15,6 @@ Should Walk The Menu
     Wait For Line On Uart    CFU Playground
     Wait For Prompt On Uart  main>
     Write Line To Uart       3
-    Wait For Line On Uart    Project Menu
-    Write Line To Uart       h
     Wait For Line On Uart    Program start.
     Wait For Line On Uart    Program finish.
     Wait For Line On Uart    MLONMCU EXIT:

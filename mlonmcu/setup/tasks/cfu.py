@@ -65,7 +65,17 @@ def setup_cfu_playground(
         params = {}
     # cfuName = utils.makeDirName("cfu_playground", flags=flags)
     cfuSrcDir = context.cache["cfu_playground.src_dir"]
-    check_paths = [cfuSrcDir / "third_party" / "python" / "pythondata-software-picolibc"]
-    if rebuild and all(utils.is_populated(path) for path in check_paths):
-        pass
+    check_paths = [
+        cfuSrcDir / "third_party" / "python" / "pythondata-software-picolibc",
+        cfuSrcDir / "third_party" / "renode" / "plugins" / "VerilatorIntegrationLibrary" / "src" / "renode_cfu.h",
+    ]
+    if rebuild or not all(utils.is_populated(path) for path in check_paths):
+        setupScript = cfuSrcDir / "scripts" / "setup"
+        utils.execute(
+            setupScript,
+            # env=env,
+            live=verbose,
+            # print_output=False,
+            cwd=cfuSrcDir,
+        )
     # context.cache["cfu_playground.dl_dir"] = tflmDownloadsDir

@@ -21,7 +21,6 @@
 import os
 import shutil
 import tempfile
-import subprocess
 from pathlib import Path
 import pkg_resources
 
@@ -29,8 +28,6 @@ import pkg_resources
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
-from mlonmcu.target.target import Target
-from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.flow.tvm.framework import get_crt_config_dir
 
 from ..platform import CompilePlatform, TargetPlatform

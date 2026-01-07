@@ -18,16 +18,10 @@
 #
 import re
 import os
-from enum import Enum
-
-from mlonmcu.utils import filter_none
 
 # from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget
 from mlonmcu.target.metrics import Metrics
-
-from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
-from mlonmcu.target.riscv.util import sort_extensions_canonical, join_extensions
 from mlonmcu.target.bench import add_bench_metrics
 
 from mlonmcu.logging import get_logger

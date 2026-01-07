@@ -18,9 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
-import os
 import multiprocessing
-from pathlib import Path
 
 from mlonmcu.setup.task import TaskType
 from mlonmcu.context.context import MlonMcuContext
@@ -35,6 +33,7 @@ Tasks = get_task_factory()
 
 
 def _validate_cfu_playground(context: MlonMcuContext, params=None):
+    del params
     return context.environment.has_platform("cfu_playground")
 
 
@@ -45,6 +44,7 @@ def clone_cfu_playground(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """Clone the CFU Playground repository."""
+    del params, threads, verbose
     cfuName = utils.makeDirName("cfu_playground")
     cfuSrcDir = context.environment.paths["deps"].path / "src" / cfuName
     if rebuild or not utils.is_populated(cfuSrcDir):
@@ -61,6 +61,7 @@ def setup_cfu_playground(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
     """Setup CFU Playground."""
+    del threads
     if not params:
         params = {}
     # cfuName = utils.makeDirName("cfu_playground", flags=flags)

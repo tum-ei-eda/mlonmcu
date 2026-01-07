@@ -21,8 +21,7 @@ import unittest
 
 
 class TemplateInstruction(InstructionBase):
-    """Template instruction
-    """
+    """Template instruction"""
 
     def elab(self, m):
         with m.If(self.start):
@@ -37,18 +36,22 @@ class TemplateInstructionTest(InstructionTestBase):
         return TemplateInstruction()
 
     def test(self):
-        self.verify([
-            (0, 0, 0),
-            (4, 5, 9),
-            (0xffffffff, 0xffffffff, 0xfffffffe),
-        ])
+        self.verify(
+            [
+                (0, 0, 0),
+                (4, 5, 9),
+                (0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFE),
+            ]
+        )
 
 
 def make_cfu():
-    return simple_cfu({
-        # Add instructions here...
-        0: TemplateInstruction(),
-    })
+    return simple_cfu(
+        {
+            # Add instructions here...
+            0: TemplateInstruction(),
+        }
+    )
 
 
 class CfuTest(CfuTestBase):
@@ -63,5 +66,5 @@ class CfuTest(CfuTestBase):
         return self.run_ops(DATA)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -160,11 +160,13 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def optimize(self):
         val = self.config["optimize"]
+        # if val is None:
         if val is None:
-            val = "s"
+            # val = "3"
+            return None
         else:
             val = str(val)
-        assert val in ["0", "g", "2", "s", "z"], f"Unsupported: {val}"
+        assert val in ["0", "1", "2", "3", "s"], f"Unsupported: {val}"
         return val
 
     def close(self):

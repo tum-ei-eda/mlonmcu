@@ -54,7 +54,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         **TargetPlatform.DEFAULTS,
         "project_template": None,
         "project_dir": None,
-        "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
+        "optimize": None,  # values: 0,1,2,3,s
         "mlif_template": None,
         # "device": "digilent_arty",
         # "use_renode": True,
@@ -174,6 +174,41 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     def check(self):
         pass
 
+    def get_backend(self):
+        return self.definitions.get("MLONMCU_BACKEND")
+
+    def get_framework(self):
+        return self.definitions.get("MLONMCU_FRAMEWORK")
+
+    # TODO: get TVM_CRT_CONFIG_DIR, TVM_DIR,... from definitions?
+
+    def get_makefile_defines(self):
+        # definitions = self.definitions
+        defines = {}
+        if not self.debug:
+            defines["NDEBUG"] = None
+
+        print("defines", defines)
+        return defines
+
+    def get_makefile_exports(self):
+        exports = self.definitions
+        exports["TEMPLATE"] = self.mlif_template
+        # if self.template_version:
+        #     definitions["TEMPLATE_VERSION"] = self.mlif_template_version
+        # definitions["TOOLCHAIN"] = self.toolchain
+        if self.optimize is not None:
+            exports["OPTIMIZE"] = self.optimize
+
+        print("exports", exports)
+        return exports
+
+    def get_makefile_includes(self):
+        includes = []
+
+        print("includes", includes)
+        return includes
+
     def prepare_environment(self, target=None):
         env = os.environ.copy()
         # TODO: riscv tc from target
@@ -204,21 +239,28 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         assert template_dir is not None, f"Provided project template does not exists: {template_dir}"
         # print("cp", template_dir, self.project_dir)
         # TODO: pass backend to platform?
-        backend = None
+        backend = self.get_backend()
+        framework = self.get_framework()
+        print("backend", backend)
+        print("framework", framework)
         if (src / "dummy_model").is_file():
             assert self.mlif_template is not None, "Undefined cfu_playground.mlif_template"
             backend = "none"
-        elif (src / "aot_wrapper.c").is_file():
-            backend = "tvmaot"
-        elif (src / "rt_wrapper.c").is_file():
-            backend = "tvmrt"
-        elif (src / "model.cc.h").is_file():
-            backend = "tflmi"
+        print("backend2", backend)
+        # elif (src / "aot_wrapper.c").is_file():
+        #     backend = "tvmaot"
+        # elif (src / "rt_wrapper.c").is_file():
+        #     backend = "tvmrt"
+        # elif (src / "model.cc.h").is_file():
+        #     backend = "tflmi"
         assert backend is not None, "Could not infer used backend"
-        print("backend", backend)
         shutil.copytree(template_dir, self.project_dir, dirs_exist_ok=True)
         print("src", src)
         dest_base = self.project_dir / "src"
+        makefile_exports = self.get_makefile_exports()
+        makefile_defines = self.get_makefile_defines()
+        makefile_includes = self.get_makefile_includes()
+        makefile_includes += ["test_inc_dir"]
         if backend == "none":
             to_copy = []
             mlif_template_dir = self.mlif_template
@@ -229,7 +271,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             bench_name = "hello_world"  # TODO: expose
             to_copy += [(mlif_template_dir / f"{bench_name}.c", dest_base)]
 
-        elif backend in ["tvmaot", "tvmrt"]:
+        elif backend in ["tvmaot", "tvmaotplus", "tvmrt", "tvmllvm"]:
             crt_config_dir = Path(get_crt_config_dir())
             assert crt_config_dir.is_dir()
             to_copy = [
@@ -243,7 +285,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 (self.mlif_src_dir / "lib/ml_interface/v1/default_model_support/process_input.c", dest_base),
                 (self.mlif_src_dir / "lib/ml_interface/v1/default_model_support/process_output.c", dest_base),
             ]
-            if backend == "tvmrt":
+            if backend == ["tvmrt", "tvmllvm"]:
                 assert self.tvm_src_dir is not None
                 assert self.tvm_src_dir.is_dir()
                 to_copy += [
@@ -356,7 +398,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                         dest_base / "tvm/runtime/crt/memory/page_allocator.c",
                     ),
                 ]
-            elif backend == "tvmaot":
+            elif backend == ["tvmaot", "tvmaotplus"]:
                 to_copy += [
                     (src / "aot_wrapper.c", dest_base),
                     (src / "codegen" / "host" / "include", dest_base),
@@ -410,7 +452,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                         dest_base / "tvm/runtime/crt/memory/page_allocator.c",
                     ),
                 ]
-        elif backend == "tflmi":
+        elif backend in ["tflmi"]:
             to_copy = [
                 (src / "model.cc", dest_base),
                 (src / "model.cc.h", dest_base),
@@ -425,18 +467,30 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             raise ValueError(f"Unsupported Backend: {backend}")
 
         # Patch makefile
-        if backend != "tflmi":
-            to_append = """
-# This says to NOT compile the TFLM library or any models
-export SKIP_TFLM=1
-"""
-            makefile_path = self.project_dir / "Makefile"
-            assert makefile_path.is_file()
-            with open(makefile_path, "r") as f:
-                makefile_lines = f.readlines()
-            makefile_lines = makefile_lines[:-2] + to_append.split("\n") + [makefile_lines[-1]]
-            with open(makefile_path, "w") as f:
-                f.write("\n".join(makefile_lines))
+        lines_to_append = []
+        if framework != "tflm":
+            makefile_exports["SKIP_TFLM"] = "1"
+        for key, val in makefile_exports.items():
+            if val is None:
+                lines_to_append.append(f"export {key}")
+            else:
+                lines_to_append.append(f"export {key}={val}")
+        for key, val in makefile_defines.items():
+            if val is None:
+                lines_to_append.append(f"DEFINES += {key}")
+            else:
+                lines_to_append.append(f"DEFINES += {key}={val}")
+        for inc in makefile_includes:
+            lines_to_append.append(f"INCLUDES += {inc}")
+        print("lines_to_append", lines_to_append)
+        input("!")
+        makefile_path = self.project_dir / "Makefile"
+        assert makefile_path.is_file()
+        with open(makefile_path, "r") as f:
+            makefile_lines = f.read().splitlines()
+        makefile_lines = makefile_lines[:-2] + lines_to_append + [makefile_lines[-1]]
+        with open(makefile_path, "w") as f:
+            f.write("\n".join(makefile_lines))
 
         # print("to_copy", to_copy)
         for file_or_dir, dest in to_copy:

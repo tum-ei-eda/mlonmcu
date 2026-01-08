@@ -15,12 +15,13 @@
 
 # This variable lists symbols to define to the C preprocessor
 export DEFINES :=
+export INCLUDES :=
 
 # Uncomment this line to use software defined CFU functions in software_cfu.cc
 #DEFINES += CFU_SOFTWARE_DEFINED
 
 # Uncomment this line to skip debug code (large effect on performance)
-DEFINES += NDEBUG
+# DEFINES += NDEBUG
 
 # Uncomment this line to skip individual profiling output (has minor effect on performance).
 #DEFINES += NPROFILE

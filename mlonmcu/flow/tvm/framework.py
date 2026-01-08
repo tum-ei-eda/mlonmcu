@@ -88,5 +88,6 @@ class TVMFramework(Framework):
                 ret["TVM_EXTRA_LIBS"] = temp
         if self.crt_config_dir:
             ret["TVM_CRT_CONFIG_DIR"] = self.crt_config_dir
-        ret["TVM_DIR"] = str(self.tvm_src)
+        if platform == "mlif":
+            ret["TVM_DIR"] = str(self.tvm_src)
         return ret

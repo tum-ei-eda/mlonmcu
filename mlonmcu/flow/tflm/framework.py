@@ -77,5 +77,6 @@ class TFLMFramework(Framework):
                 else:
                     temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
-        ret["TF_DIR"] = str(self.tf_src)
+        if platform == "mlif":
+            ret["TF_DIR"] = str(self.tf_src)
         return ret

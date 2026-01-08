@@ -27,8 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
-
-# from .cfu import _validate_cfu_playground
+from .cfu import _validate_cfu_playground
 
 logger = get_logger()
 Tasks = get_task_factory()
@@ -36,8 +35,7 @@ Tasks = get_task_factory()
 
 def _validate_yosys(context: MlonMcuContext, params=None):
     # print("_validate_yosys", _validate_yosys)
-    return False
-    # return _validate_cfu_playground(context, params=params)
+    return _validate_cfu_playground(context, params=params)
 
 
 @Tasks.provides(["yosys.src_dir"])

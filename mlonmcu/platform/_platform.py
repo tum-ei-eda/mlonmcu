@@ -21,6 +21,7 @@ from .espidf import EspIdfPlatform
 from .zephyr import ZephyrPlatform
 from .tvm import TvmPlatform
 from .microtvm import MicroTvmPlatform
+from .cfu_playground import CFUPlaygroundPlatform
 
 # from .arduino import ArduinoPlatform
 
@@ -45,3 +46,4 @@ register_platform("espidf", EspIdfPlatform)
 register_platform("zephyr", ZephyrPlatform)
 register_platform("tvm", TvmPlatform)
 register_platform("microtvm", MicroTvmPlatform)
+register_platform("cfu_playground", CFUPlaygroundPlatform)

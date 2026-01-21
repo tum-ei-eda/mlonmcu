@@ -64,12 +64,15 @@ class RISCVTarget(Target):
         "riscv_gcc_rv32.install_dir",
         "riscv_gcc_rv32.name",
         "riscv_gcc_rv32.variant",
+        "riscv_gcc_rv32.version",
         "riscv_gcc_rv64.install_dir",
         "riscv_gcc_rv64.name",
         "riscv_gcc_rv64.variant",
+        "riscv_gcc_rv64.version",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
         "riscv_gcc.variant",
+        "riscv_gcc.version",
     }
 
     def reconfigure(self):
@@ -138,6 +141,29 @@ class RISCVTarget(Target):
                 ],
             )
         )
+
+    @property
+    def gcc_version(self):
+        return Path(
+            pick_first(
+                self.config,
+                [
+                    f"riscv_gcc_{self.arch}_{self.abi}.version",
+                    f"riscv_gcc_rv{self.xlen}.version",
+                    "riscv_gcc_multilib.version",
+                    "riscv_gcc.version",
+                ],
+            )
+        )
+
+    def gcc_major_version(self):
+        temp = self.gcc_version
+        if temp is None:
+            return None
+        temp = str(temp)
+        assert "." in temp
+        ret = temp.split(".", 1)
+        return ret
 
     @property
     def xlen(self):
@@ -213,6 +239,7 @@ class RISCVTarget(Target):
             elen=None,
             embedded_vext=False,
             vlen=None,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property

@@ -125,6 +125,7 @@ def update_extensions(
     bext_zbb=None,
     bext_zbc=None,
     bext_zbs=None,
+    gcc_major_version=None,
 ):
     # ret = exts.copy()
     require = set()
@@ -232,7 +233,8 @@ def update_extensions(
         if vext or embedded_vext:
             require.add("zicsr")
         if atomic and multiply and fpu == "double":
-            require.add("zifencei")
+            if gcc_major_version is None or gcc_major_version > 12:
+                require.add("zifencei")
 
     ret = set()
     for ext in require:

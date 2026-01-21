@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import itertools
+from typing import Dict
 from collections import ChainMap
 
 NUM_GEN_ARGS = 9
@@ -192,3 +193,21 @@ def extract_platform_names(args, context=None):
             return [None]
         platforms = context.environment.lookup_platform_configs(names_only=True)
     return platforms
+
+
+def parse_parallel_per_stage(value: str) -> Dict[str, int]:
+    result = {}
+    for item in value.split(","):
+        if "=" in item:
+            key, val = item.split("=", 1)
+        elif ":" in item:
+            key, val = item.split(":", 1)
+        else:
+            raise argparse.ArgumentTypeError(f"Invalid format '{item}'. Expected KEY=VALUE or KEY:VALUE")
+
+        try:
+            result[key] = int(val)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"Value for '{key}' must be an integer, got '{val}'")
+
+    return result

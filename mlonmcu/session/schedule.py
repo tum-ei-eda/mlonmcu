@@ -20,7 +20,7 @@
 import random
 from pathlib import Path
 import concurrent.futures
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from mlonmcu.session.run import Run, RunInitializer, RunResult, RunStage
 from mlonmcu.logging import get_logger
@@ -421,6 +421,7 @@ class SessionScheduler:
         progress: bool = False,
         executor: str = "thread_pool",
         num_workers: int = 1,
+        num_workers_per_stage: Optional[Dict[str, int]] = None,
         shuffle: bool = False,
         batch_size: int = 1,
         parallel_jobs: int = 1,
@@ -437,6 +438,9 @@ class SessionScheduler:
         self.progress = progress
         self.executor = executor
         self.num_workers = num_workers
+        self.num_workers_per_stage = num_workers_per_stage
+        if self.num_workers_per_stage is not None:
+            assert self.per_stage, "num_workers_per_stage needs per_stage=True"
         self.parallel_jobs = parallel_jobs
         self._executor_cls, self._executor_kwargs = self._handle_executor(executor, remote_config)
         self.shuffle = shuffle
@@ -630,13 +634,19 @@ class SessionScheduler:
             run_it = sorted(run_it, key=lambda _: random.random())
         batches = list(chunks(run_it, self.batch_size))
         # TODO: per stage batching?
-        with self._executor_cls(**self._executor_kwargs) as executor:
-            if self.per_stage:
-                assert self.used_stages is not None
-                if self.progress:
-                    pbar2 = init_progress(len(self.used_stages), msg="Processing stages")
-                for stage in self.used_stages:
-                    run_stage = RunStage(stage).name
+        if self.per_stage:
+            assert self.used_stages is not None
+            if self.progress:
+                pbar2 = init_progress(len(self.used_stages), msg="Processing stages")
+            for stage in self.used_stages:
+                run_stage = RunStage(stage).name
+                # TODO: also check for RunStage Type?
+                if self.num_workers_per_stage:
+                    max_workers_per_stage = self.num_workers_per_stage.get(run_stage, self.num_workers)
+                else:
+                    max_workers_per_stage = self.num_workers
+                stage_executor_kwargs = {**self._executor_kwargs, "max_workers": max_workers_per_stage}
+                with self._executor_cls(**stage_executor_kwargs) as executor:
                     is_last = stage == self.used_stages[-1]
                     if self.progress:
                         pbar = init_progress(len(batches), msg=f"Processing stage {run_stage}")
@@ -669,9 +679,10 @@ class SessionScheduler:
                     self._join_futures(pbar)
                     if self.progress:
                         update_progress(pbar2)
-                if self.progress:
-                    close_progress(pbar2)
-            else:
+            if self.progress:
+                close_progress(pbar2)
+        else:
+            with self._executor_cls(**self._executor_kwargs) as executor:
                 if self.progress:
                     pbar = init_progress(
                         len(batches), msg="Processing batches" if self.use_batches else "Processing all runs"

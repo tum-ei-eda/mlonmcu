@@ -27,7 +27,7 @@ from mlonmcu.platform import get_platforms
 from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
-from .helper.parse import extract_config
+from .helper.parse import extract_config, parse_parallel_per_stage
 
 logger = get_logger()
 
@@ -158,6 +158,13 @@ def add_flow_options(parser):
         help="Use multiple threads to process runs in parallel (%(const)s if specified, else %(default)s)",
     )
     flow_parser.add_argument(
+        "--parallel-per-stage",
+        metavar="THREADS_PER_STAGE",
+        type=parse_parallel_per_stage,
+        default=None,
+        help="Specify max workers per stage. Syntax: --parallel-per-stage BUILD=4,RUN=8",
+    )
+    flow_parser.add_argument(
         "-p",
         "--progress",
         action="store_true",
@@ -259,6 +266,7 @@ def kickoff_runs(args, until, context):
             per_stage=per_stage,
             print_report=print_report,
             num_workers=args.parallel,
+            num_workers_per_stage=args.parallel_per_stage,
             progress=args.progress,
             context=context,
             export=True,

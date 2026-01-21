@@ -11,8 +11,8 @@
 #define HAS_TIME 1
 #else
 #define HAS_CYCLES 1
-// #define HAS_INSTRUCTIONS 1
-#define HAS_INSTRUCTIONS 0
+#define HAS_INSTRUCTIONS 1
+// #define HAS_INSTRUCTIONS 0
 // #define HAS_TIME 1
 #endif  // MLONMCU_TARGET_HOST_X86
 

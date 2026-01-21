@@ -18,6 +18,7 @@ export DEFINES :=
 
 # Uncomment this line to use software defined CFU functions in software_cfu.cc
 #DEFINES += CFU_SOFTWARE_DEFINED
+export GEN_RENODE_EXTRA_ARGS += --gdbserver-port 0
 
 # Uncomment this line to skip debug code (large effect on performance)
 DEFINES += NDEBUG

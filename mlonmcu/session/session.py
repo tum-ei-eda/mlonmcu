@@ -57,7 +57,7 @@ class Session:
         # "process_pool": False,
         "executor": "thread_pool",
         "use_init_stage": False,
-        # "cleanup_runs": False,
+        "cleanup_runs": False,
         "shuffle": False,
         "batch_size": 1,  # TODO: auto
         "parallel_jobs": 1,
@@ -131,6 +131,12 @@ class Session:
     def shuffle(self):
         """get shuffle property."""
         value = self.config["shuffle"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
+    def cleanup_runs(self):
+        """get cleanup_runs property."""
+        value = self.config["cleanup_runs"]
         return str2bool(value) if not isinstance(value, (bool, int)) else value
 
     @property
@@ -298,6 +304,15 @@ class Session:
         results_file = results_dir / f"{self.label}.{self.report_fmt}"
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
+        if self.cleanup_runs:
+            logger.info(self.prefix + "Cleaning up runs")
+            count = 0
+            for run in self.runs:
+                print("run", run, type(run), dir(run))
+                if hasattr(run, "cleanup_directories"):
+                    run.cleanup_directories()
+                    count += 1
+            logger.info(self.prefix + f"Done cleaning {count} runs")
         self.report = report
         if print_report:
             logger.info("Report:\n%s", str(report.df))

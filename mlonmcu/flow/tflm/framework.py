@@ -107,7 +107,7 @@ class TFLMFramework(Framework):
                 else:
                     temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["TF_DIR"] = str(self.tf_src)
         if self.cfu_accelerate:
             ret["CFU_ACCELERATE"] = True

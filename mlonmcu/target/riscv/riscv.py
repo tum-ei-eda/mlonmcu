@@ -405,7 +405,7 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             # TODO refactor the following using inheritance instead of branching
             ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename

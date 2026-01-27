@@ -270,17 +270,17 @@ class TargetPlatform(Platform):
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def run(self, elf, target, timeout=120):
+    def run(self, elf, target, timeout=120, **kwargs):
         # Only allow one serial communication at a time
         needs_lock = False  # TODO: get from property?
         if needs_lock:
             # TODO: move lockfile!
             # TODO: store flash output?
             with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
-                self.flash(elf, target, timeout=timeout)
-                output = self.monitor(target, timeout=timeout)
+                self.flash(elf, target, timeout=timeout, **kwargs)
+                output = self.monitor(target, timeout=timeout, **kwargs)
         else:
-            self.flash(elf, target, timeout=timeout)
-            output = self.monitor(target, timeout=timeout)
+            self.flash(elf, target, timeout=timeout, **kwargs)
+            output = self.monitor(target, timeout=timeout, **kwargs)
 
         return output

@@ -305,7 +305,7 @@ class MultiBenchProgram(Program):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret[f"{self.prefix}_BENCHMARK"] = self.name
         return ret
 
@@ -342,7 +342,7 @@ class EmbenchIoTProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             if self.global_scale_factor is not None:
                 ret["EMBENCH_IOT_GLOBAL_SCALE_FACTOR"] = self.global_scale_factor
         return ret
@@ -362,7 +362,7 @@ class EmbenchDSPProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             if self.no_snr_check is not None:
                 ret["EMBENCH_DSP_NO_SNR_CHECK"] = self.no_snr_check
         return ret
@@ -452,7 +452,7 @@ class MathisProgram(Program):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["MATHIS_TEST"] = self.name
             ret["MATHIS_NARGS"] = self.get_nargs(self.name)
             ret["MATHIS_ELEM_SIZE"] = self.get_elem_size(self.name)
@@ -464,7 +464,7 @@ class MathisProgram(Program):
 class CoremarkProgram(Program):
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["COREMARK_ITERATIONS"] = 10
         return ret
 
@@ -472,7 +472,7 @@ class CoremarkProgram(Program):
 class DhrystoneProgram(Program):
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["DHRYSTONE_ITERATIONS"] = 10000
         return ret
 
@@ -491,7 +491,7 @@ class OpenASIPProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret
@@ -526,7 +526,7 @@ class ISSBenchProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["ISS_BENCH_ITERATIONS"] = self.num_iter
             ret["ISS_BENCH_DTYPE"] = self.dtype
             if self.name == "mem_heavy":
@@ -549,7 +549,7 @@ class CryptoBenchProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["CRYPTO_BENCH_VERBOSE"] = self.verbose
         return ret
 
@@ -594,7 +594,7 @@ class CmsisDSPProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["CMSIS_DSP_SIZE"] = self.size
             ret["CMSIS_DSP_BATCH_SIZE"] = self.batch_size
             ret["CMSIS_DSP_NUMBER"] = self.number
@@ -640,7 +640,7 @@ class CmsisNNProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["CMSIS_NN_SIZE"] = self.size
             ret["CMSIS_NN_BATCH_SIZE"] = self.batch_size
             ret["CMSIS_NN_NUMBER"] = self.number

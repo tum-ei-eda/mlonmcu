@@ -78,7 +78,7 @@ class TVMFramework(Framework):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.extra_incs or self.extra_libs or self.extra_defs:
-            assert platform == "mlif", "Extra incs or libs are only supported by 'mlif' platform"
+            assert platform in ["mlif", "mlif_litex"], "Extra incs or libs are only supported by 'mlif' platform"
             if self.extra_incs:
                 if isinstance(self.extra_incs, list):
                     temp = r"\;".join(self.extra_incs)
@@ -99,6 +99,6 @@ class TVMFramework(Framework):
                 ret["TVM_EXTRA_DEFS"] = temp
         if self.crt_config_dir:
             ret["TVM_CRT_CONFIG_DIR"] = self.crt_config_dir
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["TVM_DIR"] = str(self.tvm_src)
         return ret

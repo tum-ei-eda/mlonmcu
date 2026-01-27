@@ -1569,7 +1569,7 @@ class BenchFrontend(SimpleFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = self.name
         return ret
 
@@ -1643,7 +1643,7 @@ class EmbenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
         return ret
 
@@ -1691,7 +1691,7 @@ class EmbenchIoTFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
         return ret
 
@@ -1725,7 +1725,7 @@ class EmbenchDSPFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
         return ret
 
@@ -1806,7 +1806,7 @@ class TaclebenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
         return ret
 
@@ -1866,7 +1866,7 @@ class PolybenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
             ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
@@ -1966,7 +1966,7 @@ class MibenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
 
         return ret
@@ -2202,7 +2202,7 @@ class CmsisDSPFrontend(BenchFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = "cmsis_dsp_bench"
         return ret
 
@@ -2226,6 +2226,6 @@ class CmsisNNFrontend(BenchFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = "cmsis_nn_bench"
         return ret

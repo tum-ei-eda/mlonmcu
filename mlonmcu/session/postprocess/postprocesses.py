@@ -1161,7 +1161,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         platform = report.pre_df["Platform"]
-        if (platform != "mlif").any():
+        if (platform not in ["mlif", "mlif_litex"]).any():
             return []
         ret_artifacts = []
         dump_artifact = lookup_artifacts(
@@ -2000,7 +2000,7 @@ class AnalyseLinkerMapPostprocess(RunPostprocess):
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         platform = report.pre_df["Platform"]
-        if (platform != "mlif").any():
+        if (platform not in ["mlif", "mlif_litex"]).any():
             return []
         ret_artifacts = []
         elf_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True)

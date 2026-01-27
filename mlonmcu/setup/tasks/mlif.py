@@ -33,7 +33,7 @@ Tasks = get_task_factory()
 
 
 def _validate_mlif(context: MlonMcuContext, params=None):
-    return context.environment.has_platform("mlif")
+    return context.environment.has_platform("mlif") or context.environment.has_platform("mlif_litex")
 
 
 @Tasks.provides(["mlif.src_dir"])

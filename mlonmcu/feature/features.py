@@ -140,7 +140,7 @@ class Validate(FrontendFeature, PlatformFeature):
         return {f"{frontend}.use_inout_data": True}
 
     def get_platform_config(self, platform):
-        assert platform == "mlif", f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return filter_none(
             {
                 f"{platform}.ignore_data": False,
@@ -211,7 +211,7 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
             config[f"{framework}.optimized_kernel"] = "cmsis_nn"
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
@@ -260,7 +260,7 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
             config[f"{framework}.optimized_kernel"] = "cmsis_nn"
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "CMSISNN": self.enabled,
             "CMSIS_DIR": self.cmsis_dir,
@@ -335,7 +335,7 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         config[f"{backend}.extra_target_details"] = extra_target_details
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "CMSISNN": self.enabled,
             "CMSIS_DIR": self.cmsis_dir,
@@ -433,7 +433,7 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         config[f"{backend}.extra_target_details"] = extra_target_details
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "MURISCVNN": self.enabled,
             "MURISCVNN_DIR": self.muriscvnn_dir,
@@ -510,7 +510,7 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
     #         config["mlif.toolchain"] = "llvm"
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {
             "RISCV_VEXT": self.enabled,
             "RISCV_VLEN": self.vlen,
@@ -551,7 +551,7 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
         )
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {"RISCV_PEXT": self.enabled}
 
     def get_required_cache_flags(self):
@@ -622,7 +622,7 @@ class Bext(SetupFeature, TargetFeature, PlatformFeature):
         )
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         return {"RISCV_PEXT": self.enabled}
 
     def get_required_cache_flags(self):
@@ -1784,7 +1784,7 @@ class Benchmark(PlatformFeature, TargetFeature):
         return value
 
     def get_platform_config(self, platform):
-        supported = ["mlif", "tvm", "microtvm"]  # TODO: support espidf
+        supported = ["mlif", "mlif_litex", "tvm", "microtvm"]  # TODO: support espidf
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
 
         if platform in ["tvm", "microtvm"]:
@@ -1803,10 +1803,10 @@ class Benchmark(PlatformFeature, TargetFeature):
         }
 
     def get_platform_defs(self, platform):
-        supported = ["mlif", "espidf", "tvm", "microtvm", "zephyr"]  # TODO: support microtvm and espidf
+        supported = ["mlif", "mlif_litex", "espidf", "tvm", "microtvm", "zephyr"]  # TODO: support microtvm and espidf
         assert platform in supported, f"Unsupported feature '{self.name}' for platform '{platform}'"
 
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             return {"NUM_RUNS": self.num_runs}
         elif platform == "espidf":
             return {"MLONMCU_NUM_RUNS": self.num_runs}
@@ -2257,7 +2257,7 @@ class HpmCounter(TargetFeature, PlatformFeature):  # TODO: SetupFeature?
         return temp
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         assert self.supported_counters >= len(self.enabled_counters)
         assert max(self.enabled_counter) < self.supported_counters
         return {
@@ -2381,7 +2381,7 @@ class MemgraphLlvmCdfg(PlatformFeature):
         return value
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"]
+        assert platform in ["mlif", "mlif_litex"]
         return filter_none(
             {
                 "MEMGRAPH_LLVM_CDFG": self.enabled,
@@ -2412,7 +2412,7 @@ class GlobalIsel(PlatformFeature):
         return value
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"]
+        assert platform in ["mlif", "mlif_litex"]
         return filter_none(
             {
                 "GLOBAL_ISEL": self.enabled,
@@ -2569,7 +2569,7 @@ class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
         return value
 
     def get_platform_config(self, platform):
-        assert platform in ["mlif", "tvm", "microtvm"]
+        assert platform in ["mlif", "mlif_litex", "tvm", "microtvm"]
         # if tvm/microtvm: allow using --fill-mode provided by tvmc run
         return {
             f"{platform}.set_inputs": self.enabled,
@@ -2603,7 +2603,7 @@ class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
         return value
 
     def get_platform_config(self, platform):
-        assert platform in ["mlif", "tvm", "microtvm"]
+        assert platform in ["mlif", "mlif_litex", "tvm", "microtvm"]
         return {
             f"{platform}.get_outputs": self.enabled,
             f"{platform}.get_outputs_interface": self.interface,
@@ -2638,7 +2638,7 @@ class BasicBlockSections(PlatformFeature):
         super().__init__("llvm_basic_block_sections", features=features, config=config)
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"]
+        assert platform in ["mlif", "mlif_litex"]
         return filter_none(
             {
                 "LLVM_BASIC_BLOCK_SECTIONS": self.enabled,
@@ -2851,13 +2851,15 @@ class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
         return ret
 
     def get_backend_config(self, backend):
+        if not self.enabled:
+            return {}
         ret = {}
         if backend.startswith("tvm"):
             ret[f"{backend}.tir_add_lower_pass"] = "3,tvm.tir.transform.CompressWeights"
         return ret
 
     def get_platform_defs(self, platform):
-        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
         ret = {}
         if self.enabled:
             ret["CFU_ACCELERATE"] = True

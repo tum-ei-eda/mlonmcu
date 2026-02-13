@@ -238,6 +238,8 @@ class EMXBackend(Backend):
             model_path,
             *self.emx_compile_extra_args,
             str(out),
+            "--large-weight-threshold",
+            "10000000",
             # "--verbose",  # TODO: expose
             # f"--model-name={self.identifier}",
             # --emit-data-file, --truncate-weights-after, --large-temp-threshold, --large-weight-threshold, --restrict-arrays, --no-restrict-arrays, --fp32-accumulation-strategy, --fp16-accumulation-strategy

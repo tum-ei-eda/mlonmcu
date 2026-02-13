@@ -146,6 +146,21 @@ class TensorInfo:
                 ret *= dim
         return ret
 
+    @property
+    def c_type(self):
+        if self.dtype == "float32":
+            return "float"
+        elif self.dtype == "uint8":
+            return "uint8_t"
+        elif self.dtype == "int8":
+            return "int8_t"
+        elif self.dtype == "uint64":
+            return "uint64_t"
+        elif self.dtype == "int64":
+            return "int64_t"
+        else:
+            raise RuntimeError(f"Unknown c_type for type: {self.dtype}")
+
 
 class TfLiteTensorInfo(TensorInfo):
     def __init__(self, t, fix_names=False):

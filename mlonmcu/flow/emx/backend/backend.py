@@ -71,6 +71,7 @@ def generate_emx_wrapper(
 #define {upper_prefix}_GEN_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 int {prefix}_init();
 void *{prefix}_input_ptr(int index);

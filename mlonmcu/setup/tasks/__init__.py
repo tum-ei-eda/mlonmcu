@@ -44,6 +44,7 @@ from .ara import *  # noqa: F401, F403
 from .verilator import *  # noqa: F401, F403
 from .ovpsim import *  # noqa: F401, F403
 from .vicuna import *  # noqa: F401, F403
+from .vicuna2 import *  # noqa: F401, F403
 from .benchmarks import *  # noqa: F401, F403
 from .srecord import *  # noqa: F401, F403
 from .layergen import *  # noqa: F401, F403

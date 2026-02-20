@@ -50,7 +50,11 @@ class EtissPerfTarget(EtissTarget):
 
     @property
     def etiss_src_dir(self):
-        return self.config["etiss_perf.src_dir"]
+        ret = self.config["etiss_perf.src_dir"]
+        if ret is None:  # Fallback
+            ret = self.config["etiss.src_dir"]
+        assert ret is not None
+        return ret
 
     @property
     def etiss_dir(self):

@@ -810,8 +810,10 @@ class IREEBackend(Backend):
         env = os.environ.copy()
         pythonpath = env.get("PYTHONPATH", "")
         pythonpath = f"{self.iree_tflite_path}:{self.iree_tf_path}:{pythonpath}"
-        print("pythonpath", pythonpath)
         env["PYTHONPATH"] = pythonpath
+        old_path = env.get("PATH", "")
+        new_path = f"{self.iree_install_dir}/bin:{old_path}"
+        env["PATH"] = new_path
         return env
 
     def get_target_details(self):

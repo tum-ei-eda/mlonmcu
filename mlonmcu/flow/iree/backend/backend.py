@@ -36,6 +36,7 @@ from mlonmcu.models.model_info import (
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_iree_wrapper
+from .iree_utils import parse_iree_version
 
 
 logger = get_logger()
@@ -63,12 +64,7 @@ def get_iree_compile_optimization_args(
     opt_level: Optional[str] = None,
 ):
     """Get optimization-related arguments."""
-    if iree_version is None:
-        logger.warning("iree.version undefined, assuming v3.3")
-        major = 3
-        minor = 3
-    else:
-        major, minor = map(int, iree_version.split(".", 1))
+    major, minor = parse_iree_version(iree_version)
     ret = []
     if major < 3 or (major == 3 and minor < 3):
         # No unified optimization flags
@@ -506,12 +502,7 @@ class IREEBackend(Backend):
                 if self.model_format == "tflite":
                     iree_version = self.iree_version
                     # TODO: move to utils
-                    if iree_version is None:
-                        logger.warning("iree.version undefined, assuming v3.3")
-                        major = 3
-                        minor = 3
-                    else:
-                        major, minor = map(int, iree_version.split(".", 1))
+                    major, minor = parse_iree_version(iree_version)
                     if major == 3 and minor <= 1:
                         python_args = [
                             "-m",
@@ -696,6 +687,7 @@ class IREEBackend(Backend):
                 use_emitc=self.use_emitc,
                 vmvx=self.hal_backend in ["vmvx", "vmvx-inline"],
                 translated=translated,
+                iree_version=self.iree_version,
             )
             artifacts.append(
                 Artifact(

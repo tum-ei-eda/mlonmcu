@@ -110,6 +110,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "extend_attrs": False,
         "ccache": False,
         "custom_entry": None,
+        "extra_paths": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -492,15 +493,23 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def prepare_environment(self):
         env = os.environ.copy()
+        path_new = env["PATH"]
         if self.srecord_dir:
-            path_old = env["PATH"]
-            path_new = f"{self.srecord_dir}:{path_old}"
-            env["PATH"] = path_new
+            path_new = f"{self.srecord_dir}:{path_new}"
         # TODO: refactor
-        if self.iree_install_dir:
-            path_old = env["PATH"]
-            path_new = f"{self.iree_install_dir}/bin:{path_old}"
-            env["PATH"] = path_new
+        # if self.iree_install_dir:
+        #     path_old = env["PATH"]
+        #     path_new = f"{self.iree_install_dir}/bin:{path_old}"
+        #     env["PATH"] = path_new
+        extra_paths = self.extra_paths
+        if extra_paths:
+            assert isinstance(extra_paths, list)
+            for path in extra_paths:
+                assert isinstance(path, (str, Path))
+                path = str(path)
+                path_new = f"{path}:{path_new}"
+        env["PATH"] = path_new
+
         return env
 
     def generate_model_support(self, target):

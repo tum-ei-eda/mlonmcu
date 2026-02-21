@@ -141,7 +141,7 @@ def generate_iree_wrapper(
     print("main_func_name", main_func_name)
     assert main_func_name is not None
     # identifier2 = "module_linked" if translated else f"{main_func_name}_dispatch_0"
-    identifier2 = "model_linked" if translated else f"{main_func_name}_dispatch_0"
+    identifier2 = f"{identifier}_linked" if translated else f"{main_func_name}_dispatch_0"
     print("identifier2", identifier2)
     inSizes = getSizes(model_info.in_tensors)
     outSizes = getSizes(model_info.out_tensors)
@@ -1036,13 +1036,18 @@ class IREEBackend(Backend):
         assert self.model is not None
         with tempfile.TemporaryDirectory() as temp_dir:
             out_dir = Path(temp_dir)
+            # out_dir = Path("/tmp/iree_out/")
             model_path = self.model
             model_info = self.model_info
             translated = False
-            if self.model_format != "mlir":
+            mlir_path = out_dir / f"{self.identifier}.mlir"
+            if self.model_format == "mlir":
+                # Copy model to model.mlir for consistent function_names
+                utils.copy(model_path, mlir_path)
+                translated = True
+            else:
                 translated = True
                 mlirbc_path = out_dir / f"{self.identifier}.mlirbc"
-                mlir_path = out_dir / f"{self.identifier}.mlir"
                 needs_mlirbc2mlir = False
                 if self.model_format == "tflite":
                     iree_version = self.iree_version
@@ -1106,7 +1111,7 @@ class IREEBackend(Backend):
                         )
                     )
                 # model_path = mlirbc_path
-                model_path = mlir_path
+            model_path = mlir_path
             if self.output_format == "vm-bytecode":
                 out_path = out_dir / f"{self.identifier}.vmfb"
             elif self.output_format == "vm-c":

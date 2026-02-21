@@ -27,20 +27,29 @@ def parse_mlir_signature(mlir_text):
     # Find the util.func @main signature
     match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
-        match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        # match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        match2 = re.search(
+            r"func\.func\s+@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*(?:attributes(.*))?\{", mlir_text, re.DOTALL
+        )
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")
         func_name = match2.group(1)
         input_args = match2.group(2)
         output_args = match2.group(3)
+        # attr_args = match2.group(4)
     else:
 
         func_name = match1.group(1)
         input_args = match1.group(2)
         output_args = match1.group(3)
+        # attr_args = ""
 
     inputs = []
     outputs = []
+    # print("func_name", func_name)
+    # print("input_args", input_args)
+    # print("output_args", output_args)
+    # print("attr_args", attr_args)
 
     # Parse inputs
     if input_args.strip():
@@ -126,6 +135,7 @@ class TensorInfo:
         assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
+        # TODO: support dynamic shapes?
 
     def __repr__(self):
         return f"TensorInfo({self.name}, {self.shape}, {self.dtype}, size={self.size})"

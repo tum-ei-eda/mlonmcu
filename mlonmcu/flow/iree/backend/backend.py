@@ -756,12 +756,8 @@ class IREEBackend(Backend):
         print("IREEBackend.add_platform_config")
         assert platform.startswith("mlif"), f"Unsupported platform: {platform}"
         old_paths = config.get(f"{platform}.extra_paths", ["foo"])
-        old_paths2 = config.get("extra_paths", ["bar"])
         # assert isinstance(old_paths, list)
-        print("old_paths", old_paths)
-        print("old_paths2", old_paths2)
-        input("!!!")
         new_paths = old_paths
         assert isinstance(new_paths, list)
         new_paths.append(f"{self.iree_install_dir}/bin")
-        config["???"] = new_paths
+        config[f"{platform}.extra_paths"] = new_paths

@@ -25,7 +25,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -490,6 +490,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     def prepare(self):
         pass  # TODO: is this used?
+
+    @property
+    def extra_paths(self):
+        ret = self.config["extra_paths"]
+        if ret is None:
+            return None
+        if isinstance(ret, str):
+            ret = str2list(ret)
+        assert isinstance(ret, list)
+        return ret
 
     def prepare_environment(self):
         env = os.environ.copy()

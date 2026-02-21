@@ -232,10 +232,14 @@ class IREEBackend(Backend):
         return Path(self.iree_install_dir) / "bin" / "iree-c-embed-data"
 
     @property
-    def mlir_opt_exe(self):
+    def mlir_opt_exe_fallback(self):
         iree_build_dir = self.iree_build_dir
         assert iree_build_dir is not None, "Missing: iree.build_dir"
-        return self.iree_build_dir / "llvm-project" / "bin", "mlir-opt"
+        return self.iree_build_dir / "llvm-project" / "bin" / "mlir-opt"
+
+    @property
+    def mlir_opt_exe(self):
+        return self.iree_install_dir / "bin" / "mlir-opt"
 
     @property
     def iree_tflite_path(self):
@@ -533,7 +537,9 @@ class IREEBackend(Backend):
                             utils.copy(mlir_path, temp_mlir_path)
                             mlir_opt_exe = self.mlir_opt_exe
                             assert mlir_opt_exe is not None, "Undefined: mlir_opt_exe"
-                            assert mlir_opt_exe.is_file(), f"Missing file: {mlir_opt_exe}"
+                            if not mlir_opt_exe.is_file():
+                                mlir_opt_exe = self.mlir_opt_exe_fallback
+                                assert mlir_opt_exe.is_file(), f"Missing file: {mlir_opt_exe}"
                             mlir_opt_args = [
                                 mlir_opt_exe,
                                 temp_mlir_path,

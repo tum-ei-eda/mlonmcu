@@ -17,9 +17,11 @@
 # limitations under the License.
 #
 """Wrapper generation utils for IREE backends."""
+from typing import Optional
 
 from mlonmcu.logging import get_logger
 from mlonmcu.flow.tvm.backend.wrapper import getSizes
+from .iree_utils import parse_iree_version
 
 
 logger = get_logger()
@@ -128,8 +130,10 @@ def getCopyOutputsCode(out_tensors):
     return ret
 
 
-def generate_utils(identifier: str, use_emitc: bool, vmvx: bool):
+def generate_utils(identifier: str, use_emitc: bool, vmvx: bool, iree_version: Optional[str] = None):
     """Generate IREE wrapper code (utils)."""
+    major, minor = parse_iree_version(iree_version)
+    new = major > 4 or (major == 3 and minor >= 10)
     utils_bytecode = (
         """
 #include <stdio.h>
@@ -149,7 +153,9 @@ iree_status_t create_module(iree_vm_instance_t* instance,
   iree_const_byte_span_t module_data =
       iree_make_const_byte_span(module_file_toc->data, module_file_toc->size);
   return iree_vm_bytecode_module_create(
-      instance, module_data, iree_allocator_null(),
+      instance, """
+        + ("IREE_VM_BYTECODE_MODULE_FLAG_NONE, " if new else "")
+        + """module_data, iree_allocator_null(),
       iree_vm_instance_allocator(instance), out_module);
 }
 """
@@ -300,7 +306,7 @@ iree_status_t create_sample_device(iree_allocator_t host_allocator,
     return sync
 
 
-def generate_wrapper(model_info, main_func_name: str):
+def generate_wrapper(model_info, main_func_name: str, iree_version: Optional[str] = None):
     """Generate IREE wrapper code (source)."""
     inSizes = getSizes(model_info.in_tensors)
     outSizes = getSizes(model_info.out_tensors)
@@ -313,6 +319,8 @@ def generate_wrapper(model_info, main_func_name: str):
     setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=False)
 
     copyOutputs = getCopyOutputsCode(model_info.out_tensors)
+    major, minor = parse_iree_version(iree_version)
+    new = major > 4 or (major == 3 and minor >= 5)
 
     wrapper_main = (
         """
@@ -409,7 +417,9 @@ iree_status_t Prepare(void) {
   // Create hal_module
   iree_vm_module_t* hal_module = NULL;
   IREE_RETURN_IF_ERROR(iree_hal_module_create(
-      instance, iree_hal_module_device_policy_default(), /*device_count=*/1, &device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+      instance, """
+        + ("iree_hal_module_device_policy_default(), " if new else "")
+        + """/*device_count=*/1, &device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
       iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),
       &hal_module));
 
@@ -595,7 +605,12 @@ size_t IREE_GetNumOutputs();
 
 
 def generate_iree_wrapper(
-    model_info, identifier: str, use_emitc: bool = False, vmvx: bool = False, translated: bool = False
+    model_info,
+    identifier: str,
+    use_emitc: bool = False,
+    vmvx: bool = False,
+    translated: bool = False,
+    iree_version: Optional[str] = None,
 ):
     """Generate IREE wrapper codes (source, header, device_sync, utils)."""
 
@@ -604,8 +619,8 @@ def generate_iree_wrapper(
     assert main_func_name is not None
     identifier2 = f"{identifier}_linked" if translated else f"{main_func_name}_dispatch_0"
 
-    wrapper = generate_wrapper(model_info, main_func_name)
+    wrapper = generate_wrapper(model_info, main_func_name, iree_version=iree_version)
     header = generate_header()
     sync = generate_sync(identifier, identifier2, vmvx)
-    utils_ = generate_utils(identifier, use_emitc, vmvx)
+    utils_ = generate_utils(identifier, use_emitc, vmvx, iree_version=iree_version)
     return wrapper, header, sync, utils_

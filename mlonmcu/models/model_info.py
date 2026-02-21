@@ -432,15 +432,20 @@ class MLIRModelInfo(ModelInfo):
         for inp in inputs:
             input_name = inp["name"]
             dtype = inp["dtype"]
-            input_type = type_lookup[dtype]
+            input_type = type_lookup.get(dtype)
+            assert input_type is not None, f"Unsupported dtype: {dtype}"
             input_shape = inp["shape"]
             input_tensor = TensorInfo(input_name, input_shape, input_type)
             in_tensors.append(input_tensor)
         for outp in outputs:
             output_name = outp["name"]
             dtype = outp["dtype"]
-            output_type = type_lookup[dtype]
             output_shape = outp["shape"]
+            # TODO: handle func.func @tf2onnx(%arg0: !torch.vtensor<[1,1960],f32>) -> !torch.vtensor<[1,10],f32> attributes {torch.onnx_meta.ir_version = 8 : si64, torch.onnx_meta.opset_version = 15 : si64, torch.onnx_meta.opset_versions = {ai.onnx.ml = 2 : si64}, torch.onnx_meta.producer_name = "tf2onnx", torch.onnx_meta.producer_version = "1.16.1 15c810"} {
+            if dtype is None and output_name is None and len(output_shape) == 0:
+                continue
+            output_type = type_lookup.get(dtype)
+            assert output_type is not None, f"Unsupported dtype: {dtype}"
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             out_tensors.append(output_tensor)
 

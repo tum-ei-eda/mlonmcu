@@ -1172,6 +1172,7 @@ class Run:
                 output_shapes = None
                 input_types = None
                 output_types = None
+                params_path = None
                 if model_artifact.name.split(".", 1)[0] == self.model.name:
                     input_shapes = self.model.input_shapes
                     output_shapes = self.model.output_shapes

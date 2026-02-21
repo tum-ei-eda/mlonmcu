@@ -160,6 +160,9 @@ def install_iree(
     if rebuild or not utils.is_populated(ireeInstallDir):
         ninja = True
         utils.make("install", cwd=ireeBuildDir, threads=threads, use_ninja=ninja, live=verbose)
+        mlirOptExe = ireeBuildDir / "llvm-project" / "bin" / "mlir-opt"
+        mlirOptExe_ = ireeInstallDir / "bin" / "mlir-opt"
+        utils.copy(mlirOptExe, mlirOptExe_)
     context.cache["iree.install_dir"] = ireeInstallDir
     return True
 

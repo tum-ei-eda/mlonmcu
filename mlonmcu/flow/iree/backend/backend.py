@@ -142,13 +142,12 @@ class IREEBackend(Backend):
         "iree_compile_extra_args": [],
         "num_threads": multiprocessing.cpu_count(),
         "strip_assertions": None,
-        # "iree_version": None,  # TODO: auto?
         "target_vector_width": None,
         "target_scalable_vectorization": None,
         "loop_unroll": True,
     }
 
-    OPTIONAL = {"iree.version"}
+    OPTIONAL = {"iree.version", "iree.build_dir"}
 
     REQUIRED = {"iree.install_dir", "iree.src_dir"}
 
@@ -214,6 +213,13 @@ class IREEBackend(Backend):
         return self.config["iree.install_dir"]
 
     @property
+    def iree_build_dir(self):
+        ret = self.config["iree.build_dir"]
+        if ret is None:
+            return None
+        return Path(ret)
+
+    @property
     def iree_src_dir(self):
         return self.config["iree.src_dir"]
 
@@ -224,6 +230,12 @@ class IREEBackend(Backend):
     @property
     def iree_c_embed_data_exe(self):
         return Path(self.iree_install_dir) / "bin" / "iree-c-embed-data"
+
+    @property
+    def mlir_opt_exe(self):
+        iree_build_dir = self.iree_build_dir
+        assert iree_build_dir is not None, "Missing: iree.build_dir"
+        return self.iree_build_dir / "llvm-project" / "bin", "mlir-opt"
 
     @property
     def iree_tflite_path(self):
@@ -496,10 +508,56 @@ class IREEBackend(Backend):
                         minor = 3
                     else:
                         major, minor = map(int, iree_version.split(".", 1))
-                    if major == 3 and minor > 1:
-                        raise RuntimeError("TFLite (TOSA) importer unsupported for iree.version > 3.1")
-                    python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
-                    needs_mlirbc2mlir = True
+                    if major == 3 and minor <= 1:
+                        python_args = [
+                            "-m",
+                            "iree.tools.tflite.scripts.iree_import_tflite",
+                            model_path,
+                            "-o",
+                            mlirbc_path,
+                        ]
+                        utils.python(
+                            *python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir
+                        )
+                        needs_mlirbc2mlir = True
+                    elif major == 3 and minor > 5:  # TODO: check
+                        tosa_converter_args = ["tosa-converter-for-tflite", model_path, "--text", "-o", mlir_path]
+                        utils.execute(
+                            *tosa_converter_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir
+                        )
+                        fix_mlir = True
+                        if fix_mlir:
+                            attach_tosa_target = True
+                            fix_dynamic_shapes = True
+                            temp_mlir_path = out_dir / "temp.mlir"
+                            utils.copy(mlir_path, temp_mlir_path)
+                            mlir_opt_exe = self.mlir_opt_exe
+                            assert mlir_opt_exe is not None, "Undefined: mlir_opt_exe"
+                            assert mlir_opt_exe.is_file(), f"Missing file: {mlir_opt_exe}"
+                            mlir_opt_args = [
+                                mlir_opt_exe,
+                                temp_mlir_path,
+                                "-o",
+                                mlir_path,
+                            ]
+                            if fix_dynamic_shapes:
+                                args_temp = {}
+                                for i, in_tensor in enumerate(model_info.in_tensors):
+                                    arg_name = f"arg{i}"
+                                    input_shape = in_tensor.shape
+                                    arg_shape_str = "x".join(input_shape)
+                                    args_temp[arg_name] = arg_shape_str
+                                args_str = ",".join([f"arg{i}:1x1960" for arg_name, arg_shape_str in args_temp.items()])
+                                args_str_ = f"args={args_str}"
+                                mlir_opt_args.append(f'--tosa-experimental-input-shape="{args_str_}"')
+                                mlir_opt_args.append("-tosa-infer-shapes")
+                            if attach_tosa_target:  # TODO: not working because this is hardcoded in IREE (see TODO)
+                                tosa_target_str = "specification_version=1.1.draft profiles=pro_int,pro_fp extensions=int16,int4,int64,bf16,fp8e4m3,fp8e5m2,fft,variable,controlflow,doubleround,inexactround,mxfp_conv,shape"
+                                mlir_opt_args.append(f"-tosa-attach-target={tosa_target_str}")
+                    elif major == 3 and minor > 1:
+                        raise RuntimeError("TFLite (TOSA) importer unsupported for iree.version <3.1")
+                    elif major < 3:
+                        raise RuntimeError("IREE version < 3.0 is untested/unsupported.")
                 elif self.model_format == "onnx":
                     # opset_version = 17
                     opset_version = None
@@ -512,6 +570,7 @@ class IREEBackend(Backend):
                         mlir_path,
                         *([f"--opset-version={opset_version}"] if opset_version is not None else []),
                     ]
+                    utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
                 elif self.model_format in ["saved_model", "pb"]:
                     python_args = [
                         "-m",
@@ -522,9 +581,9 @@ class IREEBackend(Backend):
                         "--tf-import-type=savedmodel_v1",
                         "--tf-savedmodel-exported-names=predict",
                     ]
+                    utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
                 else:
                     raise NotImplementedError(f"Unhandled format: {self.model_format}")
-                utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
                 if needs_mlirbc2mlir:
                     self.translate_mlirbc_to_mlir(mlirbc_path, mlir_path, cwd=temp_dir)
                 model_format, model_info = get_model_info(mlir_path, backend_name=self.name)

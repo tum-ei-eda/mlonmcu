@@ -367,6 +367,7 @@ class Session:
             self.status = SessionStatus.CLOSED
         self.closed_at = datetime.now()
         self.session_lock.release()
-        os.remove(self.session_lock.lock_file)
+        if os.path.exists(self.session_lock.lock_file):
+            os.remove(self.session_lock.lock_file)
         if self.tempdir:
             self.tempdir.cleanup()

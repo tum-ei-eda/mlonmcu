@@ -293,7 +293,7 @@ static iree_vm_function_t main_function;
 static iree_vm_context_t *context = NULL;
 
 iree_status_t Prepare(void) {
-  printf("A\\n");
+  // printf("A\\n");
   IREE_RETURN_IF_ERROR(iree_vm_instance_create(
       IREE_VM_TYPE_CAPACITY_DEFAULT, iree_allocator_system(), &instance));
   // IREE_RETURN_IF_ERROR(iree_hal_module_register_all_types(instance));
@@ -304,13 +304,13 @@ iree_status_t Prepare(void) {
 #else
   IREE_RETURN_IF_ERROR(iree_hal_module_register_all_types(instance));
 #endif
-  printf("B\\n");
+  // printf("B\\n");
 
   iree_hal_executable_loader_t* loader = NULL;
   IREE_RETURN_IF_ERROR(
       create_sample_device(iree_allocator_system(), &device, &loader),
       "create device");
-  printf("C\\n");
+  // printf("C\\n");
 
 #if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)
   // Create hal_inline_module
@@ -321,12 +321,12 @@ iree_status_t Prepare(void) {
       iree_hal_device_allocator(device), iree_allocator_system(),
       &hal_inline_module));
 #endif
-  printf("D\\n");
+  // printf("D\\n");
 
 
   iree_vm_module_t *module = NULL;
   IREE_RETURN_IF_ERROR(create_module(instance, &module));
-  printf("E\\n");
+  // printf("E\\n");
 
   // iree_vm_module_t *hal_module = NULL;
   // IREE_RETURN_IF_ERROR(iree_hal_module_create(
@@ -347,34 +347,34 @@ iree_status_t Prepare(void) {
   // Create hal_module
   iree_vm_module_t* hal_module = NULL;
   IREE_RETURN_IF_ERROR(iree_hal_module_create(
-      instance, /*device_count=*/1, &device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+      instance, iree_hal_module_device_policy_default(), /*device_count=*/1, &device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
       iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),
       &hal_module));
 
   iree_vm_module_t* modules[] = {hal_module, module};
 #endif
   iree_hal_executable_loader_release(loader);
-  printf("F\\n");
+  // printf("F\\n");
 
   // Allocate a context that will hold the module state across invocations.
   // iree_vm_module_t *modules[] = {hal_module, module};
   IREE_RETURN_IF_ERROR(iree_vm_context_create_with_modules(
       instance, IREE_VM_CONTEXT_FLAG_NONE, IREE_ARRAYSIZE(modules), &modules[0],
       iree_allocator_system(), &context));
-  printf("G\\n");
+  // printf("G\\n");
   // iree_vm_module_release(hal_module);
 #if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)
   iree_vm_module_release(hal_inline_module);
 #else
   iree_vm_module_release(hal_module);
 #endif
-  printf("H\\n");
+  // printf("H\\n");
 
 #if defined(BUILD_LOADER_HAL)
   iree_vm_module_release(hal_loader_module);
 #endif
   iree_vm_module_release(module);
-  printf("I\\n");
+  // printf("I\\n");
 
   // Lookup the entry point function.
   // Note that we use the synchronous variant which operates on pure type/shape
@@ -384,14 +384,14 @@ iree_status_t Prepare(void) {
         + """\";
   IREE_RETURN_IF_ERROR(iree_vm_context_resolve_function(
       context, iree_make_cstring_view(kMainFunctionName), &main_function));
-  printf("J\\n");
+  // printf("J\\n");
 
   // Allocate buffers in device-local memory so that if the device has an
   // independent address space they live on the fast side of the fence.
   """
         + setupInputsOutputs
         + """
-  printf("KLMNOP\\n");
+  // printf("KLMNOP\\n");
 
   return iree_ok_status();
 }
@@ -409,13 +409,13 @@ iree_status_t Run(void) {
 }
 
 iree_status_t Cleanup(void) {
-  printf("Q\\n");
+  // printf("Q\\n");
 
   // Get the result buffers from the invocation.
   """
         + copyOutputs
         + """
-  printf("S\\n");
+  // printf("S\\n");
   // for (iree_host_size_t i = 0; i < IREE_ARRAYSIZE(results); ++i) {
   //   if (results[i] != 8) {
   //     return iree_make_status(IREE_STATUS_UNKNOWN, "result mismatches");
@@ -425,14 +425,14 @@ iree_status_t Cleanup(void) {
   // Print statistics (no-op if statistics are not enabled).
   iree_hal_allocator_statistics_fprint(stdout,
                                        iree_hal_device_allocator(device));
-  printf("T\\n");
+  // printf("T\\n");
 
   iree_vm_list_release(inputs_);
   iree_vm_list_release(outputs_);
   iree_hal_device_release(device);
   iree_vm_context_release(context);
   iree_vm_instance_release(instance);
-  printf("U\\n");
+  // printf("U\\n");
   return iree_ok_status();
 }
 """

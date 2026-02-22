@@ -206,7 +206,7 @@ class IREEBackend(Backend):
 
     @property
     def iree_install_dir(self):
-        return self.config["iree.install_dir"]
+        return Path(self.config["iree.install_dir"])
 
     @property
     def iree_build_dir(self):
@@ -542,15 +542,18 @@ class IREEBackend(Backend):
                                 for i, in_tensor in enumerate(model_info.in_tensors):
                                     arg_name = f"arg{i}"
                                     input_shape = in_tensor.shape
-                                    arg_shape_str = "x".join(input_shape)
+                                    arg_shape_str = "x".join(map(str, input_shape))
                                     args_temp[arg_name] = arg_shape_str
                                 args_str = ",".join([f"arg{i}:1x1960" for arg_name, arg_shape_str in args_temp.items()])
                                 args_str_ = f"args={args_str}"
-                                mlir_opt_args.append(f'--tosa-experimental-input-shape="{args_str_}"')
+                                mlir_opt_args.append(f'--tosa-experimental-input-shape={args_str_}')
                                 mlir_opt_args.append("-tosa-infer-shapes")
                             if attach_tosa_target:  # TODO: not working because this is hardcoded in IREE (see TODO)
                                 tosa_target_str = "specification_version=1.1.draft profiles=pro_int,pro_fp extensions=int16,int4,int64,bf16,fp8e4m3,fp8e5m2,fft,variable,controlflow,doubleround,inexactround,mxfp_conv,shape"
                                 mlir_opt_args.append(f"-tosa-attach-target={tosa_target_str}")
+                            utils.execute(
+                                *mlir_opt_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir
+                            )
                     elif major == 3 and minor > 1:
                         raise RuntimeError("TFLite (TOSA) importer unsupported for iree.version <3.1")
                     elif major < 3:

@@ -34,7 +34,7 @@ from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
-from mlonmcu.config import resolve_required_config, filter_config
+from mlonmcu.config import resolve_required_config, filter_config, ConfigTracker
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
@@ -331,7 +331,16 @@ class Run:
         self.features = features if features else []
         self.run_config = {}
         self.run_features = self.process_features(features)
-        self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.config_tracker = None
+        if not archived:
+            self.config_tracker = ConfigTracker(self.config)
+            print("self.config", self.config)
+        self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
+        if not archived:
+            print("self.run_config", self.run_config)
+            print("self.config_tracker", self.config_tracker)
+            # input("!")
+            # self.config_tracker.check()
         self.sub_names = []
         self.sub_parents = {}
         self.times = {}
@@ -616,6 +625,8 @@ class Run:
         for platform in self.platforms:
             self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(self.backend.config_tracker)
 
     def add_framework(self, framework):
         """Setter for the framework instance."""
@@ -624,6 +635,8 @@ class Run:
         for platform in self.platforms:
             self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(self.framework.config_tracker)
 
     def add_target(self, target):
         """Setter for the target instance."""
@@ -634,6 +647,8 @@ class Run:
             self.target.add_platform_defs(platform.name, platform.definitions)
         self.cache_hints = [self.target.get_arch()]
         # self.resolve_chache_refs()
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(self.target.config_tracker)
 
     def add_platform(self, platform, append=True):
         """Setter for the platform instance."""
@@ -650,6 +665,8 @@ class Run:
         if self.framework:
             self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(platform.config_tracker)
 
     def add_platforms(self, platforms, append=False):
         """Setter for the list of platforms."""
@@ -668,6 +685,8 @@ class Run:
             if self.framework:
                 self.framework.add_platform_config(platform.name, platform.config)
                 self.framework.add_platform_defs(platform.name, platform.definitions)
+            if self.config_tracker:
+                self.config_tracker = self.config_tracker.merge(platform.config_tracker)
 
     def add_postprocess(self, postprocess, append=True):
         """Setter for a postprocess instance."""
@@ -1288,6 +1307,10 @@ class Run:
         self.unlock()
 
     def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
+        print("self.config_tracker", self.config_tracker)
+        if self.config_tracker:
+            self.config_tracker.check()
+        input("before process")
         """Process the run until a given stage."""
         skip = skip if skip is not None else []
         if until == RunStage.DONE:

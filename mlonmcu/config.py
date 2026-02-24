@@ -18,7 +18,7 @@
 #
 """Collection of utilities to manage MLonMCU configs."""
 import distutils.util
-from typing import List
+from typing import List, Optional
 import ast
 
 from mlonmcu.feature.type import FeatureType
@@ -54,7 +54,83 @@ def remove_config_prefix(config, prefix, skip=None):
     return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
 
 
-def filter_config(config, prefix, defaults, optionals, required_keys):
+IGNORE_KEYS = {"runs_per_stage", "allow_extensions"}
+
+class ConfigTracker:
+    def __init__(self, config=None):
+        if config is not None:
+            self.names = set(config.keys())
+        else:
+            self.names = set()
+        self.used = set()
+        self.ignore = IGNORE_KEYS
+
+    @property
+    def unused(self):
+        return self.names - self.used - self.ignore
+
+    @property
+    def unknown(self):
+        return self.used - self.names - self.ignore
+
+    def track(self, key: str):
+        print("TRACK", key)
+        self.used.add(key)
+
+    def track_all(self, all_keys: set):
+        print("TRACK_ALL", all_keys)
+        assert isinstance(all_keys, set)
+        self.used = self.used | all_keys
+
+    def __repr__(self):
+        num_names = len(self.names)
+        num_used = len(self.used)
+        num_unknown = len(self.unknown)
+        temp = f"#names={num_names}, #used={num_used}"
+        if num_unknown > 0:
+            temp += f" #unknown={num_unknown}"
+        return f"ConfigTracker({temp})"
+
+    def check(self, fail_on_err: bool = False):
+        unused = self.unused
+        unknown = self.unknown
+        print("names", self.names)
+        print("used", self.used)
+        print("unused", unused)
+        print("unknown", unknown)
+        ret = False
+        if len(unused):
+            unused_str = ", ".join(sorted(list(unused)))
+            msg = f"Unsued config vars found: {unused_str}"
+            if fail_on_err:
+                raise RuntimeError(msg)
+            logger.warning(msg)
+            ret = True
+        # if len(unknown):
+        #     unknown_str = ", ".join(sorted(list(unknown)))
+        #     msg = f"Unknown config vars found: {unknown_str}"
+        #     if fail_on_err:
+        #         raise RuntimeError(msg)
+        #     logger.warning(msg)
+        #     ret = True
+        print("ret", ret)
+        # input("!")
+        return ret
+
+    def merge(self, other: "ConfigTracker"):
+        new_names = self.names | other.names
+        new_used = self.used | other.used
+        merged = ConfigTracker()
+        merged.names = new_names
+        merged.used = new_used
+        print("merged", merged)
+        # input("!")
+        return merged
+
+
+
+
+def filter_config(config, prefix, defaults, optionals, required_keys, config_tracker: Optional[ConfigTracker] = None):
     """Filter the global config for a given component prefix.
 
     Arguments
@@ -79,6 +155,7 @@ def filter_config(config, prefix, defaults, optionals, required_keys):
     ------
     AssertionError: If a required key is missing.
     """
+    print("filter_config", config, prefix, defaults, optionals, required_keys, config_tracker)
     if not isinstance(required_keys, set):
         logger.warning(
             "Deprecated: FEATURES, REQUIRED, OPTIONAL should now be sets, not lists for component %s", prefix
@@ -91,28 +168,47 @@ def filter_config(config, prefix, defaults, optionals, required_keys):
         value = None
         if required in cfg:
             value = cfg[required]
+            if config_tracker:
+                config_tracker.track(optional)
         elif required in config:
             value = config[required]
             cfg[required] = value
+            if config_tracker:
+                config_tracker.track(required)
         assert value is not None, f"Required config key can not be None: {required}"
 
     for optional in optionals:
         if optional in cfg:
+            if config_tracker:
+                config_tracker.track(optional)
             continue
         if optional in config:
             value = config[optional]
             cfg[optional] = value
+            if config_tracker:
+                config_tracker.track(optional)
         else:
             cfg[optional] = None
 
     for key in defaults:
         if key not in cfg:
             cfg[key] = defaults[key]
+        else:
+            if config_tracker:
+                # config_tracker.track(key)
+                if prefix:
+                    config_tracker.track(f"{prefix}.{key}")
 
     for key in cfg:
         if key not in set(defaults.keys()) | required_keys:
             # logger.warn("Component received an unknown config key: %s", key)
             pass
+    print("---")
+    print("prefix", prefix)
+    print("cfg", cfg)
+    print("config_tracker", config_tracker)
+    if config_tracker and prefix == "mlif":
+        input("!!!")
 
     return cfg
 

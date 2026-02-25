@@ -106,6 +106,7 @@ class DebugArena(BackendFeature):
             "tvmaot",
             "tvmaotplus",
             "tvmrt",
+            "tvmllvm",
             "tflmi",
         ], f"Unsupported feature '{self.name}' for backend '{backend}'"
         return {f"{backend}.debug_arena": self.enabled}

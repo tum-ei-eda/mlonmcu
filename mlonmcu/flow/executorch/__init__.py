@@ -16,32 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Definitions for EMXFramework."""
+"""Executorch framework module."""
 
-from pathlib import Path
+from .backend import ExecutorchBackend
 
-from mlonmcu.flow.framework import Framework
-
-
-class EMXFramework(Framework):
-    """EMX Framework specialization."""
-
-    name = "emx"
-
-    FEATURES = set()
-
-    DEFAULTS = {}
-
-    REQUIRED = {"emx.src_dir"}
-
-    def __init__(self, features=None, config=None):
-        super().__init__(features=features, config=config)
-
-    @property
-    def emx_src_dir(self):
-        return Path(self.config["emx.src_dir"])
-
-    def get_platform_defs(self, platform):
-        ret = super().get_platform_defs(platform)
-        ret["EMX_SRC_DIR"] = str(self.emx_src_dir)
-        return ret
+__all__ = ["ExecutorchBackend"]

@@ -208,10 +208,6 @@ class EMXBackend(Backend):
         self.artifacts = []
 
     @property
-    def emx_compile_extra_args(self):
-        return self.config["emx_compile_extra_args"]
-
-    @property
     def emx_src_dir(self):
         return self.config["emx.src_dir"]
 
@@ -255,7 +251,6 @@ class EMXBackend(Backend):
             "onnx": "emx-onnx-cgen",
         }
         exe = fmt2exe.get(self.model_format)
-        print("exe", exe)
         assert exe is not None, f"Unsupported format: {self.model_format}"
         args = self.get_emx_compile_args(out, model_path)
         self.timeout_sec = 0
@@ -319,7 +314,6 @@ class EMXBackend(Backend):
                 "emx_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
             )
             artifacts.append(stdout_artifact)
-        print("artifacts", artifacts)
         return {"default": artifacts}, {"default": metrics}
 
     def get_platform_defs(self, platform):

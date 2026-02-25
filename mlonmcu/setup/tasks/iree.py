@@ -135,6 +135,7 @@ def build_iree(context: MlonMcuContext, params=None, rebuild=False, verbose=Fals
             cmake_exe=cmake_exe,
         )
         utils.make(cwd=ireeBuildDir, threads=threads, use_ninja=ninja, live=verbose)
+        utils.make("mlir-opt", cwd=ireeBuildDir, threads=threads, use_ninja=ninja, live=verbose)
     context.cache["iree.build_dir"] = ireeBuildDir
     context.cache["iree.install_dir"] = ireeInstallDir
     return True
@@ -159,6 +160,9 @@ def install_iree(
     if rebuild or not utils.is_populated(ireeInstallDir):
         ninja = True
         utils.make("install", cwd=ireeBuildDir, threads=threads, use_ninja=ninja, live=verbose)
+        mlirOptExe = ireeBuildDir / "llvm-project" / "bin" / "mlir-opt"
+        mlirOptExe_ = ireeInstallDir / "bin" / "mlir-opt"
+        utils.copy(mlirOptExe, mlirOptExe_)
     context.cache["iree.install_dir"] = ireeInstallDir
     return True
 

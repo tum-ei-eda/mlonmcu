@@ -27,20 +27,29 @@ def parse_mlir_signature(mlir_text):
     # Find the util.func @main signature
     match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
-        match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        # match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        match2 = re.search(
+            r"func\.func\s+@(\w+)\(([^)(]*?)\)\s*->\s*\(?([^)(]*?)\)?\s*(?:attributes(.*))?\{", mlir_text, re.DOTALL
+        )
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")
         func_name = match2.group(1)
         input_args = match2.group(2)
         output_args = match2.group(3)
+        # attr_args = match2.group(4)
     else:
 
         func_name = match1.group(1)
         input_args = match1.group(2)
         output_args = match1.group(3)
+        # attr_args = ""
 
     inputs = []
     outputs = []
+    # print("func_name", func_name)
+    # print("input_args", input_args)
+    # print("output_args", output_args)
+    # print("attr_args", attr_args)
 
     # Parse inputs
     if input_args.strip():
@@ -126,6 +135,7 @@ class TensorInfo:
         assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
+        # TODO: support dynamic shapes?
 
     def __repr__(self):
         return f"TensorInfo({self.name}, {self.shape}, {self.dtype}, size={self.size})"
@@ -422,15 +432,20 @@ class MLIRModelInfo(ModelInfo):
         for inp in inputs:
             input_name = inp["name"]
             dtype = inp["dtype"]
-            input_type = type_lookup[dtype]
+            input_type = type_lookup.get(dtype)
+            assert input_type is not None, f"Unsupported dtype: {dtype}"
             input_shape = inp["shape"]
             input_tensor = TensorInfo(input_name, input_shape, input_type)
             in_tensors.append(input_tensor)
         for outp in outputs:
             output_name = outp["name"]
             dtype = outp["dtype"]
-            output_type = type_lookup[dtype]
             output_shape = outp["shape"]
+            # TODO: handle func.func @tf2onnx(%arg0: !torch.vtensor<[1,1960],f32>) -> !torch.vtensor<[1,10],f32> attributes {torch.onnx_meta.ir_version = 8 : si64, torch.onnx_meta.opset_version = 15 : si64, torch.onnx_meta.opset_versions = {ai.onnx.ml = 2 : si64}, torch.onnx_meta.producer_name = "tf2onnx", torch.onnx_meta.producer_version = "1.16.1 15c810"} {
+            if dtype is None and output_name is None and len(output_shape) == 0:
+                continue
+            output_type = type_lookup.get(dtype)
+            assert output_type is not None, f"Unsupported dtype: {dtype}"
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             out_tensors.append(output_tensor)
 

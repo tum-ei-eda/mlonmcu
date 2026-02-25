@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Generic IREEBackend implementation."""
 import os
 import tempfile
 from pathlib import Path
@@ -30,32 +31,19 @@ from mlonmcu.logging import get_logger
 from mlonmcu.target.elf import get_code_size_from_static_lib
 from mlonmcu.models.model_info import (
     get_model_info,
-    # get_fallback_model_info,
-    # get_supported_formats,
     get_supported_formats_iree,
-    # get_model_format,
 )
-from mlonmcu.flow.tvm.backend.wrapper import getSizes
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from .wrapper import generate_iree_wrapper
+from .iree_utils import parse_iree_version
 
-# from mlonmcu.models.model import ModelFormats
-
-# from .python_utils import prepare_python_environment
-# from .tvmc_utils import (
-#     get_target_tvmc_args,
-#     get_pass_config_tvmc_args,
-#     get_disabled_pass_tvmc_args,
-#     get_runtime_executor_tvmc_args,
-#     get_input_shapes_tvmc_args,
-#     get_tuning_records_tvmc_args,
-#     get_desired_layout_args,
-# )
 
 logger = get_logger()
 
 
 def get_iree_compile_hal_backend_target_args(hal_backend, target_details):
+    """Get LLVM-CPU specific arguments."""
     if hal_backend != "llvm-cpu":
         return []
 
@@ -75,12 +63,8 @@ def get_iree_compile_optimization_args(
     iree_version: Optional[str] = None,
     opt_level: Optional[str] = None,
 ):
-    if iree_version is None:
-        logger.warning("iree.version undefined, assuming v3.3")
-        major = 3
-        minor = 3
-    else:
-        major, minor = map(int, iree_version.split(".", 1))
+    """Get optimization-related arguments."""
+    major, minor = parse_iree_version(iree_version)
     ret = []
     if major < 3 or (major == 3 and minor < 3):
         # No unified optimization flags
@@ -109,6 +93,7 @@ def get_iree_compile_llvmcpu_vectorization_unroll_args(
     target_scalable_vector: Optional[bool] = None,
     loop_unroll: Optional[bool] = None,
 ):
+    """Get vectorization-related arguments."""
     if hal_backend != "llvm-cpu":
         return []
     supports_vectorization = target_vector_width is not None and target_vector_width > 0
@@ -134,562 +119,9 @@ def get_iree_compile_llvmcpu_vectorization_unroll_args(
     return ret
 
 
-def generate_iree_wrapper(
-    model_info, identifier: str, use_emitc: bool = False, vmvx: bool = False, translated: bool = False
-):
-    main_func_name = model_info.main_func_name
-    print("main_func_name", main_func_name)
-    assert main_func_name is not None
-    # identifier2 = "module_linked" if translated else f"{main_func_name}_dispatch_0"
-    identifier2 = "model_linked" if translated else f"{main_func_name}_dispatch_0"
-    print("identifier2", identifier2)
-    inSizes = getSizes(model_info.in_tensors)
-    outSizes = getSizes(model_info.out_tensors)
-    numInputs = len(model_info.in_tensors)
-    numOutputs = len(model_info.out_tensors)
-
-    def writeTensors(in_tensors, out_tensors):
-        retStr = """
-// Define data for input and output tensors
-"""
-
-        def writeTensorsHelper(tensors, out=False):
-            lenTensors = len(tensors)
-            direction = "out" if out else "in"
-            ret = ""
-            names = [f"{direction}put{i}_data" for i in range(lenTensors)]
-            for i, t in enumerate(tensors):
-                ret += "char " + names[i] + "[" + str(t.size) + "];\n"
-            ret += f"void* {direction}puts[] = {{" + ", ".join(names) + "};\n"
-            return ret
-
-        retStr += writeTensorsHelper(in_tensors, False)
-        retStr += writeTensorsHelper(out_tensors, True)
-        return retStr
-
-    tensorBufs = writeTensors(model_info.in_tensors, model_info.out_tensors)
-
-    def getIOSetupCode(in_tensors, out_tensors, use_emitc: bool = False):
-        lookup_hal_element_type = {
-            "int8": "IREE_HAL_ELEMENT_TYPE_SINT_8",
-            "int32": "IREE_HAL_ELEMENT_TYPE_SINT_32",
-            "float32": "IREE_HAL_ELEMENT_TYPE_FLOAT_32",
-        }
-        ret = """
-// TODO: setup IO
-"""
-        num_inputs = len(in_tensors)
-        num_outputs = len(out_tensors)
-        for i, in_tensor in enumerate(in_tensors):
-            shape = in_tensor.shape
-            shape = [x if x is not None else 1 for x in shape]
-            shape_str = "{" + ", ".join(map(str, shape)) + "}"
-            dtype = in_tensor.dtype
-            hal_element_type = lookup_hal_element_type[dtype]
-            ret += f"""
-    iree_hal_dim_t shape{i}[{len(shape)}] = {shape_str};  // TODO: fixed size?
-    iree_hal_buffer_view_t *arg{i}_buffer_view = NULL;
-    IREE_RETURN_IF_ERROR(iree_hal_buffer_view_allocate_buffer_copy(
-        device, iree_hal_device_allocator(device), IREE_ARRAYSIZE(shape{i}), shape{i},
-        {hal_element_type}, IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR,
-        (iree_hal_buffer_params_t){{
-            .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL,
-            .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,
-        }},
-        iree_make_const_byte_span(inputs[{i}], sizeof(*inputs[{i}])), &arg{i}_buffer_view));
-"""
-        if not use_emitc:
-            ret += f"""
-  // Setup call inputs with our buffers.
-  IREE_RETURN_IF_ERROR(iree_vm_list_create(iree_vm_make_undefined_type_def(),
-                                           /*capacity=*/{num_inputs},
-                                           iree_allocator_system(), &inputs_),
-                       "can't allocate input vm list");
-"""
-        for i, in_tensor in enumerate(in_tensors):
-            if not use_emitc:
-                ret += f"""
-  iree_vm_ref_t arg{i}_buffer_view_ref = iree_hal_buffer_view_move_ref(arg{i}_buffer_view);
-  IREE_RETURN_IF_ERROR(iree_vm_list_push_ref_move(inputs_, &arg{i}_buffer_view_ref));
-"""
-            else:
-                ret += f"""
-  IREE_RETURN_IF_ERROR(iree_runtime_call_inputs_push_back_buffer_view(&call, arg{i}_buffer_view));
-  iree_hal_buffer_view_release(arg{i}_buffer_view);
-"""
-        if not use_emitc:
-            ret += f"""
-  // Prepare outputs list to accept the results from the invocation.
-  // The output vm list is allocated statically.
-  IREE_RETURN_IF_ERROR(iree_vm_list_create(iree_vm_make_undefined_type_def(),
-                                           /*capacity=*/{num_outputs},
-                                           iree_allocator_system(), &outputs_),
-                       "can't allocate output vm list");
-"""
-        return ret
-
-    # setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=use_emitc)
-    setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=False)
-
-    def getCopyOutputsCode(out_tensors):
-        assert len(out_tensors) == 1
-        ret = """
-  iree_hal_buffer_view_t *ret_buffer_view =
-      iree_vm_list_get_buffer_view_assign(outputs_, 0);
-  if (ret_buffer_view == NULL) {
-    return iree_make_status(IREE_STATUS_NOT_FOUND,
-                            "can't find return buffer view");
-  }
-  // printf("R\\n");
-
-  // Read back the results and ensure we got the right values.
-  IREE_RETURN_IF_ERROR(iree_hal_device_transfer_d2h(
-      device, iree_hal_buffer_view_buffer(ret_buffer_view), 0, outputs[0],
-      sizeof(*outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,
-      iree_infinite_timeout()));
-"""
-        return ret
-
-    copyOutputs = getCopyOutputsCode(model_info.out_tensors)
-
-    wrapper_main = (
-        """
-#include <stddef.h>
-
-#include "iree/base/api.h"
-#include "iree/hal/api.h"
-#include "iree/modules/hal/module.h"
-#include "iree/modules/hal/inline/module.h"
-#include "iree/modules/hal/loader/module.h"
-#include "iree/vm/api.h"
-#include "iree/vm/bytecode/module.h"
-
-// Initial buffer contents for 4 * 2 = 8.
-// const int32_t kInt4[] = {4, 4, 4, 4};
-// const int32_t kInt2[] = {2, 2, 2, 2};
-// int32_t results[] = {0, 0, 0, 0};
-"""
-        + tensorBufs
-        + """
-
-
-// A function to create the HAL device from the different backend targets.
-// The HAL device is returned based on the implementation, and it must be
-// released by the caller.
-extern iree_status_t create_sample_device(
-    iree_allocator_t host_allocator, iree_hal_device_t** out_device,
-    iree_hal_executable_loader_t** loader);
-
-// A function to create the bytecode or C module.
-extern iree_status_t create_module(iree_vm_instance_t* instance,
-                                   iree_vm_module_t** out_module);
-
-// static globals
-static iree_vm_instance_t *instance = NULL;
-static iree_hal_device_t *device = NULL;
-static iree_vm_list_t *outputs_ = NULL;
-static iree_vm_list_t *inputs_ = NULL;
-static iree_vm_function_t main_function;
-static iree_vm_context_t *context = NULL;
-
-iree_status_t Prepare(void) {
-  printf("A\\n");
-  IREE_RETURN_IF_ERROR(iree_vm_instance_create(
-      IREE_VM_TYPE_CAPACITY_DEFAULT, iree_allocator_system(), &instance));
-  // IREE_RETURN_IF_ERROR(iree_hal_module_register_all_types(instance));
-#if defined(BUILD_INLINE_HAL)
-  IREE_RETURN_IF_ERROR(iree_hal_module_register_inline_types(instance));
-#elif defined(BUILD_LOADER_HAL)
-  IREE_RETURN_IF_ERROR(iree_hal_module_register_loader_types(instance));
-#else
-  IREE_RETURN_IF_ERROR(iree_hal_module_register_all_types(instance));
-#endif
-  printf("B\\n");
-
-  iree_hal_executable_loader_t* loader = NULL;
-  IREE_RETURN_IF_ERROR(
-      create_sample_device(iree_allocator_system(), &device, &loader),
-      "create device");
-  printf("C\\n");
-
-#if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)
-  // Create hal_inline_module
-  iree_vm_module_t* hal_inline_module = NULL;
-  IREE_RETURN_IF_ERROR(iree_hal_inline_module_create(
-      instance, IREE_HAL_INLINE_MODULE_FLAG_NONE,
-      iree_hal_module_debug_sink_stdio(stderr),
-      iree_hal_device_allocator(device), iree_allocator_system(),
-      &hal_inline_module));
-#endif
-  printf("D\\n");
-
-
-  iree_vm_module_t *module = NULL;
-  IREE_RETURN_IF_ERROR(create_module(instance, &module));
-  printf("E\\n");
-
-  // iree_vm_module_t *hal_module = NULL;
-  // IREE_RETURN_IF_ERROR(iree_hal_module_create(
-  //     instance, /*device_count=*/1, &device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-  //     iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),
-  //     &hal_module));
-#if defined(BUILD_INLINE_HAL)
-  iree_vm_module_t* modules[] = {hal_inline_module, module};
-#elif defined(BUILD_LOADER_HAL)
-  // Create hal_loader_module
-  iree_vm_module_t* hal_loader_module = NULL;
-  IREE_RETURN_IF_ERROR(iree_hal_loader_module_create(
-      instance, IREE_HAL_MODULE_FLAG_NONE,
-      /*loader_count=*/1, &loader, iree_allocator_system(),
-      &hal_loader_module));
-  iree_vm_module_t* modules[] = {hal_inline_module, hal_loader_module, module};
-#else
-  // Create hal_module
-  iree_vm_module_t* hal_module = NULL;
-  IREE_RETURN_IF_ERROR(iree_hal_module_create(
-      instance, /*device_count=*/1, &device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-      iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),
-      &hal_module));
-
-  iree_vm_module_t* modules[] = {hal_module, module};
-#endif
-  iree_hal_executable_loader_release(loader);
-  printf("F\\n");
-
-  // Allocate a context that will hold the module state across invocations.
-  // iree_vm_module_t *modules[] = {hal_module, module};
-  IREE_RETURN_IF_ERROR(iree_vm_context_create_with_modules(
-      instance, IREE_VM_CONTEXT_FLAG_NONE, IREE_ARRAYSIZE(modules), &modules[0],
-      iree_allocator_system(), &context));
-  printf("G\\n");
-  // iree_vm_module_release(hal_module);
-#if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)
-  iree_vm_module_release(hal_inline_module);
-#else
-  iree_vm_module_release(hal_module);
-#endif
-  printf("H\\n");
-
-#if defined(BUILD_LOADER_HAL)
-  iree_vm_module_release(hal_loader_module);
-#endif
-  iree_vm_module_release(module);
-  printf("I\\n");
-
-  // Lookup the entry point function.
-  // Note that we use the synchronous variant which operates on pure type/shape
-  // erased buffers.
-  const char kMainFunctionName[] = \"module."""
-        + main_func_name
-        + """\";
-  IREE_RETURN_IF_ERROR(iree_vm_context_resolve_function(
-      context, iree_make_cstring_view(kMainFunctionName), &main_function));
-  printf("J\\n");
-
-  // Allocate buffers in device-local memory so that if the device has an
-  // independent address space they live on the fast side of the fence.
-  """
-        + setupInputsOutputs
-        + """
-  printf("KLMNOP\\n");
-
-  return iree_ok_status();
-}
-
-iree_status_t Run(void) {
-  // Synchronously invoke the function.
-  // IREE_RETURN_IF_ERROR(iree_vm_invoke(
-  iree_status_t status = iree_vm_invoke(
-      context, main_function, IREE_VM_INVOCATION_FLAG_NONE,
-      /*policy=*/NULL, inputs_, outputs_, iree_allocator_system());
-      ///*policy=*/NULL, inputs_, outputs_, iree_allocator_system()));
-  iree_status_fprint(stdout, status);
-  // return iree_ok_status();
-  return status;
-}
-
-iree_status_t Cleanup(void) {
-  printf("Q\\n");
-
-  // Get the result buffers from the invocation.
-  """
-        + copyOutputs
-        + """
-  printf("S\\n");
-  // for (iree_host_size_t i = 0; i < IREE_ARRAYSIZE(results); ++i) {
-  //   if (results[i] != 8) {
-  //     return iree_make_status(IREE_STATUS_UNKNOWN, "result mismatches");
-  //   }
-  // }
-
-  // Print statistics (no-op if statistics are not enabled).
-  iree_hal_allocator_statistics_fprint(stdout,
-                                       iree_hal_device_allocator(device));
-  printf("T\\n");
-
-  iree_vm_list_release(inputs_);
-  iree_vm_list_release(outputs_);
-  iree_hal_device_release(device);
-  iree_vm_context_release(context);
-  iree_vm_instance_release(instance);
-  printf("U\\n");
-  return iree_ok_status();
-}
-"""
-    )
-
-    epilog = (
-        """
-int IREE_Init()
-{
-    iree_status_t status = Prepare();
-    return !iree_status_is_ok(status);
-}
-
-int IREE_Deinit()
-{
-    iree_status_t status = Cleanup();
-    return !iree_status_is_ok(status);
-}
-
-void *IREE_GetInputPtr(int index)
-{
-    // void *data[] = {&kInt2[0], &kInt4[0]};
-    // return data[index];
-    return inputs[index];
-}
-
-size_t IREE_GetInputSize(int index)
-{
-    // const size_t sizes[] = {16, 16};
-    """
-        + inSizes
-        + """
-    return sizes[index];
-}
-
-size_t IREE_GetNumInputs()
-{
-    return """
-        + str(numInputs)
-        + """;
-}
-
-int IREE_Run()
-{
-    iree_status_t status = Run();
-    return !iree_status_is_ok(status);
-}
-
-void *IREE_GetOutputPtr(int index)
-{
-    // void *data[] = {&results[0]};
-    // return data[index];
-    return outputs[index];
-}
-
-size_t IREE_GetOutputSize(int index)
-{
-    // const size_t sizes[] = {16};
-    """
-        + outSizes
-        + """
-    return sizes[index];
-}
-
-size_t IREE_GetNumOutputs()
-{
-    return """
-        + str(numOutputs)
-        + """;
-}
-"""
-    )
-    header = """#ifndef IREE_WRAPPER_H
-#define IREE_WRAPPER_H
-
-#include <stddef.h>
-
-int IREE_Init();
-int IREE_Deinit();
-void *IREE_GetInputPtr(int index);
-size_t IREE_GetInputSize(int index);
-size_t IREE_GetNumInputs();
-int IREE_Run();
-void *IREE_GetOutputPtr(int index);
-size_t IREE_GetOutputSize(int index);
-size_t IREE_GetNumOutputs();
-
-#endif  // IREE_WRAPPER_H
-"""
-    sync_static = (
-        """
-#include <stddef.h>
-
-#include "iree/base/api.h"
-#include "iree/hal/api.h"
-#include "iree/hal/drivers/local_sync/sync_device.h"
-#include "iree/hal/local/executable_loader.h"
-#include "iree/hal/local/loaders/static_library_loader.h"
-
-#include \""""
-        + identifier
-        + """_static_lib.h\"
-
-iree_status_t create_sample_device(iree_allocator_t host_allocator,
-                                   iree_hal_device_t **out_device,
-                                   iree_hal_executable_loader_t** loader) {
-
-  // Set parameters for the device created in the next step.
-  iree_hal_sync_device_params_t params;
-  iree_hal_sync_device_params_initialize(&params);
-
-  const iree_hal_executable_library_query_fn_t libraries[] = {
-      """
-        + identifier2
-        + """_library_query,
-  };
-
-  iree_status_t status = iree_hal_static_library_loader_create(
-      IREE_ARRAYSIZE(libraries), libraries,
-      iree_hal_executable_import_provider_null(), host_allocator, loader);
-
-  // Use the default host allocator for buffer allocations.
-  iree_string_view_t identifier = iree_make_cstring_view("local-sync");
-  iree_hal_allocator_t* device_allocator = NULL;
-  if (iree_status_is_ok(status)) {
-    status = iree_hal_allocator_create_heap(identifier, host_allocator,
-                                            host_allocator, &device_allocator);
-  }
-
-  if (iree_status_is_ok(status)) {
-    // Create the synchronous device
-    status = iree_hal_sync_device_create(
-        identifier, &params, /*loader_count=*/1, loader, device_allocator,
-        host_allocator, out_device);
-  }
-
-  iree_hal_allocator_release(device_allocator);
-  return status;
-}
-"""
-    )
-    sync_vmvx = """
-#include <stddef.h>
-
-#include "iree/base/api.h"
-#include "iree/hal/api.h"
-#include "iree/hal/drivers/local_sync/sync_device.h"
-#include "iree/hal/local/executable_loader.h"
-#include "iree/hal/local/loaders/vmvx_module_loader.h"
-
-iree_status_t create_sample_device(iree_allocator_t host_allocator,
-                                   iree_hal_device_t** out_device,
-                                   iree_hal_executable_loader_t** loader) {
-  // Set parameters for the device created in the next step.
-  iree_hal_sync_device_params_t params;
-  iree_hal_sync_device_params_initialize(&params);
-
-  iree_vm_instance_t* instance = NULL;
-  IREE_RETURN_IF_ERROR(iree_vm_instance_create(IREE_VM_TYPE_CAPACITY_DEFAULT,
-                                               host_allocator, &instance));
-
-  iree_status_t status = iree_hal_vmvx_module_loader_create(
-      instance, /*user_module_count=*/0, /*user_modules=*/NULL, host_allocator,
-      loader);
-  iree_vm_instance_release(instance);
-
-  // Use the default host allocator for buffer allocations.
-  iree_string_view_t identifier = iree_make_cstring_view("local-sync");
-  iree_hal_allocator_t* device_allocator = NULL;
-  if (iree_status_is_ok(status)) {
-    status = iree_hal_allocator_create_heap(identifier, host_allocator,
-                                            host_allocator, &device_allocator);
-  }
-
-  if (iree_status_is_ok(status)) {
-    // Create the synchronous device.
-    status = iree_hal_sync_device_create(
-        identifier, &params, /*loader_count=*/1, loader, device_allocator,
-        host_allocator, out_device);
-  }
-
-  iree_hal_allocator_release(device_allocator);
-  return status;
-}
-"""
-    utils_vmvx = (
-        """
-#include <stdio.h>
-
-#include "iree/vm/bytecode/module.h"
-
-#include \""""
-        + identifier
-        + """.h\"
-
-// A function to create a VMVX bytecode module.
-iree_status_t create_module(iree_vm_instance_t* instance,
-                            iree_vm_module_t** out_module) {
-  const struct iree_file_toc_t *module_file_toc = """
-        + identifier
-        + """_create();
-  iree_const_byte_span_t module_data =
-      iree_make_const_byte_span(module_file_toc->data, module_file_toc->size);
-  return iree_vm_bytecode_module_create(instance, module_data,
-                                        iree_allocator_null(),
-                                        iree_allocator_system(), out_module);
-}
-"""
-    )
-    utils_bytecode = (
-        """
-#include <stdio.h>
-
-#include "iree/vm/bytecode/module.h"
-
-#include \""""
-        + identifier
-        + """.h\"
-
-// A function to create the bytecode module.
-iree_status_t create_module(iree_vm_instance_t* instance,
-                            iree_vm_module_t** out_module) {
-  const struct iree_file_toc_t *module_file_toc = """
-        + identifier
-        + """_create();
-  iree_const_byte_span_t module_data =
-      iree_make_const_byte_span(module_file_toc->data, module_file_toc->size);
-  return iree_vm_bytecode_module_create(
-      instance, module_data, iree_allocator_null(),
-      iree_vm_instance_allocator(instance), out_module);
-}
-"""
-    )
-    utils_emitc = (
-        """
-#include <stdio.h>
-
-#include \""""
-        + identifier
-        + """_emitc.h\"
-
-// A function to create the C module.
-iree_status_t create_module(iree_vm_instance_t* instance,
-                            iree_vm_module_t** out_module) {
-  return module_create(instance, iree_vm_instance_allocator(instance),
-                       out_module);
-}
-"""
-    )
-    prolog = ""
-    sync = sync_vmvx if vmvx else sync_static
-    wrapper = prolog + wrapper_main + epilog
-    utils_ = utils_vmvx if vmvx else (utils_emitc if use_emitc else utils_bytecode)
-    return wrapper, header, sync, utils_
-
-
 class IREEBackend(Backend):
+    """Base IREE Backend."""
+
     registry = {}
 
     name = None
@@ -706,13 +138,12 @@ class IREEBackend(Backend):
         "iree_compile_extra_args": [],
         "num_threads": multiprocessing.cpu_count(),
         "strip_assertions": None,
-        # "iree_version": None,  # TODO: auto?
         "target_vector_width": None,
         "target_scalable_vectorization": None,
         "loop_unroll": True,
     }
 
-    OPTIONAL = {"iree.version"}
+    OPTIONAL = {"iree.version", "iree.build_dir"}
 
     REQUIRED = {"iree.install_dir", "iree.src_dir"}
 
@@ -775,7 +206,14 @@ class IREEBackend(Backend):
 
     @property
     def iree_install_dir(self):
-        return self.config["iree.install_dir"]
+        return Path(self.config["iree.install_dir"])
+
+    @property
+    def iree_build_dir(self):
+        ret = self.config["iree.build_dir"]
+        if ret is None:
+            return None
+        return Path(ret)
 
     @property
     def iree_src_dir(self):
@@ -788,6 +226,16 @@ class IREEBackend(Backend):
     @property
     def iree_c_embed_data_exe(self):
         return Path(self.iree_install_dir) / "bin" / "iree-c-embed-data"
+
+    @property
+    def mlir_opt_exe_fallback(self):
+        iree_build_dir = self.iree_build_dir
+        assert iree_build_dir is not None, "Missing: iree.build_dir"
+        return self.iree_build_dir / "llvm-project" / "bin" / "mlir-opt"
+
+    @property
+    def mlir_opt_exe(self):
+        return self.iree_install_dir / "bin" / "mlir-opt"
 
     @property
     def iree_tflite_path(self):
@@ -810,8 +258,10 @@ class IREEBackend(Backend):
         env = os.environ.copy()
         pythonpath = env.get("PYTHONPATH", "")
         pythonpath = f"{self.iree_tflite_path}:{self.iree_tf_path}:{pythonpath}"
-        print("pythonpath", pythonpath)
         env["PYTHONPATH"] = pythonpath
+        old_path = env.get("PATH", "")
+        new_path = f"{self.iree_install_dir}/bin:{old_path}"
+        env["PATH"] = new_path
         return env
 
     def get_target_details(self):
@@ -1036,27 +486,78 @@ class IREEBackend(Backend):
         assert self.model is not None
         with tempfile.TemporaryDirectory() as temp_dir:
             out_dir = Path(temp_dir)
+            # out_dir = Path("/tmp/iree_out/")
             model_path = self.model
             model_info = self.model_info
             translated = False
-            if self.model_format != "mlir":
+            mlir_path = out_dir / f"{self.identifier}.mlir"
+            if self.model_format == "mlir":
+                # Copy model to model.mlir for consistent function_names
+                utils.copy(model_path, mlir_path)
+                translated = True
+            else:
                 translated = True
                 mlirbc_path = out_dir / f"{self.identifier}.mlirbc"
-                mlir_path = out_dir / f"{self.identifier}.mlir"
                 needs_mlirbc2mlir = False
                 if self.model_format == "tflite":
                     iree_version = self.iree_version
                     # TODO: move to utils
-                    if iree_version is None:
-                        logger.warning("iree.version undefined, assuming v3.3")
-                        major = 3
-                        minor = 3
-                    else:
-                        major, minor = map(int, iree_version.split(".", 1))
-                    if major == 3 and minor > 1:
-                        raise RuntimeError("TFLite (TOSA) importer unsupported for iree.version > 3.1")
-                    python_args = ["-m", "iree.tools.tflite.scripts.iree_import_tflite", model_path, "-o", mlirbc_path]
-                    needs_mlirbc2mlir = True
+                    major, minor = parse_iree_version(iree_version)
+                    if major == 3 and minor <= 1:
+                        python_args = [
+                            "-m",
+                            "iree.tools.tflite.scripts.iree_import_tflite",
+                            model_path,
+                            "-o",
+                            mlirbc_path,
+                        ]
+                        utils.python(
+                            *python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir
+                        )
+                        needs_mlirbc2mlir = True
+                    elif major == 3 and minor > 5:  # TODO: check
+                        tosa_converter_args = ["tosa-converter-for-tflite", model_path, "--text", "-o", mlir_path]
+                        utils.execute(
+                            *tosa_converter_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir
+                        )
+                        fix_mlir = True
+                        if fix_mlir:
+                            attach_tosa_target = True
+                            fix_dynamic_shapes = True
+                            temp_mlir_path = out_dir / "temp.mlir"
+                            utils.copy(mlir_path, temp_mlir_path)
+                            mlir_opt_exe = self.mlir_opt_exe
+                            assert mlir_opt_exe is not None, "Undefined: mlir_opt_exe"
+                            if not mlir_opt_exe.is_file():
+                                mlir_opt_exe = self.mlir_opt_exe_fallback
+                                assert mlir_opt_exe.is_file(), f"Missing file: {mlir_opt_exe}"
+                            mlir_opt_args = [
+                                mlir_opt_exe,
+                                temp_mlir_path,
+                                "-o",
+                                mlir_path,
+                            ]
+                            if fix_dynamic_shapes:
+                                args_temp = {}
+                                for i, in_tensor in enumerate(model_info.in_tensors):
+                                    arg_name = f"arg{i}"
+                                    input_shape = in_tensor.shape
+                                    arg_shape_str = "x".join(map(str, input_shape))
+                                    args_temp[arg_name] = arg_shape_str
+                                args_str = ",".join([f"arg{i}:1x1960" for arg_name, arg_shape_str in args_temp.items()])
+                                args_str_ = f"args={args_str}"
+                                mlir_opt_args.append(f'--tosa-experimental-input-shape={args_str_}')
+                                mlir_opt_args.append("-tosa-infer-shapes")
+                            if attach_tosa_target:  # TODO: not working because this is hardcoded in IREE (see TODO)
+                                tosa_target_str = "specification_version=1.1.draft profiles=pro_int,pro_fp extensions=int16,int4,int64,bf16,fp8e4m3,fp8e5m2,fft,variable,controlflow,doubleround,inexactround,mxfp_conv,shape"
+                                mlir_opt_args.append(f"-tosa-attach-target={tosa_target_str}")
+                            utils.execute(
+                                *mlir_opt_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir
+                            )
+                    elif major == 3 and minor > 1:
+                        raise RuntimeError("TFLite (TOSA) importer unsupported for iree.version <3.1")
+                    elif major < 3:
+                        raise RuntimeError("IREE version < 3.0 is untested/unsupported.")
                 elif self.model_format == "onnx":
                     # opset_version = 17
                     opset_version = None
@@ -1069,6 +570,7 @@ class IREEBackend(Backend):
                         mlir_path,
                         *([f"--opset-version={opset_version}"] if opset_version is not None else []),
                     ]
+                    utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
                 elif self.model_format in ["saved_model", "pb"]:
                     python_args = [
                         "-m",
@@ -1079,9 +581,9 @@ class IREEBackend(Backend):
                         "--tf-import-type=savedmodel_v1",
                         "--tf-savedmodel-exported-names=predict",
                     ]
+                    utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
                 else:
                     raise NotImplementedError(f"Unhandled format: {self.model_format}")
-                utils.python(*python_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir)
                 if needs_mlirbc2mlir:
                     self.translate_mlirbc_to_mlir(mlirbc_path, mlir_path, cwd=temp_dir)
                 model_format, model_info = get_model_info(mlir_path, backend_name=self.name)
@@ -1106,7 +608,7 @@ class IREEBackend(Backend):
                         )
                     )
                 # model_path = mlirbc_path
-                model_path = mlir_path
+            model_path = mlir_path
             if self.output_format == "vm-bytecode":
                 out_path = out_dir / f"{self.identifier}.vmfb"
             elif self.output_format == "vm-c":
@@ -1188,6 +690,7 @@ class IREEBackend(Backend):
                 use_emitc=self.use_emitc,
                 vmvx=self.hal_backend in ["vmvx", "vmvx-inline"],
                 translated=translated,
+                iree_version=self.iree_version,
             )
             artifacts.append(
                 Artifact(
@@ -1243,3 +746,17 @@ class IREEBackend(Backend):
         elif self.hal_backend == "vmvx-inline":
             ret["IREE_INLINE_HAL"] = True
         return ret
+
+    def add_platform_config(self, platform, config):
+        print("IREEBackend.add_platform_config")
+        assert platform.startswith("mlif"), f"Unsupported platform: {platform}"
+        # old_paths = config.get(f"{platform}.extra_paths", ["foo"])
+        old_paths = config.get("extra_paths")
+        if old_paths is None:
+            old_paths = []
+        # assert isinstance(old_paths, list)
+        new_paths = old_paths
+        assert isinstance(new_paths, list)
+        new_paths.append(f"{self.iree_install_dir}/bin")
+        # config[f"{platform}.extra_paths"] = new_paths
+        config["extra_paths"] = new_paths

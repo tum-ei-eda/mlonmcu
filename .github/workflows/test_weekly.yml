@@ -76,10 +76,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           python -m venv .venv
-      - name: Install dependencies
-        run: |
-          source .venv/bin/activate
-          pip install -r requirements.txt
       - name: Run package creation
         run: |
           source .venv/bin/activate
@@ -100,7 +96,7 @@ jobs:
       - name: Prepare integration tests
         run: |
           source .venv/bin/activate
-          pip install -r requirements_dev.txt
+          pip install -e ".[dev]"
       - name: Run integration tests
         run: |
           source .venv/bin/activate
@@ -149,5 +145,5 @@ jobs:
           shell: bash
           run: |-
             python3 -m pip install --upgrade pip setuptools
-            pip3 install -r requirements_dev.txt
+            pip3 install -r ".[dev]"
             python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

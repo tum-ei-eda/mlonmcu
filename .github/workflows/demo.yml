@@ -88,10 +88,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m venv .venv
-      - name: Install dependencies
-        run: |
-          source .venv/bin/activate
-          pip install -r requirements.txt
       - name: Run package creation
         run: |
           source .venv/bin/activate
@@ -119,7 +115,7 @@ jobs:
       - name: Prepare complex integration tests (optional)
         run: |
           source .venv/bin/activate
-          pip install -r requirements_dev.txt
+          pip install -e ".[dev]"
         if: ${{ github.event.inputs.test == 'true' }}
       - name: Run complex integration tests (optional)
         run: |

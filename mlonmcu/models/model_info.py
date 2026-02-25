@@ -27,11 +27,12 @@ from mlonmcu.models.model import ModelFormats
 def parse_mlir_signature(mlir_text):
 
     # Find the util.func @main signature
+    print("mlir_text", mlir_text[:2000])
     match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
         # match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
         match2 = re.search(
-            r"func\.func\s+@(\w+)\(([^)(]*?)\)\s*->\s*\(?([^)(]*?)\)?\s*(?:attributes(.*))?\{", mlir_text, re.DOTALL
+            r"func\.func\s+@([a-zA-Z0-9_\-\"]+)\(([^)(]*?)\)\s*->\s*\(?([^)(]*?)\)?\s*(?:attributes(.*))?\{", mlir_text, re.DOTALL
         )
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")

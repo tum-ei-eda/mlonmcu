@@ -932,4 +932,6 @@ class ExecutorchBackend(Backend):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        if self.model is not None:
+            ret["EXECUTORCH_PTE_FILE_PATH"] = self.model
         return ret

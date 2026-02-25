@@ -1154,6 +1154,8 @@ class Run:
                     output_types=output_types,
                     params_path=params_path,
                 )
+                if self.compile_platform:
+                    self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
                 _build()
 
         else:
@@ -1187,6 +1189,8 @@ class Run:
                     output_types=output_types,
                     params_path=params_path,
                 )
+                if self.compile_platform:
+                    self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
                 _build()
 
         self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])

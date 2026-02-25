@@ -121,6 +121,15 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
+    (
+        "executorch",
+        (
+            "Requirements for using executorch",
+            [
+                "executorch",
+            ],
+        ),
+    ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
     (
         "iree",
@@ -235,6 +244,7 @@ CONSTRAINTS = [
     ("cryptography", ">=2.1.4"),
     ("decorator", None),
     ("ecdsa", ">=0.16.0"),
+    ("executorch", "==1.1.0"),
     ("filelock", None),
     ("future", ">=0.15.2"),
     ("gdbgui", "==0.13.2.0"),

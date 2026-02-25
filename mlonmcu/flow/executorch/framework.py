@@ -38,7 +38,7 @@ class ExecutorchFramework(Framework):
         super().__init__(features=features, config=config)
 
     @property
-    def executorch(self):
+    def executorch_src_dir(self):
         return Path(self.config["executorch.src_dir"])
 
     def get_platform_defs(self, platform):

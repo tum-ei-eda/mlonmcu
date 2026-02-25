@@ -110,6 +110,12 @@ repos:
   embench_dsp:
     url: "https://github.com/embench/embench-dsp.git"
     ref: rc1
+  executorch:
+    url: "https://github.com/pytorch/executorch.git"
+    url: v1.1.0
+    options:
+      recursive: true
+      # submodules: [?]
 # Here all supported frameworks with their specific features are defined
 # Optionally disable unwanted or incomatible backends or features here
 # The configured defaults are used if no backend was specified in the command line options
@@ -163,6 +169,14 @@ frameworks:
     features:
       cmsisnnbyoc: false
       muriscvnnbyoc: false
+  executorch:
+    enabled: true
+    backends:
+      default: executorch
+      executorch:
+        enabled: true
+        features: {}
+    features: {}
 # Some frontends are experimental and therefore disabled here
 # Features like packing are only available in certain environments
 frontends:

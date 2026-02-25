@@ -19,6 +19,8 @@
 import re
 import os
 
+import numpy as np
+
 from mlonmcu.models.model import ModelFormats
 
 
@@ -132,6 +134,9 @@ class TensorInfo:
             "int32": 4,
             "int64": 8,
         }
+        if not isinstance(dtype, str):
+            dtype = np.dtype(dtype).name
+        assert isinstance(dtype, str)
         assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
@@ -379,63 +384,69 @@ class ONNXModelInfo(ModelInfo):
 
 class PTEModelInfo(ModelInfo):
     def __init__(self, model_file):
-        import executorch.exir as exir
+        # import executorch.exir as exir
+        from executorch.runtime import Runtime
+        from executorch.exir.schema import ScalarType
 
         # Load the PTE file
-        program = exir.load(model_file)
-        exported_program = program.exported_program
-        signature = exported_program.graph_signature
-        for input_spec in signature.input_specs:
-            print("Name:", input_spec.arg.name)
-            print("Kind:", input_spec.kind)
-
-        graph = exported_program.graph
-
-        def _helper(arg):
-            tensor_meta = arg.meta.get("tensor_meta", None)
-            if not tensor_meta:
-                return None
-            name = arg.name
-            shape = tensor_meta.shape
-            dtype = tensor_meta.dtype
-            ret = TensorInfo(name, shape, dtype)
-            return ret
-
+        print("PTEModelInfo", model_file)
+        # program = exir.load(model_file)
+        runtime = Runtime.get()
+        print("runtime", runtime, dir(runtime))
+        program = runtime.load_program(model_file)
+        print("program", program, dir(program))
+        metadata = program.metadata("forward")
+        print("metadata", metadata)
+        print("method_names", program.method_names)
+        method = program.load_method("forward")
+        print("method", method, dir(method))
         in_tensors = []
-        for node in graph.nodes:
-            if node.op == "placeholder":  # check if multi-inputs work
-                tensor_meta = node.meta.get("tensor_meta", None)
-
-                if tensor_meta:
-                    print("Input name:", node.name)
-                    print("Shape:", tensor_meta.shape)
-                    print("Dtype:", tensor_meta.dtype)
-                    in_tensor = _helper(node)
-                    if in_tensor:
-                        in_tensors.append(in_tensor)
-
         out_tensors = []
-        for node in graph.nodes:
-            if node.op == "output":
-                for arg in node.args:
-                    if hasattr(arg, "meta"):
-                        tensor_meta = arg.meta.get("tensor_meta", None)
+        num_inputs = metadata.num_inputs()
+        print("num_inputs", num_inputs)
+        num_outputs = metadata.num_outputs()
+        print("num_outputs", num_outputs)
 
-                        if tensor_meta:
-                            print("Output name:", arg.name)
-                            print("Shape:", tensor_meta.shape)
-                            print("Dtype:", tensor_meta.dtype)
-                            out_tensor = _helper(node)
-                            if out_tensor:
-                                out_tensors.append(out_tensor)
+        def _helper(meta, name):
+            print("meta", meta, dir(meta))
+            shape = meta.sizes()
+            print("shape", shape, dir(shape), type(shape))
+            dtype = meta.dtype()
+            print("dtype", dtype, dir(dtype), type(dtype))
 
+            EXECUTORCH_DTYPE_TO_NUMPY = {
+                ScalarType.FLOAT: np.float32,
+                ScalarType.DOUBLE: np.float64,
+                ScalarType.HALF: np.float16,
+                # ScalarType.BFLOAT16: np.dtype("bfloat16"),
+                ScalarType.CHAR: np.int8,
+                ScalarType.SHORT: np.int16,
+                ScalarType.INT: np.int32,
+                ScalarType.LONG: np.int64,
+                ScalarType.BYTE: np.uint8,
+                ScalarType.BOOL: np.bool_,
+            }
+            numpy_dtype = EXECUTORCH_DTYPE_TO_NUMPY.get(dtype)
+            assert numpy_dtype is not None, f"Unhandled PTE dtype: {dtype}"
+            # numpy_dtype = np.dtype(numpy_dtype).name
+            print("numpy_dtype", numpy_dtype)
+            tensor_info = TensorInfo(name, shape, numpy_dtype)
+            return tensor_info
 
-        # TVM seems to ignore the original output names for ONNX models
-        if len(out_tensors) == 1:
-            out_tensors[0].name = "output"
-        else:
-            for i, t in enumerate(out_tensors):
-                t.name = f"output{i}"
+        for i in range(num_inputs):
+            name = f"input{i}" if i > 0 else "input"
+            input_tensor_meta = metadata.input_tensor_meta(i)
+            in_tensor = _helper(input_tensor_meta, name)
+
+            in_tensors.append(in_tensor)
+
+        for i in range(num_outputs):
+            name = f"output{i}" if i > 0 else "output"
+            output_tensor_meta = metadata.output_tensor_meta(i)
+            out_tensor = _helper(output_tensor_meta, name)
+
+            out_tensors.append(out_tensor)
+
         super().__init__(in_tensors, out_tensors)
 
 

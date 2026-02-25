@@ -97,7 +97,6 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def mlif_template(self):
         value = self.config["mlif_template"]
-        value2 = self.config["mlif.template"]
         if value is None:
             return None
         return Path(value)

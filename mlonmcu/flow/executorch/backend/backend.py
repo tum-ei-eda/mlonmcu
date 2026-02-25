@@ -20,19 +20,15 @@ import os
 import string
 import tempfile
 from pathlib import Path
-from typing import Tuple, Optional
-import multiprocessing
+from typing import Tuple
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
-from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
-from mlonmcu.target.elf import get_code_size_from_static_lib
 from mlonmcu.models.model_info import (
     get_model_info,
 )
-from mlonmcu.flow.tvm.backend.wrapper import getSizes
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -78,7 +74,8 @@ size_t {prefix}_outputs();
         method_pool_size = 512 * 1024  # TODO: expose
         temp_pool_size = 128 * 1024  # TODO: expose
         # TODO: replace
-        out = """// Disclaimer: This file is heavily inspired by https://github.com/pytorch/executorch/tree/main/examples/arm/executor_runner
+        out = """// Disclaimer: This file is heavily inspired by
+// https://github.com/pytorch/executorch/tree/main/examples/arm/executor_runner
 #include <errno.h>
 #include <executorch/extension/data_loader/buffer_data_loader.h>
 #include <executorch/extension/runner_util/inputs.h>
@@ -885,8 +882,8 @@ class ExecutorchBackend(Backend):
         assert self.model is not None
         with tempfile.TemporaryDirectory() as temp_dir:
             out_dir = Path(temp_dir)
-            model_path = self.model
-            model_info = self.model_info
+            # model_path = self.model
+            # model_info = self.model_info
             if self.model_format == "pte":
                 pte_file = self.model
             else:

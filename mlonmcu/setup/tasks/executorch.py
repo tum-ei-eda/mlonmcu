@@ -19,7 +19,6 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import multiprocessing
-from pathlib import Path
 
 from mlonmcu.setup.task import TaskType
 from mlonmcu.context.context import MlonMcuContext

@@ -1,4 +1,5 @@
 import sys
+import ast
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -71,8 +72,6 @@ df = pd.concat(dfs, ignore_index=True)
 
 # Optional: remove duplicates
 df = df.drop_duplicates()
-
-import ast
 
 
 def parse_config(x):

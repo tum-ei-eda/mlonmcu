@@ -1218,7 +1218,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
             total += 1
         counts_csv = "Instruction,Count,Probability\n"
         for insn, count in sorted(counts.items(), key=lambda item: item[1]):
-            counts_csv += f"{insn},{count},{count/total:.4f}\n"
+            counts_csv += f"{insn},{count},{count / total:.4f}\n"
         artifact = Artifact("dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT)
         if self.to_file:
             ret_artifacts.append(artifact)
@@ -1505,7 +1505,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         for ext, count in sorted(cv_ext_counts.items(), key=lambda item: item[1]):
             if count == 0:
                 continue
-            cv_ext_counts_csv += f"{ext},{count},{count/total_counts}\n"
+            cv_ext_counts_csv += f"{ext},{count},{count / total_counts}\n"
         cv_ext_unique_counts_csv = "Set,Used,Utilization\n"
         for ext, used in sorted(cv_ext_unique_counts.items(), key=lambda item: item[1]):
             if used == 0:

@@ -106,14 +106,14 @@ def get_iree_compile_llvmcpu_vectorization_unroll_args(
         f"--iree-llvmcpu-target-vector-width-in-bytes={vector_width}",
         f"--iree-llvmcpu-slp-vectorization={int(supports_vectorization)}",
         f"--iree-llvmcpu-loop-vectorization={int(supports_vectorization)}",
-        f"--iree-llvmcpu-disable-vector-peeling={1-int(supports_vectorization)}",
+        f"--iree-llvmcpu-disable-vector-peeling={1 - int(supports_vectorization)}",
         # "--iree-llvmcpu-check-linalg-vectorization=0",
         *(
             [f"--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}"]
             if target_scalable_vector is not None
             else []
         ),
-        f"--iree-llvmcpu-fail-on-large-vector={1-int(supports_vectorization)}",
+        f"--iree-llvmcpu-fail-on-large-vector={1 - int(supports_vectorization)}",
         *([f"--iree-llvmcpu-loop-unrolling={int(loop_unroll)}"] if loop_unroll is not None else []),
     ]
     return ret
@@ -549,7 +549,29 @@ class IREEBackend(Backend):
                                 mlir_opt_args.append(f"--tosa-experimental-input-shape={args_str_}")
                                 mlir_opt_args.append("-tosa-infer-shapes")
                             if attach_tosa_target:  # TODO: not working because this is hardcoded in IREE (see TODO)
-                                tosa_target_str = "specification_version=1.1.draft profiles=pro_int,pro_fp extensions=int16,int4,int64,bf16,fp8e4m3,fp8e5m2,fft,variable,controlflow,doubleround,inexactround,mxfp_conv,shape"
+                                tosa_profiles = ["pro_int", "pro_fp"]
+                                profiles_str = ",".join(tosa_profiles)
+                                tosa_extensions = [
+                                    "int16",
+                                    "int4",
+                                    "int64",
+                                    "bf16",
+                                    "fp8e4m3",
+                                    "fp8e5m2",
+                                    "fft",
+                                    "variable",
+                                    "controlflow",
+                                    "doubleround",
+                                    "inexactround",
+                                    "mxfp_conv",
+                                    "shape",
+                                ]
+                                extensions_str = ",".join(tosa_extensions)
+                                tosa_target_str = (
+                                    "specification_version=1.1.draft"
+                                    + f" profiles={profiles_str}"
+                                    + f" extensions={extensions_str}"
+                                )
                                 mlir_opt_args.append(f"-tosa-attach-target={tosa_target_str}")
                             utils.execute(
                                 *mlir_opt_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir

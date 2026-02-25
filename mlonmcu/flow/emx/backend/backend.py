@@ -20,15 +20,13 @@ import os
 import string
 import tempfile
 from pathlib import Path
-from typing import Tuple, Optional
-import multiprocessing
+from typing import Tuple
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
-from mlonmcu.target.elf import get_code_size_from_static_lib
 from mlonmcu.models.model_info import (
     get_model_info,
     # get_fallback_model_info,
@@ -244,7 +242,8 @@ class EMXBackend(Backend):
             "10000000",
             # "--verbose",  # TODO: expose
             # f"--model-name={self.identifier}",
-            # --emit-data-file, --truncate-weights-after, --large-temp-threshold, --large-weight-threshold, --restrict-arrays, --no-restrict-arrays, --fp32-accumulation-strategy, --fp16-accumulation-strategy
+            # --emit-data-file, --truncate-weights-after, --large-temp-threshold,
+            # --restrict-arrays, --no-restrict-arrays, --fp32-accumulation-strategy, --fp16-accumulation-strategy
         ]
         return args
 

@@ -393,7 +393,7 @@ class PTEModelInfo(ModelInfo):
         runtime = Runtime.get()
         program = runtime.load_program(model_file)
         metadata = program.metadata("forward")
-        method = program.load_method("forward")
+        # method = program.load_method("forward")
         in_tensors = []
         out_tensors = []
         num_inputs = metadata.num_inputs()
@@ -502,7 +502,6 @@ class MLIRModelInfo(ModelInfo):
             output_name = outp["name"]
             dtype = outp["dtype"]
             output_shape = outp["shape"]
-            # TODO: handle func.func @tf2onnx(%arg0: !torch.vtensor<[1,1960],f32>) -> !torch.vtensor<[1,10],f32> attributes {torch.onnx_meta.ir_version = 8 : si64, torch.onnx_meta.opset_version = 15 : si64, torch.onnx_meta.opset_versions = {ai.onnx.ml = 2 : si64}, torch.onnx_meta.producer_name = "tf2onnx", torch.onnx_meta.producer_version = "1.16.1 15c810"} {
             if dtype is None and output_name is None and len(output_shape) == 0:
                 continue
             output_type = type_lookup.get(dtype)

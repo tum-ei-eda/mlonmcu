@@ -66,10 +66,6 @@ class TFLMFramework(Framework):
         return self.config["optimized_kernel_libs"]
 
     @property
-    def optimized_kernel_libs(self):
-        return self.config["optimized_kernel_libs"]
-
-    @property
     def optimized_kernel_inc_dirs(self):
         return self.config["optimized_kernel_inc_dirs"]
 

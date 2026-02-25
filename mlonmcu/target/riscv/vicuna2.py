@@ -246,7 +246,7 @@ class Vicuna2Target(RVVTarget):
         ret.append(f"-DSCALAR_CORE={self.core}")
         vproc_config_dir = Path(self.prj_dir.name)
         ret.append(f"-DVPROC_CONFIG_DIR={vproc_config_dir}")
-        ret.append(f"-DVPROC_CONFIG=dual-zve32x")
+        ret.append("-DVPROC_CONFIG=dual-zve32x")  # TODO
 
         return ret
 

@@ -377,6 +377,68 @@ class ONNXModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+class PTEModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        import executorch.exir as exir
+
+        # Load the PTE file
+        program = exir.load(model_file)
+        exported_program = program.exported_program
+        signature = exported_program.graph_signature
+        for input_spec in signature.input_specs:
+            print("Name:", input_spec.arg.name)
+            print("Kind:", input_spec.kind)
+
+        graph = exported_program.graph
+
+        def _helper(arg):
+            tensor_meta = arg.meta.get("tensor_meta", None)
+            if not tensor_meta:
+                return None
+            name = arg.name
+            shape = tensor_meta.shape
+            dtype = tensor_meta.dtype
+            ret = TensorInfo(name, shape, dtype)
+            return ret
+
+        in_tensors = []
+        for node in graph.nodes:
+            if node.op == "placeholder":  # check if multi-inputs work
+                tensor_meta = node.meta.get("tensor_meta", None)
+
+                if tensor_meta:
+                    print("Input name:", node.name)
+                    print("Shape:", tensor_meta.shape)
+                    print("Dtype:", tensor_meta.dtype)
+                    in_tensor = _helper(node)
+                    if in_tensor:
+                        in_tensors.append(in_tensor)
+
+        out_tensors = []
+        for node in graph.nodes:
+            if node.op == "output":
+                for arg in node.args:
+                    if hasattr(arg, "meta"):
+                        tensor_meta = arg.meta.get("tensor_meta", None)
+
+                        if tensor_meta:
+                            print("Output name:", arg.name)
+                            print("Shape:", tensor_meta.shape)
+                            print("Dtype:", tensor_meta.dtype)
+                            out_tensor = _helper(node)
+                            if out_tensor:
+                                out_tensors.append(out_tensor)
+
+
+        # TVM seems to ignore the original output names for ONNX models
+        if len(out_tensors) == 1:
+            out_tensors[0].name = "output"
+        else:
+            for i, t in enumerate(out_tensors):
+                t.name = f"output{i}"
+        super().__init__(in_tensors, out_tensors)
+
+
 class PaddleModelInfo(ModelInfo):
     def __init__(self, model_file):
         import paddle
@@ -486,6 +548,11 @@ def get_onnx_model_info(model_file):
     return model_info
 
 
+def get_pte_model_info(model_file):
+    model_info = PTEModelInfo(model_file)
+    return model_info
+
+
 def get_model_info(model, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
@@ -505,6 +572,8 @@ def get_model_info(model, backend_name="unknown"):
         return "onnx", get_onnx_model_info(model)
     elif fmt == ModelFormats.PADDLE:
         return "pdmodel", get_pb_model_info(model)
+    elif fmt == ModelFormats.PTE:
+        return "pte", get_pte_model_info(model)
     elif fmt == ModelFormats.MLIR:
         with open(model, "r") as handle:
             mod_text = handle.read()
@@ -537,6 +606,8 @@ def get_fallback_model_info(model, input_shapes, output_shapes, input_types, out
         return "pdmodel", info
     elif fmt == ModelFormats.MLIR:
         return "mlir", info
+    elif fmt == ModelFormats.PTE:
+        return "pte", info
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 

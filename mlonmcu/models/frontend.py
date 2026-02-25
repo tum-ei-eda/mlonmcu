@@ -1506,6 +1506,16 @@ class ONNXFrontend(SimpleFrontend):
         )
 
 
+class PTEFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "pte",
+            ModelFormats.PTE,
+            features=features,
+            config=config,
+        )
+
+
 class MLIRFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(

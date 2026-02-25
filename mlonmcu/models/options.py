@@ -45,11 +45,15 @@ class TVMRTModelOptions(BackendModelOptions):
         super().__init__(backend, supported=supported)
         self.arena_size = arena_size
 
+class TVMLLVMModelOptions(TVMRTModelOptions):
+    pass
+
 
 def parse_model_options_for_backend(backend, options):
     backend_types = {
         "tflmi": TFLMIModelOptions,
         "tvmrt": TVMRTModelOptions,
+        "tvmllvm": TVMLLVMModelOptions,
     }
     if backend in backend_types:
         backend_type = backend_types[backend]

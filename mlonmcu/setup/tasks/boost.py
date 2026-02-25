@@ -58,8 +58,9 @@ def download_boost(
     boostSrcDir = context.environment.paths["deps"].path / "src" / boostName
     if "boost.install_dir" in user_vars:
         return False
+    boostInstallDir = context.environment.paths["deps"].path / "install" / boostName
     # if rebuild or not utils.is_populated(boostSrcDir):
-    if not utils.is_populated(boostSrcDir):
+    if (not utils.is_populated(boostInstallDir) and not utils.is_populated(boostSrcDir)) or rebuild:
         if "boost.dl_url" in user_vars:
             boostUrl = user_vars["boost.dl_url"]
             boostUrl, boostArchive = boostUrl.rsplit("/", 1)

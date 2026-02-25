@@ -389,30 +389,19 @@ class PTEModelInfo(ModelInfo):
         from executorch.exir.schema import ScalarType
 
         # Load the PTE file
-        print("PTEModelInfo", model_file)
         # program = exir.load(model_file)
         runtime = Runtime.get()
-        print("runtime", runtime, dir(runtime))
         program = runtime.load_program(model_file)
-        print("program", program, dir(program))
         metadata = program.metadata("forward")
-        print("metadata", metadata)
-        print("method_names", program.method_names)
         method = program.load_method("forward")
-        print("method", method, dir(method))
         in_tensors = []
         out_tensors = []
         num_inputs = metadata.num_inputs()
-        print("num_inputs", num_inputs)
         num_outputs = metadata.num_outputs()
-        print("num_outputs", num_outputs)
 
         def _helper(meta, name):
-            print("meta", meta, dir(meta))
             shape = meta.sizes()
-            print("shape", shape, dir(shape), type(shape))
             dtype = meta.dtype()
-            print("dtype", dtype, dir(dtype), type(dtype))
 
             EXECUTORCH_DTYPE_TO_NUMPY = {
                 ScalarType.FLOAT: np.float32,
@@ -429,7 +418,6 @@ class PTEModelInfo(ModelInfo):
             numpy_dtype = EXECUTORCH_DTYPE_TO_NUMPY.get(dtype)
             assert numpy_dtype is not None, f"Unhandled PTE dtype: {dtype}"
             # numpy_dtype = np.dtype(numpy_dtype).name
-            print("numpy_dtype", numpy_dtype)
             tensor_info = TensorInfo(name, shape, numpy_dtype)
             return tensor_info
 

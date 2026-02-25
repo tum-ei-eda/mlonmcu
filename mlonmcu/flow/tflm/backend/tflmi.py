@@ -408,7 +408,7 @@ int {prefix}_invoke() {{
 class TFLMIBackend(TFLMBackend):
     name = "tflmi"
 
-    FEATURES = TFLMBackend.FEATURES | {"debug_arena"}
+    FEATURES = TFLMBackend.FEATURES | {"debug_arena", "cfu_wca"}
 
     DEFAULTS = {
         **TFLMBackend.DEFAULTS,

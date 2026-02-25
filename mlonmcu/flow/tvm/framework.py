@@ -19,8 +19,8 @@
 """Definitions for TVMFramework."""
 
 import os
-import pkg_resources
 from pathlib import Path
+import pkg_resources
 
 from mlonmcu.flow.framework import Framework
 
@@ -40,11 +40,12 @@ class TVMFramework(Framework):
 
     name = "tvm"
 
-    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc"}
+    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc", "cfu_wca"}
 
     DEFAULTS = {
         "extra_incs": [],
         "extra_libs": [],
+        "extra_defs": [],
         "crt_config_dir": get_crt_config_dir(),
     }
 
@@ -67,12 +68,16 @@ class TVMFramework(Framework):
         return self.config["extra_libs"]
 
     @property
+    def extra_defs(self):
+        return self.config["extra_defs"]
+
+    @property
     def crt_config_dir(self):
         return self.config["crt_config_dir"]
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if self.extra_incs or self.extra_libs:
+        if self.extra_incs or self.extra_libs or self.extra_defs:
             assert platform == "mlif", "Extra incs or libs are only supported by 'mlif' platform"
             if self.extra_incs:
                 if isinstance(self.extra_incs, list):
@@ -86,7 +91,14 @@ class TVMFramework(Framework):
                 else:
                     temp = self.extra_libs
                 ret["TVM_EXTRA_LIBS"] = temp
+            if self.extra_defs:
+                if isinstance(self.extra_defs, list):
+                    temp = r"\;".join(self.extra_defs)
+                else:
+                    temp = self.extra_defs
+                ret["TVM_EXTRA_DEFS"] = temp
         if self.crt_config_dir:
             ret["TVM_CRT_CONFIG_DIR"] = self.crt_config_dir
-        ret["TVM_DIR"] = str(self.tvm_src)
+        if platform == "mlif":
+            ret["TVM_DIR"] = str(self.tvm_src)
         return ret

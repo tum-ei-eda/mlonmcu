@@ -61,7 +61,8 @@ def fill(template, **kwargs):
 
 
 def generate_emx_wrapper(
-    model_info, identifier: str,
+    model_info,
+    identifier: str,
 ):
     def generate_header(prefix="model"):
         upper_prefix = prefix.upper()
@@ -88,6 +89,7 @@ size_t {prefix}_outputs();
 
     def generate_wrapper(prefix="model"):
         out = ""
+
         def writeTensors(in_tensors, out_tensors):
             retStr = """
 """
@@ -164,7 +166,10 @@ size_t ${prefix}_outputs()
     return ${numOutputs};
 }
 """
-        model_input_args = ", ".join([f"inputs[{idx}]" for idx in range(len(model_info.in_tensors))] + [f"outputs[{idx}]" for idx in range(len(model_info.out_tensors))])
+        model_input_args = ", ".join(
+            [f"inputs[{idx}]" for idx in range(len(model_info.in_tensors))]
+            + [f"outputs[{idx}]" for idx in range(len(model_info.out_tensors))]
+        )
         out += fill(
             mainCode,
             inSizes=getSizes(model_info.in_tensors),
@@ -175,6 +180,7 @@ size_t ${prefix}_outputs()
             model_input_args=model_input_args,
         )
         return out
+
     wrapper = generate_wrapper()
     header = generate_header()
     return wrapper, header
@@ -310,9 +316,7 @@ class EMXBackend(Backend):
                     fmt=ArtifactFormat.SOURCE,
                 )
             )
-            stdout_artifact = Artifact(
-                "emx_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
-            )
+            stdout_artifact = Artifact("emx_compile_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
         return {"default": artifacts}, {"default": metrics}
 

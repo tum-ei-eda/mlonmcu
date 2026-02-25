@@ -313,7 +313,9 @@ class Setup:
                     iree_src_dir = vars.get("iree.src_dir") or cache.get("iree.src_dir")
                     if iree_src_dir is not None:
                         f.write(f"-r {iree_src_dir}/integrations/tensorflow/test/requirements.txt{os.linesep}")
-                        f.write(f"-r {iree_src_dir}/runtime/bindings/python/iree/runtime/build_requirements.txt{os.linesep}")
+                        f.write(
+                            f"-r {iree_src_dir}/runtime/bindings/python/iree/runtime/build_requirements.txt{os.linesep}"
+                        )
                     if iree_build_dir is not None:
                         f.write(f"-e {iree_build_dir}/compiler{os.linesep}")
                         f.write(f"-e {iree_build_dir}/runtime{os.linesep}")

@@ -47,7 +47,8 @@ def fill(template, **kwargs):
 
 
 def generate_executorch_wrapper(
-    model_info, identifier: str,
+    model_info,
+    identifier: str,
 ):
     def generate_header(prefix="model"):
         upper_prefix = prefix.upper()
@@ -804,6 +805,7 @@ int ${prefix}_invoke()
             temp_pool_size=temp_pool_size,
         )
         return out
+
     wrapper = generate_wrapper()
     header = generate_header()
     return wrapper, header
@@ -926,9 +928,7 @@ class ExecutorchBackend(Backend):
                     fmt=ArtifactFormat.SOURCE,
                 )
             )
-            stdout_artifact = Artifact(
-                "executorch_out.log", content=out, fmt=ArtifactFormat.TEXT
-            )
+            stdout_artifact = Artifact("executorch_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
         print("artifacts", artifacts)
         return {"default": artifacts}, {"default": metrics}

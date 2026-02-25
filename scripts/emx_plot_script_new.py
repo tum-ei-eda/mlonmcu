@@ -74,6 +74,7 @@ df = df.drop_duplicates()
 
 import ast
 
+
 def parse_config(x):
     if isinstance(x, dict):
         return x
@@ -82,7 +83,9 @@ def parse_config(x):
     except Exception:
         return {}
 
+
 df["Config"] = df["Config"].apply(parse_config)
+
 
 def detect_autotuned(row):
     backend = row["Backend"]
@@ -97,6 +100,7 @@ def detect_autotuned(row):
         if backend != "emx":
             return True
     return False
+
 
 df["Autotuned"] = df.apply(detect_autotuned, axis=1)
 df["Backend"] = df.apply(lambda row: f"{row.Backend}_tuned" if row.Autotuned else row.Backend, axis=1)
@@ -135,10 +139,7 @@ for idx, metric in enumerate(metrics):
         values = []
 
         for model in models:
-            temp = df[
-                (df["Backend"] == backend) &
-                (df["Model"] == model)
-            ]
+            temp = df[(df["Backend"] == backend) & (df["Model"] == model)]
 
             if len(temp) > 0:
                 values.append(temp[metric].mean())
@@ -146,9 +147,9 @@ for idx, metric in enumerate(metrics):
                 values.append(0)
 
         ax.bar(
-            x + (i - len(backends)/2) * width + width/2,
+            x + (i - len(backends) / 2) * width + width / 2,
             values,
-            width=width*0.8,
+            width=width * 0.8,
             label=backend,
             color=backend_colors.get(backend, "gray"),
             hatch=backend_hatches.get(backend, None),
@@ -203,4 +204,3 @@ plt.savefig("benchmark_overview.png", dpi=300)
 plt.close(fig)
 
 print("Plot generated: benchmark_overview.png")
-

@@ -546,7 +546,7 @@ class IREEBackend(Backend):
                                     args_temp[arg_name] = arg_shape_str
                                 args_str = ",".join([f"arg{i}:1x1960" for arg_name, arg_shape_str in args_temp.items()])
                                 args_str_ = f"args={args_str}"
-                                mlir_opt_args.append(f'--tosa-experimental-input-shape={args_str_}')
+                                mlir_opt_args.append(f"--tosa-experimental-input-shape={args_str_}")
                                 mlir_opt_args.append("-tosa-infer-shapes")
                             if attach_tosa_target:  # TODO: not working because this is hardcoded in IREE (see TODO)
                                 tosa_target_str = "specification_version=1.1.draft profiles=pro_int,pro_fp extensions=int16,int4,int64,bf16,fp8e4m3,fp8e5m2,fft,variable,controlflow,doubleround,inexactround,mxfp_conv,shape"

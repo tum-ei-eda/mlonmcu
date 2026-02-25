@@ -49,7 +49,9 @@ def _validate_executorch_clone(context: MlonMcuContext, params=None):
 @Tasks.provides(["executorch.src_dir"])
 @Tasks.validate(_validate_executorch_clone)
 @Tasks.register(category=TaskType.FRAMEWORK)
-def clone_executorch(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
+def clone_executorch(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     del verbose, threads
     """Clone the executorch repository."""
     if not params:

@@ -57,7 +57,7 @@ for version, file in files.items():
     groups = models
 
     x = np.arange(len(groups))  # group positions
-    width = 0.2                 # width per backend bar
+    width = 0.2  # width per backend bar
 
     fig, axes = plt.subplots(2, 3, figsize=(16, 10))
     axes = axes.flatten()
@@ -68,19 +68,21 @@ for version, file in files.items():
         for i, backend in enumerate(backends):
             values = []
             for group in groups:
-                temp = df[(df["Backend"] == backend) &
-                         (df["ModelGroup"] == group)]
+                temp = df[(df["Backend"] == backend) & (df["ModelGroup"] == group)]
                 if metric in temp:
                     val = temp[metric].mean()
                     values.append(val)
                 else:
                     values.append(0)
 
-            ax.bar(x + (i - len(backends)/2)*width + width/2,
-                   values,
-                   width=width*0.8,
-                   label=backend,
-                   color=backend_colors.get(backend, "gray"), alpha=0.7)
+            ax.bar(
+                x + (i - len(backends) / 2) * width + width / 2,
+                values,
+                width=width * 0.8,
+                label=backend,
+                color=backend_colors.get(backend, "gray"),
+                alpha=0.7,
+            )
 
         ax.set_xticks(x)
         # ax.set_xticklabels(groups)

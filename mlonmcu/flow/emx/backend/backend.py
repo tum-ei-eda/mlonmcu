@@ -192,12 +192,19 @@ class EMXBackend(Backend):
 
     DEFAULTS = {
         "print_outputs": False,
+        "large_weight_threshold": 10000000,
+        "large_temp_threshold": None,
+        "restrict_arrays": None,
+        "inline_kernels": "preferred",
+        "static_kernels": True,
+        "accumulation_strategy": None,  # fp32 or fp16
+        "verbose": False,
         "emx_compile_extra_args": [],
     }
 
     REQUIRED = {"emx.src_dir"}
 
-    def __init__(self, output_format=None, hal_backend=None, hal_inline=False, features=None, config=None):
+    def __init__(self, features=None, config=None):
         super().__init__(framework="emx", features=features, config=config)
         self.identifier = "model"
 
@@ -224,6 +231,52 @@ class EMXBackend(Backend):
         value = self.config["print_outputs"]
         return str2bool(value)
 
+    @property
+    def verbose(self):
+        value = self.config["verbose"]
+        return str2bool(value)
+
+    @property
+    def inline_kernels(self):
+        value = self.config["inline_kernels"]
+        if value in ["always", "preferred", "never", "force"]:
+            return value
+        if value in ["", "none", "None", None]:
+            return None
+        return str2bool(value)
+
+    @property
+    def static_kernels(self):
+        value = self.config["static_kernels"]
+        return str2bool(value)
+
+    @property
+    def restrict_arrays(self):
+        value = self.config["restrict_arrays"]
+        return str2bool(value, allow_none=True)
+
+    @property
+    def large_weight_threshold(self):
+        value = self.config["large_weight_threshold"]
+        if value is None:
+            return None
+        return int(value)
+
+    @property
+    def large_temp_threshold(self):
+        value = self.config["large_temp_threshold"]
+        if value is None:
+            return None
+        return int(value)
+
+    @property
+    def accumulation_strategy(self):
+        value = self.config["accumulation_strategy"]
+        if value is None:
+            return None
+        assert value in ["fp16", "fp32"]
+        return int(value)
+
     def prepare_environment(self):
         env = os.environ.copy()
         pythonpath = env.get("PYTHONPATH", "")
@@ -238,9 +291,11 @@ class EMXBackend(Backend):
             model_path,
             *self.emx_compile_extra_args,
             str(out),
-            "--large-weight-threshold",
-            "10000000",
-            # "--verbose",  # TODO: expose
+            *(["--large-weight-threshold", str(self.large_weight_threshold)] if self.large_weight_threshold is not None else []),
+            *(["--large-temp-threshold", str(self.large_temp_threshold)] if self.large_temp_threshold is not None else []),
+            *([f"--{self.accumulation_strategy}-accumulation-strategy"] if self.accumulation_strategy is not None else []),
+            *(["--restrict-arrays" if self.restrict_arrays else "--no-restrict-arrays"] if self.restrict_arrays is not None else []),
+            *(["--verbose"] if self.verbose is not None else []),
             # f"--model-name={self.identifier}",
             # --emit-data-file, --truncate-weights-after, --large-temp-threshold,
             # --restrict-arrays, --no-restrict-arrays, --fp32-accumulation-strategy, --fp16-accumulation-strategy
@@ -321,4 +376,19 @@ class EMXBackend(Backend):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        prefix = ""
+        if self.static_kernels:
+            prefix += "static"
+        if self.inline_kernels in ["always", "force"]:
+            prefix += " __attribute__((always_inline)) inline"
+        elif self.inline_kernels == "never" or self.inline_kernels == False:
+            prefix += " __attribute__((noinline))"
+        elif self.inline_kernels == "preferred" or self.inline_kernels == True:
+            prefix += " inline"
+        elif self.inline_kernels is None:
+            pass
+        else:
+            raise ValueError(f"Unhandled inline_functions value: {self.inline_kernels}")
+            prefix += " inline"
+        ret["EMX_NODE_FN"] = prefix
         return ret

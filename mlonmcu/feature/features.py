@@ -19,9 +19,10 @@
 """Definition of MLonMCU features and the feature registry."""
 
 import re
-import pandas as pd
 from typing import Union
 from pathlib import Path
+
+import pandas as pd
 
 from mlonmcu.utils import is_power_of_two, filter_none
 from mlonmcu.config import str2bool, str2list
@@ -105,6 +106,7 @@ class DebugArena(BackendFeature):
             "tvmaot",
             "tvmaotplus",
             "tvmrt",
+            "tvmllvm",
             "tflmi",
         ], f"Unsupported feature '{self.name}' for backend '{backend}'"
         return {f"{backend}.debug_arena": self.enabled}
@@ -2763,3 +2765,109 @@ class PerfSim(TargetFeature):
 
             return None, metrics_callback
         return None, None
+
+
+@register_feature("cfu_wca")
+class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
+    """CFU-based Weight-Sharing Acceleration."""
+
+    DEFAULTS = {**FeatureBase.DEFAULTS, "mode": "CFU", "use_intrin": False, "conv2d_idx_init": None}  # EMUL/CFU/CPU
+
+    REQUIRED = {"cfu_wca.support_dir"}
+    OPTIONAL = {"cfu_wca.tflm_overrides"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("cfu_wca", features=features, config=config)
+
+    @property
+    def support_dir(self):
+        return str(self.config["cfu_wca.support_dir"])
+
+    @property
+    def tflm_overrides(self):
+        value = self.config["cfu_wca.tflm_overrides"]
+        if value is None:
+            return value
+        value = Path(value)
+        assert value.is_dir()
+        return value
+
+    @property
+    def use_intrin(self):
+        return str2bool(self.config["use_intrin"])
+
+    @property
+    def mode(self):
+        value = self.config["mode"]
+        if value is None:
+            return value
+        if isinstance(value, str):
+            if value.isnumeric():
+                return int(value)
+        assert value in ["CFU", "EMUL", "CPU"]
+        return value
+
+    @property
+    def mode_idx(self):
+        if self.mode is None:
+            return None
+        if isinstance(self.mode, int):
+            return self.mode
+        assert isinstance(self.mode, str)
+        lookup = {"CPU": 0, "CFU": 3, "EMUL": 2}
+        ret = lookup.get(self.mode)
+        assert ret is not None, f"Failed to lookup mode_idx for: {self.mode}"
+        return ret
+
+    @property
+    def conv2d_idx_init(self):
+        value = self.config["conv2d_idx_init"]
+        if value is None:
+            return None
+        return int(value)
+
+    def get_framework_config(self, framework):  # TODO: check if other kernels enabled?
+        assert framework in ["tflm", "tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"
+        if not self.enabled:
+            return {}
+        ret = {}
+        incs = [self.support_dir]
+        defs = {}
+        if self.mode is not None:
+            defs["MODE"] = self.mode_idx
+        if self.use_intrin:
+            defs["SEAL5"] = None
+        defs = [f"{k}={v}" if v is not None else k for k, v in defs.items()]
+        if framework == "tflm":
+            ret[f"{framework}.generate_tree"] = True
+            if self.tflm_overrides:
+                ret[f"{framework}.override_dir"] = self.tflm_overrides
+            ret[f"{framework}.optimized_kernel_inc_dirs"] = incs
+            if len(defs) > 0:
+                ret[f"{framework}.optimized_kernel_defs"] = defs
+        elif framework == "tvm":
+            ret[f"{framework}.extra_incs"] = incs
+            if len(defs) > 0:
+                ret[f"{framework}.extra_defs"] = defs
+        return ret
+
+    def get_backend_config(self, backend):
+        ret = {}
+        if backend.startswith("tvm"):
+            ret[f"{backend}.tir_add_lower_pass"] = "3,tvm.tir.transform.CompressWeights"
+        return ret
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        ret = {}
+        if self.enabled:
+            ret["CFU_ACCELERATE"] = True
+            if self.conv2d_idx_init is not None:
+                ret["CFU_CONV2D_IDX_INIT"] = self.conv2d_idx_init
+        return ret
+
+    def get_required_cache_flags(self):
+        ret = {}
+
+        ret["tflmc.exe"] = ["muriscvnn"]
+        return ret

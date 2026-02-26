@@ -19,6 +19,8 @@
 import re
 import os
 
+import numpy as np
+
 from mlonmcu.models.model import ModelFormats
 
 
@@ -27,20 +29,31 @@ def parse_mlir_signature(mlir_text):
     # Find the util.func @main signature
     match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
-        match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        # match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        match2 = re.search(
+            r"func\.func\s+@([a-zA-Z0-9_\-\"]+)\(([^)(]*?)\)\s*->\s*\(?([^)(]*?)\)?\s*(?:attributes(.*))?\{",
+            mlir_text,
+            re.DOTALL,
+        )
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")
         func_name = match2.group(1)
         input_args = match2.group(2)
         output_args = match2.group(3)
+        # attr_args = match2.group(4)
     else:
 
         func_name = match1.group(1)
         input_args = match1.group(2)
         output_args = match1.group(3)
+        # attr_args = ""
 
     inputs = []
     outputs = []
+    # print("func_name", func_name)
+    # print("input_args", input_args)
+    # print("output_args", output_args)
+    # print("attr_args", attr_args)
 
     # Parse inputs
     if input_args.strip():
@@ -123,9 +136,13 @@ class TensorInfo:
             "int32": 4,
             "int64": 8,
         }
+        if not isinstance(dtype, str):
+            dtype = np.dtype(dtype).name
+        assert isinstance(dtype, str)
         assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
+        # TODO: support dynamic shapes?
 
     def __repr__(self):
         return f"TensorInfo({self.name}, {self.shape}, {self.dtype}, size={self.size})"
@@ -145,6 +162,21 @@ class TensorInfo:
             else:
                 ret *= dim
         return ret
+
+    @property
+    def c_type(self):
+        if self.dtype == "float32":
+            return "float"
+        elif self.dtype == "uint8":
+            return "uint8_t"
+        elif self.dtype == "int8":
+            return "int8_t"
+        elif self.dtype == "uint64":
+            return "uint64_t"
+        elif self.dtype == "int64":
+            return "int64_t"
+        else:
+            raise RuntimeError(f"Unknown c_type for type: {self.dtype}")
 
 
 class TfLiteTensorInfo(TensorInfo):
@@ -352,6 +384,62 @@ class ONNXModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+class PTEModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        # import executorch.exir as exir
+        from executorch.runtime import Runtime
+        from executorch.exir.schema import ScalarType
+
+        # Load the PTE file
+        # program = exir.load(model_file)
+        runtime = Runtime.get()
+        program = runtime.load_program(model_file)
+        metadata = program.metadata("forward")
+        # method = program.load_method("forward")
+        in_tensors = []
+        out_tensors = []
+        num_inputs = metadata.num_inputs()
+        num_outputs = metadata.num_outputs()
+
+        def _helper(meta, name):
+            shape = meta.sizes()
+            dtype = meta.dtype()
+
+            EXECUTORCH_DTYPE_TO_NUMPY = {
+                ScalarType.FLOAT: np.float32,
+                ScalarType.DOUBLE: np.float64,
+                ScalarType.HALF: np.float16,
+                # ScalarType.BFLOAT16: np.dtype("bfloat16"),
+                ScalarType.CHAR: np.int8,
+                ScalarType.SHORT: np.int16,
+                ScalarType.INT: np.int32,
+                ScalarType.LONG: np.int64,
+                ScalarType.BYTE: np.uint8,
+                ScalarType.BOOL: np.bool_,
+            }
+            numpy_dtype = EXECUTORCH_DTYPE_TO_NUMPY.get(dtype)
+            assert numpy_dtype is not None, f"Unhandled PTE dtype: {dtype}"
+            # numpy_dtype = np.dtype(numpy_dtype).name
+            tensor_info = TensorInfo(name, shape, numpy_dtype)
+            return tensor_info
+
+        for i in range(num_inputs):
+            name = f"input{i}" if i > 0 else "input"
+            input_tensor_meta = metadata.input_tensor_meta(i)
+            in_tensor = _helper(input_tensor_meta, name)
+
+            in_tensors.append(in_tensor)
+
+        for i in range(num_outputs):
+            name = f"output{i}" if i > 0 else "output"
+            output_tensor_meta = metadata.output_tensor_meta(i)
+            out_tensor = _helper(output_tensor_meta, name)
+
+            out_tensors.append(out_tensor)
+
+        super().__init__(in_tensors, out_tensors)
+
+
 class PaddleModelInfo(ModelInfo):
     def __init__(self, model_file):
         import paddle
@@ -407,15 +495,19 @@ class MLIRModelInfo(ModelInfo):
         for inp in inputs:
             input_name = inp["name"]
             dtype = inp["dtype"]
-            input_type = type_lookup[dtype]
+            input_type = type_lookup.get(dtype)
+            assert input_type is not None, f"Unsupported dtype: {dtype}"
             input_shape = inp["shape"]
             input_tensor = TensorInfo(input_name, input_shape, input_type)
             in_tensors.append(input_tensor)
         for outp in outputs:
             output_name = outp["name"]
             dtype = outp["dtype"]
-            output_type = type_lookup[dtype]
             output_shape = outp["shape"]
+            if dtype is None and output_name is None and len(output_shape) == 0:
+                continue
+            output_type = type_lookup.get(dtype)
+            assert output_type is not None, f"Unsupported dtype: {dtype}"
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             out_tensors.append(output_tensor)
 
@@ -456,6 +548,11 @@ def get_onnx_model_info(model_file):
     return model_info
 
 
+def get_pte_model_info(model_file):
+    model_info = PTEModelInfo(model_file)
+    return model_info
+
+
 def get_model_info(model, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
@@ -475,6 +572,8 @@ def get_model_info(model, backend_name="unknown"):
         return "onnx", get_onnx_model_info(model)
     elif fmt == ModelFormats.PADDLE:
         return "pdmodel", get_pb_model_info(model)
+    elif fmt == ModelFormats.PTE:
+        return "pte", get_pte_model_info(model)
     elif fmt == ModelFormats.MLIR:
         with open(model, "r") as handle:
             mod_text = handle.read()
@@ -507,6 +606,8 @@ def get_fallback_model_info(model, input_shapes, output_shapes, input_types, out
         return "pdmodel", info
     elif fmt == ModelFormats.MLIR:
         return "mlir", info
+    elif fmt == ModelFormats.PTE:
+        return "pte", info
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 

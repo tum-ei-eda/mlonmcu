@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 """Collection of utilities to manage MLonMCU configs."""
+
+import re
 import distutils.util
 from typing import List
 import ast
@@ -48,10 +50,21 @@ def remove_config_prefix(config, prefix, skip=None):
     if skip is None:
         skip = []
 
-    def helper(key):
-        return key.split(f"{prefix}.")[-1]
+    # def helper(key):
+    #     return key.split(f"{prefix}.")[-1]
 
-    return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
+    def matches(key: str) -> bool:
+        if key in skip or "." not in key:
+            return False
+        key_prefix, _ = key.split(".", 1)
+        pattern = "^" + key_prefix.replace("*", ".*") + "$"
+        return re.fullmatch(pattern, prefix) is not None
+
+    def helper(key: str) -> str:
+        return key.split(".", 1)[1]
+
+    # return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
+    return {helper(key): value for key, value in config.items() if matches(key)}
 
 
 def filter_config(config, prefix, defaults, optionals, required_keys):

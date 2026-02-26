@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Command line subcommand for cleaning up the current environment."""
+
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import setup
 

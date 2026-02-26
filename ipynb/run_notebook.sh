@@ -148,7 +148,7 @@ then
         echo "Creating virtualenv..."
         python3 -m venv $ENVIRONMENT
         source $ENVIRONMENT/bin/activate
-        python3 -m pip install -e $DIR/..
+        python3 -m pip install -e "$DIR/..[ipynb]"
         if [[ -f $REQUIREMENTS ]]
         then
             echo "(Using provided requirements)"

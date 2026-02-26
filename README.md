@@ -74,18 +74,11 @@ python -m venv .venv  # Feel free to choose a different directory or use a conda
 source .venv/bin/activate
 
 # Environment-specific dependencies are installed later
+```
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Install ptional dependecies (only for development)
-pip install -r requirements_dev.txt
-pip install -r docs/requirements.txt
-
-# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
-pip install -r ipynb/requirements.txt
-```
-
-Then you should be able to install the `mlonmcu` python package like this
+You should be able to install the `mlonmcu` python package like this
 
 ```
 # Optionally remove an older version first: pip uninstall mlonmcu
@@ -93,7 +86,15 @@ Then you should be able to install the `mlonmcu` python package like this
 pip install .
 # or editable version:
 pip install -e .  # editable version
+
+# Install optional dependecies (only for development)
+pip install -e ".[dev]"
+pip install -r ".[docs]"
+
+# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
+pip install -r ".[ipynb]"
 ```
+
 
 #### Docker (Any other OS)
 
@@ -150,8 +151,11 @@ with mlonmcu.context.MlonMcuContext() as context:
 Make sure to first install the additonal set of development Python packages into your virtual environment:
 
 ```
-pip install -r requirements_dev.txt  # Building distributions and running tests
-pip install -r docs/requirements.txt  # For working with the documentation
+pip install -e ".[dev]"  # Building distributions and running tests
+pip install -e ".[docs]"  # For working with the documentation
+pip install -e ".[ipynb]"  # For working with the notebooks
+pip install -e ".[dev,docs,ipynb]"  # All together
+pip install "mlonmcu[dev,docs,ipynb]"  # All together from PiPy
 ```
 
 Unit test and integration test are defined in the `tests/` directory and can be triggered using `make test` or `pytest tests/`

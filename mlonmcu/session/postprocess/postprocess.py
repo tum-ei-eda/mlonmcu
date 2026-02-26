@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definitions of base classes for MLonMCU postprocesses."""
+
 from mlonmcu.config import filter_config
 
 

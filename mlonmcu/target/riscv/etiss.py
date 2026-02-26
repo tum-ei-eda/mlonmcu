@@ -774,9 +774,10 @@ class EtissTarget(RVVTarget):
                 get_metrics_args.extend(["--trace", trace_file])
             get_metrics_args.extend(["--out", metrics_file])
             if self.print_outputs:
-                out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
+                out += execute("python3", self.metrics_script.resolve(), *get_metrics_args, live=True)
             else:
                 out += execute(
+                    "python3",
                     self.metrics_script.resolve(),
                     *get_metrics_args,
                     live=False,

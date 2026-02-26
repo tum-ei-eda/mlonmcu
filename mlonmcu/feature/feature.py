@@ -23,7 +23,6 @@ from abc import ABC
 from mlonmcu.config import filter_config, str2bool
 from .type import FeatureType
 
-
 # TODO: features might get an optional context parameter to lookup if they are supported by themselfs in the environment
 
 

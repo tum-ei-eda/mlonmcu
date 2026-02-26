@@ -1,0 +1,341 @@
+---
+# The MLONMCU_HOME is filled in automatically when creating the environment
+home: "{{ home_dir }}"
+logging:
+  level: DEBUG
+  to_file: false
+  rotate: false
+cleanup:
+  auto: true
+  keep: 50
+# Default locations for certain directoriescan be changed here
+# Non-absolute paths will always be threated relative to the MLONMCU_HOME
+paths:
+  # Where the dependencies are downloaded and installed
+  deps: deps
+  # If logging to file is used keep logs in this directory
+  logs: logs
+  # Location where reports and artifacts are written to
+  results: results
+  # Directory where custom extensions can be integrated
+  plugins: plugins
+  # Directory for intermediate build products, should be located on a large enough drive
+  temp: temp
+  # A collection of models which will be used to look for models
+  # The paths will be checked in the order defined here stopping at the first match
+  # Non-existant paths will be skipped without throwing an error
+  models:
+    - "{{ home_dir }}/models"
+    - "{{ config_dir }}/models"
+# Here default clone_urls
+repos:
+  tensorflow:
+    url: "https://github.com/tensorflow/tflite-micro.git"
+    ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
+    options:
+      single_branch: true
+  tvm:
+    url: "https://github.com/apache/tvm.git"
+    ref: v0.17.0
+    options:
+      recursive: true
+      submodules:
+        - 3rdparty/dlpack
+        - 3rdparty/dmlc-core
+        - 3rdparty/libbacktrace
+        - 3rdparty/rang
+  tvm_extensions:
+    url: "https://github.com/tum-ei-eda/tvm_extensions.git"
+    ref: 859bbc89519b610d8adcdba0869d8b087887aabd
+  muriscvnn:
+    url: "https://github.com/tum-ei-eda/muriscv-nn.git"
+    ref: cec46aa94277417b3cb48bdb0dcd783abbe670da
+  etiss:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: 739573d5f12798074bc7d375a46c005f23f59f67  # develop, 23.01.2024
+  etiss_perf:
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: TODO
+  etiss_perf_plugin:
+    url: "https://github.com/tum-ei-eda/SoftwareEvalLib.git"
+    ref: TODO
+  spike:
+    url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
+    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+  spikepk:
+    url: "https://github.com/riscv-software-src/riscv-pk.git"
+    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+  cmsis:
+    url: "https://github.com/ARM-software/CMSIS_5.git"
+    ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
+    options:
+      single_branch: true
+      # Shallow clone could save 200MB clone size, but not really possible with commit
+      # shallow: true
+  cmsisnn:
+    url: "https://github.com/ARM-software/CMSIS-NN.git"
+    ref: v6.0.0
+  mlif:
+    url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
+    ref: support-executorch
+  espidf:
+    url: "https://github.com/espressif/esp-idf.git"
+    ref: release/v4.4  # TODO: v5.2
+    options:
+      recursive: true
+  microtvm_etiss:
+    url: "https://github.com/PhilippvK/microtvm-etiss-template.git"
+    ref: b1e53bdae24bb35e53d7cdad2917a9090f7fa933
+  microtvm_spike:
+    url: "https://github.com/PhilippvK/microtvm-spike-template.git"
+    ref: ffba460345f5b8682e2a6cb315699ff872c6221e
+  zephyr:
+    url: "https://github.com/zephyrproject-rtos/zephyr.git"
+    ref: v3.2.0
+  tflite_pack:
+    url: "https://github.com/tum-ei-eda/tflite-pack.git"
+    ref: 2d31cafc941d3889b042af9c0a72b5f768ac4606
+  layergen:
+    url: "https://github.com/PhilippvK/ml-layer-gen.git"
+    ref: 8d27988fe3a50838521e7c7fb42193da717c5830
+  dtc:
+    url: "https://github.com/dgibson/dtc.git"
+    ref: main
+  embench:  # legacy Embench-IoT 1.0
+    url: "https://github.com/embench/embench-iot.git"
+    ref: d9b30cdf805133bef9db5f7ecf84ae1ce8124291
+  embench_iot:
+    url: "https://github.com/embench/embench-iot.git"
+    ref: embench-2.0-branch
+  embench_dsp:
+    url: "https://github.com/embench/embench-dsp.git"
+    ref: rc1
+  executorch:
+    url: "https://github.com/pytorch/executorch.git"
+    ref: v1.1.0
+    options:
+      recursive: true
+      # submodules: [?]
+# Here all supported frameworks with their specific features are defined
+# Optionally disable unwanted or incomatible backends or features here
+# The configured defaults are used if no backend was specified in the command line options
+frameworks:
+  default: tvm
+  tflm:
+    enabled: true
+    backends:
+      default: tflmi
+      tflmi:
+        enabled: true
+        features:
+          debug_arena: true
+    features:
+      muriscvnn: true
+      cmsisnn: false
+  tvm:
+    enabled: true
+    backends:
+      default: tvmaot
+      tvmrt:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaot:
+        enabled: true
+        features:
+          debug_arena: true
+          unpacked_api: true
+          usmp: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmaotplus:
+        enabled: true
+        features:
+          debug_arena: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+      tvmllvm:
+        enabled: true
+        features:
+          # unpacked_api: true
+          disable_legalize: false
+          autotuned: true
+          moiopt: true
+    features:
+      cmsisnnbyoc: false
+      muriscvnnbyoc: false
+  executorch:
+    enabled: true
+    backends:
+      default: executorch
+      executorch:
+        enabled: true
+        features: {}
+    features: {}
+# Some frontends are experimental and therefore disabled here
+# Features like packing are only available in certain environments
+frontends:
+  tflite:
+    enabled: true
+    features:
+      validate: true
+      visualize: true
+      split_layers: false
+  relay:
+    enabled: true
+    features:
+      relayviz: true
+  packed:
+    enabled: false
+    features:
+      packing: true
+      packed: true
+  onnx:
+    enabled: true
+  pte:
+    enabled: true
+  pb:
+    enabled: true
+  paddle:
+    enabled: true
+  layergen:
+    enabled: true
+  example:
+    enabled: true
+  rvv_bench:
+    enabled: false
+  iss_bench:
+    enabled: false
+  embench:
+    enabled: false
+  embench_iot:
+    enabled: false
+  embench_dsp:
+    enabled: false
+  # TODO: saved_model (TF->TFLITE), ipynb (IPYNB->?)
+# Some targets/platforms support multiple toolchains
+toolchains:
+  gcc: true
+  llvm: true
+# Platform extend the number of supported targets
+platforms:
+  mlif:
+    enabled: true
+    features:
+      debug: true
+      validate: true
+      benchmark: true
+  espidf:
+    enabled: false
+    features:
+      debug: true
+  zephyr:
+    enabled: false
+    features:
+      debug: true
+  tvm:
+    enabled: true
+    features:
+      benchmark: true
+      tvm_rpc: true
+      autotune: true
+      tvm_profile: true
+  microtvm:
+    enabled: true
+    features: []
+      # validate: true
+# List of supported targets in the environment
+targets:
+  default: etiss
+  etiss_pulpino:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+  etiss:
+    enabled: true
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+  etiss_perf:
+    enabled: false
+    features:
+      gdbserver: true
+      etissdbg: true
+      trace: true
+      log_instrs: true
+  host_x86:
+    enabled: true
+    features:
+      gdbserver: true
+  spike:
+    enabled: false
+    features:
+      vext: false
+      pext: false
+      cachesim: true
+      log_instrs: true
+  ovpsim:
+    enabled: false
+    features:
+      vext: false
+      pext: false
+      log_instrs: true
+  corstone300:
+    enabled: false
+    features:
+      ethosu: false
+      arm_mvei: true
+      arm_dsp: true
+  riscv_qemu:
+    enabled: true
+    features:
+      vext: false
+  microtvm_host:
+    enabled: true
+  microtvm_spike:
+    enabled: true
+  microtvm_zephyr:
+    enabled: false
+  microtvm_arduino:
+    enabled: false
+  microtvm_etiss:
+    enabled: true
+  microtvm_etiss_perf:
+    enabled: false
+  microtvm_espidf:
+    enabled: false
+  tvm_cpu:
+    enabled: true
+postprocesses:
+  use:
+  # - detailed_cycles
+  # - average_cycles
+  # - filter_cols
+  # - features2cols
+  # - config2cols
+  # - bytes2kb
+  # - visualize
+# This is where further options such as specific versions of dependencies can be set in the furture
+vars:
+  allow_extensions: false
+  runs_per_stage: true
+  # tvm.make_tool: "ninja"
+  # llvm.distribution: x86_64-linux-gnu-ubuntu-18.04
+  # llvm.version: 18.1.8
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
+  riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gcv_ilp32d.tar.xz"
+  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
+flags:
+  tflmc.exe:
+  - x86

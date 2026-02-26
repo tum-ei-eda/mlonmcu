@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
+
 import itertools
 import time
 import copy
@@ -1154,6 +1155,8 @@ class Run:
                     output_types=output_types,
                     params_path=params_path,
                 )
+                if self.compile_platform:
+                    self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
                 _build()
 
         else:
@@ -1172,6 +1175,7 @@ class Run:
                 output_shapes = None
                 input_types = None
                 output_types = None
+                params_path = None
                 if model_artifact.name.split(".", 1)[0] == self.model.name:
                     input_shapes = self.model.input_shapes
                     output_shapes = self.model.output_shapes
@@ -1186,6 +1190,8 @@ class Run:
                     output_types=output_types,
                     params_path=params_path,
                 )
+                if self.compile_platform:
+                    self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
                 _build()
 
         self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])

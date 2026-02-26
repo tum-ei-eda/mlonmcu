@@ -9,11 +9,20 @@ build-backend = "setuptools.build_meta"
 name = "mlonmcu"
 dynamic = ["version", "dependencies", "optional-dependencies"]
 requires-python = ">=3.8"
-license = {text = "Apache-2.0"}
+# license = "Apache-2.0"
+license = { text = "Apache-2.0" }
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
-# optional-dependencies = {dev = { file = ["requirements_dev.txt"] }}
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = { file = ["requirements_dev.txt"] }
+docs = { file = ["docs/requirements.txt"] }
+ipynb = { file = ["ipynb/requirements.txt"] }
+emx = { file = ["requirements_emx.txt"] }
+executoch = { file = ["requirements_executorch.txt"] }
+# iree = { file = ["requirements_iree.txt"] }  # TODO: fix
+# iree310 = { file = ["requirements_iree310.txt"] }  # TODO: fix
 
 [project.scripts]
 mlonmcu = "mlonmcu.cli.main:main"

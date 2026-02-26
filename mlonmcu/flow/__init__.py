@@ -21,6 +21,8 @@
 from mlonmcu.flow.tflm.framework import TFLMFramework
 from mlonmcu.flow.tvm.framework import TVMFramework
 from mlonmcu.flow.iree.framework import IREEFramework
+from mlonmcu.flow.emx.framework import EMXFramework
+from mlonmcu.flow.executorch.framework import ExecutorchFramework
 
 # from mlonmcu.flow.none.framework import NoneFramework
 
@@ -39,6 +41,9 @@ from mlonmcu.flow.iree.backend.ireellvm import IREELLVMBackend
 from mlonmcu.flow.iree.backend.ireellvm_inline import IREELLVMInlineBackend
 from mlonmcu.flow.iree.backend.ireellvmc import IREELLVMCBackend
 from mlonmcu.flow.iree.backend.ireellvmc_inline import IREELLVMCInlineBackend
+
+from mlonmcu.flow.emx.backend import EMXBackend
+from mlonmcu.flow.executorch.backend import ExecutorchBackend
 
 # from mlonmcu.flow.none.backend.none import NoneBackend
 from .framework import Framework
@@ -91,6 +96,8 @@ SUPPORTED_FRAMEWORKS = {
     "tflm": TFLMFramework,
     "tvm": TVMFramework,
     "iree": IREEFramework,
+    "emx": EMXFramework,
+    "executorch": ExecutorchFramework,
     "none": NoneFramework,
 }
 
@@ -120,6 +127,14 @@ SUPPORTED_IREE_BACKENDS = {
     **SUPPORTED_IREE_LLVM_BACKENDS,
 }
 
+SUPPORTED_EMX_BACKENDS = {
+    "emx": EMXBackend,
+}
+
+SUPPORTED_EXECUTORCH_BACKENDS = {
+    "executorch": ExecutorchBackend,
+}
+
 SUPPORTED_NONE_BACKENDS = {
     "none": NoneBackend,
 }
@@ -135,6 +150,8 @@ SUPPORTED_BACKENDS = {
     **SUPPORTED_TFLITE_BACKENDS,
     **SUPPORTED_TVM_BACKENDS,
     **SUPPORTED_IREE_BACKENDS,
+    **SUPPORTED_EMX_BACKENDS,
+    **SUPPORTED_EXECUTORCH_BACKENDS,
     **SUPPORTED_NONE_BACKENDS,
 }
 

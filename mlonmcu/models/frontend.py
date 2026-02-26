@@ -57,7 +57,6 @@ from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
 
-
 logger = get_logger()
 
 
@@ -1501,6 +1500,16 @@ class ONNXFrontend(SimpleFrontend):
         super().__init__(
             "onnx",
             ModelFormats.ONNX,
+            features=features,
+            config=config,
+        )
+
+
+class PTEFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "pte",
+            ModelFormats.PTE,
             features=features,
             config=config,
         )

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MLIF Platform"""
+
 import os
 import tempfile
 from typing import Tuple
@@ -25,7 +26,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -67,6 +68,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "get_outputs",
             "memgraph_llvm_cdfg",
             "global_isel",
+            "cfu_wca",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -109,6 +111,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         "extend_attrs": False,
         "ccache": False,
         "custom_entry": None,
+        "extra_paths": None,
     }
 
     REQUIRED = {"mlif.src_dir"}
@@ -489,17 +492,35 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     def prepare(self):
         pass  # TODO: is this used?
 
+    @property
+    def extra_paths(self):
+        ret = self.config["extra_paths"]
+        if ret is None:
+            return None
+        if isinstance(ret, str):
+            ret = str2list(ret)
+        assert isinstance(ret, list)
+        return ret
+
     def prepare_environment(self):
         env = os.environ.copy()
+        path_new = env["PATH"]
         if self.srecord_dir:
-            path_old = env["PATH"]
-            path_new = f"{self.srecord_dir}:{path_old}"
-            env["PATH"] = path_new
+            path_new = f"{self.srecord_dir}:{path_new}"
         # TODO: refactor
-        if self.iree_install_dir:
-            path_old = env["PATH"]
-            path_new = f"{self.iree_install_dir}/bin:{path_old}"
-            env["PATH"] = path_new
+        # if self.iree_install_dir:
+        #     path_old = env["PATH"]
+        #     path_new = f"{self.iree_install_dir}/bin:{path_old}"
+        #     env["PATH"] = path_new
+        extra_paths = self.extra_paths
+        if extra_paths:
+            assert isinstance(extra_paths, list)
+            for path in extra_paths:
+                assert isinstance(path, (str, Path))
+                path = str(path)
+                path_new = f"{path}:{path_new}"
+        env["PATH"] = path_new
+
         return env
 
     def generate_model_support(self, target):

@@ -378,26 +378,27 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        # TODO refactor the following using inheritance instead of branching
-        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
-        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
-        # if "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
-        #     ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
-        #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
-        ret["RISCV_ABI"] = self.abi
-        ret["RISCV_CPU"] = self.cpu
-        # llvm/clang only!
-        ret["RISCV_ATTR"] = self.attr
-        ret["RISCV_LINUX"] = not self.is_bare
-        if self.cmodel is not None:
-            ret["RISCV_CMODEL"] = self.cmodel
+        if platform == "mlif":
+            # TODO refactor the following using inheritance instead of branching
+            ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
+            ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
+            # if "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
+            #     ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
+            #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
+            ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
+            ret["RISCV_ABI"] = self.abi
+            ret["RISCV_CPU"] = self.cpu
+            # llvm/clang only!
+            ret["RISCV_ATTR"] = self.attr
+            ret["RISCV_LINUX"] = not self.is_bare
+            if self.cmodel is not None:
+                ret["RISCV_CMODEL"] = self.cmodel
 
-        def feature_helper(attrs):
-            # TODO
-            return ""
+            def feature_helper(attrs):
+                # TODO
+                return ""
 
-        ret["RISCV_FEATURES"] = feature_helper(self.attr)
+            ret["RISCV_FEATURES"] = feature_helper(self.attr)
         return ret
 
     def get_arch(self):

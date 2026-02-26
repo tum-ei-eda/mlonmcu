@@ -28,7 +28,6 @@ from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from .tvmc_utils import get_tvmrt_tvmc_args
 from mlonmcu.models.model_info import get_relay_model_info
 
-
 # Warning: This is only ment to be used with the TvmPlatform!
 
 

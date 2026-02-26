@@ -26,6 +26,12 @@ backend_colors = {
     "tvmllvm": "tab:purple",
     "tvmllvm_tuned": "tab:purple",
     "emx": "tab:green",
+    "ireevmvx": "tab:pink",
+    "ireevmvx_inline": "tab:pink",
+    "ireellvm": "tab:olive",
+    "ireellvm_inline": "tab:olive",
+    "ireellvmc": "tab:cyan",
+    "ireellvmc_inline": "tab:cyan",
 }
 
 backend_hatches = {
@@ -36,6 +42,12 @@ backend_hatches = {
     "tvmllvm": None,
     "tvmllvm_tuned": "///",
     "emx": None,
+    "ireevmvx": None,
+    "ireevmvx_inline": None,
+    "ireellvm": None,
+    "ireellvm_inline": None,
+    "ireellvmc": None,
+    "ireellvmc_inline": None,
 }
 
 MODEL_NAMES = {
@@ -48,6 +60,7 @@ MODEL_NAMES = {
 }
 
 filter_models = ["gtsrb_cnn_supernet_preprocessed", "gtsrb_cnn_supernet_preprocessed_quant_static_qoperator"]
+filter_backends = ["emx", "tvmaotplus", "tvmaotplus_tuned", "tflmi", "ireellvm", "ireellvmc", "ireellvm_inline", "ireellvmc_inline", "tvmllvm", "tvmllvm_tuned"]
 
 # ---------------------------
 # Input handling
@@ -96,13 +109,16 @@ def detect_autotuned(row):
         if config[key]:
             return True
     else:
-        if backend != "emx":
+        if backend.startswith("tvm"):
             return True
     return False
 
 
 df["Autotuned"] = df.apply(detect_autotuned, axis=1)
 df["Backend"] = df.apply(lambda row: f"{row.Backend}_tuned" if row.Autotuned else row.Backend, axis=1)
+
+if filter_backends:
+    df = df[df["Backend"].isin(filter_backends)]
 
 # ---------------------------
 # Model processing

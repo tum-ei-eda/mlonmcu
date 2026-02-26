@@ -381,12 +381,12 @@ class EMXBackend(Backend):
             prefix += "static"
         if self.inline_kernels in ["always", "force"]:
             prefix += " __attribute__((always_inline)) inline"
-        elif self.inline_kernels == "never" or self.inline_kernels == False:
-            prefix += " __attribute__((noinline))"
-        elif self.inline_kernels == "preferred" or self.inline_kernels == True:
-            prefix += " inline"
         elif self.inline_kernels is None:
             pass
+        elif self.inline_kernels == "never" or not self.inline_kernels:
+            prefix += " __attribute__((noinline))"
+        elif self.inline_kernels == "preferred" or self.inline_kernels:
+            prefix += " inline"
         else:
             raise ValueError(f"Unhandled inline_functions value: {self.inline_kernels}")
             prefix += " inline"

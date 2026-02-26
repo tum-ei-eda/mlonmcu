@@ -127,11 +127,27 @@
     <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_perf</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">if</span> <span class="s2">&quot;dbg&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">dbg</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dbg</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_feature</span><span class="p">(</span><span class="s2">&quot;etissdbg&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;etiss_perf&quot;</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_clone</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="k">if</span> <span class="s2">&quot;etiss.src_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="n">_validate_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_perf_clone</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf.src_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">_validate_etiss_perf</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_build</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
@@ -141,11 +157,28 @@
     <span class="k">return</span> <span class="n">_validate_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_perf_build</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf.build_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">or</span> <span class="s2">&quot;etiss_perf.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">_validate_etiss_perf</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_clean</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_etiss</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_etiss_build</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="n">keep_build_dir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;etiss.keep_build_dir&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">keep_build_dir</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_perf_clean</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_etiss_perf</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">keep_build_dir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;etiss_perf.keep_build_dir&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="n">keep_build_dir</span>
 
 
@@ -169,6 +202,29 @@
         <span class="n">etissRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;etiss&quot;</span><span class="p">]</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">etissRepo</span><span class="p">,</span> <span class="n">etissSrcDir</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissSrcDir</span></div>
+
+
+
+<div class="viewcode-block" id="clone_etiss_perf">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.clone_etiss_perf">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss_perf_clone</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_etiss_perf</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the ETISS Perf repository.&quot;&quot;&quot;</span>
+    <span class="n">etissName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;etiss_perf&quot;</span><span class="p">)</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf.src_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="n">etissSrcDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">])</span>
+        <span class="n">rebuild</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">etissSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">etissName</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissSrcDir</span><span class="p">):</span>
+        <span class="n">etissRepo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;etiss&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">etissRepo</span><span class="p">,</span> <span class="n">etissSrcDir</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissSrcDir</span></div>
 
 
 
@@ -218,10 +274,55 @@
 
 
 
+<div class="viewcode-block" id="build_etiss_perf">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.build_etiss_perf">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;etiss_perf.plugins_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;cmake.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;boost.install_dir&quot;</span><span class="p">])</span>  <span class="c1"># Just as a dummy target to enforce order</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf.install_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss_perf_build</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_etiss_perf</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the ETISS Perf simulator.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="n">etissName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">etissBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">etissName</span>
+    <span class="n">etissInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">etissName</span>
+    <span class="c1"># llvmInstallDir = context.cache[&quot;llvm.install_dir&quot;]</span>
+    <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">)</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">boost_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf.build_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">or</span> <span class="s2">&quot;etiss_perf.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissBuildDir</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">etissBuildDir</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">boost_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;BOOST_ROOT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">boost_dir</span><span class="p">)</span>
+        <span class="c1"># env[&quot;LLVM_DIR&quot;] = str(llvmInstallDir)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;-DCMAKE_INSTALL_PREFIX=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">etissInstallDir</span><span class="p">),</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">cmake_exe</span><span class="o">=</span><span class="n">cmake_exe</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissBuildDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissInstallDir</span></div>
+
+
+
 <div class="viewcode-block" id="install_etiss">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.install_etiss">[docs]</a>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.script&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss_build</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
@@ -232,7 +333,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="k">if</span> <span class="s2">&quot;etiss.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etissvp.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etissvp.script&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss.script&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
     <span class="c1"># etissName = utils.makeDirName(&quot;etiss&quot;, flags=flags)</span>
@@ -243,8 +344,38 @@
     <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissInstallDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">etissvpExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissInstallDir</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpExe</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etissvp.script&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpScript</span></div>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpExe</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.script&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpScript</span></div>
+
+
+
+<div class="viewcode-block" id="install_etiss_perf">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.install_etiss_perf">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss_perf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf.script&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss_perf_build</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">install_etiss_perf</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Install ETISS Perf.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss_perf.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss_perf.script&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="c1"># etissName = utils.makeDirName(&quot;etiss&quot;, flags=flags)</span>
+    <span class="n">etissBuildDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">])</span>
+    <span class="n">etissInstallDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">])</span>
+    <span class="n">etissvpExe</span> <span class="o">=</span> <span class="n">etissInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;bare_etiss_processor&quot;</span>
+    <span class="n">etissvpScript</span> <span class="o">=</span> <span class="n">etissInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;run_helper.sh&quot;</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">etissInstallDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">etissvpExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">etissBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.install_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissInstallDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.exe&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpExe</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.script&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">etissvpScript</span></div>
 
 
 
@@ -262,13 +393,37 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="k">if</span> <span class="s2">&quot;etiss.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etissvp.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etissvp.script&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss.script&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
     <span class="c1"># etissName = utils.makeDirName(&quot;etiss&quot;, flags=flags)</span>
     <span class="n">etissBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">etissBuildDir</span><span class="p">)</span>
     <span class="k">del</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="clean_etiss_perf">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.clean_etiss_perf">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss_perf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">])</span>  <span class="c1"># TODO: make sure install has finished</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">removes</span><span class="p">([</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">])</span>  <span class="c1"># TODO: implement</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss_perf_clean</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_etiss_perf</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup ETISS Perf build dir.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss_perf.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span> <span class="ow">and</span> <span class="s2">&quot;etiss_perf.script&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">))</span>
+    <span class="c1"># etissName = utils.makeDirName(&quot;etiss_perf&quot;, flags=flags)</span>
+    <span class="n">etissBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">etissBuildDir</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span></div>
 
 
 
@@ -330,6 +485,43 @@
             <span class="n">utils</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">srcDir</span> <span class="o">/</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_accelerator_plugins.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">srcDir</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss.plugins_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pluginsDir</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_etiss_perf_plugin</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_validate_etiss_perf</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="clone_etiss_perf_plugin">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.etiss.clone_etiss_perf_plugin">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;etiss_perf_plugin.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf.plugins_dir&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_etiss_perf_plugin</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">FEATURE</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clone_etiss_perf_plugin</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the SoftwareEvalLib repository.&quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;etiss_perf_plugin&quot;</span><span class="p">)</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">pluginsDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.src_dir&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="s2">&quot;PluginImpl&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;etiss_perf_plugin.src_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+        <span class="n">srcDir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;etiss_perf_plugin.src_dir&quot;</span><span class="p">])</span>
+        <span class="n">rebuild</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">srcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="c1"># TODO: lookup directories automatically</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">srcDir</span><span class="p">):</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">[</span><span class="s2">&quot;etiss_perf_plugin&quot;</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">repo</span><span class="p">,</span> <span class="n">srcDir</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="s2">&quot;SoftwareEvalLib&quot;</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="n">pluginsDir</span> <span class="o">/</span> <span class="n">plugin</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">():</span>
+            <span class="n">dest</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">srcDir</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf_plugin.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">srcDir</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;etiss_perf.plugins_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pluginsDir</span></div>
 
 </pre></div>
 

@@ -104,17 +104,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DefaultsConfig</span><span class="p">,</span>
     <span class="n">PathConfig</span><span class="p">,</span>
-    <span class="n">RepoConfig</span><span class="p">,</span>
-    <span class="n">FrameworkConfig</span><span class="p">,</span>
-    <span class="n">FrameworkFeatureConfig</span><span class="p">,</span>
-    <span class="n">BackendConfig</span><span class="p">,</span>
-    <span class="n">BackendFeatureConfig</span><span class="p">,</span>
-    <span class="n">TargetConfig</span><span class="p">,</span>
-    <span class="n">TargetFeatureConfig</span><span class="p">,</span>
-    <span class="n">PlatformConfig</span><span class="p">,</span>
-    <span class="n">PlatformFeatureConfig</span><span class="p">,</span>
-    <span class="n">FrontendConfig</span><span class="p">,</span>
-    <span class="n">FrontendFeatureConfig</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_environment_from_file</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_environment_to_file</span>
@@ -128,8 +117,7 @@
     <span class="n">features</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">features</span>
     <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">feature</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span> <span class="k">if</span> <span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">features</span>
+    <span class="k">return</span> <span class="n">features</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_names</span><span class="p">(</span><span class="n">objs</span><span class="p">):</span>
@@ -420,6 +408,8 @@
 <div class="viewcode-block" id="Environment.has_backend">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_backend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_backend_configs</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
@@ -534,90 +524,14 @@
                 <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./models&quot;</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span><span class="s2">&quot;https://github.com/tensorflow/tensorflow.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;v2.5.2&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;tflite_micro_compiler&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
-                <span class="s2">&quot;https://github.com/cpetig/tflite_micro_compiler.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;master&quot;</span>
-            <span class="p">),</span>  <span class="c1"># TODO: freeze ref?</span>
-            <span class="s2">&quot;tvm&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
-                <span class="s2">&quot;https://github.com/tum-ei-eda/tvm.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;tumeda&quot;</span>
-            <span class="p">),</span>  <span class="c1"># TODO: use upstream repo with suitable commit?</span>
-            <span class="s2">&quot;utvm_staticrt_codegen&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span>
-                <span class="s2">&quot;https://github.com/tum-ei-eda/utvm_staticrt_codegen.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;master&quot;</span>
-            <span class="p">),</span>  <span class="c1"># TODO: freeze ref?</span>
-            <span class="s2">&quot;etiss&quot;</span><span class="p">:</span> <span class="n">RepoConfig</span><span class="p">(</span><span class="s2">&quot;https://github.com/tum-ei-eda/etiss.git&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;master&quot;</span><span class="p">),</span>  <span class="c1"># TODO: freeze ref?</span>
-        <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">FrameworkConfig</span><span class="p">(</span>
-                <span class="s2">&quot;tflm&quot;</span><span class="p">,</span>
-                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">backends</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tflmc&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
-                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tflmi&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
-                <span class="p">],</span>
-                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">FrameworkFeatureConfig</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;tflm&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-                <span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">FrameworkConfig</span><span class="p">(</span>
-                <span class="s2">&quot;utvm&quot;</span><span class="p">,</span>
-                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">backends</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">BackendConfig</span><span class="p">(</span>
-                        <span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span>
-                        <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                        <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-                            <span class="n">BackendFeatureConfig</span><span class="p">(</span><span class="s2">&quot;unpacked_api&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tvmaot&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                        <span class="p">],</span>
-                    <span class="p">),</span>
-                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tvmrt&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
-                    <span class="n">BackendConfig</span><span class="p">(</span><span class="s2">&quot;tvmcg&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[]),</span>
-                <span class="p">],</span>
-                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">FrameworkFeatureConfig</span><span class="p">(</span><span class="s2">&quot;memplan&quot;</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">&quot;utvm&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-                <span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">FrontendConfig</span><span class="p">(</span><span class="s2">&quot;saved_model&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="n">FrontendConfig</span><span class="p">(</span><span class="s2">&quot;ipynb&quot;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="n">FrontendConfig</span><span class="p">(</span>
-                <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
-                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">FrontendFeatureConfig</span><span class="p">(</span><span class="s2">&quot;packing&quot;</span><span class="p">,</span> <span class="n">frontend</span><span class="o">=</span><span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-                <span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;TEST&quot;</span><span class="p">:</span> <span class="s2">&quot;abc&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">PlatformConfig</span><span class="p">(</span>
-                <span class="s2">&quot;mlif&quot;</span><span class="p">,</span>
-                <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="n">PlatformFeatureConfig</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">&quot;mlif&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
-            <span class="p">)</span>
-        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">toolchains</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">TargetConfig</span><span class="p">(</span>
-                <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
-                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;attach&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                <span class="p">],</span>
-            <span class="p">),</span>
-            <span class="n">TargetConfig</span><span class="p">(</span>
-                <span class="s2">&quot;host_x86&quot;</span><span class="p">,</span>
-                <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                    <span class="n">TargetFeatureConfig</span><span class="p">(</span><span class="s2">&quot;attach&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;host_x86&quot;</span><span class="p">,</span> <span class="n">supported</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-                <span class="p">],</span>
-            <span class="p">),</span>
-        <span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
 

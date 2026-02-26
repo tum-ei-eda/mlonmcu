@@ -123,9 +123,34 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">has_target</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_validate_ara_rtl</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># user_vars = context.environment.vars</span>
+    <span class="c1"># if &quot;spike.exe&quot; in user_vars:  # TODO: also check command line flags?</span>
+    <span class="c1">#     return False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_spike_clone</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="k">if</span> <span class="s2">&quot;spike.exe&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.dl_url&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
         <span class="k">assert</span> <span class="s2">&quot;spike&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">repos</span><span class="p">,</span> <span class="s2">&quot;Undefined repository: &#39;spike&#39;&quot;</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_spike_download</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_spike</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.dl_url&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_spike_build</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_spike_clone</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span>
 
 
@@ -191,11 +216,11 @@
 <div class="viewcode-block" id="build_spike_pk">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.spike.build_spike_pk">[docs]</a>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;spikepk.src_dir&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{xlen}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc_rv</span><span class="si">{xlen}</span><span class="s2">.name&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spikepk_rv</span><span class="si">{xlen}</span><span class="s2">.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spikepk_rv</span><span class="si">{xlen}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk_rv</span><span class="si">{xlen}</span><span class="s2">&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;riscv_gcc_</span><span class="si">{name}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc_</span><span class="si">{name}</span><span class="s2">.name&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spikepk_</span><span class="si">{name}</span><span class="s2">.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spikepk_</span><span class="si">{name}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.pk_</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="p">])</span>
 <span class="c1"># TODO: allow arch,abi</span>
 <span class="c1"># @Tasks.param(&quot;arch&quot;, [&quot;default&quot;])  # [&quot;rv32gc&quot;, &quot;rv64gc&quot;, &quot;rv32im&quot;, &quot;rv64im&quot;]</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;xlen&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;xlen,name&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;rv32&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;rv32&quot;</span><span class="p">)])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spikepk_build</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_spike_pk</span><span class="p">(</span>
@@ -259,10 +284,39 @@
 
 
 
+<div class="viewcode-block" id="download_spike">
+<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.spike.download_spike">[docs]</a>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">])</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike_download</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_spike</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone the spike simulator.&quot;&quot;&quot;</span>
+    <span class="n">spikeName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span>
+    <span class="n">spikeInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
+    <span class="n">spikeExe</span> <span class="o">=</span> <span class="n">spikeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
+    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+    <span class="k">if</span> <span class="s2">&quot;spike.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">spikeExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="s2">&quot;spike.dl_url&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span>
+        <span class="n">spikeUrl</span><span class="p">,</span> <span class="n">spikeArchive</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="s2">&quot;spike.dl_url&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">checksum</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spike.checksum&quot;</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">download_and_extract</span><span class="p">(</span><span class="n">spikeUrl</span><span class="p">,</span> <span class="n">spikeArchive</span><span class="p">,</span> <span class="n">spikeInstallDir</span><span class="p">,</span> <span class="n">checksum</span><span class="o">=</span><span class="n">checksum</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">spikeExe</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">spikeExe_</span> <span class="o">=</span> <span class="n">spikeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
+            <span class="k">assert</span> <span class="n">spikeExe_</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">&quot;spikeExe not found in </span><span class="si">{spikeExe}</span><span class="s2"> or </span><span class="si">{spikeExe_}</span><span class="s2">&quot;</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeExe</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">spikeExe_</span><span class="p">,</span> <span class="n">spikeExe</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeExe</span></div>
+
+
+
 <div class="viewcode-block" id="clone_spike">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.spike.clone_spike">[docs]</a>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike_clone</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">clone_spike</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
@@ -285,7 +339,7 @@
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">])</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;spike.exe&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike</span><span class="p">)</span>
+<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_spike_build</span><span class="p">)</span>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">TARGET</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_spike</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
@@ -296,12 +350,13 @@
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="k">if</span> <span class="s2">&quot;spike.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
         <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">full</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spike.full&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">spikeName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">)</span>
     <span class="n">spikeSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.src_dir&quot;</span><span class="p">]</span>
     <span class="n">boostDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">)</span>
     <span class="n">spikeBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
     <span class="n">spikeInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">spikeName</span>
-    <span class="n">spikeExe</span> <span class="o">=</span> <span class="n">spikeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
+    <span class="n">spikeExe</span> <span class="o">=</span> <span class="n">spikeInstallDir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="k">if</span> <span class="s2">&quot;spike.exe&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
         <span class="k">return</span> <span class="kc">False</span>
@@ -321,9 +376,11 @@
             <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeInstallDir</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">spikeBuildDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">spikeExe</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">spikeExe</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">spikeBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">spikeBuildDir</span> <span class="o">/</span> <span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="n">spikeExe</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.build_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeBuildDir</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.install_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeInstallDir</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;spike.exe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikeExe</span>

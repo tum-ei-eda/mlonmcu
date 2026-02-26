@@ -115,7 +115,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span><span class="p">,</span> <span class="n">str2dict</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompilePlatform</span><span class="p">,</span> <span class="n">TargetPlatform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.espidf_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_espidf_platform_target</span><span class="p">,</span> <span class="n">get_espidf_platform_targets</span>
@@ -126,10 +126,10 @@
 <div class="viewcode-block" id="get_project_template">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.get_project_template">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_project_template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">):</span>
-    <span class="n">espidf_templates</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;platforms&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf&quot;</span><span class="p">))</span>
+    <span class="n">espidf_templates</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_listdir</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;platforms&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf&quot;</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">espidf_templates</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">fname</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;platforms&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s2">&quot;mlonmcu&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;platforms&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">fname</span></div>
 
 
@@ -152,6 +152,9 @@
         <span class="s2">&quot;wait_for_user&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;flash_only&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;newlib_nano_fmt&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;idf_build_extra_args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;extra_cmake_defs&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;optimize&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># values: 0,2,s (s implies z for llvm) only!</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;espidf.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;espidf.src_dir&quot;</span><span class="p">}</span>
@@ -218,6 +221,16 @@
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;flash_only&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">idf_build_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;idf_build_extra_args&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extra_cmake_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_cmake_defs&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
 <div class="viewcode-block" id="EspIdfPlatform.invoke_idf_exe">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.invoke_idf_exe">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">invoke_idf_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -243,7 +256,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Project directory already initialized&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span>
         <span class="n">dir_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -263,7 +276,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">dir_name</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Temporary project directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -311,6 +325,16 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;baud&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;optimize&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">val</span>
 
 <div class="viewcode-block" id="EspIdfPlatform.close">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.close">[docs]</a>
@@ -361,6 +385,21 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_7=&quot;right&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_8=&quot;on&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_9=&quot;off&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_template</span> <span class="o">==</span> <span class="s2">&quot;micro_kws_esp32devboard_perf&quot;</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_MICRO_KWS_NUM_CLASSES=10</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_MICRO_KWS_POSTERIOR_TRIGGER_THRESHOLD_SINGLE=180</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_0=&quot;silence&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_1=&quot;unkown&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_2=&quot;yes&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_3=&quot;no&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_4=&quot;up&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_5=&quot;down&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_6=&quot;left&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_7=&quot;right&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_8=&quot;on&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;CONFIG_MICRO_KWS_CLASS_LABEL_9=&quot;off&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_OPTIMIZATION_LEVEL_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -381,11 +420,18 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONFIG_NEWLIB_NANO_FORMAT=</span><span class="si">{</span><span class="n">newlib_nano_fmt_val</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_OPTIMIZATION_LEVEL_RELEASE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">optimize_for_size</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">if</span> <span class="n">optimize_for_size</span><span class="p">:</span>
+                    <span class="n">optimize_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span>
+                    <span class="n">optimize_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span>
+                    <span class="n">optimize_none</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span>
+                    <span class="n">optimize_debug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize</span> <span class="o">==</span> <span class="s2">&quot;g&quot;</span>
+                    <span class="k">if</span> <span class="n">optimize_size</span><span class="p">:</span>
                         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_SIZE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
+                    <span class="k">elif</span> <span class="n">optimize_speed</span><span class="p">:</span>
                         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_PERF=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">optimize_none</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_NONE=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">optimize_debug</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CONFIG_COMPILER_OPTIMIZATION_DEBUG=y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># deprecated with IDF v6</span>
                 <span class="n">watchdog_sec</span> <span class="o">=</span> <span class="mi">60</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONFIG_ESP_TASK_WDT_TIMEOUT_S=</span><span class="si">{</span><span class="n">watchdog_sec</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CONFIG_MLONMCU_CODEGEN_DIR=&quot;</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -411,6 +457,8 @@
 <a class="viewcode-back" href="../../../../mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.get_idf_cmake_args">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_idf_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmake_defs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CMAKE_BUILD_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="k">else</span> <span class="s2">&quot;Release&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_cmake_defs</span><span class="p">:</span>
+            <span class="n">cmake_defs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_cmake_defs</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-D</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">cmake_defs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
 
 
@@ -427,6 +475,8 @@
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_idf_cmake_args</span><span class="p">(),</span>
             <span class="s2">&quot;build&quot;</span><span class="p">,</span>
         <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idf_build_extra_args</span><span class="p">:</span>
+            <span class="n">idfArgs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idf_build_extra_args</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_idf_exe</span><span class="p">(</span><span class="o">*</span><span class="n">idfArgs</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 

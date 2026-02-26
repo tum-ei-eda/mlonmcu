@@ -103,6 +103,9 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tflm.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">TFLMFramework</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMFramework</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREEFramework</span>
+
+<span class="c1"># from mlonmcu.flow.none.framework import NoneFramework</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tflm.backend.tflmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">TFLMCBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tflm.backend.tflmi</span><span class="w"> </span><span class="kn">import</span> <span class="n">TFLMIBackend</span>
@@ -113,9 +116,77 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.tvmllvm</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMLLVMBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.tvmrt</span><span class="w"> </span><span class="kn">import</span> <span class="n">TVMRTBackend</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.backend.ireevmvx</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREEVMVXBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.backend.ireevmvx_inline</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREEVMVXInlineBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.backend.ireellvm</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREELLVMBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.backend.ireellvm_inline</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREELLVMInlineBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.backend.ireellvmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREELLVMCBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.iree.backend.ireellvmc_inline</span><span class="w"> </span><span class="kn">import</span> <span class="n">IREELLVMCInlineBackend</span>
+
+<span class="c1"># from mlonmcu.flow.none.backend.none import NoneBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Framework</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+
+
+<div class="viewcode-block" id="NoneFramework">
+<a class="viewcode-back" href="../../mlonmcu.flow.html#mlonmcu.flow.NoneFramework">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoneFramework</span><span class="p">(</span><span class="n">Framework</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TODO.&quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="NoneBackend">
+<a class="viewcode-back" href="../../mlonmcu.flow.html#mlonmcu.flow.NoneBackend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoneBackend</span><span class="p">(</span><span class="n">Backend</span><span class="p">):</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NoneBackend.generate">
+<a class="viewcode-back" href="../../mlonmcu.flow.html#mlonmcu.flow.NoneBackend.generate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="NoneBackend.load_model">
+<a class="viewcode-back" href="../../mlonmcu.flow.html#mlonmcu.flow.NoneBackend.load_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">input_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params_path</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
 <span class="n">SUPPORTED_FRAMEWORKS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;tflm&quot;</span><span class="p">:</span> <span class="n">TFLMFramework</span><span class="p">,</span>
     <span class="s2">&quot;tvm&quot;</span><span class="p">:</span> <span class="n">TVMFramework</span><span class="p">,</span>
+    <span class="s2">&quot;iree&quot;</span><span class="p">:</span> <span class="n">IREEFramework</span><span class="p">,</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="n">NoneFramework</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">SUPPORTED_TFLITE_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
@@ -131,12 +202,36 @@
     <span class="s2">&quot;tvmllvm&quot;</span><span class="p">:</span> <span class="n">TVMLLVMBackend</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">SUPPORTED_IREE_LLVM_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ireellvm&quot;</span><span class="p">:</span> <span class="n">IREELLVMBackend</span><span class="p">,</span>
+    <span class="s2">&quot;ireellvm_inline&quot;</span><span class="p">:</span> <span class="n">IREELLVMInlineBackend</span><span class="p">,</span>
+    <span class="s2">&quot;ireellvmc&quot;</span><span class="p">:</span> <span class="n">IREELLVMCBackend</span><span class="p">,</span>
+    <span class="s2">&quot;ireellvmc_inline&quot;</span><span class="p">:</span> <span class="n">IREELLVMCInlineBackend</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">SUPPORTED_IREE_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ireevmvx&quot;</span><span class="p">:</span> <span class="n">IREEVMVXBackend</span><span class="p">,</span>
+    <span class="s2">&quot;ireevmvx_inline&quot;</span><span class="p">:</span> <span class="n">IREEVMVXInlineBackend</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">SUPPORTED_IREE_LLVM_BACKENDS</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">SUPPORTED_NONE_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="n">NoneBackend</span><span class="p">,</span>
+<span class="p">}</span>
+
 <span class="n">SUPPORTED_FRAMEWORK_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;tflm&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_TFLITE_BACKENDS</span><span class="p">,</span>
     <span class="s2">&quot;tvm&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span>
+    <span class="s2">&quot;iree&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_IREE_BACKENDS</span><span class="p">,</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="n">SUPPORTED_NONE_BACKENDS</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">SUPPORTED_BACKENDS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">SUPPORTED_TFLITE_BACKENDS</span><span class="p">,</span> <span class="o">**</span><span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">}</span>
+<span class="n">SUPPORTED_BACKENDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">SUPPORTED_TFLITE_BACKENDS</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">SUPPORTED_IREE_BACKENDS</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">SUPPORTED_NONE_BACKENDS</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_available_backend_names">

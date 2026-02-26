@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.session.rpc_utils &mdash; ML on MCU 0.9.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=efa42bf3"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.session.rpc_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.session.rpc_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed to the Apache Software Foundation (ASF) under one</span>
+<span class="c1"># or more contributor license agreements.  See the NOTICE file</span>
+<span class="c1"># distributed with this work for additional information</span>
+<span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
+<span class="c1"># to you under the Apache License, Version 2.0 (the</span>
+<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
+<span class="c1"># with the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing,</span>
+<span class="c1"># software distributed under the License is distributed on an</span>
+<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="c1"># KIND, either express or implied.  See the License for the</span>
+<span class="c1"># specific language governing permissions and limitations</span>
+<span class="c1"># under the License.</span>
+<span class="sd">&quot;&quot;&quot;Base definitions for RPC.&quot;&quot;&quot;</span>
+<span class="c1"># pylint: disable=invalid-name</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">errno</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+
+<span class="c1"># from .._ffi.base import py_str</span>
+<div class="viewcode-block" id="py_str">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.py_str">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">py_str</span><span class="p">(</span><span class="n">cstr</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cstr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Magic header for RPC data plane</span>
+<span class="n">RPC_MAGIC</span> <span class="o">=</span> <span class="mh">0xFF271</span>
+<span class="c1"># magic header for RPC tracker(control plane)</span>
+<span class="n">RPC_TRACKER_MAGIC</span> <span class="o">=</span> <span class="mh">0x2F271</span>
+<span class="c1"># sucess response</span>
+<span class="n">RPC_CODE_SUCCESS</span> <span class="o">=</span> <span class="n">RPC_MAGIC</span> <span class="o">+</span> <span class="mi">0</span>
+<span class="c1"># duplicate key in proxy</span>
+<span class="n">RPC_CODE_DUPLICATE</span> <span class="o">=</span> <span class="n">RPC_MAGIC</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="c1"># cannot found matched key in server</span>
+<span class="n">RPC_CODE_MISMATCH</span> <span class="o">=</span> <span class="n">RPC_MAGIC</span> <span class="o">+</span> <span class="mi">2</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;RPCServer&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TrackerCode">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.TrackerCode">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrackerCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration code for the RPC tracker&quot;&quot;&quot;</span>
+
+    <span class="n">FAIL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PING</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">STOP</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">PUT</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">REQUEST</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">UPDATE_INFO</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">SUMMARY</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">GET_PENDING_MATCHKEYS</span> <span class="o">=</span> <span class="mi">7</span></div>
+
+
+
+<span class="n">RPC_SESS_MASK</span> <span class="o">=</span> <span class="mi">128</span>
+
+
+<span class="c1"># Use &quot;127.0.0.1&quot; or &quot;::1&quot; if there is a need to force ip4 or ip6</span>
+<span class="c1"># connection for &quot;localhost&quot;.</span>
+<div class="viewcode-block" id="get_addr_family">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.get_addr_family">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_addr_family</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="n">addr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">addr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">IPPROTO_TCP</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="recvall">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.recvall">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Receive all nbytes from socket.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sock: Socket</span>
+<span class="sd">       The socket</span>
+
+<span class="sd">    nbytes : int</span>
+<span class="sd">       Number of bytes to be received.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">nread</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">nread</span> <span class="o">&lt;</span> <span class="n">nbytes</span><span class="p">:</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">nbytes</span> <span class="o">-</span> <span class="n">nread</span><span class="p">,</span> <span class="mi">1024</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;connection reset&quot;</span><span class="p">)</span>
+        <span class="n">nread</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sendjson">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.sendjson">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sendjson</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;send a python value to remote via json</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sock : Socket</span>
+<span class="sd">        The socket</span>
+
+<span class="sd">    data : object</span>
+<span class="sd">        Python value to be sent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="recvjson">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.recvjson">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recvjson</span><span class="p">(</span><span class="n">sock</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;receive python value from remote via json</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sock : Socket</span>
+<span class="sd">        The socket</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    value : object</span>
+<span class="sd">        The value received.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;i&quot;</span><span class="p">,</span> <span class="n">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">py_str</span><span class="p">(</span><span class="n">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">size</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="random_key">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.random_key">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_key</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a random key</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        The string prefix</span>
+
+<span class="sd">    delimiter : str</span>
+<span class="sd">        The delimiter</span>
+
+<span class="sd">    cmap : dict</span>
+<span class="sd">        Conflict map</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    key : str</span>
+<span class="sd">        The generated random key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">delimiter</span><span class="si">}{</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cmap</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cmap</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">key</span></div>
+
+
+
+<div class="viewcode-block" id="split_random_key">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.split_random_key">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_random_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split a random key by delimiter into prefix and random part</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key : str</span>
+<span class="sd">        The generated random key</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        The string prefix</span>
+
+<span class="sd">    random_part : str</span>
+<span class="sd">        The generated random</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">delimiter</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="connect_with_retry">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.connect_with_retry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">connect_with_retry</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">retry_period</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Connect to a TPC address with retry</span>
+
+<span class="sd">    This function is only reliable to short period of server restart.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    addr : tuple</span>
+<span class="sd">        address tuple</span>
+
+<span class="sd">    timeout : float</span>
+<span class="sd">         Timeout during retry</span>
+
+<span class="sd">    retry_period : float</span>
+<span class="sd">         Number of seconds before we retry again.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tstart</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">get_addr_family</span><span class="p">(</span><span class="n">addr</span><span class="p">),</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+            <span class="n">sock</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sock</span>
+        <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">sock_err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sock_err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ECONNREFUSED</span><span class="p">,):</span>
+                <span class="k">raise</span> <span class="n">sock_err</span>
+            <span class="n">period</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tstart</span>
+            <span class="k">if</span> <span class="n">period</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to connect to server </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot connect to tracker </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="si">}</span><span class="s2">, retry in </span><span class="si">{</span><span class="n">retry_period</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> secs...&quot;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">retry_period</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

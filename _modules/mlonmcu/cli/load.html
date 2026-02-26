@@ -101,6 +101,8 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Command line subcommand for the load stage.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.cli.common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_common_options</span><span class="p">,</span>
     <span class="n">add_context_options</span><span class="p">,</span>
@@ -113,7 +115,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlonMcuContext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_FRONTENDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.lookup</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_modelgroups</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunStage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunStage</span><span class="p">,</span> <span class="n">RunInitializer</span>
 
 
 <div class="viewcode-block" id="add_load_options">
@@ -151,11 +153,20 @@
     <span class="n">config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
     <span class="n">new_config</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">gen_config</span><span class="p">,</span> <span class="n">gen_features</span> <span class="o">=</span> <span class="n">extract_config_and_feature_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_config</span><span class="p">)</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">resume</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">initializers</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">initializer</span>
+    <span class="k">if</span> <span class="n">initializers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">initializer_file</span> <span class="ow">in</span> <span class="n">initializers</span><span class="p">:</span>
+            <span class="n">initializer_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">initializer_file</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+            <span class="n">initializer</span> <span class="o">=</span> <span class="n">RunInitializer</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">initializer_file</span><span class="p">)</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">add_run</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="n">ignore_idx</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">frontends</span> <span class="o">=</span> <span class="n">extract_frontend_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">postprocesses</span> <span class="o">=</span> <span class="n">extract_postprocess_names</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">resume</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dest</span><span class="p">)</span>
     <span class="n">models</span> <span class="o">=</span> <span class="n">apply_modelgroups</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">models</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;_&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">gen_features</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">gen_config</span><span class="p">:</span>
                 <span class="n">all_config</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">config</span><span class="p">,</span> <span class="o">**</span><span class="n">c</span><span class="p">}</span>

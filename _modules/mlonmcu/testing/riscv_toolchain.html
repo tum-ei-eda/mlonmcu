@@ -199,7 +199,7 @@
         <span class="c1"># toolchain = run.platform.toolchain</span>
         <span class="c1"># _check_available_multilibs(user_context, arch, abi,... , toolchain)</span>
         <span class="c1"># assert session.process_runs(until=RunStage.COMPILE, context=user_context)</span>
-    <span class="n">report</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_reports</span><span class="p">()</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_reports</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">artifacts</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">artifacts</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>

@@ -101,7 +101,7 @@
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;Artifacts defintions internally used to refer to intermediate results.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntFlag</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
@@ -111,26 +111,27 @@
 <span class="c1"># TODO: decide if inheritance based scheme would fit better</span>
 
 
+<span class="c1"># class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?</span>
 <div class="viewcode-block" id="ArtifactFormat">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.ArtifactFormat">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ArtifactFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>  <span class="c1"># TODO: ArtifactType, ArtifactKind?</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArtifactFormat</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of artifact types.&quot;&quot;&quot;</span>
 
-    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">SOURCE</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">TEXT</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="n">MLF</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">MODEL</span> <span class="o">=</span> <span class="mi">4</span>
-    <span class="n">IMAGE</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">DATA</span> <span class="o">=</span> <span class="mi">6</span>
-    <span class="n">NUMPY</span> <span class="o">=</span> <span class="mi">7</span>
-    <span class="n">PARAMS</span> <span class="o">=</span> <span class="mi">8</span>
-    <span class="n">JSON</span> <span class="o">=</span> <span class="mi">9</span>  <span class="c1"># TODO: how about YAML or more general: DICT?</span>
-    <span class="n">PATH</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># NOT A DIRECTORY?</span>
-    <span class="n">RAW</span> <span class="o">=</span> <span class="mi">11</span>
-    <span class="n">BIN</span> <span class="o">=</span> <span class="mi">11</span>
-    <span class="n">SHARED_OBJECT</span> <span class="o">=</span> <span class="mi">12</span>  <span class="c1"># Here: the parent tar archive</span>
-    <span class="n">ARCHIVE</span> <span class="o">=</span> <span class="mi">13</span></div>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">SOURCE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">TEXT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">MLF</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">MODEL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">IMAGE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">DATA</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">NUMPY</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">PARAMS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">JSON</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># TODO: how about YAML or more general: DICT?</span>
+    <span class="n">PATH</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># NOT A DIRECTORY?</span>
+    <span class="n">RAW</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">BIN</span> <span class="o">=</span> <span class="n">RAW</span>
+    <span class="n">SHARED_OBJECT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Here: the parent tar archive</span>
+    <span class="n">ARCHIVE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
 
@@ -191,12 +192,37 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">optional</span> <span class="o">=</span> <span class="n">optional</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
 
+<div class="viewcode-block" id="Artifact.serialize">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.serialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;flags&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">),</span>
+            <span class="s2">&quot;archive&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">archive</span><span class="p">,</span>
+            <span class="s2">&quot;optional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
+                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="n">full</span>
+                <span class="k">else</span> <span class="p">{}</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+    <span class="c1"># TODO: unserialize</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Artifact(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, fmt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="si">}</span><span class="s2">, flags=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="si">}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">exported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns true if the artifact was writtem to disk.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns true if the artifact was written to disk.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Artifact.validate">

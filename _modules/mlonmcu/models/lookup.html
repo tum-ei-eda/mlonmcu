@@ -253,9 +253,9 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_cache</span><span class="p">:</span>
         <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">directory</span><span class="p">,)</span>
         <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">in</span> <span class="n">MODELGROUPS_CACHE</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Modelgroup cache hit.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Modelgroup cache hit.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">MODELGROUPS_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Modelgroup cache miss.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Modelgroup cache miss.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not a directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">[]</span>

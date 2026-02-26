@@ -153,6 +153,15 @@
         <span class="n">const</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Which run(s) should be exported (default: all runs of the selected session/latest run id)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">export_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--label&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;LABEL&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Session-labels used to lookup runs&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -181,7 +190,8 @@
         <span class="n">interactive</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">force</span>
         <span class="n">sids</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">session</span>
         <span class="n">rids</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span>
-        <span class="n">context</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">session_ids</span><span class="o">=</span><span class="n">sids</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="n">rids</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span></div>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">label</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">session_ids</span><span class="o">=</span><span class="n">sids</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="n">rids</span><span class="p">,</span> <span class="n">session_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">)</span></div>
 
 </pre></div>
 

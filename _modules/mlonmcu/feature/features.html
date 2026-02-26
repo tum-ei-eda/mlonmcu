@@ -784,10 +784,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;etissdbg&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;etiss.script&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">]}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="k">else</span> <span class="p">{}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.debug_etiss&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
 
@@ -808,8 +808,8 @@
     <span class="c1"># TODO: add callback to save artifact?</span>
     <span class="c1"># def add_target_config(self, target, config, directory=None):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.trace_memory&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">})</span>
         <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">:</span>
             <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
@@ -826,6 +826,8 @@
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
             <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span>
@@ -836,7 +838,7 @@
                 <span class="k">def</span><span class="w"> </span><span class="nf">mem_trace_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">                    </span><span class="sd">&quot;&quot;&quot;Callback which parses collects the generated artifacts.&quot;&quot;&quot;</span>
                     <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;trace.txt&quot;</span>
-                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
                         <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;dBusAccess.csv&quot;</span>
                     <span class="k">assert</span> <span class="n">directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">file_name</span>
@@ -1485,7 +1487,11 @@
 
     <span class="c1"># def add_target_config(self, target, config, directory=None):</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
             <span class="n">spike_args</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ic_enable</span><span class="p">:</span>
@@ -1502,7 +1508,11 @@
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">spike_args</span><span class="p">})</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span>
+        <span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;Unsupported feature &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for target &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">cachesim_callback</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1555,8 +1565,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
             <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span>
@@ -1565,7 +1579,7 @@
         <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;spike&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;spike&quot;</span><span class="p">):</span>
             <span class="n">extra_args_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-l&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
@@ -1574,7 +1588,7 @@
                 <span class="n">log_file</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">/</span> <span class="s2">&quot;instrs.txt&quot;</span>
                 <span class="n">extra_args_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--log=</span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_args&quot;</span><span class="p">:</span> <span class="n">extra_args_new</span><span class="p">})</span>
-        <span class="k">elif</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
             <span class="n">plugins_new</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;plugins&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">plugins_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PrintInstruction&quot;</span><span class="p">)</span>
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.plugins&quot;</span><span class="p">:</span> <span class="n">plugins_new</span><span class="p">})</span>
@@ -1609,8 +1623,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_target_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;spike&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span>
             <span class="s2">&quot;etiss_perf&quot;</span><span class="p">,</span>
             <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span>
             <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span>
@@ -1624,14 +1642,16 @@
 <span class="w">                    </span><span class="sd">&quot;&quot;&quot;Callback which parses the targets output and updates the generated metrics and artifacts.&quot;&quot;&quot;</span>
                     <span class="n">new_lines</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
                             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">etiss_experimental_print_to_file</span><span class="p">:</span>
                                 <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;instr_trace.csv&quot;</span>
+                                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                                    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="c1"># TODO: update stdout and remove log_instrs lines</span>
                                 <span class="n">instrs</span> <span class="o">=</span> <span class="p">[]</span>
                                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
+                                    <span class="k">if</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;etiss_pulpino&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss_perf&quot;</span><span class="p">]:</span>
                                         <span class="n">expr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;0x[a-fA-F0-9]+: .* \[.*\]&quot;</span><span class="p">)</span>
                                     <span class="n">match</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                                     <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1645,7 +1665,7 @@
                             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                                 <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">]</span>
+                            <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;spike&quot;</span><span class="p">,</span> <span class="s2">&quot;spike_rv32&quot;</span><span class="p">,</span> <span class="s2">&quot;spike_rv64&quot;</span><span class="p">,</span> <span class="s2">&quot;ovpsim&quot;</span><span class="p">,</span> <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">]</span>
                             <span class="n">log_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;instrs.txt&quot;</span>
                             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                                 <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -2079,6 +2099,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">target</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="s2">&quot;etiss&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;etiss_rv32&quot;</span><span class="p">,</span>
             <span class="s2">&quot;microtvm_etiss&quot;</span><span class="p">,</span>
             <span class="s2">&quot;corev_ovpsim&quot;</span><span class="p">,</span>
             <span class="s2">&quot;cv32e40p&quot;</span><span class="p">,</span>
@@ -2433,6 +2454,82 @@
             <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.extra_plugin_config&quot;</span><span class="p">:</span> <span class="n">extra_plugin_config</span><span class="p">})</span>
 
 
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;memgraph_llvm_cdfg&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MemgraphLlvmCdfg</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enable LLVM CDFG extraction pass (needs custom LLVM build).&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># localhost</span>
+        <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># 7687</span>
+        <span class="s2">&quot;purge&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># false</span>
+        <span class="s2">&quot;session&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># default,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;memgraph_llvm_cdfg&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">host</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">purge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;purge&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;session&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;MEMGRAPH_LLVM_CDFG&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="s2">&quot;MEMGRAPH_LLVM_CDFG_HOST&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                <span class="s2">&quot;MEMGRAPH_LLVM_CDFG_PORT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+                <span class="s2">&quot;MEMGRAPH_LLVM_CDFG_PURGE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">purge</span><span class="p">,</span>
+                <span class="s2">&quot;MEMGRAPH_LLVM_CDFG_SESSION&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;global_isel&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GlobalIsel</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLVM&#39;s -global-isel=1 mode (replacing ISelDAG)&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">&quot;abort&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># 0: fallback, 1: abort 2: fallback+msg</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;global_isel&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;abort&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;GLOBAL_ISEL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                <span class="s2">&quot;GLOBAL_ISEL_ABORT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;gen_data&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GenData</span><span class="p">(</span><span class="n">FrontendFeature</span><span class="p">):</span>  <span class="c1"># TODO: use custom stage instead of LOAD</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate input data for validation.&quot;&quot;&quot;</span>
@@ -2640,6 +2737,22 @@
     <span class="c1">#     # validate_outputs_postprocess = ValidateOutputsPostprocess(features=[], config=config)</span>
     <span class="c1">#     # return [validate_outputs_postprocess]</span>
     <span class="c1">#     return [&quot;validate_outputs&quot;]</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;llvm_basic_block_sections&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BasicBlockSections</span><span class="p">(</span><span class="n">PlatformFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLVM&#39;s -fbasic-block-sections=labels feature&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;llvm_basic_block_sections&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mlif&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;LLVM_BASIC_BLOCK_SECTIONS&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
 
 <span class="nd">@register_feature</span><span class="p">(</span><span class="s2">&quot;perf_sim&quot;</span><span class="p">)</span>

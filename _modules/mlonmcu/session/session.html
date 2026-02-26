@@ -102,23 +102,23 @@
 <span class="sd">&quot;&quot;&quot;Definition of a MLonMCU Run which represents a set of benchmarks in a session.&quot;&quot;&quot;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">filelock</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">filelock</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">Run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">Run</span><span class="p">,</span> <span class="n">RunInitializer</span><span class="p">,</span> <span class="n">RunResult</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">Report</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.postprocess.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionPostprocess</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunStage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.rpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemoteConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionScheduler</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>  <span class="c1"># TODO: rename to get_mlonmcu_logger</span>
 
@@ -142,6 +142,15 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;report_fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="c1"># &quot;process_pool&quot;: False,</span>
+        <span class="s2">&quot;executor&quot;</span><span class="p">:</span> <span class="s2">&quot;thread_pool&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;use_init_stage&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># &quot;cleanup_runs&quot;: False,</span>
+        <span class="s2">&quot;shuffle&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># TODO: auto</span>
+        <span class="s2">&quot;parallel_jobs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;rpc_tracker&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;rpc_key&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">archived</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -156,6 +165,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">opened_at</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed_at</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archived</span> <span class="o">=</span> <span class="n">archived</span>
@@ -188,15 +198,83 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;get report_fmt property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;report_fmt&quot;</span><span class="p">])</span>
 
+    <span class="c1"># @property</span>
+    <span class="c1"># def process_pool(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;get process_pool property.&quot;&quot;&quot;</span>
+    <span class="c1">#     value = self.config[&quot;process_pool&quot;]</span>
+    <span class="c1">#     return str2bool(value) if not isinstance(value, (bool, int)) else value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">executor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get executor property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;executor&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_init_stage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get use_init_stage property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_init_stage&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get shuffle property.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;shuffle&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">batch_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get batch_size property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parallel_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get parallel_jobs property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;parallel_jobs&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rpc_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get rpc_tracker property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rpc_tracker&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rpc_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;get rpc_key property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;rpc_key&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">needs_initializer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;process_pool&quot;</span><span class="p">,</span> <span class="s2">&quot;cmdline&quot;</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="s2">&quot;rpc&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_init_stage</span>
+
 <div class="viewcode-block" id="Session.create_run">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.create_run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Factory method to create a run and add it to this session.&quot;&quot;&quot;</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating a new run with id </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
-        <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">needs_initializer</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">RunInitializer</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">run</span></div>
+
+
+<div class="viewcode-block" id="Session.add_run">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.add_run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Run</span><span class="p">,</span> <span class="n">RunInitializer</span><span class="p">],</span> <span class="n">ignore_idx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;TODO.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ignore_idx</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">RunInitializer</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">Run</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Importing run with id </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span></div>
 
 
     <span class="c1">#  def update_run(self): # TODO TODO</span>
@@ -204,12 +282,22 @@
 
 <div class="viewcode-block" id="Session.get_reports">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.get_reports">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunResult</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a full report which includes all runs in this session.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span>
 
-        <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Use of session.get_reports without args is deprecated. Please pass list of RunResults!&quot;</span><span class="p">)</span>
+
+            <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">get_report</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">RunInitializer</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The session results are empty&quot;</span><span class="p">)</span>
+            <span class="c1"># TODO: warn if None!</span>
+            <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">get_report</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
         <span class="n">merged</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
         <span class="n">merged</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">reports</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged</span></div>
@@ -222,14 +310,19 @@
         <span class="c1"># Find start index</span>
         <span class="n">max_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">archived</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">RunInitializer</span><span class="p">)</span> <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">archived</span><span class="p">:</span>
                 <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_idx</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
         <span class="n">run_idx</span> <span class="o">=</span> <span class="n">max_idx</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">last_run_idx</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">run</span><span class="o">.</span><span class="n">archived</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">RunInitializer</span><span class="p">):</span>
                 <span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">run_idx</span>
-                <span class="n">run</span><span class="o">.</span><span class="n">init_directory</span><span class="p">()</span>
+                <span class="n">run_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">last_run_idx</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">idx</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">run</span><span class="o">.</span><span class="n">archived</span><span class="p">:</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">run_idx</span>
+                <span class="c1"># run.init_directory(session=self)</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">init_directory</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span><span class="p">)</span>
                 <span class="n">run_idx</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">last_run_idx</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">idx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_run_idx</span> <span class="o">=</span> <span class="n">run_idx</span>
@@ -267,189 +360,46 @@
         <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">noop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a runs in this session until a given stage.&quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: Add configurable callbacks for stage/run complete</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">,</span> <span class="s2">&quot;Session needs to be opened first&quot;</span>
 
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;List of runs is empty&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enumerate_runs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;num_workers can not be &lt; 1&quot;</span>
-        <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># results = []</span>
-        <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">pbar</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Outer progress bar</span>
-        <span class="n">pbar2</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Inner progress bar</span>
-        <span class="n">num_runs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">)</span>
-        <span class="n">num_failures</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">stage_failures</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">worker_run_idx</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">_init_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing...&quot;</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Helper function to initialize a progress bar for the session.&quot;&quot;&quot;</span>
-            <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span>
-                <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span>
-                <span class="n">desc</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
-                <span class="n">ncols</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-                <span class="n">bar_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{l_bar}{bar}</span><span class="s2">| </span><span class="si">{n_fmt}</span><span class="s2">/</span><span class="si">{total_fmt}</span><span class="s2"> [</span><span class="si">{elapsed}</span><span class="s2">s]&quot;</span><span class="p">,</span>
-                <span class="n">leave</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">_update_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Helper function to update the progress bar for the session.&quot;&quot;&quot;</span>
-            <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">_close_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Helper function to close the session progressbar, if available.&quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
-                <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="n">pbar</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Helper function to invoke the run.&quot;&quot;&quot;</span>
-            <span class="n">run</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skip</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="n">export</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">per_stage</span> <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">has_stage</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">)</span> <span class="ow">and</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">:</span>
-                <span class="c1"># run.postprocess()</span>
-                <span class="n">run</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">until</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skip</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="n">export</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                <span class="n">_update_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Helper function to collect all worker threads.&quot;&quot;&quot;</span>
-            <span class="k">nonlocal</span> <span class="n">num_failures</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">workers</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;An exception was thrown by a worker during simulation&quot;</span><span class="p">)</span>
-                <span class="n">run_index</span> <span class="o">=</span> <span class="n">worker_run_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="n">run_index</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">failing</span><span class="p">:</span>
-                    <span class="n">num_failures</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">failed_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">next_stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-                    <span class="k">if</span> <span class="n">failed_stage</span> <span class="ow">in</span> <span class="n">stage_failures</span><span class="p">:</span>
-                        <span class="n">stage_failures</span><span class="p">[</span><span class="n">failed_stage</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_index</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">stage_failures</span><span class="p">[</span><span class="n">failed_stage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">run_index</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                <span class="n">_close_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">results</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">_used_stages</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">until</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Determines the stages which are used by at least one run.&quot;&quot;&quot;</span>
-            <span class="n">used</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">stage_index</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">RunStage</span><span class="o">.</span><span class="n">LOAD</span><span class="p">,</span> <span class="n">until</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]:</span>
-                <span class="n">stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage_index</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">has_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">):</span>
-                    <span class="n">used</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">used</span>
-
-        <span class="n">used_stages</span> <span class="o">=</span> <span class="n">_used_stages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">,</span> <span class="n">until</span><span class="p">)</span>
-        <span class="n">skipped_stages</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">RunStage</span> <span class="k">if</span> <span class="n">stage</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_stages</span><span class="p">]</span>
-
-        <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">per_stage</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">pbar2</span> <span class="o">=</span> <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used_stages</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing stages&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">used_stages</span><span class="p">:</span>
-                    <span class="n">run_stage</span> <span class="o">=</span> <span class="n">RunStage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-                    <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                        <span class="n">pbar</span> <span class="o">=</span> <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Processing stage </span><span class="si">{</span><span class="n">run_stage</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Processing stage </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">run_stage</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">):</span>
-                        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="n">total_threads</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">num_workers</span><span class="p">)</span>
-                            <span class="n">cpu_count</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
-                            <span class="k">if</span> <span class="p">(</span><span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">)</span> <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">compile_platform</span><span class="p">:</span>
-                                <span class="n">total_threads</span> <span class="o">*=</span> <span class="n">run</span><span class="o">.</span><span class="n">compile_platform</span><span class="o">.</span><span class="n">num_threads</span>
-                            <span class="k">if</span> <span class="n">total_threads</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">cpu_count</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">pbar2</span><span class="p">:</span>
-                                    <span class="nb">print</span><span class="p">()</span>
-                                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                    <span class="s2">&quot;The chosen configuration leads to a maximum of </span><span class="si">%d</span><span class="s2"> threads being&quot;</span>
-                                    <span class="o">+</span> <span class="s2">&quot; processed which heavily exceeds the available CPU resources (</span><span class="si">%d</span><span class="s2">).&quot;</span>
-                                    <span class="o">+</span> <span class="s2">&quot; It is recommended to lower the value of &#39;mlif.num_threads&#39;!&quot;</span><span class="p">,</span>
-                                    <span class="n">total_threads</span><span class="p">,</span>
-                                    <span class="n">cpu_count</span><span class="p">,</span>
-                                <span class="p">)</span>
-                        <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">failing</span><span class="p">:</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Skiping stage &#39;</span><span class="si">%s</span><span class="s2">&#39; for failed run&quot;</span><span class="p">,</span> <span class="n">run_stage</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">worker_run_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                            <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">pbar</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">stage</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skipped_stages</span><span class="p">))</span>
-                    <span class="n">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
-                    <span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="n">worker_run_idx</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                        <span class="n">_update_progress</span><span class="p">(</span><span class="n">pbar2</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">_close_progress</span><span class="p">(</span><span class="n">pbar2</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-                    <span class="n">pbar</span> <span class="o">=</span> <span class="n">_init_progress</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing all runs&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Processing all stages&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">total_threads</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">),</span> <span class="n">num_workers</span><span class="p">)</span>
-                        <span class="n">cpu_count</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
-                        <span class="k">if</span> <span class="p">(</span>
-                            <span class="p">(</span><span class="n">until</span> <span class="o">&gt;=</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">COMPILE</span><span class="p">)</span>
-                            <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">compile_platform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                            <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">compile_platform</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span>
-                        <span class="p">):</span>
-                            <span class="n">total_threads</span> <span class="o">*=</span> <span class="p">(</span>
-                                <span class="n">run</span><span class="o">.</span><span class="n">compile_platform</span><span class="o">.</span><span class="n">num_threads</span>
-                            <span class="p">)</span>  <span class="c1"># TODO: This should also be used for non-mlif platforms</span>
-                        <span class="k">if</span> <span class="n">total_threads</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">cpu_count</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">pbar2</span><span class="p">:</span>
-                                <span class="nb">print</span><span class="p">()</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="s2">&quot;The chosen configuration leads to a maximum of </span><span class="si">%d</span><span class="s2"> threads being processed which&quot;</span>
-                                <span class="o">+</span> <span class="s2">&quot; heavily exceeds the available CPU resources (</span><span class="si">%d</span><span class="s2">).&quot;</span>
-                                <span class="o">+</span> <span class="s2">&quot; It is recommended to lower the value of &#39;mlif.num_threads&#39;!&quot;</span><span class="p">,</span>
-                                <span class="n">total_threads</span><span class="p">,</span>
-                                <span class="n">cpu_count</span><span class="p">,</span>
-                            <span class="p">)</span>
-                    <span class="n">worker_run_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                    <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_process</span><span class="p">,</span> <span class="n">pbar</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skipped_stages</span><span class="p">))</span>
-                <span class="n">_join_workers</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">num_failures</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All runs completed successfuly!&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">num_failures</span> <span class="o">==</span> <span class="n">num_runs</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;All runs have failed to complete!&quot;</span><span class="p">)</span>
+        <span class="n">remote_config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_tracker</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">==</span> <span class="s2">&quot;rpc&quot;</span>
+            <span class="n">remote_config</span> <span class="o">=</span> <span class="n">RemoteConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rpc_tracker</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rpc_key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">num_success</span> <span class="o">=</span> <span class="n">num_runs</span> <span class="o">-</span> <span class="n">num_failures</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> out or </span><span class="si">%d</span><span class="s2"> runs completed successfully!&quot;</span><span class="p">,</span> <span class="n">num_success</span><span class="p">,</span> <span class="n">num_runs</span><span class="p">)</span>
-            <span class="n">summary</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">stage</span><span class="si">}</span><span class="s2">: </span><span class="se">\t</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> failed run(s): &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">failed</span><span class="p">])</span>
-                    <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">failed</span> <span class="ow">in</span> <span class="n">stage_failures</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Summary:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">!=</span> <span class="s2">&quot;rpc&quot;</span>
+        <span class="n">scheduler</span> <span class="o">=</span> <span class="n">SessionScheduler</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">,</span>
+            <span class="n">until</span><span class="p">,</span>
+            <span class="n">executor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">,</span>
+            <span class="n">per_stage</span><span class="o">=</span><span class="n">per_stage</span><span class="p">,</span>
+            <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">use_init_stage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_init_stage</span><span class="p">,</span>
+            <span class="n">session</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">parallel_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_jobs</span><span class="p">,</span>
+            <span class="n">remote_config</span><span class="o">=</span><span class="n">remote_config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">noop</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;Skipping processing of runs&quot;</span><span class="p">)</span>
+            <span class="n">scheduler</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
 
-        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reports</span><span class="p">()</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Postprocessing session report&quot;</span><span class="p">)</span>
-        <span class="c1"># Warning: currently we only support one instance of the same type of postprocess,</span>
-        <span class="c1"># also it will be applied to all rows!</span>
-        <span class="n">session_postprocesses</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">postprocesses</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">postprocess</span><span class="p">,</span> <span class="n">SessionPostprocess</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">session_postprocesses</span><span class="p">]:</span>
-                        <span class="n">session_postprocesses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">postprocess</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="n">session_postprocesses</span><span class="p">:</span>
-            <span class="n">artifacts</span> <span class="o">=</span> <span class="n">postprocess</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">artifacts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
-                    <span class="c1"># Postprocess has an artifact: write to disk!</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Writting postprocess artifact to disk: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                    <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">export</span><span class="o">=</span><span class="n">export</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reports</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">scheduler</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="n">report_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;report.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">report_fmt</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">report</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">report_file</span><span class="p">)</span>
         <span class="n">results_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
@@ -460,7 +410,7 @@
         <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Report:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">num_failures</span> <span class="o">==</span> <span class="mi">0</span></div>
+        <span class="k">return</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">num_failures</span> <span class="o">==</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="Session.discard">
@@ -502,7 +452,7 @@
 <div class="viewcode-block" id="Session.open">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.session.Session.open">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open this run.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open this session.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SessionStatus</span><span class="o">.</span><span class="n">OPEN</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">opened_at</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

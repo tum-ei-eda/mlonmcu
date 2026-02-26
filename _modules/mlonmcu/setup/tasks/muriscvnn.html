@@ -149,17 +149,6 @@
     <span class="k">return</span> <span class="kc">True</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_validate_muriscvnn_build</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_validate_muriscvnn</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="n">skip_build</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;muriscvnn.skip_build&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># TODO: str2bool</span>
-    <span class="k">if</span> <span class="n">skip_build</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="kc">True</span>
-
-
 <div class="viewcode-block" id="clone_muriscvnn">
 <a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.muriscvnn.clone_muriscvnn">[docs]</a>
 <span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">])</span>
@@ -185,95 +174,6 @@
         <span class="n">utils</span><span class="o">.</span><span class="n">clone_wrapper</span><span class="p">(</span><span class="n">muriscvnnRepo</span><span class="p">,</span> <span class="n">muriscvnnSrcDir</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">rebuild</span><span class="p">)</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnSrcDir</span>
     <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.inc_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnIncludeDir</span></div>
-
-
-
-<div class="viewcode-block" id="build_muriscvnn">
-<a class="viewcode-back" href="../../../../mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.muriscvnn.build_muriscvnn">[docs]</a>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">needs</span><span class="p">([</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc_rv</span><span class="si">{xlen}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv_gcc_rv</span><span class="si">{xlen}</span><span class="s2">.name&quot;</span><span class="p">])</span>
-<span class="c1"># @Tasks.optional([&quot;riscv_gcc.install_dir&quot;, &quot;riscv_gcc.name&quot;, &quot;arm_gcc.install_dir&quot;])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">optional</span><span class="p">([</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">provides</span><span class="p">([</span><span class="s2">&quot;muriscvnn.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">])</span>
-<span class="c1"># @Tasks.param(&quot;dbg&quot;, [False, True])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;dbg&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">])</span>  <span class="c1"># disable due to bug with vext gcc</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;xlen&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">32</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;toolchain&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;gcc&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="s2">&quot;target_arch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x86&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv&quot;</span><span class="p">])</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">_validate_muriscvnn_build</span><span class="p">)</span>
-<span class="nd">@Tasks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">category</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">OPT</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">build_muriscvnn</span><span class="p">(</span>
-    <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build muRISCV-NN.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">xlen</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;xlen&quot;</span><span class="p">]</span>
-    <span class="n">flags</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span> <span class="s2">&quot;dbg&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span> <span class="s2">&quot;vext&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span> <span class="s2">&quot;pext&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toolchain&quot;</span><span class="p">]),</span>
-        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_arch&quot;</span><span class="p">]),</span>
-    <span class="p">)</span>
-    <span class="n">flags_</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeFlags</span><span class="p">((</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;vext&quot;</span><span class="p">],</span> <span class="s2">&quot;vext&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;pext&quot;</span><span class="p">],</span> <span class="s2">&quot;pext&quot;</span><span class="p">))</span>
-    <span class="n">muriscvnnName</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">makeDirName</span><span class="p">(</span><span class="s2">&quot;muriscvnn&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span>
-    <span class="n">muriscvnnSrcDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.src_dir&quot;</span><span class="p">]</span>
-    <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">)</span>
-    <span class="n">muriscvnnBuildDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span> <span class="o">/</span> <span class="n">muriscvnnName</span>
-    <span class="n">muriscvnnInstallDir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;deps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;install&quot;</span> <span class="o">/</span> <span class="n">muriscvnnName</span>
-    <span class="n">muriscvnnLib</span> <span class="o">=</span> <span class="n">muriscvnnInstallDir</span> <span class="o">/</span> <span class="s2">&quot;libmuriscvnn.a&quot;</span>
-    <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="k">if</span> <span class="s2">&quot;muriscvnn.lib&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>  <span class="c1"># TODO: also check command line flags?</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="n">rebuild</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">muriscvnnBuildDir</span><span class="p">)</span> <span class="ow">and</span> <span class="n">muriscvnnLib</span><span class="o">.</span><span class="n">is_file</span><span class="p">()):</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">muriscvnnBuildDir</span><span class="p">)</span>
-        <span class="n">muriscvnnArgs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">target_arch</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_arch&quot;</span><span class="p">,</span> <span class="s2">&quot;riscv&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">target_arch</span> <span class="o">==</span> <span class="s2">&quot;riscv&quot;</span><span class="p">:</span>
-            <span class="n">gccName</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span> <span class="n">flags_</span><span class="p">]</span>
-            <span class="n">toolchain</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;toolchain&quot;</span><span class="p">,</span> <span class="s2">&quot;gcc&quot;</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">gccName</span> <span class="o">==</span> <span class="s2">&quot;riscv32-unknown-elf&quot;</span> <span class="ow">or</span> <span class="n">toolchain</span> <span class="o">!=</span> <span class="s2">&quot;llvm&quot;</span>
-            <span class="p">),</span> <span class="s2">&quot;muRISCV-NN requires a non-multilib toolchain!&quot;</span>
-            <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{</span><span class="n">xlen</span><span class="si">}</span><span class="s2">.install_dir&quot;</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
-                <span class="n">riscv_gcc</span> <span class="o">=</span> <span class="n">user_vars</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{</span><span class="n">xlen</span><span class="si">}</span><span class="s2">.install_dir&quot;</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">riscv_gcc</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{</span><span class="n">xlen</span><span class="si">}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span> <span class="n">flags_</span><span class="p">]</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DRISCV_GCC_PREFIX=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">riscv_gcc</span><span class="p">))</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DTOOLCHAIN=&quot;</span> <span class="o">+</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toolchain&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
-            <span class="n">vext</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vext&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">pext</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pext&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DUSE_VEXT=&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">vext</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span><span class="p">))</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DUSE_PEXT=&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;ON&quot;</span> <span class="k">if</span> <span class="n">pext</span> <span class="k">else</span> <span class="s2">&quot;OFF&quot;</span><span class="p">))</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DRISCV_GCC_BASENAME=</span><span class="si">{</span><span class="n">gccName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">arch</span> <span class="o">=</span> <span class="s2">&quot;rv32imafdc&quot;</span>
-            <span class="k">if</span> <span class="n">vext</span><span class="p">:</span>
-                <span class="n">arch</span> <span class="o">+=</span> <span class="s2">&quot;v&quot;</span>
-            <span class="k">if</span> <span class="n">pext</span><span class="p">:</span>
-                <span class="n">arch</span> <span class="o">+=</span> <span class="s2">&quot;p&quot;</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-DRISCV_ARCH=</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">target_arch</span> <span class="o">==</span> <span class="s2">&quot;x86&quot;</span><span class="p">:</span>
-            <span class="n">toolchain</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;toolchain&quot;</span><span class="p">,</span> <span class="s2">&quot;gcc&quot;</span><span class="p">)</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DTOOLCHAIN=x86&quot;</span><span class="p">)</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DUSE_VEXT=OFF&quot;</span><span class="p">)</span>
-            <span class="n">muriscvnnArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DUSE_PEXT=OFF&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported target_arch for muriscvnn: </span><span class="si">{</span><span class="n">target_arch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">cmake</span><span class="p">(</span>
-            <span class="n">muriscvnnSrcDir</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">muriscvnnArgs</span><span class="p">,</span>
-            <span class="n">cwd</span><span class="o">=</span><span class="n">muriscvnnBuildDir</span><span class="p">,</span>
-            <span class="n">debug</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dbg&quot;</span><span class="p">],</span>
-            <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
-            <span class="n">cmake_exe</span><span class="o">=</span><span class="n">cmake_exe</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="n">cwd</span><span class="o">=</span><span class="n">muriscvnnBuildDir</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">threads</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">muriscvnnInstallDir</span><span class="p">)</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">muriscvnnBuildDir</span> <span class="o">/</span> <span class="s2">&quot;Source&quot;</span> <span class="o">/</span> <span class="s2">&quot;libmuriscvnn.a&quot;</span><span class="p">,</span> <span class="n">muriscvnnLib</span><span class="p">)</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.build_dir&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnBuildDir</span>
-    <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="s2">&quot;muriscvnn.lib&quot;</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span> <span class="o">=</span> <span class="n">muriscvnnLib</span></div>
 
 </pre></div>
 

@@ -145,6 +145,7 @@
     <span class="p">(</span>
         <span class="s2">&quot;core&quot;</span><span class="p">,</span>
         <span class="p">(</span>
+            <span class="c1"># TODO: keep in sync with requirements.txt inlcuding versions!</span>
             <span class="s2">&quot;Base requirements needed to install MLonMCU&quot;</span><span class="p">,</span>
             <span class="p">[</span>
                 <span class="s2">&quot;GitPython&quot;</span><span class="p">,</span>
@@ -204,6 +205,17 @@
         <span class="p">),</span>
     <span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;gvsoc_pulp&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;Requirements for gvsoc&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;PrettyTable&quot;</span><span class="p">])),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;iree&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Requirements for using iree&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;iree-turbine&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tflite&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
     <span class="c1"># Provide support for microtvm.</span>
     <span class="p">(</span>
         <span class="s2">&quot;microtvm&quot;</span><span class="p">,</span>
@@ -335,7 +347,8 @@
     <span class="p">(</span><span class="s2">&quot;reedsolo&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=1.5.3,&lt;=1.5.4&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;scipy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;synr&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span> <span class="s2">&quot;~=2.13.0&quot;</span><span class="p">),</span>
+    <span class="c1"># (&quot;tensorflow&quot;, &quot;~=2.13.0&quot;),</span>
+    <span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">,</span> <span class="s2">&quot;~=2.18.0&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;tflite&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=2.4.0&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;tornado&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;typing_extensions&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>

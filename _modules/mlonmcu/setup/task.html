@@ -159,6 +159,48 @@
 
 
 
+<div class="viewcode-block" id="get_combs_new">
+<a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.get_combs_new">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_combs_new</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility which returns combinations of the input data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : dict</span>
+<span class="sd">        Input dictionary</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    combs : list</span>
+<span class="sd">        All combinations of the input data.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; get_combs_new({&quot;foo&quot;: [False, True], &quot;bar,baz&quot;: [(5, 123), (10, 456)]})</span>
+<span class="sd">    [{&quot;foo&quot;: False, &quot;bar&quot;: 5, &quot;baz&quot;: 123}, {&quot;foo&quot;: False, &quot;bar&quot;: 10, &quot;baz&quot;: 456},</span>
+<span class="sd">     {&quot;foo&quot;: True, &quot;bar&quot;: 5, &quot;baz&quot;: 123}, {&quot;foo&quot;: True, &quot;bar&quot;: 10, &quot;baz&quot;: 456}]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="c1"># Assertions for grouped parameters</span>
+    <span class="k">for</span> <span class="n">ks</span><span class="p">,</span> <span class="n">vs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Grouped key </span><span class="si">{</span><span class="n">ks</span><span class="si">}</span><span class="s2"> requires tuple values, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Grouped key </span><span class="si">{</span><span class="n">ks</span><span class="si">}</span><span class="s2"> expects </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span><span class="si">}</span><span class="s2"> elements, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">prod</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">prod</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">{</span><span class="n">kk</span><span class="p">:</span> <span class="n">vv</span> <span class="k">for</span> <span class="n">ks</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">val</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">val</span><span class="p">,))}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prod</span>
+    <span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="TaskType">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.task.TaskType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -217,7 +259,7 @@
         <span class="k">for</span> <span class="n">dest</span><span class="p">,</span> <span class="n">deps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">dep</span> <span class="ow">in</span> <span class="n">deps</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">dep</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to resolve dependency &#39;</span><span class="si">{</span><span class="n">dep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to resolve dependency &#39;</span><span class="si">{</span><span class="n">dep</span><span class="si">}</span><span class="s2">&#39; for task </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">providers</span><span class="p">[</span><span class="n">dep</span><span class="p">]</span>
                 <span class="n">edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
                 <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
@@ -442,7 +484,9 @@
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
             <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">rebuild</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="n">combs</span> <span class="o">=</span> <span class="n">get_combs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+                <span class="c1"># combs = get_combs(self.params[name])</span>
+                <span class="n">combs</span> <span class="o">=</span> <span class="n">get_combs_new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;combs&quot;</span><span class="p">,</span> <span class="n">combs</span><span class="p">)</span>
 
                 <span class="k">def</span><span class="w"> </span><span class="nf">get_valid_combs</span><span class="p">(</span><span class="n">combs</span><span class="p">):</span>
                     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>

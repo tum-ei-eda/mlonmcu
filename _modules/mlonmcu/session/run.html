@@ -102,12 +102,15 @@
 <span class="sd">&quot;&quot;&quot;Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options.&quot;&quot;&quot;</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntEnum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
@@ -161,6 +164,261 @@
 
 
 
+<div class="viewcode-block" id="RunInitializer">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunInitializer</span><span class="p">:</span>
+
+<div class="viewcode-block" id="RunInitializer.from_file">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">suffix</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yml&quot;</span><span class="p">,</span> <span class="s2">&quot;yaml&quot;</span><span class="p">]:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported format: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;runs&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;runs&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Empty run initalizer&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;multiple runs per initializer not supported&quot;</span><span class="p">)</span>
+        <span class="n">initializer</span> <span class="o">=</span> <span class="n">RunInitializer</span><span class="p">(</span><span class="o">**</span><span class="n">run</span><span class="p">)</span>
+        <span class="n">initializer</span><span class="o">.</span><span class="n">frozen</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">initializer</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">framework_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frontend_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">backend_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">platform_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">feature_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">postprocess_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># from_stage=None,</span>
+        <span class="c1"># frozen=False,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span> <span class="o">=</span> <span class="n">frontend_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework_name</span> <span class="o">=</span> <span class="n">framework_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span> <span class="o">=</span> <span class="n">backend_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span> <span class="o">=</span> <span class="n">platform_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span> <span class="o">=</span> <span class="n">postprocess_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">target_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">feature_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frozen</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;idx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span>
+                    <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                    <span class="s2">&quot;frontend_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span><span class="p">,</span>
+                    <span class="s2">&quot;framework_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework_name</span><span class="p">,</span>
+                    <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
+                    <span class="s2">&quot;platform_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span><span class="p">,</span>
+                    <span class="s2">&quot;postprocess_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span><span class="p">,</span>
+                    <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+                    <span class="s2">&quot;target_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span><span class="p">,</span>
+                    <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="s2">&quot;feature_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">,</span>
+                    <span class="c1"># not: frozen</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="RunInitializer.save">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serialize</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="k">assert</span> <span class="n">fmt</span>
+            <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yml&quot;</span><span class="p">,</span> <span class="s2">&quot;yaml&quot;</span><span class="p">]:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported format: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.realize">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.realize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">realize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="n">Run</span><span class="p">(</span>
+            <span class="n">idx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_features_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_frontends_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_model_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_platforms_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_backend_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_target_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span><span class="p">:</span>
+            <span class="n">run</span><span class="o">.</span><span class="n">add_postprocesses_by_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">run</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.has_target">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.has_target">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_model_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_model_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_model_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_frontend_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_frontend_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_frontend_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_frontends_by_name</span><span class="p">([</span><span class="n">frontend_name</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_frontends_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_frontends_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_frontends_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frontend_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frontend_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">frontend_names</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_backend_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_backend_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_backend_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend_name</span> <span class="o">=</span> <span class="n">backend_name</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_target_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_target_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_target_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># assert self.target_name is None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_name</span> <span class="o">=</span> <span class="n">target_name</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_platform_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_platform_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_platform_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_platforms_by_name</span><span class="p">([</span><span class="n">platform_name</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_platforms_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_platforms_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_platforms_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">platform_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">platform_names</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_postprocess_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_postprocess_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_postprocess_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">postprocess_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_postprocesses_by_name</span><span class="p">([</span><span class="n">postprocess_name</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_postprocesses_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_postprocesses_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_postprocesses_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">postprocess_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">postprocess_names</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_feature_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_feature_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_feature_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_features_by_name</span><span class="p">([</span><span class="n">feature_name</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.add_features_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_features_by_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_features_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_names</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">feature_names</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RunInitializer.copy">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunInitializer.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new runinitializer based on this instance.&quot;&quot;&quot;</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Run.copy() needs session&quot;</span>
+        <span class="k">if</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">new_idx</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">request_run_idx</span><span class="p">()</span>
+            <span class="n">new</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">new_idx</span>
+            <span class="c1"># self.init_directory()</span>
+        <span class="k">return</span> <span class="n">new</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RunResult">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RunResult</span><span class="p">:</span>
+    <span class="c1"># def __init__(self, run: &quot;Run&quot;, session: &quot;Session&quot;):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="s2">&quot;Run&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">failing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed_stage</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">failed_stage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">reason</span>
+        <span class="c1"># self.report = run.get_report(session=session)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">get_report</span><span class="p">()</span>
+        <span class="c1"># self.artifacts_per_stage = {}</span>
+        <span class="c1"># self.stage = RunStage.NOP  # max executed stage</span>
+        <span class="c1"># self.completed = {stage: stage == RunStage.NOP for stage in RunStage}</span>
+        <span class="c1"># self.directories = {}</span>
+
+<div class="viewcode-block" id="RunResult.get_report">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.RunResult.get_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># TODO: read only?!</span>
+        <span class="c1"># if session is not None:</span>
+        <span class="c1">#     pre = self.report.pre_df</span>
+        <span class="c1">#     pre[&quot;Session&quot;] = session.idx</span>
+        <span class="c1">#     self.report.pre_df = pre</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="Run">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Run</span><span class="p">:</span>
@@ -202,7 +460,6 @@
         <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO: All config combined or explicit run-config?</span>
         <span class="n">postprocesses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">archived</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span>
@@ -213,14 +470,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span> <span class="o">=</span> <span class="n">platforms</span> <span class="k">if</span> <span class="n">platforms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archived</span> <span class="o">=</span> <span class="n">archived</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocesses</span> <span class="o">=</span> <span class="n">postprocesses</span> <span class="k">if</span> <span class="n">postprocesses</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
         <span class="c1"># self.stage = RunStage.NOP  # max executed stage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">completed</span> <span class="o">=</span> <span class="p">{</span><span class="n">stage</span><span class="p">:</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">RunStage</span><span class="o">.</span><span class="n">NOP</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">RunStage</span><span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">directories</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c1"># self.init_directory()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_hints</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="k">else</span> <span class="p">{}</span>
@@ -230,7 +485,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">run_config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_parents</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">failing</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># -&gt; RunStatus</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="kc">None</span>
@@ -238,6 +492,7 @@
         <span class="c1"># self.lock = threading.Lock()  # FIXME: use mutex instead of boolean</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Run.process_features">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.process_features">[docs]</a>
@@ -253,6 +508,12 @@
             <span class="n">feature</span><span class="o">.</span><span class="n">add_run_config</span><span class="p">(</span><span class="n">tmp_run_config</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">run_config</span> <span class="o">=</span> <span class="n">filter_config</span><span class="p">(</span><span class="n">tmp_run_config</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REQUIRED</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span></div>
+
+
+<div class="viewcode-block" id="Run.has_target">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.has_target">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
     <span class="nd">@property</span>
@@ -403,34 +664,43 @@
 
 <div class="viewcode-block" id="Run.init_directory">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.init_directory">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the temporary directory for this run.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">parent</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">parent</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;session argument of run.init_directory is deprecated. Please use parent argument in the future.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">archived</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
-            <span class="c1"># This is not a good idea, but else we would need a mutex/lock on the shared build_dir</span>
-            <span class="c1"># A solution would be to split up the framework runtime libs from the mlif...</span>
-            <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">:</span>  <span class="c1"># TODO: only do this if needed! (not for every platform)</span>
-                <span class="c1"># The stage_subdirs setting is ignored here because platforms can be multi-stage!</span>
-                <span class="c1"># platform.init_directory(path=Path(self.dir) / platform.name)</span>
-                <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">directories</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">platform_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">platform</span><span class="o">.</span><span class="n">name</span>
-                <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">init_directory</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">platform_dir</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="n">platform</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">platform_dir</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># This is not a good idea, but else we would need a mutex/lock on the shared build_dir</span>
+        <span class="c1"># A solution would be to split up the framework runtime libs from the mlif...</span>
+        <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">:</span>  <span class="c1"># TODO: only do this if needed! (not for every platform)</span>
+            <span class="c1"># The stage_subdirs setting is ignored here because platforms can be multi-stage!</span>
+            <span class="c1"># platform.init_directory(path=Path(self.dir) / platform.name)</span>
+            <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">directories</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">platform_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">platform</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">init_directory</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">platform_dir</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="n">platform</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">platform_dir</span></div>
 
-            <span class="c1"># if target not in self.directories:</span>
-            <span class="c1">#     target_dir = Path(self.dir) /target.name</span>
-            <span class="c1">#     if target.init_directory(path=target_dir)</span>
-            <span class="c1">#         self.directories[target.name] = target_dir</span>
+        <span class="c1"># if target not in self.directories:</span>
+        <span class="c1">#     target_dir = Path(self.dir) /target.name</span>
+        <span class="c1">#     if target.init_directory(path=target_dir)</span>
+        <span class="c1">#         self.directories[target.name] = target_dir</span>
 
-            <span class="c1"># TODO: other components</span>
+        <span class="c1"># TODO: other components</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
@@ -445,11 +715,12 @@
 
 <div class="viewcode-block" id="Run.copy">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new run based on this instance.&quot;&quot;&quot;</span>
         <span class="n">new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">:</span>
-            <span class="n">new_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">request_run_idx</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Run.copy() needs session&quot;</span>
+        <span class="k">if</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">new_idx</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">request_run_idx</span><span class="p">()</span>
             <span class="n">new</span><span class="o">.</span><span class="n">idx</span> <span class="o">=</span> <span class="n">new_idx</span>
             <span class="c1"># self.init_directory()</span>
         <span class="k">return</span> <span class="n">new</span></div>
@@ -843,7 +1114,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sub</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">([</span><span class="n">subs</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span> <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">subs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="o">.</span><span class="n">items</span><span class="p">()])),</span> <span class="p">[])</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">([</span><span class="n">subs</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span> <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">subs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts_per_stage</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subs</span><span class="p">])),</span> <span class="p">[]</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span>
 
 <div class="viewcode-block" id="Run.get_all_sub_artifacts">
@@ -1379,8 +1652,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get prefix property.&quot;&quot;&quot;</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># TODO: fix</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] [run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;[run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[session-</span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">] [run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="n">session</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;[run-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="p">)</span>
@@ -1488,7 +1762,7 @@
 
 <div class="viewcode-block" id="Run.get_report">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.get_report">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns teh complete report of this run.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">completed</span><span class="p">[</span><span class="n">RunStage</span><span class="o">.</span><span class="n">POSTPROCESS</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1498,8 +1772,8 @@
         <span class="c1"># TODO: config or args for stuff like (session id) and run id as well as detailed features and configs</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">Report</span><span class="p">()</span>
         <span class="n">pre</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span>
+        <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Session&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">idx</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">pre</span><span class="p">[</span><span class="s2">&quot;Run&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
@@ -1611,11 +1885,170 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">export_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_run_file</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Run.result">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RunResult</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># TODO: session?</span></div>
+
+
+    <span class="c1"># Everything in Run is serializable except PlatformTargets and PlatformBackends...</span>
+    <span class="c1"># def __getstate__(self):</span>
+    <span class="c1">#     state = self.__dict__.copy()</span>
+    <span class="c1">#     print(&quot;state&quot;, state)</span>
+    <span class="c1">#     # Don&#39;t pickle baz</span>
+    <span class="c1">#     # del state[&quot;baz&quot;]</span>
+    <span class="c1">#     # del state[&quot;platforms&quot;]</span>
+    <span class="c1">#     del state[&quot;target&quot;]</span>
+    <span class="c1">#     return state</span>
+
+    <span class="c1"># def __setstate__(self, state):</span>
+    <span class="c1">#     self.__dict__.update(state)</span>
+    <span class="c1">#     # Add baz back since it doesn&#39;t exist in the pickle</span>
+    <span class="c1">#     # self.baz = 0</span>
+
+<div class="viewcode-block" id="Run.save">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+        <span class="c1"># if not isinstance(dest, Path):</span>
+        <span class="c1">#     assert isinstance(dest, str)</span>
+        <span class="c1">#     dest = Path(dest)</span>
+        <span class="c1"># # data = self._serialize()</span>
+        <span class="c1"># if fmt is None:</span>
+        <span class="c1">#     fmt = dest.suffix</span>
+        <span class="c1">#     assert fmt</span>
+        <span class="c1">#     if fmt[0] == &quot;.&quot;:</span>
+        <span class="c1">#         fmt = fmt[1:]</span>
+        <span class="c1"># if fmt.lower() in [&quot;pkl&quot;, &quot;pickle&quot;]:</span>
+        <span class="c1">#     import pickle</span>
+        <span class="c1">#     with open(dest, &quot;wb&quot;) as f:</span>
+        <span class="c1">#         pickle.dump(self, f)</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     raise ValueError(f&quot;Unsupported format: {fmt}&quot;)</span>
+
+<div class="viewcode-block" id="Run.save_artifacts">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.save_artifacts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">fmt</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">dest</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="k">assert</span> <span class="n">fmt</span>
+            <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;pickle&quot;</span><span class="p">]:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;artifacts&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">}</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yml&quot;</span><span class="p">,</span> <span class="s2">&quot;yaml&quot;</span><span class="p">]:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;artifacts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">artifact</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">full</span><span class="o">=</span><span class="n">full</span><span class="p">)</span> <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">]}</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported format: </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Run.cleanup_artifacts">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.cleanup_artifacts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span>
+        <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">ARCHIVE</span><span class="p">]:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Can not cleanup unzipped archives!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">artifact</span><span class="o">.</span><span class="n">exported</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">assert</span> <span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dirs</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Run.cleanup_directories">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.cleanup_directories">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">directories</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">directory</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Run.initializer">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.Run.initializer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initializer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RunInitializer</span><span class="p">(</span>
+            <span class="n">idx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">framework_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">frontend_names</span><span class="o">=</span><span class="p">[</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">],</span>
+            <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">platform_names</span><span class="o">=</span><span class="p">[</span><span class="n">platform</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">],</span>
+            <span class="n">feature_names</span><span class="o">=</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">],</span>
+            <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">},</span>
+            <span class="n">postprocess_names</span><span class="o">=</span><span class="p">[</span><span class="n">postprocess</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">postprocess</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocesses</span><span class="p">],</span>
+            <span class="n">comment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 
 
-<span class="c1"># TODO: implement close()? and use closing contextlib?</span>
+<div class="viewcode-block" id="ArchivedRun">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.ArchivedRun">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArchivedRun</span><span class="p">(</span><span class="n">Run</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">archived</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ArchivedRun.from_file">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.ArchivedRun.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;yaml_data&quot;</span><span class="p">,</span> <span class="n">yaml_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ArchivedRun</span><span class="p">(</span><span class="o">**</span><span class="n">yaml_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArchivedRun.from_dir">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.ArchivedRun.from_dir">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dir</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">allow_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+        <span class="n">run_yaml</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;run.yml&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">run_yaml</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">allow_missing</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Run YAML does not exist: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">ArchivedRun</span><span class="p">()</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="k">return</span> <span class="n">ret</span>
+        <span class="k">return</span> <span class="n">ArchivedRun</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">run_yaml</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArchivedRun.restore">
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.run.ArchivedRun.restore">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
 </pre></div>
 
            </div>

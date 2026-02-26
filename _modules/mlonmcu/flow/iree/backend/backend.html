@@ -1,0 +1,1407 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.iree.backend.backend &mdash; ML on MCU 0.9.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=efa42bf3"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../../flow.html">mlonmcu.flow</a></li>
+      <li class="breadcrumb-item active">mlonmcu.flow.iree.backend.backend</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.flow.iree.backend.backend</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.timeout</span><span class="w"> </span><span class="kn">import</span> <span class="n">exec_timeout</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.elf</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_code_size_from_static_lib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model_info</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_model_info</span><span class="p">,</span>
+    <span class="c1"># get_fallback_model_info,</span>
+    <span class="c1"># get_supported_formats,</span>
+    <span class="n">get_supported_formats_iree</span><span class="p">,</span>
+    <span class="c1"># get_model_format,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">getSizes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+
+<span class="c1"># from mlonmcu.models.model import ModelFormats</span>
+
+<span class="c1"># from .python_utils import prepare_python_environment</span>
+<span class="c1"># from .tvmc_utils import (</span>
+<span class="c1">#     get_target_tvmc_args,</span>
+<span class="c1">#     get_pass_config_tvmc_args,</span>
+<span class="c1">#     get_disabled_pass_tvmc_args,</span>
+<span class="c1">#     get_runtime_executor_tvmc_args,</span>
+<span class="c1">#     get_input_shapes_tvmc_args,</span>
+<span class="c1">#     get_tuning_records_tvmc_args,</span>
+<span class="c1">#     get_desired_layout_args,</span>
+<span class="c1"># )</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="get_iree_compile_hal_backend_target_args">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.get_iree_compile_hal_backend_target_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_iree_compile_hal_backend_target_args</span><span class="p">(</span><span class="n">hal_backend</span><span class="p">,</span> <span class="n">target_details</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">hal_backend</span> <span class="o">!=</span> <span class="s2">&quot;llvm-cpu&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="c1"># value = &quot;true&quot; if value else &quot;false&quot;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-target-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">helper</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">target_details</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+        <span class="p">[],</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_iree_compile_optimization_args">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.get_iree_compile_optimization_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_iree_compile_optimization_args</span><span class="p">(</span>
+    <span class="n">iree_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">opt_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">iree_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;iree.version undefined, assuming v3.3&quot;</span><span class="p">)</span>
+        <span class="n">major</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">minor</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">iree_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">major</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="p">(</span><span class="n">major</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">minor</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="c1"># No unified optimization flags</span>
+        <span class="k">if</span> <span class="n">opt_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;opt_level not supported for IREE version </span><span class="si">{iree_vection}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;--iree-opt-aggressively-propagate-transposes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--iree-dispatch-creation-enable-aggressive-fusion&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--iree-input-demote-i64-to-i32=true&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--iree-stream-resource-index-bits=8&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opt_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;--iree-opt-level=</span><span class="si">{opt_level}</span><span class="s2">&quot;</span><span class="p">,)</span>  <span class="c1"># needs iree 3.3+</span>
+    <span class="c1"># TODO: vm-bytecode only?</span>
+    <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="s2">&quot;--iree-vm-bytecode-module-strip-source-map=true&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--iree-vm-emit-polyglot-zip&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+
+<div class="viewcode-block" id="get_iree_compile_llvmcpu_vectorization_unroll_args">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.get_iree_compile_llvmcpu_vectorization_unroll_args">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_iree_compile_llvmcpu_vectorization_unroll_args</span><span class="p">(</span>
+    <span class="n">hal_backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">target_vector_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_scalable_vector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">loop_unroll</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">hal_backend</span> <span class="o">!=</span> <span class="s2">&quot;llvm-cpu&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">supports_vectorization</span> <span class="o">=</span> <span class="n">target_vector_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">target_vector_width</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">vector_width</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">supports_vectorization</span><span class="p">:</span>
+        <span class="n">vector_width</span> <span class="o">=</span> <span class="n">target_vector_width</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vector_width</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-target-vector-width-in-bytes=</span><span class="si">{</span><span class="n">vector_width</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-slp-vectorization=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">supports_vectorization</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-loop-vectorization=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">supports_vectorization</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-disable-vector-peeling=</span><span class="si">{</span><span class="mi">1</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">supports_vectorization</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="c1"># &quot;--iree-llvmcpu-check-linalg-vectorization=0&quot;,</span>
+        <span class="o">*</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-enable-scalable-vectorization=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">target_scalable_vector</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">target_scalable_vector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">),</span>
+        <span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-fail-on-large-vector=</span><span class="si">{</span><span class="mi">1</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">supports_vectorization</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;--iree-llvmcpu-loop-unrolling=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">loop_unroll</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">loop_unroll</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+
+<div class="viewcode-block" id="generate_iree_wrapper">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.generate_iree_wrapper">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_iree_wrapper</span><span class="p">(</span>
+    <span class="n">model_info</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_emitc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">vmvx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">translated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">):</span>
+    <span class="n">main_func_name</span> <span class="o">=</span> <span class="n">model_info</span><span class="o">.</span><span class="n">main_func_name</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;main_func_name&quot;</span><span class="p">,</span> <span class="n">main_func_name</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">main_func_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="c1"># identifier2 = &quot;module_linked&quot; if translated else f&quot;{main_func_name}_dispatch_0&quot;</span>
+    <span class="n">identifier2</span> <span class="o">=</span> <span class="s2">&quot;model_linked&quot;</span> <span class="k">if</span> <span class="n">translated</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">main_func_name</span><span class="si">}</span><span class="s2">_dispatch_0&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;identifier2&quot;</span><span class="p">,</span> <span class="n">identifier2</span><span class="p">)</span>
+    <span class="n">inSizes</span> <span class="o">=</span> <span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">)</span>
+    <span class="n">outSizes</span> <span class="o">=</span> <span class="n">getSizes</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">)</span>
+    <span class="n">numInputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">)</span>
+    <span class="n">numOutputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">writeTensors</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">):</span>
+        <span class="n">retStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">// Define data for input and output tensors</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">writeTensorsHelper</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">lenTensors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="s2">&quot;out&quot;</span> <span class="k">if</span> <span class="n">out</span> <span class="k">else</span> <span class="s2">&quot;in&quot;</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">put</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_data&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lenTensors</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="s2">&quot;char &quot;</span> <span class="o">+</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;];</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;void* </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">puts[] = </span><span class="se">{{</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;};</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">retStr</span> <span class="o">+=</span> <span class="n">writeTensorsHelper</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">retStr</span>
+
+    <span class="n">tensorBufs</span> <span class="o">=</span> <span class="n">writeTensors</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">getIOSetupCode</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">use_emitc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">lookup_hal_element_type</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;int8&quot;</span><span class="p">:</span> <span class="s2">&quot;IREE_HAL_ELEMENT_TYPE_SINT_8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;int32&quot;</span><span class="p">:</span> <span class="s2">&quot;IREE_HAL_ELEMENT_TYPE_SINT_32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;float32&quot;</span><span class="p">:</span> <span class="s2">&quot;IREE_HAL_ELEMENT_TYPE_FLOAT_32&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">// TODO: setup IO</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">num_inputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">)</span>
+        <span class="n">num_outputs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">in_tensor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">in_tensor</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">]</span>
+            <span class="n">shape_str</span> <span class="o">=</span> <span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">in_tensor</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">hal_element_type</span> <span class="o">=</span> <span class="n">lookup_hal_element_type</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    iree_hal_dim_t shape</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="n">shape_str</span><span class="si">}</span><span class="s2">;  // TODO: fixed size?</span>
+<span class="s2">    iree_hal_buffer_view_t *arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view = NULL;</span>
+<span class="s2">    IREE_RETURN_IF_ERROR(iree_hal_buffer_view_allocate_buffer_copy(</span>
+<span class="s2">        device, iree_hal_device_allocator(device), IREE_ARRAYSIZE(shape</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">), shape</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">        </span><span class="si">{</span><span class="n">hal_element_type</span><span class="si">}</span><span class="s2">, IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR,</span>
+<span class="s2">        (iree_hal_buffer_params_t)</span><span class="se">{{</span>
+<span class="s2">            .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL,</span>
+<span class="s2">            .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,</span>
+<span class="s2">        </span><span class="se">}}</span><span class="s2">,</span>
+<span class="s2">        iree_make_const_byte_span(inputs[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">], sizeof(*inputs[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">])), &amp;arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view));</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_emitc</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  // Setup call inputs with our buffers.</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_list_create(iree_vm_make_undefined_type_def(),</span>
+<span class="s2">                                           /*capacity=*/</span><span class="si">{</span><span class="n">num_inputs</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                                           iree_allocator_system(), &amp;inputs_),</span>
+<span class="s2">                       &quot;can&#39;t allocate input vm list&quot;);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">in_tensor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">use_emitc</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  iree_vm_ref_t arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view_ref = iree_hal_buffer_view_move_ref(arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view);</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_list_push_ref_move(inputs_, &amp;arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view_ref));</span>
+<span class="s2">&quot;&quot;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_runtime_call_inputs_push_back_buffer_view(&amp;call, arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view));</span>
+<span class="s2">  iree_hal_buffer_view_release(arg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_buffer_view);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">use_emitc</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  // Prepare outputs list to accept the results from the invocation.</span>
+<span class="s2">  // The output vm list is allocated statically.</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_list_create(iree_vm_make_undefined_type_def(),</span>
+<span class="s2">                                           /*capacity=*/</span><span class="si">{</span><span class="n">num_outputs</span><span class="si">}</span><span class="s2">,</span>
+<span class="s2">                                           iree_allocator_system(), &amp;outputs_),</span>
+<span class="s2">                       &quot;can&#39;t allocate output vm list&quot;);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="c1"># setupInputsOutputs = getIOSetupCode(model_info.in_tensors, model_info.out_tensors, use_emitc=use_emitc)</span>
+    <span class="n">setupInputsOutputs</span> <span class="o">=</span> <span class="n">getIOSetupCode</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">,</span> <span class="n">use_emitc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">getCopyOutputsCode</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_tensors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  iree_hal_buffer_view_t *ret_buffer_view =</span>
+<span class="s2">      iree_vm_list_get_buffer_view_assign(outputs_, 0);</span>
+<span class="s2">  if (ret_buffer_view == NULL) {</span>
+<span class="s2">    return iree_make_status(IREE_STATUS_NOT_FOUND,</span>
+<span class="s2">                            &quot;can&#39;t find return buffer view&quot;);</span>
+<span class="s2">  }</span>
+<span class="s2">  // printf(&quot;R</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  // Read back the results and ensure we got the right values.</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_device_transfer_d2h(</span>
+<span class="s2">      device, iree_hal_buffer_view_buffer(ret_buffer_view), 0, outputs[0],</span>
+<span class="s2">      sizeof(*outputs[0]), IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT,</span>
+<span class="s2">      iree_infinite_timeout()));</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="n">copyOutputs</span> <span class="o">=</span> <span class="n">getCopyOutputsCode</span><span class="p">(</span><span class="n">model_info</span><span class="o">.</span><span class="n">out_tensors</span><span class="p">)</span>
+
+    <span class="n">wrapper_main</span> <span class="o">=</span> <span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#include &lt;stddef.h&gt;</span>
+
+<span class="sd">#include &quot;iree/base/api.h&quot;</span>
+<span class="sd">#include &quot;iree/hal/api.h&quot;</span>
+<span class="sd">#include &quot;iree/modules/hal/module.h&quot;</span>
+<span class="sd">#include &quot;iree/modules/hal/inline/module.h&quot;</span>
+<span class="sd">#include &quot;iree/modules/hal/loader/module.h&quot;</span>
+<span class="sd">#include &quot;iree/vm/api.h&quot;</span>
+<span class="sd">#include &quot;iree/vm/bytecode/module.h&quot;</span>
+
+<span class="sd">// Initial buffer contents for 4 * 2 = 8.</span>
+<span class="sd">// const int32_t kInt4[] = {4, 4, 4, 4};</span>
+<span class="sd">// const int32_t kInt2[] = {2, 2, 2, 2};</span>
+<span class="sd">// int32_t results[] = {0, 0, 0, 0};</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">tensorBufs</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="s2">// A function to create the HAL device from the different backend targets.</span>
+<span class="s2">// The HAL device is returned based on the implementation, and it must be</span>
+<span class="s2">// released by the caller.</span>
+<span class="s2">extern iree_status_t create_sample_device(</span>
+<span class="s2">    iree_allocator_t host_allocator, iree_hal_device_t** out_device,</span>
+<span class="s2">    iree_hal_executable_loader_t** loader);</span>
+
+<span class="s2">// A function to create the bytecode or C module.</span>
+<span class="s2">extern iree_status_t create_module(iree_vm_instance_t* instance,</span>
+<span class="s2">                                   iree_vm_module_t** out_module);</span>
+
+<span class="s2">// static globals</span>
+<span class="s2">static iree_vm_instance_t *instance = NULL;</span>
+<span class="s2">static iree_hal_device_t *device = NULL;</span>
+<span class="s2">static iree_vm_list_t *outputs_ = NULL;</span>
+<span class="s2">static iree_vm_list_t *inputs_ = NULL;</span>
+<span class="s2">static iree_vm_function_t main_function;</span>
+<span class="s2">static iree_vm_context_t *context = NULL;</span>
+
+<span class="s2">iree_status_t Prepare(void) {</span>
+<span class="s2">  printf(&quot;A</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_instance_create(</span>
+<span class="s2">      IREE_VM_TYPE_CAPACITY_DEFAULT, iree_allocator_system(), &amp;instance));</span>
+<span class="s2">  // IREE_RETURN_IF_ERROR(iree_hal_module_register_all_types(instance));</span>
+<span class="s2">#if defined(BUILD_INLINE_HAL)</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_module_register_inline_types(instance));</span>
+<span class="s2">#elif defined(BUILD_LOADER_HAL)</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_module_register_loader_types(instance));</span>
+<span class="s2">#else</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_module_register_all_types(instance));</span>
+<span class="s2">#endif</span>
+<span class="s2">  printf(&quot;B</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  iree_hal_executable_loader_t* loader = NULL;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(</span>
+<span class="s2">      create_sample_device(iree_allocator_system(), &amp;device, &amp;loader),</span>
+<span class="s2">      &quot;create device&quot;);</span>
+<span class="s2">  printf(&quot;C</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">#if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)</span>
+<span class="s2">  // Create hal_inline_module</span>
+<span class="s2">  iree_vm_module_t* hal_inline_module = NULL;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_inline_module_create(</span>
+<span class="s2">      instance, IREE_HAL_INLINE_MODULE_FLAG_NONE,</span>
+<span class="s2">      iree_hal_module_debug_sink_stdio(stderr),</span>
+<span class="s2">      iree_hal_device_allocator(device), iree_allocator_system(),</span>
+<span class="s2">      &amp;hal_inline_module));</span>
+<span class="s2">#endif</span>
+<span class="s2">  printf(&quot;D</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+
+<span class="s2">  iree_vm_module_t *module = NULL;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(create_module(instance, &amp;module));</span>
+<span class="s2">  printf(&quot;E</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  // iree_vm_module_t *hal_module = NULL;</span>
+<span class="s2">  // IREE_RETURN_IF_ERROR(iree_hal_module_create(</span>
+<span class="s2">  //     instance, /*device_count=*/1, &amp;device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,</span>
+<span class="s2">  //     iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),</span>
+<span class="s2">  //     &amp;hal_module));</span>
+<span class="s2">#if defined(BUILD_INLINE_HAL)</span>
+<span class="s2">  iree_vm_module_t* modules[] = {hal_inline_module, module};</span>
+<span class="s2">#elif defined(BUILD_LOADER_HAL)</span>
+<span class="s2">  // Create hal_loader_module</span>
+<span class="s2">  iree_vm_module_t* hal_loader_module = NULL;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_loader_module_create(</span>
+<span class="s2">      instance, IREE_HAL_MODULE_FLAG_NONE,</span>
+<span class="s2">      /*loader_count=*/1, &amp;loader, iree_allocator_system(),</span>
+<span class="s2">      &amp;hal_loader_module));</span>
+<span class="s2">  iree_vm_module_t* modules[] = {hal_inline_module, hal_loader_module, module};</span>
+<span class="s2">#else</span>
+<span class="s2">  // Create hal_module</span>
+<span class="s2">  iree_vm_module_t* hal_module = NULL;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_hal_module_create(</span>
+<span class="s2">      instance, /*device_count=*/1, &amp;device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,</span>
+<span class="s2">      iree_hal_module_debug_sink_stdio(stderr), iree_allocator_system(),</span>
+<span class="s2">      &amp;hal_module));</span>
+
+<span class="s2">  iree_vm_module_t* modules[] = {hal_module, module};</span>
+<span class="s2">#endif</span>
+<span class="s2">  iree_hal_executable_loader_release(loader);</span>
+<span class="s2">  printf(&quot;F</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  // Allocate a context that will hold the module state across invocations.</span>
+<span class="s2">  // iree_vm_module_t *modules[] = {hal_module, module};</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_context_create_with_modules(</span>
+<span class="s2">      instance, IREE_VM_CONTEXT_FLAG_NONE, IREE_ARRAYSIZE(modules), &amp;modules[0],</span>
+<span class="s2">      iree_allocator_system(), &amp;context));</span>
+<span class="s2">  printf(&quot;G</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+<span class="s2">  // iree_vm_module_release(hal_module);</span>
+<span class="s2">#if defined(BUILD_INLINE_HAL) || defined(BUILD_LOADER_HAL)</span>
+<span class="s2">  iree_vm_module_release(hal_inline_module);</span>
+<span class="s2">#else</span>
+<span class="s2">  iree_vm_module_release(hal_module);</span>
+<span class="s2">#endif</span>
+<span class="s2">  printf(&quot;H</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">#if defined(BUILD_LOADER_HAL)</span>
+<span class="s2">  iree_vm_module_release(hal_loader_module);</span>
+<span class="s2">#endif</span>
+<span class="s2">  iree_vm_module_release(module);</span>
+<span class="s2">  printf(&quot;I</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  // Lookup the entry point function.</span>
+<span class="s2">  // Note that we use the synchronous variant which operates on pure type/shape</span>
+<span class="s2">  // erased buffers.</span>
+<span class="s2">  const char kMainFunctionName[] = </span><span class="se">\&quot;</span><span class="s2">module.&quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">main_func_name</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\&quot;</span><span class="s2">;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_context_resolve_function(</span>
+<span class="s2">      context, iree_make_cstring_view(kMainFunctionName), &amp;main_function));</span>
+<span class="s2">  printf(&quot;J</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  // Allocate buffers in device-local memory so that if the device has an</span>
+<span class="s2">  // independent address space they live on the fast side of the fence.</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">setupInputsOutputs</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  printf(&quot;KLMNOP</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  return iree_ok_status();</span>
+<span class="s2">}</span>
+
+<span class="s2">iree_status_t Run(void) {</span>
+<span class="s2">  // Synchronously invoke the function.</span>
+<span class="s2">  // IREE_RETURN_IF_ERROR(iree_vm_invoke(</span>
+<span class="s2">  iree_status_t status = iree_vm_invoke(</span>
+<span class="s2">      context, main_function, IREE_VM_INVOCATION_FLAG_NONE,</span>
+<span class="s2">      /*policy=*/NULL, inputs_, outputs_, iree_allocator_system());</span>
+<span class="s2">      ///*policy=*/NULL, inputs_, outputs_, iree_allocator_system()));</span>
+<span class="s2">  iree_status_fprint(stdout, status);</span>
+<span class="s2">  // return iree_ok_status();</span>
+<span class="s2">  return status;</span>
+<span class="s2">}</span>
+
+<span class="s2">iree_status_t Cleanup(void) {</span>
+<span class="s2">  printf(&quot;Q</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  // Get the result buffers from the invocation.</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">copyOutputs</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  printf(&quot;S</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+<span class="s2">  // for (iree_host_size_t i = 0; i &lt; IREE_ARRAYSIZE(results); ++i) {</span>
+<span class="s2">  //   if (results[i] != 8) {</span>
+<span class="s2">  //     return iree_make_status(IREE_STATUS_UNKNOWN, &quot;result mismatches&quot;);</span>
+<span class="s2">  //   }</span>
+<span class="s2">  // }</span>
+
+<span class="s2">  // Print statistics (no-op if statistics are not enabled).</span>
+<span class="s2">  iree_hal_allocator_statistics_fprint(stdout,</span>
+<span class="s2">                                       iree_hal_device_allocator(device));</span>
+<span class="s2">  printf(&quot;T</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+
+<span class="s2">  iree_vm_list_release(inputs_);</span>
+<span class="s2">  iree_vm_list_release(outputs_);</span>
+<span class="s2">  iree_hal_device_release(device);</span>
+<span class="s2">  iree_vm_context_release(context);</span>
+<span class="s2">  iree_vm_instance_release(instance);</span>
+<span class="s2">  printf(&quot;U</span><span class="se">\\</span><span class="s2">n&quot;);</span>
+<span class="s2">  return iree_ok_status();</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">epilog</span> <span class="o">=</span> <span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">int IREE_Init()</span>
+<span class="sd">{</span>
+<span class="sd">    iree_status_t status = Prepare();</span>
+<span class="sd">    return !iree_status_is_ok(status);</span>
+<span class="sd">}</span>
+
+<span class="sd">int IREE_Deinit()</span>
+<span class="sd">{</span>
+<span class="sd">    iree_status_t status = Cleanup();</span>
+<span class="sd">    return !iree_status_is_ok(status);</span>
+<span class="sd">}</span>
+
+<span class="sd">void *IREE_GetInputPtr(int index)</span>
+<span class="sd">{</span>
+<span class="sd">    // void *data[] = {&amp;kInt2[0], &amp;kInt4[0]};</span>
+<span class="sd">    // return data[index];</span>
+<span class="sd">    return inputs[index];</span>
+<span class="sd">}</span>
+
+<span class="sd">size_t IREE_GetInputSize(int index)</span>
+<span class="sd">{</span>
+<span class="sd">    // const size_t sizes[] = {16, 16};</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">inSizes</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return sizes[index];</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t IREE_GetNumInputs()</span>
+<span class="s2">{</span>
+<span class="s2">    return &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">numInputs</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;;</span>
+<span class="s2">}</span>
+
+<span class="s2">int IREE_Run()</span>
+<span class="s2">{</span>
+<span class="s2">    iree_status_t status = Run();</span>
+<span class="s2">    return !iree_status_is_ok(status);</span>
+<span class="s2">}</span>
+
+<span class="s2">void *IREE_GetOutputPtr(int index)</span>
+<span class="s2">{</span>
+<span class="s2">    // void *data[] = {&amp;results[0]};</span>
+<span class="s2">    // return data[index];</span>
+<span class="s2">    return outputs[index];</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t IREE_GetOutputSize(int index)</span>
+<span class="s2">{</span>
+<span class="s2">    // const size_t sizes[] = </span><span class="si">{16}</span><span class="s2">;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">outSizes</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    return sizes[index];</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t IREE_GetNumOutputs()</span>
+<span class="s2">{</span>
+<span class="s2">    return &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">numOutputs</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#ifndef IREE_WRAPPER_H</span>
+<span class="s2">#define IREE_WRAPPER_H</span>
+
+<span class="s2">#include &lt;stddef.h&gt;</span>
+
+<span class="s2">int IREE_Init();</span>
+<span class="s2">int IREE_Deinit();</span>
+<span class="s2">void *IREE_GetInputPtr(int index);</span>
+<span class="s2">size_t IREE_GetInputSize(int index);</span>
+<span class="s2">size_t IREE_GetNumInputs();</span>
+<span class="s2">int IREE_Run();</span>
+<span class="s2">void *IREE_GetOutputPtr(int index);</span>
+<span class="s2">size_t IREE_GetOutputSize(int index);</span>
+<span class="s2">size_t IREE_GetNumOutputs();</span>
+
+<span class="s2">#endif  // IREE_WRAPPER_H</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">sync_static</span> <span class="o">=</span> <span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#include &lt;stddef.h&gt;</span>
+
+<span class="sd">#include &quot;iree/base/api.h&quot;</span>
+<span class="sd">#include &quot;iree/hal/api.h&quot;</span>
+<span class="sd">#include &quot;iree/hal/drivers/local_sync/sync_device.h&quot;</span>
+<span class="sd">#include &quot;iree/hal/local/executable_loader.h&quot;</span>
+<span class="sd">#include &quot;iree/hal/local/loaders/static_library_loader.h&quot;</span>
+
+<span class="sd">#include \&quot;&quot;&quot;</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">identifier</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;_static_lib.h</span><span class="se">\&quot;</span>
+
+<span class="s2">iree_status_t create_sample_device(iree_allocator_t host_allocator,</span>
+<span class="s2">                                   iree_hal_device_t **out_device,</span>
+<span class="s2">                                   iree_hal_executable_loader_t** loader) {</span>
+
+<span class="s2">  // Set parameters for the device created in the next step.</span>
+<span class="s2">  iree_hal_sync_device_params_t params;</span>
+<span class="s2">  iree_hal_sync_device_params_initialize(&amp;params);</span>
+
+<span class="s2">  const iree_hal_executable_library_query_fn_t libraries[] = {</span>
+<span class="s2">      &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">identifier2</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;_library_query,</span>
+<span class="s2">  };</span>
+
+<span class="s2">  iree_status_t status = iree_hal_static_library_loader_create(</span>
+<span class="s2">      IREE_ARRAYSIZE(libraries), libraries,</span>
+<span class="s2">      iree_hal_executable_import_provider_null(), host_allocator, loader);</span>
+
+<span class="s2">  // Use the default host allocator for buffer allocations.</span>
+<span class="s2">  iree_string_view_t identifier = iree_make_cstring_view(&quot;local-sync&quot;);</span>
+<span class="s2">  iree_hal_allocator_t* device_allocator = NULL;</span>
+<span class="s2">  if (iree_status_is_ok(status)) {</span>
+<span class="s2">    status = iree_hal_allocator_create_heap(identifier, host_allocator,</span>
+<span class="s2">                                            host_allocator, &amp;device_allocator);</span>
+<span class="s2">  }</span>
+
+<span class="s2">  if (iree_status_is_ok(status)) {</span>
+<span class="s2">    // Create the synchronous device</span>
+<span class="s2">    status = iree_hal_sync_device_create(</span>
+<span class="s2">        identifier, &amp;params, /*loader_count=*/1, loader, device_allocator,</span>
+<span class="s2">        host_allocator, out_device);</span>
+<span class="s2">  }</span>
+
+<span class="s2">  iree_hal_allocator_release(device_allocator);</span>
+<span class="s2">  return status;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">sync_vmvx</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">#include &lt;stddef.h&gt;</span>
+
+<span class="s2">#include &quot;iree/base/api.h&quot;</span>
+<span class="s2">#include &quot;iree/hal/api.h&quot;</span>
+<span class="s2">#include &quot;iree/hal/drivers/local_sync/sync_device.h&quot;</span>
+<span class="s2">#include &quot;iree/hal/local/executable_loader.h&quot;</span>
+<span class="s2">#include &quot;iree/hal/local/loaders/vmvx_module_loader.h&quot;</span>
+
+<span class="s2">iree_status_t create_sample_device(iree_allocator_t host_allocator,</span>
+<span class="s2">                                   iree_hal_device_t** out_device,</span>
+<span class="s2">                                   iree_hal_executable_loader_t** loader) {</span>
+<span class="s2">  // Set parameters for the device created in the next step.</span>
+<span class="s2">  iree_hal_sync_device_params_t params;</span>
+<span class="s2">  iree_hal_sync_device_params_initialize(&amp;params);</span>
+
+<span class="s2">  iree_vm_instance_t* instance = NULL;</span>
+<span class="s2">  IREE_RETURN_IF_ERROR(iree_vm_instance_create(IREE_VM_TYPE_CAPACITY_DEFAULT,</span>
+<span class="s2">                                               host_allocator, &amp;instance));</span>
+
+<span class="s2">  iree_status_t status = iree_hal_vmvx_module_loader_create(</span>
+<span class="s2">      instance, /*user_module_count=*/0, /*user_modules=*/NULL, host_allocator,</span>
+<span class="s2">      loader);</span>
+<span class="s2">  iree_vm_instance_release(instance);</span>
+
+<span class="s2">  // Use the default host allocator for buffer allocations.</span>
+<span class="s2">  iree_string_view_t identifier = iree_make_cstring_view(&quot;local-sync&quot;);</span>
+<span class="s2">  iree_hal_allocator_t* device_allocator = NULL;</span>
+<span class="s2">  if (iree_status_is_ok(status)) {</span>
+<span class="s2">    status = iree_hal_allocator_create_heap(identifier, host_allocator,</span>
+<span class="s2">                                            host_allocator, &amp;device_allocator);</span>
+<span class="s2">  }</span>
+
+<span class="s2">  if (iree_status_is_ok(status)) {</span>
+<span class="s2">    // Create the synchronous device.</span>
+<span class="s2">    status = iree_hal_sync_device_create(</span>
+<span class="s2">        identifier, &amp;params, /*loader_count=*/1, loader, device_allocator,</span>
+<span class="s2">        host_allocator, out_device);</span>
+<span class="s2">  }</span>
+
+<span class="s2">  iree_hal_allocator_release(device_allocator);</span>
+<span class="s2">  return status;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">utils_vmvx</span> <span class="o">=</span> <span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#include &lt;stdio.h&gt;</span>
+
+<span class="sd">#include &quot;iree/vm/bytecode/module.h&quot;</span>
+
+<span class="sd">#include \&quot;&quot;&quot;</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">identifier</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;.h</span><span class="se">\&quot;</span>
+
+<span class="s2">// A function to create a VMVX bytecode module.</span>
+<span class="s2">iree_status_t create_module(iree_vm_instance_t* instance,</span>
+<span class="s2">                            iree_vm_module_t** out_module) {</span>
+<span class="s2">  const struct iree_file_toc_t *module_file_toc = &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">identifier</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;_create();</span>
+<span class="s2">  iree_const_byte_span_t module_data =</span>
+<span class="s2">      iree_make_const_byte_span(module_file_toc-&gt;data, module_file_toc-&gt;size);</span>
+<span class="s2">  return iree_vm_bytecode_module_create(instance, module_data,</span>
+<span class="s2">                                        iree_allocator_null(),</span>
+<span class="s2">                                        iree_allocator_system(), out_module);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">utils_bytecode</span> <span class="o">=</span> <span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#include &lt;stdio.h&gt;</span>
+
+<span class="sd">#include &quot;iree/vm/bytecode/module.h&quot;</span>
+
+<span class="sd">#include \&quot;&quot;&quot;</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">identifier</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;.h</span><span class="se">\&quot;</span>
+
+<span class="s2">// A function to create the bytecode module.</span>
+<span class="s2">iree_status_t create_module(iree_vm_instance_t* instance,</span>
+<span class="s2">                            iree_vm_module_t** out_module) {</span>
+<span class="s2">  const struct iree_file_toc_t *module_file_toc = &quot;&quot;&quot;</span>
+        <span class="o">+</span> <span class="n">identifier</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;_create();</span>
+<span class="s2">  iree_const_byte_span_t module_data =</span>
+<span class="s2">      iree_make_const_byte_span(module_file_toc-&gt;data, module_file_toc-&gt;size);</span>
+<span class="s2">  return iree_vm_bytecode_module_create(</span>
+<span class="s2">      instance, module_data, iree_allocator_null(),</span>
+<span class="s2">      iree_vm_instance_allocator(instance), out_module);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">utils_emitc</span> <span class="o">=</span> <span class="p">(</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#include &lt;stdio.h&gt;</span>
+
+<span class="sd">#include \&quot;&quot;&quot;</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">identifier</span>
+        <span class="o">+</span> <span class="s2">&quot;&quot;&quot;_emitc.h</span><span class="se">\&quot;</span>
+
+<span class="s2">// A function to create the C module.</span>
+<span class="s2">iree_status_t create_module(iree_vm_instance_t* instance,</span>
+<span class="s2">                            iree_vm_module_t** out_module) {</span>
+<span class="s2">  return module_create(instance, iree_vm_instance_allocator(instance),</span>
+<span class="s2">                       out_module);</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">prolog</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">sync</span> <span class="o">=</span> <span class="n">sync_vmvx</span> <span class="k">if</span> <span class="n">vmvx</span> <span class="k">else</span> <span class="n">sync_static</span>
+    <span class="n">wrapper</span> <span class="o">=</span> <span class="n">prolog</span> <span class="o">+</span> <span class="n">wrapper_main</span> <span class="o">+</span> <span class="n">epilog</span>
+    <span class="n">utils_</span> <span class="o">=</span> <span class="n">utils_vmvx</span> <span class="k">if</span> <span class="n">vmvx</span> <span class="k">else</span> <span class="p">(</span><span class="n">utils_emitc</span> <span class="k">if</span> <span class="n">use_emitc</span> <span class="k">else</span> <span class="n">utils_bytecode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">sync</span><span class="p">,</span> <span class="n">utils_</span></div>
+
+
+
+<div class="viewcode-block" id="IREEBackend">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IREEBackend</span><span class="p">(</span><span class="n">Backend</span><span class="p">):</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_cpu&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_triple&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_abi&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_cpu_features&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;iree_compile_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;num_threads&quot;</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
+        <span class="s2">&quot;strip_assertions&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># &quot;iree_version&quot;: None,  # TODO: auto?</span>
+        <span class="s2">&quot;target_vector_width&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;target_scalable_vectorization&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;loop_unroll&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iree.version&quot;</span><span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iree.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;iree.src_dir&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hal_backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hal_inline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="s2">&quot;iree&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span>
+        <span class="k">assert</span> <span class="n">output_format</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vm-bytecode&quot;</span><span class="p">,</span> <span class="s2">&quot;vm-c&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">=</span> <span class="n">output_format</span>
+        <span class="k">assert</span> <span class="n">hal_backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vmvx&quot;</span><span class="p">,</span> <span class="s2">&quot;llvm-cpu&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">=</span> <span class="n">hal_backend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hal_inline</span> <span class="o">=</span> <span class="n">hal_inline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execution_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;llvm-cpu&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_inline</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;vmvx&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">=</span> <span class="s2">&quot;vmvx-inline&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execution_model</span> <span class="o">=</span> <span class="s2">&quot;inline-static&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;llvm-cpu&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">execution_model</span> <span class="o">=</span> <span class="s2">&quot;inline-dynamic&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Actual filename!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_formats</span> <span class="o">=</span> <span class="n">get_supported_formats_iree</span><span class="p">()</span>
+        <span class="c1"># self.supported_formats = [ModelFormats.TFLITE, ModelFormats.MLIR]</span>
+        <span class="c1"># self.supported_formats = [ModelFormats.MLIR]</span>
+
+        <span class="c1"># self.prefix = &quot;default&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def target_device(self):</span>
+    <span class="c1">#     return self.config[&quot;target_device&quot;]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_cpu&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_triple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_triple&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_abi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_abi&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_cpu_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_cpu_features&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># O3, O2,...</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;opt_level&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_compile_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;iree_compile_extra_args&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;iree.install_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_src_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;iree.src_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_compile_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_install_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;iree-compile&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_c_embed_data_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_install_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;iree-c-embed-data&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_tflite_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_src_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;integrations&quot;</span> <span class="o">/</span> <span class="s2">&quot;tensorflow&quot;</span> <span class="o">/</span> <span class="s2">&quot;python_projects&quot;</span> <span class="o">/</span> <span class="s2">&quot;iree_tflite&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_tf_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_src_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;integrations&quot;</span> <span class="o">/</span> <span class="s2">&quot;tensorflow&quot;</span> <span class="o">/</span> <span class="s2">&quot;python_projects&quot;</span> <span class="o">/</span> <span class="s2">&quot;iree_tf&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_threads&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="IREEBackend.prepare_environment">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.prepare_environment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">pythonpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_tflite_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_tf_path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pythonpath</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pythonpath&quot;</span><span class="p">,</span> <span class="n">pythonpath</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pythonpath</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.get_target_details">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.get_target_details">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cpu</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cpu</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_triple</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;triple&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_triple</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_abi</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;abi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_abi</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cpu_features</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cpu_features</span>
+            <span class="c1"># custom_unroll = False  # TODO</span>
+            <span class="n">custom_unroll</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">custom_unroll</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">+=</span> <span class="s2">&quot;,+no-default-unroll&quot;</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;cpu-features&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.get_iree_c_embed_data_args">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.get_iree_c_embed_data_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iree_c_embed_data_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vmfb_in</span><span class="p">,</span> <span class="n">impl_out</span><span class="p">,</span> <span class="n">header_out</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">vmfb_in</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--output_header=</span><span class="si">{</span><span class="n">header_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--output_impl=</span><span class="si">{</span><span class="n">impl_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--identifier=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--flatten&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">strip_assertions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;strip_assertions&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;iree.version&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">value</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_vector_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_vector_width&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_scalable_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_scalable_vectorization&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">loop_unroll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;loop_unroll&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IREEBackend.get_iree_compile_args">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.get_iree_compile_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iree_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">model_path</span><span class="p">):</span>
+        <span class="n">static_lib_path</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">_static_lib.o&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">model_path</span><span class="p">,</span>
+            <span class="c1"># TODO: use true/false</span>
+            <span class="o">*</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--iree-opt-strip-assertions=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strip_assertions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_assertions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">),</span>
+            <span class="o">*</span><span class="n">get_iree_compile_llvmcpu_vectorization_unroll_args</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_vector_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_scalable_vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_unroll</span>
+            <span class="p">),</span>
+            <span class="o">*</span><span class="n">get_iree_compile_optimization_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_version</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">),</span>
+            <span class="sa">f</span><span class="s2">&quot;--output-format=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;--iree-hal-target-backends=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">get_iree_compile_hal_backend_target_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_details</span><span class="p">()),</span>
+            <span class="o">*</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;--iree-execution-model=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">execution_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="c1"># TODO: emitc only?</span>
+            <span class="o">*</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;--iree-hal-target-device=local&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--iree-hal-local-target-device-backends=llvm-cpu&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--iree-vm-target-index-bits=32&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--iree-llvmcpu-link-static&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--iree-llvmcpu-link-embedded=false&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;-iree-llvmcpu-static-library-output-path=</span><span class="si">{</span><span class="n">static_lib_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="c1"># if self.output_format == &quot;vm-c&quot; and self.hal_backend == &quot;llvm-cpu&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;llvm-cpu&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_lib</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">),</span>
+            <span class="o">*</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;--iree-llvmcpu-debug-symbols=false&quot;</span><span class="p">,</span>  <span class="c1"># TODO: expose</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;llvm-cpu&quot;</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">),</span>
+            <span class="c1"># &quot;--iree-stream-partitioning-favor=min-peak-memory&quot;,  # TODO: expose &amp; check</span>
+            <span class="c1"># *get_target_tvmc_args(</span>
+            <span class="c1">#     self.target,</span>
+            <span class="c1">#     extra_targets=self.extra_targets,</span>
+            <span class="c1">#     target_details=self.get_target_details(),</span>
+            <span class="c1">#     extra_target_details=self.extra_target_details,</span>
+            <span class="c1"># ),</span>
+            <span class="c1"># *get_runtime_executor_tvmc_args(self.runtime, self.executor),</span>
+            <span class="c1"># *get_pass_config_tvmc_args(self.pass_config),</span>
+            <span class="c1"># *get_disabled_pass_tvmc_args(self.disabled_passes),</span>
+            <span class="c1"># *get_input_shapes_tvmc_args(self.input_shapes),</span>
+            <span class="c1"># *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records()),</span>
+            <span class="c1"># *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),</span>
+            <span class="c1"># *([&quot;--dump-code&quot;, &quot;,&quot;.join(dump)] if dump is not None and len(dump) &gt; 0 else []),</span>
+            <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_compile_extra_args</span><span class="p">,</span>
+            <span class="c1"># *[&quot;--opt-level&quot;, str(self.opt_level)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)],</span>
+            <span class="c1"># *[&quot;-f&quot;, self.fmt],</span>
+            <span class="c1"># *[&quot;--model-format&quot;, self.model_format],</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">args</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.invoke_iree">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.invoke_iree">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_iree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.invoke_iree_compile">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.invoke_iree_compile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_iree_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iree_compile_args</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">model_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">exec_timeout</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iree_compile_exe</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_compile_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.translate_mlirbc_to_mlir">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.translate_mlirbc_to_mlir">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translate_mlirbc_to_mlir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mlirbc_path</span><span class="p">,</span> <span class="n">mlir_path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">mlirbc_path</span><span class="p">,</span>
+            <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+            <span class="n">mlir_path</span><span class="p">,</span>
+            <span class="s2">&quot;--compile-to&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">exec_timeout</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iree_compile_exe</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_compile_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.invoke_iree_c_embed_data">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.invoke_iree_c_embed_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invoke_iree_c_embed_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vmfb_file</span><span class="p">,</span> <span class="n">impl_file</span><span class="p">,</span> <span class="n">header_file</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iree_c_embed_data_args</span><span class="p">(</span><span class="n">vmfb_file</span><span class="p">,</span> <span class="n">impl_file</span><span class="p">,</span> <span class="n">header_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">exec_timeout</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iree_c_embed_data_exe</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_c_embed_data_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.load_model">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.load_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">input_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params_path</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">params_path</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+        <span class="c1"># TODO: path model class instead of path!</span>
+        <span class="c1"># fmt = self.model.formats[0]</span>
+        <span class="c1"># need_model_info = True</span>
+        <span class="c1"># if input_shapes:</span>
+        <span class="c1">#     self.input_shapes = input_shapes</span>
+        <span class="c1">#     if output_shapes and input_types and output_types:</span>
+        <span class="c1">#         need_model_info = False</span>
+        <span class="c1">#         self.model_format, self.model_info = get_fallback_model_info(</span>
+        <span class="c1">#             model, input_shapes, output_shapes, input_types, output_types, backend_name=self.name</span>
+        <span class="c1">#         )</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     self.input_shapes = None  # Relevant for multiple subs using the same backend</span>
+        <span class="c1"># if need_model_info:</span>
+        <span class="c1">#     try:</span>
+        <span class="c1">#         self.model_format, self.model_info = get_model_info(model, backend_name=self.name)</span>
+        <span class="c1">#     except Exception as e:</span>
+        <span class="c1">#         self.model_format = get_model_format(model)</span>
+        <span class="c1">#         if self.model_format != &quot;relay&quot;:</span>
+        <span class="c1">#             logger.warning(</span>
+        <span class="c1">#                 &quot;Fetching of Model Info failed (%s). Falling back to Relay-based info.&quot;, type(e).__name__</span>
+        <span class="c1">#             )</span>
+        <span class="c1">#             self.model_info = None</span>
+        <span class="c1">#         else:</span>
+        <span class="c1">#             raise e</span>
+
+        <span class="c1">#     if self.model_info:</span>
+        <span class="c1">#         # TODO: also handle output_shapes</span>
+        <span class="c1">#         # TODO: take care of refresh_model_info</span>
+        <span class="c1">#         if self.input_shapes:</span>
+        <span class="c1">#             self.model_info.in_tensors = [t for t in self.model_info.in_tensors</span>
+        <span class="c1">#                                               if t.name in self.input_shapes]</span>
+        <span class="c1">#             assert (</span>
+        <span class="c1">#                 len(self.model_info.in_tensors) &gt; 0</span>
+        <span class="c1">#             ), &quot;Missmatch between provided input names and detected ones&quot;</span>
+        <span class="c1">#         else:</span>
+        <span class="c1">#             self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}</span>
+        <span class="c1"># if self.model_info:</span>
+        <span class="c1">#     self.model_info.validate()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_emitc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;vm-c&quot;</span>
+
+<div class="viewcode-block" id="IREEBackend.generate">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.generate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+            <span class="n">model_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span>
+            <span class="n">translated</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">!=</span> <span class="s2">&quot;mlir&quot;</span><span class="p">:</span>
+                <span class="n">translated</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">mlirbc_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.mlirbc&quot;</span>
+                <span class="n">mlir_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.mlir&quot;</span>
+                <span class="n">needs_mlirbc2mlir</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">&quot;tflite&quot;</span><span class="p">:</span>
+                    <span class="n">iree_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iree_version</span>
+                    <span class="c1"># TODO: move to utils</span>
+                    <span class="k">if</span> <span class="n">iree_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;iree.version undefined, assuming v3.3&quot;</span><span class="p">)</span>
+                        <span class="n">major</span> <span class="o">=</span> <span class="mi">3</span>
+                        <span class="n">minor</span> <span class="o">=</span> <span class="mi">3</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">iree_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">major</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">minor</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;TFLite (TOSA) importer unsupported for iree.version &gt; 3.1&quot;</span><span class="p">)</span>
+                    <span class="n">python_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;iree.tools.tflite.scripts.iree_import_tflite&quot;</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">mlirbc_path</span><span class="p">]</span>
+                    <span class="n">needs_mlirbc2mlir</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">&quot;onnx&quot;</span><span class="p">:</span>
+                    <span class="c1"># opset_version = 17</span>
+                    <span class="n">opset_version</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">python_args</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                        <span class="c1"># &quot;iree.tools.onnx.scripts.iree_import_onnx&quot;,</span>
+                        <span class="s2">&quot;iree.compiler.tools.import_onnx&quot;</span><span class="p">,</span>
+                        <span class="n">model_path</span><span class="p">,</span>
+                        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+                        <span class="n">mlir_path</span><span class="p">,</span>
+                        <span class="o">*</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;--opset-version=</span><span class="si">{</span><span class="n">opset_version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">opset_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+                    <span class="p">]</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;saved_model&quot;</span><span class="p">,</span> <span class="s2">&quot;pb&quot;</span><span class="p">]:</span>
+                    <span class="n">python_args</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;iree.tools.tf.scripts.iree_import_tf&quot;</span><span class="p">,</span>
+                        <span class="n">model_path</span><span class="p">,</span>
+                        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+                        <span class="n">mlir_path</span><span class="p">,</span>
+                        <span class="s2">&quot;--tf-import-type=savedmodel_v1&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;--tf-savedmodel-exported-names=predict&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unhandled format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="o">*</span><span class="n">python_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">(),</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">needs_mlirbc2mlir</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">translate_mlirbc_to_mlir</span><span class="p">(</span><span class="n">mlirbc_path</span><span class="p">,</span> <span class="n">mlir_path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+                <span class="n">model_format</span><span class="p">,</span> <span class="n">model_info</span> <span class="o">=</span> <span class="n">get_model_info</span><span class="p">(</span><span class="n">mlir_path</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">model_format</span> <span class="o">==</span> <span class="s2">&quot;mlir&quot;</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlir_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">mlir_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">mlir_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="n">mlir_content</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">needs_mlirbc2mlir</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlirbc_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">mlirbc_raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Artifact</span><span class="p">(</span>
+                            <span class="n">mlirbc_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">raw</span><span class="o">=</span><span class="n">mlirbc_raw</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="c1"># model_path = mlirbc_path</span>
+                <span class="n">model_path</span> <span class="o">=</span> <span class="n">mlir_path</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;vm-bytecode&quot;</span><span class="p">:</span>
+                <span class="n">out_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.vmfb&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;vm-c&quot;</span><span class="p">:</span>
+                <span class="n">out_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">_emitc.h&quot;</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree_compile</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;llvm-cpu&quot;</span><span class="p">:</span>
+                <span class="n">static_lib_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">_static_lib.o&quot;</span>
+                <span class="n">header_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">_static_lib.h&quot;</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">static_lib_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">static_lib_raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">header_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">header_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">kernels_code_size</span> <span class="o">=</span> <span class="n">get_code_size_from_static_lib</span><span class="p">(</span><span class="n">static_lib_path</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Kernels Size&quot;</span><span class="p">,</span> <span class="n">kernels_code_size</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">static_lib_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">raw</span><span class="o">=</span><span class="n">static_lib_raw</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">header_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="n">header_content</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;vm-c&quot;</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">emitc_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Artifact</span><span class="p">(</span>
+                            <span class="n">out_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">content</span><span class="o">=</span><span class="n">emitc_content</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="c1"># elif self.output_format == &quot;vm-bytecode&quot;:</span>
+            <span class="c1"># elif self.hal_backend in [&quot;vmvx&quot;, &quot;vmvx-inline&quot;]:</span>
+            <span class="c1">#     assert self.output_format == &quot;vm-bytecode&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;vm-bytecode&quot;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">out_raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">out_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">raw</span><span class="o">=</span><span class="n">out_raw</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">impl_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.c&quot;</span>
+                <span class="n">header_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.h&quot;</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_iree_c_embed_data</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">impl_path</span><span class="p">,</span> <span class="n">header_path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">impl_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">impl_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">header_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">header_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">impl_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="n">impl_content</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">header_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="n">header_content</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">wrapper_content</span><span class="p">,</span> <span class="n">wrapper_header_content</span><span class="p">,</span> <span class="n">sync_content</span><span class="p">,</span> <span class="n">utils_content</span> <span class="o">=</span> <span class="n">generate_iree_wrapper</span><span class="p">(</span>
+                <span class="n">model_info</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+                <span class="n">use_emitc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_emitc</span><span class="p">,</span>
+                <span class="n">vmvx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vmvx&quot;</span><span class="p">,</span> <span class="s2">&quot;vmvx-inline&quot;</span><span class="p">],</span>
+                <span class="n">translated</span><span class="o">=</span><span class="n">translated</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">&quot;iree_wrapper.c&quot;</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">wrapper_content</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">_utils.c&quot;</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">utils_content</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">&quot;iree_wrapper.h&quot;</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">wrapper_header_content</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="c1"># if not self.use_emitc:</span>
+            <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="s2">&quot;device_sync.c&quot;</span><span class="p">,</span>
+                        <span class="n">content</span><span class="o">=</span><span class="n">sync_content</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="c1"># artifacts.append(</span>
+            <span class="c1">#     Artifact(</span>
+            <span class="c1">#         f&quot;{self.prefix}.params&quot;,</span>
+            <span class="c1">#         raw=params,</span>
+            <span class="c1">#         fmt=ArtifactFormat.RAW,</span>
+            <span class="c1">#     )</span>
+            <span class="c1"># )</span>
+            <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                <span class="s2">&quot;iree_compile_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+            <span class="p">)</span>  <span class="c1"># TODO: rename to tvmaot_out.log?</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;artifacts&quot;</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">metrics</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="IREEBackend.get_platform_defs">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.IREEBackend.get_platform_defs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;IREE_EMITC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_emitc</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_inline</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;llvm-cpu&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;IREE_LOADER_HAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;vmvx&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;IREE_VMVX&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">hal_backend</span> <span class="o">==</span> <span class="s2">&quot;vmvx-inline&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;IREE_INLINE_HAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

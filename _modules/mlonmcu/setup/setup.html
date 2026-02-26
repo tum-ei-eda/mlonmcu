@@ -419,6 +419,12 @@
                         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;add dependencies for tflite visualization&quot;</span><span class="p">)</span>
                     <span class="k">break</span>
+            <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">config_pools</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;iree&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">requirements</span><span class="p">[</span><span class="s2">&quot;iree&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;add dependencies for iree&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished generating requirements_addition.txt&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 </div>

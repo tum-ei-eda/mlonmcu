@@ -156,8 +156,10 @@
             <span class="n">out_interface</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">encoding</span> <span class="o">=</span> <span class="s2">&quot;utf-8&quot;</span>
-            <span class="n">model_info_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">model_info_file</span>  <span class="c1"># TODO: replace workaround (add model info to platform?)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">set_inputs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">:</span>
+                <span class="n">model_info_file</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">model_info_file</span>
+                <span class="p">)</span>  <span class="c1"># TODO: replace workaround (add model info to platform?)</span>
                 <span class="c1"># first figure out how many inputs are provided</span>
                 <span class="k">if</span> <span class="n">model_info_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>

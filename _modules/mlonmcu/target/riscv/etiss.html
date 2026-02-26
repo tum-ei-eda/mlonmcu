@@ -117,13 +117,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.bench</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_bench_metrics</span>
 
-<span class="c1"># from .riscv import RISCVTarget</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.riscv_vext_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">RVVTarget</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
-<span class="c1"># class EtissTarget(RISCVTarget):</span>
 <div class="viewcode-block" id="EtissTarget">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EtissTarget</span><span class="p">(</span><span class="n">RVVTarget</span><span class="p">):</span>
@@ -154,6 +152,8 @@
         <span class="s2">&quot;rom_size&quot;</span><span class="p">:</span> <span class="mh">0x800000</span><span class="p">,</span>  <span class="c1"># 8 MB</span>
         <span class="s2">&quot;ram_start&quot;</span><span class="p">:</span> <span class="mh">0x1000000</span> <span class="o">+</span> <span class="mh">0x800000</span><span class="p">,</span>
         <span class="s2">&quot;ram_size&quot;</span><span class="p">:</span> <span class="mh">0x4000000</span><span class="p">,</span>  <span class="c1"># 64 MB</span>
+        <span class="s2">&quot;flash_start&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;flash_size&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;cycle_time_ps&quot;</span><span class="p">:</span> <span class="mi">31250</span><span class="p">,</span>  <span class="c1"># 32 MHz</span>
         <span class="s2">&quot;enable_pext&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;pext_spec&quot;</span><span class="p">:</span> <span class="mf">0.96</span><span class="p">,</span>
@@ -186,8 +186,8 @@
         <span class="s2">&quot;fclk&quot;</span><span class="p">:</span> <span class="mf">100e6</span><span class="p">,</span>
         <span class="s2">&quot;use_stats_file&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;etiss.src_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.install_dir&quot;</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;boost.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etiss.script&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.exe&quot;</span><span class="p">,</span> <span class="s2">&quot;etissvp.script&quot;</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;etiss&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
@@ -204,11 +204,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">etiss_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.script&quot;</span><span class="p">]</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etiss.script&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Fallback to old name:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.script&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Missing dependency etiss.script/etissvp.script&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">etiss_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.exe&quot;</span><span class="p">]</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etiss.exe&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Fallback to old name:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;etissvp.exe&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Missing dependency etiss.exe/etissvp.exe&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">boost_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -289,6 +297,20 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ram_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;ram_size&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flash_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;flash_start&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flash_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;flash_size&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
@@ -551,6 +573,8 @@
             <span class="s2">&quot;simple_mem_system.memseg_length_00&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_size</span><span class="p">,</span>
             <span class="s2">&quot;simple_mem_system.memseg_origin_01&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_start</span><span class="p">,</span>
             <span class="s2">&quot;simple_mem_system.memseg_length_01&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">&quot;simple_mem_system.memseg_origin_02&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_start</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">&quot;simple_mem_system.memseg_length_02&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_size</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
             <span class="s2">&quot;arch.cpu_cycle_time_ps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_time_ps</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_block_size</span><span class="p">:</span>
@@ -854,71 +878,73 @@
                 <span class="k">if</span> <span class="n">cycles</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Runtime [s]&quot;</span><span class="p">,</span> <span class="n">cycles</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fclk</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">get_metrics_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">elf</span><span class="p">]</span>
         <span class="n">etiss_ini</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;custom.ini&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">):</span>
-            <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--ini&quot;</span><span class="p">,</span> <span class="n">etiss_ini</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">trace_file</span><span class="p">:</span>
-            <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--trace&quot;</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">])</span>
-        <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">metrics_file</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">+=</span> <span class="n">execute</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-                <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span>
-                <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span>
-                <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="n">needs_get_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span>
+        <span class="k">if</span> <span class="n">needs_get_metrics</span><span class="p">:</span>
+            <span class="n">get_metrics_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">elf</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">):</span>
+                <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--ini&quot;</span><span class="p">,</span> <span class="n">etiss_ini</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">trace_file</span><span class="p">:</span>
+                <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--trace&quot;</span><span class="p">,</span> <span class="n">trace_file</span><span class="p">])</span>
+            <span class="n">get_metrics_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="n">metrics_file</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="n">execute</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">metrics_script</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+                    <span class="o">*</span><span class="n">get_metrics_args</span><span class="p">,</span>
+                    <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span>
+                    <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="n">metrics_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;metrics.csv&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-            <span class="n">metrics_content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">metrics_content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
-            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">metrics_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;metrics.csv&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">metrics_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">metrics_content</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">metrics_content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+                <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="k">def</span><span class="w"> </span><span class="nf">get_rom_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="s2">&quot;rom_rodata&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                <span class="n">rom_ro</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rom_rodata&quot;</span><span class="p">])</span>
-                <span class="k">assert</span> <span class="s2">&quot;rom_code&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                <span class="n">rom_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rom_code&quot;</span><span class="p">])</span>
-                <span class="k">assert</span> <span class="s2">&quot;rom_misc&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                <span class="n">rom_misc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rom_misc&quot;</span><span class="p">])</span>
+                <span class="c1"># def get_rom_sizes(data):</span>
+                <span class="c1">#     assert &quot;rom_rodata&quot; in data</span>
+                <span class="c1">#     rom_ro = int(data[&quot;rom_rodata&quot;])</span>
+                <span class="c1">#     assert &quot;rom_code&quot; in data</span>
+                <span class="c1">#     rom_code = int(data[&quot;rom_code&quot;])</span>
+                <span class="c1">#     assert &quot;rom_misc&quot; in data</span>
+                <span class="c1">#     rom_misc = int(data[&quot;rom_misc&quot;])</span>
 
-                <span class="n">rom_total</span> <span class="o">=</span> <span class="n">rom_ro</span> <span class="o">+</span> <span class="n">rom_code</span> <span class="o">+</span> <span class="n">rom_misc</span>
-                <span class="k">return</span> <span class="n">rom_total</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">,</span> <span class="n">rom_misc</span>
+                <span class="c1">#     rom_total = rom_ro + rom_code + rom_misc</span>
+                <span class="c1">#     return rom_total, rom_ro, rom_code, rom_misc</span>
 
-            <span class="k">def</span><span class="w"> </span><span class="nf">get_ram_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="s2">&quot;ram_data&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                <span class="n">ram_data</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_data&quot;</span><span class="p">])</span>
-                <span class="k">assert</span> <span class="s2">&quot;ram_zdata&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                <span class="n">ram_zdata</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_zdata&quot;</span><span class="p">])</span>
-                <span class="n">ram_total</span> <span class="o">=</span> <span class="n">ram_data</span> <span class="o">+</span> <span class="n">ram_zdata</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">get_ram_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                    <span class="k">assert</span> <span class="s2">&quot;ram_data&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                    <span class="n">ram_data</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_data&quot;</span><span class="p">])</span>
+                    <span class="k">assert</span> <span class="s2">&quot;ram_zdata&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                    <span class="n">ram_zdata</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_zdata&quot;</span><span class="p">])</span>
+                    <span class="n">ram_total</span> <span class="o">=</span> <span class="n">ram_data</span> <span class="o">+</span> <span class="n">ram_zdata</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="s2">&quot;ram_stack&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                        <span class="n">ram_stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_stack&quot;</span><span class="p">])</span>
+                        <span class="k">assert</span> <span class="s2">&quot;ram_heap&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                        <span class="n">ram_heap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_heap&quot;</span><span class="p">])</span>
+                        <span class="n">ram_total</span> <span class="o">+=</span> <span class="n">ram_stack</span> <span class="o">+</span> <span class="n">ram_heap</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ram_stack</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="n">ram_heap</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">return</span> <span class="n">ram_total</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">,</span> <span class="n">ram_heap</span>
+
+                <span class="c1"># rom_total, rom_ro, rom_code, rom_misc = get_rom_sizes(data)</span>
+                <span class="n">ram_total</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">,</span> <span class="n">ram_heap</span> <span class="o">=</span> <span class="n">get_ram_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="c1"># metrics.add(&quot;Total ROM&quot;, rom_total)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total RAM&quot;</span><span class="p">,</span> <span class="n">ram_total</span><span class="p">)</span>
+                <span class="c1"># metrics.add(&quot;ROM read-only&quot;, rom_ro)</span>
+                <span class="c1"># metrics.add(&quot;ROM code&quot;, rom_code)</span>
+                <span class="c1"># metrics.add(&quot;ROM misc&quot;, rom_misc)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM data&quot;</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM zero-init data&quot;</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="s2">&quot;ram_stack&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                    <span class="n">ram_stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_stack&quot;</span><span class="p">])</span>
-                    <span class="k">assert</span> <span class="s2">&quot;ram_heap&quot;</span> <span class="ow">in</span> <span class="n">data</span>
-                    <span class="n">ram_heap</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ram_heap&quot;</span><span class="p">])</span>
-                    <span class="n">ram_total</span> <span class="o">+=</span> <span class="n">ram_stack</span> <span class="o">+</span> <span class="n">ram_heap</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ram_stack</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="n">ram_heap</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">return</span> <span class="n">ram_total</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">,</span> <span class="n">ram_heap</span>
-
-            <span class="n">rom_total</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">,</span> <span class="n">rom_misc</span> <span class="o">=</span> <span class="n">get_rom_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">ram_total</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">,</span> <span class="n">ram_heap</span> <span class="o">=</span> <span class="n">get_ram_sizes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total ROM&quot;</span><span class="p">,</span> <span class="n">rom_total</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Total RAM&quot;</span><span class="p">,</span> <span class="n">ram_total</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM read-only&quot;</span><span class="p">,</span> <span class="n">rom_ro</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM code&quot;</span><span class="p">,</span> <span class="n">rom_code</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;ROM misc&quot;</span><span class="p">,</span> <span class="n">rom_misc</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM data&quot;</span><span class="p">,</span> <span class="n">ram_data</span><span class="p">)</span>
-            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM zero-init data&quot;</span><span class="p">,</span> <span class="n">ram_zdata</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_memory</span><span class="p">:</span>
-                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM stack&quot;</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">)</span>
-                <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM heap&quot;</span><span class="p">,</span> <span class="n">ram_heap</span><span class="p">)</span>
+                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM stack&quot;</span><span class="p">,</span> <span class="n">ram_stack</span><span class="p">)</span>
+                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;RAM heap&quot;</span><span class="p">,</span> <span class="n">ram_heap</span><span class="p">)</span>
 
         <span class="n">ini_content</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">etiss_ini</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ini_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;custom.ini&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">ini_content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
@@ -945,6 +971,10 @@
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_ROM_LENGTH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rom_size</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_RAM_ORIGIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_start</span>
         <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_RAM_LENGTH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ram_size</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_FLASH_ORIGIN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_start</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;MEM_FLASH_LENGTH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flash_size</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 

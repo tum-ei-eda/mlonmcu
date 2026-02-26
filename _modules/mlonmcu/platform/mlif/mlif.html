@@ -145,8 +145,13 @@
             <span class="s2">&quot;auto_vectorize&quot;</span><span class="p">,</span>
             <span class="s2">&quot;benchmark&quot;</span><span class="p">,</span>
             <span class="s2">&quot;xpulp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;memgraph_llvm_cdfg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;llvm_basic_block_sections&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;global_isel&quot;</span><span class="p">,</span>
             <span class="s2">&quot;set_inputs&quot;</span><span class="p">,</span>
             <span class="s2">&quot;get_outputs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;memgraph_llvm_cdfg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;global_isel&quot;</span><span class="p">,</span>
         <span class="p">}</span>  <span class="c1"># TODO: allow Feature-Features with automatic resolution of initialization order</span>
     <span class="p">)</span>
 
@@ -188,10 +193,11 @@
         <span class="s2">&quot;global_isel&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;extend_attrs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;ccache&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;custom_entry&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mlif.src_dir&quot;</span><span class="p">}</span>
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;cmake.exe&quot;</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;iree.install_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;cmake.exe&quot;</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -314,7 +320,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Build directory already initialized&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span>
         <span class="n">dir_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -334,7 +340,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="n">dir_name</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Temporary build directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span></div>
 
 
 <div class="viewcode-block" id="MlifPlatform.create_target">
@@ -364,6 +371,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">srecord_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;srecord.install_dir&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iree_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;iree.install_dir&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -491,6 +502,11 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">custom_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;custom_entry&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">target_names</span> <span class="o">=</span> <span class="n">get_mlif_platform_targets</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">target_names</span>
@@ -555,6 +571,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccache</span><span class="p">:</span>
             <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;CMAKE_C_COMPILER_LAUNCHER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ccache&quot;</span>  <span class="c1"># TODO: choose between ccache/sccache</span>
             <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;CMAKE_CXX_COMPILER_LAUNCHER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ccache&quot;</span>  <span class="c1"># TODO: choose between ccache/sccache</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_entry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">definitions</span><span class="p">[</span><span class="s2">&quot;CUSTOM_ENTRY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_entry</span>
 
         <span class="k">return</span> <span class="n">definitions</span></div>
 
@@ -574,7 +592,7 @@
 <div class="viewcode-block" id="MlifPlatform.prepare">
 <a class="viewcode-back" href="../../../../mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_directory</span><span class="p">()</span></div>
+        <span class="k">pass</span>  <span class="c1"># TODO: is this used?</span></div>
 
 
 <div class="viewcode-block" id="MlifPlatform.prepare_environment">
@@ -584,6 +602,11 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">srecord_dir</span><span class="p">:</span>
             <span class="n">path_old</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
             <span class="n">path_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">srecord_dir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">path_old</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_new</span>
+        <span class="c1"># TODO: refactor</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iree_install_dir</span><span class="p">:</span>
+            <span class="n">path_old</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span>
+            <span class="n">path_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iree_install_dir</span><span class="si">}</span><span class="s2">/bin:</span><span class="si">{</span><span class="n">path_old</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_new</span>
         <span class="k">return</span> <span class="n">env</span></div>
 
@@ -712,6 +735,7 @@
         <span class="n">path_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlonmcu.path&quot;</span>  <span class="c1"># TODO: move to dumps</span>
         <span class="n">asmdump_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;dumps&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlonmcu.dump&quot;</span>  <span class="c1"># TODO: optional</span>
         <span class="n">srcdump_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;dumps&quot;</span> <span class="o">/</span> <span class="s2">&quot;generic_mlonmcu.srcdump&quot;</span>  <span class="c1"># TODO: optional</span>
+        <span class="n">compile_commands_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">&quot;compile_commands.json&quot;</span>  <span class="c1"># TODO: optional</span>
 
         <span class="c1"># TODO: just use path instead of raw data?</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
@@ -749,6 +773,13 @@
                 <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                 <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
                     <span class="s2">&quot;generic_mlonmcu.srcdump&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolchain</span><span class="p">,)</span>
+                <span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">compile_commands_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">compile_commands_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">&quot;compile_commands.json&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">toolchain</span><span class="p">,)</span>
                 <span class="p">)</span>
                 <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">(</span><span class="n">elf_file</span><span class="p">)</span>

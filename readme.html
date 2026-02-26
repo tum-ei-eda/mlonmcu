@@ -151,7 +151,7 @@
 <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">libboost</span><span class="o">-</span><span class="nb">all</span><span class="o">-</span><span class="n">dev</span> <span class="n">graphviz</span> <span class="n">doxygen</span> <span class="n">libtinfo</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">texinfo</span> <span class="n">unzip</span> <span class="n">device</span><span class="o">-</span><span class="n">tree</span><span class="o">-</span><span class="n">compiler</span> <span class="n">tree</span> <span class="n">g</span><span class="o">++</span>
 
 <span class="c1"># Optional (depending on configuration)</span>
-<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">ninja</span><span class="o">-</span><span class="n">build</span> <span class="n">flex</span> <span class="n">lsb</span><span class="o">-</span><span class="n">release</span> <span class="n">libelf</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">ninja</span><span class="o">-</span><span class="n">build</span> <span class="n">flex</span> <span class="n">lsb</span><span class="o">-</span><span class="n">release</span> <span class="n">libelf</span><span class="o">-</span><span class="n">dev</span> <span class="n">libcurl4</span><span class="o">-</span><span class="n">openssl</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
 <p>Also make sure that your default Python is at least v3.7. If the <code class="docutils literal notranslate"><span class="pre">python</span></code> command is not available in your shell or points Python v2.7 check out <code class="docutils literal notranslate"><span class="pre">python-is-python3</span></code>.</p>
@@ -186,7 +186,9 @@ pip install -r ipynb/requirements.txt
 <p>Then you should be able to install the <code class="docutils literal notranslate"><span class="pre">mlonmcu</span></code> python package like this</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optionally remove an older version first: pip uninstall mlonmcu</span>
 
-<span class="n">make</span> <span class="n">install</span>  <span class="c1"># Alternative: python setup.py install</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">.</span>
+<span class="c1"># or editable version:</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>  <span class="c1"># editable version</span>
 </pre></div>
 </div>
 </section>

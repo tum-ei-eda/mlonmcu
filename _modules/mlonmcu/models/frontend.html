@@ -127,6 +127,9 @@
     <span class="n">OpenASIPProgram</span><span class="p">,</span>
     <span class="n">RVVBenchProgram</span><span class="p">,</span>
     <span class="n">ISSBenchProgram</span><span class="p">,</span>
+    <span class="n">CryptoBenchProgram</span><span class="p">,</span>
+    <span class="n">CmsisDSPProgram</span><span class="p">,</span>
+    <span class="n">CmsisNNProgram</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.lookup</span><span class="w"> </span><span class="kn">import</span> <span class="n">lookup_models</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.type</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureType</span>
@@ -431,6 +434,9 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">in_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
                         <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">in_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="n">in_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">&quot;in_paths not found&quot;</span>
+                        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">in_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">files</span> <span class="o">=</span> <span class="n">in_paths</span>
                 <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1682,6 +1688,19 @@
 
 
 
+<div class="viewcode-block" id="MLIRFrontend">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.MLIRFrontend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MLIRFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;mlir&quot;</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLIR</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="PBFrontend">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.PBFrontend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PBFrontend</span><span class="p">(</span><span class="n">SimpleFrontend</span><span class="p">):</span>
@@ -1784,7 +1803,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;hello_world&quot;</span><span class="p">,</span> <span class="s2">&quot;foobar&quot;</span><span class="p">]</span></div>
+        <span class="c1"># return [&quot;hello_world&quot;, &quot;foobar&quot;]</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;hello_world&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;foobar&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;load_filter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;basic_hash&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;temp_crypto&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
 
 
 
@@ -2179,9 +2205,12 @@
             <span class="s2">&quot;telecomm/FFT&quot;</span><span class="p">,</span>
             <span class="s2">&quot;telecomm/CRC32&quot;</span><span class="p">,</span>
             <span class="s2">&quot;automotive/susan&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automotive/basicmath&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automotive/bitcount&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;automotive/qsort&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/basicmath_small&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/basicmath_large&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/bitcount_small&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/bitcount_large&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/qsort_small&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;automotive/qsort_large&quot;</span><span class="p">,</span>
             <span class="s2">&quot;security/sha&quot;</span><span class="p">,</span>
             <span class="s2">&quot;security/rijndael&quot;</span><span class="p">,</span>
             <span class="s2">&quot;network/dijkstra&quot;</span><span class="p">,</span>
@@ -2401,6 +2430,94 @@
             <span class="s2">&quot;branch_heavy&quot;</span><span class="p">,</span>
             <span class="s2">&quot;mem_heavy&quot;</span><span class="p">,</span>
         <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="CryptoBenchFrontend">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CryptoBenchFrontend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CryptoBenchFrontend</span><span class="p">(</span><span class="n">BenchFrontend</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;crypto_bench&quot;</span><span class="p">,</span>
+            <span class="n">CryptoBenchProgram</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;mceliece348864_encrypt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mceliece348864_encrypt_rvv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mceliece348864_decrypt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mceliece348864_decrypt_rvv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mceliece348864_keypair&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mceliece348864_keypair_rvv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hqc-128&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hqc-192&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hqc-256&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="CmsisDSPFrontend">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CmsisDSPFrontend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CmsisDSPFrontend</span><span class="p">(</span><span class="n">BenchFrontend</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;cmsis_dsp&quot;</span><span class="p">,</span>
+            <span class="n">CmsisDSPProgram</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;arm_abs_q15&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arm_abs_q31&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="CmsisDSPFrontend.get_platform_config">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CmsisDSPFrontend.get_platform_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cmsis_dsp_bench&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CmsisNNFrontend">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CmsisNNFrontend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CmsisNNFrontend</span><span class="p">(</span><span class="n">BenchFrontend</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;cmsis_nn&quot;</span><span class="p">,</span>
+            <span class="n">CmsisNNProgram</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supported_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;arm_nn_activation_s16_tanh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;arm_nn_activation_s16_sigmoid&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="CmsisNNFrontend.get_platform_config">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.frontend.CmsisNNFrontend.get_platform_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;mlif&quot;</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;template&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cmsis_nn_bench&quot;</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</div>
 
 </pre></div>
 

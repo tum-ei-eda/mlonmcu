@@ -1,0 +1,616 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.iree package &mdash; ML on MCU 0.9.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=efa42bf3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.flow.iree.backend package" href="mlonmcu.flow.iree.backend.html" />
+    <link rel="prev" title="mlonmcu.flow package" href="mlonmcu.flow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.timeout">mlonmcu.timeout module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mlonmcu</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.html">mlonmcu package</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.flow.html">mlonmcu.flow package</a></li>
+      <li class="breadcrumb-item active">mlonmcu.flow.iree package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.flow.iree.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-flow-iree-package">
+<h1>mlonmcu.flow.iree package<a class="headerlink" href="#mlonmcu-flow-iree-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.flow.iree.backend.html">mlonmcu.flow.iree.backend package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.backend">mlonmcu.flow.iree.backend.backend module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="docutils literal notranslate"><span class="pre">IREEBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREEBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREEBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREEBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREEBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.generate"><code class="docutils literal notranslate"><span class="pre">IREEBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_c_embed_data_args"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_iree_c_embed_data_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_compile_args"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_iree_compile_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.get_platform_defs"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_platform_defs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.get_target_details"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_target_details()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree"><code class="docutils literal notranslate"><span class="pre">IREEBackend.invoke_iree()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree_c_embed_data"><code class="docutils literal notranslate"><span class="pre">IREEBackend.invoke_iree_c_embed_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree_compile"><code class="docutils literal notranslate"><span class="pre">IREEBackend.invoke_iree_compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_c_embed_data_exe"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_c_embed_data_exe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_compile_exe"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_compile_exe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_compile_extra_args"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_compile_extra_args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_install_dir"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_install_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_src_dir"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_src_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_tf_path"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_tf_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_tflite_path"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_tflite_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_version"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.load_model"><code class="docutils literal notranslate"><span class="pre">IREEBackend.load_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.loop_unroll"><code class="docutils literal notranslate"><span class="pre">IREEBackend.loop_unroll</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.name"><code class="docutils literal notranslate"><span class="pre">IREEBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.num_threads"><code class="docutils literal notranslate"><span class="pre">IREEBackend.num_threads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.opt_level"><code class="docutils literal notranslate"><span class="pre">IREEBackend.opt_level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.prepare_environment"><code class="docutils literal notranslate"><span class="pre">IREEBackend.prepare_environment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.print_outputs"><code class="docutils literal notranslate"><span class="pre">IREEBackend.print_outputs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREEBackend.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.strip_assertions"><code class="docutils literal notranslate"><span class="pre">IREEBackend.strip_assertions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.target_abi"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_abi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.target_cpu"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_cpu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.target_cpu_features"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_cpu_features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.target_scalable_vector"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_scalable_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.target_triple"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_triple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.target_vector_width"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_vector_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.translate_mlirbc_to_mlir"><code class="docutils literal notranslate"><span class="pre">IREEBackend.translate_mlirbc_to_mlir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.use_emitc"><code class="docutils literal notranslate"><span class="pre">IREEBackend.use_emitc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.generate_iree_wrapper"><code class="docutils literal notranslate"><span class="pre">generate_iree_wrapper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.get_iree_compile_hal_backend_target_args"><code class="docutils literal notranslate"><span class="pre">get_iree_compile_hal_backend_target_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.get_iree_compile_llvmcpu_vectorization_unroll_args"><code class="docutils literal notranslate"><span class="pre">get_iree_compile_llvmcpu_vectorization_unroll_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.get_iree_compile_optimization_args"><code class="docutils literal notranslate"><span class="pre">get_iree_compile_optimization_args()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.ireellvm">mlonmcu.flow.iree.backend.ireellvm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.ireellvm_inline">mlonmcu.flow.iree.backend.ireellvm_inline module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.ireellvmc">mlonmcu.flow.iree.backend.ireellvmc module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.ireellvmc_inline">mlonmcu.flow.iree.backend.ireellvmc_inline module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.ireevmvx">mlonmcu.flow.iree.backend.ireevmvx module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.name"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend.ireevmvx_inline">mlonmcu.flow.iree.backend.ireevmvx_inline module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.name"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#module-mlonmcu.flow.iree.backend">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend"><code class="docutils literal notranslate"><span class="pre">IREEBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREEBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREEBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREEBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREEBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.generate"><code class="docutils literal notranslate"><span class="pre">IREEBackend.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.get_iree_c_embed_data_args"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_iree_c_embed_data_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.get_iree_compile_args"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_iree_compile_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.get_platform_defs"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_platform_defs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.get_target_details"><code class="docutils literal notranslate"><span class="pre">IREEBackend.get_target_details()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.invoke_iree"><code class="docutils literal notranslate"><span class="pre">IREEBackend.invoke_iree()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.invoke_iree_c_embed_data"><code class="docutils literal notranslate"><span class="pre">IREEBackend.invoke_iree_c_embed_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.invoke_iree_compile"><code class="docutils literal notranslate"><span class="pre">IREEBackend.invoke_iree_compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_c_embed_data_exe"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_c_embed_data_exe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_compile_exe"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_compile_exe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_compile_extra_args"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_compile_extra_args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_install_dir"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_install_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_src_dir"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_src_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_tf_path"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_tf_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_tflite_path"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_tflite_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.iree_version"><code class="docutils literal notranslate"><span class="pre">IREEBackend.iree_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.load_model"><code class="docutils literal notranslate"><span class="pre">IREEBackend.load_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.loop_unroll"><code class="docutils literal notranslate"><span class="pre">IREEBackend.loop_unroll</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.name"><code class="docutils literal notranslate"><span class="pre">IREEBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.num_threads"><code class="docutils literal notranslate"><span class="pre">IREEBackend.num_threads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.opt_level"><code class="docutils literal notranslate"><span class="pre">IREEBackend.opt_level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.prepare_environment"><code class="docutils literal notranslate"><span class="pre">IREEBackend.prepare_environment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.print_outputs"><code class="docutils literal notranslate"><span class="pre">IREEBackend.print_outputs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREEBackend.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.strip_assertions"><code class="docutils literal notranslate"><span class="pre">IREEBackend.strip_assertions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.target_abi"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_abi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.target_cpu"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_cpu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.target_cpu_features"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_cpu_features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.target_scalable_vector"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_scalable_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.target_triple"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_triple</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.target_vector_width"><code class="docutils literal notranslate"><span class="pre">IREEBackend.target_vector_width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.translate_mlirbc_to_mlir"><code class="docutils literal notranslate"><span class="pre">IREEBackend.translate_mlirbc_to_mlir()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEBackend.use_emitc"><code class="docutils literal notranslate"><span class="pre">IREEBackend.use_emitc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMBackend.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMCBackend.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMCInlineBackend.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.name"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREELLVMInlineBackend.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend.name"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREEVMVXBackend.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.DEFAULTS"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.DEFAULTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.FEATURES"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.FEATURES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.OPTIONAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.REQUIRED"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.REQUIRED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.name"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.registry"><code class="docutils literal notranslate"><span class="pre">IREEVMVXInlineBackend.registry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-mlonmcu.flow.iree.framework">
+<span id="mlonmcu-flow-iree-framework-module"></span><h2>mlonmcu.flow.iree.framework module<a class="headerlink" href="#module-mlonmcu.flow.iree.framework" title="Link to this heading"></a></h2>
+<p>Definitions for TVMFramework.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.framework.</span></span><span class="sig-name descname"><span class="pre">IREEFramework</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/framework.html#IREEFramework"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.framework.Framework" title="mlonmcu.flow.framework.Framework"><code class="xref py py-class docutils literal notranslate"><span class="pre">Framework</span></code></a></p>
+<p>IREE Framework specialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/framework.html#IREEFramework.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.iree_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_install_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.iree_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.iree_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_src_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.iree_src_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.framework.IREEFramework.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'iree'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.framework.IREEFramework.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.flow.iree" title="Link to this heading"></a></h2>
+<p>IREE framework module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.</span></span><span class="sig-name descname"><span class="pre">IREEBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hal_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hal_inline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend" title="mlonmcu.flow.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.generate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.get_iree_c_embed_data_args">
+<span class="sig-name descname"><span class="pre">get_iree_c_embed_data_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmfb_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_iree_c_embed_data_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.get_iree_c_embed_data_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.get_iree_compile_args">
+<span class="sig-name descname"><span class="pre">get_iree_compile_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_iree_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.get_iree_compile_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.get_target_details">
+<span class="sig-name descname"><span class="pre">get_target_details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_target_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.get_target_details" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.invoke_iree">
+<span class="sig-name descname"><span class="pre">invoke_iree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exe</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.invoke_iree" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.invoke_iree_c_embed_data">
+<span class="sig-name descname"><span class="pre">invoke_iree_c_embed_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmfb_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree_c_embed_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.invoke_iree_c_embed_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.invoke_iree_compile">
+<span class="sig-name descname"><span class="pre">invoke_iree_compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree_compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.invoke_iree_compile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_c_embed_data_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_c_embed_data_exe</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_c_embed_data_exe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_compile_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_compile_exe</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_compile_exe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_compile_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_compile_extra_args</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_compile_extra_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_install_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_src_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_src_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_tf_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_tf_path</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_tf_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_tflite_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_tflite_path</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_tflite_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.iree_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_version</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.iree_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.load_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.loop_unroll">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loop_unroll</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.loop_unroll" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.num_threads">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_threads</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.num_threads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.opt_level">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opt_level</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.opt_level" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.prepare_environment">
+<span class="sig-name descname"><span class="pre">prepare_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.prepare_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.prepare_environment" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.print_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_outputs</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.print_outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.strip_assertions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strip_assertions</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.strip_assertions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.target_abi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_abi</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.target_abi" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.target_cpu">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cpu</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.target_cpu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.target_cpu_features">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cpu_features</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.target_cpu_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.target_scalable_vector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_scalable_vector</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.target_scalable_vector" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.target_triple">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_triple</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.target_triple" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.target_vector_width">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_vector_width</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.target_vector_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.translate_mlirbc_to_mlir">
+<span class="sig-name descname"><span class="pre">translate_mlirbc_to_mlir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlirbc_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlir_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.translate_mlirbc_to_mlir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.translate_mlirbc_to_mlir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.IREEBackend.use_emitc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_emitc</span></span><a class="headerlink" href="#mlonmcu.flow.iree.IREEBackend.use_emitc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.flow.html" class="btn btn-neutral float-left" title="mlonmcu.flow package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.flow.iree.backend.html" class="btn btn-neutral float-right" title="mlonmcu.flow.iree.backend package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

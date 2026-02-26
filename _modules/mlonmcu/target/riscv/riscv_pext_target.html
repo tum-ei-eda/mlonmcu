@@ -161,6 +161,19 @@
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MAJOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">major</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;RISCV_RVP_MINOR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minor</span>
         <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="RVPTarget.get_vector_width">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.get_vector_width">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vector_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: num bytes or num elements?</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pext</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="RVPTarget.has_scalable_vectorization">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_pext_target.RVPTarget.has_scalable_vectorization">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_scalable_vectorization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 </div>
 
 </pre></div>

@@ -1,0 +1,1007 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.iree.backend package &mdash; ML on MCU 0.9.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=efa42bf3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mlonmcu.flow.tflm package" href="mlonmcu.flow.tflm.html" />
+    <link rel="prev" title="mlonmcu.flow.iree package" href="mlonmcu.flow.iree.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="docs.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">mlonmcu</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="mlonmcu.html">mlonmcu package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="mlonmcu.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.artifact">mlonmcu.artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.config">mlonmcu.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.logging">mlonmcu.logging module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.mlonmcu">mlonmcu.mlonmcu module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.plugins">mlonmcu.plugins module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.report">mlonmcu.report module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.timeout">mlonmcu.timeout module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.utils">mlonmcu.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu.version">mlonmcu.version module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.html#module-mlonmcu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="docs.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="modules.html">mlonmcu</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.html">mlonmcu package</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.flow.html">mlonmcu.flow package</a></li>
+          <li class="breadcrumb-item"><a href="mlonmcu.flow.iree.html">mlonmcu.flow.iree package</a></li>
+      <li class="breadcrumb-item active">mlonmcu.flow.iree.backend package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mlonmcu.flow.iree.backend.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlonmcu-flow-iree-backend-package">
+<h1>mlonmcu.flow.iree.backend package<a class="headerlink" href="#mlonmcu-flow-iree-backend-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-mlonmcu.flow.iree.backend.backend">
+<span id="mlonmcu-flow-iree-backend-backend-module"></span><h2>mlonmcu.flow.iree.backend.backend module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.backend" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.backend.</span></span><span class="sig-name descname"><span class="pre">IREEBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hal_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hal_inline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend" title="mlonmcu.flow.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.generate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_c_embed_data_args">
+<span class="sig-name descname"><span class="pre">get_iree_c_embed_data_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmfb_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_iree_c_embed_data_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_c_embed_data_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_compile_args">
+<span class="sig-name descname"><span class="pre">get_iree_compile_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_iree_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_compile_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.get_target_details">
+<span class="sig-name descname"><span class="pre">get_target_details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_target_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.get_target_details" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree">
+<span class="sig-name descname"><span class="pre">invoke_iree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exe</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree_c_embed_data">
+<span class="sig-name descname"><span class="pre">invoke_iree_c_embed_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmfb_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree_c_embed_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree_c_embed_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree_compile">
+<span class="sig-name descname"><span class="pre">invoke_iree_compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree_compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.invoke_iree_compile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_c_embed_data_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_c_embed_data_exe</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_c_embed_data_exe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_compile_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_compile_exe</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_compile_exe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_compile_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_compile_extra_args</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_compile_extra_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_install_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_src_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_src_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_tf_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_tf_path</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_tf_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_tflite_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_tflite_path</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_tflite_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.iree_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_version</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.iree_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.load_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.loop_unroll">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loop_unroll</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.loop_unroll" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.num_threads">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_threads</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.num_threads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.opt_level">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opt_level</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.opt_level" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.prepare_environment">
+<span class="sig-name descname"><span class="pre">prepare_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.prepare_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.prepare_environment" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.print_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_outputs</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.print_outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.strip_assertions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strip_assertions</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.strip_assertions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.target_abi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_abi</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.target_abi" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.target_cpu">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cpu</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.target_cpu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.target_cpu_features">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cpu_features</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.target_cpu_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.target_scalable_vector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_scalable_vector</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.target_scalable_vector" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.target_triple">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_triple</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.target_triple" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.target_vector_width">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_vector_width</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.target_vector_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.translate_mlirbc_to_mlir">
+<span class="sig-name descname"><span class="pre">translate_mlirbc_to_mlir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlirbc_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlir_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.translate_mlirbc_to_mlir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.translate_mlirbc_to_mlir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.IREEBackend.use_emitc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_emitc</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.IREEBackend.use_emitc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.generate_iree_wrapper">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.backend.</span></span><span class="sig-name descname"><span class="pre">generate_iree_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_emitc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmvx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#generate_iree_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.generate_iree_wrapper" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.get_iree_compile_hal_backend_target_args">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.backend.</span></span><span class="sig-name descname"><span class="pre">get_iree_compile_hal_backend_target_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hal_backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_details</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#get_iree_compile_hal_backend_target_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.get_iree_compile_hal_backend_target_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.get_iree_compile_llvmcpu_vectorization_unroll_args">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.backend.</span></span><span class="sig-name descname"><span class="pre">get_iree_compile_llvmcpu_vectorization_unroll_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hal_backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_vector_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_scalable_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_unroll</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#get_iree_compile_llvmcpu_vectorization_unroll_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.get_iree_compile_llvmcpu_vectorization_unroll_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.backend.get_iree_compile_optimization_args">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.backend.</span></span><span class="sig-name descname"><span class="pre">get_iree_compile_optimization_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iree_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#get_iree_compile_optimization_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.backend.get_iree_compile_optimization_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend.ireellvm">
+<span id="mlonmcu-flow-iree-backend-ireellvm-module"></span><h2>mlonmcu.flow.iree.backend.ireellvm module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.ireellvm" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.ireellvm.</span></span><span class="sig-name descname"><span class="pre">IREELLVMBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvm.html#IREELLVMBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvm'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm.IREELLVMBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend.ireellvm_inline">
+<span id="mlonmcu-flow-iree-backend-ireellvm-inline-module"></span><h2>mlonmcu.flow.iree.backend.ireellvm_inline module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.ireellvm_inline" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.ireellvm_inline.</span></span><span class="sig-name descname"><span class="pre">IREELLVMInlineBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvm_inline.html#IREELLVMInlineBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvm_inline'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvm_inline.IREELLVMInlineBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend.ireellvmc">
+<span id="mlonmcu-flow-iree-backend-ireellvmc-module"></span><h2>mlonmcu.flow.iree.backend.ireellvmc module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.ireellvmc" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.ireellvmc.</span></span><span class="sig-name descname"><span class="pre">IREELLVMCBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvmc.html#IREELLVMCBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvmc'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc.IREELLVMCBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend.ireellvmc_inline">
+<span id="mlonmcu-flow-iree-backend-ireellvmc-inline-module"></span><h2>mlonmcu.flow.iree.backend.ireellvmc_inline module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.ireellvmc_inline" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.ireellvmc_inline.</span></span><span class="sig-name descname"><span class="pre">IREELLVMCInlineBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvmc_inline.html#IREELLVMCInlineBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvmc_inline'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireellvmc_inline.IREELLVMCInlineBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend.ireevmvx">
+<span id="mlonmcu-flow-iree-backend-ireevmvx-module"></span><h2>mlonmcu.flow.iree.backend.ireevmvx module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.ireevmvx" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.ireevmvx.</span></span><span class="sig-name descname"><span class="pre">IREEVMVXBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireevmvx.html#IREEVMVXBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireevmvx'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx.IREEVMVXBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend.ireevmvx_inline">
+<span id="mlonmcu-flow-iree-backend-ireevmvx-inline-module"></span><h2>mlonmcu.flow.iree.backend.ireevmvx_inline module<a class="headerlink" href="#module-mlonmcu.flow.iree.backend.ireevmvx_inline" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.ireevmvx_inline.</span></span><span class="sig-name descname"><span class="pre">IREEVMVXInlineBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireevmvx_inline.html#IREEVMVXInlineBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireevmvx_inline'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.ireevmvx_inline.IREEVMVXInlineBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mlonmcu.flow.iree.backend">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mlonmcu.flow.iree.backend" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREEBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hal_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hal_inline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlonmcu.flow.html#mlonmcu.flow.backend.Backend" title="mlonmcu.flow.backend.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.generate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.get_iree_c_embed_data_args">
+<span class="sig-name descname"><span class="pre">get_iree_c_embed_data_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmfb_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_iree_c_embed_data_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.get_iree_c_embed_data_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.get_iree_compile_args">
+<span class="sig-name descname"><span class="pre">get_iree_compile_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_iree_compile_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.get_iree_compile_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.get_platform_defs">
+<span class="sig-name descname"><span class="pre">get_platform_defs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_platform_defs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.get_platform_defs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.get_target_details">
+<span class="sig-name descname"><span class="pre">get_target_details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.get_target_details"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.get_target_details" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.invoke_iree">
+<span class="sig-name descname"><span class="pre">invoke_iree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exe</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.invoke_iree" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.invoke_iree_c_embed_data">
+<span class="sig-name descname"><span class="pre">invoke_iree_c_embed_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmfb_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impl_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree_c_embed_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.invoke_iree_c_embed_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.invoke_iree_compile">
+<span class="sig-name descname"><span class="pre">invoke_iree_compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.invoke_iree_compile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.invoke_iree_compile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_c_embed_data_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_c_embed_data_exe</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_c_embed_data_exe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_compile_exe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_compile_exe</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_compile_exe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_compile_extra_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_compile_extra_args</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_compile_extra_args" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_install_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_install_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_src_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_src_dir</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_src_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_tf_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_tf_path</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_tf_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_tflite_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_tflite_path</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_tflite_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.iree_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iree_version</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.iree_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.load_model" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.loop_unroll">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loop_unroll</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.loop_unroll" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.num_threads">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_threads</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.num_threads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.opt_level">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">opt_level</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.opt_level" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.prepare_environment">
+<span class="sig-name descname"><span class="pre">prepare_environment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.prepare_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.prepare_environment" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.print_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_outputs</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.print_outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.strip_assertions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strip_assertions</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.strip_assertions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.target_abi">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_abi</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.target_abi" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.target_cpu">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cpu</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.target_cpu" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.target_cpu_features">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cpu_features</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.target_cpu_features" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.target_scalable_vector">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_scalable_vector</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.target_scalable_vector" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.target_triple">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_triple</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.target_triple" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.target_vector_width">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_vector_width</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.target_vector_width" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.translate_mlirbc_to_mlir">
+<span class="sig-name descname"><span class="pre">translate_mlirbc_to_mlir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlirbc_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlir_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/backend.html#IREEBackend.translate_mlirbc_to_mlir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.translate_mlirbc_to_mlir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEBackend.use_emitc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">use_emitc</span></span><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEBackend.use_emitc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREELLVMBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvm.html#IREELLVMBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvm'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREELLVMCBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvmc.html#IREELLVMCBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvmc'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREELLVMCInlineBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvmc_inline.html#IREELLVMCInlineBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvmc_inline'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMCInlineBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREELLVMInlineBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireellvm_inline.html#IREELLVMInlineBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireellvm_inline'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREELLVMInlineBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREELLVMInlineBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREEVMVXBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireevmvx.html#IREEVMVXBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireevmvx'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mlonmcu.flow.iree.backend.</span></span><span class="sig-name descname"><span class="pre">IREEVMVXInlineBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/flow/iree/backend/ireevmvx_inline.html#IREEVMVXInlineBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.flow.iree.backend.backend.IREEBackend" title="mlonmcu.flow.iree.backend.backend.IREEBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">IREEBackend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree_compile_extra_args':</span> <span class="pre">[],</span> <span class="pre">'loop_unroll':</span> <span class="pre">True,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'opt_level':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'strip_assertions':</span> <span class="pre">None,</span> <span class="pre">'target_abi':</span> <span class="pre">None,</span> <span class="pre">'target_cpu':</span> <span class="pre">None,</span> <span class="pre">'target_cpu_features':</span> <span class="pre">None,</span> <span class="pre">'target_scalable_vectorization':</span> <span class="pre">None,</span> <span class="pre">'target_triple':</span> <span class="pre">None,</span> <span class="pre">'target_vector_width':</span> <span class="pre">None}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.FEATURES">
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.FEATURES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.version'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'iree.install_dir',</span> <span class="pre">'iree.src_dir'}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ireevmvx_inline'</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#mlonmcu.flow.iree.backend.IREEVMVXInlineBackend.registry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mlonmcu.flow.iree.html" class="btn btn-neutral float-left" title="mlonmcu.flow.iree package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mlonmcu.flow.tflm.html" class="btn btn-neutral float-right" title="mlonmcu.flow.tflm package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

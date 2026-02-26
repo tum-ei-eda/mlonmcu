@@ -105,6 +105,96 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFormats</span>
 
 
+<div class="viewcode-block" id="parse_mlir_signature">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.parse_mlir_signature">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_mlir_signature</span><span class="p">(</span><span class="n">mlir_text</span><span class="p">):</span>
+
+    <span class="c1"># Find the util.func @main signature</span>
+    <span class="n">match1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*-&gt;\s*\(([^)(]*?)\)\s*\{&quot;</span><span class="p">,</span> <span class="n">mlir_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match1</span><span class="p">:</span>
+        <span class="n">match2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;func\.func\s+@(\w+)\(([^)(]*)\)\s*-&gt;\s*(([^)(]*))\s+{&quot;</span><span class="p">,</span> <span class="n">mlir_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No util.func @main(...) -&gt; (...) { } found.&quot;</span><span class="p">)</span>
+        <span class="n">func_name</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">input_args</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">output_args</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="n">func_name</span> <span class="o">=</span> <span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">input_args</span> <span class="o">=</span> <span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">output_args</span> <span class="o">=</span> <span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Parse inputs</span>
+    <span class="k">if</span> <span class="n">input_args</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">input_args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">):</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">arg_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">tensor_info</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="n">shape_dtype_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[v]?tensor&lt;([^&gt;]+)&gt;&quot;</span><span class="p">,</span> <span class="n">tensor_info</span><span class="p">)</span>
+            <span class="n">identifier_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;ml_program.identifier\s*=\s*&quot;([^&quot;]+)&quot;&#39;</span><span class="p">,</span> <span class="n">tensor_info</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">shape_dtype_match</span><span class="p">:</span>
+                <span class="n">shape_dtype_str</span> <span class="o">=</span> <span class="n">shape_dtype_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">shape_dtype_str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># vtensor</span>
+                    <span class="k">assert</span> <span class="n">shape_dtype_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;[&quot;</span>
+                    <span class="n">shape_dtype_str</span> <span class="o">=</span> <span class="n">shape_dtype_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="n">shape_dtype_parts</span> <span class="o">=</span> <span class="n">shape_dtype_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;],&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">shape_parts</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">shape_dtype_parts</span>
+                    <span class="n">shape_parts</span> <span class="o">=</span> <span class="n">shape_parts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">shape_dtype_parts</span> <span class="o">=</span> <span class="n">shape_dtype_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+                    <span class="o">*</span><span class="n">shape_parts</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">shape_dtype_parts</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape_parts</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;arg&quot;</span><span class="p">:</span> <span class="n">arg_name</span><span class="p">,</span>
+                    <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">shape</span><span class="p">,</span>
+                    <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">,</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">identifier_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">identifier_match</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Parse outputs</span>
+    <span class="k">if</span> <span class="n">output_args</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">output_args</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;},&quot;</span><span class="p">):</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">shape_dtype_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[v]?tensor&lt;([^&gt;]+)&gt;&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="n">identifier_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;ml_program.identifier\s*=\s*&quot;([^&quot;]+)&quot;&#39;</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">shape_dtype_match</span><span class="p">:</span>
+                <span class="n">shape_dtype_str</span> <span class="o">=</span> <span class="n">shape_dtype_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">shape_dtype_str</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># vtensor</span>
+                    <span class="k">assert</span> <span class="n">shape_dtype_str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;[&quot;</span>
+                    <span class="n">shape_dtype_str</span> <span class="o">=</span> <span class="n">shape_dtype_str</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="n">shape_dtype_parts</span> <span class="o">=</span> <span class="n">shape_dtype_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;],&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">shape_parts</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">shape_dtype_parts</span>
+                    <span class="n">shape_parts</span> <span class="o">=</span> <span class="n">shape_parts</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">shape_dtype_parts</span> <span class="o">=</span> <span class="n">shape_dtype_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+                    <span class="o">*</span><span class="n">shape_parts</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">shape_dtype_parts</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="s2">&quot;?&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape_parts</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">identifier_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">identifier_match</span> <span class="k">else</span> <span class="kc">None</span><span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span></div>
+
+
+
 <div class="viewcode-block" id="TensorInfo">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.TensorInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TensorInfo</span><span class="p">:</span>
@@ -125,10 +215,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type_size</span> <span class="o">=</span> <span class="n">size_lookup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;TensorInfo(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">)&quot;</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_size</span>
         <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># assume 1</span>
+                <span class="k">continue</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
                 <span class="n">real</span> <span class="o">=</span> <span class="n">dim</span><span class="o">.</span><span class="n">real</span>
                 <span class="n">imag</span> <span class="o">=</span> <span class="n">dim</span><span class="o">.</span><span class="n">imag</span>
@@ -175,9 +270,10 @@
 <div class="viewcode-block" id="ModelInfo">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.ModelInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelInfo</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">main_func_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">in_tensors</span> <span class="o">=</span> <span class="n">in_tensors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out_tensors</span> <span class="o">=</span> <span class="n">out_tensors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_func_name</span> <span class="o">=</span> <span class="n">main_func_name</span>
 
 <div class="viewcode-block" id="ModelInfo.validate">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.ModelInfo.validate">[docs]</a>
@@ -345,7 +441,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">google.protobuf.json_format</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageToDict</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">onnx.mapping</span><span class="w"> </span><span class="kn">import</span> <span class="n">TENSOR_TYPE_TO_NP_TYPE</span>
+
+        <span class="c1"># from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">onnx.helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">tensor_dtype_to_np_dtype</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
 
@@ -358,7 +456,8 @@
                 <span class="n">elem_type</span> <span class="o">=</span> <span class="n">tensor_type</span><span class="p">[</span><span class="s2">&quot;elemType&quot;</span><span class="p">]</span>
                 <span class="n">dims</span> <span class="o">=</span> <span class="n">tensor_type</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">][</span><span class="s2">&quot;dim&quot;</span><span class="p">]</span>
                 <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;dimValue&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="s2">&quot;dimValue&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="mi">40</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">]</span>  <span class="c1"># TODO: dyn shape</span>
-                <span class="n">dtype</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">TENSOR_TYPE_TO_NP_TYPE</span><span class="p">[</span><span class="n">elem_type</span><span class="p">])</span>
+                <span class="c1"># dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tensor_dtype_to_np_dtype</span><span class="p">(</span><span class="n">elem_type</span><span class="p">))</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">ret</span>
 
@@ -420,6 +519,37 @@
         <span class="c1"># super().__init__(in_tensors, out_tensors)</span>
 
 
+<div class="viewcode-block" id="MLIRModelInfo">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.MLIRModelInfo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MLIRModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod_text</span><span class="p">,</span> <span class="n">fix_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">in_tensors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">out_tensors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">func_name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span> <span class="o">=</span> <span class="n">parse_mlir_signature</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
+        <span class="n">type_lookup</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;i8&quot;</span><span class="p">:</span> <span class="s2">&quot;int8&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;i32&quot;</span><span class="p">:</span> <span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;f32&quot;</span><span class="p">:</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="n">input_name</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span>
+            <span class="n">input_type</span> <span class="o">=</span> <span class="n">type_lookup</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span>
+            <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">input_type</span><span class="p">)</span>
+            <span class="n">in_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">&quot;dtype&quot;</span><span class="p">]</span>
+            <span class="n">output_type</span> <span class="o">=</span> <span class="n">type_lookup</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+            <span class="n">output_shape</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span>
+            <span class="n">output_tensor</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">output_type</span><span class="p">)</span>
+            <span class="n">out_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_tensor</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">main_func_name</span><span class="o">=</span><span class="n">func_name</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="get_tflite_model_info">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_tflite_model_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
@@ -436,6 +566,14 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_relay_model_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_relay_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">):</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">RelayModelInfo</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+
+<div class="viewcode-block" id="get_mlir_model_info">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_mlir_model_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mlir_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">):</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">MLIRModelInfo</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model_info</span></div>
 
 
@@ -485,6 +623,10 @@
         <span class="k">return</span> <span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="n">get_onnx_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;pdmodel&quot;</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLIR</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">mod_text</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s2">&quot;mlir&quot;</span><span class="p">,</span> <span class="n">get_mlir_model_info</span><span class="p">(</span><span class="n">mod_text</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported model format &#39;</span><span class="si">{</span><span class="n">fmt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
 
@@ -514,6 +656,8 @@
         <span class="k">return</span> <span class="s2">&quot;onnx&quot;</span><span class="p">,</span> <span class="n">info</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;pdmodel&quot;</span><span class="p">,</span> <span class="n">info</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLIR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;mlir&quot;</span><span class="p">,</span> <span class="n">info</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported model format &#39;</span><span class="si">{</span><span class="n">fmt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; for backend &#39;</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
 
@@ -536,6 +680,13 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_supported_formats">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_formats</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">RELAY</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">ONNX</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_supported_formats_iree">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_supported_formats_iree">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_supported_formats_iree</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">ONNX</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">SAVED_MODEL</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLIR</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PB</span><span class="p">]</span></div>
 
 </pre></div>
 

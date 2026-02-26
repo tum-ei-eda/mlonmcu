@@ -102,6 +102,17 @@
 <span class="c1">#</span>
 
 
+<div class="viewcode-block" id="legalize_bool">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.legalize_bool">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">legalize_bool</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bool_as_int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">inp</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">inp</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span></div>
+
+
+
 <div class="viewcode-block" id="get_runtime_executor_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_runtime_executor_tvmc_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_runtime_executor_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">executor</span><span class="p">):</span>
@@ -173,16 +184,17 @@
 
 <div class="viewcode-block" id="gen_target_details_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.gen_target_details_args">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
-            <span class="c1"># value = &quot;true&quot; if value else &quot;false&quot;</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--target-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">helper</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--target-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">helper</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">target_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
         <span class="p">],</span>
@@ -193,18 +205,20 @@
 
 <div class="viewcode-block" id="gen_extra_target_details_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.gen_extra_target_details_args">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">gen_extra_target_details_args</span><span class="p">(</span><span class="n">extra_target_details</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_extra_target_details_args</span><span class="p">(</span><span class="n">extra_target_details</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">extra_target</span><span class="p">,</span> <span class="n">target_details</span> <span class="ow">in</span> <span class="n">extra_target_details</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">target_details</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">extra_target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">))</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">extra_target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">))</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="p">[])</span></div>
 
 
 
 <div class="viewcode-block" id="get_target_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_target_tvmc_args">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_target_tvmc_args</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">extra_targets</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_target_tvmc_args</span><span class="p">(</span>
+    <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">extra_targets</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">):</span>
     <span class="k">if</span> <span class="n">extra_targets</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_targets</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -218,7 +232,7 @@
         <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
         <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra_targets</span> <span class="o">+</span> <span class="p">[</span><span class="n">target</span><span class="p">]),</span>
         <span class="c1"># TODO: provide a feature which sets these automatically depending on the chosen target</span>
-        <span class="o">*</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">),</span>
+        <span class="o">*</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">),</span>
         <span class="o">*</span><span class="p">(</span><span class="n">gen_extra_target_details_args</span><span class="p">(</span><span class="n">extra_target_details</span><span class="p">)),</span>
     <span class="p">]</span></div>
 
@@ -253,15 +267,17 @@
 
 <div class="viewcode-block" id="get_tvmaot_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmaot_tvmc_args">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmaot_tvmc_args</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">,</span> <span class="n">unpacked_api</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmaot_tvmc_args</span><span class="p">(</span>
+    <span class="n">alignment_bytes</span><span class="p">,</span> <span class="n">unpacked_api</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">unpacked_api</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="n">system_lib</span><span class="p">,</span> <span class="s2">&quot;Unpacked API is incompatible with system lib&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">system_lib</span><span class="p">))]</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
 
     <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span>
-        <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-unpacked-api&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">unpacked_api</span><span class="p">))],</span>
+        <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-unpacked-api&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">unpacked_api</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)],</span>
         <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-interface-api&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span> <span class="k">if</span> <span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">&quot;packed&quot;</span><span class="p">],</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
@@ -277,11 +293,11 @@
 
 <div class="viewcode-block" id="get_tvmrt_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmrt_tvmc_args">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">system_lib</span><span class="p">))]</span>
-    <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--executor-graph-link-params&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">link_params</span><span class="p">))]</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
+    <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--executor-graph-link-params&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">link_params</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">ret</span></div>
 
 

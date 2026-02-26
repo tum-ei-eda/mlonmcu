@@ -105,7 +105,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_TVM_BACKENDS</span><span class="p">,</span> <span class="n">SUPPORTED_IREE_LLVM_BACKENDS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2list</span><span class="p">,</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">pick_first</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">sort_extensions_canonical</span><span class="p">,</span> <span class="n">join_extensions</span><span class="p">,</span> <span class="n">update_extensions</span><span class="p">,</span> <span class="n">split_extensions</span>
@@ -182,6 +182,7 @@
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_</span><span class="si">{</span><span class="n">arch</span><span class="si">}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_</span><span class="si">{</span><span class="n">arch_</span><span class="si">}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">.install_dir&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;riscv_gcc_multilib.install_dir&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;riscv_gcc.install_dir&quot;</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">)</span>
@@ -198,6 +199,7 @@
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">abi</span><span class="si">}</span><span class="s2">.name&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">.name&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">.name&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;riscv_gcc_multilib.name&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;riscv_gcc.name&quot;</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">)</span>
@@ -219,6 +221,7 @@
                 <span class="p">[</span>
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">abi</span><span class="si">}</span><span class="s2">.variant&quot;</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;riscv_gcc_rv</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">.variant&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;riscv_gcc_multilib.variant&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;riscv_gcc.variant&quot;</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">)</span>
@@ -497,6 +500,18 @@
         <span class="k">return</span> <span class="s2">&quot;riscv&quot;</span></div>
 
 
+<div class="viewcode-block" id="RISCVTarget.get_vector_width">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.get_vector_width">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vector_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="RISCVTarget.has_scalable_vectorization">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.has_scalable_vectorization">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_scalable_vectorization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
 <div class="viewcode-block" id="RISCVTarget.get_backend_config">
 <a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv.RISCVTarget.get_backend_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -539,6 +554,19 @@
                         <span class="s2">&quot;target_keys&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">SUPPORTED_IREE_LLVM_BACKENDS</span><span class="p">:</span>
+            <span class="n">arch_clean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llvm_arch</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;imafd&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="c1"># &quot;target_march&quot;: self.llvm_arch,</span>
+                    <span class="s2">&quot;target_triple&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">riscv_gcc_basename</span><span class="p">,</span>
+                    <span class="s2">&quot;target_abi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abi</span><span class="p">,</span>
+                    <span class="s2">&quot;target_cpu_features&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span>
+                    <span class="s2">&quot;target_cpu&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cpu</span><span class="p">,</span>
+                    <span class="s2">&quot;target_vector_width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vector_width</span><span class="p">(),</span>
+                    <span class="s2">&quot;target_scalable_vectorization&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_scalable_vectorization</span><span class="p">(),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
 

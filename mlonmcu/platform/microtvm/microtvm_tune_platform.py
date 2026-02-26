@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MicroTVM Tune Platform"""
+
 from mlonmcu.config import str2bool
 from .microtvm_target_platform import MicroTvmTargetPlatform
 from ..tvm.tvm_tune_platform import TvmTunePlatform

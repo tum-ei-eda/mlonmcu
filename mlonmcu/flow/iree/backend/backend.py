@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Generic IREEBackend implementation."""
+
 import os
 import tempfile
 from pathlib import Path
@@ -37,7 +38,6 @@ from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_iree_wrapper
 from .iree_utils import parse_iree_version
-
 
 logger = get_logger()
 

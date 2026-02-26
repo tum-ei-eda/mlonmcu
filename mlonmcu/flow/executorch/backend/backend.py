@@ -34,7 +34,6 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.models.model import ModelFormats
 
-
 logger = get_logger()
 
 

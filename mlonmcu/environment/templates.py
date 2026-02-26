@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definitions of mlonmcu config templates."""
+
 import pkgutil
 import os
 import jinja2

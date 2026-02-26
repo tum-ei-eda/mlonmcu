@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   run-linters:
     name: Run linters
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
@@ -23,7 +23,7 @@ jobs:
           flake8_args: --max-line-length=120 --ignore=E203,W503
   check-license:
     name: Check for License headers
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4

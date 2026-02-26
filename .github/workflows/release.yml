@@ -8,7 +8,7 @@ name: Create Release
 jobs:
   build:
     name: Create Release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
       - name: Checkout code
@@ -33,7 +33,7 @@ jobs:
           prerelease: false
   publish:
     name: Publish to PyPI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
     steps:
       - name: Checkout code

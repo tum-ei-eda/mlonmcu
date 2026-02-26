@@ -50,7 +50,7 @@ jobs:
           echo "Available storage after:"
           sudo df -h
           echo
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Set up Python ${{ matrix.python-version }}

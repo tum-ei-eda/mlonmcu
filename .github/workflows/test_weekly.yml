@@ -60,7 +60,7 @@ jobs:
           sudo df -h
           echo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ matrix.config.branch }}
           submodules: recursive
@@ -133,7 +133,7 @@ jobs:
           sudo df -h
           echo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ matrix.config.branch }}
           submodules: recursive

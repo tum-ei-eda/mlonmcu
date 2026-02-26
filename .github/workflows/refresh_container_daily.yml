@@ -61,7 +61,7 @@ jobs:
               echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
           fi
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.inputs.branch }}
           submodules: recursive
@@ -141,7 +141,7 @@ jobs:
               echo "template=${{ matrix.config.template }}-" >> $GITHUB_OUTPUT
           fi
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ matrix.config.branch }}
           submodules: recursive

@@ -27,7 +27,6 @@ from mlonmcu.models.model import ModelFormats
 def parse_mlir_signature(mlir_text):
 
     # Find the util.func @main signature
-    print("mlir_text", mlir_text[:2000])
     match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
         # match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)

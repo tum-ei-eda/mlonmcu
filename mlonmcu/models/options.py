@@ -45,6 +45,7 @@ class TVMRTModelOptions(BackendModelOptions):
         super().__init__(backend, supported=supported)
         self.arena_size = arena_size
 
+
 class TVMLLVMModelOptions(TVMRTModelOptions):
     pass
 

@@ -63,11 +63,7 @@ def remove_config_prefix(config, prefix, skip=None):
         return key.split(".", 1)[1]
 
     # return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
-    return {
-        helper(key): value
-        for key, value in config.items()
-        if matches(key)
-    }
+    return {helper(key): value for key, value in config.items() if matches(key)}
 
 
 def filter_config(config, prefix, defaults, optionals, required_keys):

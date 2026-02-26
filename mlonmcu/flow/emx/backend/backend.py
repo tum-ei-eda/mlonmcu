@@ -291,10 +291,26 @@ class EMXBackend(Backend):
             model_path,
             *self.emx_compile_extra_args,
             str(out),
-            *(["--large-weight-threshold", str(self.large_weight_threshold)] if self.large_weight_threshold is not None else []),
-            *(["--large-temp-threshold", str(self.large_temp_threshold)] if self.large_temp_threshold is not None else []),
-            *([f"--{self.accumulation_strategy}-accumulation-strategy"] if self.accumulation_strategy is not None else []),
-            *(["--restrict-arrays" if self.restrict_arrays else "--no-restrict-arrays"] if self.restrict_arrays is not None else []),
+            *(
+                ["--large-weight-threshold", str(self.large_weight_threshold)]
+                if self.large_weight_threshold is not None
+                else []
+            ),
+            *(
+                ["--large-temp-threshold", str(self.large_temp_threshold)]
+                if self.large_temp_threshold is not None
+                else []
+            ),
+            *(
+                [f"--{self.accumulation_strategy}-accumulation-strategy"]
+                if self.accumulation_strategy is not None
+                else []
+            ),
+            *(
+                ["--restrict-arrays" if self.restrict_arrays else "--no-restrict-arrays"]
+                if self.restrict_arrays is not None
+                else []
+            ),
             *(["--verbose"] if self.verbose is not None else []),
             # f"--model-name={self.identifier}",
             # --emit-data-file, --truncate-weights-after, --large-temp-threshold,

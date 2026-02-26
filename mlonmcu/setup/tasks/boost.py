@@ -18,6 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import shutil
 import multiprocessing
 
 from mlonmcu.setup.task import TaskType
@@ -57,7 +58,8 @@ def download_boost(
     boostSrcDir = context.environment.paths["deps"].path / "src" / boostName
     if "boost.install_dir" in user_vars:
         return False
-    if rebuild or not utils.is_populated(boostSrcDir):
+    # if rebuild or not utils.is_populated(boostSrcDir):
+    if not utils.is_populated(boostSrcDir):
         if "boost.dl_url" in user_vars:
             boostUrl = user_vars["boost.dl_url"]
             boostUrl, boostArchive = boostUrl.rsplit("/", 1)
@@ -112,3 +114,24 @@ def build_boost(
             # print_output=False,
         )
     context.cache["boost.install_dir"] = boostInstallDir
+
+
+def _validate_boost_clean(context: MlonMcuContext, params={}):
+    if not _validate_boost(context, params=params):
+        return False
+    user_vars = context.environment.vars
+    keep_src_dir = user_vars.get("boost.keep_src_dir", False)
+    return not keep_src_dir
+
+
+@Tasks.needs(["boost.install_dir", "boost.src_dir"])
+@Tasks.removes(["boost.src_dir"])  # TODO: implement
+@Tasks.validate(_validate_boost_clean)
+@Tasks.register(category=TaskType.TARGET)
+def clean_boost(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
+    """Cleanup boost src dir."""
+    boostSrcDir = context.cache["boost.src_dir"]
+    shutil.rmtree(boostSrcDir)
+    del context.cache["boost.src_dir"]

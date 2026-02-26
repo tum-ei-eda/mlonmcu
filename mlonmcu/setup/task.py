@@ -70,6 +70,45 @@ def get_combs(data) -> List[dict]:
     return combs
 
 
+def get_combs_new(data) -> List[dict]:
+    """Utility which returns combinations of the input data.
+
+    Parameters
+    ----------
+    data : dict
+        Input dictionary
+
+    Returns
+    -------
+    combs : list
+        All combinations of the input data.
+
+    Examples
+    --------
+    >>> get_combs_new({"foo": [False, True], "bar,baz": [(5, 123), (10, 456)]})
+    [{"foo": False, "bar": 5, "baz": 123}, {"foo": False, "bar": 10, "baz": 456},
+     {"foo": True, "bar": 5, "baz": 123}, {"foo": True, "bar": 10, "baz": 456}]
+    """
+    keys = [k.split(",") for k in data]
+    values = list(data.values())
+
+    # Assertions for grouped parameters
+    for ks, vs in zip(keys, values):
+        if len(ks) > 1:
+            for v in vs:
+                assert isinstance(v, tuple), f"Grouped key {ks} requires tuple values, got {type(v)}"
+                assert len(v) == len(ks), f"Grouped key {ks} expects {len(ks)} elements, got {len(v)}"
+
+    prod = list(itertools.product(*values))
+    if len(prod) == 1 and len(prod[0]) == 0:
+        prod = []
+
+    return [
+        {kk: vv for ks, val in zip(keys, p) for kk, vv in zip(ks, val if isinstance(val, tuple) else (val,))}
+        for p in prod
+    ]
+
+
 class TaskType(Enum):
     """Enumeration for the task type."""
 
@@ -121,7 +160,7 @@ class TaskGraph:
         for dest, deps in self.dependencies.items():
             for dep in deps:
                 if dep not in self.providers.keys():
-                    raise RuntimeError(f"Unable to resolve dependency '{dep}'")
+                    raise RuntimeError(f"Unable to resolve dependency '{dep}' for task {dest}")
                 src = self.providers[dep]
                 edge = (src, dest)
                 edges.append(edge)
@@ -313,7 +352,9 @@ class TaskFactory:
 
             @wraps(function)
             def wrapper(*args, rebuild=False, progress=False, **kwargs):
-                combs = get_combs(self.params[name])
+                # combs = get_combs(self.params[name])
+                combs = get_combs_new(self.params[name])
+                print("combs", combs)
 
                 def get_valid_combs(combs):
                     ret = []

@@ -18,6 +18,7 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
+import os
 import multiprocessing
 from pathlib import Path
 
@@ -121,6 +122,7 @@ def clone_tflite_pack(
 
 
 @Tasks.needs(["tflite_pack.src_dir"])
+@Tasks.optional(["cmake.exe"])
 @Tasks.provides(["tflite_pack.exe"])
 @Tasks.validate(_validate_tflite_pack)
 @Tasks.register(category=TaskType.FEATURE)
@@ -133,5 +135,12 @@ def install_tflite_pack(
     installDir = context.environment.paths["deps"].path / "install" / name
     if rebuild or not utils.is_populated(installDir):
         installScript = srcDir / "install.sh"
-        utils.execute(installScript, installDir, live=verbose)
+        env = os.environ.copy()
+        cmake_exe = context.cache.get("cmake.exe")
+        if cmake_exe is not None:
+            path_old = env.get("PATH")
+            cmake_bin_dir = Path(cmake_exe).parent
+            path_new = f"{cmake_bin_dir}:{path_old}"
+            env["PATH"] = path_new
+        utils.execute(installScript, installDir, live=verbose, env=env)
     context.cache["tflite_pack.exe"] = installDir / "run.sh"

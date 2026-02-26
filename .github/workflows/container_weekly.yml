@@ -38,6 +38,7 @@ on:
     - cron: 0 20 * * 6  # develop, vicuna
     - cron: 0 10 * * 6  # develop, tgc
     - cron: 0 8 * * 6  # develop, minimal
+    - cron: 0 14 * * 6  # develop, iree
 jobs:
   minimal:
     name: Build minimal image for CI
@@ -87,6 +88,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=minimal" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 14 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=iree31" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -146,7 +151,7 @@ jobs:
           push: true
           target: cmake-install
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ github.steps.cfg.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
@@ -161,7 +166,7 @@ jobs:
           push: true
           target: mlonmcu-ci
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ github.steps.cfg.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
@@ -219,6 +224,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=minimal" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 14 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=iree31" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -286,7 +295,7 @@ jobs:
           push: true
           target: mlonmcu
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
@@ -344,6 +353,10 @@ jobs:
           then
               echo "branch=develop" >> $GITHUB_OUTPUT
               echo "template=minimal" >> $GITHUB_OUTPUT
+          elif [[ "${{github.event.schedule}}" == "0 14 * * 6" ]]
+          then
+              echo "branch=develop" >> $GITHUB_OUTPUT
+              echo "template=iree31" >> $GITHUB_OUTPUT
           else
               echo "Invalid!"
               exit 1
@@ -410,8 +423,9 @@ jobs:
           push: true
           target: mlonmcu-bench
           build-args: |
-            ENABLE_CMAKE=true
+            ENABLE_CMAKE=false
             MLONMCU_TEMPLATE=${{ steps.cfg.outputs.template }}
+            ENABLE_CONAN=true
           cache-from: |
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-cmake:latest
             type=registry,ref=ghcr.io/${{ steps.lowered.outputs.lowercase }}-ci:${{ steps.branch_str.outputs.branch }}latest

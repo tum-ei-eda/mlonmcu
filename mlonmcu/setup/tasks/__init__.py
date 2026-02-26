@@ -35,6 +35,7 @@ from .tflite import *  # noqa: F401, F403
 from .tflmc import *  # noqa: F401, F403
 from .tf import *  # noqa: F401, F403
 from .tvm import *  # noqa: F401, F403
+from .iree import *  # noqa: F401, F403
 from .utvmcg import *  # noqa: F401, F403
 from .zephyr import *  # noqa: F401, F403
 from .pulp import *  # noqa: F401, F403
@@ -52,3 +53,4 @@ from .cv32e40p import *  # noqa: F401, F403
 from .boost import *  # noqa: F401, F403
 from .cmake import *  # noqa: F401, F403
 from .tgc import *  # noqa: F401, F403
+from .yosys import *  # noqa: F401, F403

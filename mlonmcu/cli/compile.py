@@ -24,7 +24,7 @@ from mlonmcu.cli.build import (
     add_build_options,
 )
 from mlonmcu.context.context import MlonMcuContext
-from mlonmcu.session.run import RunStage
+from mlonmcu.session.run import RunStage, RunInitializer
 from mlonmcu.platform.lookup import get_platforms_targets
 from .helper.parse import extract_target_names, extract_platform_names, extract_config_and_feature_names
 
@@ -54,13 +54,16 @@ def _handle(args, context):
     session = context.sessions[-1]
     new_runs = []
     for run in session.runs:
-        if run.target is None:
+        if isinstance(run, RunInitializer) and run.frozen:
+            new_runs.append(run)
+            continue
+        if not run.has_target():
             # assert run.compile_platform is None
             targets_ = targets
         else:
             targets_ = [None]
         for target_name in targets_:
-            new_run = run.copy()
+            new_run = run.copy(session=session)
             if target_name is not None:
                 platform_name = None
                 for platform in platforms:

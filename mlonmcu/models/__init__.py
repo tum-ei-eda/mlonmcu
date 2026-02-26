@@ -22,6 +22,7 @@ from .frontend import (
     TfLiteFrontend,
     PackedFrontend,
     ONNXFrontend,
+    MLIRFrontend,
     RelayFrontend,
     PaddleFrontend,
     ExampleFrontend,
@@ -38,6 +39,9 @@ from .frontend import (
     OpenASIPFrontend,
     RVVBenchFrontend,
     ISSBenchFrontend,
+    CryptoBenchFrontend,
+    CmsisDSPFrontend,
+    CmsisNNFrontend,
 )
 
 SUPPORTED_FRONTENDS = {
@@ -45,6 +49,7 @@ SUPPORTED_FRONTENDS = {
     "relay": RelayFrontend,
     "packed": PackedFrontend,
     "onnx": ONNXFrontend,
+    "mlir": MLIRFrontend,
     "pb": PBFrontend,
     "paddle": PaddleFrontend,
     "example": ExampleFrontend,
@@ -61,6 +66,9 @@ SUPPORTED_FRONTENDS = {
     "openasip": OpenASIPFrontend,
     "rvv_bench": RVVBenchFrontend,
     "iss_bench": ISSBenchFrontend,
+    "crypto_bench": CryptoBenchFrontend,
+    "cmsis_dsp": CmsisDSPFrontend,
+    "cmsis_nn": CmsisNNFrontend,
 }  # TODO: use registry instead
 
 __all__ = [
@@ -68,6 +76,7 @@ __all__ = [
     "TfLiteFrontend",
     "PackedFrontend",
     "ONNXFrontend",
+    "MLIRFrontend",
     "PBFrontend",
     "LayerGenFrontend",
     "SUPPORTED_FRONTENDS",

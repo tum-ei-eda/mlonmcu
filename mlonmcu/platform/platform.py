@@ -59,7 +59,7 @@ class Platform:
         self.artifacts = []
         self.supported_targets_cache = {}
 
-    def init_directory(self, path=None, context=None):
+    def init_directory(self, path=None, context=None) -> Path:
         raise NotImplementedError
 
     @property

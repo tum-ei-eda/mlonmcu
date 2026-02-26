@@ -32,7 +32,7 @@ from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target.target import Target
-from mlonmcu.config import str2bool
+from mlonmcu.config import str2bool, str2list, str2dict
 
 from ..platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_platform_target, get_espidf_platform_targets
@@ -41,10 +41,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project"):
-    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("..", "resources", "platforms", "espidf"))
+    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "espidf"))
     if name not in espidf_templates:
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("..", "resources", "platforms", "espidf", name))
+    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "espidf", name))
     return fname
 
 
@@ -64,6 +64,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         "wait_for_user": True,
         "flash_only": False,
         "newlib_nano_fmt": True,
+        "idf_build_extra_args": None,
+        "extra_cmake_defs": None,
+        "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
     }
 
     REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
@@ -127,6 +130,16 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         value = self.config["flash_only"]
         return str2bool(value)
 
+    @property
+    def idf_build_extra_args(self):
+        value = self.config["idf_build_extra_args"]
+        return str2list(value, allow_none=True)
+
+    @property
+    def extra_cmake_defs(self):
+        value = self.config["extra_cmake_defs"]
+        return str2dict(value, allow_none=True)
+
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()
         env["IDF_PATH"] = str(self.espidf_src_dir)
@@ -147,7 +160,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         if self.project_dir is not None:
             self.project_dir.mkdir(exist_ok=True)
             logger.debug("Project directory already initialized")
-            return
+            return self.project_dir
         dir_name = self.name
         if path is not None:
             self.project_dir = Path(path)
@@ -168,6 +181,7 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 self.project_dir = Path(self.tempdir.name) / dir_name
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
+        return self.project_dir
 
     def _get_supported_targets(self):
         text = self.invoke_idf_exe("--list-targets", live=self.print_outputs)
@@ -212,6 +226,16 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     def baud(self):
         return self.config["baud"]
 
+    @property
+    def optimize(self):
+        val = self.config["optimize"]
+        if val is None:
+            val = "s"
+        else:
+            val = str(val)
+        assert val in ["0", "g", "2", "s", "z"], f"Unsupported: {val}"
+        return val
+
     def close(self):
         if self.tempdir:
             self.tempdir.cleanup()
@@ -253,6 +277,21 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write('CONFIG_MICRO_KWS_CLASS_LABEL_7="right"\n')
                     f.write('CONFIG_MICRO_KWS_CLASS_LABEL_8="on"\n')
                     f.write('CONFIG_MICRO_KWS_CLASS_LABEL_9="off"\n')
+                if self.project_template == "micro_kws_esp32devboard_perf":
+                    f.write("CONFIG_MICRO_KWS_NUM_CLASSES=10\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_SUPPRESSION_MS=800\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_HISTORY_LENGTH=50\n")
+                    f.write("CONFIG_MICRO_KWS_POSTERIOR_TRIGGER_THRESHOLD_SINGLE=180\n")
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_0="silence"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_1="unkown"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_2="yes"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_3="no"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_4="up"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_5="down"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_6="left"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_7="right"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_8="on"\n')
+                    f.write('CONFIG_MICRO_KWS_CLASS_LABEL_9="off"\n')
                 if self.debug:
                     f.write("CONFIG_OPTIMIZATION_LEVEL_DEBUG=y\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_DEBUG=y\n")
@@ -273,11 +312,18 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     f.write(f"CONFIG_NEWLIB_NANO_FORMAT={newlib_nano_fmt_val}\n")
                     f.write("CONFIG_COMPILER_OPTIMIZATION_LEVEL_RELEASE=y\n")
                     f.write("CONFIG_OPTIMIZATION_LEVEL_RELEASE=y\n")
-                    optimize_for_size = True
-                    if optimize_for_size:
+                    optimize_size = self.optimize in ["s", "z"]
+                    optimize_speed = self.optimize == "2"
+                    optimize_none = self.optimize == "0"
+                    optimize_debug = self.optimize == "g"
+                    if optimize_size:
                         f.write("CONFIG_COMPILER_OPTIMIZATION_SIZE=y\n")
-                    else:
+                    elif optimize_speed:
                         f.write("CONFIG_COMPILER_OPTIMIZATION_PERF=y\n")
+                    elif optimize_none:
+                        f.write("CONFIG_COMPILER_OPTIMIZATION_NONE=y\n")
+                    elif optimize_debug:
+                        f.write("CONFIG_COMPILER_OPTIMIZATION_DEBUG=y\n")  # deprecated with IDF v6
                 watchdog_sec = 60
                 f.write(f"CONFIG_ESP_TASK_WDT_TIMEOUT_S={watchdog_sec}\n")
                 f.write(f'CONFIG_MLONMCU_CODEGEN_DIR="{src}"\n')
@@ -300,6 +346,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
 
     def get_idf_cmake_args(self):
         cmake_defs = {"CMAKE_BUILD_TYPE": "Debug" if self.debug else "Release"}
+        if self.extra_cmake_defs:
+            cmake_defs.update(self.extra_cmake_defs)
         return [f"-D{key}={value}" for key, value in cmake_defs.items()]
 
     def compile(self, target, src=None):
@@ -313,6 +361,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
             *self.get_idf_cmake_args(),
             "build",
         ]
+        if self.idf_build_extra_args:
+            idfArgs.extend(self.idf_build_extra_args)
         out += self.invoke_idf_exe(*idfArgs, live=self.print_outputs)
         return out
 

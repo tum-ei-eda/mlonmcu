@@ -46,7 +46,7 @@ jobs:
       # TODO: caching
       - name: Install APT packages
         run: |
-          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler rsync
+          sudo apt -qq install -y g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler rsync git-lfs libcurl4-openssl-dev
           sudo apt -qq install -y ninja-build flex
           sudo apt remove clang-11* llvm-11*
       - name: Initialize Virtualenv
@@ -60,7 +60,7 @@ jobs:
       - name: Run package creation
         run: |
           source .venv/bin/activate
-          make install
+          pip install .
       - name: Initialize MLonMCU environment
         run: |
           source .venv/bin/activate

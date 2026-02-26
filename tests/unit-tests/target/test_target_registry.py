@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Test target registry mechanism."""
+
 import pytest
 
 from mlonmcu.target import Target, register_target, get_targets

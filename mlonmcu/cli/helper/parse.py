@@ -106,7 +106,7 @@ def extract_config(args):
                 return gen
             for x in config_gen:
                 if "_" in x:
-                    assert len(set(x)) == 1
+                    assert len(set(x)) == 1, "_ can not be mixed with options"
                     gen.append({})
                 else:
                     c = parse_vars(x)

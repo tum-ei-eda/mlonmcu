@@ -65,6 +65,8 @@ To use the PIP package, run the following: `pip install mlonmcu` (Add `--user` i
 
 #### Build Package manually
 
+Don't forget to clone using `--recursive` or run `git submodule update --init --recursive` after checkout.
+
 First, install all relevant dependencies:
 
 ```

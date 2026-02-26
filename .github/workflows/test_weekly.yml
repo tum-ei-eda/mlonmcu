@@ -63,6 +63,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ matrix.config.branch }}
+          submodules: recursive
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -135,6 +136,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ matrix.config.branch }}
+          submodules: recursive
       # - name: Run integration tests
       #   run: |
       #     python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

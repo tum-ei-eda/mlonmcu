@@ -57,7 +57,6 @@ from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
 
-
 logger = get_logger()
 
 

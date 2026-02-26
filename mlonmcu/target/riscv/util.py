@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MLonMCU RISC-V utilities"""
+
 import re
 
 

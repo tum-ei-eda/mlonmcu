@@ -43,7 +43,6 @@ from .calc_lib_mem_footprints import (
 )
 from .dwarf import analyze_dwarf
 
-
 logger = get_logger()
 
 

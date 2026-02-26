@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Collection of utilities to manage MLonMCU configs."""
+
 import re
 import distutils.util
 from typing import List

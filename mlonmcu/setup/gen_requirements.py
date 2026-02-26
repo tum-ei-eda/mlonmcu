@@ -51,7 +51,6 @@ import textwrap
 import sys
 import typing
 
-
 RequirementsByPieceType = typing.List[typing.Tuple[str, typing.Tuple[str, typing.List[str]]]]
 
 

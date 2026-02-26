@@ -17,12 +17,12 @@
 # limitations under the License.
 #
 """Wrapper generation utils for IREE backends."""
+
 from typing import Optional
 
 from mlonmcu.logging import get_logger
 from mlonmcu.flow.tvm.backend.wrapper import getSizes
 from .iree_utils import parse_iree_version
-
 
 logger = get_logger()
 

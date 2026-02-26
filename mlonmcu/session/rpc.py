@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of MLonMCU rpc utilities."""
+
 import socket
 from dataclasses import dataclass
 from typing import Optional, List

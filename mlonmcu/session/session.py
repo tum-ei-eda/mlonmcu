@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
+
 import os
 import shutil
 import tempfile

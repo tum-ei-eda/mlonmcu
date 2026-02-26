@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """UMA backend for the q_vanilla_accelerator accelerator"""
+
 from .passes import QVanillaAcceleratorConv2dPass, ConvertLayout
 
 # , ConvertLayout, Canonicalize, QVanillaAcceleratorDensePass

@@ -830,7 +830,7 @@ class ExecutorchBackend(Backend):
         self.model_format = None
         # self.supported_formats = get_supported_formats_executorch()
         # self.supported_formats = [ModelFormats.TFLITE, ModelFormats.MLIR]
-        self.supported_formats = [ModelFormats.PTE]
+        self.supported_formats = [ModelFormats.PTE, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_PYTHON]
         # TODO: support PKL,...
 
         self.artifacts = []

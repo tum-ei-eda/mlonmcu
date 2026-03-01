@@ -553,6 +553,22 @@ def get_pte_model_info(model_file):
     return model_info
 
 
+def get_torch_model_info(model_class):
+    model_info = TorchModelInfo(model_class)
+    return model_info
+
+
+def get_torch_python_model_info(model_file):
+    raise NotImplementedError
+    return get_torch_model_info(model_class)
+
+
+def get_torch_pickle_model_info(model_file):
+    with open(model_file, "rb") as f:
+        model_class = f.read()
+    return get_torch_model_info(model_class)
+
+
 def get_model_info(model, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
@@ -574,6 +590,10 @@ def get_model_info(model, backend_name="unknown"):
         return "pdmodel", get_pb_model_info(model)
     elif fmt == ModelFormats.PTE:
         return "pte", get_pte_model_info(model)
+    elif fmt == ModelFormats.TORCH_PYTHON:
+        return "torch_python", get_torch_python_model_info(model)
+    elif fmt == ModelFormats.TORCH_PICKLE:
+        return "torch_pickle", get_torch_pickle_model_info(model)
     elif fmt == ModelFormats.MLIR:
         with open(model, "r") as handle:
             mod_text = handle.read()

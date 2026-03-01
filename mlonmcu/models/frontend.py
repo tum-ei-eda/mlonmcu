@@ -1516,7 +1516,7 @@ class TorchFrontend(Frontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "torch",
-            input_formats=[ModelFormats.PYTHON],
+            input_formats=[ModelFormats.TORCH_PYTHON],
             output_formats=[ModelFormats.PTE],
             features=features,
             config=config,
@@ -1551,31 +1551,35 @@ class TorchFrontend(Frontend):
         return None
 
     def _lookup_builtin_model(self, name):
-        import ast
+        # import ast
 
-        builtins_file = Path(__file__).parent / "torch_models" / "quant_linear_test.py"
-        if not builtins_file.is_file():
-            return None, None
-        with open(builtins_file, "r", encoding="utf-8") as handle:
-            source = handle.read()
-        tree = ast.parse(source, filename=str(builtins_file))
+        # builtins_file = Path(__file__).parent / "torch_models" / "quant_linear_test.py"
+        # if not builtins_file.is_file():
+        #     return None, None
+        # with open(builtins_file, "r", encoding="utf-8") as handle:
+        #     source = handle.read()
+        # tree = ast.parse(source, filename=str(builtins_file))
 
-        alias_to_class = {}
-        for node in tree.body:
-            if not isinstance(node, ast.Assign):
-                continue
-            if not any(isinstance(target, ast.Name) and target.id == "MODELS" for target in node.targets):
-                continue
-            if not isinstance(node.value, ast.Dict):
-                continue
-            for key_node, value_node in zip(node.value.keys, node.value.values):
-                if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
-                    alias_to_class[key_node.value] = value_node.id
+        # alias_to_class = {}
+        # for node in tree.body:
+        #     if not isinstance(node, ast.Assign):
+        #         continue
+        #     if not any(isinstance(target, ast.Name) and target.id == "MODELS" for target in node.targets):
+        #         continue
+        #     if not isinstance(node.value, ast.Dict):
+        #         continue
+        #     for key_node, value_node in zip(node.value.keys, node.value.values):
+        #         if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
+        #             alias_to_class[key_node.value] = value_node.id
 
-        if name in alias_to_class:
-            return builtins_file, alias_to_class[name]
-        if self._path_contains_class(builtins_file, name):
-            return builtins_file, name
+        # if name in alias_to_class:
+        #     return builtins_file, alias_to_class[name]
+        from .torch_models import MODELS
+
+        if name in MODELS:
+            return None, MODELS[name]
+        # if self._path_contains_class(builtins_file, name):
+        #     return builtins_file, name
         return None, None
 
     def _get_search_directories(self, context=None):
@@ -1593,14 +1597,17 @@ class TorchFrontend(Frontend):
         hints = []
         config = config if config is not None else {}
         for name in names:
-            path, model_class = self._lookup_builtin_model(name)
-            if path is not None:
-                hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
+            # path, model_class = self._lookup_builtin_model(name)
+            _, model_class = self._lookup_builtin_model(name)
+            if model_class is None:
                 continue
-            class_file = self._find_class_in_dirs(name, self._get_search_directories(context=context))
-            if class_file is not None:
-                hints.append(self._make_hint(name, class_file, model_class=name, config=config))
-                continue
+            # if path is not None:
+            #     hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
+            #     continue
+            # class_file = self._find_class_in_dirs(name, self._get_search_directories(context=context))
+            # if class_file is not None:
+            #     hints.append(self._make_hint(name, class_file, model_class=name, config=config))
+            #     continue
             raise RuntimeError(f"Could not find Torch model: {name}")
         return hints
 

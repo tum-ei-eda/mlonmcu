@@ -58,7 +58,7 @@ class ModelFormats(Enum):
     SAVED_MODEL = ModelFormat(10, [""])  # tf
     PTE = ModelFormat(11, ["pte"])
     TORCH_PICKLE = ModelFormat(12, ["pt", "pth", "pkl", "pickle"])
-    PYTHON = ModelFormat(13, ["py"])
+    TORCH_PYTHON = ModelFormat(13, ["py"])
 
 
 def parse_metadata_from_path(path):

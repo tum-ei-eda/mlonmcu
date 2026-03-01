@@ -1505,6 +1505,139 @@ class ONNXFrontend(SimpleFrontend):
         )
 
 
+
+
+class TorchFrontend(Frontend):
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+        "use_default_registry": True,
+        "model_registry": None,
+        "download_dir": None,
+    }
+
+    REQUIRED = Frontend.REQUIRED
+    OPTIONAL = Frontend.OPTIONAL
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch",
+            input_formats=[ModelFormats.PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.PTE],
+            output_formats=[ModelFormats.PTE],
+            features=features,
+            config=config,
+        )
+
+    @property
+    def use_default_registry(self):
+        value = self.config["use_default_registry"]
+        return str2bool(value)
+
+    @property
+    def model_registry(self):
+        value = self.config["model_registry"]
+        if value is None:
+            return None
+        value = Path(value)
+        assert value.is_file(), f"model_registry does not exist: {value}"
+        return value
+
+    @property
+    def download_dir(self):
+        value = self.config["download_dir"]
+        if value is None:
+            value = tempfile.gettempdir()
+        value = Path(value)
+        value.mkdir(parents=True, exist_ok=True)
+        return value
+
+    @property
+    def supported_extensions(self):
+        return [ext for fmt in self.input_formats for ext in fmt.extensions]
+
+    def _default_registry(self):
+        return {
+            "mv2": "https://github.com/pytorch/executorch/raw/main/examples/arm/ethos-u-setup/models/mv2.pte",
+            "mv3": "https://github.com/pytorch/executorch/raw/main/examples/arm/ethos-u-setup/models/mv3_large.pte",
+            "add": "https://github.com/pytorch/executorch/raw/main/examples/arm/ethos-u-setup/models/add.pte",
+            "QuantLinearTest": {
+                "url": "https://github.com/pytorch/executorch/raw/main/examples/arm/aot_arm_compiler.py",
+                "class": "QuantLinearTest",
+            },
+        }
+
+    def _load_registry(self):
+        registry = {}
+        if self.use_default_registry:
+            registry.update(self._default_registry())
+        if self.model_registry is not None:
+            import yaml
+
+            with open(self.model_registry, "r") as f:
+                content = yaml.safe_load(f) or {}
+            assert isinstance(content, dict), "model_registry should contain a dictionary"
+            registry.update(content)
+        return registry
+
+    def _download_file(self, url, dst):
+        import urllib.request
+
+        logger.info("Downloading Torch model '%s' -> %s", url, dst)
+        urllib.request.urlretrieve(url, dst)
+
+    def _normalize_registry_entry(self, name, entry):
+        if isinstance(entry, str):
+            return entry, None
+        assert isinstance(entry, dict), f"Invalid registry entry for '{name}'"
+        assert "url" in entry, f"Registry entry for '{name}' must include 'url'"
+        model_class = entry.get("class", None)
+        return entry["url"], model_class
+
+    def _make_hint(self, name, path, model_class=None, config=None):
+        ext = path.suffix[1:].lower() if path.suffix else ""
+        assert ext in self.supported_extensions, f"Unsupported extension for torch model: {ext}"
+        local_config = {} if config is None else config.copy()
+        model_name = model_class if model_class is not None else name
+        return Model(model_name, [path], config=local_config, alt=name, formats=[ModelFormats.from_extension(ext)])
+
+    def lookup_models(self, names, config=None, context=None):
+        hints = []
+        config = config if config is not None else {}
+        registry = self._load_registry()
+        for name in names:
+            source_name = name
+            requested_class = None
+            if ":" in name:
+                source_name, requested_class = name.rsplit(":", 1)
+            filepath = Path(source_name)
+            if filepath.is_file():
+                hints.append(self._make_hint(filepath.stem, filepath, model_class=requested_class, config=config))
+                continue
+            if source_name in registry:
+                url, registered_class = self._normalize_registry_entry(source_name, registry[source_name])
+                model_class = requested_class if requested_class is not None else registered_class
+                filename = Path(url).name
+                local_path = self.download_dir / filename
+                if not local_path.is_file():
+                    self._download_file(url, local_path)
+                hints.append(self._make_hint(source_name, local_path, model_class=model_class, config=config))
+                continue
+            if context is not None and requested_class is None:
+                hints.extend(super().lookup_models([source_name], config=config, context=context))
+                continue
+            raise RuntimeError(f"Could not find Torch model: {name}")
+        return hints
+
+    def produce_artifacts(self, model):
+        assert len(model.paths) == 1, "Torch frontend currently expects one input file"
+        path = model.paths[0]
+        ext = model.formats[0].extension
+        artifacts = []
+        with open(path, "rb") as handle:
+            raw = handle.read()
+        artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
+        return artifacts
+
+
 class PTEFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(

@@ -1505,14 +1505,9 @@ class ONNXFrontend(SimpleFrontend):
         )
 
 
-
-
 class TorchFrontend(Frontend):
     DEFAULTS = {
         **Frontend.DEFAULTS,
-        "use_default_registry": True,
-        "model_registry": None,
-        "download_dir": None,
     }
 
     REQUIRED = Frontend.REQUIRED
@@ -1521,76 +1516,15 @@ class TorchFrontend(Frontend):
     def __init__(self, features=None, config=None):
         super().__init__(
             "torch",
-            input_formats=[ModelFormats.PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.PTE],
+            input_formats=[ModelFormats.PYTHON],
             output_formats=[ModelFormats.PTE],
             features=features,
             config=config,
         )
 
     @property
-    def use_default_registry(self):
-        value = self.config["use_default_registry"]
-        return str2bool(value)
-
-    @property
-    def model_registry(self):
-        value = self.config["model_registry"]
-        if value is None:
-            return None
-        value = Path(value)
-        assert value.is_file(), f"model_registry does not exist: {value}"
-        return value
-
-    @property
-    def download_dir(self):
-        value = self.config["download_dir"]
-        if value is None:
-            value = tempfile.gettempdir()
-        value = Path(value)
-        value.mkdir(parents=True, exist_ok=True)
-        return value
-
-    @property
     def supported_extensions(self):
         return [ext for fmt in self.input_formats for ext in fmt.extensions]
-
-    def _default_registry(self):
-        return {
-            "mv2": "https://github.com/pytorch/executorch/raw/main/examples/arm/ethos-u-setup/models/mv2.pte",
-            "mv3": "https://github.com/pytorch/executorch/raw/main/examples/arm/ethos-u-setup/models/mv3_large.pte",
-            "add": "https://github.com/pytorch/executorch/raw/main/examples/arm/ethos-u-setup/models/add.pte",
-            "QuantLinearTest": {
-                "url": "https://github.com/pytorch/executorch/raw/main/examples/arm/aot_arm_compiler.py",
-                "class": "QuantLinearTest",
-            },
-        }
-
-    def _load_registry(self):
-        registry = {}
-        if self.use_default_registry:
-            registry.update(self._default_registry())
-        if self.model_registry is not None:
-            import yaml
-
-            with open(self.model_registry, "r") as f:
-                content = yaml.safe_load(f) or {}
-            assert isinstance(content, dict), "model_registry should contain a dictionary"
-            registry.update(content)
-        return registry
-
-    def _download_file(self, url, dst):
-        import urllib.request
-
-        logger.info("Downloading Torch model '%s' -> %s", url, dst)
-        urllib.request.urlretrieve(url, dst)
-
-    def _normalize_registry_entry(self, name, entry):
-        if isinstance(entry, str):
-            return entry, None
-        assert isinstance(entry, dict), f"Invalid registry entry for '{name}'"
-        assert "url" in entry, f"Registry entry for '{name}' must include 'url'"
-        model_class = entry.get("class", None)
-        return entry["url"], model_class
 
     def _make_hint(self, name, path, model_class=None, config=None):
         ext = path.suffix[1:].lower() if path.suffix else ""
@@ -1599,30 +1533,73 @@ class TorchFrontend(Frontend):
         model_name = model_class if model_class is not None else name
         return Model(model_name, [path], config=local_config, alt=name, formats=[ModelFormats.from_extension(ext)])
 
+    def _path_contains_class(self, file_path, class_name):
+        import ast
+
+        with open(file_path, "r", encoding="utf-8") as handle:
+            source = handle.read()
+        tree = ast.parse(source, filename=str(file_path))
+        return any(isinstance(node, ast.ClassDef) and node.name == class_name for node in ast.walk(tree))
+
+    def _find_class_in_dirs(self, class_name, directories):
+        for directory in directories:
+            if not directory.is_dir():
+                continue
+            for candidate in directory.glob("*.py"):
+                if self._path_contains_class(candidate, class_name):
+                    return candidate
+        return None
+
+    def _lookup_builtin_model(self, name):
+        import ast
+
+        builtins_file = Path(__file__).parent / "torch_models" / "quant_linear_test.py"
+        if not builtins_file.is_file():
+            return None, None
+        with open(builtins_file, "r", encoding="utf-8") as handle:
+            source = handle.read()
+        tree = ast.parse(source, filename=str(builtins_file))
+
+        alias_to_class = {}
+        for node in tree.body:
+            if not isinstance(node, ast.Assign):
+                continue
+            if not any(isinstance(target, ast.Name) and target.id == "MODELS" for target in node.targets):
+                continue
+            if not isinstance(node.value, ast.Dict):
+                continue
+            for key_node, value_node in zip(node.value.keys, node.value.values):
+                if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
+                    alias_to_class[key_node.value] = value_node.id
+
+        if name in alias_to_class:
+            return builtins_file, alias_to_class[name]
+        if self._path_contains_class(builtins_file, name):
+            return builtins_file, name
+        return None, None
+
+    def _get_search_directories(self, context=None):
+        directories = []
+        package_models = Path(__file__).parent / "torch_models"
+        directories.append(package_models)
+        if context is not None:
+            model_paths = context.environment.paths.get("models", [])
+            for model_path in model_paths:
+                path = getattr(model_path, "path", model_path)
+                directories.append(Path(path))
+        return directories
+
     def lookup_models(self, names, config=None, context=None):
         hints = []
         config = config if config is not None else {}
-        registry = self._load_registry()
         for name in names:
-            source_name = name
-            requested_class = None
-            if ":" in name:
-                source_name, requested_class = name.rsplit(":", 1)
-            filepath = Path(source_name)
-            if filepath.is_file():
-                hints.append(self._make_hint(filepath.stem, filepath, model_class=requested_class, config=config))
+            path, model_class = self._lookup_builtin_model(name)
+            if path is not None:
+                hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
                 continue
-            if source_name in registry:
-                url, registered_class = self._normalize_registry_entry(source_name, registry[source_name])
-                model_class = requested_class if requested_class is not None else registered_class
-                filename = Path(url).name
-                local_path = self.download_dir / filename
-                if not local_path.is_file():
-                    self._download_file(url, local_path)
-                hints.append(self._make_hint(source_name, local_path, model_class=model_class, config=config))
-                continue
-            if context is not None and requested_class is None:
-                hints.extend(super().lookup_models([source_name], config=config, context=context))
+            class_file = self._find_class_in_dirs(name, self._get_search_directories(context=context))
+            if class_file is not None:
+                hints.append(self._make_hint(name, class_file, model_class=name, config=config))
                 continue
             raise RuntimeError(f"Could not find Torch model: {name}")
         return hints

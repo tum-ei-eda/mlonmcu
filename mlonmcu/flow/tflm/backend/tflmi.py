@@ -152,10 +152,9 @@ size_t {prefix}_outputs();
                     new_name += c
                 prev = c
             # workarounds for strange op names
-            MAPPINGS = {
-                "Lstm": "LSTM",
-            }
+            MAPPINGS = {"Lstm": "LSTM", "Padv2": "PadV2"}
             for key, value in MAPPINGS.items():
+                # new_name = new_name.replace(key, value)
                 new_name = new_name.replace(key, value)
             return new_name
 
@@ -183,6 +182,7 @@ size_t {prefix}_outputs();
                 "CONV_2D",
                 "DEPTHWISE_CONV_2D",
                 "FULLY_CONNECTED",
+                "SLICE",
                 # "GATHER",
                 # "LOGISTIC",
                 "MAX_POOL_2D",
@@ -190,6 +190,13 @@ size_t {prefix}_outputs();
                 # "REDUCE_MAX",
                 "RESHAPE",
                 "SOFTMAX",
+                "LOGISTIC",
+                "TANH",
+                "MUL",
+                "TRANSPOSE",
+                "PAD",
+                "PADV2",
+                "SUM",
             ]
             default_ops = list(map(convert_op_name, default_ops))
             ops = list(set(ops + default_ops))  # remove duplicates

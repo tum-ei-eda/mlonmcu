@@ -1632,6 +1632,7 @@ class TorchFrontend(Frontend):
             if fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
                 model_path = Path(name)
                 assert model_path.is_file(), f"Not a file: {model_path}"
+                name = model_path.stem
                 from .torch_models.torch_utils import load_torch_model
 
                 model, _ = load_torch_model(model_path)

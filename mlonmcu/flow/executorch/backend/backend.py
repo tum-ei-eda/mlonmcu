@@ -826,6 +826,7 @@ class ExecutorchBackend(Backend):
         self.identifier = "model"
 
         self.model = None  # Actual filename!
+        self.pte_file = None
         self.model_info = None
         self.input_shapes = None
         self.model_format = None
@@ -920,6 +921,7 @@ class ExecutorchBackend(Backend):
                 )
             else:
                 raise RuntimeError(f"Unsupported format: {self.model_format}")
+            self.pte_file = pte_file
             pte_header_file = out_dir / f"{self.identifier}_pte.h"
             out += self.generate_pte_header(pte_file, pte_header_file)
             with open(pte_header_file, "r") as f:
@@ -953,6 +955,6 @@ class ExecutorchBackend(Backend):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if self.model is not None:
-            ret["EXECUTORCH_PTE_FILE_PATH"] = self.model
+        if self.pte_file is not None:
+            ret["EXECUTORCH_PTE_FILE_PATH"] = self.pte_file
         return ret

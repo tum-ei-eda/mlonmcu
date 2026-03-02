@@ -17,12 +17,17 @@
 # limitations under the License.
 #
 import sys
+import tempfile
+from pathlib import Path
 from typing import Tuple
 
 from .backend import TFLMBackend
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 # TODO: move to another place
@@ -473,19 +478,64 @@ class TFLMIBackend(TFLMBackend):
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
-        wrapper_code, header_code = self.codegen.generate_wrapper(
-            self.model,
-            prefix=self.prefix,
-            header=True,
-            arena_size=self.arena_size,
-            debug_arena=self.debug_arena,
-            ops=self.ops,
-            custom_ops=self.custom_ops,
-            registrations=self.registrations,
-            ops_resolver=self.ops_resolver,
-            legacy=self.legacy,
-            reporter=self.reporter,
-        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_dir = Path(temp_dir)
+            # model_path = self.model
+            # model_info = self.model_info
+            if self.model_format == "torch":
+                # TODO: check ai_edge_torch available?
+                # resnet18 test
+                tflite_path = out_dir / f"{self.prefix}.tflite"
+
+                def torch2tflite(torch_model, sample_inputs):
+                    try:
+                        import litert_torch
+                    except ImportError as ex:
+                        logger.error("Missing Python package: litert-torch")
+                        raise ex
+
+                    import torch
+                    import torchvision
+
+                    edge_model = litert_torch.convert(torch_model.eval(), sample_inputs)
+                    return edge_model
+
+                def torch2tflite_from_file(torch_path, tflite_path):
+                    from mlonmcu.models.torch_models.torch_utils import load_torch_model
+
+                    torch_model, _, sample_inputs = load_torch_model(torch_path)
+                    edge_model = torch2tflite(torch_model, sample_inputs)
+                    edge_model.export(tflite_path)
+
+                torch_path = self.model
+                torch2tflite_from_file(torch_path, tflite_path)
+
+                with open(tflite_path, "rb") as f:
+                    model_raw = f.read()
+                artifacts.append(
+                    Artifact(
+                        tflite_path.name,
+                        raw=model_raw,
+                        fmt=ArtifactFormat.BIN,
+                    )
+                )
+            else:
+                assert self.model_format == "tflite"
+                tflite_path = self.model
+            wrapper_code, header_code = self.codegen.generate_wrapper(
+                tflite_path,
+                prefix=self.prefix,
+                header=True,
+                arena_size=self.arena_size,
+                debug_arena=self.debug_arena,
+                ops=self.ops,
+                custom_ops=self.custom_ops,
+                registrations=self.registrations,
+                ops_resolver=self.ops_resolver,
+                legacy=self.legacy,
+                reporter=self.reporter,
+            )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))
         artifacts.append(
             Artifact(

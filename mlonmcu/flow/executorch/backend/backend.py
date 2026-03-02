@@ -958,6 +958,6 @@ class ExecutorchBackend(Backend):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.model:
-            pte_file = Path(self.model).parent / "{self.identifier}.pte"  # Needs exported artifact!
+            pte_file = Path(self.model).parent / f"{self.identifier}.pte"  # Needs exported artifact!
             ret["EXECUTORCH_PTE_FILE_PATH"] = pte_file
         return ret

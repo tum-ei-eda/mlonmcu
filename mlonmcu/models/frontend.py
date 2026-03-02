@@ -1524,11 +1524,11 @@ class TorchFrontend(Frontend):
     REQUIRED = Frontend.REQUIRED
     OPTIONAL = Frontend.OPTIONAL
 
-    def __init__(self, features=None, config=None):
+    def __init__(self, name: str, fmt: ModelFormats, features=None, config=None):
         super().__init__(
-            "torch",
-            input_formats=[ModelFormats.TORCH_PYTHON],
-            output_formats=[ModelFormats.PTE],
+            name,
+            input_formats=[fmt],
+            output_formats=[fmt],
             features=features,
             config=config,
         )
@@ -1668,6 +1668,39 @@ class PTEFrontend(SimpleFrontend):
         super().__init__(
             "pte",
             ModelFormats.PTE,
+            features=features,
+            config=config,
+        )
+
+
+class TorchPickleFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_pickle",
+            fmt=ModelFormats.TORCH_PICKLE,
+            features=features,
+            config=config,
+        )
+
+
+class TorchPythonFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_python",
+            fmt=ModelFormats.TORCH_PYTHON,
+            features=features,
+            config=config,
+        )
+
+
+class TorchExportedFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_exported",
+            fmt=ModelFormats.TORCH_EXPORTED,
             features=features,
             config=config,
         )

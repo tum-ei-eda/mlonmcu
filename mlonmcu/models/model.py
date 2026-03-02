@@ -57,7 +57,8 @@ class ModelFormats(Enum):
     MLIR = ModelFormat(9, ["mlir"])
     SAVED_MODEL = ModelFormat(10, [""])  # tf
     PTE = ModelFormat(11, ["pte"])
-    TORCH_PICKLE = ModelFormat(12, ["pt", "pth", "pkl", "pickle"])
+    TORCH_PICKLE = ModelFormat(12, ["pkl", "pickle"])
+    TORCH_EXPORTED = ModelFormat(12, ["pt", "pth"])
     TORCH_PYTHON = ModelFormat(13, ["py"])
 
 

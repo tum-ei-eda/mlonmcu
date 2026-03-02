@@ -826,13 +826,17 @@ class ExecutorchBackend(Backend):
         self.identifier = "model"
 
         self.model = None  # Actual filename!
-        self.pte_file = None
         self.model_info = None
         self.input_shapes = None
         self.model_format = None
         # self.supported_formats = get_supported_formats_executorch()
         # self.supported_formats = [ModelFormats.TFLITE, ModelFormats.MLIR]
-        self.supported_formats = [ModelFormats.PTE, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_PYTHON]
+        self.supported_formats = [
+            ModelFormats.PTE,
+            ModelFormats.TORCH_PICKLE,
+            ModelFormats.TORCH_PYTHON,
+            ModelFormats.TORCH_EXPORTED,
+        ]
         # TODO: support PKL,...
 
         self.artifacts = []
@@ -921,7 +925,6 @@ class ExecutorchBackend(Backend):
                 )
             else:
                 raise RuntimeError(f"Unsupported format: {self.model_format}")
-            self.pte_file = pte_file
             pte_header_file = out_dir / f"{self.identifier}_pte.h"
             out += self.generate_pte_header(pte_file, pte_header_file)
             with open(pte_header_file, "r") as f:
@@ -950,11 +953,11 @@ class ExecutorchBackend(Backend):
             )
             stdout_artifact = Artifact("executorch_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
-        print("artifacts", artifacts)
         return {"default": artifacts}, {"default": metrics}
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if self.pte_file is not None:
-            ret["EXECUTORCH_PTE_FILE_PATH"] = self.pte_file
+        if self.model:
+            pte_file = Path(self.model).parent / "{self.identifier}.pte"  # Needs exported artifact!
+            ret["EXECUTORCH_PTE_FILE_PATH"] = pte_file
         return ret

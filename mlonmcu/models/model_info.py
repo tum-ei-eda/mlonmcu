@@ -648,7 +648,7 @@ def get_model_info(model, backend_name="unknown"):
         return "pdmodel", get_pb_model_info(model)
     elif fmt == ModelFormats.PTE:
         return "pte", get_pte_model_info(model)
-    elif fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE]:
+    elif fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
         return "torch", get_torch_model_info(model)
     # elif fmt == ModelFormats.TORCH_PYTHON:
     #     return "torch_python", get_torch_model_info(model)

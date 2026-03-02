@@ -20,7 +20,7 @@ import os
 import string
 import tempfile
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
@@ -29,6 +29,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.models.model_info import (
     get_model_info,
 )
+from mlonmcu.models.torch_models.torch_utils import load_torch_model
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -885,10 +886,29 @@ class ExecutorchBackend(Backend):
             # model_info = self.model_info
             if self.model_format == "pte":
                 pte_file = self.model
-            else:
+            elif self.model_format == "torch":
                 pte_file = out_dir / f"{self.identifier}.pte"
-                # TODO: generate
-                raise NotImplementedError
+
+                import torch
+                from torch.export import ExportedProgram
+                from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower
+                from executorch.extension.export_util.utils import save_pte_program
+
+                _, exported_program = load_torch_model(self.model)
+
+                def convert_torch_to_edge(exported_program: ExportedProgram, quantize: bool = False):
+                    if quantize:
+                        raise NotImplementedError("quantize")
+                    compile_config = EdgeCompileConfig(_check_ir_validity=False)
+                    edge = to_edge_transform_and_lower(exported_program, compile_config=compile_config)
+                    return edge
+
+                edge = convert_torch_to_edge(exported_program, quantize=False)
+
+                exec_prog = edge.to_executorch(config=ExecutorchBackendConfig(extract_delegate_segments=False))
+
+                save_pte_program(exec_prog, str(pte_file))
+
                 with open(pte_file, "rb") as f:
                     model_raw = f.read()
                 artifacts.append(
@@ -898,6 +918,8 @@ class ExecutorchBackend(Backend):
                         fmt=ArtifactFormat.BIN,
                     )
                 )
+            else:
+                raise RuntimeError(f"Unsupported format: {self.model_format}")
             pte_header_file = out_dir / f"{self.identifier}_pte.h"
             out += self.generate_pte_header(pte_file, pte_header_file)
             with open(pte_header_file, "r") as f:

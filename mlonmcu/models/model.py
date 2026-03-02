@@ -172,11 +172,12 @@ class Model(Workload):
         "params_path": None,
     }
 
-    def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
+    def __init__(self, name, paths, classes=None, config=None, alt=None, formats=ModelFormats.TFLITE):
         super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
             self.paths = [self.paths]
+        self.classes = classes if classes is not None else []
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]

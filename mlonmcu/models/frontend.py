@@ -583,8 +583,12 @@ class Frontend(ABC):
         return model_info_dict  # TODO: turn into class
 
     def process_metadata(self, model, cfg=None):
-        model_dir = Path(model.paths[0]).parent.resolve()
-        metadata = model.metadata
+        if len(model.paths) == 0:
+            model_dir = None
+            metadata = None
+        else:
+            model_dir = Path(model.paths[0]).parent.resolve()
+            metadata = model.metadata
         in_paths = []
         out_paths = []
         labels_paths = []
@@ -673,7 +677,7 @@ class Frontend(ABC):
                             labels_path.is_file()
                         ), f"Labels file defined in model metadata does not exist: {labels_path}"
                         labels_paths.append(labels_path)
-        else:
+        elif model_dir is not None:
             fallback_in_path = model_dir / "input"
             if fallback_in_path.is_dir():
                 in_paths.append(fallback_in_path)
@@ -727,9 +731,11 @@ class Frontend(ABC):
         # Detect model support code (Allow overwrite in metadata YAML)
         if model.support_path:
             support_path = model.support_path
-        else:
+        elif model_dir is not None:
             support_path = model_dir / "support"
-        if support_path.is_dir():
+        else:
+            support_path = None
+        if support_path is not None and support_path.is_dir():
             assert cfg is not None
             # TODO: onlu overwrite if unset?
             if cfg.get("mlif.model_support_dir", None) is not None:
@@ -852,7 +858,12 @@ class Frontend(ABC):
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
 
-        count = len(model.paths)
+        if len(model.paths) > 0:
+            count = len(model.paths)
+        elif len(model.classes) > 0:
+            count = len(model.classes)
+        else:
+            count = 0
         assert count == len(model.formats)
         assert count > 0, f"'{self.name}' frontend expects at least one model"
         max_ins = len(self.input_formats)
@@ -1527,11 +1538,21 @@ class TorchFrontend(Frontend):
         return [ext for fmt in self.input_formats for ext in fmt.extensions]
 
     def _make_hint(self, name, path, model_class=None, config=None):
-        ext = path.suffix[1:].lower() if path.suffix else ""
-        assert ext in self.supported_extensions, f"Unsupported extension for torch model: {ext}"
+        if path is None:
+            assert model_class is not None
+            paths = []
+            formats = [ModelFormats.TORCH_PYTHON]
+            classes = [model_class]
+        else:
+            paths = [path]
+            ext = path.suffix[1:].lower() if path.suffix else ""
+            assert ext in self.supported_extensions, f"Unsupported extension for torch model: {ext}"
+            formats = [ModelFormats.from_extension(ext)]
+            classes = []
         local_config = {} if config is None else config.copy()
-        model_name = model_class if model_class is not None else name
-        return Model(model_name, [path], config=local_config, alt=name, formats=[ModelFormats.from_extension(ext)])
+        # model_name = model_class if model_class is not None else name
+        model_name = name
+        return Model(model_name, paths, config=local_config, alt=name, formats=formats, classes=classes)
 
     def _path_contains_class(self, file_path, class_name):
         import ast
@@ -1574,10 +1595,14 @@ class TorchFrontend(Frontend):
 
         # if name in alias_to_class:
         #     return builtins_file, alias_to_class[name]
-        from .torch_models import MODELS
+        from .torch_models import MODELS, MODEL_NAME_TO_MODEL, EagerModelFactory
 
         if name in MODELS:
             return None, MODELS[name]
+        if name in MODEL_NAME_TO_MODEL:
+            model, example_inputs, _, _ = EagerModelFactory.create_model(*MODEL_NAME_TO_MODEL[name])
+            model.example_input = example_inputs
+            return None, model
         # if self._path_contains_class(builtins_file, name):
         #     return builtins_file, name
         return None, None
@@ -1599,7 +1624,8 @@ class TorchFrontend(Frontend):
         for name in names:
             # path, model_class = self._lookup_builtin_model(name)
             _, model_class = self._lookup_builtin_model(name)
-            if model_class is None:
+            if model_class is not None:
+                hints.append(self._make_hint(name, None, model_class=model_class, config=config))
                 continue
             # if path is not None:
             #     hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
@@ -1612,13 +1638,28 @@ class TorchFrontend(Frontend):
         return hints
 
     def produce_artifacts(self, model):
-        assert len(model.paths) == 1, "Torch frontend currently expects one input file"
-        path = model.paths[0]
-        ext = model.formats[0].extension
         artifacts = []
-        with open(path, "rb") as handle:
-            raw = handle.read()
-        artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
+        if len(model.paths) == 0:
+            assert len(model.classes) > 0
+            assert len(model.classes) == 1
+            model_class = model.classes[0]
+            ext = "pkl"
+            import pickle
+
+            pickled_bytes = pickle.dumps(model_class)
+            artifacts.append(
+                Artifact(f"{model.name}.{ext}", raw=pickled_bytes, fmt=ArtifactFormat.RAW, flags=["model"])
+            )
+        else:
+            path = model.paths[0]
+            ext = model.formats[0].extension
+            if ext == "py":
+                raise NotImplementedError
+            else:
+                assert ext in ["pt", "pth", "pkl", "pickle"]
+            with open(path, "rb") as handle:
+                raw = handle.read()
+            artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
         return artifacts
 
 

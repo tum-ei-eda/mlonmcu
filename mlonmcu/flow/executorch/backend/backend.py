@@ -889,10 +889,10 @@ class ExecutorchBackend(Backend):
             out_dir = Path(temp_dir)
             # model_path = self.model
             # model_info = self.model_info
+            pte_file = out_dir / f"{self.identifier}.pte"
             if self.model_format == "pte":
-                pte_file = self.model
+                utils.copy(self.model, pte_file)
             elif self.model_format == "torch":
-                pte_file = out_dir / f"{self.identifier}.pte"
 
                 from torch.export import ExportedProgram
                 from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower

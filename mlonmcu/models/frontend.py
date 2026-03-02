@@ -1541,7 +1541,7 @@ class TorchFrontend(Frontend):
         if path is None:
             assert model_class is not None
             paths = []
-            formats = [ModelFormats.TORCH_PYTHON]
+            formats = [ModelFormats.TORCH_PICKLE]
             classes = [model_class]
         else:
             paths = [path]
@@ -1627,11 +1627,16 @@ class TorchFrontend(Frontend):
             # path, model_class = self._lookup_builtin_model(name)
             _, model_class = self._lookup_builtin_model(name)
             if model_class is not None:
+                assert fmt == ModelFormats.TORCH_PICKLE
                 hints.append(self._make_hint(name, None, model_class=model_class, config=config))
                 continue
             if fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
                 model_path = Path(name)
+                suffix = model_path.suffix
+                assert len(suffix) > 1
+                ext = suffix[1:]
                 assert model_path.is_file(), f"Not a file: {model_path}"
+                assert ext in fmt.extensions, f"Unsupported extension: {ext}"
                 name = model_path.stem
                 from .torch_models.torch_utils import load_torch_model
 

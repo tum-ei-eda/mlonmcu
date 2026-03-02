@@ -29,6 +29,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.models.model_info import (
     get_model_info,
 )
+from mlonmcu.models.torch_models.torch_utils import load_torch_model
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -830,7 +831,12 @@ class ExecutorchBackend(Backend):
         self.model_format = None
         # self.supported_formats = get_supported_formats_executorch()
         # self.supported_formats = [ModelFormats.TFLITE, ModelFormats.MLIR]
-        self.supported_formats = [ModelFormats.PTE]
+        self.supported_formats = [
+            ModelFormats.PTE,
+            ModelFormats.TORCH_PICKLE,
+            ModelFormats.TORCH_PYTHON,
+            ModelFormats.TORCH_EXPORTED,
+        ]
         # TODO: support PKL,...
 
         self.artifacts = []
@@ -883,12 +889,30 @@ class ExecutorchBackend(Backend):
             out_dir = Path(temp_dir)
             # model_path = self.model
             # model_info = self.model_info
+            pte_file = out_dir / f"{self.identifier}.pte"
             if self.model_format == "pte":
-                pte_file = self.model
-            else:
-                pte_file = out_dir / f"{self.identifier}.pte"
-                # TODO: generate
-                raise NotImplementedError
+                utils.copy(self.model, pte_file)
+            elif self.model_format == "torch":
+
+                from torch.export import ExportedProgram
+                from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower
+                from executorch.extension.export_util.utils import save_pte_program
+
+                _, exported_program, _ = load_torch_model(self.model)
+
+                def convert_torch_to_edge(exported_program: ExportedProgram, quantize: bool = False):
+                    if quantize:
+                        raise NotImplementedError("quantize")
+                    compile_config = EdgeCompileConfig(_check_ir_validity=False)
+                    edge = to_edge_transform_and_lower(exported_program, compile_config=compile_config)
+                    return edge
+
+                edge = convert_torch_to_edge(exported_program, quantize=False)
+
+                exec_prog = edge.to_executorch(config=ExecutorchBackendConfig(extract_delegate_segments=False))
+
+                save_pte_program(exec_prog, str(pte_file))
+
                 with open(pte_file, "rb") as f:
                     model_raw = f.read()
                 artifacts.append(
@@ -898,6 +922,8 @@ class ExecutorchBackend(Backend):
                         fmt=ArtifactFormat.BIN,
                     )
                 )
+            else:
+                raise RuntimeError(f"Unsupported format: {self.model_format}")
             pte_header_file = out_dir / f"{self.identifier}_pte.h"
             out += self.generate_pte_header(pte_file, pte_header_file)
             with open(pte_header_file, "r") as f:
@@ -926,11 +952,17 @@ class ExecutorchBackend(Backend):
             )
             stdout_artifact = Artifact("executorch_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
-        print("artifacts", artifacts)
         return {"default": artifacts}, {"default": metrics}
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if self.model is not None:
-            ret["EXECUTORCH_PTE_FILE_PATH"] = self.model
+        if self.model:
+            if self.model_format == "torch":
+                model_path = Path(self.model)
+                # model_name = model_path.stem
+                pte_file = model_path.parent / f"{self.identifier}.pte"  # Needs exported artifact!
+            else:
+                assert self.model_format == "pte"
+                pte_file = self.model
+            ret["EXECUTORCH_PTE_FILE_PATH"] = pte_file
         return ret

@@ -73,9 +73,9 @@ class TFLMFramework(Framework):
     def generate_tree(self):
         return str2bool(self.config["generate_tree"])
 
-    @property
-    def cfu_accelerate(self):
-        return str2bool(self.config["cfu_accelerate"], allow_none=True)
+    # @property
+    # def cfu_accelerate(self):
+    #     return str2bool(self.config["cfu_accelerate"], allow_none=True)
 
     @property
     def cfu_conv2d_idx_init(self):
@@ -105,10 +105,10 @@ class TFLMFramework(Framework):
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
         if platform == "mlif":
             ret["TF_DIR"] = str(self.tf_src)
-        if self.cfu_accelerate:
-            ret["CFU_ACCELERATE"] = True
-            if self.cfu_conv2d_idx_init is not None:
-                ret["CFU_CONV2D_IDX_INIT"] = self.cfu_conv2d_idx_init
+        # if self.cfu_accelerate:
+        #     ret["CFU_ACCELERATE"] = True
+        #     if self.cfu_conv2d_idx_init is not None:
+        #         ret["CFU_CONV2D_IDX_INIT"] = self.cfu_conv2d_idx_init
         if self.override_dir:
             ret["TFLM_OVERRIDE"] = self.override_dir
         return ret

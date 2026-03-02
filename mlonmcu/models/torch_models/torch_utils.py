@@ -55,6 +55,7 @@ def load_torch_model(model_file: Union[str, Path]):
     assert model_file.is_file()
     suffix = model_file.suffix
 
+    example_inputs = None
     if suffix == ".py":  # python source
         model, example_inputs = _load_python_module_model(model_file, None)
     elif suffix in [".pkl", ".pickle"]:  # pickled
@@ -75,4 +76,4 @@ def load_torch_model(model_file: Union[str, Path]):
         example_inputs = getattr(model, "example_input", None)
     assert example_inputs is not None, "Model must provide example_input"
     exported_program = torch.export.export(model, example_inputs, strict=True)
-    return model, exported_program
+    return model, exported_program, example_inputs

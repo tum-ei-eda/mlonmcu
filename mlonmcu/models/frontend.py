@@ -1640,7 +1640,7 @@ class TorchFrontend(Frontend):
                 name = model_path.stem
                 from .torch_models.torch_utils import load_torch_model
 
-                model, _ = load_torch_model(model_path)
+                model, _, _ = load_torch_model(model_path)
                 hints.append(self._make_hint(name, model_path, model_class=model, config=config))
                 continue
             # if path is not None:

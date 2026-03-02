@@ -898,7 +898,7 @@ class ExecutorchBackend(Backend):
                 from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower
                 from executorch.extension.export_util.utils import save_pte_program
 
-                _, exported_program = load_torch_model(self.model)
+                _, exported_program, _ = load_torch_model(self.model)
 
                 def convert_torch_to_edge(exported_program: ExportedProgram, quantize: bool = False):
                     if quantize:
@@ -957,6 +957,12 @@ class ExecutorchBackend(Backend):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.model:
-            pte_file = Path(self.model).parent / f"{self.identifier}.pte"  # Needs exported artifact!
+            if self.model_format == "torch":
+                model_path = Path(self.model)
+                # model_name = model_path.stem
+                pte_file = model_path.parent / f"{self.identifier}.pte"  # Needs exported artifact!
+            else:
+                assert self.model_format == "pte"
+                pte_file = self.model
             ret["EXECUTORCH_PTE_FILE_PATH"] = pte_file
         return ret

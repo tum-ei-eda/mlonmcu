@@ -388,7 +388,7 @@ class TorchModelInfo(ModelInfo):
     def __init__(self, model_file):
         from mlonmcu.models.torch_models.torch_utils import load_torch_model
 
-        model, exported = load_torch_model(model_file)
+        _, exported, _ = load_torch_model(model_file)
 
         graph = exported.graph
 

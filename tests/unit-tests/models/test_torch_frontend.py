@@ -18,8 +18,6 @@ def test_torch_frontend_lookup_default_package_model_class():
     assert hints[0].paths[0].name == "quant_linear_test.py"
 
 
-
-
 def test_torch_frontend_lookup_builtin_model_by_class_name():
     frontend = TorchFrontend()
 
@@ -29,6 +27,7 @@ def test_torch_frontend_lookup_builtin_model_by_class_name():
     assert hints[0].name == "QuantAddTest"
     assert hints[0].alt == "QuantAddTest"
     assert hints[0].formats == [ModelFormats.PYTHON]
+
 
 def test_torch_frontend_lookup_model_class_in_environment_models_dir(tmp_path):
     model_file = tmp_path / "my_models.py"

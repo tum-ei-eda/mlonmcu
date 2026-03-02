@@ -82,6 +82,4 @@ from executorch.examples.models import MODEL_NAME_TO_MODEL
 #     str(ModelEnum.Sdpa): ("toy_model", "SdpaModule"),
 # }
 #
-# __all__ = [
-#     "MODEL_NAME_TO_MODEL",
-# ]
+__all__ = ["MODEL_NAME_TO_MODEL", "EagerModelFactory", "MODELS"]

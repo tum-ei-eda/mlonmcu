@@ -42,8 +42,6 @@ def _load_serialized_model(model_name: str, example_inputs: Any) -> Optional[Tup
     if not model_name.endswith((".pth", ".pt")):
         return None
 
-    logging.info(f"Load model file {model_name}")
-
     model = torch.load(model_name, weights_only=False)  # nosec B614 trusted inputs
     if example_inputs is None:
         raise RuntimeError(f"Model '{model_name}' requires input data specify --model_input <FILE>.pt")
@@ -73,8 +71,8 @@ def load_torch_model(model_file: Union[str, Path]):
         model = model
     assert isinstance(model, torch.nn.Module)
 
-    example_inputs = getattr(model, "example_input", None)
     if example_inputs is None:
-        raise RuntimeError("Model must provide example_input")
+        example_inputs = getattr(model, "example_input", None)
+    assert example_inputs is not None, "Model must provide example_input"
     exported_program = torch.export.export(model, example_inputs, strict=True)
     return model, exported_program

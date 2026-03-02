@@ -1554,22 +1554,22 @@ class TorchFrontend(Frontend):
         model_name = name
         return Model(model_name, paths, config=local_config, alt=name, formats=formats, classes=classes)
 
-    def _path_contains_class(self, file_path, class_name):
-        import ast
+    # def _path_contains_class(self, file_path, class_name):
+    #     import ast
 
-        with open(file_path, "r", encoding="utf-8") as handle:
-            source = handle.read()
-        tree = ast.parse(source, filename=str(file_path))
-        return any(isinstance(node, ast.ClassDef) and node.name == class_name for node in ast.walk(tree))
+    #     with open(file_path, "r", encoding="utf-8") as handle:
+    #         source = handle.read()
+    #     tree = ast.parse(source, filename=str(file_path))
+    #     return any(isinstance(node, ast.ClassDef) and node.name == class_name for node in ast.walk(tree))
 
-    def _find_class_in_dirs(self, class_name, directories):
-        for directory in directories:
-            if not directory.is_dir():
-                continue
-            for candidate in directory.glob("*.py"):
-                if self._path_contains_class(candidate, class_name):
-                    return candidate
-        return None
+    # def _find_class_in_dirs(self, class_name, directories):
+    #     for directory in directories:
+    #         if not directory.is_dir():
+    #             continue
+    #         for candidate in directory.glob("*.py"):
+    #             if self._path_contains_class(candidate, class_name):
+    #                 return candidate
+    #     return None
 
     def _lookup_builtin_model(self, name):
         # import ast
@@ -1590,7 +1590,8 @@ class TorchFrontend(Frontend):
         #     if not isinstance(node.value, ast.Dict):
         #         continue
         #     for key_node, value_node in zip(node.value.keys, node.value.values):
-        #         if isinstance(key_node, ast.Constant) and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
+        #         if isinstance(key_node, ast.Constant)
+        #             and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
         #             alias_to_class[key_node.value] = value_node.id
 
         # if name in alias_to_class:
@@ -1621,11 +1622,20 @@ class TorchFrontend(Frontend):
     def lookup_models(self, names, config=None, context=None):
         hints = []
         config = config if config is not None else {}
+        fmt = self.input_formats[0]
         for name in names:
             # path, model_class = self._lookup_builtin_model(name)
             _, model_class = self._lookup_builtin_model(name)
             if model_class is not None:
                 hints.append(self._make_hint(name, None, model_class=model_class, config=config))
+                continue
+            if fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
+                model_path = Path(name)
+                assert model_path.is_file(), f"Not a file: {model_path}"
+                from .torch_models.torch_utils import load_torch_model
+
+                model, _ = load_torch_model(model_path)
+                hints.append(self._make_hint(name, model_path, model_class=model, config=config))
                 continue
             # if path is not None:
             #     hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
@@ -1634,7 +1644,7 @@ class TorchFrontend(Frontend):
             # if class_file is not None:
             #     hints.append(self._make_hint(name, class_file, model_class=name, config=config))
             #     continue
-            raise RuntimeError(f"Could not find Torch model: {name}")
+            raise RuntimeError(f"Could not find {self.name} model: {name}")
         return hints
 
     def produce_artifacts(self, model):
@@ -1654,12 +1664,19 @@ class TorchFrontend(Frontend):
             path = model.paths[0]
             ext = model.formats[0].extension
             if ext == "py":
-                raise NotImplementedError
+                # print("model", model, dir(model))
+                # print("model.classes[0]", model.classes[0], dir(model.classes[0]))
+                # input("!")
+                with open(path, "r") as handle:
+                    content = handle.read()
+                artifacts.append(
+                    Artifact(f"{model.name}.{ext}", content=content, fmt=ArtifactFormat.SOURCE, flags=["model"])
+                )
             else:
                 assert ext in ["pt", "pth", "pkl", "pickle"]
-            with open(path, "rb") as handle:
-                raw = handle.read()
-            artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
+                with open(path, "rb") as handle:
+                    raw = handle.read()
+                artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
         return artifacts
 
 

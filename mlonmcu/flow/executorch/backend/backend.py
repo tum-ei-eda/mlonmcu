@@ -20,7 +20,7 @@ import os
 import string
 import tempfile
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Tuple
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
@@ -894,7 +894,6 @@ class ExecutorchBackend(Backend):
             elif self.model_format == "torch":
                 pte_file = out_dir / f"{self.identifier}.pte"
 
-                import torch
                 from torch.export import ExportedProgram
                 from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower
                 from executorch.extension.export_util.utils import save_pte_program

@@ -73,7 +73,6 @@ def load_torch_model(model_file: Union[str, Path]):
         model = model
     assert isinstance(model, torch.nn.Module)
 
-    print("model", model, dir(model))
     example_inputs = getattr(model, "example_input", None)
     if example_inputs is None:
         raise RuntimeError("Model must provide example_input")

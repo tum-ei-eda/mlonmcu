@@ -893,10 +893,17 @@ class ExecutorchBackend(Backend):
             if self.model_format == "pte":
                 utils.copy(self.model, pte_file)
             elif self.model_format == "torch":
-
-                from torch.export import ExportedProgram
-                from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower
-                from executorch.extension.export_util.utils import save_pte_program
+                try:
+                    from torch.export import ExportedProgram
+                except ImportError as ex:
+                    logger.error("Missing Python package: torch")
+                    raise ex
+                try:
+                    from executorch.exir import EdgeCompileConfig, ExecutorchBackendConfig, to_edge_transform_and_lower
+                    from executorch.extension.export_util.utils import save_pte_program
+                except ImportError as ex:
+                    logger.error("Missing Python package: executorch")
+                    raise ex
 
                 _, exported_program, _ = load_torch_model(self.model)
 

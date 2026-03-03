@@ -24,7 +24,7 @@ import argparse
 
 from mlonmcu.config import str2bool
 from mlonmcu.platform import get_platforms
-from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
+from mlonmcu.session.postprocess import get_postprocesses
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
 from .helper.parse import extract_config
@@ -65,6 +65,36 @@ def add_flow_options(parser):
         help="List the supported targets in the environment",
     )
     flow_parser.add_argument(
+        "--list-platforms",
+        action="store_true",
+        help="List the supported platforms in the environment",
+    )
+    flow_parser.add_argument(
+        "--list-frontends",
+        action="store_true",
+        help="List the registered frontends",
+    )
+    flow_parser.add_argument(
+        "--list-frameworks",
+        action="store_true",
+        help="List the registered frameworks",
+    )
+    flow_parser.add_argument(
+        "--list-backends",
+        action="store_true",
+        help="List the registered backends",
+    )
+    flow_parser.add_argument(
+        "--list-features",
+        action="store_true",
+        help="List the registered features",
+    )
+    flow_parser.add_argument(
+        "--list-postprocesses",
+        action="store_true",
+        help="List the registered postprocesses",
+    )
+    flow_parser.add_argument(
         # "-p",
         "--platform",
         type=str,
@@ -80,7 +110,7 @@ def add_flow_options(parser):
         "--postprocess",
         type=str,
         metavar="POSTPROCESS",
-        choices=SUPPORTED_POSTPROCESSES.keys(),
+        choices=get_postprocesses().keys(),
         action="append",
         help="Choose the postprocesses to apply (choices: %(choices)s)",
     )

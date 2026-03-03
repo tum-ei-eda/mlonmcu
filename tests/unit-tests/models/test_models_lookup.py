@@ -254,9 +254,10 @@ def test_infer_extension_from_url(url, content_type, expected):
 def test_lookup_models_supports_url_download(monkeypatch):
     downloaded = Path("/tmp/fake_model.onnx")
 
-    def fake_download_model(url, allowed_exts):
+    def fake_download_model(url, allowed_exts, context=None):
         assert url == "https://example.com/models/fake_model.onnx"
         assert set(allowed_exts) == {"tflite", "onnx", "mlir"}
+        assert context is None
         return downloaded
 
     monkeypatch.setattr("mlonmcu.models.lookup.download_model", fake_download_model)
@@ -280,7 +281,7 @@ def test_lookup_models_supports_url_download(monkeypatch):
 
 
 def test_lookup_models_rejects_unsupported_url_extension(monkeypatch):
-    def fake_download_model(url, allowed_exts):
+    def fake_download_model(url, allowed_exts, context=None):
         raise AssertionError("Unsupported model extension/type for URL model: ext=pb, type=application/octet-stream")
 
     monkeypatch.setattr("mlonmcu.models.lookup.download_model", fake_download_model)
@@ -294,3 +295,37 @@ def test_lookup_models_rejects_unsupported_url_extension(monkeypatch):
             config={},
             context=None,
         )
+
+
+def test_download_cache_with_context_temp(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+    from mlonmcu.models.lookup import download_model
+
+    calls = {"count": 0}
+
+    class FakeResponse:
+        def __init__(self):
+            self.headers = {"Content-Type": "application/x-onnx"}
+
+        def read(self):
+            calls["count"] += 1
+            return b"onnx-bytes"
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr("mlonmcu.models.lookup.urlopen", lambda url: FakeResponse())
+
+    context = SimpleNamespace(environment=SimpleNamespace(paths={"temp": PathConfig(tmp_path)}))
+    url = "https://example.com/model"
+
+    first = download_model(url, ["onnx"], context=context)
+    second = download_model(url, ["onnx"], context=context)
+
+    assert first == second
+    assert first.parent == tmp_path / "models"
+    assert first.is_file()
+    assert calls["count"] == 1

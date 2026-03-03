@@ -20,9 +20,11 @@ from pathlib import Path
 import os
 import glob
 import tempfile
+import hashlib
 from itertools import product
 from urllib.parse import urlparse
 from urllib.request import urlopen
+from filelock import FileLock
 import yaml
 
 from .model import Model, ModelFormats
@@ -45,19 +47,20 @@ MODEL_CONTENT_TYPES = {
     "application/x-mlir": "mlir",
 }
 
-_DOWNLOAD_DIR = None
-
-
 def _is_url(path):
     parsed = urlparse(path)
     return parsed.scheme in ["http", "https"] and bool(parsed.netloc)
 
 
-def _get_download_dir():
-    global _DOWNLOAD_DIR
-    if _DOWNLOAD_DIR is None:
-        _DOWNLOAD_DIR = Path(tempfile.mkdtemp(prefix="mlonmcu_models_"))
-    return _DOWNLOAD_DIR
+def _get_download_dir(context=None):
+    if context is not None:
+        return context.environment.paths["temp"].path / "models"
+    return Path(tempfile.gettempdir()) / "mlonmcu" / "models"
+
+
+def _build_cache_name(url, ext):
+    digest = hashlib.sha256(url.encode("utf-8")).hexdigest()
+    return f"{digest}.{ext}"
 
 
 def _infer_extension_from_url(model_url, content_type=None):
@@ -71,16 +74,47 @@ def _infer_extension_from_url(model_url, content_type=None):
     return MODEL_CONTENT_TYPES.get(simple_type)
 
 
-def download_model(url, allowed_exts):
-    with urlopen(url) as response:
-        content_type = response.headers.get("Content-Type", None)
-        ext = _infer_extension_from_url(url, content_type=content_type)
-        assert ext in allowed_exts, f"Unsupported model extension/type for URL model: ext={ext}, type={content_type}"
-        basename = Path(urlparse(url).path).stem or "model"
-        dst_path = _get_download_dir() / f"{basename}.{ext}"
-        data = response.read()
-        with open(dst_path, "wb") as out_file:
+def download_model(url, allowed_exts, context=None):
+    download_dir = _get_download_dir(context=context)
+    download_dir.mkdir(parents=True, exist_ok=True)
+
+    ext = _infer_extension_from_url(url)
+    if ext:
+        assert ext in allowed_exts, f"Unsupported model extension/type for URL model: ext={ext}, type=None"
+        cache_name = _build_cache_name(url, ext)
+        dst_path = download_dir / cache_name
+        lock = FileLock(str(download_dir / f"{cache_name}.lock"))
+        with lock:
+            if dst_path.is_file():
+                return dst_path
+            with urlopen(url) as response:
+                data = response.read()
+            tmp_path = download_dir / f".{cache_name}.tmp"
+            with open(tmp_path, "wb") as out_file:
+                out_file.write(data)
+            tmp_path.replace(dst_path)
+        return dst_path
+
+    cache_stem = hashlib.sha256(url.encode("utf-8")).hexdigest()
+    lock = FileLock(str(download_dir / f"{cache_stem}.lock"))
+    with lock:
+        for allowed_ext in allowed_exts:
+            candidate = download_dir / f"{cache_stem}.{allowed_ext}"
+            if candidate.is_file():
+                return candidate
+        with urlopen(url) as response:
+            content_type = response.headers.get("Content-Type", None)
+            ext = _infer_extension_from_url(url, content_type=content_type)
+            assert ext in allowed_exts, f"Unsupported model extension/type for URL model: ext={ext}, type={content_type}"
+            cache_name = f"{cache_stem}.{ext}"
+            dst_path = download_dir / cache_name
+            if dst_path.is_file():
+                return dst_path
+            data = response.read()
+        tmp_path = download_dir / f".{cache_name}.tmp"
+        with open(tmp_path, "wb") as out_file:
             out_file.write(data)
+        tmp_path.replace(dst_path)
     return dst_path
 
 
@@ -371,8 +405,8 @@ def lookup_models(names, frontends=None, config=None, context=None, ignore_cache
         real_name = filepath.stem
         ext = filepath.suffix[1:]
         if _is_url(name):
-            downloaded_path = download_model(name, allowed_exts)
-            real_name = downloaded_path.stem
+            downloaded_path = download_model(name, allowed_exts, context=context)
+            real_name = Path(urlparse(name).path).stem or downloaded_path.stem
             ext = downloaded_path.suffix[1:]
             paths = [downloaded_path]
             hint = Model(real_name, paths, config=config, formats=[ModelFormats.from_extension(ext)])

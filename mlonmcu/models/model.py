@@ -57,6 +57,9 @@ class ModelFormats(Enum):
     MLIR = ModelFormat(9, ["mlir"])
     SAVED_MODEL = ModelFormat(10, [""])  # tf
     PTE = ModelFormat(11, ["pte"])
+    TORCH_PICKLE = ModelFormat(12, ["pkl", "pickle"])
+    TORCH_EXPORTED = ModelFormat(13, ["pt", "pth"])
+    TORCH_PYTHON = ModelFormat(14, ["py"])
 
 
 def parse_metadata_from_path(path):
@@ -170,11 +173,12 @@ class Model(Workload):
         "params_path": None,
     }
 
-    def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
+    def __init__(self, name, paths, classes=None, config=None, alt=None, formats=ModelFormats.TFLITE):
         super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
             self.paths = [self.paths]
+        self.classes = classes if classes is not None else []
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]

@@ -384,6 +384,61 @@ class ONNXModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+class TorchModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        from mlonmcu.models.torch_models.torch_utils import load_torch_model
+
+        _, exported, _ = load_torch_model(model_file)
+
+        graph = exported.graph
+
+        import torch
+
+        TORCH_TO_NUMPY_DTYPE = {
+            torch.float16: np.float16,
+            torch.float32: np.float32,
+            torch.float64: np.float64,
+            # torch.bfloat16: np.dtype("bfloat16"),  # requires numpy >= 1.24
+            torch.int8: np.int8,
+            torch.int16: np.int16,
+            torch.int32: np.int32,
+            torch.int64: np.int64,
+            torch.uint8: np.uint8,
+            torch.bool: np.bool_,
+            torch.complex64: np.complex64,
+            torch.complex128: np.complex128,
+        }
+
+        def torch_dtype_to_numpy(dtype: torch.dtype) -> np.dtype:
+            if dtype not in TORCH_TO_NUMPY_DTYPE:
+                raise ValueError(f"Unsupported torch dtype: {dtype}")
+            return TORCH_TO_NUMPY_DTYPE[dtype]
+
+        in_tensors = []
+        out_tensors = []
+        for node in graph.nodes:
+            if node.op == "placeholder":
+                meta = node.meta["val"]
+                name = node.name
+                shape = list(meta.shape)
+                dtype = meta.dtype
+                np_dtype = torch_dtype_to_numpy(dtype)
+                in_tensor = TensorInfo(name, shape, np_dtype)
+                in_tensors.append(in_tensor)
+
+            elif node.op == "output":
+                for out in node.args[0]:
+                    meta = out.meta["val"]
+                    name = out.name
+                    shape = list(meta.shape)
+                    dtype = meta.dtype
+                    np_dtype = torch_dtype_to_numpy(dtype)
+                    out_tensor = TensorInfo(name, shape, np_dtype)
+                    out_tensors.append(out_tensor)
+
+        super().__init__(in_tensors, out_tensors)
+
+
 class PTEModelInfo(ModelInfo):
     def __init__(self, model_file):
         # import executorch.exir as exir
@@ -553,6 +608,25 @@ def get_pte_model_info(model_file):
     return model_info
 
 
+def get_torch_model_info(model_file):
+    model_info = TorchModelInfo(model_file)
+    return model_info
+
+
+# def get_torch_python_model_info(model_file):
+#     raise NotImplementedError
+#     # TODO: read class from python file?
+#     return get_torch_model_info(model_class)
+#
+#
+# def get_torch_pickle_model_info(model_file):
+#     import pickle
+#
+#     with open(model_file, "rb") as f:
+#         model_class = pickle.load(f)
+#     return get_torch_model_info(model_class)
+
+
 def get_model_info(model, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
@@ -574,6 +648,12 @@ def get_model_info(model, backend_name="unknown"):
         return "pdmodel", get_pb_model_info(model)
     elif fmt == ModelFormats.PTE:
         return "pte", get_pte_model_info(model)
+    elif fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
+        return "torch", get_torch_model_info(model)
+    # elif fmt == ModelFormats.TORCH_PYTHON:
+    #     return "torch_python", get_torch_model_info(model)
+    # elif fmt == ModelFormats.TORCH_PICKLE:
+    #     return "torch_pickle", get_torch_model_info(model)
     elif fmt == ModelFormats.MLIR:
         with open(model, "r") as handle:
             mod_text = handle.read()

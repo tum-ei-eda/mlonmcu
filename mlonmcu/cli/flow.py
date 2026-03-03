@@ -86,7 +86,17 @@ def handle_list_components(args):
 
 def handle(args):
     """Callback function which will be called to process the flow subcommand"""
-    if any([args.list_targets, args.list_platforms, args.list_frontends, args.list_frameworks, args.list_backends, args.list_features, args.list_postprocesses]):
+    if any(
+        [
+            args.list_targets,
+            args.list_platforms,
+            args.list_frontends,
+            args.list_frameworks,
+            args.list_backends,
+            args.list_features,
+            args.list_postprocesses,
+        ]
+    ):
         handle_list_components(args)
     else:
         if hasattr(args, "flow_func"):

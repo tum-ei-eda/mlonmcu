@@ -51,7 +51,6 @@ from .frontend import (
 SUPPORTED_FRONTENDS = {}
 
 
-
 def register_frontend(frontend_name, frontend_cls=None, override=False):
     """Register a frontend class under the given name.
 

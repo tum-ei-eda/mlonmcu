@@ -39,12 +39,12 @@ from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
-from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.models import get_frontends
 from mlonmcu.models.model import Model, Program
 from mlonmcu.platform import get_platforms
-from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
+from mlonmcu.flow import get_frameworks, get_backends
 
-from .postprocess import SUPPORTED_POSTPROCESSES
+from .postprocess import get_postprocesses
 from .postprocess.postprocess import RunPostprocess
 
 logger = get_logger()
@@ -755,8 +755,9 @@ class Run:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
-                assert name in SUPPORTED_FRONTENDS, f"Unsupported frontend: {name}"
-                frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+                frontends_registry = get_frontends()
+                assert name in frontends_registry, f"Unsupported frontend: {name}"
+                frontends.append(self.init_component(frontends_registry[name], context=context))
             except Exception as e:
                 reasons[name] = str(e)
                 continue
@@ -774,14 +775,14 @@ class Run:
         if self.build_platform:
             self.add_backend(self.init_component(self.build_platform.create_backend(backend_name), context=context))
         else:
-            self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
+            self.add_backend(self.init_component(get_backends()[backend_name], context=context))
         if self.backend is None:
             return
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
         ), f"The framework '{framework_name}' is not enabled for this environment"
-        self.add_framework(self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context))
+        self.add_framework(self.init_component(get_frameworks()[framework_name], context=context))
 
     def add_target_by_name(self, target_name, context=None):
         """Helper function to initialize and configure a target by its name."""
@@ -818,7 +819,7 @@ class Run:
             # assert context is not None and context.environment.has_postprocess(
             #     postprocess_name
             # ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
-            postprocesses.append(self.init_component(SUPPORTED_POSTPROCESSES[name], context=context))
+            postprocesses.append(self.init_component(get_postprocesses()[name], context=context))
         self.add_postprocesses(postprocesses, append=append)
 
     def add_feature_by_name(self, feature_name, append=True, context=None):

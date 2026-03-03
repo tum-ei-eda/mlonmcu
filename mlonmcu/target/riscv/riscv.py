@@ -22,7 +22,6 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.flow import SUPPORTED_TVM_BACKENDS, SUPPORTED_IREE_LLVM_BACKENDS
 from mlonmcu.target import Target
 from mlonmcu.config import str2list, str2bool, pick_first
 from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
@@ -412,6 +411,8 @@ class RISCVTarget(Target):
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
+        from mlonmcu.flow.registry import SUPPORTED_TVM_BACKENDS, SUPPORTED_IREE_LLVM_BACKENDS
+
         if backend in SUPPORTED_TVM_BACKENDS:
             arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
             ret.update(

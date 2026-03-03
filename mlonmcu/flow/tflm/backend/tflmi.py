@@ -502,9 +502,6 @@ class TFLMIBackend(TFLMBackend):
                         logger.error("Missing Python package: litert-torch")
                         raise ex
 
-                    import torch
-                    import torchvision
-
                     edge_model = litert_torch.convert(torch_model.eval(), sample_inputs)
                     return edge_model
 

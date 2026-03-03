@@ -30,7 +30,7 @@ from mlonmcu.cli.common import (
 
 from .helper.parse import extract_config_and_feature_names, extract_frontend_names, extract_postprocess_names
 from mlonmcu.context.context import MlonMcuContext
-from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.models import get_frontends
 from mlonmcu.models.lookup import apply_modelgroups
 from mlonmcu.session.run import RunStage, RunInitializer
 
@@ -45,7 +45,7 @@ def add_load_options(parser):
         "--frontend",
         type=str,
         metavar="FRONTEND",
-        choices=SUPPORTED_FRONTENDS.keys(),
+        choices=get_frontends().keys(),
         default=None,
         nargs=1,
         help="Explicitly choose the frontends to use (choices: %(choices)s)",

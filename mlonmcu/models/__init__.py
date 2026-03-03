@@ -48,36 +48,60 @@ from .frontend import (
     CmsisNNFrontend,
 )
 
-SUPPORTED_FRONTENDS = {
-    "tflite": TfLiteFrontend,
-    "relay": RelayFrontend,
-    "packed": PackedFrontend,
-    "onnx": ONNXFrontend,
-    "pte": PTEFrontend,
-    "torch_pickle": TorchPickleFrontend,
-    "torch_python": TorchPythonFrontend,
-    "torch_exported": TorchExportedFrontend,
-    "mlir": MLIRFrontend,
-    "pb": PBFrontend,
-    "paddle": PaddleFrontend,
-    "example": ExampleFrontend,
-    "embench": EmbenchFrontend,
-    "embench_iot": EmbenchIoTFrontend,
-    "embench_dsp": EmbenchDSPFrontend,
-    "taclebench": TaclebenchFrontend,
-    "coremark": CoremarkFrontend,
-    "dhrystone": DhrystoneFrontend,
-    "polybench": PolybenchFrontend,
-    "mathis": MathisFrontend,
-    "mibench": MibenchFrontend,
-    "layergen": LayerGenFrontend,
-    "openasip": OpenASIPFrontend,
-    "rvv_bench": RVVBenchFrontend,
-    "iss_bench": ISSBenchFrontend,
-    "crypto_bench": CryptoBenchFrontend,
-    "cmsis_dsp": CmsisDSPFrontend,
-    "cmsis_nn": CmsisNNFrontend,
-}  # TODO: use registry instead
+SUPPORTED_FRONTENDS = {}
+
+
+
+def register_frontend(frontend_name, frontend_cls=None, override=False):
+    """Register a frontend class under the given name.
+
+    Can be used directly or as a decorator.
+    """
+
+    def _register(cls):
+        if frontend_name in SUPPORTED_FRONTENDS and not override:
+            raise RuntimeError(f"Frontend {frontend_name} is already registered")
+        SUPPORTED_FRONTENDS[frontend_name] = cls
+        return cls
+
+    if frontend_cls is None:
+        return _register
+    return _register(frontend_cls)
+
+
+def get_frontends():
+    """Return the registered frontends."""
+    return SUPPORTED_FRONTENDS
+
+
+register_frontend("tflite", TfLiteFrontend)
+register_frontend("relay", RelayFrontend)
+register_frontend("packed", PackedFrontend)
+register_frontend("onnx", ONNXFrontend)
+register_frontend("pte", PTEFrontend)
+register_frontend("torch_pickle", TorchPickleFrontend)
+register_frontend("torch_python", TorchPythonFrontend)
+register_frontend("torch_exported", TorchExportedFrontend)
+register_frontend("mlir", MLIRFrontend)
+register_frontend("pb", PBFrontend)
+register_frontend("paddle", PaddleFrontend)
+register_frontend("example", ExampleFrontend)
+register_frontend("embench", EmbenchFrontend)
+register_frontend("embench_iot", EmbenchIoTFrontend)
+register_frontend("embench_dsp", EmbenchDSPFrontend)
+register_frontend("taclebench", TaclebenchFrontend)
+register_frontend("coremark", CoremarkFrontend)
+register_frontend("dhrystone", DhrystoneFrontend)
+register_frontend("polybench", PolybenchFrontend)
+register_frontend("mathis", MathisFrontend)
+register_frontend("mibench", MibenchFrontend)
+register_frontend("layergen", LayerGenFrontend)
+register_frontend("openasip", OpenASIPFrontend)
+register_frontend("rvv_bench", RVVBenchFrontend)
+register_frontend("iss_bench", ISSBenchFrontend)
+register_frontend("crypto_bench", CryptoBenchFrontend)
+register_frontend("cmsis_dsp", CmsisDSPFrontend)
+register_frontend("cmsis_nn", CmsisNNFrontend)
 
 __all__ = [
     "print_summary",
@@ -89,4 +113,6 @@ __all__ = [
     "PBFrontend",
     "LayerGenFrontend",
     "SUPPORTED_FRONTENDS",
+    "register_frontend",
+    "get_frontends",
 ]

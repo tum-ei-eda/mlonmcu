@@ -18,7 +18,16 @@
 #
 """Flow module for frameworks and backend."""
 
-from .registry import SUPPORTED_TVM_BACKENDS, SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS, get_available_backend_names
+from .registry import (
+    SUPPORTED_TVM_BACKENDS,
+    SUPPORTED_FRAMEWORKS,
+    SUPPORTED_BACKENDS,
+    get_available_backend_names,
+    register_framework,
+    register_backend,
+    get_frameworks,
+    get_backends,
+)
 from .framework import Framework
 from .backend import Backend
 
@@ -29,4 +38,8 @@ __all__ = [
     "Framework",
     "Backend",
     "get_available_backend_names",
+    "register_framework",
+    "register_backend",
+    "get_frameworks",
+    "get_backends",
 ]

@@ -20,6 +20,7 @@ import mock
 import pytest
 import yaml
 import re
+from pathlib import Path
 from mlonmcu.environment.environment import PathConfig
 from mlonmcu.models.lookup import (
     _infer_extension_from_url,

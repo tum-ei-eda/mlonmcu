@@ -47,6 +47,7 @@ MODEL_CONTENT_TYPES = {
     "application/x-mlir": "mlir",
 }
 
+
 def _is_url(path):
     parsed = urlparse(path)
     return parsed.scheme in ["http", "https"] and bool(parsed.netloc)
@@ -105,7 +106,9 @@ def download_model(url, allowed_exts, context=None):
         with urlopen(url) as response:
             content_type = response.headers.get("Content-Type", None)
             ext = _infer_extension_from_url(url, content_type=content_type)
-            assert ext in allowed_exts, f"Unsupported model extension/type for URL model: ext={ext}, type={content_type}"
+            assert (
+                ext in allowed_exts
+            ), f"Unsupported model extension/type for URL model: ext={ext}, type={content_type}"
             cache_name = f"{cache_stem}.{ext}"
             dst_path = download_dir / cache_name
             if dst_path.is_file():

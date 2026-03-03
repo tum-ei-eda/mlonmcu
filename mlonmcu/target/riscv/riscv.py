@@ -412,6 +412,7 @@ class RISCVTarget(Target):
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
         from mlonmcu.flow.registry import SUPPORTED_TVM_BACKENDS, SUPPORTED_IREE_LLVM_BACKENDS
+
         if backend in SUPPORTED_TVM_BACKENDS:
             arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
             ret.update(

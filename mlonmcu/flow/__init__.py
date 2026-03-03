@@ -50,4 +50,11 @@ from .registry import SUPPORTED_TVM_BACKENDS, SUPPORTED_FRAMEWORKS, SUPPORTED_BA
 from .framework import Framework
 from .backend import Backend
 
-__all__ = ["SUPPORTED_TVM_BACKENDS", "SUPPORTED_FRAMEWORKS", "SUPPORTED_BACKENDS", "Framework", "Backend", "get_available_backend_names"]
+__all__ = [
+    "SUPPORTED_TVM_BACKENDS",
+    "SUPPORTED_FRAMEWORKS",
+    "SUPPORTED_BACKENDS",
+    "Framework",
+    "Backend",
+    "get_available_backend_names",
+]

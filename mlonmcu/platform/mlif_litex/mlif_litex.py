@@ -125,6 +125,8 @@ class MlifLitexPlatform(MlifPlatform):
             "--build",
             "--integrated-main-ram-size",
             hex(target.integrated_main_ram_size),
+            "--integrated-sram-size",
+            hex(target.integrated_sram_size),
             "--name",
             self.litex_name,
         ]
@@ -156,6 +158,8 @@ class MlifLitexPlatform(MlifPlatform):
             "--non-interactive",
             "--integrated-main-ram-size",
             hex(target.integrated_main_ram_size),
+            "--integrated-sram-size",
+            hex(target.integrated_sram_size),
             "--ram-init",
             demo_bin,
         ]

@@ -41,7 +41,12 @@ class TemplateMlifLitexPlatformTarget(RISCVTarget):
         **RISCVTarget.DEFAULTS,
         "bus_standard": "wishbone",
         "sys_clk_freq": 100e6,
-        "integrated_main_ram_size": 0x10000,
+        # "integrated_main_ram_size": 0x10000,
+        # "integrated_main_ram_size": 0x80000,
+        "integrated_main_ram_size": 0x100000,
+        # "integrated_main_ram_size": 0x10000,
+        "integrated_sram_size": 0x80000,
+        # "integrated_sram_size": 0x8000,
         "litex_cpu": None,
         "litex_cpu_variant": "standard",
     }
@@ -70,6 +75,14 @@ class TemplateMlifLitexPlatformTarget(RISCVTarget):
     @property
     def integrated_main_ram_size(self):
         value = self.config["integrated_main_ram_size"]
+        if not isinstance(value, int):
+            assert isinstance(value, str)
+            value = int(value, 0)
+        return value
+
+    @property
+    def integrated_sram_size(self):
+        value = self.config["integrated_sram_size"]
         if not isinstance(value, int):
             assert isinstance(value, str)
             value = int(value, 0)

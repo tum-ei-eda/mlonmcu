@@ -66,7 +66,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         "cfu_playground.src_dir",
         "mlif.src_dir",
     }  # TODO: riscv tc?
-    OPTIONAL = {"tvm.src_dir", "mlif.template", "yosys.install_dir"}
+    OPTIONAL = {"tvm.src_dir", "mlif.template", "yosys.install_dir", "verilator.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -93,6 +93,13 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def yosys_install_dir(self):
         ret = self.config["yosys.install_dir"]
+        if ret is None:
+            return ret
+        return Path(ret)
+
+    @property
+    def verilator_install_dir(self):
+        ret = self.config["verilator.install_dir"]
         if ret is None:
             return ret
         return Path(ret)
@@ -222,6 +229,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # new_path = f"{self.yosys_install_dir}/bin:{old_path}"
         if self.yosys_install_dir:
             new_path = f"{self.yosys_install_dir}:{new_path}"
+        if self.verilator_install_dir:
+            new_path = f"{self.verilator_install_dir}:{new_path}"
         if target:
             new_path = f"{target.riscv_gcc_prefix}/bin:{new_path}"
         # print("new_path", new_path)

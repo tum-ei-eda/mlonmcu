@@ -202,7 +202,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
 
     def get_makefile_exports(self):
         exports = self.definitions
-        exports["TEMPLATE"] = self.mlif_template
+        template = self.mlif_template or "ml_interface"
+        exports["TEMPLATE"] = template
         # if self.template_version:
         #     definitions["TEMPLATE_VERSION"] = self.mlif_template_version
         # definitions["TOOLCHAIN"] = self.toolchain
@@ -409,7 +410,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             elif backend in ["tvmaot", "tvmaotplus"]:
                 to_copy += [
                     (src / "aot_wrapper.c", dest_base),
-                    (src / "codegen" / "host" / "include", dest_base),
+                    *([(src / "codegen" / "host" / "include", dest_base)] if backend == "tvmaotplus" else []),
                     (src / "runtime" / "include" / "dlpack", dest_base / "dlpack"),
                     (
                         src / "runtime/include/tvm/runtime/crt/error_codes.h",

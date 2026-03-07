@@ -28,7 +28,9 @@ from .riscv import (
     EtissTarget,
     EtissPerfTarget,
     EtissRV32Target,
+    EtissRV32MinTarget,
     EtissRV64Target,
+    EtissRV64MinTarget,
     AraTarget,
     AraRtlTarget,
     CV32E40PTarget,
@@ -60,7 +62,9 @@ register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
 register_target("etiss_perf", EtissPerfTarget)
 register_target("etiss_rv32", EtissRV32Target)
+register_target("etiss_rv32_min", EtissRV32MinTarget)
 register_target("etiss_rv64", EtissRV64Target)
+register_target("etiss_rv64_min", EtissRV64MinTarget)
 register_target("host_x86", HostX86Target)
 register_target("host_x86_ssh", HostX86SSHTarget)
 register_target("corstone300", Corstone300Target)

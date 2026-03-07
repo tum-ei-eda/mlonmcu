@@ -890,6 +890,23 @@ class EtissRV32Target(EtissTarget):
         super().__init__(name, features=features, config=config)
 
 
+class EtissRV32MinTarget(EtissTarget):
+    """32-bit integer-only version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 32,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
+        "fpu": None,
+        "atomic": False,
+        "compressed": False,
+    }
+
+    def __init__(self, name="etiss_rv32_min", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
 class EtissRV64Target(EtissTarget):
     """64-bit version of etiss target"""
 
@@ -901,6 +918,23 @@ class EtissRV64Target(EtissTarget):
     }
 
     def __init__(self, name="etiss_rv64", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
+class EtissRV64MinTarget(EtissTarget):
+    """64-bit integer-only version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 64,
+        "vlen": 0,  # vectorization=off
+        "elen": 64,
+        "fpu": None,
+        "atomic": False,
+        "compressed": False,
+    }
+
+    def __init__(self, name="etiss_rv64_min", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
 

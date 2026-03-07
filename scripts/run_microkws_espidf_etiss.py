@@ -131,8 +131,7 @@ def main():
     )
     args = parser.parse_args()
 
-    cmd_esp32_perf = textwrap.dedent(
-        f"""\
+    cmd_esp32_perf = textwrap.dedent(f"""\
         python3 -m mlonmcu.cli.main flow run {MICRO_KWS_MODEL} \
         --target esp32c3 --platform espidf \
         -c espidf.install_dir={ESPIDF_INSTALL} -c espidf.src_dir={ESPIDF_SRC} \
@@ -145,11 +144,9 @@ def main():
         --config-gen espidf.extra_cmake_defs="{{'PCER_INIT_VAL': 1, 'ENABLE_PERF_EVAL': 1}}" \
         --config-gen espidf.extra_cmake_defs="{{'PCER_INIT_VAL': 2, 'ENABLE_PERF_EVAL': 1}}" \
         -c espidf.optimize={args.opt}
-    """
-    )
+    """)
 
-    cmd_etiss_sim = textwrap.dedent(
-        f"""\
+    cmd_etiss_sim = textwrap.dedent(f"""\
         python3 -m mlonmcu.cli.main flow run {MICRO_KWS_MODEL} \
         --target etiss_perf -c run.export_optional=1 \
         -c espidf.install_dir={ESPIDF_INSTALL} -c espidf.src_dir={ESPIDF_SRC} \
@@ -159,11 +156,9 @@ def main():
         -c etiss_perf.src_dir={ETISS_SRC} -c etiss_perf.install_dir={ETISS_INSTALL} -c etiss_perf.exe={ETISS_EXE} \
         -c etiss_perf.fpu=none -c etiss_perf.atomic=0 -c etiss_perf.compressed=0 \
         -f perf_sim -c mlif.optimize={args.opt} -c perf_sim.core=esp32c3 -c etiss_perf.flash_start=0x42000000 -c etiss_perf.flash_size=0x800000
-    """
-    )
+    """)
 
-    cmd_esp32_real = textwrap.dedent(
-        f"""\
+    cmd_esp32_real = textwrap.dedent(f"""\
         python3 -m mlonmcu.cli.main flow run {MICRO_KWS_MODEL} \
         --target esp32c3 --platform espidf \
         -c espidf.install_dir={ESPIDF_INSTALL} -c espidf.src_dir={ESPIDF_SRC} \
@@ -173,8 +168,7 @@ def main():
         -c espidf.project_template=micro_kws_esp32devboard_perf -c espidf.wait_for_user={args.wait} \
         -c riscv_gcc_rv32.install_dir={ESP32C3_GCC_INSTALL} -c riscv_gcc_rv32.name=riscv32-esp-elf \
         -c espidf.optimize={args.opt} -c espidf.extra_cmake_defs="{{'CONFIG_ENABLE_WIFI': 1}}"
-    """
-    )
+    """)
 
     if args.mode == "esp32_perf":
         run_command(cmd_esp32_perf, args.mode, args.opt)

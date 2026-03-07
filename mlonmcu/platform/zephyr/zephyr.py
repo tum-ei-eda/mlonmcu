@@ -148,13 +148,11 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
             f = Path(temp) / "CMakeLists.txt"
             # f.touch()
             with open(f, "w") as handle:
-                handle.write(
-                    """
+                handle.write("""
 cmake_minimum_required(VERSION 3.22)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(ProjectName)
-                """
-                )
+                """)
             b = Path(temp) / "build"
 
             # This will fail

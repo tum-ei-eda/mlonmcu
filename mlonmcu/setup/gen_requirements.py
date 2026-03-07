@@ -51,7 +51,6 @@ import textwrap
 import sys
 import typing
 
-
 RequirementsByPieceType = typing.List[typing.Tuple[str, typing.Tuple[str, typing.List[str]]]]
 
 
@@ -73,7 +72,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "jinja2",
                 "mapfile_parser",
                 "networkx",
-                "numpy",
+                # "numpy",
                 "openpyxl",  # xlsx reports
                 "packaging",
                 "pandas",
@@ -121,6 +120,15 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
+    (
+        "executorch",
+        (
+            "Requirements for using executorch",
+            [
+                "executorch",
+            ],
+        ),
+    ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
     (
         "iree",
@@ -130,6 +138,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "iree-turbine",
                 "tensorflow",
                 "tflite",
+                "tosa-converter-for-tflite",
             ],
         ),
     ),
@@ -180,7 +189,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "decorator",
                 "graphviz",  # for relay visualization
                 "matplotlib",
-                "numpy",
+                # "numpy",
                 "psutil",
                 "scipy",
                 "synr",
@@ -235,6 +244,7 @@ CONSTRAINTS = [
     ("cryptography", ">=2.1.4"),
     ("decorator", None),
     ("ecdsa", ">=0.16.0"),
+    ("executorch", "==1.1.0"),
     ("filelock", None),
     ("future", ">=0.15.2"),
     ("gdbgui", "==0.13.2.0"),
@@ -247,8 +257,9 @@ CONSTRAINTS = [
     ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),
-    ("numpy", "<2.0"),
-    ("onnx", None),
+    # ("numpy", "<2.0; python_version <= '3.8'"),
+    # ("numpy", ">=2.0,<2.1.0; python_version >= '3.10'"),
+    ("onnx", "==1.20.1"),
     ("openpyxl", None),
     ("ortools", None),
     ("pandas", None),
@@ -268,6 +279,7 @@ CONSTRAINTS = [
     ("tensorflow", "~=2.18.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
+    ("tosa-converter-for-tflite", "==2025.11.0"),
     ("typing_extensions", None),
     ("xdg", None),
     ("xgboost", ">=1.7.0,<2.0"),

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of MLonMCU session schedulers."""
+
 import random
 from pathlib import Path
 import concurrent.futures

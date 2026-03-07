@@ -18,7 +18,6 @@
 #
 """MLonMCU Spike Target definitions"""
 
-
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
 from .riscv import RISCVTarget

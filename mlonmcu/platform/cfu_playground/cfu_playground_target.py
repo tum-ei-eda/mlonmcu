@@ -298,11 +298,13 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
             exit_code = 0  # TODO: get from handler?
             self.parse_stdout(out, metrics, exit_code=exit_code)
             # cycles, time_us = self.parse_stdout(out)
+            mips = None
             if metrics.has("Total Instructions") and metrics.has("Simulation Time [s]"):
                 sim_insns = metrics.get("Total Instructions")
                 sim_time = metrics.get("Simulation Time [s]")
                 if sim_time > 0:
-                    metrics.add("MIPS", (sim_insns / sim_time) / 1e6, True)
+                    mips = (sim_insns / sim_time) / 1e6
+                    metrics.add("MIPS", mips, True)
 
             # metrics = Metrics()
             # metrics.add("Cycles", cycles)

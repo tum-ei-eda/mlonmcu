@@ -92,6 +92,7 @@ class RVVTarget(RISCVTarget):
             embedded_vext=self.embedded_vext,
             vlen=self.vlen,
             fpu=self.fpu,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property

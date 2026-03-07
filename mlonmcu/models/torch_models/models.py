@@ -1,6 +1,10 @@
 # TODO: license & docstring
 
-import torch
+try:
+    import torch
+except ImportError as ex:
+    logger.error("Missing Python package: torch")
+    raise ex
 
 
 class QuantAddTest(torch.nn.Module):

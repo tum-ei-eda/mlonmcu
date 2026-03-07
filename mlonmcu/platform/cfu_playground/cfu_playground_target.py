@@ -19,9 +19,10 @@
 import re
 import os
 
+from mlonmcu.config import str2bool
+
 # from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget
-from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 
 from mlonmcu.logging import get_logger
@@ -54,14 +55,41 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "verbose": False,
+        "rtl_sim": False,  # TODO: move to target feature?
+        "cpu_variant": None,
+        "fpu": "none",  # TODO: use
+        "compressed": False,  # TODO: use
+        "atomic": False,  # TODO: use
     }
     REQUIRED = RISCVTarget.REQUIRED | {"tvm.build_dir"}
+
+    @property
+    def cpu_variant(self):
+        value = self.config["cpu_variant"]
+        return value
+
+    @property
+    def rtl_sim(self):
+        value = self.config["rtl_sim"]
+        return str2bool(value)
+
+    @property
+    def use_renode(self):
+        return not self.rtl_sim
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
 
 
+class FullRTLCFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
+    DEFAULTS = {
+        **FullCFUPlaygroundPlatformTarget.DEFAULTS,
+        "rtl_sim": True,
+    }
+
+
 register_cfu_playground_platform_target("cfu_full", FullCFUPlaygroundPlatformTarget)
+register_cfu_playground_platform_target("cfu_full_rtl", FullRTLCFUPlaygroundPlatformTarget)
 
 
 # class DefaultCFUPlaygroundTarget(Target):
@@ -260,15 +288,22 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
                 return temp
 
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
+                out, metrics = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
             else:
-                out = self.exec(
+                out, metrics = self.exec(
                     elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
                 )
-            metrics = Metrics()
+            # metrics = Metrics()
             exit_code = 0  # TODO: get from handler?
             self.parse_stdout(out, metrics, exit_code=exit_code)
             # cycles, time_us = self.parse_stdout(out)
+            mips = None
+            if metrics.has("Total Instructions") and metrics.has("Simulation Time [s]"):
+                sim_insns = metrics.get("Total Instructions")
+                sim_time = metrics.get("Simulation Time [s]")
+                if sim_time > 0:
+                    mips = (sim_insns / sim_time) / 1e6
+                    metrics.add("MIPS", mips, True)
 
             # metrics = Metrics()
             # metrics.add("Cycles", cycles)

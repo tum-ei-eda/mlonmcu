@@ -63,12 +63,15 @@ class RISCVTarget(Target):
         "riscv_gcc_rv32.install_dir",
         "riscv_gcc_rv32.name",
         "riscv_gcc_rv32.variant",
+        "riscv_gcc_rv32.version",
         "riscv_gcc_rv64.install_dir",
         "riscv_gcc_rv64.name",
         "riscv_gcc_rv64.variant",
+        "riscv_gcc_rv64.version",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
         "riscv_gcc.variant",
+        "riscv_gcc.version",
     }
 
     def reconfigure(self):
@@ -137,6 +140,30 @@ class RISCVTarget(Target):
                 ],
             )
         )
+
+    @property
+    def gcc_version(self):
+        return Path(
+            pick_first(
+                self.config,
+                [
+                    # f"riscv_gcc_{self.arch}_{self.abi}.version",  # leads to recursive calls?
+                    f"riscv_gcc_rv{self.xlen}.version",
+                    "riscv_gcc_multilib.version",
+                    "riscv_gcc.version",
+                ],
+            )
+        )
+
+    @property
+    def gcc_major_version(self):
+        temp = self.gcc_version
+        if temp is None:
+            return None
+        temp = str(temp)
+        assert "." in temp
+        ret = int(temp.split(".", 1)[0])
+        return ret
 
     @property
     def xlen(self):
@@ -212,12 +239,15 @@ class RISCVTarget(Target):
             elen=None,
             embedded_vext=False,
             vlen=None,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property
     def gcc_extensions(self):
         # return [ext for ext in (self.extensions | {"zicsr"}) if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
-        exts = {"zicsr", "zifencei"}
+        exts = {"zicsr"}
+        if self.gcc_major_version is None or self.gcc_major_version > 12:
+            exts.add("zifencei")
         for ext in self.extensions:
             if "xcv" in ext:
                 if ext[-2] != "p":
@@ -377,7 +407,7 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             # TODO refactor the following using inheritance instead of branching
             ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
             ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename

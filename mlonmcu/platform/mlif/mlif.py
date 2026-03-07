@@ -117,9 +117,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     REQUIRED = {"mlif.src_dir"}
     OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.exe"}
 
-    def __init__(self, features=None, config=None):
+    def __init__(self, name="mlif", features=None, config=None):
         super().__init__(
-            "mlif",
+            name,
             features=features,
             config=config,
         )
@@ -416,6 +416,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["custom_entry"]
         return value
 
+    @property
+    def extra_paths(self):
+        ret = self.config["extra_paths"]
+        if ret is None:
+            return None
+        if isinstance(ret, str):
+            ret = str2list(ret)
+        assert isinstance(ret, list)
+        return ret
+
     def _get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -480,7 +490,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
         return definitions
 
-    def get_cmake_args(self):
+    def get_cmake_args(self, target):
+        del target
         cmakeArgs = []
         definitions = self.get_definitions()
         for key, value in definitions.items():
@@ -489,20 +500,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append(f"-D{key}={value}")
         return cmakeArgs
 
-    def prepare(self):
+    def prepare(self, target):
         pass  # TODO: is this used?
 
-    @property
-    def extra_paths(self):
-        ret = self.config["extra_paths"]
-        if ret is None:
-            return None
-        if isinstance(ret, str):
-            ret = str2list(ret)
-        assert isinstance(ret, list)
-        return ret
-
-    def prepare_environment(self):
+    def prepare_environment(self, target=None):
         env = os.environ.copy()
         path_new = env["PATH"]
         if self.srecord_dir:
@@ -565,7 +566,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             del target
         if not isinstance(src, Path):
             src = Path(src)
-        cmakeArgs = self.get_cmake_args()
+        cmakeArgs = self.get_cmake_args(target)
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
@@ -585,7 +586,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             else:
                 logger.warning("No validation data provided for model.")
         utils.mkdirs(self.build_dir)
-        env = self.prepare_environment()
+        env = self.prepare_environment(target)
         out = utils.cmake(
             self.mlif_dir,
             *cmakeArgs,
@@ -602,7 +603,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if src:
             configure_out, artifacts = self.configure(target, src, model)
             out += configure_out
-        env = self.prepare_environment()
+        env = self.prepare_environment(target)
         out += utils.make(
             self.goal,
             cwd=self.build_dir,

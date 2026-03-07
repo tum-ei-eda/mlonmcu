@@ -147,7 +147,7 @@ class RISCVTarget(Target):
             pick_first(
                 self.config,
                 [
-                    f"riscv_gcc_{self.arch}_{self.abi}.version",
+                    # f"riscv_gcc_{self.arch}_{self.abi}.version",  # leads to recursive calls?
                     f"riscv_gcc_rv{self.xlen}.version",
                     "riscv_gcc_multilib.version",
                     "riscv_gcc.version",
@@ -155,13 +155,14 @@ class RISCVTarget(Target):
             )
         )
 
+    @property
     def gcc_major_version(self):
         temp = self.gcc_version
         if temp is None:
             return None
         temp = str(temp)
         assert "." in temp
-        ret = temp.split(".", 1)
+        ret = int(temp.split(".", 1)[0])
         return ret
 
     @property
@@ -244,7 +245,9 @@ class RISCVTarget(Target):
     @property
     def gcc_extensions(self):
         # return [ext for ext in (self.extensions | {"zicsr"}) if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
-        exts = {"zicsr", "zifencei"}
+        exts = {"zicsr"}
+        if self.gcc_major_version is None or self.gcc_major_version > 12:
+            exts.add("zifencei")
         for ext in self.extensions:
             if "xcv" in ext:
                 if ext[-2] != "p":

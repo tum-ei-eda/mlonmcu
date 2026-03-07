@@ -308,6 +308,7 @@ class Session:
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
         if self.cleanup_runs:
+            # TODO: does this work with runinitializers?
             logger.info(self.prefix + "Cleaning up runs")
             count = 0
             for run in self.runs:

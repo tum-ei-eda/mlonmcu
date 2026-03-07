@@ -29,7 +29,6 @@ from mlonmcu.logging import get_logger
 from mlonmcu.models.model_info import (
     get_model_info,
 )
-from mlonmcu.models.torch_models.torch_utils import load_torch_model
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -904,6 +903,8 @@ class ExecutorchBackend(Backend):
                 except ImportError as ex:
                     logger.error("Missing Python package: executorch")
                     raise ex
+
+                from mlonmcu.models.torch_models.torch_utils import load_torch_model
 
                 _, exported_program, _ = load_torch_model(self.model)
 

@@ -22,6 +22,9 @@ import os
 import numpy as np
 
 from mlonmcu.models.model import ModelFormats
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def parse_mlir_signature(mlir_text):
@@ -335,7 +338,11 @@ def get_tfgraph_inout(graph):
 
 class PBModelInfo(ModelInfo):
     def __init__(self, model_file):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         with tf.io.gfile.GFile(model_file, "rb") as f:
             graph_def = tf.compat.v1.GraphDef()
@@ -350,11 +357,19 @@ class PBModelInfo(ModelInfo):
 
 class ONNXModelInfo(ModelInfo):
     def __init__(self, model_file):
-        from google.protobuf.json_format import MessageToDict
-        import onnx
+        try:
+            from google.protobuf.json_format import MessageToDict
+        except ImportError as ex:
+            logger.error("Missing Python package: protobuf")
+            raise ex
+        try:
+            import onnx
+            from onnx.helper import tensor_dtype_to_np_dtype
+        except ImportError as ex:
+            logger.error("Missing Python package: onnx")
+            raise ex
 
         # from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE
-        from onnx.helper import tensor_dtype_to_np_dtype
 
         model = onnx.load(model_file)
 
@@ -392,7 +407,11 @@ class TorchModelInfo(ModelInfo):
 
         graph = exported.graph
 
-        import torch
+        try:
+            import torch
+        except ImportError as ex:
+            logger.error("Missing Python package: torch")
+            raise ex
 
         TORCH_TO_NUMPY_DTYPE = {
             torch.float16: np.float16,
@@ -441,9 +460,12 @@ class TorchModelInfo(ModelInfo):
 
 class PTEModelInfo(ModelInfo):
     def __init__(self, model_file):
-        # import executorch.exir as exir
-        from executorch.runtime import Runtime
-        from executorch.exir.schema import ScalarType
+        try:
+            from executorch.runtime import Runtime
+            from executorch.exir.schema import ScalarType
+        except ImportError as ex:
+            logger.error("Missing Python package: executorch")
+            raise ex
 
         # Load the PTE file
         # program = exir.load(model_file)
@@ -497,7 +519,11 @@ class PTEModelInfo(ModelInfo):
 
 class PaddleModelInfo(ModelInfo):
     def __init__(self, model_file):
-        import paddle
+        try:
+            import paddle
+        except ImportError as ex:
+            logger.error("Missing Python package: paddle")
+            raise ex
 
         paddle.enable_static()
         paddle.disable_signal_handler()
@@ -571,7 +597,11 @@ class MLIRModelInfo(ModelInfo):
 
 def get_tflite_model_info(model_buf):
     # Local imports to get rid of tflite dependency for non-tflite models
-    import tflite
+    try:
+        import tflite
+    except ImportError as ex:
+        logger.error("Missing Python package: tflite")
+        raise ex
 
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)

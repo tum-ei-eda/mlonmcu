@@ -58,6 +58,9 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
         "verbose": False,
         "rtl_sim": False,  # TODO: move to target feature?
         "cpu_variant": None,
+        "fpu": "none",  # TODO: use
+        "compressed": False,  # TODO: use
+        "atomic": False,  # TODO: use
     }
     REQUIRED = RISCVTarget.REQUIRED | {"tvm.build_dir"}
 

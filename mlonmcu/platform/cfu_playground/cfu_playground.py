@@ -242,12 +242,9 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # TODO: pass backend to platform?
         backend = self.get_backend()
         framework = self.get_framework()
-        print("backend", backend)
-        print("framework", framework)
         if (src / "dummy_model").is_file():
             assert self.mlif_template is not None, "Undefined cfu_playground.mlif_template"
             backend = "none"
-        print("backend2", backend)
         # elif (src / "aot_wrapper.c").is_file():
         #     backend = "tvmaot"
         # elif (src / "rt_wrapper.c").is_file():
@@ -584,7 +581,6 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 threads=self.num_threads,
             )
             gateware_dir = out_dir / "gateware"
-            print("gateware_dir", gateware_dir)
             assert gateware_dir.is_dir()
             out += utils.execute(
                 "bash",

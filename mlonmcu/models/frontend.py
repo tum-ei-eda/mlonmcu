@@ -16,10 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import sys
 import re
 import time
 import tempfile
 import multiprocessing
+import pickle
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Dict, Union
@@ -1042,7 +1045,11 @@ class TfLiteFrontend(SimpleFrontend):
         return self.config["analyze_script"]
 
     def extract_model_info(self, model: Model):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -1086,7 +1093,11 @@ class TfLiteFrontend(SimpleFrontend):
         )
 
     def inference(self, model: Model, input_data: Dict[str, np.array], quant=False, dequant=False, verbose=False):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -1330,15 +1341,17 @@ class RelayFrontend(SimpleFrontend):
             assert len(self.output_formats) == 2
 
             def _relayviz(in_file, out_file, plotter_name, env={}):
-                import sys
-                import os
 
                 sys.path.append(env["PYTHONPATH"])
                 os.environ["TVM_LIBRARY_PATH"] = env["TVM_LIBRARY_PATH"]
-                from tvm import parser
-                from tvm.contrib import relay_viz
-                from tvm.contrib.relay_viz.terminal import TermPlotter
-                from tvm.contrib.relay_viz.dot import DotPlotter
+                try:
+                    from tvm import parser
+                    from tvm.contrib import relay_viz
+                    from tvm.contrib.relay_viz.terminal import TermPlotter
+                    from tvm.contrib.relay_viz.dot import DotPlotter
+                except ImportError as ex:
+                    logger.error("Missing Python package: tvm")
+                    raise ex
 
                 if plotter_name == "term":
                     plotter_cls = TermPlotter
@@ -1660,7 +1673,6 @@ class TorchFrontend(Frontend):
             assert len(model.classes) == 1
             model_class = model.classes[0]
             ext = "pkl"
-            import pickle
 
             pickled_bytes = pickle.dumps(model_class)
             artifacts.append(

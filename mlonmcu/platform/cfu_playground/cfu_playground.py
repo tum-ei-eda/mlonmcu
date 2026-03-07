@@ -219,7 +219,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         env["PROJ_DIR"] = self.project_dir
         new_path = env.get("PATH", "")
         # new_path = f"{self.yosys_install_dir}/bin:{old_path}"
-        if self.self.yosys_install_dir:
+        if self.yosys_install_dir:
             new_path = f"{self.yosys_install_dir}:{new_path}"
         if target:
             new_path = f"{target.riscv_gcc_prefix}/bin:{new_path}"

@@ -163,6 +163,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         (
             "Requirements for using tflite",
             [
+                "tensorflow",
                 "tflite",
             ],
         ),

@@ -321,5 +321,11 @@ class Setup:
                         f.write(f"-e {iree_build_dir}/runtime{os.linesep}")
                     # f.write(f"--index-url https://download.pytorch.org/whl/cpu torch{os.linesep}")
                     break
+            for config in config_pools:
+                if "cfu_playground" in config.name and config.enabled:
+                    for d in requirements["cfu_playground"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for tflite visualization")
+                    break
         logger.info("Finished generating requirements_addition.txt")
         return True

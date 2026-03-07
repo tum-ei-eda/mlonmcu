@@ -86,6 +86,21 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
+    # Provide support for cfu_playground platform
+    (
+        "cfu_playground",
+        (
+            "Requirements for using cfu_playground",
+            [
+                "construct",
+                "psutil",
+                "pyelftools",
+                "pyyaml",
+                "robotframework",
+                "robotframework-retryfailed",
+            ],
+        ),
+    ),
     # Provide support for espidf.
     (
         "espidf",
@@ -242,6 +257,7 @@ CONSTRAINTS = [
     ("click", ">=7.0"),
     ("cloudpickle", None),
     ("construct", "==2.10.54"),  # From PR #213.
+    # ("construct", "==2.10.68"),  # cfu?
     ("cryptography", ">=2.1.4"),
     ("decorator", None),
     ("ecdsa", ">=0.16.0"),
@@ -266,14 +282,21 @@ CONSTRAINTS = [
     ("pandas", None),
     ("prettytable", None),
     ("psutil", None),
+    # ("psutil", "==5.9.3"),  # cfu?
     ("pyelftools", None),
+    # ("pyelftools", "==0.30"),  # cfu?
     ("pygdbmi", "<=0.9.0.2"),
     ("pyparsing", ">=2.0.3,<2.4.0"),
     ("pyserial", None),
     ("python-socketio", "<5"),
     ("pyusb", None),
     ("pyyaml", None),
+    # ("pyyaml", "==6.0.*"),  # cfu?
     ("reedsolo", ">=1.5.3,<=1.5.4"),
+    ("robotframework", None),  # cfu?
+    # ("robotframework", "==6.1"),  # cfu?
+    ("robotframework-retryfailed", None),  # cfu?
+    # ("robotframework-retryfailed", "==0.2.0"),  # cfu?
     ("scipy", None),
     ("synr", None),
     # ("tensorflow", "~=2.13.0"),
@@ -287,6 +310,7 @@ CONSTRAINTS = [
     ("xlsxwriter", None),
     ("xlwt", None),
 ]
+
 
 ################################################################################
 # End of configuration options.

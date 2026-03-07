@@ -106,17 +106,15 @@ class RISCVTarget(Target):
 
     @property
     def riscv_gcc_basename(self):
-        return Path(
-            pick_first(
-                self.config,
-                [
-                    f"riscv_gcc_{self.arch}_{self.abi}.name",
-                    f"riscv_gcc_{self.arch}.name",
-                    f"riscv_gcc_rv{self.xlen}.name",
-                    "riscv_gcc_multilib.name",
-                    "riscv_gcc.name",
-                ],
-            )
+        return pick_first(
+            self.config,
+            [
+                f"riscv_gcc_{self.arch}_{self.abi}.name",
+                f"riscv_gcc_{self.arch}.name",
+                f"riscv_gcc_rv{self.xlen}.name",
+                "riscv_gcc_multilib.name",
+                "riscv_gcc.name",
+            ],
         )
 
     @property
@@ -125,34 +123,31 @@ class RISCVTarget(Target):
 
     @property
     def pulp_gcc_basename(self):
-        return Path(self.config["pulp_gcc.name"])
+        return self.config["pulp_gcc.name"]
 
     @property
     def gcc_variant(self):
-        return Path(
-            pick_first(
-                self.config,
-                [
-                    f"riscv_gcc_{self.arch}_{self.abi}.variant",
-                    f"riscv_gcc_rv{self.xlen}.variant",
-                    "riscv_gcc_multilib.variant",
-                    "riscv_gcc.variant",
-                ],
-            )
+        return pick_first(
+            self.config,
+            [
+                f"riscv_gcc_{self.arch}_{self.abi}.variant",
+                f"riscv_gcc_rv{self.xlen}.variant",
+                "riscv_gcc_multilib.variant",
+                "riscv_gcc.variant",
+            ],
         )
 
     @property
     def gcc_version(self):
-        return Path(
-            pick_first(
-                self.config,
-                [
-                    # f"riscv_gcc_{self.arch}_{self.abi}.version",  # leads to recursive calls?
-                    f"riscv_gcc_rv{self.xlen}.version",
-                    "riscv_gcc_multilib.version",
-                    "riscv_gcc.version",
-                ],
-            )
+        return pick_first(
+            self.config,
+            [
+                # f"riscv_gcc_{self.arch}_{self.abi}.version",  # leads to recursive calls?
+                f"riscv_gcc_rv{self.xlen}.version",
+                "riscv_gcc_multilib.version",
+                "riscv_gcc.version",
+            ],
+            allow_none=True,
         )
 
     @property

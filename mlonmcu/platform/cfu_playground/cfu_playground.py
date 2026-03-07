@@ -63,10 +63,9 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
 
     REQUIRED = {
         "cfu_playground.src_dir",
-        "yosys.install_dir",
         "mlif.src_dir",
-    }  # TODO: yosys, riscv tc?
-    OPTIONAL = {"tvm.src_dir", "mlif.template"}
+    }  # TODO: riscv tc?
+    OPTIONAL = {"tvm.src_dir", "mlif.template", "yosys.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -92,7 +91,10 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def yosys_install_dir(self):
-        return Path(self.config["yosys.install_dir"])
+        ret = self.config["yosys.install_dir"]
+        if ret is None:
+            return ret
+        return Path(ret)
 
     @property
     def mlif_template(self):
@@ -211,14 +213,14 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     def prepare_environment(self, target=None):
         env = os.environ.copy()
         # TODO: riscv tc from target
-        # TODO: yosys
         # TODO: ...
         env["CFU_ROOT"] = self.cfu_playground_src_dir
         env["PROJ"] = "cfu_playground"
         env["PROJ_DIR"] = self.project_dir
         new_path = env.get("PATH", "")
         # new_path = f"{self.yosys_install_dir}/bin:{old_path}"
-        new_path = f"{self.yosys_install_dir}:{new_path}"
+        if self.self.yosys_install_dir:
+            new_path = f"{self.yosys_install_dir}:{new_path}"
         if target:
             new_path = f"{target.riscv_gcc_prefix}/bin:{new_path}"
         # print("new_path", new_path)

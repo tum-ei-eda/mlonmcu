@@ -23,7 +23,6 @@ from mlonmcu.config import str2bool
 
 # from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget
-from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 
 from mlonmcu.logging import get_logger

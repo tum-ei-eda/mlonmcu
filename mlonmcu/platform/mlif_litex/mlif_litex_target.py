@@ -17,7 +17,6 @@
 # limitations under the License.
 #
 import os
-from math import ceil
 
 from mlonmcu.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget

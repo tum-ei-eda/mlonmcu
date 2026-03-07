@@ -38,7 +38,8 @@ from .cfu_playground_target import create_cfu_playground_platform_target, get_cf
 logger = get_logger()
 
 
-def get_project_template(name="proj_template_no_tflm"):
+# def get_project_template(name="proj_template_no_tflm"):
+def get_project_template(name="mlif"):
     cfu_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "cfu_playground"))
     if name not in cfu_templates:
         return None

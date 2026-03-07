@@ -37,16 +37,29 @@ def _validate_yosys(context: MlonMcuContext, params=None):
     # print("_validate_yosys", _validate_yosys)
     user_vars = context.environment.vars
     use_system_yosys = user_vars.get("yosys.use_system", False)
-    yosys_install_dir = user_vars.get("yosys.install_dir")
-    if yosys_install_dir:
-        return False
     if use_system_yosys:
         return False
     return _validate_cfu_playground(context, params=params)
 
 
+def _validate_yosys_build(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    yosys_install_dir = user_vars.get("yosys.install_dir")
+    if yosys_install_dir:
+        return False
+    return _validate_yosys(context, params=params)
+
+
+def _validate_yosys_clone(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    yosys_src_dir = user_vars.get("yosys.src_dir")
+    if yosys_src_dir:
+        return False
+    return _validate_yosys_build(context, params=params)
+
+
 @Tasks.provides(["yosys.src_dir"])
-@Tasks.validate(_validate_yosys)
+@Tasks.validate(_validate_yosys_clone)
 @Tasks.register(category=TaskType.TARGET)
 def clone_yosys(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -71,7 +84,7 @@ def clone_yosys(
 
 @Tasks.needs(["yosys.src_dir"])
 @Tasks.provides(["yosys.build_dir", "yosys.install_dir"])
-@Tasks.validate(_validate_yosys)
+@Tasks.validate(_validate_yosys_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_yosys(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

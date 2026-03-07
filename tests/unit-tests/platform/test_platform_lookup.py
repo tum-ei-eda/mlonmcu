@@ -23,7 +23,6 @@ from mlonmcu.platform.platform import TargetPlatform
 import mlonmcu.platform.lookup
 from mlonmcu.platform import register_platform, get_platforms
 
-
 # TODO: also support non-target platforms and show their type in the list
 
 

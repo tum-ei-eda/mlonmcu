@@ -142,7 +142,7 @@ def build_tvm(context: MlonMcuContext, params=None, rebuild=False, verbose=False
     tvmLib = tvmBuildDir / "libtvm.so"
     user_vars = context.environment.vars
     # llvm_dir, llvm_version = utils.resolve_llvm_wrapper(context)
-    llvm_dir = context.cache["llvm.install_dir"]
+    llvm_dir = Path(context.cache["llvm.install_dir"])
     llvm_version = context.cache["llvm.version"]
     MIN_LLVM_VERSION = "14"
     assert utils.check_version(llvm_version, min_version=MIN_LLVM_VERSION), f"Unsupported LLVM version: {llvm_version}"

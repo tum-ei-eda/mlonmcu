@@ -35,7 +35,13 @@ class TFLMBackend(Backend):
     def __init__(self, features=None, config=None):
         super().__init__(framework="tflm", config=config, features=features)
         self.model = None
-        self.supported_formats = [ModelFormats.TFLITE]
+        self.model_format = None
+        self.supported_formats = [
+            ModelFormats.TFLITE,
+            ModelFormats.TORCH_PYTHON,
+            ModelFormats.TORCH_EXPORTED,
+            ModelFormats.TORCH_PICKLE,
+        ]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -49,4 +55,13 @@ class TFLMBackend(Backend):
         self.model = model
         ext = os.path.splitext(model)[1][1:]
         fmt = ModelFormats.from_extension(ext)
-        assert fmt == ModelFormats.TFLITE, f"Backend '{self.name}' does not support model format: {fmt.name}"
+        if fmt in [
+            ModelFormats.TORCH_PYTHON,
+            ModelFormats.TORCH_EXPORTED,
+            ModelFormats.TORCH_PICKLE,
+        ]:
+            self.model_format = "torch"
+        elif fmt == ModelFormats.TFLITE:
+            self.model_format = "tflite"
+        else:
+            raise RuntimeError(f"Backend '{self.name}' does not support model format: {fmt.name}")

@@ -35,7 +35,7 @@ jobs:
   refresh:
     name: Refresh large image for benchmarking
     if: (github.event_name != 'schedule')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Lowercase repository url
         id: lowered
@@ -61,9 +61,10 @@ jobs:
               echo "template=${{ github.event.inputs.template }}-" >> $GITHUB_OUTPUT
           fi
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.inputs.branch }}
+          submodules: recursive
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -108,7 +109,7 @@ jobs:
   refresh_cron:
     name: Refresh large image for benchmarking
     if: (github.event_name == 'schedule')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -140,9 +141,10 @@ jobs:
               echo "template=${{ matrix.config.template }}-" >> $GITHUB_OUTPUT
           fi
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ matrix.config.branch }}
+          submodules: recursive
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx

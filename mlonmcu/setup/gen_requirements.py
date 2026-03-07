@@ -51,7 +51,6 @@ import textwrap
 import sys
 import typing
 
-
 RequirementsByPieceType = typing.List[typing.Tuple[str, typing.Tuple[str, typing.List[str]]]]
 
 
@@ -73,7 +72,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "jinja2",
                 "mapfile_parser",
                 "networkx",
-                "numpy",
+                # "numpy",
                 "openpyxl",  # xlsx reports
                 "packaging",
                 "pandas",
@@ -84,6 +83,21 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "xdg",
                 "xlsxwriter",  # xlsx reports
                 "xlwt",  # xlsx reports
+            ],
+        ),
+    ),
+    # Provide support for cfu_playground platform
+    (
+        "cfu_playground",
+        (
+            "Requirements for using cfu_playground",
+            [
+                "construct",
+                "psutil",
+                "pyelftools",
+                "pyyaml",
+                "robotframework",
+                "robotframework-retryfailed",
             ],
         ),
     ),
@@ -121,6 +135,15 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ["humanize", "pyelftools"],
         ),
     ),
+    (
+        "executorch",
+        (
+            "Requirements for using executorch",
+            [
+                "executorch",
+            ],
+        ),
+    ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
     (
         "iree",
@@ -130,6 +153,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "iree-turbine",
                 "tensorflow",
                 "tflite",
+                "tosa-converter-for-tflite",
             ],
         ),
     ),
@@ -154,6 +178,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         (
             "Requirements for using tflite",
             [
+                "tensorflow",
                 "tflite",
             ],
         ),
@@ -180,7 +205,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "decorator",
                 "graphviz",  # for relay visualization
                 "matplotlib",
-                "numpy",
+                # "numpy",
                 "psutil",
                 "scipy",
                 "synr",
@@ -232,9 +257,11 @@ CONSTRAINTS = [
     ("click", ">=7.0"),
     ("cloudpickle", None),
     ("construct", "==2.10.54"),  # From PR #213.
+    # ("construct", "==2.10.68"),  # cfu?
     ("cryptography", ">=2.1.4"),
     ("decorator", None),
     ("ecdsa", ">=0.16.0"),
+    ("executorch", "==1.1.0"),
     ("filelock", None),
     ("future", ">=0.15.2"),
     ("gdbgui", "==0.13.2.0"),
@@ -247,33 +274,43 @@ CONSTRAINTS = [
     ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),
-    ("numpy", "<2.0"),
-    ("onnx", None),
+    # ("numpy", "<2.0; python_version <= '3.8'"),
+    # ("numpy", ">=2.0,<2.1.0; python_version >= '3.10'"),
+    ("onnx", "==1.20.1"),
     ("openpyxl", None),
     ("ortools", None),
     ("pandas", None),
     ("prettytable", None),
     ("psutil", None),
+    # ("psutil", "==5.9.3"),  # cfu?
     ("pyelftools", None),
+    # ("pyelftools", "==0.30"),  # cfu?
     ("pygdbmi", "<=0.9.0.2"),
     ("pyparsing", ">=2.0.3,<2.4.0"),
     ("pyserial", None),
     ("python-socketio", "<5"),
     ("pyusb", None),
     ("pyyaml", None),
+    # ("pyyaml", "==6.0.*"),  # cfu?
     ("reedsolo", ">=1.5.3,<=1.5.4"),
+    ("robotframework", None),  # cfu?
+    # ("robotframework", "==6.1"),  # cfu?
+    ("robotframework-retryfailed", None),  # cfu?
+    # ("robotframework-retryfailed", "==0.2.0"),  # cfu?
     ("scipy", None),
     ("synr", None),
     # ("tensorflow", "~=2.13.0"),
     ("tensorflow", "~=2.18.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
+    ("tosa-converter-for-tflite", "==2025.11.0"),
     ("typing_extensions", None),
     ("xdg", None),
     ("xgboost", ">=1.7.0,<2.0"),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]
+
 
 ################################################################################
 # End of configuration options.

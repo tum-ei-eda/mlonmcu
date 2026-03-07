@@ -23,6 +23,10 @@ import sys
 from mlonmcu.context.context import MlonMcuContext
 import mlonmcu.platform.lookup
 import mlonmcu.cli.load as load
+from mlonmcu.models import get_frontends
+from mlonmcu.flow import get_frameworks, get_backends
+from mlonmcu.session.postprocess import get_postprocesses
+from mlonmcu.feature.features import get_available_feature_names
 import mlonmcu.cli.tune as tune
 import mlonmcu.cli.build as build
 import mlonmcu.cli.compile as compile_  # compile is a builtin name
@@ -50,15 +54,50 @@ def get_parser(subparsers, parent=None):
     run.get_parser(subparsers)
 
 
-def handle_list_targets(args):
+def handle_list_components(args):
     with MlonMcuContext(path=args.home, deps_lock="read") as context:
-        mlonmcu.platform.lookup.print_summary(context=context)
+        if args.list_targets:
+            platform_targets = mlonmcu.platform.lookup.get_platforms_targets(context=context)
+            mlonmcu.platform.lookup.print_targets(platform_targets)
+        if args.list_platforms:
+            platform_names = mlonmcu.platform.lookup.get_platform_names(context=context)
+            mlonmcu.platform.lookup.print_platforms(platform_names)
+        if args.list_frontends:
+            print("Frontends:")
+            for name in get_frontends().keys():
+                print("  - " + name)
+        if args.list_frameworks:
+            print("Frameworks:")
+            for name in get_frameworks().keys():
+                print("  - " + name)
+        if args.list_backends:
+            print("Backends:")
+            for name in get_backends().keys():
+                print("  - " + name)
+        if args.list_features:
+            print("Features:")
+            for name in get_available_feature_names():
+                print("  - " + name)
+        if args.list_postprocesses:
+            print("Postprocesses:")
+            for name in get_postprocesses().keys():
+                print("  - " + name)
 
 
 def handle(args):
     """Callback function which will be called to process the flow subcommand"""
-    if args.list_targets:
-        handle_list_targets(args)
+    if any(
+        [
+            args.list_targets,
+            args.list_platforms,
+            args.list_frontends,
+            args.list_frameworks,
+            args.list_backends,
+            args.list_features,
+            args.list_postprocesses,
+        ]
+    ):
+        handle_list_components(args)
     else:
         if hasattr(args, "flow_func"):
             args.flow_func(args)

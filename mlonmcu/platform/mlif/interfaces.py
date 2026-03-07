@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MLIF Interfaces"""
+
 from mlonmcu.models.utils import fill_data_source_inputs_only
 
 MAX_BATCH_SIZE = int(1e6)

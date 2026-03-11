@@ -2681,6 +2681,7 @@ class PerfSim(TargetFeature):
         value = self.config["trace_instr"]
         return str2bool(value)
 
+    @property
     def to_file(self):
         value = self.config["to_file"]
         return str2bool(value, allow_none=True)

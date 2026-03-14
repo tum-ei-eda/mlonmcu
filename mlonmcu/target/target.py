@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 
-from mlonmcu.config import filter_config
+from mlonmcu.config import filter_config, ConfigTracker
 from mlonmcu.utils import filter_none
 from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
@@ -81,7 +81,11 @@ class Target:
         self.pre_callbacks = []
         self.post_callbacks = []
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.config_tracker = ConfigTracker(self.config)
+        print("self.config", self.config)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
+        print("self.config2", self.config)
+        # input("!!!")
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
         self.env = os.environ
@@ -261,7 +265,10 @@ class Target:
         return {}
 
     def add_platform_config(self, platform, config):
-        config.update(self.get_platform_config(platform))
+        to_update = self.get_platform_config(platform)
+        # TODO: handle prefix
+        self.config_tracker.track_all(set(to_update.keys()))
+        config.update(to_update)
 
     def get_platform_defs(self, platform):
         return {}

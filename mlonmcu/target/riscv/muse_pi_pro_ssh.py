@@ -60,7 +60,7 @@ class MusePiProSSHTarget(SSHTarget, RVVTarget):
         """Use target to execute a executable with given arguments"""
 
         if self.enable_vext:
-            assert self.vlen == 128, "SpacemiT Muse Pi Pro only supports VLEN=256"
+            assert self.vlen == 256, "SpacemiT Muse Pi Pro only supports VLEN=256"
 
         if self.timeout_sec > 0:
             raise NotImplementedError

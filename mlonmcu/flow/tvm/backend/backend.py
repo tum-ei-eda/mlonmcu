@@ -49,7 +49,16 @@ class TVMBackend(Backend):
 
     name = None
 
-    FEATURES = {"autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt", "uma_backends", "fuse_ops"}
+    FEATURES = {
+        "autotuned",
+        "cmsisnnbyoc",
+        "muriscvnnbyoc",
+        "disable_legalize",
+        "moiopt",
+        "uma_backends",
+        "fuse_ops",
+        "cfu_wca",
+    }
 
     DEFAULTS = {
         "print_outputs": False,
@@ -71,6 +80,7 @@ class TVMBackend(Backend):
         "desired_layout_map": None,  # optional, conv2d=NCHW, ...
         "disabled_passes": [],  # i.e. AlterOpLayout
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
+        "tir_add_lower_pass": None,  # opt_level1,pass1,opt_level2,pass2,...
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
@@ -86,6 +96,7 @@ class TVMBackend(Backend):
         "refresh_model_info": False,
         "generate_wrapper": "auto",
         "bool_as_int": True,
+        "ms_db": None,
     }
 
     REQUIRED = set()
@@ -169,8 +180,19 @@ class TVMBackend(Backend):
         return extra
 
     @property
+    def tir_add_lower_pass(self):
+        value = self.config["tir_add_lower_pass"]
+        if value is None:
+            return None
+        assert isinstance(value, str)
+        return value
+
+    @property
     def pass_config(self):
         base = {"tir.disable_vectorize": self.disable_vectorize}
+        if self.tir_add_lower_pass:
+            # TODO: do not override?
+            base["tir.add_lower_pass"] = self.tir_add_lower_pass
         extra = self.extra_pass_config
         base.update(extra)
         return base
@@ -376,6 +398,10 @@ class TVMBackend(Backend):
         return value
 
     @property
+    def ms_db(self):
+        return self.config["ms_db"]
+
+    @property
     def num_threads(self):
         return self.config["num_threads"]
 
@@ -433,6 +459,7 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
+            *(["--ms-db", self.ms_db] if self.ms_db is not None else []),
         ]
         return args
 

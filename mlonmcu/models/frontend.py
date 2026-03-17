@@ -16,10 +16,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import sys
 import re
 import time
 import tempfile
 import multiprocessing
+import pickle
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Dict, Union
@@ -56,7 +59,6 @@ from mlonmcu.setup import utils
 from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
-
 
 logger = get_logger()
 
@@ -584,8 +586,12 @@ class Frontend(ABC):
         return model_info_dict  # TODO: turn into class
 
     def process_metadata(self, model, cfg=None):
-        model_dir = Path(model.paths[0]).parent.resolve()
-        metadata = model.metadata
+        if len(model.paths) == 0:
+            model_dir = None
+            metadata = None
+        else:
+            model_dir = Path(model.paths[0]).parent.resolve()
+            metadata = model.metadata
         in_paths = []
         out_paths = []
         labels_paths = []
@@ -674,7 +680,7 @@ class Frontend(ABC):
                             labels_path.is_file()
                         ), f"Labels file defined in model metadata does not exist: {labels_path}"
                         labels_paths.append(labels_path)
-        else:
+        elif model_dir is not None:
             fallback_in_path = model_dir / "input"
             if fallback_in_path.is_dir():
                 in_paths.append(fallback_in_path)
@@ -728,9 +734,11 @@ class Frontend(ABC):
         # Detect model support code (Allow overwrite in metadata YAML)
         if model.support_path:
             support_path = model.support_path
-        else:
+        elif model_dir is not None:
             support_path = model_dir / "support"
-        if support_path.is_dir():
+        else:
+            support_path = None
+        if support_path is not None and support_path.is_dir():
             assert cfg is not None
             # TODO: onlu overwrite if unset?
             if cfg.get("mlif.model_support_dir", None) is not None:
@@ -853,7 +861,12 @@ class Frontend(ABC):
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
 
-        count = len(model.paths)
+        if len(model.paths) > 0:
+            count = len(model.paths)
+        elif len(model.classes) > 0:
+            count = len(model.classes)
+        else:
+            count = 0
         assert count == len(model.formats)
         assert count > 0, f"'{self.name}' frontend expects at least one model"
         max_ins = len(self.input_formats)
@@ -1032,7 +1045,11 @@ class TfLiteFrontend(SimpleFrontend):
         return self.config["analyze_script"]
 
     def extract_model_info(self, model: Model):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -1076,7 +1093,11 @@ class TfLiteFrontend(SimpleFrontend):
         )
 
     def inference(self, model: Model, input_data: Dict[str, np.array], quant=False, dequant=False, verbose=False):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -1320,15 +1341,17 @@ class RelayFrontend(SimpleFrontend):
             assert len(self.output_formats) == 2
 
             def _relayviz(in_file, out_file, plotter_name, env={}):
-                import sys
-                import os
 
                 sys.path.append(env["PYTHONPATH"])
                 os.environ["TVM_LIBRARY_PATH"] = env["TVM_LIBRARY_PATH"]
-                from tvm import parser
-                from tvm.contrib import relay_viz
-                from tvm.contrib.relay_viz.terminal import TermPlotter
-                from tvm.contrib.relay_viz.dot import DotPlotter
+                try:
+                    from tvm import parser
+                    from tvm.contrib import relay_viz
+                    from tvm.contrib.relay_viz.terminal import TermPlotter
+                    from tvm.contrib.relay_viz.dot import DotPlotter
+                except ImportError as ex:
+                    logger.error("Missing Python package: tvm")
+                    raise ex
 
                 if plotter_name == "term":
                     plotter_cls = TermPlotter
@@ -1506,6 +1529,218 @@ class ONNXFrontend(SimpleFrontend):
         )
 
 
+class TorchFrontend(Frontend):
+    DEFAULTS = {
+        **Frontend.DEFAULTS,
+    }
+
+    REQUIRED = Frontend.REQUIRED
+    OPTIONAL = Frontend.OPTIONAL
+
+    def __init__(self, name: str, fmt: ModelFormats, features=None, config=None):
+        super().__init__(
+            name,
+            input_formats=[fmt],
+            output_formats=[fmt],
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_extensions(self):
+        return [ext for fmt in self.input_formats for ext in fmt.extensions]
+
+    def _make_hint(self, name, path, model_class=None, config=None):
+        if path is None:
+            assert model_class is not None
+            paths = []
+            formats = [ModelFormats.TORCH_PICKLE]
+            classes = [model_class]
+        else:
+            paths = [path]
+            ext = path.suffix[1:].lower() if path.suffix else ""
+            assert ext in self.supported_extensions, f"Unsupported extension for torch model: {ext}"
+            formats = [ModelFormats.from_extension(ext)]
+            classes = []
+        local_config = {} if config is None else config.copy()
+        # model_name = model_class if model_class is not None else name
+        model_name = name
+        return Model(model_name, paths, config=local_config, alt=name, formats=formats, classes=classes)
+
+    # def _path_contains_class(self, file_path, class_name):
+    #     import ast
+
+    #     with open(file_path, "r", encoding="utf-8") as handle:
+    #         source = handle.read()
+    #     tree = ast.parse(source, filename=str(file_path))
+    #     return any(isinstance(node, ast.ClassDef) and node.name == class_name for node in ast.walk(tree))
+
+    # def _find_class_in_dirs(self, class_name, directories):
+    #     for directory in directories:
+    #         if not directory.is_dir():
+    #             continue
+    #         for candidate in directory.glob("*.py"):
+    #             if self._path_contains_class(candidate, class_name):
+    #                 return candidate
+    #     return None
+
+    def _lookup_builtin_model(self, name):
+        # import ast
+
+        # builtins_file = Path(__file__).parent / "torch_models" / "quant_linear_test.py"
+        # if not builtins_file.is_file():
+        #     return None, None
+        # with open(builtins_file, "r", encoding="utf-8") as handle:
+        #     source = handle.read()
+        # tree = ast.parse(source, filename=str(builtins_file))
+
+        # alias_to_class = {}
+        # for node in tree.body:
+        #     if not isinstance(node, ast.Assign):
+        #         continue
+        #     if not any(isinstance(target, ast.Name) and target.id == "MODELS" for target in node.targets):
+        #         continue
+        #     if not isinstance(node.value, ast.Dict):
+        #         continue
+        #     for key_node, value_node in zip(node.value.keys, node.value.values):
+        #         if isinstance(key_node, ast.Constant)
+        #             and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
+        #             alias_to_class[key_node.value] = value_node.id
+
+        # if name in alias_to_class:
+        #     return builtins_file, alias_to_class[name]
+        from .torch_models import MODELS, MODEL_NAME_TO_MODEL, EagerModelFactory
+
+        if name in MODELS:
+            return None, MODELS[name]
+        if name in MODEL_NAME_TO_MODEL:
+            model, example_inputs, _, _ = EagerModelFactory.create_model(*MODEL_NAME_TO_MODEL[name])
+            model.example_input = example_inputs
+            return None, model
+        # if self._path_contains_class(builtins_file, name):
+        #     return builtins_file, name
+        return None, None
+
+    def _get_search_directories(self, context=None):
+        directories = []
+        package_models = Path(__file__).parent / "torch_models"
+        directories.append(package_models)
+        if context is not None:
+            model_paths = context.environment.paths.get("models", [])
+            for model_path in model_paths:
+                path = getattr(model_path, "path", model_path)
+                directories.append(Path(path))
+        return directories
+
+    def lookup_models(self, names, config=None, context=None):
+        hints = []
+        config = config if config is not None else {}
+        fmt = self.input_formats[0]
+        for name in names:
+            # path, model_class = self._lookup_builtin_model(name)
+            _, model_class = self._lookup_builtin_model(name)
+            if model_class is not None:
+                assert fmt == ModelFormats.TORCH_PICKLE
+                hints.append(self._make_hint(name, None, model_class=model_class, config=config))
+                continue
+            if fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
+                model_path = Path(name)
+                suffix = model_path.suffix
+                assert len(suffix) > 1
+                ext = suffix[1:]
+                assert model_path.is_file(), f"Not a file: {model_path}"
+                assert ext in fmt.extensions, f"Unsupported extension: {ext}"
+                name = model_path.stem
+                from .torch_models.torch_utils import load_torch_model
+
+                model, _, _ = load_torch_model(model_path)
+                hints.append(self._make_hint(name, model_path, model_class=model, config=config))
+                continue
+            # if path is not None:
+            #     hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
+            #     continue
+            # class_file = self._find_class_in_dirs(name, self._get_search_directories(context=context))
+            # if class_file is not None:
+            #     hints.append(self._make_hint(name, class_file, model_class=name, config=config))
+            #     continue
+            raise RuntimeError(f"Could not find {self.name} model: {name}")
+        return hints
+
+    def produce_artifacts(self, model):
+        artifacts = []
+        if len(model.paths) == 0:
+            assert len(model.classes) > 0
+            assert len(model.classes) == 1
+            model_class = model.classes[0]
+            ext = "pkl"
+
+            pickled_bytes = pickle.dumps(model_class)
+            artifacts.append(
+                Artifact(f"{model.name}.{ext}", raw=pickled_bytes, fmt=ArtifactFormat.RAW, flags=["model"])
+            )
+        else:
+            path = model.paths[0]
+            ext = model.formats[0].extension
+            if ext == "py":
+                # print("model", model, dir(model))
+                # print("model.classes[0]", model.classes[0], dir(model.classes[0]))
+                # input("!")
+                with open(path, "r") as handle:
+                    content = handle.read()
+                artifacts.append(
+                    Artifact(f"{model.name}.{ext}", content=content, fmt=ArtifactFormat.SOURCE, flags=["model"])
+                )
+            else:
+                assert ext in ["pt", "pth", "pkl", "pickle"]
+                with open(path, "rb") as handle:
+                    raw = handle.read()
+                artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
+        return artifacts
+
+
+class PTEFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "pte",
+            ModelFormats.PTE,
+            features=features,
+            config=config,
+        )
+
+
+class TorchPickleFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_pickle",
+            fmt=ModelFormats.TORCH_PICKLE,
+            features=features,
+            config=config,
+        )
+
+
+class TorchPythonFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_python",
+            fmt=ModelFormats.TORCH_PYTHON,
+            features=features,
+            config=config,
+        )
+
+
+class TorchExportedFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_exported",
+            fmt=ModelFormats.TORCH_EXPORTED,
+            features=features,
+            config=config,
+        )
+
+
 class MLIRFrontend(SimpleFrontend):
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1569,7 +1804,7 @@ class BenchFrontend(SimpleFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = self.name
         return ret
 
@@ -1643,7 +1878,7 @@ class EmbenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
         return ret
 
@@ -1691,7 +1926,7 @@ class EmbenchIoTFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
         return ret
 
@@ -1725,7 +1960,7 @@ class EmbenchDSPFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
         return ret
 
@@ -1806,7 +2041,7 @@ class TaclebenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
         return ret
 
@@ -1866,7 +2101,7 @@ class PolybenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
             ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
         return ret
@@ -1966,7 +2201,7 @@ class MibenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
 
         return ret
@@ -2202,7 +2437,7 @@ class CmsisDSPFrontend(BenchFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = "cmsis_dsp_bench"
         return ret
 
@@ -2226,6 +2461,6 @@ class CmsisNNFrontend(BenchFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = "cmsis_nn_bench"
         return ret

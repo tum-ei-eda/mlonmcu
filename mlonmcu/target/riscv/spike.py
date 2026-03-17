@@ -133,6 +133,7 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         exts = super().extensions
         return update_extensions(
             exts,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property

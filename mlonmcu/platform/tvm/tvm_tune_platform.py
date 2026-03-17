@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """TVM Tune Platform"""
+
 import re
 import os
 from mlonmcu.config import str2bool, str2dict, str2list

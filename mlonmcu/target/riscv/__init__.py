@@ -1,5 +1,5 @@
 from .etiss_pulpino import EtissPulpinoTarget
-from .etiss import EtissTarget, EtissRV32Target, EtissRV64Target
+from .etiss import EtissTarget, EtissRV32Target, EtissRV32MinTarget, EtissRV64Target, EtissRV64MinTarget
 from .etiss_perf import EtissPerfTarget
 from .spike import SpikeTarget, SpikeBMTarget, SpikePKTarget, SpikeRV32Target, SpikeRV32MinTarget, SpikeRV64Target
 from .ovpsim import OVPSimTarget
@@ -12,6 +12,7 @@ from .cv32e40p import CV32E40PTarget
 from .vicuna import VicunaTarget
 from .vicuna2 import Vicuna2Target
 from .canmv_k230_ssh import CanMvK230SSHTarget
+from .muse_pi_pro_ssh import MusePiProSSHTarget
 from .tgc import TGCTarget
 
 __all__ = [
@@ -19,7 +20,9 @@ __all__ = [
     "EtissTarget",
     "EtissPerfTarget",
     "EtissRV32Target",
+    "EtissRV32MinTarget",
     "EtissRV64Target",
+    "EtissRV64MinTarget",
     "SpikeTarget",
     "SpikeRV32Target",
     "SpikeRV32MinTarget",
@@ -36,5 +39,6 @@ __all__ = [
     "VicunaTarget",
     "Vicuna2Target",
     "CanMvK230SSHTarget",
+    "MusePiProSSHTarget",
     "TGCTarget",
 ]

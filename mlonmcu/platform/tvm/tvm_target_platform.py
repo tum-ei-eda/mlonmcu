@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """TVM Target Platform"""
+
 import os
 from mlonmcu.config import str2bool
 from .tvm_rpc_platform import TvmRpcPlatform

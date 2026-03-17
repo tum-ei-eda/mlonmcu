@@ -265,14 +265,6 @@ class RISCVTarget(Target):
             return f"rv{self.xlen}{exts_str}"
 
     @property
-    def cpu(self):
-        temp = self.config["cpu"]
-        if temp:
-            return temp
-        else:
-            return f"generic-rv{self.xlen}"
-
-    @property
     def llvm_arch(self):
         temp = self.config["arch"]  # TODO: allow underscores and versions
         if temp:
@@ -289,6 +281,26 @@ class RISCVTarget(Target):
         else:
             exts_str = join_extensions(sort_extensions_canonical(self.gcc_extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def cpu(self):
+        temp = self.config["cpu"]
+        if temp:
+            return temp
+        else:
+            return ""
+
+    @property
+    def gcc_cpu(self):
+        return self.cpu
+
+    @property
+    def llvm_cpu(self):
+        temp = self.cpu
+        if temp:
+            return temp
+        else:
+            return f"generic-rv{self.xlen}"
 
     @property
     def abi(self):
@@ -411,7 +423,7 @@ class RISCVTarget(Target):
             #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
             ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
             ret["RISCV_ABI"] = self.abi
-            ret["RISCV_CPU"] = self.cpu
+            ret["RISCV_CPU"] = self.gcc_cpu if self.toolchain == "gcc" else self.llvm_cpu
             # llvm/clang only!
             ret["RISCV_ATTR"] = self.attr
             ret["RISCV_LINUX"] = not self.is_bare
@@ -446,7 +458,7 @@ class RISCVTarget(Target):
                     "target_mtriple": self.riscv_gcc_basename,
                     "target_mabi": self.abi,
                     "target_mattr": self.attr,
-                    "target_mcpu": self.cpu,
+                    "target_mcpu": self.llvm_cpu,
                     "target_model": f"etiss-{arch_clean}",
                     # "target_model": f"{self.name}-{arch_clean}",
                     "target_num_cores": 1,  # TODO: also add for non-riscv targets
@@ -484,7 +496,7 @@ class RISCVTarget(Target):
                     "target_triple": self.riscv_gcc_basename,
                     "target_abi": self.abi,
                     "target_cpu_features": self.attr,
-                    "target_cpu": self.cpu,
+                    "target_cpu": self.llvm_cpu,
                     "target_vector_width": self.get_vector_width(),
                     "target_scalable_vectorization": self.has_scalable_vectorization(),
                 }

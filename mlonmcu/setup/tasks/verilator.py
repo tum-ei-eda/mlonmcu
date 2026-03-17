@@ -47,6 +47,7 @@ def _validate_verilator(context: MlonMcuContext, params=None):
         or _validate_cfu_playground(context, params=params)
     )
 
+
 def _validate_verilator_build(context: MlonMcuContext, params=None):
     user_vars = context.environment.vars
     verilator_install_dir = user_vars.get("verilator.install_dir")

@@ -2,12 +2,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from mlonmcu.models.frontend import TorchFrontend
+from mlonmcu.models.frontend import TorchPythonFrontend
 from mlonmcu.models.model import ModelFormats
 
 
 def test_torch_frontend_lookup_default_package_model_class():
-    frontend = TorchFrontend()
+    frontend = TorchPythonFrontend()
 
     hints = frontend.lookup_models(["qlinear"])
 
@@ -19,7 +19,7 @@ def test_torch_frontend_lookup_default_package_model_class():
 
 
 def test_torch_frontend_lookup_builtin_model_by_class_name():
-    frontend = TorchFrontend()
+    frontend = TorchPythonFrontend()
 
     hints = frontend.lookup_models(["QuantAddTest"])
 
@@ -34,7 +34,7 @@ def test_torch_frontend_lookup_model_class_in_environment_models_dir(tmp_path):
     model_file.write_text("import torch\nclass MyLinearTest(torch.nn.Module):\n    pass\n")
     context = SimpleNamespace(environment=SimpleNamespace(paths={"models": [tmp_path]}))
 
-    frontend = TorchFrontend()
+    frontend = TorchPythonFrontend()
     hints = frontend.lookup_models(["MyLinearTest"], context=context)
 
     assert len(hints) == 1
@@ -48,7 +48,7 @@ def test_torch_frontend_rejects_file_based_lookup(tmp_path):
     model_file = tmp_path / "sample_model.py"
     model_file.write_text("import torch\nclass SampleModel(torch.nn.Module):\n    pass\n")
 
-    frontend = TorchFrontend()
+    frontend = TorchPythonFrontend()
     with pytest.raises(RuntimeError, match="Could not find Torch model"):
         frontend.lookup_models([str(model_file)])
 
@@ -57,6 +57,6 @@ def test_torch_frontend_rejects_class_qualified_file_lookup(tmp_path):
     model_file = tmp_path / "sample_model.py"
     model_file.write_text("import torch\nclass SampleModel(torch.nn.Module):\n    pass\n")
 
-    frontend = TorchFrontend()
+    frontend = TorchPythonFrontend()
     with pytest.raises(RuntimeError, match="Could not find Torch model"):
         frontend.lookup_models([f"{model_file}:SampleModel"])

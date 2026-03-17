@@ -12,6 +12,7 @@ from .cv32e40p import CV32E40PTarget
 from .vicuna import VicunaTarget
 from .vicuna2 import Vicuna2Target
 from .canmv_k230_ssh import CanMvK230SSHTarget
+from .muse_pi_pro_ssh import MusePiProSSHTarget
 from .tgc import TGCTarget
 
 __all__ = [
@@ -38,5 +39,6 @@ __all__ = [
     "VicunaTarget",
     "Vicuna2Target",
     "CanMvK230SSHTarget",
+    "MusePiProSSHTarget",
     "TGCTarget",
 ]

@@ -126,7 +126,9 @@ class SSHTarget(Target):
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(self.hostname, port=self.port, username=self.username, password=self.password)
             if self.workdir is None:
-                raise NotImplementedError("temp workdir")
+                command = "mktemp -d"
+                _, stdout, _ = ssh.exec_command(command)
+                workdir = Path(stdout.read().strip().decode())
             else:
                 self.create_remote_directory(ssh, self.workdir)
                 workdir = self.workdir
@@ -144,6 +146,9 @@ class SSHTarget(Target):
             # print("stderr", stderr)
             output = stderr.read().strip() + stdout.read().strip()
             output = output.decode()
+            if self.workdir is None:
+                command = f"rm -rf {workdir}"
+                ssh.exec_command(command)
             if self.print_outputs:
                 print("output", output)  # TODO: cleanup
         return output

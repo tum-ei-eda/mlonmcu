@@ -7,6 +7,7 @@ from mlonmcu.models.model import ModelFormats
 
 
 def test_torch_frontend_lookup_default_package_model_class():
+    pytest.importorskip("executorch")
     frontend = TorchPythonFrontend()
 
     hints = frontend.lookup_models(["qlinear"])
@@ -19,6 +20,7 @@ def test_torch_frontend_lookup_default_package_model_class():
 
 
 def test_torch_frontend_lookup_builtin_model_by_class_name():
+    pytest.importorskip("executorch")
     frontend = TorchPythonFrontend()
 
     hints = frontend.lookup_models(["QuantAddTest"])
@@ -30,6 +32,7 @@ def test_torch_frontend_lookup_builtin_model_by_class_name():
 
 
 def test_torch_frontend_lookup_model_class_in_environment_models_dir(tmp_path):
+    pytest.importorskip("executorch")
     model_file = tmp_path / "my_models.py"
     model_file.write_text("import torch\nclass MyLinearTest(torch.nn.Module):\n    pass\n")
     context = SimpleNamespace(environment=SimpleNamespace(paths={"models": [tmp_path]}))
@@ -45,6 +48,7 @@ def test_torch_frontend_lookup_model_class_in_environment_models_dir(tmp_path):
 
 
 def test_torch_frontend_rejects_file_based_lookup(tmp_path):
+    pytest.importorskip("executorch")
     model_file = tmp_path / "sample_model.py"
     model_file.write_text("import torch\nclass SampleModel(torch.nn.Module):\n    pass\n")
 
@@ -54,6 +58,7 @@ def test_torch_frontend_rejects_file_based_lookup(tmp_path):
 
 
 def test_torch_frontend_rejects_class_qualified_file_lookup(tmp_path):
+    pytest.importorskip("executorch")
     model_file = tmp_path / "sample_model.py"
     model_file.write_text("import torch\nclass SampleModel(torch.nn.Module):\n    pass\n")
 

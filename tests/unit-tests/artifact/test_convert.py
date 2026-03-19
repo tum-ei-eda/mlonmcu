@@ -41,24 +41,27 @@ def test_convert_artifacts_unknown_invalid():
 
 # @pytest.mark.parametrize("from_", [ArtifactFormat.SOURCE, ArtifactFormat.TEXT])
 # @pytest.mark.parametrize("to", [ArtifactFormat.SOURCE, ArtifactFormat.TEXT])
-@pytest.mark.parametrize("from_,to", [
-    # same
-    (ArtifactFormat.SOURCE, ArtifactFormat.SOURCE),
-    (ArtifactFormat.TEXT, ArtifactFormat.TEXT),
-    # cross
-    (ArtifactFormat.SOURCE, ArtifactFormat.SOURCE),
-    (ArtifactFormat.TEXT, ArtifactFormat.TEXT),
-    # source/text -> raw/bin
-    (ArtifactFormat.SOURCE, ArtifactFormat.RAW),
-    (ArtifactFormat.SOURCE, ArtifactFormat.BIN),
-    (ArtifactFormat.TEXT, ArtifactFormat.RAW),
-    (ArtifactFormat.TEXT, ArtifactFormat.BIN),
-    # source/text -> json/yaml
-    # (ArtifactFormat.SOURCE, ArtifactFormat.JSON),
-    # (ArtifactFormat.SOURCE, ArtifactFormat.YAML),
-    # (ArtifactFormat.TEXT, ArtifactFormat.JSON),
-    # (ArtifactFormat.TEXT, ArtifactFormat.YAML),
-])
+@pytest.mark.parametrize(
+    "from_,to",
+    [
+        # same
+        (ArtifactFormat.SOURCE, ArtifactFormat.SOURCE),
+        (ArtifactFormat.TEXT, ArtifactFormat.TEXT),
+        # cross
+        (ArtifactFormat.SOURCE, ArtifactFormat.SOURCE),
+        (ArtifactFormat.TEXT, ArtifactFormat.TEXT),
+        # source/text -> raw/bin
+        (ArtifactFormat.SOURCE, ArtifactFormat.RAW),
+        (ArtifactFormat.SOURCE, ArtifactFormat.BIN),
+        (ArtifactFormat.TEXT, ArtifactFormat.RAW),
+        (ArtifactFormat.TEXT, ArtifactFormat.BIN),
+        # source/text -> json/yaml
+        # (ArtifactFormat.SOURCE, ArtifactFormat.JSON),
+        # (ArtifactFormat.SOURCE, ArtifactFormat.YAML),
+        # (ArtifactFormat.TEXT, ArtifactFormat.JSON),
+        # (ArtifactFormat.TEXT, ArtifactFormat.YAML),
+    ],
+)
 def test_convert_artifacts_source_text_valid(from_, to):
     in_artifact = Artifact("foo.txt", content="foobar", fmt=from_)
     out_artifact = in_artifact.convert(to)
@@ -67,13 +70,16 @@ def test_convert_artifacts_source_text_valid(from_, to):
     # TODO": check for equality
 
 
-@pytest.mark.parametrize("from_,to,raises", [
-    (ArtifactFormat.SOURCE, ArtifactFormat.UNKNOWN, NotImplementedError),
-    (ArtifactFormat.TEXT, ArtifactFormat.UNKNOWN, NotImplementedError),
-    (ArtifactFormat.SOURCE, ArtifactFormat.MLF, NotImplementedError),
-    (ArtifactFormat.TEXT, ArtifactFormat.MLF, NotImplementedError),
-    # ...
-])
+@pytest.mark.parametrize(
+    "from_,to,raises",
+    [
+        (ArtifactFormat.SOURCE, ArtifactFormat.UNKNOWN, NotImplementedError),
+        (ArtifactFormat.TEXT, ArtifactFormat.UNKNOWN, NotImplementedError),
+        (ArtifactFormat.SOURCE, ArtifactFormat.MLF, NotImplementedError),
+        (ArtifactFormat.TEXT, ArtifactFormat.MLF, NotImplementedError),
+        # ...
+    ],
+)
 def test_convert_artifacts_source_text_invalid(from_, to, raises):
     in_artifact = Artifact("foo.bar", content="foobar", fmt=from_)
     with pytest.raises(raises):

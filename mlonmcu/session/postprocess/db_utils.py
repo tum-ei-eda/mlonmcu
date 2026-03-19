@@ -25,7 +25,6 @@ from typing import Optional, List, Set, Tuple
 
 from tqdm import tqdm
 
-from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 
 logger = get_logger()

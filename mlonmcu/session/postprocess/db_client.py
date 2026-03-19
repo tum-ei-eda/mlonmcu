@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import humanize
-from datetime import datetime
 
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -11,7 +10,6 @@ from rich.table import Table
 from rich import print
 
 import boto3
-from botocore.client import Config
 
 console = Console()
 

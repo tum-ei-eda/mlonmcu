@@ -386,7 +386,9 @@ def _postprocess_default(runs, report, dest, progress=False):
     if timestamp_file.is_file():
         # with open(timestamp_file, "r") as f:
         #     timestamp = f.read()
-        # session_artifacts.append(Artifact(timestamp_file.name, content=timestamp, fmt=ArtifactFormat.TEXT), flags("timestamp",))
+        # session_artifacts.append(
+        #     Artifact(timestamp_file.name, content=timestamp, fmt=ArtifactFormat.TEXT), flags("timestamp",)
+        # )
         session_artifacts.append(
             Artifact(timestamp_file.name, path=timestamp_file, fmt=ArtifactFormat.PATH, flags=("timestamp",))
         )

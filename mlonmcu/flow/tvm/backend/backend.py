@@ -69,9 +69,11 @@ class TVMBackend(Backend):
         "target_model": None,
         "target_mtriple": None,
         "target_mabi": None,
+        "target_mfloat_abi": None,
         "target_mattr": None,
         "target_keys": None,
         "target_num_cores": None,
+        "cross_compiler": None,
         "tvm_target_str": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
@@ -218,6 +220,10 @@ class TVMBackend(Backend):
         return self.config["target_mabi"]
 
     @property
+    def target_mfloat_abi(self):
+        return self.config["target_mfloat_abi"]
+
+    @property
     def target_mattr(self):
         return self.config["target_mattr"]
 
@@ -232,6 +238,10 @@ class TVMBackend(Backend):
     @property
     def target_num_cores(self):
         return self.config["target_num_cores"]
+
+    @property
+    def cross_compiler(self):
+        return self.config["cross_compiler"]
 
     # TODO:
     # "target_device": ?,
@@ -341,6 +351,7 @@ class TVMBackend(Backend):
             "model": self.target_model,
             "mtriple": self.target_mtriple,
             "mabi": self.target_mabi,
+            "mfloat_abi": self.target_mfloat_abi,
             **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
             "num_cores": self.target_num_cores,
             # TODO: alignment
@@ -460,6 +471,7 @@ class TVMBackend(Backend):
             *["-f", self.fmt],
             *["--model-format", self.model_format],
             *(["--ms-db", self.ms_db] if self.ms_db is not None else []),
+            *(["--cross-compiler", self.cross_compiler] if self.cross_compiler is not None else []),
         ]
         return args
 

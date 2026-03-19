@@ -136,6 +136,9 @@ def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file):
 
 
 def get_rpc_tvmc_args(enabled, key, hostname, port):
+    assert hostname is not None
+    assert port is not None
+    assert key is not None
     return (
         [
             "--rpc-key",

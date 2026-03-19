@@ -250,7 +250,14 @@ class Artifact:
                 ret.fmt = to
                 ret.validate()
                 return ret
-            raise NotImplementedError("TODO")
+            elif self.fmt in [ArtifactFormat.PATH]:
+                with open(self.path, "r") as f:
+                    content = f.read()
+                ret = self.copy()
+                ret.content = content
+                ret.fmt = to
+                ret.validate()
+                return ret
         if to in [ArtifactFormat.BIN, ArtifactFormat.RAW]:
             if self.fmt in [ArtifactFormat.SOURCE, ArtifactFormat.TEXT]:
                 ret = self.copy()
@@ -261,6 +268,13 @@ class Artifact:
                 ret.fmt = to
                 ret.validate()
                 return ret
-            raise NotImplementedError("TODO")
+            elif self.fmt in [ArtifactFormat.PATH]:
+                with open(self.path, "rb") as f:
+                    raw = f.read()
+                ret = self.copy()
+                ret.raw = raw
+                ret.fmt = to
+                ret.validate()
+                return ret
         raise NotImplementedError(f"Missing conversion from {self.fmt} to {to}.")
         return None  # Should not be reached

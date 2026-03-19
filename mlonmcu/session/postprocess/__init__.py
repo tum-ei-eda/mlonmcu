@@ -38,6 +38,7 @@ from .postprocesses import (
     AnalyseLinkerMapPostprocess,
     StageTimesGanttPostprocess,
     ProfileFunctionsPostprocess,
+    Push2DBPostprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {}
@@ -81,6 +82,7 @@ register_postprocess("export_outputs", ExportOutputsPostprocess)
 register_postprocess("analyse_linker_map", AnalyseLinkerMapPostprocess)
 register_postprocess("stage_times_gantt", StageTimesGanttPostprocess)
 register_postprocess("profile_functions", ProfileFunctionsPostprocess)
+register_postprocess("push2db", Push2DBPostprocess)
 
 
 __all__ = ["SUPPORTED_POSTPROCESSES", "register_postprocess", "get_postprocesses"]

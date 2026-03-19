@@ -42,6 +42,7 @@ from .calc_lib_mem_footprints import (
     unmangle_helper,
 )
 from .dwarf import analyze_dwarf
+from .db_utils import push_session_to_mlonmcu_db
 
 logger = get_logger()
 
@@ -2398,3 +2399,113 @@ class ProfileFunctionsPostprocess(RunPostprocess):
                 report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
+
+
+class Push2DBPostprocess(SessionPostprocess):
+    """Push Session report and artifacts to MLonMCU DB."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "progress": True,
+        "session_artifacts": True,
+        "run_artifacts": False,
+    }
+
+    @property
+    def progress(self):
+        """Get progress property."""
+        value = self.config["progress"]
+        return str2bool(value)
+
+    @property
+    def session_artifacts(self):
+        """Get drop_nan property."""
+        value = self.config["session_artifacts"]
+        return str2bool(value)
+
+    @property
+    def run_artifacts(self):
+        """Get run_artifacts property."""
+        value = self.config["run_artifacts"]
+        return str2bool(value)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("push2db", features=features, config=config)
+
+    def post_session(self, report, artifacts):
+        """Called at the end of a session."""
+        # Credentials are NOT passed via MLonMCU config!
+        # Please use environment vars to override:
+        # - POSTGRES_USER
+        # - POSTGRES_PASSWORD
+        # - POSTGRES_DB
+        # - POSTGRES_HOST
+        # - POSTGRES_PORT
+        # - S3_ENDPOINT
+        # - S3_KEY
+        # - S3_SECRET
+        # print("post_session")
+        # print("session_artifacts", artifacts)
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_artifact = label_artifact[0].convert(ArtifactFormat.TEXT)
+        # print("label_artifact", label_artifact)
+        label = label_artifact.content
+        # print("label", label)
+        timestamp_artifact = lookup_artifacts(artifacts, flags=("timestamp",), first_only=True)
+        assert len(timestamp_artifact) == 1
+        timestamp_artifact = timestamp_artifact[0].convert(ArtifactFormat.TEXT)
+        # print("timestamp_artifact", timestamp_artifact)
+        timestamp = timestamp_artifact.content
+        # print("timestamp", timestamp)
+        run_artifact_paths = defaultdict(list)
+        session_artifact_paths = []
+        # TODO: use tuples to handle subs/subdirs!
+        if self.session_artifacts:
+            session_artifact_paths = [(artifact.name, artifact.path) for artifact in artifacts]
+        if self.run_artifacts:
+            # TODO receive via artifacts.yml?
+            # raise NotImplementedError("Run artifacts")
+            label_file = label_artifact.path
+            sess_dir = Path(label_file).parent
+            runs_dir = sess_dir / "runs"
+            if "Run" in report.df.columns:
+                run_ids = list(report.df["Run"].values)
+            else:
+                run_ids = list(report.df.index.values)
+            print("run_ids", run_ids)
+            for run_id in run_ids:
+                run_dir = runs_dir / str(run_id)
+                assert run_dir.is_dir()
+                # TODO: use artifacts.yml instead
+                artifacts_yml = run_dir / "artifacts.yml"
+                import yaml
+
+                with open(artifacts_yml, "r") as f:
+                    artifacts_data = yaml.safe_load(f)
+                for artifact_data in artifacts_data["artifacts"]:
+                    name = artifact_data["name"]
+                    path = artifact_data.get("path")
+                    if path is None:
+                        continue
+                    temp = (name, path)
+                    run_artifact_paths[run_id].append(temp)
+
+        report_df = report.df
+        if "Stages" in report_df.columns:
+            run_stages = list(report_df["Stages"].values)
+            stages = set().union(*run_stages)
+            stages = list(stages)
+        else:
+            stages = []
+        tags = set(stages)
+        push_session_to_mlonmcu_db(
+            report,
+            session_artifacts=session_artifact_paths,
+            run_artifacts=run_artifact_paths,
+            label=label,
+            timestamp=timestamp,
+            tags=tags,
+            progress=self.progress,
+        )
+        return []

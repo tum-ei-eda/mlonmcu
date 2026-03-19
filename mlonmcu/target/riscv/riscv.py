@@ -48,6 +48,7 @@ class RISCVTarget(Target):
         "fpu": "double",  # allowed: none, single, double
         "arch": None,  # Please use above properties if possible
         "abi": None,  # Please use above properties if possible
+        "float_abi": None,  # Please use above properties if possible
         "cmodel": None,
         "attr": "",  # Please avoid using this directly
         "cpu": None,
@@ -403,6 +404,13 @@ class RISCVTarget(Target):
         return f"{self.riscv_gcc_basename}-g++"
 
     @property
+    def float_abi(self):
+        value = self.config.get("float_abi", None)
+        if value is not None:
+            return value
+        return "hard" if self.fpu != "none" else "soft"  # softfp
+
+    @property
     def toolchain(self):
         value = self.config.get("mlif.toolchain", None)
         if value is None:
@@ -470,7 +478,7 @@ class RISCVTarget(Target):
                     # "target_keys": ?,
                     # "target_opt_level": ?,
                     # "target_cl_opt": ?,
-                    # "target_mfloat_abi": ?,
+                    "target_mfloat_abi": self.float_abi,
                     # "target_fast_math_ninf": ?,
                     # "target_fast_math_contract": ?,
                     # "target_fast_math_nnan": ?,
@@ -478,7 +486,6 @@ class RISCVTarget(Target):
                     # "target_fast_math_nsz": ?,
                     # "target_fast_math_reassoc": ?,
                     # "target_fast_math_arcp": ?,
-                    # "target_model": "host",
                 }
             )
             if optimized_schedules:

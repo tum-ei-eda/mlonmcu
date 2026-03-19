@@ -2509,3 +2509,59 @@ class Push2DBPostprocess(SessionPostprocess):
             progress=self.progress,
         )
         return []
+
+
+class MergeAutoTvmRecordsPostprocess(SessionPostprocess):
+    """Collect all AutoTVM tuning logs to build combined tuning database."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "allow_empty": False,
+    }
+
+    @property
+    def allow_empty(self):
+        """Get allow_empty property."""
+        value = self.config["allow_empty"]
+        return str2bool(value)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("merge_autotvm_records", features=features, config=config)
+
+    def post_session(self, report, artifacts):  # TODO: receive all run artifacts via arg!
+        """Called at the end of a session."""
+        # Workaround: look for run dirs relative to session...
+        contents = []
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_file = label_artifact[0].path
+        sess_dir = Path(label_file).parent
+        runs_dir = sess_dir / "runs"
+        if "Run" in report.df.columns:
+            run_ids = list(report.df["Run"].values)
+        else:
+            run_ids = list(report.df.index.values)
+        # print("run_ids", run_ids)
+        for run_id in run_ids:
+            run_dir = runs_dir / str(run_id)
+            assert run_dir.is_dir()
+            # TODO: use artifacts.yml instead
+            records_file = run_dir / "tuning_results.log.txt"
+            if not records_file.is_file():
+                continue
+            with open(records_file, "r") as f:
+                content = f.read()
+            contents.append(content)
+        # print("len(contents)", len(contents))
+
+        if not self.allow_empty:
+            assert len(contents) > 0
+        combined_content = "\n".join(contents)
+        ret_artifacts = []
+        combined_artifact = Artifact(
+            "combined_tuning_results.log.txt",
+            content=combined_content,
+            fmt=ArtifactFormat.TEXT,
+        )
+        ret_artifacts.append(combined_artifact)
+        return ret_artifacts

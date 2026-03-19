@@ -465,10 +465,14 @@ class Run:
         return False  # TODO: Throw error instead?
 
     @property
+    def completed_stages(self):
+        return [stage for stage, completed in self.completed.items() if completed and stage != RunStage.NOP]
+
+    @property
     def next_stage(self):
         """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
-        for stage in RunStage:
-            if not self.completed[stage.value] and self.has_stage(stage):
+        for stage, completed in self.completed.items():
+            if not completed and self.has_stage(stage):
                 return stage
         return RunStage.DONE
 
@@ -476,9 +480,10 @@ class Run:
     def last_stage(self):
         """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
         last = None
-        for stage in RunStage:
+        # for stage in RunStage:
+        for stage, completed in self.completed.items():
             if self.has_stage(stage):
-                if not self.completed[stage.value]:
+                if not completed:
                     return last
                 last = stage
         return None
@@ -1496,6 +1501,7 @@ class Run:
         # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
         post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
         post["Postprocesses"] = self.get_all_postprocess_names()
+        post["Stages"] = [stage.name for stage in self.completed_stages]
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:
             post["Failing"] = True

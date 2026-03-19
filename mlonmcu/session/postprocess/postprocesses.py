@@ -2157,6 +2157,8 @@ class StageTimesGanttPostprocess(SessionPostprocess):
             first = True
             for stage, times in stage_times.items():
                 start = times.get("start")
+                if start is None or pd.isna(start):
+                    continue
                 end = times.get("end")
                 # time_s = times.get("time_s")
                 time_s = None

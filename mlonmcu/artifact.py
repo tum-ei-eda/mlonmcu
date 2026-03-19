@@ -19,7 +19,6 @@
 """Artifacts defintions internally used to refer to intermediate results."""
 
 import copy
-from enum import Enum
 from enum import IntFlag, auto
 from pathlib import Path
 
@@ -30,7 +29,6 @@ from mlonmcu.setup import utils
 # TODO: decide if inheritance based scheme would fit better
 
 
-# class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
 class ArtifactFormat(IntFlag):
     """Enumeration of artifact types."""
 

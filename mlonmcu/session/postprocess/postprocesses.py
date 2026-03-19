@@ -115,7 +115,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
         value = self.config["drop_const"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
 
         def _filter_df(df, keep, drop, drop_nan=False, drop_empty=False, drop_const=False):
@@ -175,7 +175,7 @@ class RenameColumnsPostprocess(SessionPostprocess):
         value = self.config["merge"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         values = self.mapping.values()
         if len(values) != len(set(values)) and not self.merge:
@@ -225,7 +225,7 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         value = self.config["drop"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         df = report.post_df
         if "Features" not in df.columns:
             return
@@ -274,7 +274,7 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         value = self.config["drop"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.post_df
         if "Config" not in df.columns:
@@ -405,12 +405,12 @@ class MyPostprocess(SessionPostprocess):
             }
         )
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """TODO"""
-        self.config2cols.post_session(report)
-        self.features2cols.post_session(report)
-        self.rename_cols.post_session(report)
-        self.filter_cols.post_session(report)
+        self.config2cols.post_session(report, artifacts)
+        self.features2cols.post_session(report, artifacts)
+        self.rename_cols.post_session(report, artifacts)
+        self.filter_cols.post_session(report, artifacts)
 
 
 class PassConfig2ColumnsPostprocess(SessionPostprocess):
@@ -420,7 +420,7 @@ class PassConfig2ColumnsPostprocess(SessionPostprocess):
     def __init__(self, features=None, config=None):
         super().__init__("passcfg2cols", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.post_df
         name = "config_tvmaot.extra_pass_config"
@@ -438,7 +438,7 @@ class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
     def __init__(self, features=None, config=None):
         super().__init__("bytes2kb", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.main_df
         match_strs = ["ROM", "RAM"]
@@ -470,7 +470,7 @@ class VisualizePostprocess(SessionPostprocess):
         """Get format property."""
         return self.config["format"]
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = pd.concat([report.pre_df, report.main_df], axis=1)
 
@@ -1090,7 +1090,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         value = self.config["substract"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         pre_df = report.pre_df
         main_df = report.main_df  # metrics
@@ -2131,7 +2131,7 @@ class StageTimesGanttPostprocess(SessionPostprocess):
     def __init__(self, features=None, config=None):
         super().__init__("stage_times_gantt", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         artifacts = []
         content = """gantt

@@ -324,7 +324,6 @@ class Run:
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
-
         self.directories = {}
         self.target = target
         self.cache_hints = []

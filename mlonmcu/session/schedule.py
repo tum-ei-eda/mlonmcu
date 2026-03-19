@@ -376,7 +376,7 @@ def _postprocess_default(runs, report, dest, progress=False):
         pbar = init_progress(len(session_postprocesses), msg="Postprocessing session")
     for postprocess in session_postprocesses:
         try:
-            artifacts = postprocess.post_session(report)
+            artifacts = postprocess.post_session(report, session_artifacts)
         except Exception as e:
             logger.exception(e)
             num_failing += 1
@@ -384,6 +384,7 @@ def _postprocess_default(runs, report, dest, progress=False):
         if progress:
             update_progress(pbar)
         if artifacts is not None:
+            session_artifacts += artifacts
             for artifact in artifacts:
                 # Postprocess has an artifact: write to disk!
                 logger.debug("Writing postprocess artifact to disk: %s", artifact.name)

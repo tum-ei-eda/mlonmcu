@@ -171,7 +171,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         return ret
 
     def get_metascheduler_tune_args(self, model, backend, target, out, trials_global, trials_single, early_stopping):
-        ret = self.get_tune_args(model, backend, target, out, trials_global, early_stopping)
+        out_prefix = f"{out}/database"
+        ret = self.get_tune_args(model, backend, target, out_prefix, trials_global, early_stopping)
         ret.append("--enable-metascheduler")
         if trials_single:
             ret.extend(["--trials-per-task", str(trials_single)])
@@ -265,6 +266,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 # out_file = Path(tmp_dir) / "tuning_results.log.txt"
                 tmp_dir = Path(tmp_dir)
                 work_dir = tmp_dir / "work_dir"
+                work_dir.mkdir(exist_ok=True)
                 tune_args = self.get_metascheduler_tune_args(
                     model_path, backend, target, work_dir, trials_global, trials_single, 0
                 )

@@ -71,7 +71,8 @@ def check_allowed(target, name):
                 "fast-math-arcp",
                 "fast-math-reassoc",
                 "mabi",
-                "num_cores",
+                "num-cores",
+                "vector-width",
             ]
             + common
         )

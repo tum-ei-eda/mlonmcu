@@ -73,6 +73,7 @@ class TVMBackend(Backend):
         "target_mattr": None,
         "target_keys": None,
         "target_num_cores": None,
+        "target_vector_width": None,
         "cross_compiler": None,
         "tvm_target_str": None,
         "extra_targets": None,  # list
@@ -240,6 +241,13 @@ class TVMBackend(Backend):
         return self.config["target_num_cores"]
 
     @property
+    def target_vector_width(self):
+        val = self.config["target_vector_width"]
+        if val is None:
+            return None
+        return int(val)
+
+    @property
     def cross_compiler(self):
         return self.config["cross_compiler"]
 
@@ -354,6 +362,7 @@ class TVMBackend(Backend):
             "mfloat_abi": self.target_mfloat_abi,
             **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
             "num_cores": self.target_num_cores,
+            **({"vector-width": self.target_vector_width} if self.target == "llvm" else {}),
             # TODO: alignment
         }
 
@@ -443,6 +452,8 @@ class TVMBackend(Backend):
             ret["model"] = self.target_model
         if self.target_num_cores:
             ret["num-cores"] = self.target_num_cores
+        if self.target_vector_width:
+            ret["vector-width"] = self.target_vector_width
         return ret
 
     def get_tvmc_compile_args(self, out, dump=None):

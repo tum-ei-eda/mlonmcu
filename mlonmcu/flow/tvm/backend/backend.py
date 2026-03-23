@@ -419,7 +419,12 @@ class TVMBackend(Backend):
 
     @property
     def ms_db(self):
-        return self.config["ms_db"]
+        val = self.config["ms_db"]
+        if val is not None:
+            return val
+        if "metascheduler" in self._tuning_records and self.use_tuning_results:
+            return self._tuning_records["metascheduler"]
+        return None
 
     @property
     def num_threads(self):
@@ -475,7 +480,7 @@ class TVMBackend(Backend):
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records()),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records(), self.ms_db),
             *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
@@ -483,7 +488,6 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
-            *(["--ms-db", self.ms_db] if self.ms_db is not None else []),
             *(["--cross-compiler", self.cross_compiler] if self.cross_compiler is not None else []),
         ]
         return args

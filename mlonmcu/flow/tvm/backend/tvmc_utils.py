@@ -128,7 +128,9 @@ def get_target_tvmc_args(
     ]
 
 
-def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file):
+def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file, ms_db=None):
+    if ms_db is not None:
+        return ["--ms-db", ms_db]
     if use_tuning_results:
         assert tuning_records_file is not None, "No tuning records are available"
         return ["--tuning-records", str(tuning_records_file)]

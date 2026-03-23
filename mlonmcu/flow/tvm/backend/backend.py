@@ -132,6 +132,8 @@ class TVMBackend(Backend):
         tuner_name = self.config.get("autotuned_mode", None)
         if results_file is not None:
             assert tuner_name is not None
+            if tuner_name == "auto":
+                tuner_name = infer_tuner_name(results_file)
             self._tuning_records[tuner_name] = results_file
 
     # On the long term, we might support multiple TUNE stages in a single run
@@ -152,13 +154,15 @@ class TVMBackend(Backend):
             tuner_name = self.config["autotuned_mode"]
             # tuner_name = "autotvm"
             assert tuner_name is not None
+            if tuner_name == "auto":
+                tuner_name = infer_tuner_name(records)
         self._tuning_records[tuner_name] = records
 
     def get_tuning_records(self, tuner_name=None):
         if tuner_name is None:
             tuner_name = self.config["autotuned_mode"]
             # tuner_name = "autotvm"
-            if tuner_name is None:
+            if tuner_name is None or tuner_name == "auto":
                 if len(self._tuning_records) > 0:
                     tuner_name = list(self._tuning_records.keys())[0]
         return self._tuning_records.get(tuner_name, None)

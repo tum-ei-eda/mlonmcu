@@ -114,6 +114,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 extra_target_details=backend.extra_target_details,
                 bool_as_int=backend.bool_as_int,
             ),
+            *(["--executor-graph-link-params", str(int(backend.link_params))] if backend.executor == "graph" else []),
             # *(["--desired-layout", desired_layout] if desired_layout is not None else []),
             *get_desired_layout_args(desired_layout, desired_layout_ops, desired_layout_map),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),

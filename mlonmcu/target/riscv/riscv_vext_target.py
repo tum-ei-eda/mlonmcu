@@ -121,6 +121,7 @@ class RVVTarget(RISCVTarget):
                 if "zvl" not in model:
                     model = f"{model}-zvl{self.vlen}b"
             ret["target_model"] = model
+            ret["target_vector_width"] = self.vlen,
         return ret
 
     def get_vector_width(self):

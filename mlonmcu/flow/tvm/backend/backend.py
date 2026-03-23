@@ -256,14 +256,10 @@ class TVMBackend(Backend):
         return self.config["cross_compiler"]
 
     # TODO:
-    # "target_device": ?,
     # "target_libs": ?,
     # "target_tag": ?,
-    # "target_march": ?,
-    # "target_keys": ?,
     # "target_opt_level": ?,
     # "target_cl_opt": ?,
-    # "target_mfloat_abi": ?,
     # "target_fast_math_ninf": ?,
     # "target_fast_math_contract": ?,
     # "target_fast_math_nnan": ?,
@@ -363,9 +359,9 @@ class TVMBackend(Backend):
             "model": self.target_model,
             "mtriple": self.target_mtriple,
             "mabi": self.target_mabi,
-            "mfloat_abi": self.target_mfloat_abi,
+            "mfloat-abi": self.target_mfloat_abi,
             **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
-            "num_cores": self.target_num_cores,
+            "num-cores": self.target_num_cores,
             **({"vector-width": self.target_vector_width} if self.target == "llvm" else {}),
             # TODO: alignment
         }
@@ -445,6 +441,8 @@ class TVMBackend(Backend):
             ret["mtriple"] = self.target_mtriple
         if self.target_mabi:
             ret["mabi"] = self.target_mabi
+        if self.target_mfloat_abi:
+            ret["mfloat-abi"] = self.target_mfloat_abi
         if self.target_mattr:
             temp = self.target_mattr
             if self.custom_unroll:

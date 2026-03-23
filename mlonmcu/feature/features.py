@@ -998,6 +998,7 @@ class Autotuned(BackendFeature):
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
         "mode": "autotvm",  # further options: autoscheduler, metascheduler
+        # TODO: auto
         "results_file": None,
     }
 

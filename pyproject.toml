@@ -11,6 +11,9 @@ dynamic = ["version", "dependencies", "optional-dependencies"]
 requires-python = ">=3.8"
 # license = "Apache-2.0"
 license = { text = "Apache-2.0" }
+# readme = "README.md"
+readme = { file = "README.md", content-type = "text/markdown" }
+description = "Tool for the deployment and analysis of TinyML applications using various targets and backends"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}

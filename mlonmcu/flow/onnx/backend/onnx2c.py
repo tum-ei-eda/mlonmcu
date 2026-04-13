@@ -252,8 +252,59 @@ class Onnx2CBackend(ONNXBackend):
             for output_name in node.output:
                 producer_by_output[output_name] = node
 
+        matmulinteger_a_zero_points = set()
+        matmulinteger_b_zero_points = set()
+        for node in model.graph.node:
+            if node.op_type == "MatMulInteger" and len(node.input) >= 3:
+                matmulinteger_a_zero_points.add(node.input[2])
+            if node.op_type == "MatMulInteger" and len(node.input) >= 4:
+                matmulinteger_b_zero_points.add(node.input[3])
+
+        def collapse_uniform_zero_point(name):
+            init = initializer_map.get(name)
+            if init is None:
+                return False
+            arr = numpy_helper.to_array(init)
+            if arr.size == 0:
+                return False
+            flat = arr.reshape(-1)
+            if not np.all(flat == flat[0]):
+                logger.warning(
+                    "Collapsing non-uniform MatMulInteger zero-point '%s' to scalar for onnx2c compatibility",
+                    name,
+                )
+            scalar_value = np.array([flat[0]], dtype=arr.dtype)
+            upsert_initializer(numpy_helper.from_array(scalar_value, name=name))
+            return True
+
+        for name in sorted(matmulinteger_b_zero_points):
+            if collapse_uniform_zero_point(name):
+                changed = True
+
+        zp_redirects = {}
         rewritten_nodes = []
         for idx, node in enumerate(model.graph.node):
+            for input_index, input_name in enumerate(node.input):
+                if input_name in zp_redirects:
+                    node.input[input_index] = zp_redirects[input_name]
+
+            if node.op_type == "DynamicQuantizeLinear" and len(node.output) >= 3 and node.output[2] in matmulinteger_a_zero_points:
+                zp_shape_name = f"{node.name or ('dql_' + str(idx))}_zero_point_shape"
+                zp_output_name = f"{node.output[2]}_rank1"
+                model.graph.initializer.append(helper.make_tensor(zp_shape_name, TensorProto.INT64, [1], [1]))
+                rewritten_nodes.append(node)
+                rewritten_nodes.append(
+                    helper.make_node(
+                        "Reshape",
+                        [node.output[2], zp_shape_name],
+                        [zp_output_name],
+                        name=f"{node.name}_zero_point_fix",
+                    )
+                )
+                zp_redirects[node.output[2]] = zp_output_name
+                changed = True
+                continue
+
             if node.op_type not in ops or len(node.input) < 2:
                 rewritten_nodes.append(node)
                 continue

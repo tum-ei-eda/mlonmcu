@@ -39,6 +39,7 @@ from mlonmcu.flow.iree.backend.ireellvm import IREELLVMBackend
 from mlonmcu.flow.iree.backend.ireellvm_inline import IREELLVMInlineBackend
 from mlonmcu.flow.iree.backend.ireellvmc import IREELLVMCBackend
 from mlonmcu.flow.iree.backend.ireellvmc_inline import IREELLVMCInlineBackend
+from mlonmcu.flow.onnx.backend.onnx2c import Onnx2CBackend
 
 # from mlonmcu.flow.none.backend.none import NoneBackend
 from .framework import Framework
@@ -122,6 +123,7 @@ SUPPORTED_IREE_BACKENDS = {
 
 SUPPORTED_NONE_BACKENDS = {
     "none": NoneBackend,
+    "onnx2c": Onnx2CBackend,
 }
 
 SUPPORTED_FRAMEWORK_BACKENDS = {

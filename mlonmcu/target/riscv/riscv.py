@@ -469,7 +469,7 @@ class RISCVTarget(Target):
                     "target_mcpu": self.llvm_cpu,
                     "target_model": f"etiss-{arch_clean}",
                     # "target_model": f"{self.name}-{arch_clean}",
-                    "target_num_cores": 1,  # TODO: also add for non-riscv targets
+                    "target_num_cores": self.num_cores,
                     "cross_compiler": self.cross_compiler,
                     # "target_device": ?,
                     # "target_libs": ?,

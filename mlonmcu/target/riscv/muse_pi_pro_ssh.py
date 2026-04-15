@@ -122,6 +122,10 @@ class MusePiProSSHTarget(SSHTarget, RVVTarget):
     def get_target_system(self):
         return "muse_pi_pro"  # For disabling rdcycle and rdinstret
 
+    @property
+    def num_cores(self):
+        return 8
+
 
 if __name__ == "__main__":
     cli(target=MusePiProSSHTarget)

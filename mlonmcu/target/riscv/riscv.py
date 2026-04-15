@@ -73,6 +73,7 @@ class RISCVTarget(Target):
         "riscv_gcc.name",
         "riscv_gcc.variant",
         "riscv_gcc.version",
+        "llvm.version",
     }
 
     def reconfigure(self):
@@ -154,6 +155,20 @@ class RISCVTarget(Target):
     @property
     def gcc_major_version(self):
         temp = self.gcc_version
+        if temp is None:
+            return None
+        temp = str(temp)
+        assert "." in temp
+        ret = int(temp.split(".", 1)[0])
+        return ret
+
+    @property
+    def llvm_version(self):
+        return self.config["llvm.version"]
+
+    @property
+    def llvm_major_version(self):
+        temp = self.llvm_version
         if temp is None:
             return None
         temp = str(temp)

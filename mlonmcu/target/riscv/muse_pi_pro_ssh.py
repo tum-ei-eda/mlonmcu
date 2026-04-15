@@ -123,6 +123,27 @@ class MusePiProSSHTarget(SSHTarget, RVVTarget):
         return "muse_pi_pro"  # For disabling rdcycle and rdinstret
 
     @property
+    def gcc_cpu(self):
+        temp = self.cpu
+        if temp:
+            return temp
+        if self.gcc_major_version is not None and self.gcc_major_version >= 16:
+            return "spacemit-x60"
+        return None
+
+    @property
+    def llvm_cpu(self):
+        print("llvm_cpu", self.cpu)
+        temp = self.cpu
+        if temp:
+            print("ret temp", temp)
+            return temp
+        if self.llvm_major_version is not None and self.llvm_major_version >= 19:
+            return "spacemit-x60"
+        else:
+            return f"generic-rv{self.xlen}"
+
+    @property
     def num_cores(self):
         return 8
 

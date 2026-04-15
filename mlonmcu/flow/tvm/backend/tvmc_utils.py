@@ -159,8 +159,7 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
             hostname + ":" + str(port),
         ]
         if is_tracker
-        else
-        [
+        else [
             # "--rpc-key",
             # key,
             "--rpc-tracker",
@@ -200,15 +199,15 @@ def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True, bool_a
     return ret
 
 
-def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=None):
+def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=None, has_fill_mode_none: bool = False):
+    # TODO: expose has_fill_mode_none
     ret = []
     if ins_file is not None:
         ret.extend(["--inputs", ins_file])
     else:
         if mode is not None:
             ret.extend(["--fill-mode", mode])
-        else:
-            # TODO: upstream!
+        elif has_fill_mode_none:
             ret.extend(["--fill-mode", "none"])
 
     if outs_file is not None:

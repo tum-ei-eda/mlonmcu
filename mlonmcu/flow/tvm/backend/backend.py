@@ -100,6 +100,7 @@ class TVMBackend(Backend):
         "generate_wrapper": "auto",
         "bool_as_int": True,
         "ms_db": None,
+        "experimental_tvm_target_vector_width": False,
     }
 
     REQUIRED = set()
@@ -434,6 +435,12 @@ class TVMBackend(Backend):
     def relay_debug(self):
         return self.config["relay_debug"]
 
+    @property
+    def experimental_tvm_target_vector_width(self):
+        # only availablein latest TVM or forks
+        value = self.config["experimental_tvm_target_vector_width"]
+        return str2bool(value)
+
     def get_target_details(self):
         ret = {}
         if self.target_device:
@@ -475,6 +482,7 @@ class TVMBackend(Backend):
                 target_details=self.get_target_details(),
                 extra_target_details=self.extra_target_details,
                 bool_as_int=self.bool_as_int,
+                has_target_vector_width=self.experimental_tvm_target_vector_width,
             ),
             *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),

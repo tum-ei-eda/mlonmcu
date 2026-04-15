@@ -51,7 +51,7 @@ def get_input_shapes_tvmc_args(input_shapes):
     return ["--input-shapes", arg]
 
 
-def check_allowed(target, name):
+def check_allowed(target, name, has_target_vector_width: bool = False):
     common = ["libs", "model", "tag", "mcpu", "device", "keys"]
     if target == "c":
         return name in ["constants-byte-alignment", "workspace-bytes-alignment", "march"] + common
@@ -72,7 +72,7 @@ def check_allowed(target, name):
                 "fast-math-reassoc",
                 "mabi",
                 "num-cores",
-                "vector-width",
+                *(["vector-width"] if has_target_vector_width else []),
             ]
             + common
         )
@@ -81,7 +81,7 @@ def check_allowed(target, name):
         return True
 
 
-def gen_target_details_args(target, target_details, bool_as_int: bool = True):
+def gen_target_details_args(target, target_details, bool_as_int: bool = True, has_target_vector_width: bool = False):
     def helper(value, bool_as_int: bool = True):
         if isinstance(value, bool):
             value = legalize_bool(value, bool_as_int=bool_as_int)
@@ -93,7 +93,7 @@ def gen_target_details_args(target, target_details, bool_as_int: bool = True):
         [
             [f"--target-{target}-{key}", helper(value, bool_as_int=bool_as_int)]
             for key, value in target_details.items()
-            if check_allowed(target, key)
+            if check_allowed(target, key, has_target_vector_width=has_target_vector_width)
         ],
         [],
     )
@@ -108,7 +108,12 @@ def gen_extra_target_details_args(extra_target_details, bool_as_int: bool = True
 
 
 def get_target_tvmc_args(
-    target="c", extra_targets=[], target_details={}, extra_target_details={}, bool_as_int: bool = True
+    target="c",
+    extra_targets=[],
+    target_details={},
+    extra_target_details={},
+    bool_as_int: bool = True,
+    has_target_vector_width: bool = False,
 ):
     if extra_targets:
         assert isinstance(extra_targets, list)
@@ -123,7 +128,9 @@ def get_target_tvmc_args(
         "--target",
         ",".join(extra_targets + [target]),
         # TODO: provide a feature which sets these automatically depending on the chosen target
-        *gen_target_details_args(target, target_details, bool_as_int=bool_as_int),
+        *gen_target_details_args(
+            target, target_details, bool_as_int=bool_as_int, has_target_vector_width=has_target_vector_width
+        ),
         *(gen_extra_target_details_args(extra_target_details)),
     ]
 

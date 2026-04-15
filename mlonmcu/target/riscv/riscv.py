@@ -416,7 +416,7 @@ class RISCVTarget(Target):
     def cross_compiler(self):
         if not self.is_cross:
             return None
-        return f"{self.riscv_gcc_basename}-g++"
+        return f"{self.riscv_gcc_prefix}/bin/{self.riscv_gcc_basename}-g++"
 
     @property
     def float_abi(self):

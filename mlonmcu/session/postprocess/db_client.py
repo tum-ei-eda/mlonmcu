@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import humanize
+from pathlib import Path
 
 import pandas as pd
 from sqlalchemy import create_engine, text
@@ -166,9 +167,12 @@ def download_artifacts(args):
         bucket = meta["bucket"]
         obj = meta["s3_key"]
 
-        filename = os.path.join(args.out, os.path.basename(obj))
+        filename = os.path.join(args.out, obj.split("/", 2)[-1])
+        # filename = os.path.join(args.out, obj.rsplit(".", 1)[0])
 
         console.print(f"Downloading {obj} → {filename}")
+        parent = Path(filename).parent
+        parent.mkdir(exist_ok=True, parents=True)
 
         s3.download_file(bucket, obj, filename)
 

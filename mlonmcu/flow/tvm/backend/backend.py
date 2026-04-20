@@ -699,13 +699,14 @@ class TVMBackend(Backend):
                 )
             with open(out_path, "rb") as handle:
                 data = handle.read()
-                artifacts.append(
+                artifacts.insert(
+                    0,
                     Artifact(
                         f"{self.prefix}.tar",
                         raw=data,
                         fmt=ArtifactFormat.SHARED_OBJECT if self.fmt == "so" else ArtifactFormat.MLF,
                         archive=True,
-                    )
+                    ),
                 )
             if "c" in dump:
                 with open(str(out_path) + ".c", "r") as handle:

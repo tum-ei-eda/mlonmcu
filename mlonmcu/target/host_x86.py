@@ -19,6 +19,7 @@
 """MLonMCU Host/x86 Target definitions"""
 
 import stat
+import multiprocessing
 from pathlib import Path
 
 from mlonmcu.config import str2bool
@@ -79,6 +80,9 @@ class HostX86Target(Target):
 
     def get_arch(self):
         return "x86"
+
+    def num_cores(self):
+        return multiprocessing.cpu_count()
 
 
 if __name__ == "__main__":

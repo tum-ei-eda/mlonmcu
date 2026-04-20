@@ -44,6 +44,10 @@ from .tvmc_utils import (
 logger = get_logger()
 
 
+def infer_tuner_name(path):
+    raise NotImplementedError
+
+
 class TVMBackend(Backend):
     registry = {}
 
@@ -69,16 +73,20 @@ class TVMBackend(Backend):
         "target_model": None,
         "target_mtriple": None,
         "target_mabi": None,
+        "target_mfloat_abi": None,
         "target_mattr": None,
         "target_keys": None,
         "target_num_cores": None,
+        "target_vector_width": None,
+        "cross_compiler": None,
         "tvm_target_str": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
         "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
         "desired_layout_ops": None,  # optional: conv2d, max_pool2d,...
         "desired_layout_map": None,  # optional, conv2d=NCHW, ...
-        "disabled_passes": [],  # i.e. AlterOpLayout
+        "disabled_passes": [],  # i.e. AlterOpLayout, FuseOps, FoldScaleAxis,
+        # qnn.Legalize, QnnCanonicalize, tir.CommonSubexprElimTIR
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
         "tir_add_lower_pass": None,  # opt_level1,pass1,opt_level2,pass2,...
         "use_tuning_results": False,
@@ -97,6 +105,9 @@ class TVMBackend(Backend):
         "generate_wrapper": "auto",
         "bool_as_int": True,
         "ms_db": None,
+        "filter_ms_db": False,
+        "filter_ms_db_extra_args": None,
+        "experimental_tvm_target_vector_width": False,
     }
 
     REQUIRED = set()
@@ -129,7 +140,10 @@ class TVMBackend(Backend):
         tuner_name = self.config.get("autotuned_mode", None)
         if results_file is not None:
             assert tuner_name is not None
+            if tuner_name == "auto":
+                tuner_name = infer_tuner_name(results_file)
             self._tuning_records[tuner_name] = results_file
+        self.filtered_ms_db = None
 
     # On the long term, we might support multiple TUNE stages in a single run
     # (i.e. to allow autotvm+graphtuner to be separated)
@@ -149,16 +163,27 @@ class TVMBackend(Backend):
             tuner_name = self.config["autotuned_mode"]
             # tuner_name = "autotvm"
             assert tuner_name is not None
+            if tuner_name == "auto":
+                tuner_name = infer_tuner_name(records)
         self._tuning_records[tuner_name] = records
 
     def get_tuning_records(self, tuner_name=None):
         if tuner_name is None:
             tuner_name = self.config["autotuned_mode"]
             # tuner_name = "autotvm"
-            if tuner_name is None:
+            if tuner_name is None or tuner_name == "auto":
                 if len(self._tuning_records) > 0:
                     tuner_name = list(self._tuning_records.keys())[0]
         return self._tuning_records.get(tuner_name, None)
+
+    def reconfigure(self):
+        # super().reconfigure()
+        self.config.update(
+            {
+                "final_pass_config": self.pass_config,
+                "final_tuning_records": self._tuning_records,
+            }
+        )
 
     @property
     def disable_vectorize(self):
@@ -218,6 +243,10 @@ class TVMBackend(Backend):
         return self.config["target_mabi"]
 
     @property
+    def target_mfloat_abi(self):
+        return self.config["target_mfloat_abi"]
+
+    @property
     def target_mattr(self):
         return self.config["target_mattr"]
 
@@ -233,15 +262,22 @@ class TVMBackend(Backend):
     def target_num_cores(self):
         return self.config["target_num_cores"]
 
+    @property
+    def target_vector_width(self):
+        val = self.config["target_vector_width"]
+        if val is None:
+            return None
+        return int(val)
+
+    @property
+    def cross_compiler(self):
+        return self.config["cross_compiler"]
+
     # TODO:
-    # "target_device": ?,
     # "target_libs": ?,
     # "target_tag": ?,
-    # "target_march": ?,
-    # "target_keys": ?,
     # "target_opt_level": ?,
     # "target_cl_opt": ?,
-    # "target_mfloat_abi": ?,
     # "target_fast_math_ninf": ?,
     # "target_fast_math_contract": ?,
     # "target_fast_math_nnan": ?,
@@ -336,13 +372,15 @@ class TVMBackend(Backend):
             ret += f" {keys_str}"
         attrs = {
             "device": self.target_device,
-            "mcpu": self.target_mcpu,
             "march": self.target_march,
-            "model": self.target_model,
-            "mtriple": self.target_mtriple,
             "mabi": self.target_mabi,
             **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
-            "num_cores": self.target_num_cores,
+            "mcpu": self.target_mcpu,
+            "mfloat-abi": self.target_mfloat_abi,
+            "model": self.target_model,
+            "mtriple": self.target_mtriple,
+            "num-cores": self.target_num_cores,
+            **({"vector-width": self.target_vector_width} if self.target == "llvm" else {}),
             # TODO: alignment
         }
 
@@ -399,7 +437,22 @@ class TVMBackend(Backend):
 
     @property
     def ms_db(self):
-        return self.config["ms_db"]
+        val = self.config["ms_db"]
+        if val is not None:
+            return val
+        if "metascheduler" in self._tuning_records and self.use_tuning_results:
+            return self._tuning_records["metascheduler"]
+        return None
+
+    @property
+    def filter_ms_db(self):
+        value = self.config["filter_ms_db"]
+        return str2bool(value)
+
+    @property
+    def filter_ms_db_extra_args(self):
+        value = self.config["filter_ms_db_extra_args"]
+        return value
 
     @property
     def num_threads(self):
@@ -408,6 +461,12 @@ class TVMBackend(Backend):
     @property
     def relay_debug(self):
         return self.config["relay_debug"]
+
+    @property
+    def experimental_tvm_target_vector_width(self):
+        # only availablein latest TVM or forks
+        value = self.config["experimental_tvm_target_vector_width"]
+        return str2bool(value)
 
     def get_target_details(self):
         ret = {}
@@ -421,6 +480,8 @@ class TVMBackend(Backend):
             ret["mtriple"] = self.target_mtriple
         if self.target_mabi:
             ret["mabi"] = self.target_mabi
+        if self.target_mfloat_abi:
+            ret["mfloat-abi"] = self.target_mfloat_abi
         if self.target_mattr:
             temp = self.target_mattr
             if self.custom_unroll:
@@ -432,11 +493,14 @@ class TVMBackend(Backend):
             ret["model"] = self.target_model
         if self.target_num_cores:
             ret["num-cores"] = self.target_num_cores
+        if self.target_vector_width:
+            ret["vector-width"] = self.target_vector_width
         return ret
 
     def get_tvmc_compile_args(self, out, dump=None):
         assert self.executor is not None
         assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
+        ms_db = self.filtered_ms_db or self.ms_db
         args = [
             self.model,
             *(["--relay-params", self.params_path] if self.params_path is not None else []),
@@ -446,12 +510,13 @@ class TVMBackend(Backend):
                 target_details=self.get_target_details(),
                 extra_target_details=self.extra_target_details,
                 bool_as_int=self.bool_as_int,
+                has_target_vector_width=self.experimental_tvm_target_vector_width,
             ),
             *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records()),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records(), ms_db),
             *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
@@ -459,7 +524,11 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
-            *(["--ms-db", self.ms_db] if self.ms_db is not None else []),
+            *(
+                ["--cross-compiler", self.cross_compiler]
+                if self.cross_compiler is not None and self.fmt != "mlf"
+                else []
+            ),
         ]
         return args
 
@@ -553,13 +622,69 @@ class TVMBackend(Backend):
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
+        out = ""
         assert self.model is not None
         dump = self.dump
+        target_str = self.tvm_target_str
+        # print("target_str", target_str)
+        # input("!")
         if self.refresh_model_info or (self.generate_wrapper and not self.model_info) and "relay" not in dump:
             dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
+            if self.filter_ms_db:
+                ms_db = self.ms_db
+                ms_db_filtered = Path(temp_dir) / "filteted_ms_db.tar"
+                self.filtered_ms_db = ms_db_filtered
+                assert self.ms_db is not None
+                filter_args = [ms_db, "-o", ms_db_filtered]
+                if self.target_device:
+                    filter_args += ["--filter-target-device", self.target_device]
+                if self.target_mcpu:
+                    filter_args += ["--filter-target-mcpu", self.target_mcpu]
+                if self.target_model:
+                    filter_args += ["--filter-target-model", self.target_model]
+                if self.target_num_cores:
+                    filter_args += ["--filter-target-num-cores", str(self.target_num_cores)]
+                # keys, march, mabi, mfloat-abi, mtriple, vector-width?
+                if self.target_mattr and self.target == "llvm":
+                    filter_args += ["--filter-target-mattr", self.target_mattr]
+                if self.filter_ms_db_extra_args:
+                    extra_args = self.filter_ms_db_extra_args
+                    # print("extra_args", extra_args)
+                    assert isinstance(extra_args, list)
+                    filter_args += extra_args
+                # print("filter_args", filter_args)
+                env = prepare_python_environment(
+                    None if self.use_tlcpack else self.tvm_pythonpath,
+                    None if self.use_tlcpack else self.tvm_build_dir,
+                    None if self.use_tlcpack else self.tvm_configs_dir,
+                    tophub_url=self.tophub_url,
+                    num_threads=self.num_threads,
+                    debug_cfg=self.relay_debug,
+                )
+                out = ""
+                out += utils.python(
+                    "-m" "tvm.meta_schedule.database.filter_db",
+                    *filter_args,
+                    live=self.print_outputs,
+                    env=env,
+                    cwd=temp_dir,
+                )
+                # input("123")
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            out += self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            if self.filtered_ms_db:
+                with open(self.filtered_ms_db, "rb") as handle:
+                    data = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            self.filtered_ms_db.name,
+                            raw=data,
+                            fmt=ArtifactFormat.ARCHIVE,
+                            # archive=True,
+                        )
+                    )
+                self.filtered_ms_db = None
             if self.fmt == "mlf":
                 mlf_path = Path(temp_dir) / "mlf"
                 tarfile.open(out_path).extractall(mlf_path)
@@ -574,13 +699,14 @@ class TVMBackend(Backend):
                 )
             with open(out_path, "rb") as handle:
                 data = handle.read()
-                artifacts.append(
+                artifacts.insert(
+                    0,
                     Artifact(
                         f"{self.prefix}.tar",
                         raw=data,
                         fmt=ArtifactFormat.SHARED_OBJECT if self.fmt == "so" else ArtifactFormat.MLF,
                         archive=True,
-                    )
+                    ),
                 )
             if "c" in dump:
                 with open(str(out_path) + ".c", "r") as handle:

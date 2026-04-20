@@ -52,7 +52,7 @@ class Postprocess:
 class SessionPostprocess(Postprocess):
     """Session postprocess which is applied to multiple runs at the end of a session. (multi-row)"""
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
 
 

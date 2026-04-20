@@ -18,9 +18,12 @@
 #
 import re
 import os
+from typing import Optional
 from pathlib import Path
 
 from mlonmcu.target.target import Target
+from mlonmcu.target.host_x86 import HostX86Target
+from mlonmcu.target.riscv.muse_pi_pro_ssh import MusePiProSSHTarget
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
@@ -28,12 +31,38 @@ from mlonmcu.logging import get_logger
 
 logger = get_logger()
 
+from .tvm_canmv_k230_target import CanMvK230TvmPlatformTarget
+from .tvm_licheerv_d1_target import LicheeRvD1TvmPlatformTarget
+
+
+TVM_PLATFORM_TARGET_REGISTRY = {}
+
+
+def register_tvm_platform_target(target_name, t, override=False, device="cpu"):
+    # global TVM_PLATFORM_TARGET_REGISTRY
+
+    if target_name in TVM_PLATFORM_TARGET_REGISTRY and not override:
+        raise RuntimeError(f"TVM platform target {target_name} is already registered")
+    TVM_PLATFORM_TARGET_REGISTRY[target_name] = (t, device)
+
+
+def get_tvm_platform_targets():
+    return TVM_PLATFORM_TARGET_REGISTRY
+
+
+# MLIF (SSH) Targets
+register_tvm_platform_target("tvm_cpu", HostX86Target)
+register_tvm_platform_target("tvm_muse_pi_pro", MusePiProSSHTarget)
+# Non-MLIF Targets
+register_tvm_platform_target("tvm_canmv_k230", CanMvK230TvmPlatformTarget)
+register_tvm_platform_target("tvm_licheerv_d1", LicheeRvD1TvmPlatformTarget)
+
 
 def name2device(name):
     return name.replace("tvm_", "")
 
 
-def create_tvm_platform_target(name, platform, base=Target):
+def create_tvm_platform_target(name, platform, base=Target, device: Optional[str] = None):
     class TvmPlatformTarget(base):
         DEFAULTS = {
             **base.DEFAULTS,
@@ -43,7 +72,7 @@ def create_tvm_platform_target(name, platform, base=Target):
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)
             self.platform = platform
-            self.device = name2device(name)
+            self.device = device or name2device(name)
 
         @property
         def timeout_sec(self):

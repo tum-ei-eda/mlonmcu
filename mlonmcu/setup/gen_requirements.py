@@ -214,7 +214,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),  # for autotuning on some target
+    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost-cpu"])),  # for autotuning on some target
     # Provide support for visualize.
     (
         "visualize",
@@ -306,7 +306,8 @@ CONSTRAINTS = [
     ("tosa-converter-for-tflite", "==2025.11.0"),
     ("typing_extensions", None),
     ("xdg", None),
-    ("xgboost", ">=1.7.0,<2.0"),
+    # ("xgboost", ">=1.7.0,<2.0"),  # GPU-variant (500MB!)
+    ("xgboost-cpu", None),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]

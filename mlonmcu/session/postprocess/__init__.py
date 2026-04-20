@@ -38,6 +38,10 @@ from .postprocesses import (
     AnalyseLinkerMapPostprocess,
     StageTimesGanttPostprocess,
     ProfileFunctionsPostprocess,
+    Push2DBPostprocess,
+    MergeAutoTvmRecordsPostprocess,
+    MergeMSDBsPostprocess,
+    PushMSDB2S3Postprocess,
 )
 
 SUPPORTED_POSTPROCESSES = {}
@@ -81,6 +85,10 @@ register_postprocess("export_outputs", ExportOutputsPostprocess)
 register_postprocess("analyse_linker_map", AnalyseLinkerMapPostprocess)
 register_postprocess("stage_times_gantt", StageTimesGanttPostprocess)
 register_postprocess("profile_functions", ProfileFunctionsPostprocess)
+register_postprocess("push2db", Push2DBPostprocess)
+register_postprocess("merge_autotvm_records", MergeAutoTvmRecordsPostprocess)
+register_postprocess("merge_ms_dbs", MergeMSDBsPostprocess)
+register_postprocess("push_ms_db2s3", PushMSDB2S3Postprocess)
 
 
 __all__ = ["SUPPORTED_POSTPROCESSES", "register_postprocess", "get_postprocesses"]

@@ -367,9 +367,13 @@ class Session:
         else:
             if not self.dir.is_dir():
                 self.dir.mkdir(parents=True)
+        # TODO: move to session.yml (label, timestamp,...)
         label_file = self.dir / "label.txt"
         with open(label_file, "w") as f:
             f.write(self.label)
+        timestamp_file = self.dir / "timestamp.txt"
+        with open(timestamp_file, "w") as f:
+            f.write(self.timestamp)
         self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
         try:
             self.session_lock.acquire(timeout=10)

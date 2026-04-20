@@ -324,7 +324,6 @@ class Run:
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
-
         self.directories = {}
         self.target = target
         self.cache_hints = []
@@ -466,10 +465,14 @@ class Run:
         return False  # TODO: Throw error instead?
 
     @property
+    def completed_stages(self):
+        return [stage for stage, completed in self.completed.items() if completed and stage != RunStage.NOP]
+
+    @property
     def next_stage(self):
         """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
-        for stage in RunStage:
-            if not self.completed[stage.value] and self.has_stage(stage):
+        for stage, completed in self.completed.items():
+            if not completed and self.has_stage(stage):
                 return stage
         return RunStage.DONE
 
@@ -477,9 +480,10 @@ class Run:
     def last_stage(self):
         """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
         last = None
-        for stage in RunStage:
+        # for stage in RunStage:
+        for stage, completed in self.completed.items():
             if self.has_stage(stage):
-                if not self.completed[stage.value]:
+                if not completed:
                     return last
                 last = stage
         return None
@@ -575,6 +579,7 @@ class Run:
 
     def add_model(self, model):
         """Setter for the model instance."""
+        assert model is not None
         self.model = model
         assert model is not None
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
@@ -1452,6 +1457,7 @@ class Run:
         for frontend in self.frontends:
             ret.update(config_helper(frontend))
         if self.backend:
+            self.backend.reconfigure()
             ret.update(config_helper(self.backend))
         if self.framework:
             ret.update(config_helper(self.framework))
@@ -1495,8 +1501,10 @@ class Run:
         post = {}
         post["Features"] = self.get_all_feature_names()
         # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
-        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
+        # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
+        post["Config"] = self.get_all_configs(omit_paths=False, omit_defaults=False, omit_globals=True)
         post["Postprocesses"] = self.get_all_postprocess_names()
+        post["Stages"] = [stage.name for stage in self.completed_stages]
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:
             post["Failing"] = True

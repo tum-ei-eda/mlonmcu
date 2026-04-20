@@ -24,7 +24,7 @@ from .tvm_rpc_platform import TvmRpcPlatform
 from ..platform import TargetPlatform
 from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
-from .tvm_target import create_tvm_platform_target
+from .tvm_target import create_tvm_platform_target, get_tvm_platform_targets
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_bench_tvmc_args,
     get_data_tvmc_args,
@@ -153,21 +153,22 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
         raise NotImplementedError
 
     def _get_supported_targets(self):
-        # TODO: get this via tvmc run --help
-        target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
+        return get_tvm_platform_targets()
+        # # TODO: get this via tvmc run --help
+        # target_names = ["cpu", "cuda", "cl", "metal", "vulkan", "rocm", "micro"]
 
-        skip_names = ["micro"]  # Use microtvm platform instead
+        # skip_names = ["micro"]  # Use microtvm platform instead
 
-        return [f"tvm_{name}" for name in target_names if name not in skip_names]
+        # return [f"tvm_{name}" for name in target_names if name not in skip_names]
 
     def create_target(self, name):
-        assert name in self.get_supported_targets(), f"{name} is not a valid TVM device"
-        targets = get_targets()
+        targets = self.get_supported_targets()
+        assert name in targets, f"{name} is not a valid TVM device"
         if name in targets:
-            base = targets[name]
+            base, device = targets[name]
         else:
-            base = Target
-        return create_tvm_platform_target(name, self, base=base)
+            base, device = Target, None
+        return create_tvm_platform_target(name, self, base=base, device=device)
 
     def get_tvmc_run_args(self, ins_file=None, outs_file=None, print_top=None):
         return [

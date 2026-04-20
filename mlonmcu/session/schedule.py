@@ -26,6 +26,7 @@ from typing import List, Optional, Dict
 from mlonmcu.session.run import Run, RunInitializer, RunResult, RunStage
 from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from .postprocess.postprocess import SessionPostprocess
 from .progress import init_progress, update_progress, close_progress
@@ -374,20 +375,38 @@ def _postprocess_default(runs, report, dest, progress=False):
                     session_postprocesses.append(postprocess)
     if progress:
         pbar = init_progress(len(session_postprocesses), msg="Postprocessing session")
+    session_artifacts = []
+    label_file = dest / "label.txt"
+    if label_file.is_file():
+        # with open(label_file, "r") as f:
+        #     label = f.read()
+        # session_artifacts.append(Artifact(label_file.name, content=label, fmt=ArtifactFormat.TEXT), flags=("label",))
+        session_artifacts.append(Artifact(label_file.name, path=label_file, fmt=ArtifactFormat.PATH, flags=("label",)))
+    timestamp_file = dest / "timestamp.txt"
+    if timestamp_file.is_file():
+        # with open(timestamp_file, "r") as f:
+        #     timestamp = f.read()
+        # session_artifacts.append(
+        #     Artifact(timestamp_file.name, content=timestamp, fmt=ArtifactFormat.TEXT), flags("timestamp",)
+        # )
+        session_artifacts.append(
+            Artifact(timestamp_file.name, path=timestamp_file, fmt=ArtifactFormat.PATH, flags=("timestamp",))
+        )
     for postprocess in session_postprocesses:
         try:
-            artifacts = postprocess.post_session(report)
+            artifacts = postprocess.post_session(report, session_artifacts)
         except Exception as e:
             logger.exception(e)
             num_failing += 1
             break
-        if progress:
-            update_progress(pbar)
         if artifacts is not None:
+            session_artifacts += artifacts
             for artifact in artifacts:
                 # Postprocess has an artifact: write to disk!
                 logger.debug("Writing postprocess artifact to disk: %s", artifact.name)
                 artifact.export(dest)
+        if progress:
+            update_progress(pbar)
     if progress:
         close_progress(pbar)
     return num_failing

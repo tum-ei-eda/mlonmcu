@@ -20,6 +20,8 @@
 
 import re
 import os
+import json
+import numpy as np
 from mlonmcu.config import str2bool, str2dict, str2list
 import time
 import tempfile
@@ -38,6 +40,7 @@ from mlonmcu.flow.tvm.backend.tuner import (
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_rpc_tvmc_args,
     get_target_tvmc_args,
+    get_pass_config_tvmc_args,
     get_disabled_pass_tvmc_args,
     get_desired_layout_args,
 )
@@ -60,9 +63,14 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         **TvmTargetPlatform.DEFAULTS,
         "experimental_tvmc_tune_tasks": False,
         "experimental_tvmc_tune_visualize": False,
+        "experimental_tvmc_tune_pass_config": False,
         # "experimental_tvmc_tune_wandb": False,  # TODO
         "enable_wandb": False,
         "min_repeat_ms": 0,
+        "flop_prefix": "G",  # TODO: pass to tvmc tune!
+        "split_artifacts_per_task": False,
+        "confidence_levels": [],
+        # "confidence_levels": [0.8, 0.9, 0.95, 0.99, 0.999],
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
@@ -87,14 +95,37 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         return str2bool(value)
 
     @property
+    def experimental_tvmc_tune_pass_config(self):
+        value = self.config["experimental_tvmc_tune_pass_config"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def enable_wandb(self):
         value = self.config["enable_wandb"]
         return str2bool(value)
 
     @property
+    def split_artifacts_per_task(self):
+        value = self.config["split_artifacts_per_task"]
+        return str2bool(value) if not isinstance(value, (bool, int)) else value
+
+    @property
     def min_repeat_ms(self):
         value = self.config["min_repeat_ms"]
         return int(value)
+
+    @property
+    def flop_prefix(self):
+        value = self.config["flop_prefix"]
+        assert value in ["M", "G", "T"]
+        return value
+
+    @property
+    def confidence_levels(self):
+        # TODO: move confidence calc to postprocess depending on splitted task artifacts
+        value = self.config["confidence_levels"]
+        assert isinstance(value, list), "TODO: implement str2list of floats"
+        return value
 
     def invoke_tvmc_tune(self, *args, target=None, **kwargs):
         return self.invoke_tvmc("tune", *args, target=target, **kwargs)
@@ -103,9 +134,6 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         max_parallel = int(self.config.get("autotuning_max_parallel", 1))
         timeout = int(self.config.get("autotuning_timeout", 1000))
         results_file = self.config.get("autotuning_results_file", None)
-        desired_layout = str2list(backend.config.get("desired_layout", None), allow_none=True)
-        desired_layout_ops = str2list(backend.config.get("desired_layout_ops", None), allow_none=True)
-        desired_layout_map = str2dict(backend.config.get("desired_layout_map", None), allow_none=True)
         ret = [
             *get_target_tvmc_args(
                 backend.target,
@@ -114,10 +142,10 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 extra_target_details=backend.extra_target_details,
                 bool_as_int=backend.bool_as_int,
             ),
-            # *(["--desired-layout", desired_layout] if desired_layout is not None else []),
-            *get_desired_layout_args(desired_layout, desired_layout_ops, desired_layout_map),
+            *(["--executor-graph-link-params", str(int(backend.link_params))] if backend.executor == "graph" else []),
             *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
             *get_disabled_pass_tvmc_args(backend.disabled_passes),
+            *get_desired_layout_args(backend.desired_layout, backend.desired_layout_ops, backend.desired_layout_map),
             # TODO: missing: pass config etc.
             *(["--early-stopping", str(early_stopping)] if early_stopping > 0 else []),
             *["--parallel", str(max_parallel)],
@@ -129,6 +157,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             *(["--tuning-records", results_file] if results_file is not None else []),
             *["--output", str(out)],
         ]
+        if self.experimental_tvmc_tune_pass_config:
+            ret.extend(get_pass_config_tvmc_args(backend.pass_config))
         if self.config["autotuning_tasks"]:
             assert self.experimental_tvmc_tune_tasks, f"{self.name}.tune_tasks requires experimental_tvmc_tune_tasks"
             ret.extend(["--tasks", str(self.config["autotuning_tasks"])])
@@ -170,7 +200,8 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
         return ret
 
     def get_metascheduler_tune_args(self, model, backend, target, out, trials_global, trials_single, early_stopping):
-        ret = self.get_tune_args(model, backend, target, out, trials_global, early_stopping)
+        out_prefix = f"{out}/database"
+        ret = self.get_tune_args(model, backend, target, out_prefix, trials_global, early_stopping)
         ret.append("--enable-metascheduler")
         if trials_single:
             ret.extend(["--trials-per-task", str(trials_single)])
@@ -206,10 +237,18 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             return cnt
 
         def get_max_flops(out, prefix="M"):
+            SI_LOOKUP = {
+                "M": 1e6,
+                "G": 1e9,
+            }
+            mult = SI_LOOKUP.get(prefix, None)
+            assert mult is not None, f"Unsupported SI prefix: {prefix}"
             res = re.compile(rf"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
             if len(res) > 0:
-                return res[-1]
-            return -1
+                flops = float(res[-1])
+                return flops * mult, prefix
+            # TODO: warning
+            return -1, prefix
 
         # pick best records
         def _pick_best(backend, records, verbose=False):
@@ -231,6 +270,12 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 with open(out_file, "r") as handle:
                     content_best = handle.read()
             return content_best
+
+        def _prune_ms_db(in_archive, out_archive):  # TODO: module equality!
+            env = prepare_python_environment(backend.tvm_pythonpath, backend.tvm_build_dir, backend.tvm_configs_dir)
+            module_equality = "structural"
+            args = [in_archive, "-o", out_archive, "--module-equality", module_equality]
+            utils.python("-m", "tvm.meta_schedule.database.prune_db", *args, live=verbose, env=env)
 
         content = ""
         total_size = None
@@ -257,6 +302,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             assert not append, "append not supported by MetaScheduler"
             assert num_workers is None or int(num_workers) == 0, "num_workers > 0 not supported by MetaScheduler"
             assert not self.config["autotuning_visualize"], "autotuning_visualize not supported by MetaScheduler"
+            assert not self.split_artifacts_per_task, "split_artifacts_per_task not supported my MetaScheduler"
 
             sub_metrics = {}
             sub_artifacts = {}
@@ -264,20 +310,35 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                 # out_file = Path(tmp_dir) / "tuning_results.log.txt"
                 tmp_dir = Path(tmp_dir)
                 work_dir = tmp_dir / "work_dir"
+                work_dir.mkdir(exist_ok=True)
                 tune_args = self.get_metascheduler_tune_args(
                     model_path, backend, target, work_dir, trials_global, trials_single, 0
                 )
                 out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
-                with tarfile.open(tmp_dir / "work_dir.tar", "w") as tar:
+                db_archive = tmp_dir / "work_dir.tar"
+                db_archive_pruned = tmp_dir / "work_dir_pruned.tar"
+                with tarfile.open(db_archive, "w") as tar:
                     for file in os.listdir(work_dir):
                         tar.add(work_dir / file, arcname=os.path.join("work_dir", file))
                 raw = None
-                with open(tmp_dir / "work_dir.tar", "rb") as tar:
+                _prune_ms_db(db_archive, db_archive_pruned)
+                with open(db_archive, "rb") as tar:
                     raw = tar.read()
                 artifact = Artifact(
                     "work_dir.tar", raw=raw, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"]
                 )
+                with open(db_archive_pruned, "rb") as tar:
+                    raw = tar.read()
+                pruned_artifact = Artifact(
+                    "work_dir_pruned.tar",
+                    raw=raw,
+                    fmt=ArtifactFormat.ARCHIVE,
+                    flags=["records", "metascheduler", "pruned"],
+                )
         elif autotvm_enable or autoscheduler_enable:
+            assert (
+                autotvm_enable or not self.split_artifacts_per_task
+            ), "split_artifacts_per_task not supported my AutoScheduler"
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -350,6 +411,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 out = self.invoke_tvmc_tune(*tune_args, "--tasks", str(idx), target=target, cwd=tmp_dir)
                                 with open(out_file, "r") as handle:
                                     content = handle.read()
+
                                 visualize_raw_task = None
                                 if self.config["autotuning_visualize"]:
                                     to_file = self.config["autotuning_visualize_file"]
@@ -363,7 +425,61 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 # content_best = _pick_best(backend, content, verbose=verbose)
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
-                                max_flops = get_max_flops(out)
+                                max_flops, _ = get_max_flops(out, prefix=self.flop_prefix)
+
+                                def parse_tuning_logs(content, max_flops):
+                                    def extract(d):
+                                        inp = d["input"]
+                                        res = d["result"]
+                                        return res[0][0], inp[0], inp[1], inp[2]
+
+                                    best_runtime = 1e9
+                                    best_runtimes = []
+                                    best_idx = -1
+                                    for trial_idx, line in enumerate(content.strip().splitlines()):
+                                        # if len(line.strip()) == 0:
+                                        #     continue
+                                        data = json.loads(line)
+                                        runtime, target_string, task_name, task_tensors = extract(data)
+                                        # print("runtime", runtime)
+                                        # best_runtime = min(best_runtime, runtime)
+                                        if runtime < best_runtime:
+                                            # print("if")
+                                            best_runtime = runtime
+                                            best_idx = trial_idx
+                                        # print("best_runtime", best_runtime)
+                                        best_runtimes.append(best_runtime)
+                                    # tmp
+                                    assert best_runtime < 1e9
+                                    # target_string = "c -abc"
+                                    # task_name = "foobar"
+                                    # task_tensors = "{?}"
+                                    num_flops = int(max_flops * best_runtime)
+                                    arr = np.array(best_runtimes)
+
+                                    confidences = {
+                                        confidence: sum((1 / arr) < ((1 / min(arr)) * confidence)) + 1
+                                        for confidence in self.confidence_levels
+                                    }
+                                    return (
+                                        best_runtime,
+                                        target_string,
+                                        task_name,
+                                        str(task_tensors),
+                                        num_flops,
+                                        best_idx,
+                                        confidences,
+                                    )
+
+                                (
+                                    best_runtime,
+                                    target_string,
+                                    task_name,
+                                    task_tensors,
+                                    num_flops,
+                                    best_idx,
+                                    confidences,
+                                ) = parse_tuning_logs(content, max_flops)
                                 t1 = time.time()
                             return (
                                 out,
@@ -374,6 +490,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 max_flops,
                                 t1 - t0,
                                 visualize_raw_task,
+                                best_runtime,
+                                target_string,
+                                task_name,
+                                task_tensors,
+                                num_flops,
+                                best_idx,
+                                confidences,
                             )
 
                         workers.append(executor.submit(do_work, i, content, task_len))
@@ -386,15 +509,63 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     try:
                         ret = w.result()
                         logger.debug(f"Worker {i}: done")
-                        out, content, size, tuned, failed, max_flops, duration, visualize_raw_task = ret
+                        (
+                            out,
+                            content,
+                            size,
+                            tuned,
+                            failed,
+                            max_flops,
+                            duration,
+                            visualize_raw_task,
+                            best_runtime,
+                            target_string,
+                            task_name,
+                            task_tensors,
+                            num_flops,
+                            best_idx,
+                            confidences,
+                        ) = ret
+                        if self.split_artifacts_per_task:
+                            stdout_artifact = Artifact("tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT)
+                            artifacts_.append(stdout_artifact)
+                            flag = "autotvm" if not autoscheduler_enable else "autoscheduler"
+                            artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
+                            artifacts_.append(artifact)
+
+                            content_best = _pick_best(backend, content, verbose=verbose)
+
+                            failed_trials = count_failed_trials(content)
+                            if len(content_best) > 0:
+                                artifact_ = Artifact(
+                                    "best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT
+                                )
+                                artifacts_.append(artifact_)
+                            else:
+                                artifact_ = Artifact("best_tuning_results.log.txt", content="", fmt=ArtifactFormat.TEXT)
+                                artifacts_.append(artifact_)
                         all_out += out
                         all_content += content
                         metrics_.add("Config Space Size", size, True)
                         metrics_.add("Total Trials", tuned, True)
                         metrics_.add("Failed Trials", failed, True)
-                        metrics_.add("Max. MFLOPS", max_flops, True)
+                        metrics_.add("Max. FLOPS", max_flops, True)
                         metrics_.add("Tune Duration [s]", duration, True)
                         metrics_.add("Tune Duration per Trial [s]", duration / tuned + failed, True)
+                        # print("Best Runtime [s]", best_runtime)
+                        # print("Best Trial", best_idx)
+                        # print("Target String", target_string)
+                        # print("Task Name", task_name)
+                        # print("Task Tensors", task_tensors)
+                        # print("Task FLOPS", num_flops)
+                        metrics_.add("Best Runtime [s]", best_runtime, True)
+                        metrics_.add("Best Trial", best_idx, True)
+                        for c_level, c_trials in confidences.items():
+                            metrics_.add(f"{c_level*100}% Confidence", c_trials, True)
+                        metrics_.add("Target String", target_string, True)
+                        metrics_.add("Task Name", task_name, True)
+                        metrics_.add("Task Tensors", task_tensors, True)
+                        metrics_.add("Task FLOPS", num_flops, True)
                         if early_stopping < trials_single:
                             early = tuned + failed < min(trials_single, size)
                         else:
@@ -452,6 +623,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
         if metascheduler_enable:
             artifacts.append(artifact)
+            artifacts.append(pruned_artifact)
             # TODO: get num trials etc.
             metrics = Metrics()
         elif autotvm_enable or autoscheduler_enable:

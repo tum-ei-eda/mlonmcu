@@ -31,6 +31,7 @@ import pandas as pd
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
+from mlonmcu.setup import utils
 
 from .postprocess import SessionPostprocess, RunPostprocess
 from .validate_metrics import parse_validate_metrics, parse_classify_metrics
@@ -42,6 +43,7 @@ from .calc_lib_mem_footprints import (
     unmangle_helper,
 )
 from .dwarf import analyze_dwarf
+from .db_utils import push_session_to_mlonmcu_db
 
 logger = get_logger()
 
@@ -115,7 +117,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
         value = self.config["drop_const"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
 
         def _filter_df(df, keep, drop, drop_nan=False, drop_empty=False, drop_const=False):
@@ -175,7 +177,7 @@ class RenameColumnsPostprocess(SessionPostprocess):
         value = self.config["merge"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         values = self.mapping.values()
         if len(values) != len(set(values)) and not self.merge:
@@ -225,7 +227,7 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         value = self.config["drop"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         df = report.post_df
         if "Features" not in df.columns:
             return
@@ -274,7 +276,7 @@ class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
         value = self.config["drop"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.post_df
         if "Config" not in df.columns:
@@ -405,12 +407,12 @@ class MyPostprocess(SessionPostprocess):
             }
         )
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """TODO"""
-        self.config2cols.post_session(report)
-        self.features2cols.post_session(report)
-        self.rename_cols.post_session(report)
-        self.filter_cols.post_session(report)
+        self.config2cols.post_session(report, artifacts)
+        self.features2cols.post_session(report, artifacts)
+        self.rename_cols.post_session(report, artifacts)
+        self.filter_cols.post_session(report, artifacts)
 
 
 class PassConfig2ColumnsPostprocess(SessionPostprocess):
@@ -420,7 +422,7 @@ class PassConfig2ColumnsPostprocess(SessionPostprocess):
     def __init__(self, features=None, config=None):
         super().__init__("passcfg2cols", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.post_df
         name = "config_tvmaot.extra_pass_config"
@@ -438,7 +440,7 @@ class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
     def __init__(self, features=None, config=None):
         super().__init__("bytes2kb", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.main_df
         match_strs = ["ROM", "RAM"]
@@ -470,7 +472,7 @@ class VisualizePostprocess(SessionPostprocess):
         """Get format property."""
         return self.config["format"]
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = pd.concat([report.pre_df, report.main_df], axis=1)
 
@@ -1090,7 +1092,7 @@ class CompareRowsPostprocess(SessionPostprocess):
         value = self.config["substract"]
         return str2bool(value)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         pre_df = report.pre_df
         main_df = report.main_df  # metrics
@@ -2131,7 +2133,7 @@ class StageTimesGanttPostprocess(SessionPostprocess):
     def __init__(self, features=None, config=None):
         super().__init__("stage_times_gantt", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         artifacts = []
         content = """gantt
@@ -2157,6 +2159,8 @@ class StageTimesGanttPostprocess(SessionPostprocess):
             first = True
             for stage, times in stage_times.items():
                 start = times.get("start")
+                if start is None or pd.isna(start):
+                    continue
                 end = times.get("end")
                 # time_s = times.get("time_s")
                 time_s = None
@@ -2396,3 +2400,383 @@ class ProfileFunctionsPostprocess(RunPostprocess):
                 report.post_df = post_df
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts
+
+
+class Push2DBPostprocess(SessionPostprocess):
+    """Push Session report and artifacts to MLonMCU DB."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "progress": True,
+        "session_artifacts": True,
+        "run_artifacts": False,
+    }
+
+    @property
+    def progress(self):
+        """Get progress property."""
+        value = self.config["progress"]
+        return str2bool(value)
+
+    @property
+    def session_artifacts(self):
+        """Get drop_nan property."""
+        value = self.config["session_artifacts"]
+        return str2bool(value)
+
+    @property
+    def run_artifacts(self):
+        """Get run_artifacts property."""
+        value = self.config["run_artifacts"]
+        return str2bool(value)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("push2db", features=features, config=config)
+
+    def post_session(self, report, artifacts):
+        """Called at the end of a session."""
+        # Credentials are NOT passed via MLonMCU config!
+        # Please use environment vars to override:
+        # - POSTGRES_USER
+        # - POSTGRES_PASSWORD
+        # - POSTGRES_DB
+        # - POSTGRES_HOST
+        # - POSTGRES_PORT
+        # - S3_ENDPOINT
+        # - S3_KEY
+        # - S3_SECRET
+        # print("post_session")
+        # print("session_artifacts", artifacts)
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_artifact = label_artifact[0].convert(ArtifactFormat.TEXT)
+        # print("label_artifact", label_artifact)
+        label = label_artifact.content
+        # print("label", label)
+        timestamp_artifact = lookup_artifacts(artifacts, flags=("timestamp",), first_only=True)
+        assert len(timestamp_artifact) == 1
+        timestamp_artifact = timestamp_artifact[0].convert(ArtifactFormat.TEXT)
+        # print("timestamp_artifact", timestamp_artifact)
+        timestamp = timestamp_artifact.content
+        # print("timestamp", timestamp)
+        run_artifact_paths = defaultdict(list)
+        session_artifact_paths = []
+        # TODO: use tuples to handle subs/subdirs!
+        if self.session_artifacts:
+            session_artifact_paths = [(artifact.name, artifact.path) for artifact in artifacts]
+        if self.run_artifacts:
+            # TODO receive via artifacts.yml?
+            # raise NotImplementedError("Run artifacts")
+            label_file = label_artifact.path
+            sess_dir = Path(label_file).parent
+            runs_dir = sess_dir / "runs"
+            if "Run" in report.df.columns:
+                run_ids = list(report.df["Run"].values)
+            else:
+                run_ids = list(report.df.index.values)
+            print("run_ids", run_ids)
+            for run_id in run_ids:
+                run_dir = runs_dir / str(run_id)
+                assert run_dir.is_dir()
+                # TODO: use artifacts.yml instead
+                artifacts_yml = run_dir / "artifacts.yml"
+                import yaml
+
+                with open(artifacts_yml, "r") as f:
+                    artifacts_data = yaml.safe_load(f)
+                for artifact_data in artifacts_data["artifacts"]:
+                    name = artifact_data["name"]
+                    path = artifact_data.get("path")
+                    if path is None:
+                        continue
+                    temp = (name, path)
+                    run_artifact_paths[run_id].append(temp)
+
+        report_df = report.df
+        if "Stages" in report_df.columns:
+            run_stages = list(report_df["Stages"].values)
+            stages = set().union(*run_stages)
+            stages = list(stages)
+        else:
+            stages = []
+        tags = set(stages)
+        push_session_to_mlonmcu_db(
+            report,
+            session_artifacts=session_artifact_paths,
+            run_artifacts=run_artifact_paths,
+            label=label,
+            timestamp=timestamp,
+            tags=tags,
+            progress=self.progress,
+        )
+        return []
+
+
+class MergeAutoTvmRecordsPostprocess(SessionPostprocess):
+    """Collect all AutoTVM tuning logs to build combined tuning database."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "allow_empty": False,
+    }
+
+    @property
+    def allow_empty(self):
+        """Get allow_empty property."""
+        value = self.config["allow_empty"]
+        return str2bool(value)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("merge_autotvm_records", features=features, config=config)
+
+    def post_session(self, report, artifacts):  # TODO: receive all run artifacts via arg!
+        """Called at the end of a session."""
+        # Workaround: look for run dirs relative to session...
+        contents = []
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_file = label_artifact[0].path
+        sess_dir = Path(label_file).parent
+        runs_dir = sess_dir / "runs"
+        if "Run" in report.df.columns:
+            run_ids = list(report.df["Run"].values)
+        else:
+            run_ids = list(report.df.index.values)
+        # print("run_ids", run_ids)
+        for run_id in run_ids:
+            run_dir = runs_dir / str(run_id)
+            assert run_dir.is_dir()
+            # TODO: use artifacts.yml instead
+            records_file = run_dir / "tuning_results.log.txt"
+            if not records_file.is_file():
+                continue
+            with open(records_file, "r") as f:
+                content = f.read()
+            contents.append(content)
+        # print("len(contents)", len(contents))
+
+        if not self.allow_empty:
+            assert len(contents) > 0
+        combined_content = "\n".join(contents)
+        ret_artifacts = []
+        combined_artifact = Artifact(
+            "combined_tuning_results.log.txt",
+            content=combined_content,
+            fmt=ArtifactFormat.TEXT,
+        )
+        ret_artifacts.append(combined_artifact)
+        return ret_artifacts
+
+
+class MergeMSDBsPostprocess(SessionPostprocess):
+    """Build an unified MS database based on all tuning runs in the session."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "allow_empty": False,
+        "prune": False,
+        "print_outputs": False,
+    }
+
+    OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
+
+    @property
+    def allow_empty(self):
+        """Get allow_empty property."""
+        value = self.config["allow_empty"]
+        return str2bool(value)
+
+    @property
+    def prune(self):
+        """Get prune property."""
+        value = self.config["prune"]
+        return str2bool(value)
+
+    @property
+    def print_outputs(self):
+        """Get print_outputs property."""
+        value = self.config["print_outputs"]
+        return str2bool(value)
+
+    @property
+    def tvm_pythonpath(self):
+        """Get tvm.pythonpath property."""
+        value = self.config["tvm.pythonpath"]
+        assert value is not None
+        return Path(value)
+
+    @property
+    def tvm_build_dir(self):
+        """Get tvm.build_dir property."""
+        value = self.config["tvm.build_dir"]
+        assert value is not None
+        return Path(value)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("merge_ms_dbs", features=features, config=config)
+
+    def post_session(self, report, artifacts):  # TODO: receive all run artifacts via arg!
+        """Called at the end of a session."""
+        # Workaround: look for run dirs relative to session...
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_file = label_artifact[0].path
+        sess_dir = Path(label_file).parent
+        runs_dir = sess_dir / "runs"
+        if "Run" in report.df.columns:
+            run_ids = list(report.df["Run"].values)
+        else:
+            run_ids = list(report.df.index.values)
+        # print("run_ids", run_ids)
+        work_dir_archives = []
+        for run_id in run_ids:
+            run_dir = runs_dir / str(run_id)
+            assert run_dir.is_dir()
+            # TODO: use artifacts.yml instead
+            archive_name = "work_dir_pruned.tar" if self.prune else "work_dir.tar"
+            # TODO: also prune after union...
+            work_dir_archive = run_dir / archive_name
+            if work_dir_archive.is_file():
+                work_dir_archives.append(work_dir_archive)
+        print("len(work_dir_archives)", len(work_dir_archives))
+
+        if not self.allow_empty:
+            assert len(work_dir_archives) > 0
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_dir = Path(tmp_dir)
+            out_archive = tmp_dir / "merged_ms_db.tar"
+            from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+
+            env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
+            args = work_dir_archives + ["-o", out_archive]
+            utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)
+            with open(out_archive, "rb") as tar:
+                raw = tar.read()
+        merged_artifact = Artifact(
+            "merged_ms_db.tar",
+            raw=raw,
+            fmt=ArtifactFormat.ARCHIVE,
+        )
+        ret_artifacts = []
+        ret_artifacts.append(merged_artifact)
+        return ret_artifacts
+
+
+class PushMSDB2S3Postprocess(SessionPostprocess):
+    """Push Session MS DB to S3 Bucket. Needs merge_ms_dbs postprocess to run fist."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "s3_url": None,
+        "print_outputs": False,
+        "allow_empty": False,
+        "append": True,
+    }
+
+    OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("push_ms_db2s3", features=features, config=config)
+
+    @property
+    def allow_empty(self):
+        """Get allow_empty property."""
+        value = self.config["allow_empty"]
+        return str2bool(value)
+
+    @property
+    def s3_url(self):
+        """Get run_artifacts property."""
+        value = self.config["s3_url"]
+        assert value is not None
+        return value
+
+    @property
+    def prune(self):
+        """Get prune property."""
+        value = self.config["prune"]
+        return str2bool(value)
+
+    @property
+    def print_outputs(self):
+        """Get print_outputs property."""
+        value = self.config["print_outputs"]
+        return str2bool(value)
+
+    @property
+    def append(self):
+        """Get append property."""
+        value = self.config["append"]
+        return str2bool(value)
+
+    @property
+    def tvm_pythonpath(self):
+        """Get tvm.pythonpath property."""
+        value = self.config["tvm.pythonpath"]
+        assert value is not None
+        return Path(value)
+
+    @property
+    def tvm_build_dir(self):
+        """Get tvm.build_dir property."""
+        value = self.config["tvm.build_dir"]
+        assert value is not None
+        return Path(value)
+
+    def post_session(self, report, artifacts):
+        """Called at the end of a session."""
+        # Credentials are NOT passed via MLonMCU config!
+        # Please use environment vars to override:
+        # - AWS_ACCESS_KEY_ID
+        # - AWS_SECRET_ACCESS_KEY
+        # print("post_session")
+        # print("session_artifacts", artifacts)
+        merged_ms_db_artifact = lookup_artifacts(artifacts, name="merged_ms_db.tar", first_only=True)
+        if len(merged_ms_db_artifact) == 0:
+            assert self.allow_empty, "No merged MS DB artifacts found"
+            return []
+        assert len(merged_ms_db_artifact) == 1
+        merged_ms_db_artifact = merged_ms_db_artifact[0]
+        # print("merged_ms_db_artifact", merged_ms_db_artifact)
+        s3_url = self.s3_url
+        # print("s3_url", s3_url)
+        from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
+        args = [s3_url, str(merged_ms_db_artifact.path), "-o", s3_url]
+        if self.append:
+            args.append("--append")
+        utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)
+        # import boto3
+        # from urllib.parse import urlparse, parse_qs
+        # parsed = urlparse(s3_url)
+        # # print("parsed", parsed)
+        # bucket = parsed.netloc
+        # # print("self.bucket", self.bucket)
+        # prefix = parsed.path.lstrip("/")
+        # # print("self.prefix", self.prefix)
+        # query = parse_qs(parsed.query)
+        # # print("query", query)
+
+        # endpoint = query.get("endpoint", [None])[0]
+        # # print("endpoint", endpoint)
+        # region = query.get("region", ["us-east-1"])[0]
+        # # print("region", region)
+        # # session = boto3.Session()
+        # # creds = session.get_credentials()
+        # # print("Access key:", creds.access_key)
+        # # print("Secret key:", "SET" if creds.secret_key else None)
+
+        # s3 = boto3.client(
+        #     "s3",
+        #     region_name=region,
+        #     endpoint_url=endpoint,
+        # )
+        # with tempfile.TemporaryDirectory() as tmp_dir:
+        #     tmp_dir = Path(tmp_dir)
+        # path_workload = tmp_dir / "database_workload.json"
+        # path_records = tmp_dir / "database_tuning_record.json"
+        # s3.upload_file(path_workload, bucket, f"{prefix}/database_workload.json")
+        # self.s3.upload_file(self.path_records, self.bucket, self._key("database_tuning_record.json"))
+        return []

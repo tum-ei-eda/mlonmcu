@@ -44,6 +44,10 @@ from .tvmc_utils import (
 logger = get_logger()
 
 
+def infer_tuner_name(path):
+    raise NotImplementedError
+
+
 class TVMBackend(Backend):
     registry = {}
 

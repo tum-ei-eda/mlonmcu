@@ -663,7 +663,13 @@ class TVMBackend(Backend):
                     debug_cfg=self.relay_debug,
                 )
                 out = ""
-                out += utils.python("-m" "tvm.meta_schedule.database.filter_db", *filter_args, live=self.print_outputs, env=env, cwd=temp_dir)
+                out += utils.python(
+                    "-m" "tvm.meta_schedule.database.filter_db",
+                    *filter_args,
+                    live=self.print_outputs,
+                    env=env,
+                    cwd=temp_dir,
+                )
                 # input("123")
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
             out += self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)

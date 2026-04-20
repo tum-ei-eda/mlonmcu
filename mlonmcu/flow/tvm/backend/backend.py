@@ -372,13 +372,13 @@ class TVMBackend(Backend):
             ret += f" {keys_str}"
         attrs = {
             "device": self.target_device,
-            "mcpu": self.target_mcpu,
             "march": self.target_march,
+            "mabi": self.target_mabi,
+            **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
+            "mcpu": self.target_mcpu,
+            "mfloat-abi": self.target_mfloat_abi,
             "model": self.target_model,
             "mtriple": self.target_mtriple,
-            "mabi": self.target_mabi,
-            "mfloat-abi": self.target_mfloat_abi,
-            **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
             "num-cores": self.target_num_cores,
             **({"vector-width": self.target_vector_width} if self.target == "llvm" else {}),
             # TODO: alignment

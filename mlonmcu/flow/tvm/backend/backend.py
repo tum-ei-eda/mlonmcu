@@ -105,6 +105,8 @@ class TVMBackend(Backend):
         "generate_wrapper": "auto",
         "bool_as_int": True,
         "ms_db": None,
+        "filter_ms_db": False,
+        "filter_ms_db_extra_args": None,
         "experimental_tvm_target_vector_width": False,
     }
 
@@ -141,6 +143,7 @@ class TVMBackend(Backend):
             if tuner_name == "auto":
                 tuner_name = infer_tuner_name(results_file)
             self._tuning_records[tuner_name] = results_file
+        self.filtered_ms_db = None
 
     # On the long term, we might support multiple TUNE stages in a single run
     # (i.e. to allow autotvm+graphtuner to be separated)
@@ -442,6 +445,16 @@ class TVMBackend(Backend):
         return None
 
     @property
+    def filter_ms_db(self):
+        value = self.config["filter_ms_db"]
+        return str2bool(value)
+
+    @property
+    def filter_ms_db_extra_args(self):
+        value = self.config["filter_ms_db_extra_args"]
+        return value
+
+    @property
     def num_threads(self):
         return self.config["num_threads"]
 
@@ -487,6 +500,7 @@ class TVMBackend(Backend):
     def get_tvmc_compile_args(self, out, dump=None):
         assert self.executor is not None
         assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
+        ms_db = self.filtered_ms_db or self.ms_db
         args = [
             self.model,
             *(["--relay-params", self.params_path] if self.params_path is not None else []),
@@ -502,7 +516,7 @@ class TVMBackend(Backend):
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records(), self.ms_db),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records(), ms_db),
             *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
@@ -608,13 +622,63 @@ class TVMBackend(Backend):
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
+        out = ""
         assert self.model is not None
         dump = self.dump
+        target_str = self.tvm_target_str
+        # print("target_str", target_str)
+        # input("!")
         if self.refresh_model_info or (self.generate_wrapper and not self.model_info) and "relay" not in dump:
             dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
+            if self.filter_ms_db:
+                ms_db = self.ms_db
+                ms_db_filtered = Path(temp_dir) / "filteted_ms_db.tar"
+                self.filtered_ms_db = ms_db_filtered
+                assert self.ms_db is not None
+                filter_args = [ms_db, "-o", ms_db_filtered]
+                if self.target_device:
+                    filter_args += ["--filter-target-device", self.target_device]
+                if self.target_mcpu:
+                    filter_args += ["--filter-target-mcpu", self.target_mcpu]
+                if self.target_model:
+                    filter_args += ["--filter-target-model", self.target_model]
+                if self.target_num_cores:
+                    filter_args += ["--filter-target-num-cores", str(self.target_num_cores)]
+                # keys, march, mabi, mfloat-abi, mtriple, vector-width?
+                if self.target_mattr and self.target == "llvm":
+                    filter_args += ["--filter-target-mattr", self.target_mattr]
+                if self.filter_ms_db_extra_args:
+                    extra_args = self.filter_ms_db_extra_args
+                    print("extra_args", extra_args)
+                    assert isinstance(extra_args, list)
+                    filter_args += extra_args
+                print("filter_args", filter_args)
+                env = prepare_python_environment(
+                    None if self.use_tlcpack else self.tvm_pythonpath,
+                    None if self.use_tlcpack else self.tvm_build_dir,
+                    None if self.use_tlcpack else self.tvm_configs_dir,
+                    tophub_url=self.tophub_url,
+                    num_threads=self.num_threads,
+                    debug_cfg=self.relay_debug,
+                )
+                out = ""
+                out += utils.python("-m" "tvm.meta_schedule.database.filter_db", *filter_args, live=self.print_outputs, env=env, cwd=temp_dir)
+                # input("123")
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            out += self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            if self.filtered_ms_db:
+                with open(self.filtered_ms_db, "rb") as handle:
+                    data = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            self.filtered_ms_db.name,
+                            raw=data,
+                            fmt=ArtifactFormat.ARCHIVE,
+                            # archive=True,
+                        )
+                    )
+                self.filtered_ms_db = None
             if self.fmt == "mlf":
                 mlf_path = Path(temp_dir) / "mlf"
                 tarfile.open(out_path).extractall(mlf_path)

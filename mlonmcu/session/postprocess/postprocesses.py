@@ -31,6 +31,7 @@ import pandas as pd
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2dict, str2bool, str2list
 from mlonmcu.logging import get_logger
+from mlonmcu.setup import utils
 
 from .postprocess import SessionPostprocess, RunPostprocess
 from .validate_metrics import parse_validate_metrics, parse_classify_metrics
@@ -2565,3 +2566,217 @@ class MergeAutoTvmRecordsPostprocess(SessionPostprocess):
         )
         ret_artifacts.append(combined_artifact)
         return ret_artifacts
+
+
+class MergeMSDBsPostprocess(SessionPostprocess):
+    """Build an unified MS database based on all tuning runs in the session."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "allow_empty": False,
+        "prune": False,
+        "print_outputs": False,
+    }
+
+    OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
+
+    @property
+    def allow_empty(self):
+        """Get allow_empty property."""
+        value = self.config["allow_empty"]
+        return str2bool(value)
+
+    @property
+    def prune(self):
+        """Get prune property."""
+        value = self.config["prune"]
+        return str2bool(value)
+
+    @property
+    def print_outputs(self):
+        """Get print_outputs property."""
+        value = self.config["print_outputs"]
+        return str2bool(value)
+
+    @property
+    def tvm_pythonpath(self):
+        """Get tvm.pythonpath property."""
+        value = self.config["tvm.pythonpath"]
+        assert value is not None
+        return Path(value)
+
+    @property
+    def tvm_build_dir(self):
+        """Get tvm.build_dir property."""
+        value = self.config["tvm.build_dir"]
+        assert value is not None
+        return Path(value)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("merge_ms_dbs", features=features, config=config)
+
+    def post_session(self, report, artifacts):  # TODO: receive all run artifacts via arg!
+        """Called at the end of a session."""
+        # Workaround: look for run dirs relative to session...
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_file = label_artifact[0].path
+        sess_dir = Path(label_file).parent
+        runs_dir = sess_dir / "runs"
+        if "Run" in report.df.columns:
+            run_ids = list(report.df["Run"].values)
+        else:
+            run_ids = list(report.df.index.values)
+        # print("run_ids", run_ids)
+        work_dir_archives = []
+        for run_id in run_ids:
+            run_dir = runs_dir / str(run_id)
+            assert run_dir.is_dir()
+            # TODO: use artifacts.yml instead
+            archive_name = "work_dir_pruned.tar" if self.prune else "work_dir.tar"
+            # TODO: also prune after union...
+            work_dir_archive = run_dir / archive_name
+            if work_dir_archive.is_file():
+                work_dir_archives.append(work_dir_archive)
+        print("len(work_dir_archives)", len(work_dir_archives))
+
+        if not self.allow_empty:
+            assert len(work_dir_archives) > 0
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_dir = Path(tmp_dir)
+            out_archive = tmp_dir / "merged_ms_db.tar"
+            from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+
+            env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
+            args = work_dir_archives + ["-o", out_archive]
+            utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)
+            with open(out_archive, "rb") as tar:
+                raw = tar.read()
+        merged_artifact = Artifact(
+            "merged_ms_db.tar",
+            raw=raw,
+            fmt=ArtifactFormat.ARCHIVE,
+        )
+        ret_artifacts = []
+        ret_artifacts.append(merged_artifact)
+        return ret_artifacts
+
+
+class PushMSDB2S3Postprocess(SessionPostprocess):
+    """Push Session MS DB to S3 Bucket. Needs merge_ms_dbs postprocess to run fist."""
+
+    DEFAULTS = {
+        **SessionPostprocess.DEFAULTS,
+        "s3_url": None,
+        "print_outputs": False,
+        "allow_empty": False,
+        "append": True,
+    }
+
+    OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("push_ms_db2s3", features=features, config=config)
+
+    @property
+    def allow_empty(self):
+        """Get allow_empty property."""
+        value = self.config["allow_empty"]
+        return str2bool(value)
+
+    @property
+    def s3_url(self):
+        """Get run_artifacts property."""
+        value = self.config["s3_url"]
+        assert value is not None
+        return value
+
+    @property
+    def prune(self):
+        """Get prune property."""
+        value = self.config["prune"]
+        return str2bool(value)
+
+    @property
+    def print_outputs(self):
+        """Get print_outputs property."""
+        value = self.config["print_outputs"]
+        return str2bool(value)
+
+    @property
+    def append(self):
+        """Get append property."""
+        value = self.config["append"]
+        return str2bool(value)
+
+    @property
+    def tvm_pythonpath(self):
+        """Get tvm.pythonpath property."""
+        value = self.config["tvm.pythonpath"]
+        assert value is not None
+        return Path(value)
+
+    @property
+    def tvm_build_dir(self):
+        """Get tvm.build_dir property."""
+        value = self.config["tvm.build_dir"]
+        assert value is not None
+        return Path(value)
+
+    def post_session(self, report, artifacts):
+        """Called at the end of a session."""
+        # Credentials are NOT passed via MLonMCU config!
+        # Please use environment vars to override:
+        # - AWS_ACCESS_KEY_ID
+        # - AWS_SECRET_ACCESS_KEY
+        # print("post_session")
+        # print("session_artifacts", artifacts)
+        merged_ms_db_artifact = lookup_artifacts(artifacts, name="merged_ms_db.tar", first_only=True)
+        if len(merged_ms_db_artifact) == 0:
+            assert self.allow_empty, "No merged MS DB artifacts found"
+            return []
+        assert len(merged_ms_db_artifact) == 1
+        merged_ms_db_artifact = merged_ms_db_artifact[0]
+        # print("merged_ms_db_artifact", merged_ms_db_artifact)
+        s3_url = self.s3_url
+        # print("s3_url", s3_url)
+        from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
+        args = [s3_url, str(merged_ms_db_artifact.path), "-o", s3_url]
+        if self.append:
+            args.append("--append")
+        utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)
+        # import boto3
+        # from urllib.parse import urlparse, parse_qs
+        # parsed = urlparse(s3_url)
+        # # print("parsed", parsed)
+        # bucket = parsed.netloc
+        # # print("self.bucket", self.bucket)
+        # prefix = parsed.path.lstrip("/")
+        # # print("self.prefix", self.prefix)
+        # query = parse_qs(parsed.query)
+        # # print("query", query)
+
+        # endpoint = query.get("endpoint", [None])[0]
+        # # print("endpoint", endpoint)
+        # region = query.get("region", ["us-east-1"])[0]
+        # # print("region", region)
+        # # session = boto3.Session()
+        # # creds = session.get_credentials()
+        # # print("Access key:", creds.access_key)
+        # # print("Secret key:", "SET" if creds.secret_key else None)
+
+        # s3 = boto3.client(
+        #     "s3",
+        #     region_name=region,
+        #     endpoint_url=endpoint,
+        # )
+        # with tempfile.TemporaryDirectory() as tmp_dir:
+        #     tmp_dir = Path(tmp_dir)
+        # path_workload = tmp_dir / "database_workload.json"
+        # path_records = tmp_dir / "database_tuning_record.json"
+        # s3.upload_file(path_workload, bucket, f"{prefix}/database_workload.json")
+        # self.s3.upload_file(self.path_records, self.bucket, self._key("database_tuning_record.json"))
+        return []

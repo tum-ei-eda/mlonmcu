@@ -650,10 +650,10 @@ class TVMBackend(Backend):
                     filter_args += ["--filter-target-mattr", self.target_mattr]
                 if self.filter_ms_db_extra_args:
                     extra_args = self.filter_ms_db_extra_args
-                    print("extra_args", extra_args)
+                    # print("extra_args", extra_args)
                     assert isinstance(extra_args, list)
                     filter_args += extra_args
-                print("filter_args", filter_args)
+                # print("filter_args", filter_args)
                 env = prepare_python_environment(
                     None if self.use_tlcpack else self.tvm_pythonpath,
                     None if self.use_tlcpack else self.tvm_build_dir,

@@ -271,6 +271,12 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     content_best = handle.read()
             return content_best
 
+        def _prune_ms_db(in_archive, out_archive):  # TODO: module equality!
+            env = prepare_python_environment(backend.tvm_pythonpath, backend.tvm_build_dir, backend.tvm_configs_dir)
+            module_equality = "structural"
+            args = [in_archive, "-o", out_archive, "--module-equality", module_equality]
+            utils.python("-m", "tvm.meta_schedule.database.prune_db", *args, live=verbose, env=env)
+
         content = ""
         total_size = None
         visualize_raw = None
@@ -309,17 +315,30 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     model_path, backend, target, work_dir, trials_global, trials_single, 0
                 )
                 out = self.invoke_tvmc_tune(*tune_args, target=target, cwd=tmp_dir)
-                with tarfile.open(tmp_dir / "work_dir.tar", "w") as tar:
+                db_archive = tmp_dir / "work_dir.tar"
+                db_archive_pruned = tmp_dir / "work_dir_pruned.tar"
+                with tarfile.open(db_archive, "w") as tar:
                     for file in os.listdir(work_dir):
                         tar.add(work_dir / file, arcname=os.path.join("work_dir", file))
                 raw = None
-                with open(tmp_dir / "work_dir.tar", "rb") as tar:
+                _prune_ms_db(db_archive, db_archive_pruned)
+                with open(db_archive, "rb") as tar:
                     raw = tar.read()
                 artifact = Artifact(
                     "work_dir.tar", raw=raw, fmt=ArtifactFormat.ARCHIVE, flags=["records", "metascheduler"]
                 )
+                with open(db_archive_pruned, "rb") as tar:
+                    raw = tar.read()
+                pruned_artifact = Artifact(
+                    "work_dir_pruned.tar",
+                    raw=raw,
+                    fmt=ArtifactFormat.ARCHIVE,
+                    flags=["records", "metascheduler", "pruned"],
+                )
         elif autotvm_enable or autoscheduler_enable:
-            assert autotvm_enable or not self.split_artifacts_per_task, "split_artifacts_per_task not supported my AutoScheduler"
+            assert (
+                autotvm_enable or not self.split_artifacts_per_task
+            ), "split_artifacts_per_task not supported my AutoScheduler"
             if append:
                 if results_file is not None:
                     with open(results_file, "r") as handle:
@@ -566,6 +585,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
         if metascheduler_enable:
             artifacts.append(artifact)
+            artifacts.append(pruned_artifact)
             # TODO: get num trials etc.
             metrics = Metrics()
         elif autotvm_enable or autoscheduler_enable:

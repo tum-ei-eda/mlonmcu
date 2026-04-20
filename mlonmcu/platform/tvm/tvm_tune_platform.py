@@ -243,7 +243,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
             }
             mult = SI_LOOKUP.get(prefix, None)
             assert mult is not None, f"Unsupported SI prefix: {prefix}"
-            res = re.compile(fr"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
+            res = re.compile(rf"\d+\.\d+\s*\/\s*(\d+\.\d+)\s+{prefix}FLOPS").findall(out)
             if len(res) > 0:
                 flops = float(res[-1])
                 return flops * mult, prefix

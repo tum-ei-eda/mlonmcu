@@ -28,9 +28,18 @@ from .microtvm_zephyr_target import ZephyrMicroTvmPlatformTarget
 from .microtvm_arduino_target import ArduinoMicroTvmPlatformTarget
 from .microtvm_espidf_target import EspidfMicroTvmPlatformTarget
 from .microtvm_host_target import HostMicroTvmPlatformTarget
-from .microtvm_etiss_target import EtissMicroTvmPlatformTarget, EtissRV32MicroTvmPlatformTarget, EtissRV64MicroTvmPlatformTarget, EtissPerfMicroTvmPlatformTarget
+from .microtvm_etiss_target import (
+    EtissMicroTvmPlatformTarget,
+    EtissRV32MicroTvmPlatformTarget,
+    EtissRV64MicroTvmPlatformTarget,
+    EtissPerfMicroTvmPlatformTarget,
+)
 from .microtvm_gvsoc_target import GVSocMicroTvmPlatformTarget
-from .microtvm_spike_target import SpikeMicroTvmPlatformTarget, SpikeRV32MicroTvmPlatformTarget, SpikeRV64MicroTvmPlatformTarget
+from .microtvm_spike_target import (
+    SpikeMicroTvmPlatformTarget,
+    SpikeRV32MicroTvmPlatformTarget,
+    SpikeRV64MicroTvmPlatformTarget,
+)
 from .microtvm_corev_ovpsim_target import CoreVOVPSimMicroTvmPlatformTarget
 from .microtvm_mlonmcu_target import MlonmcuMicroTvmPlatformTarget
 
@@ -170,7 +179,6 @@ def create_microtvm_platform_target(name, platform, base=Target):
                     metrics.add("Min Runtime [s]", min_s)
                 elif self.platform.aggregate == "max":
                     metrics.add("Max Runtime [s]", max_s)
-
 
             if self.platform.profile:
                 headers = None

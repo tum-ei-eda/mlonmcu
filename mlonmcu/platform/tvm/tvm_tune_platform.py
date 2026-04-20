@@ -426,11 +426,13 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                 sub_trials = len(remove_empty(content.split("\n")))
                                 sub_failed_trials = count_failed_trials(content)
                                 max_flops, _ = get_max_flops(out, prefix=self.flop_prefix)
+
                                 def parse_tuning_logs(content, max_flops):
                                     def extract(d):
                                         inp = d["input"]
                                         res = d["result"]
                                         return res[0][0], inp[0], inp[1], inp[2]
+
                                     best_runtime = 1e9
                                     best_runtimes = []
                                     best_idx = -1
@@ -455,9 +457,29 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                                     num_flops = int(max_flops * best_runtime)
                                     arr = np.array(best_runtimes)
 
-                                    confidences = {confidence: sum((1/arr) < ((1/min(arr))*confidence))+1 for confidence in self.confidence_levels}
-                                    return best_runtime, target_string, task_name, str(task_tensors), num_flops, best_idx, confidences
-                                best_runtime, target_string, task_name, task_tensors, num_flops, best_idx, confidences = parse_tuning_logs(content, max_flops)
+                                    confidences = {
+                                        confidence: sum((1 / arr) < ((1 / min(arr)) * confidence)) + 1
+                                        for confidence in self.confidence_levels
+                                    }
+                                    return (
+                                        best_runtime,
+                                        target_string,
+                                        task_name,
+                                        str(task_tensors),
+                                        num_flops,
+                                        best_idx,
+                                        confidences,
+                                    )
+
+                                (
+                                    best_runtime,
+                                    target_string,
+                                    task_name,
+                                    task_tensors,
+                                    num_flops,
+                                    best_idx,
+                                    confidences,
+                                ) = parse_tuning_logs(content, max_flops)
                                 t1 = time.time()
                             return (
                                 out,
@@ -487,11 +509,25 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                     try:
                         ret = w.result()
                         logger.debug(f"Worker {i}: done")
-                        out, content, size, tuned, failed, max_flops, duration, visualize_raw_task, best_runtime, target_string, task_name, task_tensors, num_flops, best_idx, confidences = ret
+                        (
+                            out,
+                            content,
+                            size,
+                            tuned,
+                            failed,
+                            max_flops,
+                            duration,
+                            visualize_raw_task,
+                            best_runtime,
+                            target_string,
+                            task_name,
+                            task_tensors,
+                            num_flops,
+                            best_idx,
+                            confidences,
+                        ) = ret
                         if self.split_artifacts_per_task:
-                            stdout_artifact = Artifact(
-                                "tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT
-                            )
+                            stdout_artifact = Artifact("tvmc_tune_out.log", content=out, fmt=ArtifactFormat.TEXT)
                             artifacts_.append(stdout_artifact)
                             flag = "autotvm" if not autoscheduler_enable else "autoscheduler"
                             artifact = Artifact("tuning_results.log.txt", content=content, fmt=ArtifactFormat.TEXT)
@@ -501,7 +537,9 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
 
                             failed_trials = count_failed_trials(content)
                             if len(content_best) > 0:
-                                artifact_ = Artifact("best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT)
+                                artifact_ = Artifact(
+                                    "best_tuning_results.log.txt", content=content_best, fmt=ArtifactFormat.TEXT
+                                )
                                 artifacts_.append(artifact_)
                             else:
                                 artifact_ = Artifact("best_tuning_results.log.txt", content="", fmt=ArtifactFormat.TEXT)

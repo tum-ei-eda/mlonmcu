@@ -66,6 +66,7 @@ class Metrics:
 
     def get(self, name):
         value = self.data[name]
+
         def eval_str(x):
             if isinstance(x, str):
                 if len(x) > 0:
@@ -79,6 +80,7 @@ class Metrics:
                     return None
             else:
                 return x
+
         # return (ast.literal_eval(value) if len(value) > 0 else None) if isinstance(value, str) else value
         return eval_str(value)
 

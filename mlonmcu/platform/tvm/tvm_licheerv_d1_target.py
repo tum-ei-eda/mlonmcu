@@ -24,6 +24,7 @@ from mlonmcu.utils import filter_none
 
 logger = get_logger()
 
+
 class LicheeRvD1TvmPlatformTarget(RISCVTarget):
     """TODO"""
 
@@ -43,7 +44,6 @@ class LicheeRvD1TvmPlatformTarget(RISCVTarget):
         "fcpu": 1e9,  # TODO: remove this!
     }
     REQUIRED = RISCVTarget.REQUIRED | set()
-
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

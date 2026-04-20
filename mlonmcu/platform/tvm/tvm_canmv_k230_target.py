@@ -24,6 +24,7 @@ from mlonmcu.utils import filter_none
 
 logger = get_logger()
 
+
 class CanMvK230TvmPlatformTarget(RVVTarget):
     """TODO"""
 
@@ -43,7 +44,6 @@ class CanMvK230TvmPlatformTarget(RVVTarget):
         # "fcpu": 1.6e9,
     }
     REQUIRED = RVVTarget.REQUIRED | set()
-
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

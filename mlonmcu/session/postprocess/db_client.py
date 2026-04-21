@@ -177,6 +177,54 @@ def download_artifacts(args):
         s3.download_file(bucket, obj, filename)
 
 
+# From: https://gist.github.com/izikeros/b0d32072f234fba73650eb4b1e9c0017
+def rich_display_dataframe(df, title="Dataframe", max_cols: int = 12, max_cell_width: int = 20) -> None:
+    """Display dataframe as table using rich library.
+    Args:
+        df (pd.DataFrame): dataframe to display
+        title (str, optional): title of the table. Defaults to "Dataframe".
+    Raises:
+        NotRenderableError: if dataframe cannot be rendered
+    Returns:
+        rich.table.Table: rich table
+    """
+    import contextlib
+    from rich.errors import NotRenderableError
+    from rich import print
+    from rich.table import Table
+
+    # ensure dataframe contains only string values
+    df = df.astype(str)
+
+    if len(df.columns) > max_cols:
+        head_cols = max_cols // 2
+        tail_cols = max_cols - head_cols - 1  # -1 for "..."
+
+        # cols = list(df.columns[:head_cols]) + ["..."] + list(df.columns[-tail_cols:])
+
+        # build truncated dataframe
+        df_trunc = df.copy()
+        df_trunc["..."] = "..."
+        df_trunc = df_trunc[list(df.columns[:head_cols]) + ["..."] + list(df.columns[-tail_cols:])]
+    else:
+        df_trunc = df
+
+    table = Table(title=title)
+    for col in df_trunc.columns:
+        table.add_column(col, max_width=max_cell_width, overflow="ellipsis")
+
+    def truncate(text, max_len=max_cell_width):
+        if len(text) <= max_len:
+            return text
+        return text[: max_len - 3] + "..."
+
+    for row in df_trunc.values:
+        with contextlib.suppress(NotRenderableError):
+            row = [truncate(str(x), 20) for x in row]
+            table.add_row(*row)
+    print(table)
+
+
 def show_report(args):
     query = """
     SELECT metadata FROM artifacts
@@ -193,7 +241,7 @@ def show_report(args):
 
     # meta = json.loads(row.metadata)
     meta = row.metadata if isinstance(row.metadata, dict) else json.loads(row.metadata)
-    print("meta", meta)
+    # print("meta", meta)
 
     bucket = meta["bucket"]
     # bucket = meta.get("bucket", "mlonmcu")
@@ -221,8 +269,11 @@ def show_report(args):
             # "config_kwargs": {"signature_version": 's3', "s3": {'addressing_style': 'path'}},
         },
     )
-
-    console.print(df.head(50))
+    use_rich = args.rich
+    if use_rich:
+        console.print(rich_display_dataframe(df))
+    else:
+        console.print(df.head(50))
 
 
 # -------------------------
@@ -262,6 +313,7 @@ def main():
     # report
     p = sub.add_parser("report")
     p.add_argument("id", type=int)
+    p.add_argument("--rich", action="store_true")
     p.set_defaults(func=show_report)
 
     args = parser.parse_args()

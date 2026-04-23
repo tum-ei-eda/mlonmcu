@@ -25,7 +25,7 @@ from typing import Tuple, List
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import filter_config
+from mlonmcu.config import filter_config, ConfigTracker
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
@@ -51,7 +51,8 @@ class Backend(ABC):
         self.framework = framework
         self.config = config if config else {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.config_tracker = ConfigTracker(self.config)
+        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
         self.artifacts = []
         self.supported_fmts = []
         self.tuner = None

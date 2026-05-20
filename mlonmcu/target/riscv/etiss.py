@@ -72,7 +72,7 @@ class EtissTarget(RVVTarget):
         "pext_spec": 0.96,
         "vlen": 0,  # vectorization=off
         "elen": 32,
-        "jit": None,
+        "jit": "TCC",
         "allow_error": False,
         "max_block_size": None,
         "enable_xcorevmac": False,

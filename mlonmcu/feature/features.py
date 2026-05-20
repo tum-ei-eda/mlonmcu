@@ -2700,7 +2700,7 @@ class PerfSim(TargetFeature):
                 extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
                 if self.to_file:
                     extra_plugin_config["perfEst"]["print"] = 1
-                extra_plugin_config["perfEst"]["printDir"] = "."
+                    extra_plugin_config["perfEst"]["printDir"] = "."
         if self.trace_asm or self.trace_instr:
             if self.to_file:
                 assert not (self.trace_asm and self.trace_instr)

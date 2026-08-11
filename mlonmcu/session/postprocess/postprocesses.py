@@ -2640,8 +2640,9 @@ class MergeMSDBsPostprocess(SessionPostprocess):
                 work_dir_archives.append(work_dir_archive)
         print("len(work_dir_archives)", len(work_dir_archives))
 
-        if not self.allow_empty:
-            assert len(work_dir_archives) > 0
+        if len(work_dir_archives) == 0:
+            assert self.allow_empty
+            return []
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_dir = Path(tmp_dir)

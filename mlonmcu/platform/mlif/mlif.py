@@ -338,7 +338,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     @property
     def optimize(self):
         value = self.config["optimize"]
-        if value.lower().strip() in ["", "auto"]:
+        if value is not None and value.lower().strip() in ["", "auto"]:
             value = None
         return value
 

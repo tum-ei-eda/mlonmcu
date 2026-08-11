@@ -2745,7 +2745,8 @@ class PushMSDB2S3Postprocess(SessionPostprocess):
         from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 
         env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
-        args = [s3_url, str(merged_ms_db_artifact.path), "-o", s3_url]
+        # args = [s3_url, str(merged_ms_db_artifact.path), "-o", s3_url]
+        args = [str(merged_ms_db_artifact.path), "-o", s3_url]
         if self.append:
             args.append("--append")
         utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)

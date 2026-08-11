@@ -449,6 +449,46 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         return ret
 
 
+@register_feature("espnn")
+class Espnn(SetupFeature, FrameworkFeature, PlatformFeature):
+    """ESP-NN kernels for TFLite Micro"""
+
+    DEFAULTS = {
+        **FeatureBase.DEFAULTS,
+    }
+
+    REQUIRED = {"espnn.dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("espnn", features=features, config=config)
+
+    @property
+    def espnn_dir(self):
+        return str(self.config["espnn.dir"])
+
+    def add_framework_config(self, framework, config):
+        assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
+        if f"{framework}.optimized_kernel" in config and config[f"{framework}.optimized_kernel"] not in [
+            None,
+            "esp_nn",
+        ]:
+            RuntimeError(f"There is already a optimized_kernel selected for framework '{framework}'")
+        else:
+            config[f"{framework}.optimized_kernel"] = "esp_nn"
+
+    def get_platform_defs(self, platform):
+        assert platform in ["mlif", "mlif_litex"], f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {
+            "ESPNN": self.enabled,
+            "ESPNN_DIR": self.espnn_dir,
+        }
+
+    def get_required_cache_flags(self):
+        ret = {}
+        ret["tflmc.exe"] = ["espnn"]
+        return ret
+
+
 VEXT_MIN_ALLOWED_VLEN = 64
 
 

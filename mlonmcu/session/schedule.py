@@ -744,7 +744,7 @@ class SessionScheduler:
         elif self.num_failures == self.num_runs:
             logger.error("All runs have failed to complete!")
         else:
-            logger.warning("%d out or %d runs completed successfully!", self.num_success, self.num_runs)
+            logger.warning("%d out of %d runs completed successfully!", self.num_success, self.num_runs)
             summary = "\n".join(
                 [
                     f"\t{stage}: \t{len(failed)} failed run(s): " + " ".join([str(idx) for idx in failed])

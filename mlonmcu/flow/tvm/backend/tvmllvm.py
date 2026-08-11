@@ -77,6 +77,7 @@ class TVMLLVMBackend(TVMBackend):
             self.runtime,
             system_lib=self.system_lib,
             link_params=self.link_params,
+            bool_as_int=self.bool_as_int,
         )
 
     def get_graph_and_params_from_mlf(self, path):

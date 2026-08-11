@@ -65,7 +65,9 @@ class TVMRTBackend(TVMBackend):
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(
-            system_lib=self.system_lib, link_params=self.link_params
+            system_lib=self.system_lib,
+            link_params=self.link_params,
+            bool_as_int=self.bool_as_int,
         )
 
     def generate(self) -> Tuple[dict, dict]:

@@ -83,6 +83,7 @@ class TVMAOTBackend(TVMBackend):
             self.alignment_bytes,
             self.unpacked_api,
             system_lib=self.system_lib,
+            bool_as_int=self.bool_as_int,
         )
 
     def get_workspace_size_from_metadata(self, metadata):

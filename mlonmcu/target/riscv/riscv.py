@@ -446,7 +446,9 @@ class RISCVTarget(Target):
             #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
             ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
             ret["RISCV_ABI"] = self.abi
-            ret["RISCV_CPU"] = self.gcc_cpu if self.toolchain == "gcc" else self.llvm_cpu
+            cpu = self.gcc_cpu if self.toolchain == "gcc" else self.llvm_cpu
+            if cpu is not None:
+                ret["RISCV_CPU"] = cpu
             # llvm/clang only!
             ret["RISCV_ATTR"] = self.attr
             ret["RISCV_LINUX"] = not self.is_bare

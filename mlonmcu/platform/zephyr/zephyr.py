@@ -23,8 +23,8 @@ import os
 import time
 import shutil
 import tempfile
+from importlib.resources import files
 from pathlib import Path
-import pkg_resources
 from typing import Tuple
 
 
@@ -42,11 +42,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project2"):  # Workaround which only support tvmaot!!!
-    zephyr_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "zephyr"))
-    if name not in zephyr_templates:
+    resource = files("mlonmcu").joinpath("resources", "platforms", "zephyr", name)
+    if not resource.is_dir():
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "zephyr", name))
-    return fname
+    return str(resource)
 
 
 class ZephyrPlatform(CompilePlatform, TargetPlatform):

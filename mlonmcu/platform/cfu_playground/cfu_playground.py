@@ -22,8 +22,8 @@ import os
 import time
 import shutil
 import tempfile
+from importlib.resources import files
 from pathlib import Path
-import pkg_resources
 
 
 from mlonmcu.setup import utils
@@ -40,11 +40,10 @@ logger = get_logger()
 
 # def get_project_template(name="proj_template_no_tflm"):
 def get_project_template(name="mlif"):
-    cfu_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "cfu_playground"))
-    if name not in cfu_templates:
+    resource = files("mlonmcu").joinpath("resources", "platforms", "cfu_playground", name)
+    if not resource.is_dir():
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "cfu_playground", name))
-    return fname
+    return str(resource)
 
 
 class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):

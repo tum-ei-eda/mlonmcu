@@ -98,14 +98,13 @@ class RunInitializer:
         assert "runs" in data
         runs = data["runs"]
         if len(runs) == 0:
-            raise RuntimeError("Empty run initalizer")
-        elif len(runs) == 1:
-            run = runs[0]
-        else:
-            raise NotImplementedError("multiple runs per initializer not supported")
-        initializer = RunInitializer(**run)
-        initializer.frozen = True
-        return initializer
+            raise RuntimeError("Empty run initializer")
+        initializers = []
+        for run in runs:
+            initializer = RunInitializer(**run)
+            initializer.frozen = True
+            initializers.append(initializer)
+        return initializers
 
     def __init__(
         self,

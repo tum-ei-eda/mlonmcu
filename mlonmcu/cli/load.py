@@ -69,9 +69,10 @@ def _handle(args, context):
     initializers = []
     for initializer_file in args.initializer or []:
         initializer_file = Path(initializer_file).resolve()
-        initializer = RunInitializer.from_file(initializer_file)
-        initializers.append(initializer)
-        config.update(initializer.config or {})
+        file_initializers = RunInitializer.from_file(initializer_file)
+        initializers.extend(file_initializers)
+        for initializer in file_initializers:
+            config.update(initializer.config or {})
     # Explicit command-line configuration takes precedence over saved values.
     config.update(new_config)
     session = context.get_session(label=args.label, resume=args.resume, config=config, dest=args.dest)

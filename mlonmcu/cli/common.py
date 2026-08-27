@@ -266,9 +266,9 @@ def add_model_options(parser):
         "models",
         metavar="model",
         type=str,
-        nargs="+",
-        default=None,
-        help="Model to process",
+        nargs="*",
+        default=[],
+        help="Model to process (optional when --initializer is used)",
     )
 
 
@@ -282,6 +282,9 @@ def kickoff_runs(args, until, context):
     print_report = True
     if "runs_per_stage" in config:
         value = config["runs_per_stage"]
+        per_stage = str2bool(value) if isinstance(value, str) else value
+    elif session.runs and "runs_per_stage" in (getattr(session.runs[0], "config", None) or {}):
+        value = session.runs[0].config["runs_per_stage"]
         per_stage = str2bool(value) if isinstance(value, str) else value
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])

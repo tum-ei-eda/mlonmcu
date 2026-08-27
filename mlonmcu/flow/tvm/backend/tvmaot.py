@@ -94,19 +94,25 @@ class TVMAOTBackend(TVMBackend):
             return metadata["memory"]["functions"]["main"][0]["workspace_size_bytes"]
 
     def generate(self) -> Tuple[dict, dict]:
+        if self.mlf_unpacked_api is not None and self.mlf_unpacked_api != self.unpacked_api:
+            archive_api = "unpacked C" if self.mlf_unpacked_api else "packed"
+            backend_api = "unpacked C" if self.unpacked_api else "packed"
+            raise RuntimeError(
+                f"MLF interface mismatch: archive uses {archive_api} API, backend '{self.name}' uses {backend_api} API"
+            )
         artifacts, metrics = super().generate()
         assert len(artifacts) == 1 and "default" in artifacts
         artifacts = artifacts["default"]
         assert len(metrics) == 1 and "default" in metrics
         metrics = metrics["default"]
+        if self.arena_size is not None:
+            assert self.arena_size >= 0
+            workspace_size = self.arena_size
+        else:
+            metadata_artifact = lookup_artifacts(artifacts, f"{self.prefix}.json")[0]
+            metadata = json.loads(metadata_artifact.content)
+            workspace_size = self.get_workspace_size_from_metadata(metadata)
         if self.generate_wrapper:
-            if self.arena_size is not None:
-                assert self.arena_size >= 0
-                workspace_size = self.arena_size
-            else:
-                metadata_artifact = lookup_artifacts(artifacts, f"{self.prefix}.json")[0]
-                metadata = json.loads(metadata_artifact.content)
-                workspace_size = self.get_workspace_size_from_metadata(metadata)
             if (not self.model_info) or self.refresh_model_info:
                 relay_artifact = lookup_artifacts(artifacts, f"{self.prefix}.relay")[0]
                 try:
@@ -116,13 +122,13 @@ class TVMAOTBackend(TVMBackend):
             wrapper_src = generate_tvmaot_wrapper(
                 self.model_info,
                 workspace_size,
-                self.prefix,
+                self.mlf_module_name or self.prefix,
                 api="c" if self.unpacked_api else "packed",
                 debug_arena=self.debug_arena,
             )
-        artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
-        header_src = generate_wrapper_header()
-        artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
+            artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
+            header_src = generate_wrapper_header()
+            artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
         metrics.add("Workspace Size [B]", workspace_size, True)
         return {"default": artifacts}, {"default": metrics}
 

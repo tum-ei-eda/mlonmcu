@@ -50,6 +50,10 @@ from .postprocess.postprocess import RunPostprocess
 logger = get_logger()
 
 
+class ModelLookupError(RuntimeError):
+    """Raised when none of the enabled frontends can load a requested model."""
+
+
 class RunStage(IntEnum):
     """Type describing the stages a run can have."""
 
@@ -743,8 +747,10 @@ class Run:
                 reasons[frontend.name] = str(e)
         if model is None:
             if reasons:
-                logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
-            raise RuntimeError(f"Model with name '{model_name}' not found.")
+                raise ModelLookupError(
+                    f"No enabled frontend could load model '{model_name}'. Reasons: {reasons}"
+                )
+            raise ModelLookupError(f"Model '{model_name}' was not found by any enabled frontend.")
         self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):

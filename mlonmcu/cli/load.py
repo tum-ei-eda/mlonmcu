@@ -32,7 +32,7 @@ from .helper.parse import extract_config_and_feature_names, extract_frontend_nam
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.models import get_frontends
 from mlonmcu.models.lookup import apply_modelgroups
-from mlonmcu.session.run import RunStage, RunInitializer
+from mlonmcu.session.run import ModelLookupError, RunStage, RunInitializer
 
 
 def add_load_options(parser):

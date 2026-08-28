@@ -98,7 +98,7 @@ def build_onnx2c(context: MlonMcuContext, params=None, rebuild=False, verbose=Fa
             live=verbose,
             cmake_exe=cmake_exe,
         )
-        utils.make(cwd=onnx2c_build_dir, threads=threads, live=verbose)
+        utils.make("onnx2c", cwd=onnx2c_build_dir, threads=threads, live=verbose)
         utils.mkdirs(onnx2c_install_dir)
         utils.copy(onnx2c_build_dir / "onnx2c", onnx2c_exe)
 

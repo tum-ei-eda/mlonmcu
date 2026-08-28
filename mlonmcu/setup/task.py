@@ -354,7 +354,6 @@ class TaskFactory:
             def wrapper(*args, rebuild=False, progress=False, **kwargs):
                 # combs = get_combs(self.params[name])
                 combs = get_combs_new(self.params[name])
-                print("combs", combs)
 
                 def get_valid_combs(combs):
                     ret = []

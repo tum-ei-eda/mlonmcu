@@ -16,7 +16,6 @@
 # under the License.
 """Strategies for the q_vanilla_accelerator accelerator"""
 
-
 from tvm import relay
 from tvm.relay import op as _op
 from tvm.relay.qnn.strategy.generic import wrap_topi_schedule, wrap_topi_qnn_conv2d

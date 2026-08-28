@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Progress bar utilities for MLonMCU session."""
+
 from tqdm import tqdm
 
 from mlonmcu.logging import get_logger

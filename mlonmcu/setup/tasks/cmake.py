@@ -27,6 +27,7 @@ from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
+from .mlif import _validate_mlif
 
 logger = get_logger()
 
@@ -34,9 +35,9 @@ Tasks = get_task_factory()
 
 
 def _validate_cmake(context: MlonMcuContext, params=None):
-    del params
-    if context.environment.has_platform("mlif"):
+    if _validate_mlif(context, params=params):
         return True
+    del params
     if context.environment.has_framework("tvm"):
         return True
     if context.environment.has_platform("microtvm"):

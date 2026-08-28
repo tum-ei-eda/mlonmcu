@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 """Collection of utilities to manage MLonMCU configs."""
-import distutils.util
+
+import re
 from typing import List
 import ast
 
@@ -48,10 +49,21 @@ def remove_config_prefix(config, prefix, skip=None):
     if skip is None:
         skip = []
 
-    def helper(key):
-        return key.split(f"{prefix}.")[-1]
+    # def helper(key):
+    #     return key.split(f"{prefix}.")[-1]
 
-    return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
+    def matches(key: str) -> bool:
+        if key in skip or "." not in key:
+            return False
+        key_prefix, _ = key.split(".", 1)
+        pattern = "^" + key_prefix.replace("*", ".*") + "$"
+        return re.fullmatch(pattern, prefix) is not None
+
+    def helper(key: str) -> str:
+        return key.split(".", 1)[1]
+
+    # return {helper(key): value for key, value in config.items() if f"{prefix}." in key and key not in skip}
+    return {helper(key): value for key, value in config.items() if matches(key)}
 
 
 def filter_config(config, prefix, defaults, optionals, required_keys):
@@ -178,7 +190,7 @@ def resolve_required_config(
             value = None
             for hint_combination in hint_combinations:
                 if (key, tuple(list(flags) + hint_combination)) in cache:
-                    value = cache[key, flags]
+                    value = cache[key, tuple(list(flags) + hint_combination)]
                     break
             if value is None:
                 if len(flags) == 0:
@@ -203,7 +215,7 @@ def resolve_required_config(
                 value = None
                 for hint_combination in hint_combinations:
                     if (key, tuple(list(flags) + hint_combination)) in cache:
-                        value = cache[key, flags]
+                        value = cache[key, tuple(list(flags) + hint_combination)]
                         break
                 if value is None:
                     continue
@@ -221,7 +233,14 @@ def str2bool(value, allow_none=False):
     if isinstance(value, (int, bool)):
         return bool(value)
     assert isinstance(value, str)
-    return bool(distutils.util.strtobool(value))
+
+    value = value.lower()
+    if value in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    if value in ("n", "no", "f", "false", "off", "0"):
+        return False
+
+    raise ValueError(f"invalid truth value {value!r}")
 
 
 def str2dict(value, allow_none=False):

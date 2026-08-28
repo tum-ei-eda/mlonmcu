@@ -316,3 +316,7 @@ class Target:
     @property
     def supports_uart(self):
         return False
+
+    @property
+    def num_cores(self):
+        return 1

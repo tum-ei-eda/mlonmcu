@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MicroTVM Base Platform"""
+
 import re
 import tempfile
 from pathlib import Path

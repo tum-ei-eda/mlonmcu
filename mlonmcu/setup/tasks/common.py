@@ -18,7 +18,6 @@
 #
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
-
 from mlonmcu.setup.task import TaskFactory
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.logging import get_logger

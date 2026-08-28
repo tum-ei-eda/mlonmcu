@@ -24,10 +24,10 @@ import argparse
 
 from mlonmcu.config import str2bool
 from mlonmcu.platform import get_platforms
-from mlonmcu.session.postprocess import SUPPORTED_POSTPROCESSES
+from mlonmcu.session.postprocess import get_postprocesses
 from mlonmcu.feature.features import get_available_feature_names
 from mlonmcu.logging import get_logger, set_log_level
-from .helper.parse import extract_config
+from .helper.parse import extract_config, parse_parallel_per_stage
 
 logger = get_logger()
 
@@ -65,6 +65,36 @@ def add_flow_options(parser):
         help="List the supported targets in the environment",
     )
     flow_parser.add_argument(
+        "--list-platforms",
+        action="store_true",
+        help="List the supported platforms in the environment",
+    )
+    flow_parser.add_argument(
+        "--list-frontends",
+        action="store_true",
+        help="List the registered frontends",
+    )
+    flow_parser.add_argument(
+        "--list-frameworks",
+        action="store_true",
+        help="List the registered frameworks",
+    )
+    flow_parser.add_argument(
+        "--list-backends",
+        action="store_true",
+        help="List the registered backends",
+    )
+    flow_parser.add_argument(
+        "--list-features",
+        action="store_true",
+        help="List the registered features",
+    )
+    flow_parser.add_argument(
+        "--list-postprocesses",
+        action="store_true",
+        help="List the registered postprocesses",
+    )
+    flow_parser.add_argument(
         # "-p",
         "--platform",
         type=str,
@@ -80,7 +110,7 @@ def add_flow_options(parser):
         "--postprocess",
         type=str,
         metavar="POSTPROCESS",
-        choices=SUPPORTED_POSTPROCESSES.keys(),
+        choices=get_postprocesses().keys(),
         action="append",
         help="Choose the postprocesses to apply (choices: %(choices)s)",
     )
@@ -158,6 +188,13 @@ def add_flow_options(parser):
         help="Use multiple threads to process runs in parallel (%(const)s if specified, else %(default)s)",
     )
     flow_parser.add_argument(
+        "--parallel-per-stage",
+        metavar="THREADS_PER_STAGE",
+        type=parse_parallel_per_stage,
+        default=None,
+        help="Specify max workers per stage. Syntax: --parallel-per-stage BUILD=4,RUN=8",
+    )
+    flow_parser.add_argument(
         "-p",
         "--progress",
         action="store_true",
@@ -229,9 +266,9 @@ def add_model_options(parser):
         "models",
         metavar="model",
         type=str,
-        nargs="+",
-        default=None,
-        help="Model to process",
+        nargs="*",
+        default=[],
+        help="Model to process (optional when --initializer is used)",
     )
 
 
@@ -246,6 +283,9 @@ def kickoff_runs(args, until, context):
     if "runs_per_stage" in config:
         value = config["runs_per_stage"]
         per_stage = str2bool(value) if isinstance(value, str) else value
+    elif session.runs and "runs_per_stage" in (getattr(session.runs[0], "config", None) or {}):
+        value = session.runs[0].config["runs_per_stage"]
+        per_stage = str2bool(value) if isinstance(value, str) else value
     elif "runs_per_stage" in context.environment.vars:
         per_stage = bool(context.environment.vars["runs_per_stage"])
     if "print_report" in config:
@@ -259,6 +299,7 @@ def kickoff_runs(args, until, context):
             per_stage=per_stage,
             print_report=print_report,
             num_workers=args.parallel,
+            num_workers_per_stage=args.parallel_per_stage,
             progress=args.progress,
             context=context,
             export=True,

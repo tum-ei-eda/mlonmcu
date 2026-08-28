@@ -28,7 +28,6 @@ from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from .tvmc_utils import get_tvmrt_tvmc_args
 from mlonmcu.models.model_info import get_relay_model_info
 
-
 # Warning: This is only ment to be used with the TvmPlatform!
 
 
@@ -78,6 +77,7 @@ class TVMLLVMBackend(TVMBackend):
             self.runtime,
             system_lib=self.system_lib,
             link_params=self.link_params,
+            bool_as_int=self.bool_as_int,
         )
 
     def get_graph_and_params_from_mlf(self, path):

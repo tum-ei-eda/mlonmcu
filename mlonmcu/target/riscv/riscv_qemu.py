@@ -59,7 +59,14 @@ class RiscvQemuTarget(RISCVTarget):
     @property
     def extensions(self):
         exts = super().extensions
-        return update_extensions(exts, vext=self.enable_vext, elen=self.elen, embedded=self.embedded_vext, fpu=self.fpu)
+        return update_extensions(
+            exts,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            gcc_major_version=self.gcc_major_version,
+        )
 
     @property
     def attr(self):

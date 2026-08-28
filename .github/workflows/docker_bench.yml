@@ -32,7 +32,7 @@ on:
 jobs:
   bench:
     name: Run a single benchmark
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container: ${{ github.event.inputs.bench_image }}
     steps:
       - name: Remove unused software

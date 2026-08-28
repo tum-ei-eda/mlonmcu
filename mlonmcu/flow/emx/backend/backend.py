@@ -200,6 +200,7 @@ class EMXBackend(Backend):
         "static_kernels": True,
         "accumulation_strategy": None,  # fp32 or fp16
         "verbose": False,
+        "dynamic_shape_default": 1,
         "emx_compile_extra_args": [],
     }
 
@@ -238,6 +239,12 @@ class EMXBackend(Backend):
     def verbose(self):
         value = self.config["verbose"]
         return str2bool(value)
+
+    @property
+    def dynamic_shape_default(self):
+        value = int(self.config["dynamic_shape_default"])
+        assert value > 0, "dynamic_shape_default must be a positive integer"
+        return value
 
     @property
     def inline_kernels(self):
@@ -379,16 +386,12 @@ class EMXBackend(Backend):
         self.input_shapes = input_shapes
         self.output_shapes = output_shapes
         self.dynamic_input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
-
-        def apply_shapes(tensors, shapes):
-            if not shapes:
-                return
-            for tensor in tensors:
-                if tensor.name in shapes:
-                    tensor.shape = normalize_shape(shapes[tensor.name])
-
-        apply_shapes(self.model_info.in_tensors, input_shapes)
-        apply_shapes(self.model_info.out_tensors, output_shapes)
+        self.input_shapes = self.model_info.make_static(
+            input_shapes=input_shapes,
+            output_shapes=output_shapes,
+            default_dim=self.dynamic_shape_default,
+        )
+        self.output_shapes = {tensor.name: tensor.shape for tensor in self.model_info.out_tensors}
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []

@@ -290,6 +290,64 @@ class ModelInfo:
         dims = (dim for tensor in self.in_tensors + self.out_tensors for dim in tensor.symbolic_dims)
         return tuple(dict.fromkeys(dims))
 
+    def make_static(self, input_shapes=None, output_shapes=None, default_dim=1):
+        """Resolve dynamic dimensions in-place and return the resolved input shapes.
+
+        Explicit shapes take precedence. If names changed during a model conversion,
+        equally-sized shape dictionaries are matched to tensors by position. Named
+        dimensions are resolved consistently across inputs and outputs; any remaining
+        anonymous or symbolic dimension uses ``default_dim``.
+        """
+        default_dim = normalize_shape_dim(default_dim)
+        if not isinstance(default_dim, int) or default_dim <= 0:
+            raise ValueError("default_dim must be a positive integer")
+
+        symbols = {}
+
+        def align_shapes(tensors, shapes):
+            if not shapes:
+                return {}
+            shapes = {name: normalize_shape(shape) for name, shape in shapes.items()}
+            if all(tensor.name in shapes for tensor in tensors):
+                return {tensor.name: shapes[tensor.name] for tensor in tensors}
+            if len(shapes) == len(tensors):
+                return {tensor.name: shape for tensor, shape in zip(tensors, shapes.values())}
+            return {tensor.name: shapes[tensor.name] for tensor in tensors if tensor.name in shapes}
+
+        aligned_inputs = align_shapes(self.in_tensors, input_shapes)
+        aligned_outputs = align_shapes(self.out_tensors, output_shapes)
+
+        def collect_symbols(tensors, shapes):
+            for tensor in tensors:
+                if tensor.name not in shapes:
+                    continue
+                concrete = shapes[tensor.name]
+                if len(tensor.shape) != len(concrete):
+                    raise ValueError(f"Rank mismatch for tensor '{tensor.name}'")
+                for axis, (original, value) in enumerate(zip(tensor.shape, concrete)):
+                    if not isinstance(value, int) or value <= 0:
+                        raise ValueError(f"Shape dimension must be a positive integer: {tensor.name}[{axis}]")
+                    if isinstance(original, str):
+                        if original in symbols and symbols[original] != value:
+                            raise ValueError(f"Conflicting values for symbolic dimension '{original}'")
+                        symbols[original] = value
+
+        collect_symbols(self.in_tensors, aligned_inputs)
+        collect_symbols(self.out_tensors, aligned_outputs)
+        for symbol in self.symbolic_dims:
+            symbols.setdefault(symbol, default_dim)
+
+        def resolve(tensors, shapes):
+            for tensor in tensors:
+                shape = shapes.get(tensor.name)
+                if shape is None:
+                    shape = tensor.resolve_shape(symbols=symbols, dynamic_value=default_dim)
+                tensor.shape = normalize_shape(shape)
+
+        resolve(self.in_tensors, aligned_inputs)
+        resolve(self.out_tensors, aligned_outputs)
+        return {tensor.name: tensor.shape for tensor in self.in_tensors}
+
 
 class TfLiteModelInfo(ModelInfo):
     def __init__(self, model, fix_names=False):

@@ -1,23 +1,23 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../../">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.session.postprocess.db_utils &mdash; ML on MCU 0.10.dev0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+  <title>mlonmcu.session.db_utils &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
-      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../../search.html" /> 
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -28,11 +28,11 @@
 
           
           
-          <a href="../../../../index.html" class="icon icon-home">
+          <a href="../../../index.html" class="icon icon-home">
             ML on MCU
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -41,19 +41,19 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
 </ul>
 
         </div>
@@ -62,17 +62,16 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../../index.html">ML on MCU</a>
+          <a href="../../../index.html">ML on MCU</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../postprocess.html">mlonmcu.session.postprocess</a></li>
-      <li class="breadcrumb-item active">mlonmcu.session.postprocess.db_utils</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.session.db_utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -81,7 +80,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for mlonmcu.session.postprocess.db_utils</h1><div class="highlight"><pre>
+  <h1>Source code for mlonmcu.session.db_utils</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
 <span class="c1">#</span>
@@ -100,7 +99,7 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">"""Artifacts defintions internally used to refer to intermediate results."""</span>
+<span class="sd">"""Helpers for storing MLonMCU session reports and artifacts."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -119,7 +118,7 @@
 
 
 <div class="viewcode-block" id="connect_to_postgres_db">
-<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.db_utils.connect_to_postgres_db">[docs]</a>
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.db_utils.connect_to_postgres_db">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">connect_to_postgres_db</span><span class="p">():</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Connecting to Postgres DB"</span><span class="p">)</span>
 
@@ -148,7 +147,7 @@
 
 
 <div class="viewcode-block" id="connect_to_garage">
-<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.db_utils.connect_to_garage">[docs]</a>
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.db_utils.connect_to_garage">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">connect_to_garage</span><span class="p">():</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Connecting to Garage (S3)"</span><span class="p">)</span>
 
@@ -176,7 +175,7 @@
 
 
 <div class="viewcode-block" id="upload_report">
-<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.db_utils.upload_report">[docs]</a>
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.db_utils.upload_report">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">upload_report</span><span class="p">(</span><span class="n">s3</span><span class="p">,</span> <span class="n">cur</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">exp_id</span><span class="p">,</span> <span class="n">report_df</span><span class="p">):</span>
     <span class="n">report_bytes</span> <span class="o">=</span> <span class="n">report_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
     <span class="n">report_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"experiments/</span><span class="si">{</span><span class="n">exp_id</span><span class="si">}</span><span class="s2">/report.csv"</span>
@@ -204,7 +203,7 @@
 
 
 <div class="viewcode-block" id="upload_artifact">
-<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.db_utils.upload_artifact">[docs]</a>
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.db_utils.upload_artifact">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">upload_artifact</span><span class="p">(</span><span class="n">s3</span><span class="p">,</span> <span class="n">cur</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">exp_id</span><span class="p">,</span> <span class="n">artifact</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">run_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="n">artifact_name</span><span class="p">,</span> <span class="n">artifact_path</span> <span class="o">=</span> <span class="n">artifact</span>
     <span class="k">assert</span> <span class="n">artifact_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -233,7 +232,7 @@
 
 
 <div class="viewcode-block" id="push_session_to_mlonmcu_db">
-<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.db_utils.push_session_to_mlonmcu_db">[docs]</a>
+<a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.db_utils.push_session_to_mlonmcu_db">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">push_session_to_mlonmcu_db</span><span class="p">(</span>
     <span class="n">report</span><span class="p">,</span>
     <span class="n">session_artifacts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

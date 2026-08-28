@@ -212,13 +212,6 @@
 <div class="viewcode-block" id="Environment.lookup_backend_feature_configs">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_backend_feature_configs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">lookup_backend_feature_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">framework</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-            <span class="n">backend_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">framework</span><span class="p">[</span><span class="n">framework</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span><span class="o">.</span><span class="n">features</span>
-            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="n">backend_features</span><span class="p">[</span><span class="n">name</span><span class="p">]]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">backend_features</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-
         <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">framework</span><span class="p">:</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">]</span>
@@ -228,21 +221,20 @@
                 <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
                 <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
                 <span class="k">assert</span> <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
-                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
+                <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index_</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
                     <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">framework_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">backend</span><span class="p">:</span>
-                    <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
-                    <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
-                    <span class="k">assert</span> <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
-                    <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
+                    <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend_config</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend_config</span> <span class="ow">in</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">names_</span><span class="p">:</span>
+                        <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+                        <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index_</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
-                        <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
-                    <span class="n">backend</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">backend_config</span> <span class="ow">in</span> <span class="n">framework_config</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
+                        <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="n">backend_config</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">configs</span></div>
 
 
@@ -459,7 +451,7 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
-                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_backends</span><span class="p">()</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_backend_configs</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="n">framework</span><span class="p">,</span> <span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -475,7 +467,7 @@
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
-                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_frameworks</span><span class="p">()</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_framework_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -490,7 +482,7 @@
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled targets</span>
-                    <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_targets</span><span class="p">()</span>
+                    <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_target_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>

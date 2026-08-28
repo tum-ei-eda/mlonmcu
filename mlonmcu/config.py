@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 """Collection of utilities to manage MLonMCU configs."""
-import distutils.util
+import re
 from typing import List
 import ast
 
@@ -221,7 +221,14 @@ def str2bool(value, allow_none=False):
     if isinstance(value, (int, bool)):
         return bool(value)
     assert isinstance(value, str)
-    return bool(distutils.util.strtobool(value))
+
+    value = value.lower()
+    if value in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    if value in ("n", "no", "f", "false", "off", "0"):
+        return False
+
+    raise ValueError(f"invalid truth value {value!r}")
 
 
 def str2dict(value, allow_none=False):

@@ -114,6 +114,8 @@ jobs:
   coverage:
     needs: build
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     strategy:
       matrix:
         python-version: ['3.12']
@@ -165,11 +167,11 @@ jobs:
         id: report
         run: |
           source .venv/bin/activate
-          echo "name=percent::$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0 \"%\"}')" >> $GITHUB_OUTPUT
-      - name: Test coverage Text
-        run: echo "|${{ steps.report.outputs.percent }}|"
+          echo "percent=$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0}')%" >> "$GITHUB_OUTPUT"
       - name: Create coverage badge
-        uses: RubbaBoy/BYOB@v1.2.1
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+            github.repository == 'tum-ei-eda/mlonmcu' }}
+        uses: RubbaBoy/BYOB@v1.3.0
         with:
           NAME: coverage
           LABEL: Coverage

@@ -167,7 +167,9 @@ jobs:
         id: report
         run: |
           source .venv/bin/activate
-          echo "percent=$(coverage report | awk '$1 == \"TOTAL\" {print $NF+0}')%" >> "$GITHUB_OUTPUT"
+          percent="$(coverage report --format=total)"
+          test -n "$percent"
+          echo "percent=${percent}%" >> "$GITHUB_OUTPUT"
       - name: Create coverage badge
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' &&
             github.repository == 'tum-ei-eda/mlonmcu' }}

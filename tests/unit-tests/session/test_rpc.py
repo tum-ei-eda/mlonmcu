@@ -9,7 +9,6 @@ import pytest
 
 from mlonmcu.session import rpc
 
-
 CLOUDPICKLE_AVAILABLE = importlib.util.find_spec("cloudpickle") is not None
 requires_cloudpickle = pytest.mark.skipif(
     not CLOUDPICKLE_AVAILABLE,

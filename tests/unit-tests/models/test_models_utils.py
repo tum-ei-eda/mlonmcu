@@ -71,9 +71,7 @@ def test_models_utils_make_hex_array_invalid(tmp_path_factory):
 
 def test_models_utils_fill_data_source_empty():
     out = fill_data_source([], [])
-    assert (
-        out
-        == """#include "ml_interface.h"
+    assert out == """#include "ml_interface.h"
 #include <stddef.h>
 const int num_data_buffers_in = 0;
 const int num_data_buffers_out = 0;
@@ -82,7 +80,6 @@ const unsigned char *const data_buffers_out[] = {};
 const size_t data_size_in[] = {};
 const size_t data_size_out[] = {};
 """
-    )
 
 
 def test_models_utils_fill_data_source():
@@ -180,9 +177,7 @@ def test_models_utils_lookup_data_buffers_legacy_multi(tmp_path_factory):
 def test_models_utils_get_data_source():
     # empty
     out = get_data_source([], [])
-    assert (
-        out
-        == """#include "ml_interface.h"
+    assert out == """#include "ml_interface.h"
 #include <stddef.h>
 const int num_data_buffers_in = 0;
 const int num_data_buffers_out = 0;
@@ -191,7 +186,6 @@ const unsigned char *const data_buffers_out[] = {};
 const size_t data_size_in[] = {};
 const size_t data_size_out[] = {};
 """
-    )
 
     # non empty
     # too complex

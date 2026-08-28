@@ -696,9 +696,7 @@ class TVMBackend(Backend):
         if self.mlf_data is not None:
             metadata_txt = json.dumps(self.mlf_metadata, indent=2)
             artifacts.append(Artifact(f"{self.prefix}.json", content=metadata_txt, fmt=ArtifactFormat.TEXT))
-            artifacts.append(
-                Artifact(f"{self.prefix}.tar", raw=self.mlf_data, fmt=ArtifactFormat.MLF, archive=True)
-            )
+            artifacts.append(Artifact(f"{self.prefix}.tar", raw=self.mlf_data, fmt=ArtifactFormat.MLF, archive=True))
             with tarfile.open(fileobj=io.BytesIO(self.mlf_data), mode="r:*") as archive:
                 relay = self._mlf_member(archive, f"src/{self.mlf_module_name}.relay", required=False)
                 if relay is not None:
@@ -706,15 +704,13 @@ class TVMBackend(Backend):
                         Artifact(f"{self.prefix}.relay", content=relay.decode(), fmt=ArtifactFormat.TEXT, optional=True)
                     )
                 if self.executor == "graph":
-                    graph = self._mlf_member(
-                        archive, f"executor-config/graph/{self.mlf_module_name}.graph"
-                    ).decode()
+                    graph = self._mlf_member(archive, f"executor-config/graph/{self.mlf_module_name}.graph").decode()
                     params = self._mlf_member(archive, f"parameters/{self.mlf_module_name}.params")
                     artifacts.append(Artifact(f"{self.prefix}.graph", content=graph, fmt=ArtifactFormat.TEXT))
                     artifacts.append(Artifact(f"{self.prefix}.params", raw=params, fmt=ArtifactFormat.RAW))
             return {"default": artifacts}, {"default": Metrics()}
         dump = self.dump
-        target_str = self.tvm_target_str
+        # target_str = self.tvm_target_str
         # print("target_str", target_str)
         # input("!")
         if self.refresh_model_info or (self.generate_wrapper and not self.model_info) and "relay" not in dump:

@@ -746,9 +746,7 @@ class Run:
                 reasons[frontend.name] = str(e)
         if model is None:
             if reasons:
-                raise ModelLookupError(
-                    f"No enabled frontend could load model '{model_name}'. Reasons: {reasons}"
-                )
+                raise ModelLookupError(f"No enabled frontend could load model '{model_name}'. Reasons: {reasons}")
             raise ModelLookupError(f"Model '{model_name}' was not found by any enabled frontend.")
         self.add_model(model)
 

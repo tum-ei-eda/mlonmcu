@@ -20,11 +20,13 @@ def make_mlf(path, executor="aot"):
                 "executors": [executor],
                 "memory": {
                     "functions": {
-                        "main": [{
-                            "inputs": {"input": {"dtype": "float32", "size": 8}},
-                            "outputs": {"output": {"dtype": "float32", "size": 4}},
-                            "workspace_size_bytes": 32,
-                        }],
+                        "main": [
+                            {
+                                "inputs": {"input": {"dtype": "float32", "size": 8}},
+                                "outputs": {"output": {"dtype": "float32", "size": 4}},
+                                "workspace_size_bytes": 32,
+                            }
+                        ],
                         "operator_functions": [],
                     }
                 },
@@ -33,10 +35,12 @@ def make_mlf(path, executor="aot"):
     }
     members = {"metadata.json": json.dumps(metadata).encode()}
     if executor == "graph":
-        members.update({
-            "executor-config/graph/default.graph": b"{}",
-            "parameters/default.params": b"params",
-        })
+        members.update(
+            {
+                "executor-config/graph/default.graph": b"{}",
+                "parameters/default.params": b"params",
+            }
+        )
     with tarfile.open(path, "w") as archive:
         for name, data in members.items():
             info = tarfile.TarInfo(name)
@@ -61,7 +65,10 @@ def test_mlf_backend_reuses_archive(tmp_path):
     backend.load_model(path)
     artifacts, _ = backend.generate()
     assert [artifact.name for artifact in artifacts["default"]] == [
-        "default.json", "default.tar", "default.graph", "default.params"
+        "default.json",
+        "default.tar",
+        "default.graph",
+        "default.params",
     ]
 
 

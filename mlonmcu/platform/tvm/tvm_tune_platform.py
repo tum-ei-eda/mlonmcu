@@ -22,7 +22,7 @@ import re
 import os
 import json
 import numpy as np
-from mlonmcu.config import str2bool, str2dict, str2list
+from mlonmcu.config import str2bool
 import time
 import tempfile
 import tarfile

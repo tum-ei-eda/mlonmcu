@@ -18,8 +18,7 @@
 #
 """Definitions for TVMFramework."""
 
-import os
-import pkg_resources
+from importlib.resources import files
 from pathlib import Path
 
 from mlonmcu.flow.framework import Framework
@@ -28,11 +27,10 @@ from mlonmcu.flow.framework import Framework
 
 
 def get_crt_config_dir():
-    files = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "frameworks", "tvm", "crt_config"))
-    if "crt_config.h" not in files:
+    resource = files("mlonmcu").joinpath("resources", "frameworks", "tvm", "crt_config")
+    if not resource.joinpath("crt_config.h").is_file():
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "frameworks", "tvm", "crt_config"))
-    return fname
+    return str(resource)
 
 
 class TVMFramework(Framework):
@@ -40,11 +38,12 @@ class TVMFramework(Framework):
 
     name = "tvm"
 
-    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc"}
+    FEATURES = {"cmsisnnbyoc", "muriscvnnbyoc", "cfu_wca"}
 
     DEFAULTS = {
         "extra_incs": [],
         "extra_libs": [],
+        "extra_defs": [],
         "crt_config_dir": get_crt_config_dir(),
     }
 
@@ -67,13 +66,17 @@ class TVMFramework(Framework):
         return self.config["extra_libs"]
 
     @property
+    def extra_defs(self):
+        return self.config["extra_defs"]
+
+    @property
     def crt_config_dir(self):
         return self.config["crt_config_dir"]
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if self.extra_incs or self.extra_libs:
-            assert platform == "mlif", "Extra incs or libs are only supported by 'mlif' platform"
+        if self.extra_incs or self.extra_libs or self.extra_defs:
+            assert platform in ["mlif", "mlif_litex"], "Extra incs or libs are only supported by 'mlif' platform"
             if self.extra_incs:
                 if isinstance(self.extra_incs, list):
                     temp = r"\;".join(self.extra_incs)
@@ -86,7 +89,14 @@ class TVMFramework(Framework):
                 else:
                     temp = self.extra_libs
                 ret["TVM_EXTRA_LIBS"] = temp
+            if self.extra_defs:
+                if isinstance(self.extra_defs, list):
+                    temp = r"\;".join(self.extra_defs)
+                else:
+                    temp = self.extra_defs
+                ret["TVM_EXTRA_DEFS"] = temp
         if self.crt_config_dir:
             ret["TVM_CRT_CONFIG_DIR"] = self.crt_config_dir
-        ret["TVM_DIR"] = str(self.tvm_src)
+        if platform in ["mlif", "mlif_litex"]:
+            ret["TVM_DIR"] = str(self.tvm_src)
         return ret

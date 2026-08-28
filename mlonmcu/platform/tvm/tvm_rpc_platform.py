@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """TVM RPC Platform"""
+
 from mlonmcu.config import str2bool
 from ...platform import Platform
 

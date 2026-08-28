@@ -18,7 +18,6 @@
 #
 """MLonMCU Spike Target definitions"""
 
-
 from mlonmcu.logging import get_logger
 from mlonmcu.config import str2bool
 from .riscv import RISCVTarget
@@ -91,6 +90,7 @@ class RVBTarget(RISCVTarget):
             bext_zbb=self.bext_zbb,
             bext_zbc=self.bext_zbc,
             bext_zbs=self.bext_zbs,
+            gcc_major_version=self.gcc_major_version,
         )
 
     def get_platform_defs(self, platform):

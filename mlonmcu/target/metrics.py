@@ -66,7 +66,23 @@ class Metrics:
 
     def get(self, name):
         value = self.data[name]
-        return (ast.literal_eval(value) if len(value) > 0 else None) if isinstance(value, str) else value
+
+        def eval_str(x):
+            if isinstance(x, str):
+                if len(x) > 0:
+                    try:
+                        return ast.literal_eval(x)
+                    # except SyntaxError:
+                    except (SyntaxError, ValueError):
+                        # Returning metric as string!
+                        return x
+                else:
+                    return None
+            else:
+                return x
+
+        # return (ast.literal_eval(value) if len(value) > 0 else None) if isinstance(value, str) else value
+        return eval_str(value)
 
     def has(self, name):
         return name in self.data
@@ -77,6 +93,11 @@ class Metrics:
             for key in self.order
             if key not in self.optional_keys or include_optional
         }
+
+    def __repr__(self):
+        data = self.get_data(include_optional=True)
+        data_str = ", ".join(f"{k}={v}" for k, v in data.items())
+        return f"Metrics({data_str})"
 
     def to_csv(self, include_optional=False):
         data = self.get_data(include_optional=include_optional, identify_optional=True)

@@ -65,7 +65,9 @@ class TVMRTBackend(TVMBackend):
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(
-            system_lib=self.system_lib, link_params=self.link_params
+            system_lib=self.system_lib,
+            link_params=self.link_params,
+            bool_as_int=self.bool_as_int,
         )
 
     def generate(self) -> Tuple[dict, dict]:
@@ -74,9 +76,9 @@ class TVMRTBackend(TVMBackend):
         artifacts = artifacts["default"]
         assert len(metrics) == 1 and "default" in metrics
         metrics = metrics["default"]
+        workspace_size = self.arena_size
+        assert workspace_size >= 0
         if self.generate_wrapper:
-            workspace_size = self.arena_size
-            assert workspace_size >= 0
             graph_artifact = lookup_artifacts(artifacts, f"{self.prefix}.graph")[0]
             graph = graph_artifact.content
             params_artifact = lookup_artifacts(artifacts, f"{self.prefix}.params")[0]

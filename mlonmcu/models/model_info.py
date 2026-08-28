@@ -19,7 +19,12 @@
 import re
 import os
 
+import numpy as np
+
 from mlonmcu.models.model import ModelFormats
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 def parse_mlir_signature(mlir_text):
@@ -27,20 +32,31 @@ def parse_mlir_signature(mlir_text):
     # Find the util.func @main signature
     match1 = re.search(r"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*->\s*\(([^)(]*?)\)\s*\{", mlir_text, re.DOTALL)
     if not match1:
-        match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        # match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*->\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)
+        match2 = re.search(
+            r"func\.func\s+@([a-zA-Z0-9_\-\"]+)\(([^)(]*?)\)\s*->\s*\(?([^)(]*?)\)?\s*(?:attributes(.*))?\{",
+            mlir_text,
+            re.DOTALL,
+        )
         if not match2:
             raise ValueError("No util.func @main(...) -> (...) { } found.")
         func_name = match2.group(1)
         input_args = match2.group(2)
         output_args = match2.group(3)
+        # attr_args = match2.group(4)
     else:
 
         func_name = match1.group(1)
         input_args = match1.group(2)
         output_args = match1.group(3)
+        # attr_args = ""
 
     inputs = []
     outputs = []
+    # print("func_name", func_name)
+    # print("input_args", input_args)
+    # print("output_args", output_args)
+    # print("attr_args", attr_args)
 
     # Parse inputs
     if input_args.strip():
@@ -123,9 +139,13 @@ class TensorInfo:
             "int32": 4,
             "int64": 8,
         }
+        if not isinstance(dtype, str):
+            dtype = np.dtype(dtype).name
+        assert isinstance(dtype, str)
         assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
+        # TODO: support dynamic shapes?
 
     def __repr__(self):
         return f"TensorInfo({self.name}, {self.shape}, {self.dtype}, size={self.size})"
@@ -145,6 +165,21 @@ class TensorInfo:
             else:
                 ret *= dim
         return ret
+
+    @property
+    def c_type(self):
+        if self.dtype == "float32":
+            return "float"
+        elif self.dtype == "uint8":
+            return "uint8_t"
+        elif self.dtype == "int8":
+            return "int8_t"
+        elif self.dtype == "uint64":
+            return "uint64_t"
+        elif self.dtype == "int64":
+            return "int64_t"
+        else:
+            raise RuntimeError(f"Unknown c_type for type: {self.dtype}")
 
 
 class TfLiteTensorInfo(TensorInfo):
@@ -303,7 +338,11 @@ def get_tfgraph_inout(graph):
 
 class PBModelInfo(ModelInfo):
     def __init__(self, model_file):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         with tf.io.gfile.GFile(model_file, "rb") as f:
             graph_def = tf.compat.v1.GraphDef()
@@ -318,11 +357,19 @@ class PBModelInfo(ModelInfo):
 
 class ONNXModelInfo(ModelInfo):
     def __init__(self, model_file):
-        from google.protobuf.json_format import MessageToDict
-        import onnx
+        try:
+            from google.protobuf.json_format import MessageToDict
+        except ImportError as ex:
+            logger.error("Missing Python package: protobuf")
+            raise ex
+        try:
+            import onnx
+            from onnx.helper import tensor_dtype_to_np_dtype
+        except ImportError as ex:
+            logger.error("Missing Python package: onnx")
+            raise ex
 
         # from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE
-        from onnx.helper import tensor_dtype_to_np_dtype
 
         model = onnx.load(model_file)
 
@@ -352,9 +399,131 @@ class ONNXModelInfo(ModelInfo):
         super().__init__(in_tensors, out_tensors)
 
 
+class TorchModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        from mlonmcu.models.torch_models.torch_utils import load_torch_model
+
+        _, exported, _ = load_torch_model(model_file)
+
+        graph = exported.graph
+
+        try:
+            import torch
+        except ImportError as ex:
+            logger.error("Missing Python package: torch")
+            raise ex
+
+        TORCH_TO_NUMPY_DTYPE = {
+            torch.float16: np.float16,
+            torch.float32: np.float32,
+            torch.float64: np.float64,
+            # torch.bfloat16: np.dtype("bfloat16"),  # requires numpy >= 1.24
+            torch.int8: np.int8,
+            torch.int16: np.int16,
+            torch.int32: np.int32,
+            torch.int64: np.int64,
+            torch.uint8: np.uint8,
+            torch.bool: np.bool_,
+            torch.complex64: np.complex64,
+            torch.complex128: np.complex128,
+        }
+
+        def torch_dtype_to_numpy(dtype: torch.dtype) -> np.dtype:
+            if dtype not in TORCH_TO_NUMPY_DTYPE:
+                raise ValueError(f"Unsupported torch dtype: {dtype}")
+            return TORCH_TO_NUMPY_DTYPE[dtype]
+
+        in_tensors = []
+        out_tensors = []
+        for node in graph.nodes:
+            if node.op == "placeholder":
+                meta = node.meta["val"]
+                name = node.name
+                shape = list(meta.shape)
+                dtype = meta.dtype
+                np_dtype = torch_dtype_to_numpy(dtype)
+                in_tensor = TensorInfo(name, shape, np_dtype)
+                in_tensors.append(in_tensor)
+
+            elif node.op == "output":
+                for out in node.args[0]:
+                    meta = out.meta["val"]
+                    name = out.name
+                    shape = list(meta.shape)
+                    dtype = meta.dtype
+                    np_dtype = torch_dtype_to_numpy(dtype)
+                    out_tensor = TensorInfo(name, shape, np_dtype)
+                    out_tensors.append(out_tensor)
+
+        super().__init__(in_tensors, out_tensors)
+
+
+class PTEModelInfo(ModelInfo):
+    def __init__(self, model_file):
+        try:
+            from executorch.runtime import Runtime
+            from executorch.exir.schema import ScalarType
+        except ImportError as ex:
+            logger.error("Missing Python package: executorch")
+            raise ex
+
+        # Load the PTE file
+        # program = exir.load(model_file)
+        runtime = Runtime.get()
+        program = runtime.load_program(model_file)
+        metadata = program.metadata("forward")
+        # method = program.load_method("forward")
+        in_tensors = []
+        out_tensors = []
+        num_inputs = metadata.num_inputs()
+        num_outputs = metadata.num_outputs()
+
+        def _helper(meta, name):
+            shape = meta.sizes()
+            dtype = meta.dtype()
+
+            EXECUTORCH_DTYPE_TO_NUMPY = {
+                ScalarType.FLOAT: np.float32,
+                ScalarType.DOUBLE: np.float64,
+                ScalarType.HALF: np.float16,
+                # ScalarType.BFLOAT16: np.dtype("bfloat16"),
+                ScalarType.CHAR: np.int8,
+                ScalarType.SHORT: np.int16,
+                ScalarType.INT: np.int32,
+                ScalarType.LONG: np.int64,
+                ScalarType.BYTE: np.uint8,
+                ScalarType.BOOL: np.bool_,
+            }
+            numpy_dtype = EXECUTORCH_DTYPE_TO_NUMPY.get(dtype)
+            assert numpy_dtype is not None, f"Unhandled PTE dtype: {dtype}"
+            # numpy_dtype = np.dtype(numpy_dtype).name
+            tensor_info = TensorInfo(name, shape, numpy_dtype)
+            return tensor_info
+
+        for i in range(num_inputs):
+            name = f"input{i}" if i > 0 else "input"
+            input_tensor_meta = metadata.input_tensor_meta(i)
+            in_tensor = _helper(input_tensor_meta, name)
+
+            in_tensors.append(in_tensor)
+
+        for i in range(num_outputs):
+            name = f"output{i}" if i > 0 else "output"
+            output_tensor_meta = metadata.output_tensor_meta(i)
+            out_tensor = _helper(output_tensor_meta, name)
+
+            out_tensors.append(out_tensor)
+
+        super().__init__(in_tensors, out_tensors)
+
+
 class PaddleModelInfo(ModelInfo):
     def __init__(self, model_file):
-        import paddle
+        try:
+            import paddle
+        except ImportError as ex:
+            logger.error("Missing Python package: paddle")
+            raise ex
 
         paddle.enable_static()
         paddle.disable_signal_handler()
@@ -407,15 +576,19 @@ class MLIRModelInfo(ModelInfo):
         for inp in inputs:
             input_name = inp["name"]
             dtype = inp["dtype"]
-            input_type = type_lookup[dtype]
+            input_type = type_lookup.get(dtype)
+            assert input_type is not None, f"Unsupported dtype: {dtype}"
             input_shape = inp["shape"]
             input_tensor = TensorInfo(input_name, input_shape, input_type)
             in_tensors.append(input_tensor)
         for outp in outputs:
             output_name = outp["name"]
             dtype = outp["dtype"]
-            output_type = type_lookup[dtype]
             output_shape = outp["shape"]
+            if dtype is None and output_name is None and len(output_shape) == 0:
+                continue
+            output_type = type_lookup.get(dtype)
+            assert output_type is not None, f"Unsupported dtype: {dtype}"
             output_tensor = TensorInfo(output_name, output_shape, output_type)
             out_tensors.append(output_tensor)
 
@@ -424,7 +597,11 @@ class MLIRModelInfo(ModelInfo):
 
 def get_tflite_model_info(model_buf):
     # Local imports to get rid of tflite dependency for non-tflite models
-    import tflite
+    try:
+        import tflite
+    except ImportError as ex:
+        logger.error("Missing Python package: tflite")
+        raise ex
 
     tflite_model = tflite.Model.GetRootAsModel(model_buf, 0)
     model_info = TfLiteModelInfo(tflite_model)
@@ -456,6 +633,30 @@ def get_onnx_model_info(model_file):
     return model_info
 
 
+def get_pte_model_info(model_file):
+    model_info = PTEModelInfo(model_file)
+    return model_info
+
+
+def get_torch_model_info(model_file):
+    model_info = TorchModelInfo(model_file)
+    return model_info
+
+
+# def get_torch_python_model_info(model_file):
+#     raise NotImplementedError
+#     # TODO: read class from python file?
+#     return get_torch_model_info(model_class)
+#
+#
+# def get_torch_pickle_model_info(model_file):
+#     import pickle
+#
+#     with open(model_file, "rb") as f:
+#         model_class = pickle.load(f)
+#     return get_torch_model_info(model_class)
+
+
 def get_model_info(model, backend_name="unknown"):
     ext = os.path.splitext(model)[1][1:]
     fmt = ModelFormats.from_extension(ext)
@@ -475,6 +676,14 @@ def get_model_info(model, backend_name="unknown"):
         return "onnx", get_onnx_model_info(model)
     elif fmt == ModelFormats.PADDLE:
         return "pdmodel", get_pb_model_info(model)
+    elif fmt == ModelFormats.PTE:
+        return "pte", get_pte_model_info(model)
+    elif fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
+        return "torch", get_torch_model_info(model)
+    # elif fmt == ModelFormats.TORCH_PYTHON:
+    #     return "torch_python", get_torch_model_info(model)
+    # elif fmt == ModelFormats.TORCH_PICKLE:
+    #     return "torch_pickle", get_torch_model_info(model)
     elif fmt == ModelFormats.MLIR:
         with open(model, "r") as handle:
             mod_text = handle.read()
@@ -507,6 +716,8 @@ def get_fallback_model_info(model, input_shapes, output_shapes, input_types, out
         return "pdmodel", info
     elif fmt == ModelFormats.MLIR:
         return "mlir", info
+    elif fmt == ModelFormats.PTE:
+        return "pte", info
     else:
         raise RuntimeError(f"Unsupported model format '{fmt.name}' for backend '{backend_name}'")
 

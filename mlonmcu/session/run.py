@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of a MLonMCU Run which represents a single benchmark instance for a given set of options."""
+
 import itertools
 import time
 import copy
@@ -38,15 +39,19 @@ from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
-from mlonmcu.models import SUPPORTED_FRONTENDS
+from mlonmcu.models import get_frontends
 from mlonmcu.models.model import Model, Program
 from mlonmcu.platform import get_platforms
-from mlonmcu.flow import SUPPORTED_FRAMEWORKS, SUPPORTED_BACKENDS
+from mlonmcu.flow import get_frameworks, get_backends
 
-from .postprocess import SUPPORTED_POSTPROCESSES
+from .postprocess import get_postprocesses
 from .postprocess.postprocess import RunPostprocess
 
 logger = get_logger()
+
+
+class ModelLookupError(RuntimeError):
+    """Raised when none of the enabled frontends can load a requested model."""
 
 
 class RunStage(IntEnum):
@@ -93,14 +98,13 @@ class RunInitializer:
         assert "runs" in data
         runs = data["runs"]
         if len(runs) == 0:
-            raise RuntimeError("Empty run initalizer")
-        elif len(runs) == 1:
-            run = runs[0]
-        else:
-            raise NotImplementedError("multiple runs per initializer not supported")
-        initializer = RunInitializer(**run)
-        initializer.frozen = True
-        return initializer
+            raise RuntimeError("Empty run initializer")
+        initializers = []
+        for run in runs:
+            initializer = RunInitializer(**run)
+            initializer.frozen = True
+            initializers.append(initializer)
+        return initializers
 
     def __init__(
         self,
@@ -323,7 +327,6 @@ class Run:
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
         self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
-
         self.directories = {}
         self.target = target
         self.cache_hints = []
@@ -465,10 +468,14 @@ class Run:
         return False  # TODO: Throw error instead?
 
     @property
+    def completed_stages(self):
+        return [stage for stage, completed in self.completed.items() if completed and stage != RunStage.NOP]
+
+    @property
     def next_stage(self):
         """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
-        for stage in RunStage:
-            if not self.completed[stage.value] and self.has_stage(stage):
+        for stage, completed in self.completed.items():
+            if not completed and self.has_stage(stage):
                 return stage
         return RunStage.DONE
 
@@ -476,9 +483,10 @@ class Run:
     def last_stage(self):
         """Determines the next not yet completed stage. Returns RunStage.DONE if already completed."""
         last = None
-        for stage in RunStage:
+        # for stage in RunStage:
+        for stage, completed in self.completed.items():
             if self.has_stage(stage):
-                if not self.completed[stage.value]:
+                if not completed:
                     return last
                 last = stage
         return None
@@ -574,6 +582,7 @@ class Run:
 
     def add_model(self, model):
         """Setter for the model instance."""
+        assert model is not None
         self.model = model
         assert model is not None
         self.model.config = filter_config(self.config, self.model.name, self.model.DEFAULTS, set(), set())
@@ -737,8 +746,8 @@ class Run:
                 reasons[frontend.name] = str(e)
         if model is None:
             if reasons:
-                logger.error("Lookup of model '%s' was not successfull. Reasons: %s", model_name, reasons)
-            raise RuntimeError(f"Model with name '{model_name}' not found.")
+                raise ModelLookupError(f"No enabled frontend could load model '{model_name}'. Reasons: {reasons}")
+            raise ModelLookupError(f"Model '{model_name}' was not found by any enabled frontend.")
         self.add_model(model)
 
     def add_frontend_by_name(self, frontend_name, context=None):
@@ -754,8 +763,9 @@ class Run:
                 assert context is not None and context.environment.has_frontend(
                     name
                 ), f"The frontend '{name}' is not enabled for this environment"
-                assert name in SUPPORTED_FRONTENDS, f"Unsupported frontend: {name}"
-                frontends.append(self.init_component(SUPPORTED_FRONTENDS[name], context=context))
+                frontends_registry = get_frontends()
+                assert name in frontends_registry, f"Unsupported frontend: {name}"
+                frontends.append(self.init_component(frontends_registry[name], context=context))
             except Exception as e:
                 reasons[name] = str(e)
                 continue
@@ -773,14 +783,14 @@ class Run:
         if self.build_platform:
             self.add_backend(self.init_component(self.build_platform.create_backend(backend_name), context=context))
         else:
-            self.add_backend(self.init_component(SUPPORTED_BACKENDS[backend_name], context=context))
+            self.add_backend(self.init_component(get_backends()[backend_name], context=context))
         if self.backend is None:
             return
         framework_name = self.backend.framework  # TODO: does this work?
         assert context.environment.has_framework(
             framework_name
         ), f"The framework '{framework_name}' is not enabled for this environment"
-        self.add_framework(self.init_component(SUPPORTED_FRAMEWORKS[framework_name], context=context))
+        self.add_framework(self.init_component(get_frameworks()[framework_name], context=context))
 
     def add_target_by_name(self, target_name, context=None):
         """Helper function to initialize and configure a target by its name."""
@@ -817,7 +827,7 @@ class Run:
             # assert context is not None and context.environment.has_postprocess(
             #     postprocess_name
             # ), f"The postprocess '{postprocess_name}' is not enabled for this environment"
-            postprocesses.append(self.init_component(SUPPORTED_POSTPROCESSES[name], context=context))
+            postprocesses.append(self.init_component(get_postprocesses()[name], context=context))
         self.add_postprocesses(postprocesses, append=append)
 
     def add_feature_by_name(self, feature_name, append=True, context=None):
@@ -1155,6 +1165,8 @@ class Run:
                     params_path=params_path,
                 )
                 _build()
+                if self.compile_platform:
+                    self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
 
         else:
             self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
@@ -1172,6 +1184,7 @@ class Run:
                 output_shapes = None
                 input_types = None
                 output_types = None
+                params_path = None
                 if model_artifact.name.split(".", 1)[0] == self.model.name:
                     input_shapes = self.model.input_shapes
                     output_shapes = self.model.output_shapes
@@ -1187,6 +1200,8 @@ class Run:
                     params_path=params_path,
                 )
                 _build()
+                if self.compile_platform:
+                    self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
 
         self.sub_names.extend(self.artifacts_per_stage[RunStage.BUILD])
         self.sub_names = list(set(self.sub_names))
@@ -1445,6 +1460,7 @@ class Run:
         for frontend in self.frontends:
             ret.update(config_helper(frontend))
         if self.backend:
+            self.backend.reconfigure()
             ret.update(config_helper(self.backend))
         if self.framework:
             ret.update(config_helper(self.framework))
@@ -1488,8 +1504,10 @@ class Run:
         post = {}
         post["Features"] = self.get_all_feature_names()
         # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=True, omit_globals=True)
-        post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
+        # post["Config"] = self.get_all_configs(omit_paths=True, omit_defaults=False, omit_globals=True)
+        post["Config"] = self.get_all_configs(omit_paths=False, omit_defaults=False, omit_globals=True)
         post["Postprocesses"] = self.get_all_postprocess_names()
+        post["Stages"] = [stage.name for stage in self.completed_stages]
         post["Comment"] = self.comment if len(self.comment) > 0 else "-"
         if self.failing:
             post["Failing"] = True

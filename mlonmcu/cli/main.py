@@ -105,7 +105,17 @@ def main(args=None):
     handle_docker(args)
 
     if hasattr(args, "func"):
-        args.func(args)
+        try:
+            args.func(args)
+        except Exception as exc:
+            # Expected model/frontend selection failures are user-facing CLI
+            # errors and do not benefit from an implementation traceback.
+            from mlonmcu.session.run import ModelLookupError
+
+            if isinstance(exc, ModelLookupError):
+                logger.error("%s", exc)
+                return 1
+            raise
     else:
         print("Invalid subcommand for `mlonmcu`!")
         parser.print_help(sys.stderr)

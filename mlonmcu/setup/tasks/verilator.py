@@ -28,26 +28,44 @@ from mlonmcu.logging import get_logger
 
 from .common import get_task_factory
 from .cv32e40p import _validate_cv32e40p
+from .cfu import _validate_cfu_playground
 
 logger = get_logger()
 Tasks = get_task_factory()
 
-########
-# ara  #
-########
-
 
 def _validate_verilator(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    use_system_verilator = user_vars.get("verilator.use_system", False)
+    if use_system_verilator:
+        return False
     return (
         context.environment.has_target("ara")
         or context.environment.has_target("ara_rtl")
         or context.environment.has_target("vicuna")
         or _validate_cv32e40p(context, params=params)
+        or _validate_cfu_playground(context, params=params)
     )
 
 
+def _validate_verilator_build(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    verilator_install_dir = user_vars.get("verilator.install_dir")
+    if verilator_install_dir:
+        return False
+    return _validate_verilator(context, params=params)
+
+
+def _validate_verilator_clone(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    verilator_src_dir = user_vars.get("verilator.src_dir")
+    if verilator_src_dir:
+        return False
+    return _validate_verilator_build(context, params=params)
+
+
 @Tasks.provides(["verilator.src_dir"])
-@Tasks.validate(_validate_verilator)
+@Tasks.validate(_validate_verilator_clone)
 @Tasks.register(category=TaskType.TARGET)
 def clone_verilator(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -71,7 +89,7 @@ def clone_verilator(
 
 @Tasks.needs(["verilator.src_dir"])
 @Tasks.provides(["verilator.build_dir", "verilator.install_dir"])
-@Tasks.validate(_validate_verilator)
+@Tasks.validate(_validate_verilator_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_verilator(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -116,7 +134,7 @@ def build_verilator(
 
 @Tasks.needs(["verilator.build_dir"])
 @Tasks.provides(["verilator.install_dir"])
-@Tasks.validate(_validate_verilator)
+@Tasks.validate(_validate_verilator_build)
 @Tasks.register(category=TaskType.TARGET)
 def install_verilator(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

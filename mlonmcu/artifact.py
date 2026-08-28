@@ -18,6 +18,7 @@
 #
 """Artifacts defintions internally used to refer to intermediate results."""
 
+import copy
 from enum import IntFlag, auto
 from pathlib import Path
 
@@ -28,7 +29,6 @@ from mlonmcu.setup import utils
 # TODO: decide if inheritance based scheme would fit better
 
 
-# class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?
 class ArtifactFormat(IntFlag):
     """Enumeration of artifact types."""
 
@@ -47,6 +47,7 @@ class ArtifactFormat(IntFlag):
     BIN = RAW
     SHARED_OBJECT = auto()  # Here: the parent tar archive
     ARCHIVE = auto()
+    YAML = auto()
 
 
 def lookup_artifacts(artifacts, name=None, fmt=None, flags=None, first_only=False):
@@ -141,6 +142,8 @@ class Artifact:
             assert self.raw is not None
         elif self.fmt in [ArtifactFormat.PATH]:
             assert self.path is not None
+        elif self.fmt in [ArtifactFormat.UNKNOWN]:
+            pass
         else:
             raise NotImplementedError
 
@@ -217,3 +220,61 @@ class Artifact:
             print(f"File Location: {self.path}")
         else:
             raise NotImplementedError
+
+    def copy(self):
+        return copy.deepcopy(self)
+
+    def convert(self, to: ArtifactFormat, **kwargs):
+        # UNKNOWN = 0
+        # SOURCE = 1
+        # TEXT = 2
+        # MLF = 3
+        # MODEL = 4
+        # IMAGE = 5
+        # DATA = 6
+        # NUMPY = 7
+        # PARAMS = 8
+        # JSON = 9  # ?
+        # PATH = 10  # NOT A DIRECTORY?
+        # RAW = 11
+        # BIN = 11
+        # SHARED_OBJECT = 12  # Here: the parent tar archive
+        # ARCHIVE = 13
+        if to == self.fmt:  # trivial (noop)
+            ret = self.copy()
+            ret.validate()
+            return ret
+        if to in [ArtifactFormat.SOURCE, ArtifactFormat.TEXT]:
+            if self.fmt in [ArtifactFormat.SOURCE, ArtifactFormat.TEXT]:
+                ret = self.copy()
+                ret.fmt = to
+                ret.validate()
+                return ret
+            elif self.fmt in [ArtifactFormat.PATH]:
+                with open(self.path, "r") as f:
+                    content = f.read()
+                ret = self.copy()
+                ret.content = content
+                ret.fmt = to
+                ret.validate()
+                return ret
+        if to in [ArtifactFormat.BIN, ArtifactFormat.RAW]:
+            if self.fmt in [ArtifactFormat.SOURCE, ArtifactFormat.TEXT]:
+                ret = self.copy()
+                encoding = kwargs.get("encoding", "utf-8")
+                raw = ret.content.encode(encoding)
+                ret.content = None
+                ret.raw = raw
+                ret.fmt = to
+                ret.validate()
+                return ret
+            elif self.fmt in [ArtifactFormat.PATH]:
+                with open(self.path, "rb") as f:
+                    raw = f.read()
+                ret = self.copy()
+                ret.raw = raw
+                ret.fmt = to
+                ret.validate()
+                return ret
+        raise NotImplementedError(f"Missing conversion from {self.fmt} to {to}.")
+        return None  # Should not be reached

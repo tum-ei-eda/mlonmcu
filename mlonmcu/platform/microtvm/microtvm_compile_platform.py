@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MicroTVM Compile Platform"""
+
 from pathlib import Path
 from typing import Tuple
 

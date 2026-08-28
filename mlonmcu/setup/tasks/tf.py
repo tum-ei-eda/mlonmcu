@@ -38,8 +38,24 @@ def _validate_tensorflow(context: MlonMcuContext, params=None):
     return context.environment.has_framework("tflm")
 
 
+def _validate_tensorflow_clone(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    tf_src_dir = user_vars.get("tf.src_dir", None)
+    if tf_src_dir:
+        return False
+    return _validate_tensorflow(context, params=params)
+
+
+def _validate_tensorflow_build(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    tf_dl_dir = user_vars.get("tf.dl_dir", None)
+    if tf_dl_dir:
+        return False
+    return _validate_tensorflow(context, params=params)
+
+
 @Tasks.provides(["tf.src_dir"])
-@Tasks.validate(_validate_tensorflow)
+@Tasks.validate(_validate_tensorflow_clone)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def clone_tensorflow(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -57,7 +73,7 @@ def clone_tensorflow(
 @Tasks.provides(["tf.dl_dir", "tf.lib_path"])
 # @Tasks.param("dbg", False)
 @Tasks.param("dbg", True)
-@Tasks.validate(_validate_tensorflow)
+@Tasks.validate(_validate_tensorflow_build)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def build_tensorflow(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()

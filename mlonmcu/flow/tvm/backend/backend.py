@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 import tempfile
+import io
+import json
 import tarfile
 from pathlib import Path
 from typing import Tuple
@@ -27,7 +29,16 @@ from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
-from mlonmcu.models.model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
+from mlonmcu.models.model_info import (
+    get_model_info,
+    get_fallback_model_info,
+    get_supported_formats,
+    get_model_format,
+    get_relay_model_info,
+    ModelInfo,
+    RelayTensorInfo,
+)
+from mlonmcu.models.model import ModelFormats
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .python_utils import prepare_python_environment
@@ -44,12 +55,25 @@ from .tvmc_utils import (
 logger = get_logger()
 
 
+def infer_tuner_name(path):
+    raise NotImplementedError
+
+
 class TVMBackend(Backend):
     registry = {}
 
     name = None
 
-    FEATURES = {"autotuned", "cmsisnnbyoc", "muriscvnnbyoc", "disable_legalize", "moiopt", "uma_backends", "fuse_ops"}
+    FEATURES = {
+        "autotuned",
+        "cmsisnnbyoc",
+        "muriscvnnbyoc",
+        "disable_legalize",
+        "moiopt",
+        "uma_backends",
+        "fuse_ops",
+        "cfu_wca",
+    }
 
     DEFAULTS = {
         "print_outputs": False,
@@ -60,17 +84,22 @@ class TVMBackend(Backend):
         "target_model": None,
         "target_mtriple": None,
         "target_mabi": None,
+        "target_mfloat_abi": None,
         "target_mattr": None,
         "target_keys": None,
         "target_num_cores": None,
+        "target_vector_width": None,
+        "cross_compiler": None,
         "tvm_target_str": None,
         "extra_targets": None,  # list
         "extra_target_details": None,  # dict
         "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
         "desired_layout_ops": None,  # optional: conv2d, max_pool2d,...
         "desired_layout_map": None,  # optional, conv2d=NCHW, ...
-        "disabled_passes": [],  # i.e. AlterOpLayout
+        "disabled_passes": [],  # i.e. AlterOpLayout, FuseOps, FoldScaleAxis,
+        # qnn.Legalize, QnnCanonicalize, tir.CommonSubexprElimTIR
         "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
+        "tir_add_lower_pass": None,  # opt_level1,pass1,opt_level2,pass2,...
         "use_tuning_results": False,
         "tvmc_extra_args": [],  # Currently compile subcommand only!
         "tvmc_custom_script": None,
@@ -86,6 +115,10 @@ class TVMBackend(Backend):
         "refresh_model_info": False,
         "generate_wrapper": "auto",
         "bool_as_int": True,
+        "ms_db": None,
+        "filter_ms_db": False,
+        "filter_ms_db_extra_args": None,
+        "experimental_tvm_target_vector_width": False,
     }
 
     REQUIRED = set()
@@ -103,6 +136,11 @@ class TVMBackend(Backend):
         self.input_shapes = None
         self.model_format = None
         self.supported_formats = get_supported_formats()
+        self.supported_formats.append(ModelFormats.MLF)
+        self.mlf_data = None
+        self.mlf_metadata = None
+        self.mlf_module_name = None
+        self.mlf_unpacked_api = None
         self.target = target
         self.runtime = runtime
         self.executor = executor
@@ -118,7 +156,10 @@ class TVMBackend(Backend):
         tuner_name = self.config.get("autotuned_mode", None)
         if results_file is not None:
             assert tuner_name is not None
+            if tuner_name == "auto":
+                tuner_name = infer_tuner_name(results_file)
             self._tuning_records[tuner_name] = results_file
+        self.filtered_ms_db = None
 
     # On the long term, we might support multiple TUNE stages in a single run
     # (i.e. to allow autotvm+graphtuner to be separated)
@@ -138,16 +179,27 @@ class TVMBackend(Backend):
             tuner_name = self.config["autotuned_mode"]
             # tuner_name = "autotvm"
             assert tuner_name is not None
+            if tuner_name == "auto":
+                tuner_name = infer_tuner_name(records)
         self._tuning_records[tuner_name] = records
 
     def get_tuning_records(self, tuner_name=None):
         if tuner_name is None:
             tuner_name = self.config["autotuned_mode"]
             # tuner_name = "autotvm"
-            if tuner_name is None:
+            if tuner_name is None or tuner_name == "auto":
                 if len(self._tuning_records) > 0:
                     tuner_name = list(self._tuning_records.keys())[0]
         return self._tuning_records.get(tuner_name, None)
+
+    def reconfigure(self):
+        # super().reconfigure()
+        self.config.update(
+            {
+                "final_pass_config": self.pass_config,
+                "final_tuning_records": self._tuning_records,
+            }
+        )
 
     @property
     def disable_vectorize(self):
@@ -169,8 +221,19 @@ class TVMBackend(Backend):
         return extra
 
     @property
+    def tir_add_lower_pass(self):
+        value = self.config["tir_add_lower_pass"]
+        if value is None:
+            return None
+        assert isinstance(value, str)
+        return value
+
+    @property
     def pass_config(self):
         base = {"tir.disable_vectorize": self.disable_vectorize}
+        if self.tir_add_lower_pass:
+            # TODO: do not override?
+            base["tir.add_lower_pass"] = self.tir_add_lower_pass
         extra = self.extra_pass_config
         base.update(extra)
         return base
@@ -196,6 +259,10 @@ class TVMBackend(Backend):
         return self.config["target_mabi"]
 
     @property
+    def target_mfloat_abi(self):
+        return self.config["target_mfloat_abi"]
+
+    @property
     def target_mattr(self):
         return self.config["target_mattr"]
 
@@ -211,15 +278,22 @@ class TVMBackend(Backend):
     def target_num_cores(self):
         return self.config["target_num_cores"]
 
+    @property
+    def target_vector_width(self):
+        val = self.config["target_vector_width"]
+        if val is None:
+            return None
+        return int(val)
+
+    @property
+    def cross_compiler(self):
+        return self.config["cross_compiler"]
+
     # TODO:
-    # "target_device": ?,
     # "target_libs": ?,
     # "target_tag": ?,
-    # "target_march": ?,
-    # "target_keys": ?,
     # "target_opt_level": ?,
     # "target_cl_opt": ?,
-    # "target_mfloat_abi": ?,
     # "target_fast_math_ninf": ?,
     # "target_fast_math_contract": ?,
     # "target_fast_math_nnan": ?,
@@ -314,13 +388,15 @@ class TVMBackend(Backend):
             ret += f" {keys_str}"
         attrs = {
             "device": self.target_device,
-            "mcpu": self.target_mcpu,
             "march": self.target_march,
-            "model": self.target_model,
-            "mtriple": self.target_mtriple,
             "mabi": self.target_mabi,
             **({"mattr": self.target_mattr} if self.target == "llvm" else {}),
-            "num_cores": self.target_num_cores,
+            "mcpu": self.target_mcpu,
+            "mfloat-abi": self.target_mfloat_abi,
+            "model": self.target_model,
+            "mtriple": self.target_mtriple,
+            "num-cores": self.target_num_cores,
+            **({"vector-width": self.target_vector_width} if self.target == "llvm" else {}),
             # TODO: alignment
         }
 
@@ -376,12 +452,37 @@ class TVMBackend(Backend):
         return value
 
     @property
+    def ms_db(self):
+        val = self.config["ms_db"]
+        if val is not None:
+            return val
+        if "metascheduler" in self._tuning_records and self.use_tuning_results:
+            return self._tuning_records["metascheduler"]
+        return None
+
+    @property
+    def filter_ms_db(self):
+        value = self.config["filter_ms_db"]
+        return str2bool(value)
+
+    @property
+    def filter_ms_db_extra_args(self):
+        value = self.config["filter_ms_db_extra_args"]
+        return value
+
+    @property
     def num_threads(self):
         return self.config["num_threads"]
 
     @property
     def relay_debug(self):
         return self.config["relay_debug"]
+
+    @property
+    def experimental_tvm_target_vector_width(self):
+        # only availablein latest TVM or forks
+        value = self.config["experimental_tvm_target_vector_width"]
+        return str2bool(value)
 
     def get_target_details(self):
         ret = {}
@@ -395,6 +496,8 @@ class TVMBackend(Backend):
             ret["mtriple"] = self.target_mtriple
         if self.target_mabi:
             ret["mabi"] = self.target_mabi
+        if self.target_mfloat_abi:
+            ret["mfloat-abi"] = self.target_mfloat_abi
         if self.target_mattr:
             temp = self.target_mattr
             if self.custom_unroll:
@@ -406,11 +509,14 @@ class TVMBackend(Backend):
             ret["model"] = self.target_model
         if self.target_num_cores:
             ret["num-cores"] = self.target_num_cores
+        if self.target_vector_width:
+            ret["vector-width"] = self.target_vector_width
         return ret
 
     def get_tvmc_compile_args(self, out, dump=None):
         assert self.executor is not None
         assert self.executor in ["aot", "graph"], "Unsupported TVM executor"
+        ms_db = self.filtered_ms_db or self.ms_db
         args = [
             self.model,
             *(["--relay-params", self.params_path] if self.params_path is not None else []),
@@ -420,12 +526,13 @@ class TVMBackend(Backend):
                 target_details=self.get_target_details(),
                 extra_target_details=self.extra_target_details,
                 bool_as_int=self.bool_as_int,
+                has_target_vector_width=self.experimental_tvm_target_vector_width,
             ),
             *get_runtime_executor_tvmc_args(self.runtime, self.executor),
             *get_pass_config_tvmc_args(self.pass_config),
             *get_disabled_pass_tvmc_args(self.disabled_passes),
             *get_input_shapes_tvmc_args(self.input_shapes),
-            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records()),
+            *get_tuning_records_tvmc_args(self.use_tuning_results, self.get_tuning_records(), ms_db),
             *get_desired_layout_args(self.desired_layout, self.desired_layout_ops, self.desired_layout_map),
             *(["--dump-code", ",".join(dump)] if dump is not None and len(dump) > 0 else []),
             *self.tvmc_extra_args,
@@ -433,6 +540,11 @@ class TVMBackend(Backend):
             *["--output", str(out)],
             *["-f", self.fmt],
             *["--model-format", self.model_format],
+            *(
+                ["--cross-compiler", self.cross_compiler]
+                if self.cross_compiler is not None and self.fmt != "mlf"
+                else []
+            ),
         ]
         return args
 
@@ -476,6 +588,9 @@ class TVMBackend(Backend):
     ):
         self.model = model
         self.params_path = params_path
+        if Path(model).suffix.lower() == ".tar":
+            self._load_mlf(model)
+            return
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
         need_model_info = True
@@ -514,6 +629,56 @@ class TVMBackend(Backend):
         if self.model_info:
             self.model_info.validate()
 
+    @staticmethod
+    def _mlf_member(archive, name, required=True):
+        """Read an MLF member while accepting the conventional leading './'."""
+        names = {member.name.lstrip("./"): member for member in archive.getmembers() if member.isfile()}
+        member = names.get(name.lstrip("./"))
+        if member is None:
+            if required:
+                raise RuntimeError(f"Invalid MLF archive: missing {name}")
+            return None
+        return archive.extractfile(member).read()
+
+    def _load_mlf(self, model):
+        with open(model, "rb") as handle:
+            self.mlf_data = handle.read()
+        try:
+            with tarfile.open(fileobj=io.BytesIO(self.mlf_data), mode="r:*") as archive:
+                metadata_raw = self._mlf_member(archive, "metadata.json")
+                self.mlf_metadata = json.loads(metadata_raw)
+                modules = self.mlf_metadata.get("modules", {})
+                if len(modules) != 1:
+                    raise RuntimeError("MLF frontend currently requires exactly one module")
+                self.mlf_module_name, module = next(iter(modules.items()))
+                member_names = {member.name.lstrip("./") for member in archive.getmembers() if member.isfile()}
+                self.mlf_unpacked_api = f"codegen/host/include/tvmgen_{self.mlf_module_name}.h" in member_names
+                executors = module.get("executors", [])
+                if self.executor not in executors:
+                    raise RuntimeError(
+                        f"MLF executor mismatch: archive uses {executors}, backend '{self.name}' uses '{self.executor}'"
+                    )
+                relay = self._mlf_member(archive, f"src/{self.mlf_module_name}.relay", required=False)
+                if relay is not None:
+                    self.model_info = get_relay_model_info(relay.decode())
+                else:
+                    main = module["memory"]["functions"]["main"][0]
+
+                    def tensor_info(items):
+                        result = []
+                        for name, info in items.items():
+                            dtype = info["dtype"]
+                            item_size = {"float32": 4, "int32": 4, "int64": 8, "uint8": 1, "int8": 1}[dtype]
+                            result.append(RelayTensorInfo(name, [info["size"] // item_size], dtype))
+                        return result
+
+                    self.model_info = ModelInfo(tensor_info(main["inputs"]), tensor_info(main["outputs"]))
+                self.model_info.validate()
+                self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+                self.model_format = "mlf"
+        except (tarfile.TarError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"Invalid MLF archive: {model}") from exc
+
     def get_graph_and_params_from_mlf(self, path):
         graph = None
         with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
@@ -526,13 +691,85 @@ class TVMBackend(Backend):
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
+        out = ""
         assert self.model is not None
+        if self.mlf_data is not None:
+            metadata_txt = json.dumps(self.mlf_metadata, indent=2)
+            artifacts.append(Artifact(f"{self.prefix}.json", content=metadata_txt, fmt=ArtifactFormat.TEXT))
+            artifacts.append(Artifact(f"{self.prefix}.tar", raw=self.mlf_data, fmt=ArtifactFormat.MLF, archive=True))
+            with tarfile.open(fileobj=io.BytesIO(self.mlf_data), mode="r:*") as archive:
+                relay = self._mlf_member(archive, f"src/{self.mlf_module_name}.relay", required=False)
+                if relay is not None:
+                    artifacts.append(
+                        Artifact(f"{self.prefix}.relay", content=relay.decode(), fmt=ArtifactFormat.TEXT, optional=True)
+                    )
+                if self.executor == "graph":
+                    graph = self._mlf_member(archive, f"executor-config/graph/{self.mlf_module_name}.graph").decode()
+                    params = self._mlf_member(archive, f"parameters/{self.mlf_module_name}.params")
+                    artifacts.append(Artifact(f"{self.prefix}.graph", content=graph, fmt=ArtifactFormat.TEXT))
+                    artifacts.append(Artifact(f"{self.prefix}.params", raw=params, fmt=ArtifactFormat.RAW))
+            return {"default": artifacts}, {"default": Metrics()}
         dump = self.dump
+        # target_str = self.tvm_target_str
+        # print("target_str", target_str)
+        # input("!")
         if self.refresh_model_info or (self.generate_wrapper and not self.model_info) and "relay" not in dump:
             dump.append("relay")
         with tempfile.TemporaryDirectory() as temp_dir:
+            if self.filter_ms_db:
+                ms_db = self.ms_db
+                ms_db_filtered = Path(temp_dir) / "filteted_ms_db.tar"
+                self.filtered_ms_db = ms_db_filtered
+                assert self.ms_db is not None
+                filter_args = [ms_db, "-o", ms_db_filtered]
+                if self.target_device:
+                    filter_args += ["--filter-target-device", self.target_device]
+                if self.target_mcpu:
+                    filter_args += ["--filter-target-mcpu", self.target_mcpu]
+                if self.target_model:
+                    filter_args += ["--filter-target-model", self.target_model]
+                if self.target_num_cores:
+                    filter_args += ["--filter-target-num-cores", str(self.target_num_cores)]
+                # keys, march, mabi, mfloat-abi, mtriple, vector-width?
+                if self.target_mattr and self.target == "llvm":
+                    filter_args += ["--filter-target-mattr", self.target_mattr]
+                if self.filter_ms_db_extra_args:
+                    extra_args = self.filter_ms_db_extra_args
+                    # print("extra_args", extra_args)
+                    assert isinstance(extra_args, list)
+                    filter_args += extra_args
+                # print("filter_args", filter_args)
+                env = prepare_python_environment(
+                    None if self.use_tlcpack else self.tvm_pythonpath,
+                    None if self.use_tlcpack else self.tvm_build_dir,
+                    None if self.use_tlcpack else self.tvm_configs_dir,
+                    tophub_url=self.tophub_url,
+                    num_threads=self.num_threads,
+                    debug_cfg=self.relay_debug,
+                )
+                out = ""
+                out += utils.python(
+                    "-m" "tvm.meta_schedule.database.filter_db",
+                    *filter_args,
+                    live=self.print_outputs,
+                    env=env,
+                    cwd=temp_dir,
+                )
+                # input("123")
             out_path = Path(temp_dir) / f"{self.prefix}.tar"
-            out = self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            out += self.invoke_tvmc_compile(out_path, dump=dump, cwd=temp_dir)
+            if self.filtered_ms_db:
+                with open(self.filtered_ms_db, "rb") as handle:
+                    data = handle.read()
+                    artifacts.append(
+                        Artifact(
+                            self.filtered_ms_db.name,
+                            raw=data,
+                            fmt=ArtifactFormat.ARCHIVE,
+                            # archive=True,
+                        )
+                    )
+                self.filtered_ms_db = None
             if self.fmt == "mlf":
                 mlf_path = Path(temp_dir) / "mlf"
                 tarfile.open(out_path).extractall(mlf_path)
@@ -547,13 +784,14 @@ class TVMBackend(Backend):
                 )
             with open(out_path, "rb") as handle:
                 data = handle.read()
-                artifacts.append(
+                artifacts.insert(
+                    0,
                     Artifact(
                         f"{self.prefix}.tar",
                         raw=data,
                         fmt=ArtifactFormat.SHARED_OBJECT if self.fmt == "so" else ArtifactFormat.MLF,
                         archive=True,
-                    )
+                    ),
                 )
             if "c" in dump:
                 with open(str(out_path) + ".c", "r") as handle:

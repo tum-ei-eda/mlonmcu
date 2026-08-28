@@ -28,6 +28,14 @@ from .util import update_extensions
 logger = get_logger()
 
 
+# TODO
+"""
+        if self.vlen is not None:
+            assert is_power_of_two(self.vlen)
+            assert self.vlen >= VEXT_MIN_ALLOWED_VLEN
+"""
+
+
 class RVVTarget(RISCVTarget):
     """TODO"""
 
@@ -92,6 +100,7 @@ class RVVTarget(RISCVTarget):
             embedded_vext=self.embedded_vext,
             vlen=self.vlen,
             fpu=self.fpu,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property
@@ -120,6 +129,7 @@ class RVVTarget(RISCVTarget):
                 if "zvl" not in model:
                     model = f"{model}-zvl{self.vlen}b"
             ret["target_model"] = model
+            ret["target_vector_width"] = self.vlen
         return ret
 
     def get_vector_width(self):

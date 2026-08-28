@@ -24,8 +24,8 @@ import signal
 import shutil
 import tempfile
 import subprocess
+from importlib.resources import files
 from pathlib import Path
-import pkg_resources
 
 
 from mlonmcu.setup import utils
@@ -41,11 +41,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project"):
-    espidf_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "espidf"))
-    if name not in espidf_templates:
+    resource = files("mlonmcu").joinpath("resources", "platforms", "espidf", name)
+    if not resource.is_dir():
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "espidf", name))
-    return fname
+    return str(resource)
 
 
 class EspIdfPlatform(CompilePlatform, TargetPlatform):

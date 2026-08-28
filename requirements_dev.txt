@@ -1,4 +1,4 @@
--r requirements.txt
+# -r requirements.txt
 pip>=21.1
 bump2version
 wheel>=0.38.1
@@ -10,8 +10,9 @@ pytest-console-scripts
 coverage
 black; python_version < '3.10'
 black>=26.3.1; python_version >= '3.10'
+black[jupyter]
 pylint
 twine
-black[jupyter]
 build
 Pillow
+mock

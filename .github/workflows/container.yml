@@ -45,7 +45,7 @@ on:
 jobs:
   minimal:
     name: Build minimal image for CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Remove unused software
         run: |
@@ -62,7 +62,7 @@ jobs:
           sudo df -h
           echo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Set up QEMU
@@ -118,7 +118,7 @@ jobs:
             }}
   base:
     name: Build base image for users
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: minimal
     steps:
       - name: Remove unused software
@@ -136,7 +136,7 @@ jobs:
           sudo df -h
           echo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Set up QEMU
@@ -197,7 +197,7 @@ jobs:
             github.event.inputs.version }}
   bench:
     name: Build large image for benchmarking
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: base
     if: ${{ github.event.inputs.enable_bench }} == "true"
     steps:
@@ -216,7 +216,7 @@ jobs:
           sudo df -h
           echo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
       - name: Set up QEMU

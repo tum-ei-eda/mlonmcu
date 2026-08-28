@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """UMA backend for the vanilla_accelerator accelerator"""
+
 from .passes import VanillaAcceleratorConv2dPass, ConvertLayout
 from tvm.relay.backend.contrib.uma.api.utils import PassPhase
 from tvm.relay.backend.contrib.uma.backend import UMABackend

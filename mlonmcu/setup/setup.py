@@ -307,6 +307,25 @@ class Setup:
                     for d in requirements["iree"][1]:
                         f.write(f"{d}{os.linesep}")
                     logger.info("add dependencies for iree")
+                    vars = self.context.environment.vars
+                    cache = self.context.cache
+                    iree_build_dir = vars.get("iree.build_dir") or cache.get("iree.build_dir")
+                    iree_src_dir = vars.get("iree.src_dir") or cache.get("iree.src_dir")
+                    if iree_src_dir is not None:
+                        f.write(f"-r {iree_src_dir}/integrations/tensorflow/test/requirements.txt{os.linesep}")
+                        f.write(
+                            f"-r {iree_src_dir}/runtime/bindings/python/iree/runtime/build_requirements.txt{os.linesep}"
+                        )
+                    if iree_build_dir is not None:
+                        f.write(f"-e {iree_build_dir}/compiler{os.linesep}")
+                        f.write(f"-e {iree_build_dir}/runtime{os.linesep}")
+                    # f.write(f"--index-url https://download.pytorch.org/whl/cpu torch{os.linesep}")
+                    break
+            for config in config_pools:
+                if "cfu_playground" in config.name and config.enabled:
+                    for d in requirements["cfu_playground"][1]:
+                        f.write(f"{d}{os.linesep}")
+                    logger.info("add dependencies for tflite visualization")
                     break
         logger.info("Finished generating requirements_addition.txt")
         return True

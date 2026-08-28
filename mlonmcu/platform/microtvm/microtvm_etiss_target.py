@@ -40,9 +40,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "verbose": False,
         "quiet": False,
         "workspace_size_bytes": None,
+        # "cpu_freq": None,
         "toolchain": "gcc",
         "xlen": 32,
-        "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
+        "extensions": ["i", "m", "a", "c"],  # TODO overwrite extensions elegantly
         "fpu": "double",  # allowed: none, single, double
         "arch": None,
         "abi": None,
@@ -57,6 +58,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "enable_xcorevbitmanip": False,
         "enable_xcorevsimd": False,
         "enable_xcorevhwlp": False,
+        "fclk": 100e6,
     }
     REQUIRED = Target.REQUIRED | {
         "microtvm_etiss.src_dir",
@@ -75,6 +77,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "verbose",
             "quiet",
             "workspace_size_bytes",
+            "cpu_freq",
             # "warning_as_error",
             # "compile_definitions",
             # "config_main_stack_size",
@@ -153,6 +156,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch,
                 **({"jit": self.jit} if self.jit is not None else {}),
+                "cpu_freq": self.fclk,
             }
         )
         return ret
@@ -253,7 +257,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 continue
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
-        return ",".join(attrs)
+        return ",".join(sorted(attrs))
 
     @property
     def cpu_arch(self):
@@ -322,3 +326,29 @@ class EtissPerfMicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
     @property
     def etiss_script(self):
         return Path(self.config["etiss_perf.script"])
+
+
+class EtissRV32MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {
+        **EtissMicroTvmPlatformTarget.DEFAULTS,
+        "xlen": 32,
+    }
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+
+
+class EtissRV64MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {
+        **EtissMicroTvmPlatformTarget.DEFAULTS,
+        "xlen": 64,
+    }
+    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)

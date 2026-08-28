@@ -17,14 +17,16 @@
 # limitations under the License.
 #
 """Definition of MLonMCU session schedulers."""
+
 import random
 from pathlib import Path
 import concurrent.futures
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from mlonmcu.session.run import Run, RunInitializer, RunResult, RunStage
 from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
+from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from .postprocess.postprocess import SessionPostprocess
 from .progress import init_progress, update_progress, close_progress
@@ -373,20 +375,38 @@ def _postprocess_default(runs, report, dest, progress=False):
                     session_postprocesses.append(postprocess)
     if progress:
         pbar = init_progress(len(session_postprocesses), msg="Postprocessing session")
+    session_artifacts = []
+    label_file = dest / "label.txt"
+    if label_file.is_file():
+        # with open(label_file, "r") as f:
+        #     label = f.read()
+        # session_artifacts.append(Artifact(label_file.name, content=label, fmt=ArtifactFormat.TEXT), flags=("label",))
+        session_artifacts.append(Artifact(label_file.name, path=label_file, fmt=ArtifactFormat.PATH, flags=("label",)))
+    timestamp_file = dest / "timestamp.txt"
+    if timestamp_file.is_file():
+        # with open(timestamp_file, "r") as f:
+        #     timestamp = f.read()
+        # session_artifacts.append(
+        #     Artifact(timestamp_file.name, content=timestamp, fmt=ArtifactFormat.TEXT), flags("timestamp",)
+        # )
+        session_artifacts.append(
+            Artifact(timestamp_file.name, path=timestamp_file, fmt=ArtifactFormat.PATH, flags=("timestamp",))
+        )
     for postprocess in session_postprocesses:
         try:
-            artifacts = postprocess.post_session(report)
+            artifacts = postprocess.post_session(report, session_artifacts)
         except Exception as e:
             logger.exception(e)
             num_failing += 1
             break
-        if progress:
-            update_progress(pbar)
         if artifacts is not None:
+            session_artifacts += artifacts
             for artifact in artifacts:
                 # Postprocess has an artifact: write to disk!
                 logger.debug("Writing postprocess artifact to disk: %s", artifact.name)
                 artifact.export(dest)
+        if progress:
+            update_progress(pbar)
     if progress:
         close_progress(pbar)
     return num_failing
@@ -421,6 +441,7 @@ class SessionScheduler:
         progress: bool = False,
         executor: str = "thread_pool",
         num_workers: int = 1,
+        num_workers_per_stage: Optional[Dict[str, int]] = None,
         shuffle: bool = False,
         batch_size: int = 1,
         parallel_jobs: int = 1,
@@ -437,6 +458,9 @@ class SessionScheduler:
         self.progress = progress
         self.executor = executor
         self.num_workers = num_workers
+        self.num_workers_per_stage = num_workers_per_stage
+        if self.num_workers_per_stage is not None:
+            assert self.per_stage, "num_workers_per_stage needs per_stage=True"
         self.parallel_jobs = parallel_jobs
         self._executor_cls, self._executor_kwargs = self._handle_executor(executor, remote_config)
         self.shuffle = shuffle
@@ -630,13 +654,19 @@ class SessionScheduler:
             run_it = sorted(run_it, key=lambda _: random.random())
         batches = list(chunks(run_it, self.batch_size))
         # TODO: per stage batching?
-        with self._executor_cls(**self._executor_kwargs) as executor:
-            if self.per_stage:
-                assert self.used_stages is not None
-                if self.progress:
-                    pbar2 = init_progress(len(self.used_stages), msg="Processing stages")
-                for stage in self.used_stages:
-                    run_stage = RunStage(stage).name
+        if self.per_stage:
+            assert self.used_stages is not None
+            if self.progress:
+                pbar2 = init_progress(len(self.used_stages), msg="Processing stages")
+            for stage in self.used_stages:
+                run_stage = RunStage(stage).name
+                # TODO: also check for RunStage Type?
+                if self.num_workers_per_stage:
+                    max_workers_per_stage = self.num_workers_per_stage.get(run_stage, self.num_workers)
+                else:
+                    max_workers_per_stage = self.num_workers
+                stage_executor_kwargs = {**self._executor_kwargs, "max_workers": max_workers_per_stage}
+                with self._executor_cls(**stage_executor_kwargs) as executor:
                     is_last = stage == self.used_stages[-1]
                     if self.progress:
                         pbar = init_progress(len(batches), msg=f"Processing stage {run_stage}")
@@ -669,9 +699,10 @@ class SessionScheduler:
                     self._join_futures(pbar)
                     if self.progress:
                         update_progress(pbar2)
-                if self.progress:
-                    close_progress(pbar2)
-            else:
+            if self.progress:
+                close_progress(pbar2)
+        else:
+            with self._executor_cls(**self._executor_kwargs) as executor:
                 if self.progress:
                     pbar = init_progress(
                         len(batches), msg="Processing batches" if self.use_batches else "Processing all runs"
@@ -713,7 +744,7 @@ class SessionScheduler:
         elif self.num_failures == self.num_runs:
             logger.error("All runs have failed to complete!")
         else:
-            logger.warning("%d out or %d runs completed successfully!", self.num_success, self.num_runs)
+            logger.warning("%d out of %d runs completed successfully!", self.num_success, self.num_runs)
             summary = "\n".join(
                 [
                     f"\t{stage}: \t{len(failed)} failed run(s): " + " ".join([str(idx) for idx in failed])

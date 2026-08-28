@@ -22,7 +22,6 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.flow import SUPPORTED_TVM_BACKENDS, SUPPORTED_IREE_LLVM_BACKENDS
 from mlonmcu.target import Target
 from mlonmcu.config import str2list, str2bool, pick_first
 from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
@@ -49,6 +48,7 @@ class RISCVTarget(Target):
         "fpu": "double",  # allowed: none, single, double
         "arch": None,  # Please use above properties if possible
         "abi": None,  # Please use above properties if possible
+        "float_abi": None,  # Please use above properties if possible
         "cmodel": None,
         "attr": "",  # Please avoid using this directly
         "cpu": None,
@@ -64,12 +64,16 @@ class RISCVTarget(Target):
         "riscv_gcc_rv32.install_dir",
         "riscv_gcc_rv32.name",
         "riscv_gcc_rv32.variant",
+        "riscv_gcc_rv32.version",
         "riscv_gcc_rv64.install_dir",
         "riscv_gcc_rv64.name",
         "riscv_gcc_rv64.variant",
+        "riscv_gcc_rv64.version",
         "riscv_gcc.install_dir",
         "riscv_gcc.name",
         "riscv_gcc.variant",
+        "riscv_gcc.version",
+        "llvm.version",
     }
 
     def reconfigure(self):
@@ -104,17 +108,15 @@ class RISCVTarget(Target):
 
     @property
     def riscv_gcc_basename(self):
-        return Path(
-            pick_first(
-                self.config,
-                [
-                    f"riscv_gcc_{self.arch}_{self.abi}.name",
-                    f"riscv_gcc_{self.arch}.name",
-                    f"riscv_gcc_rv{self.xlen}.name",
-                    "riscv_gcc_multilib.name",
-                    "riscv_gcc.name",
-                ],
-            )
+        return pick_first(
+            self.config,
+            [
+                f"riscv_gcc_{self.arch}_{self.abi}.name",
+                f"riscv_gcc_{self.arch}.name",
+                f"riscv_gcc_rv{self.xlen}.name",
+                "riscv_gcc_multilib.name",
+                "riscv_gcc.name",
+            ],
         )
 
     @property
@@ -123,21 +125,56 @@ class RISCVTarget(Target):
 
     @property
     def pulp_gcc_basename(self):
-        return Path(self.config["pulp_gcc.name"])
+        return self.config["pulp_gcc.name"]
 
     @property
     def gcc_variant(self):
-        return Path(
-            pick_first(
-                self.config,
-                [
-                    f"riscv_gcc_{self.arch}_{self.abi}.variant",
-                    f"riscv_gcc_rv{self.xlen}.variant",
-                    "riscv_gcc_multilib.variant",
-                    "riscv_gcc.variant",
-                ],
-            )
+        return pick_first(
+            self.config,
+            [
+                f"riscv_gcc_{self.arch}_{self.abi}.variant",
+                f"riscv_gcc_rv{self.xlen}.variant",
+                "riscv_gcc_multilib.variant",
+                "riscv_gcc.variant",
+            ],
         )
+
+    @property
+    def gcc_version(self):
+        return pick_first(
+            self.config,
+            [
+                # f"riscv_gcc_{self.arch}_{self.abi}.version",  # leads to recursive calls?
+                f"riscv_gcc_rv{self.xlen}.version",
+                "riscv_gcc_multilib.version",
+                "riscv_gcc.version",
+            ],
+            allow_none=True,
+        )
+
+    @property
+    def gcc_major_version(self):
+        temp = self.gcc_version
+        if temp is None:
+            return None
+        temp = str(temp)
+        assert "." in temp
+        ret = int(temp.split(".", 1)[0])
+        return ret
+
+    @property
+    def llvm_version(self):
+        return self.config["llvm.version"]
+
+    @property
+    def llvm_major_version(self):
+        temp = self.llvm_version
+        if temp is None:
+            return None
+        temp = str(temp)
+        assert "." in temp
+        ret = int(temp.split(".", 1)[0])
+        return ret
 
     @property
     def xlen(self):
@@ -213,12 +250,15 @@ class RISCVTarget(Target):
             elen=None,
             embedded_vext=False,
             vlen=None,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property
     def gcc_extensions(self):
         # return [ext for ext in (self.extensions | {"zicsr"}) if ext not in ["xcorev", "xcorevmac", "xcorevmem"]]
-        exts = {"zicsr", "zifencei"}
+        exts = {"zicsr"}
+        if self.gcc_major_version is None or self.gcc_major_version > 12:
+            exts.add("zifencei")
         for ext in self.extensions:
             if "xcv" in ext:
                 if ext[-2] != "p":
@@ -241,14 +281,6 @@ class RISCVTarget(Target):
             return f"rv{self.xlen}{exts_str}"
 
     @property
-    def cpu(self):
-        temp = self.config["cpu"]
-        if temp:
-            return temp
-        else:
-            return f"generic-rv{self.xlen}"
-
-    @property
     def llvm_arch(self):
         temp = self.config["arch"]  # TODO: allow underscores and versions
         if temp:
@@ -265,6 +297,26 @@ class RISCVTarget(Target):
         else:
             exts_str = join_extensions(sort_extensions_canonical(self.gcc_extensions, lower=True))
             return f"rv{self.xlen}{exts_str}"
+
+    @property
+    def cpu(self):
+        temp = self.config["cpu"]
+        if temp:
+            return temp
+        else:
+            return ""
+
+    @property
+    def gcc_cpu(self):
+        return self.cpu
+
+    @property
+    def llvm_cpu(self):
+        temp = self.cpu
+        if temp:
+            return temp
+        else:
+            return f"generic-rv{self.xlen}"
 
     @property
     def abi(self):
@@ -364,7 +416,14 @@ class RISCVTarget(Target):
     def cross_compiler(self):
         if not self.is_cross:
             return None
-        return f"{self.riscv_gcc_basename}-g++"
+        return f"{self.riscv_gcc_prefix}/bin/{self.riscv_gcc_basename}-g++"
+
+    @property
+    def float_abi(self):
+        value = self.config.get("float_abi", None)
+        if value is not None:
+            return value
+        return "hard" if self.fpu != "none" else "soft"  # softfp
 
     @property
     def toolchain(self):
@@ -378,26 +437,29 @@ class RISCVTarget(Target):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        # TODO refactor the following using inheritance instead of branching
-        ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
-        ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
-        # if "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
-        #     ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
-        #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
-        ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
-        ret["RISCV_ABI"] = self.abi
-        ret["RISCV_CPU"] = self.cpu
-        # llvm/clang only!
-        ret["RISCV_ATTR"] = self.attr
-        ret["RISCV_LINUX"] = not self.is_bare
-        if self.cmodel is not None:
-            ret["RISCV_CMODEL"] = self.cmodel
+        if platform in ["mlif", "mlif_litex"]:
+            # TODO refactor the following using inheritance instead of branching
+            ret["RISCV_ELF_GCC_PREFIX"] = self.riscv_gcc_prefix
+            ret["RISCV_ELF_GCC_BASENAME"] = self.riscv_gcc_basename
+            # if "pulp_gcc.install_dir" in self.REQUIRED:  # the target chooses to use the pulp_gcc toolchain
+            #     ret["RISCV_ELF_GCC_PREFIX"] = self.pulp_gcc_prefix
+            #     ret["RISCV_ELF_GCC_BASENAME"] = self.pulp_gcc_basename
+            ret["RISCV_ARCH"] = self.gcc_arch if self.toolchain == "gcc" else self.llvm_arch
+            ret["RISCV_ABI"] = self.abi
+            cpu = self.gcc_cpu if self.toolchain == "gcc" else self.llvm_cpu
+            if cpu is not None:
+                ret["RISCV_CPU"] = cpu
+            # llvm/clang only!
+            ret["RISCV_ATTR"] = self.attr
+            ret["RISCV_LINUX"] = not self.is_bare
+            if self.cmodel is not None:
+                ret["RISCV_CMODEL"] = self.cmodel
 
-        def feature_helper(attrs):
-            # TODO
-            return ""
+            def feature_helper(attrs):
+                # TODO
+                return ""
 
-        ret["RISCV_FEATURES"] = feature_helper(self.attr)
+            ret["RISCV_FEATURES"] = feature_helper(self.attr)
         return ret
 
     def get_arch(self):
@@ -411,6 +473,8 @@ class RISCVTarget(Target):
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):
         ret = {}
+        from mlonmcu.flow.registry import SUPPORTED_TVM_BACKENDS, SUPPORTED_IREE_LLVM_BACKENDS
+
         if backend in SUPPORTED_TVM_BACKENDS:
             arch_clean = self.llvm_arch.replace("imafd", "g").replace("_", "-")
             ret.update(
@@ -419,10 +483,10 @@ class RISCVTarget(Target):
                     "target_mtriple": self.riscv_gcc_basename,
                     "target_mabi": self.abi,
                     "target_mattr": self.attr,
-                    "target_mcpu": self.cpu,
+                    "target_mcpu": self.llvm_cpu,
                     "target_model": f"etiss-{arch_clean}",
                     # "target_model": f"{self.name}-{arch_clean}",
-                    "target_num_cores": 1,  # TODO: also add for non-riscv targets
+                    "target_num_cores": self.num_cores,
                     "cross_compiler": self.cross_compiler,
                     # "target_device": ?,
                     # "target_libs": ?,
@@ -431,7 +495,7 @@ class RISCVTarget(Target):
                     # "target_keys": ?,
                     # "target_opt_level": ?,
                     # "target_cl_opt": ?,
-                    # "target_mfloat_abi": ?,
+                    "target_mfloat_abi": self.float_abi,
                     # "target_fast_math_ninf": ?,
                     # "target_fast_math_contract": ?,
                     # "target_fast_math_nnan": ?,
@@ -439,7 +503,6 @@ class RISCVTarget(Target):
                     # "target_fast_math_nsz": ?,
                     # "target_fast_math_reassoc": ?,
                     # "target_fast_math_arcp": ?,
-                    # "target_model": "host",
                 }
             )
             if optimized_schedules:
@@ -457,7 +520,7 @@ class RISCVTarget(Target):
                     "target_triple": self.riscv_gcc_basename,
                     "target_abi": self.abi,
                     "target_cpu_features": self.attr,
-                    "target_cpu": self.cpu,
+                    "target_cpu": self.llvm_cpu,
                     "target_vector_width": self.get_vector_width(),
                     "target_scalable_vectorization": self.has_scalable_vectorization(),
                 }

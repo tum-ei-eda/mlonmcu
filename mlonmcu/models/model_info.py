@@ -27,6 +27,36 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
+def normalize_shape_dim(dim):
+    """Normalize a dimension to an integer, symbol, or anonymous dynamic value."""
+    if dim is None:
+        return None
+    if isinstance(dim, np.integer):
+        dim = int(dim)
+    if isinstance(dim, int):
+        return None if dim < 0 else dim
+    if isinstance(dim, complex):
+        return dim
+    if isinstance(dim, str):
+        dim = dim.strip()
+        if dim.lower() in ("", "?", "none", "any") or dim == "-1":
+            return None
+        try:
+            return int(dim)
+        except ValueError:
+            return dim
+    symbolic = str(dim).strip()
+    if symbolic:
+        return symbolic
+    raise TypeError(f"Unsupported shape dimension: {dim!r}")
+
+
+def normalize_shape(shape):
+    """Return the canonical tuple representation of a tensor shape."""
+    assert isinstance(shape, (tuple, list))
+    return tuple(normalize_shape_dim(dim) for dim in shape)
+
+
 def parse_mlir_signature(mlir_text):
 
     # Find the util.func @main signature
@@ -81,7 +111,7 @@ def parse_mlir_signature(mlir_text):
                 else:
                     shape_dtype_parts = shape_dtype_str.split("x")
                     *shape_parts, dtype = shape_dtype_parts
-                shape = [None if dim == "?" else int(dim) for dim in shape_parts]
+                shape = [normalize_shape_dim(dim) for dim in shape_parts]
             else:
                 shape = []
                 dtype = None
@@ -113,7 +143,7 @@ def parse_mlir_signature(mlir_text):
                 else:
                     shape_dtype_parts = shape_dtype_str.split("x")
                     *shape_parts, dtype = shape_dtype_parts
-                shape = [None if dim == "?" else int(dim) for dim in shape_parts]
+                shape = [normalize_shape_dim(dim) for dim in shape_parts]
             else:
                 shape = []
                 dtype = None
@@ -130,8 +160,7 @@ class TensorInfo:
         self.name = name
         if fix_names:
             self.name = self.name.replace("/", "_").replace(";", "_")
-        assert isinstance(shape, (tuple, list))
-        self.shape = shape
+        self.shape = normalize_shape(shape)
         size_lookup = {
             "float32": 4,
             "uint8": 1,
@@ -145,26 +174,53 @@ class TensorInfo:
         assert dtype in size_lookup, f"Unsupported type: {dtype}"
         self.dtype = dtype
         self.type_size = size_lookup[self.dtype]
-        # TODO: support dynamic shapes?
+
+    @property
+    def is_dynamic(self):
+        return any(dim is None or isinstance(dim, str) for dim in self.shape)
+
+    @property
+    def is_symbolic(self):
+        return any(isinstance(dim, str) for dim in self.shape)
+
+    @property
+    def symbolic_dims(self):
+        return tuple(dict.fromkeys(dim for dim in self.shape if isinstance(dim, str)))
+
+    def resolve_shape(self, symbols=None, dynamic_value=None):
+        """Resolve named and anonymous dynamic dimensions where possible."""
+        symbols = symbols or {}
+        resolved = []
+        for dim in self.shape:
+            if isinstance(dim, str):
+                value = symbols.get(dim, dynamic_value)
+                resolved.append(normalize_shape_dim(value) if value is not None else None)
+            elif dim is None:
+                resolved.append(normalize_shape_dim(dynamic_value) if dynamic_value is not None else None)
+            else:
+                resolved.append(dim)
+        return tuple(resolved)
+
+    def get_size(self, symbols=None, dynamic_value=None):
+        """Return the tensor size in bytes, or ``None`` while unresolved."""
+        ret = self.type_size
+        for dim in self.resolve_shape(symbols=symbols, dynamic_value=dynamic_value):
+            if dim is None or isinstance(dim, str):
+                return None
+            if isinstance(dim, complex):
+                real, imag = dim.real, dim.imag
+                assert real == int(real)
+                assert imag == int(imag)
+                dim = int(real) + int(imag)
+            ret *= dim
+        return ret
 
     def __repr__(self):
         return f"TensorInfo({self.name}, {self.shape}, {self.dtype}, size={self.size})"
 
     @property
     def size(self):
-        ret = self.type_size
-        for dim in self.shape:
-            if dim is None:  # assume 1
-                continue
-            if isinstance(dim, complex):
-                real = dim.real
-                imag = dim.imag
-                assert real == int(real)
-                assert imag == int(imag)
-                ret *= int(real) + int(imag)
-            else:
-                ret *= dim
-        return ret
+        return self.get_size()
 
     @property
     def c_type(self):
@@ -225,6 +281,15 @@ class ModelInfo:
     def has_outs(self):
         return len(self.out_tensors) > 0
 
+    @property
+    def is_dynamic(self):
+        return any(tensor.is_dynamic for tensor in self.in_tensors + self.out_tensors)
+
+    @property
+    def symbolic_dims(self):
+        dims = (dim for tensor in self.in_tensors + self.out_tensors for dim in tensor.symbolic_dims)
+        return tuple(dict.fromkeys(dims))
+
 
 class TfLiteModelInfo(ModelInfo):
     def __init__(self, model, fix_names=False):
@@ -244,22 +309,22 @@ class TfLiteModelInfo(ModelInfo):
 
 
 def shape_from_str(shape_str):
-    return tuple(
-        [complex(*map(int, x.split("i", 1))) if "i" in x else int(x) for x in shape_str.replace(" ", "").split(",")]
-    )
+    dims = shape_str.replace(" ", "").split(",")
+    return tuple(complex(*map(int, dim.split("i", 1))) if "i" in dim else normalize_shape_dim(dim) for dim in dims)
 
 
 def parse_relay_main(line):
     input_tensors = []
     output_tensors = []
 
-    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
-        line
-    )
+    dimension = r"(?:-?\d+|\?|Any|[a-zA-Z_][a-zA-Z0-9_]*)"
+    input_tensors_strs = re.compile(
+        rf"%[a-zA-Z0-9_]+\s?: Tensor\[\({dimension}(?:,\s*{dimension})*\), (?:[a-zA-Z0-9_]+)\]"
+    ).findall(line)
     for input_tensors_str in input_tensors_strs:
-        res = re.compile(r"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(
-            input_tensors_str
-        )
+        res = re.compile(
+            rf"%([a-zA-Z0-9_]+)\s?: Tensor\[\(({dimension}(?:,\s*{dimension})*)\), ([a-zA-Z0-9_]+)\]"
+        ).match(input_tensors_str)
         assert res is not None
         groups = res.groups()
         assert len(groups) == 3
@@ -275,9 +340,9 @@ def parse_relay_main(line):
     output_tensors_str = re.compile(r"-> (.+) {").findall(line)
     # The following depends on InferType annocations
     if len(output_tensors_str) > 0:
-        output_tensor_strs = re.compile(r"Tensor\[\([\di]+(?:, [\di]+)*\), [a-zA-Z0-9_]+\]|(?:u?int\d+)").findall(
-            output_tensors_str[0]
-        )
+        output_tensor_strs = re.compile(
+            rf"Tensor\[\({dimension}(?:,\s*{dimension})*\), [a-zA-Z0-9_]+\]|(?:u?int\d+)"
+        ).findall(output_tensors_str[0])
 
         if len(output_tensor_names_str) > 0:
             output_tensor_names = re.compile(r"\"([a-zA-Z0-9_]+)\"").findall(output_tensor_names_str[0])
@@ -288,7 +353,9 @@ def parse_relay_main(line):
         assert len(output_tensor_names) == len(output_tensor_strs)
 
         for i, output_name in enumerate(output_tensor_names):
-            res = re.compile(r"Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(output_tensor_strs[i])
+            res = re.compile(
+                rf"Tensor\[\(({dimension}(?:,\s*{dimension})*)\), ([a-zA-Z0-9_]+)\]"
+            ).match(output_tensor_strs[i])
             if res is None:
                 res = re.compile(r"(u?int\d+)").match(output_tensor_strs[i])
             assert res is not None
@@ -381,7 +448,14 @@ class ONNXModelInfo(ModelInfo):
                 tensor_type = d["type"]["tensorType"]
                 elem_type = tensor_type["elemType"]
                 dims = tensor_type["shape"]["dim"]
-                shape = [int(x["dimValue"]) if "dimValue" in x else 40 for x in dims]  # TODO: dyn shape
+                shape = [
+                    int(dim["dimValue"])
+                    if "dimValue" in dim
+                    else dim["dimParam"]
+                    if dim.get("dimParam")
+                    else None
+                    for dim in dims
+                ]
                 # dtype = str(TENSOR_TYPE_TO_NP_TYPE[elem_type])
                 dtype = str(tensor_dtype_to_np_dtype(elem_type))
                 ret.append(TensorInfo(name, shape, dtype))

@@ -107,13 +107,6 @@ class Environment:
         return configs
 
     def lookup_backend_feature_configs(self, name=None, framework=None, backend=None):
-        def helper(framework, backend, name):
-            backend_features = self.framework[framework].backends[backend].features
-            if name:
-                return [backend_features[name]]
-            else:
-                return backend_features.values()
-
         configs = []
         if framework:
             names = [framework.name for framework in self.frameworks]
@@ -123,21 +116,20 @@ class Environment:
                 names_ = [backend.name for backend in self.frameworks[index].backends]
                 index_ = names_.index(backend)
                 assert index_ is not None, f"Backend {backend} not found in environment config"
-                configs.extend(_feature_helper(self.frameworks[index].backends[index], name))
+                configs.extend(_feature_helper(self.frameworks[index].backends[index_], name))
             else:
                 for backend in self.frameworks[index].backends:
                     configs.extend(_feature_helper(backend, name))
         else:
-            for framework in self.frameworks:
+            for framework_config in self.frameworks:
                 if backend:
-                    names_ = [backend.name for backend in framework.backends]
-                    index_ = names_.index(backend)
-                    assert index_ is not None, f"Backend {backend} not found in environment config"
-                    configs.extend(_feature_helper(self.frameworks[index].backends[index], name))
+                    names_ = [backend_config.name for backend_config in framework_config.backends]
+                    if backend in names_:
+                        index_ = names_.index(backend)
+                        configs.extend(_feature_helper(framework_config.backends[index_], name))
                 else:
-                    for backend in framework.backends:
-                        configs.extend(_feature_helper(backend, name))
-                    backend = None
+                    for backend_config in framework_config.backends:
+                        configs.extend(_feature_helper(backend_config, name))
         return configs
 
     def lookup_platform_feature_configs(self, name=None, platform=None):
@@ -303,7 +295,7 @@ class Environment:
             return []
         if isinstance(default, str):
             if default == "*":  # Wildcard all enabled frameworks
-                default = self.get_enabled_backends()
+                default = self.lookup_backend_configs(framework=framework, names_only=True)
             else:
                 default = [default]
         else:
@@ -316,7 +308,7 @@ class Environment:
             return []
         if isinstance(default, str):
             if default == "*":  # Wildcard all enabled frameworks
-                default = self.get_enabled_frameworks()
+                default = self.lookup_framework_configs(names_only=True)
             else:
                 default = [default]
         else:
@@ -328,7 +320,7 @@ class Environment:
         if default is not None:
             if isinstance(default, str):
                 if default == "*":  # Wildcard all enabled targets
-                    default = self.get_enabled_targets()
+                    default = self.lookup_target_configs(names_only=True)
                 else:
                     default = [default]
             else:

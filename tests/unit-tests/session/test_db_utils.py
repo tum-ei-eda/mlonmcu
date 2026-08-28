@@ -18,9 +18,7 @@ def test_connect_to_postgres_db_uses_environment(monkeypatch):
     monkeypatch.setenv("POSTGRES_HOST", "db.example")
     monkeypatch.setenv("POSTGRES_PORT", "5433")
     assert db_utils.connect_to_postgres_db() is connection
-    connect.assert_called_once_with(
-        host="db.example", port="5433", dbname="database", user="user", password="secret"
-    )
+    connect.assert_called_once_with(host="db.example", port="5433", dbname="database", user="user", password="secret")
 
 
 def test_connect_to_postgres_db_requires_password(monkeypatch):

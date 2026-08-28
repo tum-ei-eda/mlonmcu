@@ -13,8 +13,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -90,15 +90,15 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
 
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_rows&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_rows"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="demangle_fallback">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.demangle_fallback">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">demangle_fallback</span><span class="p">(</span><span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 
-    <span class="n">exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">&quot;c++filt&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Could not find c++filt program&quot;</span>
+    <span class="n">exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s2">"c++filt"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Could not find c++filt program"</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">exe</span><span class="p">,</span> <span class="n">func_name</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">output</span></div>
 
@@ -111,13 +111,13 @@
 
     <span class="k">if</span> <span class="n">func_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">func_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_Z&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">func_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_Z"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">func_name</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">demangle</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">demangle_fallback</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not demangle symbol: </span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not demangle symbol: </span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
@@ -127,26 +127,26 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">elftools.elf.elffile</span><span class="w"> </span><span class="kn">import</span> <span class="n">ELFFile</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">elftools.elf.sections</span><span class="w"> </span><span class="kn">import</span> <span class="n">SymbolTableSection</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">elf_path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">elffile</span> <span class="o">=</span> <span class="n">ELFFile</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-        <span class="n">section</span> <span class="o">=</span> <span class="n">elffile</span><span class="o">.</span><span class="n">get_section_by_name</span><span class="p">(</span><span class="s2">&quot;.symtab&quot;</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">elffile</span><span class="o">.</span><span class="n">get_section_by_name</span><span class="p">(</span><span class="s2">".symtab"</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">section</span><span class="p">,</span> <span class="s2">&quot;Symbol Table not found!&quot;</span>
+        <span class="k">assert</span> <span class="n">section</span><span class="p">,</span> <span class="s2">"Symbol Table not found!"</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">SymbolTableSection</span><span class="p">):</span>
             <span class="n">total_footprint</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">func_footprint</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">section</span><span class="o">.</span><span class="n">iter_symbols</span><span class="p">()):</span>
-                <span class="n">ty</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;st_info&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">ty</span> <span class="o">!=</span> <span class="s2">&quot;STT_FUNC&quot;</span><span class="p">:</span>
+                <span class="n">ty</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">entry</span><span class="p">[</span><span class="s2">"st_info"</span><span class="p">][</span><span class="s2">"type"</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ty</span> <span class="o">!=</span> <span class="s2">"STT_FUNC"</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="n">func</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">name</span>
-                <span class="n">sz</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;st_size&quot;</span><span class="p">]</span>
+                <span class="n">sz</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">entry</span><span class="p">[</span><span class="s2">"st_size"</span><span class="p">]</span>
                 <span class="n">func_footprint</span><span class="p">[</span><span class="n">func</span><span class="p">]</span> <span class="o">=</span> <span class="n">sz</span>
                 <span class="n">total_footprint</span> <span class="o">+=</span> <span class="n">sz</span>
-            <span class="n">footprint_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">func_footprint</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;func&quot;</span><span class="p">,</span> <span class="s2">&quot;bytes&quot;</span><span class="p">])</span>
-            <span class="n">footprint_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">footprint_df</span><span class="p">[</span><span class="s2">&quot;rel_bytes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">footprint_df</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_footprint</span>
+            <span class="n">footprint_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">func_footprint</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"func"</span><span class="p">,</span> <span class="s2">"bytes"</span><span class="p">])</span>
+            <span class="n">footprint_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"bytes"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">footprint_df</span><span class="p">[</span><span class="s2">"rel_bytes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">footprint_df</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_footprint</span>
         <span class="k">return</span> <span class="n">footprint_df</span></div>
 
 
@@ -156,45 +156,45 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">analyze_linker_map_helper</span><span class="p">(</span><span class="n">mapFile</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">mapFile</span><span class="o">.</span><span class="n">toJson</span><span class="p">(</span><span class="n">humanReadable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;segments&quot;</span><span class="p">]</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"segments"</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
-        <span class="n">segment_name</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]</span>
+        <span class="n">segment_name</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s2">"files"</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;filepath&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="n">filepath</span><span class="p">:</span>  <span class="c1"># TODO: use regex instead</span>
-                <span class="n">library</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">filepath</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">"filepath"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">"("</span> <span class="ow">in</span> <span class="n">filepath</span><span class="p">:</span>  <span class="c1"># TODO: use regex instead</span>
+                <span class="n">library</span><span class="p">,</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">filepath</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"("</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">library</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">filepath</span>
             <span class="n">obj_short</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
             <span class="n">library_short</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">library</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">library</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">library</span>
-            <span class="n">section_type</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;sectionType&quot;</span><span class="p">]</span>
-            <span class="n">symbols</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;symbols&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">section_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.text.&quot;</span><span class="p">):</span>
-                <span class="n">symbol_name</span> <span class="o">=</span> <span class="n">unmangle_helper</span><span class="p">(</span><span class="n">section_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">section_type</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">"sectionType"</span><span class="p">]</span>
+            <span class="n">symbols</span> <span class="o">=</span> <span class="n">file</span><span class="p">[</span><span class="s2">"symbols"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">section_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">".text."</span><span class="p">):</span>
+                <span class="n">symbol_name</span> <span class="o">=</span> <span class="n">unmangle_helper</span><span class="p">(</span><span class="n">section_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">new</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">segment_name</span><span class="p">,</span>
-                    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="n">section_type</span><span class="p">,</span>
-                    <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">symbol_name</span><span class="p">,</span>
-                    <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="n">library_short</span><span class="p">,</span>
-                    <span class="s2">&quot;library_full&quot;</span><span class="p">:</span> <span class="n">library</span><span class="p">,</span>
-                    <span class="s2">&quot;object&quot;</span><span class="p">:</span> <span class="n">obj_short</span><span class="p">,</span>
-                    <span class="s2">&quot;object_full&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="p">,</span>
+                    <span class="s2">"segment"</span><span class="p">:</span> <span class="n">segment_name</span><span class="p">,</span>
+                    <span class="s2">"section"</span><span class="p">:</span> <span class="n">section_type</span><span class="p">,</span>
+                    <span class="s2">"symbol"</span><span class="p">:</span> <span class="n">symbol_name</span><span class="p">,</span>
+                    <span class="s2">"library"</span><span class="p">:</span> <span class="n">library_short</span><span class="p">,</span>
+                    <span class="s2">"library_full"</span><span class="p">:</span> <span class="n">library</span><span class="p">,</span>
+                    <span class="s2">"object"</span><span class="p">:</span> <span class="n">obj_short</span><span class="p">,</span>
+                    <span class="s2">"object_full"</span><span class="p">:</span> <span class="n">obj</span><span class="p">,</span>
                 <span class="p">}</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;.text&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">section_type</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">".text"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">section_type</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
-                <span class="n">symbol_name</span> <span class="o">=</span> <span class="n">symbol</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="n">symbol_name</span> <span class="o">=</span> <span class="n">symbol</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
                 <span class="n">new</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">segment_name</span><span class="p">,</span>
-                    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="n">section_type</span><span class="p">,</span>
-                    <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="n">symbol_name</span><span class="p">,</span>
-                    <span class="s2">&quot;library&quot;</span><span class="p">:</span> <span class="n">library_short</span><span class="p">,</span>
-                    <span class="s2">&quot;library_full&quot;</span><span class="p">:</span> <span class="n">library</span><span class="p">,</span>
-                    <span class="s2">&quot;object&quot;</span><span class="p">:</span> <span class="n">obj_short</span><span class="p">,</span>
-                    <span class="s2">&quot;object_full&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="p">,</span>
+                    <span class="s2">"segment"</span><span class="p">:</span> <span class="n">segment_name</span><span class="p">,</span>
+                    <span class="s2">"section"</span><span class="p">:</span> <span class="n">section_type</span><span class="p">,</span>
+                    <span class="s2">"symbol"</span><span class="p">:</span> <span class="n">symbol_name</span><span class="p">,</span>
+                    <span class="s2">"library"</span><span class="p">:</span> <span class="n">library_short</span><span class="p">,</span>
+                    <span class="s2">"library_full"</span><span class="p">:</span> <span class="n">library</span><span class="p">,</span>
+                    <span class="s2">"object"</span><span class="p">:</span> <span class="n">obj_short</span><span class="p">,</span>
+                    <span class="s2">"object_full"</span><span class="p">:</span> <span class="n">obj</span><span class="p">,</span>
                 <span class="p">}</span>
                 <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>
@@ -209,7 +209,7 @@
     <span class="n">ret</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">topk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">topk</span><span class="p">]</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">topk</span><span class="p">:]</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">others</span><span class="o">=</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">topk</span><span class="p">:]</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">others</span><span class="o">=</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s2">"sum"</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
@@ -221,9 +221,9 @@
 
 <div class="viewcode-block" id="agg_library_footprint">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.calc_lib_mem_footprints.agg_library_footprint">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bytes&quot;</span><span class="p">):</span>
-    <span class="n">mem_footprint_df</span><span class="p">[</span><span class="s2">&quot;func_unmangled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem_footprint_df</span><span class="p">[</span><span class="s2">&quot;func&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">unmangle_helper</span><span class="p">)</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="n">mem_footprint_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;func_unmangled&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">symbol_map_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;symbol&quot;</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"library"</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"bytes"</span><span class="p">):</span>
+    <span class="n">mem_footprint_df</span><span class="p">[</span><span class="s2">"func_unmangled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem_footprint_df</span><span class="p">[</span><span class="s2">"func"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">unmangle_helper</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">mem_footprint_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"func_unmangled"</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">symbol_map_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"symbol"</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[[</span><span class="n">by</span><span class="p">,</span> <span class="n">col</span><span class="p">]]</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">ret</span></div>
@@ -252,29 +252,29 @@
     <span class="n">symbol_map_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">symbol_map</span><span class="p">,</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;segment&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;section&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;symbol&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;object_full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;library&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;library_full&quot;</span><span class="p">,</span>
+            <span class="s2">"segment"</span><span class="p">,</span>
+            <span class="s2">"section"</span><span class="p">,</span>
+            <span class="s2">"symbol"</span><span class="p">,</span>
+            <span class="s2">"object"</span><span class="p">,</span>
+            <span class="s2">"object_full"</span><span class="p">,</span>
+            <span class="s2">"library"</span><span class="p">,</span>
+            <span class="s2">"library_full"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">)</span>
 
     <span class="n">topk</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">mem_footprint_per_func_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;func&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
-    <span class="n">library_footprint_df</span> <span class="o">=</span> <span class="n">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
-    <span class="n">mem_footprint_per_library_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">library_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;library&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
-    <span class="n">object_footprint_df</span> <span class="o">=</span> <span class="n">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">)</span>
-    <span class="n">mem_footprint_per_object_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">object_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;per_func</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mem_footprint_per_func_data</span><span class="p">,</span> <span class="n">mem_footprint_per_func_data</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;per_library</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mem_footprint_per_library_data</span><span class="p">,</span> <span class="n">mem_footprint_per_library_data</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;per_object</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mem_footprint_per_object_data</span><span class="p">,</span> <span class="n">mem_footprint_per_object_data</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span></div>
+    <span class="n">mem_footprint_per_func_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"func"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"bytes"</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
+    <span class="n">library_footprint_df</span> <span class="o">=</span> <span class="n">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">"library"</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">"bytes"</span><span class="p">)</span>
+    <span class="n">mem_footprint_per_library_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">library_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"library"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"bytes"</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
+    <span class="n">object_footprint_df</span> <span class="o">=</span> <span class="n">agg_library_footprint</span><span class="p">(</span><span class="n">mem_footprint_df</span><span class="p">,</span> <span class="n">symbol_map_df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s2">"bytes"</span><span class="p">)</span>
+    <span class="n">mem_footprint_per_object_data</span> <span class="o">=</span> <span class="n">generate_pie_data</span><span class="p">(</span><span class="n">object_footprint_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"bytes"</span><span class="p">,</span> <span class="n">topk</span><span class="o">=</span><span class="n">topk</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"per_func</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">mem_footprint_per_func_data</span><span class="p">,</span> <span class="n">mem_footprint_per_func_data</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"per_library</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">mem_footprint_per_library_data</span><span class="p">,</span> <span class="n">mem_footprint_per_library_data</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"per_object</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">mem_footprint_per_object_data</span><span class="p">,</span> <span class="n">mem_footprint_per_object_data</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

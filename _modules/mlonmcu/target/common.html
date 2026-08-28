@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,19 +87,19 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Helper functions used by MLonMCU targets&quot;&quot;&quot;</span>
+<span class="sd">"""Helper functions used by MLonMCU targets"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
@@ -116,7 +116,7 @@
 <div class="viewcode-block" id="execute">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.common.execute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Redicrection of old mlonmcu.target.common.execute to new location</span>
+<span class="w">    </span><span class="sd">"""Redicrection of old mlonmcu.target.common.execute to new location</span>
 <span class="sd">    mlonmcu.setup.utils.execute</span>
 
 <span class="sd">    Parameters</span>
@@ -125,8 +125,8 @@
 <span class="sd">        Arguments</span>
 <span class="sd">    kwargs : dict</span>
 <span class="sd">        Keyword Arguments</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;DEPRECATED: Please use mlonmcu.setup.utils.execute instead of mlonmcu.target.common.execute&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DEPRECATED: Please use mlonmcu.setup.utils.execute instead of mlonmcu.target.common.execute"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">execute_new</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -134,30 +134,30 @@
 <div class="viewcode-block" id="add_common_options">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.common.add_common_options">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a set of common options to a command line parser.</span>
+<span class="w">    </span><span class="sd">"""Add a set of common options to a command line parser.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    parser : argparse.ArgumentParser</span>
 <span class="sd">        The command line parser</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">target_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;target options&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">target_group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">"target options"</span><span class="p">)</span>
     <span class="n">target_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--feature&quot;</span><span class="p">,</span>
+        <span class="s2">"-f"</span><span class="p">,</span>
+        <span class="s2">"--feature"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;FEATURE&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"FEATURE"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">FEATURES</span><span class="p">,</span>  <span class="c1"># TODO: get from selected target?</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enabled features for target (Choices: </span><span class="si">%(choices)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Enabled features for target (Choices: </span><span class="si">%(choices)s</span><span class="s2">)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">target_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;KEY=VALUE&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Custom target config as key-value pairs&quot;</span><span class="p">,</span>
+        <span class="s2">"-c"</span><span class="p">,</span>
+        <span class="s2">"--config"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"KEY=VALUE"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Custom target config as key-value pairs"</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -177,7 +177,7 @@
 <div class="viewcode-block" id="cli">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.common.cli">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cli</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to handle the command line api for targets.</span>
+<span class="w">    </span><span class="sd">"""Utility to handle the command line api for targets.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -185,10 +185,10 @@
 <span class="sd">        The target to be used.</span>
 <span class="sd">    args : list</span>
 <span class="sd">        Interface to pass arguments to the command line parser from test functions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;ML on MCU Target&quot;</span><span class="p">)</span>
-    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;subcommand&quot;</span><span class="p">)</span>
-    <span class="n">exec_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;exec&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Run program with target&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"ML on MCU Target"</span><span class="p">)</span>
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">"subcommand"</span><span class="p">)</span>
+    <span class="n">exec_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"exec"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Run program with target"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_execute</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
         <span class="n">config</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -199,10 +199,10 @@
 
     <span class="n">exec_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">_handle_execute</span><span class="p">)</span>
     <span class="n">add_common_options</span><span class="p">(</span><span class="n">exec_parser</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-    <span class="n">exec_group</span> <span class="o">=</span> <span class="n">exec_parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Exec options&quot;</span><span class="p">)</span>
-    <span class="n">exec_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;program&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;EXE&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The program which should be executed&quot;</span><span class="p">)</span>
-    <span class="n">exec_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;extra_args&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;ARG&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Additional arguments&quot;</span><span class="p">)</span>
-    <span class="n">inspect_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;inspect&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Inspect program with target&quot;</span><span class="p">)</span>
+    <span class="n">exec_group</span> <span class="o">=</span> <span class="n">exec_parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">"Exec options"</span><span class="p">)</span>
+    <span class="n">exec_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"program"</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">"EXE"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"The program which should be executed"</span><span class="p">)</span>
+    <span class="n">exec_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"extra_args"</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">"ARG"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Additional arguments"</span><span class="p">)</span>
+    <span class="n">inspect_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"inspect"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Inspect program with target"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_inspect</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
         <span class="n">config</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -213,16 +213,16 @@
 
     <span class="n">inspect_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">_handle_inspect</span><span class="p">)</span>
     <span class="n">add_common_options</span><span class="p">(</span><span class="n">inspect_parser</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-    <span class="n">inspect_group</span> <span class="o">=</span> <span class="n">inspect_parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Inspect options&quot;</span><span class="p">)</span>
-    <span class="n">inspect_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;program&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;EXE&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The program which should be inspected&quot;</span><span class="p">)</span>
+    <span class="n">inspect_group</span> <span class="o">=</span> <span class="n">inspect_parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">"Inspect options"</span><span class="p">)</span>
+    <span class="n">inspect_group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"program"</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">"EXE"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"The program which should be inspected"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;func&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"func"</span><span class="p">):</span>
         <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid command. For usage details use &#39;--help&#39;!&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Invalid command. For usage details use '--help'!"</span><span class="p">)</span></div>
 
 
     <span class="c1"># Argparge</span>

@@ -13,8 +13,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -87,19 +87,19 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Artifacts defintions internally used to refer to intermediate results.&quot;&quot;&quot;</span>
+<span class="sd">"""Artifacts defintions internally used to refer to intermediate results."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntFlag</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -115,7 +115,7 @@
 <div class="viewcode-block" id="ArtifactFormat">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.ArtifactFormat">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ArtifactFormat</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of artifact types.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enumeration of artifact types."""</span>
 
     <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">SOURCE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
@@ -138,7 +138,7 @@
 <div class="viewcode-block" id="lookup_artifacts">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.lookup_artifacts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to get a matching artifact for a given set of properties.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Utility to get a matching artifact for a given set of properties."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
@@ -165,7 +165,7 @@
 <div class="viewcode-block" id="Artifact">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Artifact</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Artifact type.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Artifact type."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -196,17 +196,17 @@
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.serialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-            <span class="s2">&quot;flags&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">),</span>
-            <span class="s2">&quot;archive&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">archive</span><span class="p">,</span>
-            <span class="s2">&quot;optional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"fmt"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">"flags"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">),</span>
+            <span class="s2">"archive"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">archive</span><span class="p">,</span>
+            <span class="s2">"optional"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional</span><span class="p">,</span>
             <span class="o">**</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
-                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-                    <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
+                    <span class="s2">"content"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
+                    <span class="s2">"data"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="s2">"raw"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span>
                 <span class="p">}</span>
                 <span class="k">if</span> <span class="n">full</span>
                 <span class="k">else</span> <span class="p">{}</span>
@@ -218,17 +218,17 @@
     <span class="c1"># TODO: unserialize</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Artifact(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, fmt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="si">}</span><span class="s2">, flags=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Artifact(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, fmt=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="si">}</span><span class="s2">, flags=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">exported</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns true if the artifact was written to disk.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns true if the artifact was written to disk."""</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Artifact.validate">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.validate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checker for artifact attributes for the given format.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Checker for artifact attributes for the given format."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">]:</span>
@@ -250,8 +250,8 @@
 <div class="viewcode-block" id="Artifact.uncache">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.uncache">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">uncache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Can only uncache artifacts written to disk&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;Missing file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Can only uncache artifacts written to disk"</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">"Missing file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
@@ -264,7 +264,7 @@
 <div class="viewcode-block" id="Artifact.export">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.export">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">extract</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_exported</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export the artifact to a given path (file or directory) and update its path.</span>
+<span class="w">        </span><span class="sd">"""Export the artifact to a given path (file or directory) and update its path.</span>
 
 <span class="sd">        Arguments</span>
 <span class="sd">        ---------</span>
@@ -273,7 +273,7 @@
 <span class="sd">        extract : bool</span>
 <span class="sd">            If archive: extract to destination.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="n">dest</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -287,21 +287,21 @@
                     <span class="k">if</span> <span class="n">skip_exported</span><span class="p">:</span>
                         <span class="k">return</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">]:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">&quot;extract option is only available for ArtifactFormat.MLF&quot;</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">"extract option is only available for ArtifactFormat.MLF"</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">]:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">&quot;extract option is only available for ArtifactFormat.MLF&quot;</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">"extract option is only available for ArtifactFormat.MLF"</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SHARED_OBJECT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">ARCHIVE</span><span class="p">]:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">handle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">extract</span><span class="p">:</span>
                 <span class="n">utils</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
                 <span class="c1"># os.remove(filename)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">]:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">&quot;extract option is only available for ArtifactFormat.MLF&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">extract</span><span class="p">,</span> <span class="s2">"extract option is only available for ArtifactFormat.MLF"</span>
             <span class="n">utils</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -311,18 +311,18 @@
 <div class="viewcode-block" id="Artifact.print_summary">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.print_summary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Utility to print information about an artifact to the cmdline.&quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Format:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optional: &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Utility to print information about an artifact to the cmdline."""</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Format:"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Optional: "</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Content:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Content:"</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data Size: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span><span class="si">}</span><span class="s2">B&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Data Size: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span><span class="si">}</span><span class="s2">B"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SHARED_OBJECT</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">ARCHIVE</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Archive Size: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span><span class="si">}</span><span class="s2">B&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Archive Size: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span><span class="si">}</span><span class="s2">B"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">]:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File Location: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File Location: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>

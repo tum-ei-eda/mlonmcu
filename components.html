@@ -14,8 +14,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=2b916371"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -335,46 +335,94 @@
 <p>MLonMCU tries to either manage dependencies internally (hidden to the user) or rely on 3rd party platforms to install them.</p>
 <p>The following list gives and overview of the set of dependencies which are currently managed:</p>
 <ul class="simple">
-<li><p>Toolchains
-- RISC-V GCC Linux Toolchain
-- Download and extract
-- ARM GCC Linux Toolchain
-- Download and extract
-- LLVM
-- Download and extract</p></li>
-<li><p>Targets/Simulators
-- ETISS
-- Clone Repository
-- Build ETISS
-- Install ETISS
-- Build <code class="docutils literal notranslate"><span class="pre">bare_etiss_processor</span></code>
-- Spike
-- Clone Repositories
-- Build Proxy Kernel
-- Build Simulator
-- Corstone-300
-- Download and extract
-- Install FVP</p></li>
-<li><p>Frameworks/Backends
-- TFLM
-- Clone Repository
-- Download 3rd party dependencies
-- TFLite Micro Compiler
-- Clone Repository
-- Build
-- TVM
-- Clone Repository (including 3rd party dependencies)
-- Configure &amp; Build
-- uTVM Staticrt Codegen
-- Clone Repository
-- Build</p></li>
-<li><p>Features
-- muRISCV-NN
-- Clone Repository
-- Build
-- CMSIS(-NN)
-- Clone Repository
-- Build</p></li>
+<li><p>Toolchains</p>
+<ul>
+<li><p>RISC-V GCC Linux Toolchain</p>
+<ul>
+<li><p>Download and extract</p></li>
+</ul>
+</li>
+<li><p>ARM GCC Linux Toolchain</p>
+<ul>
+<li><p>Download and extract</p></li>
+</ul>
+</li>
+<li><p>LLVM</p>
+<ul>
+<li><p>Download and extract</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Targets/Simulators</p>
+<ul>
+<li><p>ETISS</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build ETISS</p></li>
+<li><p>Install ETISS</p></li>
+<li><p>Build <code class="docutils literal notranslate"><span class="pre">bare_etiss_processor</span></code></p></li>
+</ul>
+</li>
+<li><p>Spike</p>
+<ul>
+<li><p>Clone Repositories</p></li>
+<li><p>Build Proxy Kernel</p></li>
+<li><p>Build Simulator</p></li>
+</ul>
+</li>
+<li><p>Corstone-300</p>
+<ul>
+<li><p>Download and extract</p></li>
+<li><p>Install FVP</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Frameworks/Backends</p>
+<ul>
+<li><p>TFLM</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Download 3rd party dependencies</p></li>
+</ul>
+</li>
+<li><p>TFLite Micro Compiler</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+<li><p>TVM</p>
+<ul>
+<li><p>Clone Repository (including 3rd party dependencies)</p></li>
+<li><p>Configure &amp; Build</p></li>
+</ul>
+</li>
+<li><p>uTVM Staticrt Codegen</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Features</p>
+<ul>
+<li><p>muRISCV-NN</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+<li><p>CMSIS(-NN)</p>
+<ul>
+<li><p>Clone Repository</p></li>
+<li><p>Build</p></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p>The following dependencies are intentionally NOT managed by MLonMCU:</p>
 <ul class="simple">

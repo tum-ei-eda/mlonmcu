@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -127,12 +127,12 @@
 <div class="viewcode-block" id="makeFlags">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.makeFlags">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">makeFlags</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve tuple-like arguments to a list of string.</span>
+<span class="w">    </span><span class="sd">"""Resolve tuple-like arguments to a list of string.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    args</span>
-<span class="sd">        List of tuples of the form: [(True, &quot;foo&quot;), (False, &quot;bar&quot;)]</span>
+<span class="sd">        List of tuples of the form: [(True, "foo"), (False, "bar")]</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -141,9 +141,9 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; makeFlags((True, &quot;foo&quot;), (False, &quot;bar&quot;))</span>
-<span class="sd">    [&quot;foo&quot;]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; makeFlags((True, "foo"), (False, "bar"))</span>
+<span class="sd">    ["foo"]</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">check</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">check</span><span class="p">]</span></div>
 
 
@@ -151,7 +151,7 @@
 <div class="viewcode-block" id="makeDirName">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.makeDirName">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">makeDirName</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a directory name based on configuration values.</span>
+<span class="w">    </span><span class="sd">"""Creates a directory name based on configuration values.</span>
 
 <span class="sd">    Using snake_case style.</span>
 
@@ -160,7 +160,7 @@
 <span class="sd">    base : str</span>
 <span class="sd">        Prefix of the filename to be generated.</span>
 <span class="sd">    args</span>
-<span class="sd">        List of tuples of the form: [(True, &quot;foo&quot;), (False, &quot;bar&quot;)]</span>
+<span class="sd">        List of tuples of the form: [(True, "foo"), (False, "bar")]</span>
 <span class="sd">    flags : list</span>
 <span class="sd">        Optional list of additional flags to be added.</span>
 
@@ -171,20 +171,20 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; makeDirName(&quot;base&quot;, (True, &quot;foo&quot;), (False, &quot;bar&quot;), flags=[&quot;flag&quot;])</span>
-<span class="sd">    &quot;base_foo_flag&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; makeDirName("base", (True, "foo"), (False, "bar"), flags=["flag"])</span>
+<span class="sd">    "base_foo_flag"</span>
+<span class="sd">    """</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span><span class="p">]</span> <span class="o">+</span> <span class="n">makeFlags</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">flags</span><span class="p">:</span>
         <span class="n">names</span> <span class="o">=</span> <span class="n">names</span> <span class="o">+</span> <span class="n">flags</span>
-    <span class="k">return</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s2">"_"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="exec">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.exec">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute a process with the given args and using the given kwards as Popen arguments.</span>
+<span class="w">    </span><span class="sd">"""Execute a process with the given args and using the given kwards as Popen arguments.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -192,12 +192,12 @@
 <span class="sd">        The command to be executed.</span>
 <span class="sd">    kwargs</span>
 <span class="sd">        Parameters to be passed to subprocess</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;DEPRECATED: Please use utils.execute(..., ignore_output=True) instead of utils.exec(...)&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DEPRECATED: Please use utils.execute(..., ignore_output=True) instead of utils.exec(...)"</span><span class="p">)</span>
     <span class="c1"># Original implementation</span>
-    <span class="c1"># logger.debug(&quot;- Executing: &quot; + str(args))</span>
-    <span class="c1"># if &quot;cwd&quot; in kwargs:</span>
-    <span class="c1">#     logger.debug(&quot;- CWD: &quot; + str(kwargs[&quot;cwd&quot;]))</span>
+    <span class="c1"># logger.debug("- Executing: " + str(args))</span>
+    <span class="c1"># if "cwd" in kwargs:</span>
+    <span class="c1">#     logger.debug("- CWD: " + str(kwargs["cwd"]))</span>
     <span class="c1"># subprocess.run([i for i in args], **kwargs, check=True)</span>
 
     <span class="c1"># Call new implementation</span>
@@ -207,8 +207,8 @@
 
 <div class="viewcode-block" id="exec_getout">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.exec_getout">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">exec_getout</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">print_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute a process with the given args and using the given kwards as Popen arguments and return the output.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">exec_getout</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">print_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Execute a process with the given args and using the given kwards as Popen arguments and return the output.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -223,52 +223,52 @@
 <span class="sd">    -------</span>
 <span class="sd">    output</span>
 <span class="sd">        The text printed to the command line.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;DEPRECATED: Please use utils.execute(...) instead of utils.exec_getout(...)&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DEPRECATED: Please use utils.execute(...) instead of utils.exec_getout(...)"</span><span class="p">)</span>
     <span class="c1"># Original implementation:</span>
-    <span class="c1"># logger.debug(&quot;- Executing: &quot; + str(args))</span>
-    <span class="c1"># outStr = &quot;&quot;</span>
+    <span class="c1"># logger.debug("- Executing: " + str(args))</span>
+    <span class="c1"># outStr = ""</span>
     <span class="c1"># if live:</span>
     <span class="c1">#     process = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)</span>
     <span class="c1">#     try:</span>
     <span class="c1">#         for line in process.stdout:</span>
-    <span class="c1">#             new_line = prefix + line.decode(errors=&quot;replace&quot;)</span>
+    <span class="c1">#             new_line = prefix + line.decode(errors="replace")</span>
     <span class="c1">#             outStr = outStr + new_line</span>
-    <span class="c1">#             print(new_line.replace(&quot;\n&quot;, &quot;&quot;))</span>
+    <span class="c1">#             print(new_line.replace("\n", ""))</span>
     <span class="c1">#         exit_code = None</span>
     <span class="c1">#         while exit_code is None:</span>
     <span class="c1">#             exit_code = process.poll()</span>
     <span class="c1">#         if handle_exit is not None:</span>
     <span class="c1">#             exit_code = handle_exit(exit_code)</span>
-    <span class="c1">#         assert exit_code == 0, &quot;The process returned an non-zero exit code {}! (CMD: `{}`)&quot;.format(</span>
-    <span class="c1">#             exit_code, &quot; &quot;.join(list(map(str, args)))</span>
+    <span class="c1">#         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(</span>
+    <span class="c1">#             exit_code, " ".join(list(map(str, args)))</span>
     <span class="c1">#         )</span>
     <span class="c1">#     except KeyboardInterrupt:</span>
-    <span class="c1">#         logger.debug(&quot;Interrupted subprocess. Sending SIGINT signal...&quot;)</span>
+    <span class="c1">#         logger.debug("Interrupted subprocess. Sending SIGINT signal...")</span>
     <span class="c1">#         pid = process.pid</span>
     <span class="c1">#         os.kill(pid, signal.SIGINT)</span>
 
     <span class="c1"># else:</span>
     <span class="c1">#     try:</span>
     <span class="c1">#         p = subprocess.Popen([i for i in args], **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)</span>
-    <span class="c1">#         outStr = p.communicate()[0].decode(errors=&quot;replace&quot;)</span>
+    <span class="c1">#         outStr = p.communicate()[0].decode(errors="replace")</span>
     <span class="c1">#         exit_code = p.poll()</span>
-    <span class="c1">#         # outStr = p.stdout.decode(errors=&quot;replace&quot;)</span>
+    <span class="c1">#         # outStr = p.stdout.decode(errors="replace")</span>
     <span class="c1">#         if print_output:</span>
     <span class="c1">#             logger.debug(prefix + outStr)</span>
     <span class="c1">#         if handle_exit is not None:</span>
     <span class="c1">#             exit_code = handle_exit(exit_code)</span>
     <span class="c1">#         if exit_code != 0:</span>
     <span class="c1">#             logger.error(outStr)</span>
-    <span class="c1">#         assert exit_code == 0, &quot;The process returned an non-zero exit code {}! (CMD: `{}`)&quot;.format(</span>
-    <span class="c1">#             exit_code, &quot; &quot;.join(list(map(str, args)))</span>
+    <span class="c1">#         assert exit_code == 0, "The process returned an non-zero exit code {}! (CMD: `{}`)".format(</span>
+    <span class="c1">#             exit_code, " ".join(list(map(str, args)))</span>
     <span class="c1">#         )</span>
     <span class="c1">#     except KeyboardInterrupt:</span>
-    <span class="c1">#         logger.debug(&quot;Interrupted subprocess. Sending SIGINT signal...&quot;)</span>
+    <span class="c1">#         logger.debug("Interrupted subprocess. Sending SIGINT signal...")</span>
     <span class="c1">#         pid = p.pid</span>
     <span class="c1">#         os.kill(pid, signal.SIGINT)</span>
     <span class="c1">#     except subprocess.CalledProcessError as e:</span>
-    <span class="c1">#         outStr = e.output.decode(errors=&quot;replace&quot;)</span>
+    <span class="c1">#         outStr = e.output.decode(errors="replace")</span>
     <span class="c1">#         logger.error(outStr)</span>
     <span class="c1">#         raise e</span>
     <span class="c1"># return outStr</span>
@@ -294,12 +294,12 @@
     <span class="n">print_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">,</span>
     <span class="n">handle_exit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">err_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
-    <span class="n">encoding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"utf-8"</span><span class="p">,</span>
     <span class="n">stdin_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for running a program in a subprocess.</span>
+<span class="w">    </span><span class="sd">"""Wrapper for running a program in a subprocess.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -326,13 +326,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    out : str</span>
 <span class="sd">        The command line output of the command</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># TODO: catch keyboardinterrupt</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;- Executing: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
-    <span class="k">if</span> <span class="s2">&quot;cwd&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;- CWD: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cwd&quot;</span><span class="p">]))</span>
-    <span class="c1"># if &quot;env&quot; in kwargs:</span>
-    <span class="c1">#     logger.debug(&quot;- ENV: %s&quot;, str(kwargs[&quot;env&quot;]))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"- Executing: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="k">if</span> <span class="s2">"cwd"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"- CWD: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"cwd"</span><span class="p">]))</span>
+    <span class="c1"># if "env" in kwargs:</span>
+    <span class="c1">#     logger.debug("- ENV: %s", str(kwargs["env"]))</span>
     <span class="k">if</span> <span class="n">ignore_output</span><span class="p">:</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">live</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -340,11 +340,11 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">args_helper</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;[&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">&quot;]&quot;</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="k">if</span> <span class="s2">"["</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">"]"</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">or</span> <span class="s2">" "</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">"'</span>
         <span class="k">return</span> <span class="n">x</span>
 
-    <span class="n">out_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">out_str</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="k">if</span> <span class="n">live</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
             <span class="n">args</span><span class="p">,</span>
@@ -354,30 +354,30 @@
         <span class="p">)</span> <span class="k">as</span> <span class="n">process</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">stdin_data</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;stdin_data only supported if live=False&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"stdin_data only supported if live=False"</span><span class="p">)</span>
                     <span class="c1"># not working...</span>
                     <span class="c1"># process.stdin.write(stdin_data)</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
-                        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
                         <span class="n">new_line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">line</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">new_line</span> <span class="o">=</span> <span class="n">line</span>
                     <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span> <span class="o">+</span> <span class="n">new_line</span>
-                    <span class="n">print_func</span><span class="p">(</span><span class="n">new_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="n">print_func</span><span class="p">(</span><span class="n">new_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
                 <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">while</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str</span>
                     <span class="k">if</span> <span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+                        <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
                     <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out_str_</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">args_helper</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
+                <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">exit_code</span><span class="p">,</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">args_helper</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interrupted subprocess. Sending SIGINT signal...&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Interrupted subprocess. Sending SIGINT signal..."</span><span class="p">)</span>
                 <span class="n">pid</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">pid</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -390,26 +390,26 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">out_str</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">encoding</span><span class="p">:</span>
-                <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+                <span class="n">out_str</span> <span class="o">=</span> <span class="n">out_str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
                 <span class="n">out_str</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">out_str</span>
             <span class="n">exit_code</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
             <span class="c1"># print_func(out_str)</span>
             <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str</span>
                 <span class="k">if</span> <span class="n">encoding</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+                    <span class="n">out_str_</span> <span class="o">=</span> <span class="n">out_str_</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
                 <span class="n">exit_code</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">exit_code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out_str_</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">err_func</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">exit_code</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">args_helper</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
+            <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">exit_code</span><span class="p">,</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">args_helper</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interrupted subprocess. Sending SIGINT signal...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Interrupted subprocess. Sending SIGINT signal..."</span><span class="p">)</span>
             <span class="n">pid</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">pid</span>
             <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">out_str</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+            <span class="n">out_str</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
             <span class="n">err_func</span><span class="p">(</span><span class="n">out_str</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">e</span>
 
@@ -420,7 +420,7 @@
 <div class="viewcode-block" id="python">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.python">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">python</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a python script with the current interpreter.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run a python script with the current interpreter."""</span>
     <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -429,7 +429,7 @@
 <div class="viewcode-block" id="mkdirs">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.mkdirs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mkdirs</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for os.makedirs which handels the special case where the path already exits.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Wrapper for os.makedirs which handels the special case where the path already exits."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
@@ -441,12 +441,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">clone</span><span class="p">(</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dest</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">],</span>
-    <span class="n">branch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">branch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
     <span class="n">submodules</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="n">recursive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function for cloning a repository.</span>
+<span class="w">    </span><span class="sd">"""Helper function for cloning a repository.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -462,25 +462,25 @@
 <span class="sd">        If the clone should be done recursively.</span>
 <span class="sd">    refesh : bool</span>
 <span class="sd">        Enables switching the url/branch if the repo already exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">mkdirs</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">update_submodules</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">submodules</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">submodule</span> <span class="ow">in</span> <span class="n">submodules</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">submodule</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Submodules should be a list of str. </span><span class="si">{</span><span class="n">submodule</span><span class="si">}</span><span class="s2"> is not str.&quot;</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">submodules</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">submodule</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"Submodules should be a list of str. </span><span class="si">{</span><span class="n">submodule</span><span class="si">}</span><span class="s2"> is not str."</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">"update"</span><span class="p">,</span> <span class="s2">"--init"</span><span class="p">,</span> <span class="s2">"--recursive"</span><span class="p">,</span> <span class="s2">"--"</span><span class="p">,</span> <span class="o">*</span><span class="n">submodules</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="s2">&quot;--recursive&quot;</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">"update"</span><span class="p">,</span> <span class="s2">"--init"</span><span class="p">,</span> <span class="s2">"--recursive"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># TODO: share code</span>
             <span class="k">if</span> <span class="n">submodules</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">submodule</span> <span class="ow">in</span> <span class="n">submodules</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">submodule</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Submodules should be a list of str. </span><span class="si">{</span><span class="n">submodule</span><span class="si">}</span><span class="s2"> is not str.&quot;</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">submodules</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">submodule</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"Submodules should be a list of str. </span><span class="si">{</span><span class="n">submodule</span><span class="si">}</span><span class="s2"> is not str."</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">"update"</span><span class="p">,</span> <span class="s2">"--init"</span><span class="p">,</span> <span class="s2">"--"</span><span class="p">,</span> <span class="o">*</span><span class="n">submodules</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="s2">&quot;--init&quot;</span><span class="p">)</span>
+                <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">submodule</span><span class="p">(</span><span class="s2">"update"</span><span class="p">,</span> <span class="s2">"--init"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_populated</span><span class="p">(</span><span class="n">dest</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span>
@@ -489,7 +489,7 @@
             <span class="n">repo</span><span class="o">.</span><span class="n">remotes</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">set_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
             <span class="n">repo</span><span class="o">.</span><span class="n">remotes</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
             <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
-            <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>  <span class="c1"># This should also work for specific commits</span>
+            <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s2">"origin"</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>  <span class="c1"># This should also work for specific commits</span>
             <span class="n">update_submodules</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">branch</span><span class="p">:</span>
@@ -514,7 +514,7 @@
     <span class="n">repo_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">patch_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function for applying a patch to a repository.</span>
+<span class="w">    </span><span class="sd">"""Helper function for applying a patch to a repository.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -522,10 +522,10 @@
 <span class="sd">        Clone directory of repository.</span>
 <span class="sd">    patch_file : Path</span>
 <span class="sd">        Path to patch file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">repo</span> <span class="o">=</span> <span class="n">Repo</span><span class="p">(</span><span class="n">repo_dir</span><span class="p">)</span>
-    <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="s2">&quot;-xdf&quot;</span><span class="p">)</span>  <span class="c1"># Undo all changes</span>
+    <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="s2">"-xdf"</span><span class="p">)</span>  <span class="c1"># Undo all changes</span>
     <span class="n">repo</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">patch_file</span><span class="p">)</span></div>
 
 
@@ -534,13 +534,13 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.make">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span> <span class="n">use_ninja</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">cwd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Please always pass a cwd to make()&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Please always pass a cwd to make()"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">cwd</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cwd</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
     <span class="c1"># TODO: make sure that ninja is installed?</span>
     <span class="n">extraArgs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">tool</span> <span class="o">=</span> <span class="s2">&quot;ninja&quot;</span> <span class="k">if</span> <span class="n">use_ninja</span> <span class="k">else</span> <span class="s2">&quot;make&quot;</span>
-    <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-j&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">threads</span><span class="p">))</span>
+    <span class="n">tool</span> <span class="o">=</span> <span class="s2">"ninja"</span> <span class="k">if</span> <span class="n">use_ninja</span> <span class="k">else</span> <span class="s2">"make"</span>
+    <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"-j"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">threads</span><span class="p">))</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">tool</span><span class="p">]</span> <span class="o">+</span> <span class="n">extraArgs</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -550,16 +550,16 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.cmake">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cmake</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_ninja</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cmake_exe</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">cwd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Please always pass a cwd to cmake()&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Please always pass a cwd to cmake()"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">cwd</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cwd</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
-    <span class="n">buildType</span> <span class="o">=</span> <span class="s2">&quot;Debug&quot;</span> <span class="k">if</span> <span class="n">debug</span> <span class="k">else</span> <span class="s2">&quot;Release&quot;</span>
+    <span class="n">buildType</span> <span class="o">=</span> <span class="s2">"Debug"</span> <span class="k">if</span> <span class="n">debug</span> <span class="k">else</span> <span class="s2">"Release"</span>
     <span class="n">extraArgs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-DCMAKE_BUILD_TYPE=&quot;</span> <span class="o">+</span> <span class="n">buildType</span><span class="p">)</span>
+    <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"-DCMAKE_BUILD_TYPE="</span> <span class="o">+</span> <span class="n">buildType</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">use_ninja</span><span class="p">:</span>
-        <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-GNinja&quot;</span><span class="p">)</span>
+        <span class="n">extraArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"-GNinja"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cmake_exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cmake_exe</span> <span class="o">=</span> <span class="s2">&quot;cmake&quot;</span>
+        <span class="n">cmake_exe</span> <span class="o">=</span> <span class="s2">"cmake"</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmake_exe</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">)]</span> <span class="o">+</span> <span class="n">extraArgs</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">cmd</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -576,29 +576,29 @@
 
 <div class="viewcode-block" id="validate_checksum">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.validate_checksum">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">validate_checksum</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">checksum</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">allow_missmatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_checksum</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">checksum</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span> <span class="n">allow_missmatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">&quot;File does not exists: </span><span class="si">{path}</span><span class="s2">&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">checksum</span><span class="p">:</span>
-        <span class="n">mode_</span><span class="p">,</span> <span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">"File does not exists: </span><span class="si">{path}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="n">checksum</span><span class="p">:</span>
+        <span class="n">mode_</span><span class="p">,</span> <span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mode_</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">mode_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Could not infer mode from checksum&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">mode_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Could not infer mode from checksum"</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">mode_</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">mode_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">mode_</span><span class="p">,</span> <span class="s2">&quot;Checksum mode missmatch&quot;</span>
+            <span class="k">assert</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">mode_</span><span class="p">,</span> <span class="s2">"Checksum mode missmatch"</span>
     <span class="n">mode_lookup</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;sha256&quot;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">,</span>
-        <span class="s2">&quot;md5&quot;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
+        <span class="s2">"sha256"</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">,</span>
+        <span class="s2">"md5"</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">mode_lib</span> <span class="o">=</span> <span class="n">mode_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">mode_lib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unhandled checksum mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">assert</span> <span class="n">mode_lib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unhandled checksum mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">mode_lib</span> <span class="o">=</span> <span class="n">mode_lib</span><span class="p">()</span>
     <span class="c1"># See: https://gist.github.com/airtower-luna/a5df5d6143c8e9ffe7eb5deb5797a0e0</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="c1"># Read and hash the file in 4K chunks. Reading the whole</span>
         <span class="c1"># file at once might consume a lot of memory if it is</span>
         <span class="c1"># large.</span>
@@ -611,7 +611,7 @@
     <span class="n">checksum_</span> <span class="o">=</span> <span class="n">mode_lib</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
     <span class="n">checksum_matches</span> <span class="o">=</span> <span class="n">checksum</span> <span class="o">==</span> <span class="n">checksum_</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">checksum_matches</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Checksum missmatch for </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">checksum</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">checksum_</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Checksum missmatch for </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">checksum</span><span class="si">}</span><span class="s2"> vs. </span><span class="si">{</span><span class="n">checksum_</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">allow_missmatch</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -623,21 +623,21 @@
 <div class="viewcode-block" id="download">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.download">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">checksum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;- Downloading: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"- Downloading: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">hook</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wraps tqdm instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Wraps tqdm instance."""</span>
         <span class="n">last_b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">update_to</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bsize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tsize</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""</span>
 <span class="sd">            b  : int, optional</span>
 <span class="sd">                Number of blocks transferred so far [default: 1].</span>
 <span class="sd">            bsize  : int, optional</span>
 <span class="sd">                Size of each block (in tqdm units) [default: 1].</span>
 <span class="sd">            tsize  : int, optional</span>
 <span class="sd">                Total size (in tqdm units). If [default: None] remains unchanged.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">            """</span>
             <span class="k">if</span> <span class="n">tsize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="n">tsize</span>
             <span class="n">t</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">b</span> <span class="o">-</span> <span class="n">last_b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">bsize</span><span class="p">)</span>
@@ -646,7 +646,7 @@
         <span class="k">return</span> <span class="n">update_to</span>
 
     <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">miniters</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Downloading File&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">"B"</span><span class="p">,</span> <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">miniters</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">"Downloading File"</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
             <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">reporthook</span><span class="o">=</span><span class="n">hook</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
@@ -663,19 +663,19 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">handle</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
             <span class="n">members</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">getmembers</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">iterable</span><span class="o">=</span><span class="n">members</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">members</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extracting...&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">iterable</span><span class="o">=</span><span class="n">members</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">members</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">"Extracting..."</span><span class="p">):</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;zip&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">"zip"</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_file</span><span class="p">:</span>
             <span class="n">handle</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tar&quot;</span><span class="p">,</span> <span class="s2">&quot;gz&quot;</span><span class="p">,</span> <span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="s2">&quot;tgz&quot;</span><span class="p">,</span> <span class="s2">&quot;bz2&quot;</span><span class="p">]:</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"tar"</span><span class="p">,</span> <span class="s2">"gz"</span><span class="p">,</span> <span class="s2">"xz"</span><span class="p">,</span> <span class="s2">"tgz"</span><span class="p">,</span> <span class="s2">"bz2"</span><span class="p">]:</span>
         <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar_file</span><span class="p">:</span>
             <span class="n">handle</span><span class="p">(</span><span class="n">tar_file</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to detect the archive type&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unable to detect the archive type"</span><span class="p">)</span></div>
 
 
 
@@ -725,10 +725,10 @@
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
         <span class="n">tmp_archive</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">archive</span><span class="p">)</span>
         <span class="n">base_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-        <span class="k">if</span> <span class="s2">&quot;.tar&quot;</span> <span class="ow">in</span> <span class="n">base_name</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">".tar"</span> <span class="ow">in</span> <span class="n">base_name</span><span class="p">:</span>
             <span class="n">base_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">base_name</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
-        <span class="k">if</span> <span class="n">url</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
-            <span class="n">url</span> <span class="o">+=</span> <span class="s2">&quot;/&quot;</span>
+        <span class="k">if</span> <span class="n">url</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"/"</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">+=</span> <span class="s2">"/"</span>
         <span class="n">download</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="n">archive</span><span class="p">,</span> <span class="n">tmp_archive</span><span class="p">,</span> <span class="n">checksum</span><span class="o">=</span><span class="n">checksum</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">)</span>
         <span class="n">extract</span><span class="p">(</span><span class="n">tmp_archive</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">)</span>
         <span class="n">remove</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">tmp_archive</span><span class="p">))</span>
@@ -736,13 +736,13 @@
         <span class="k">if</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">base_name</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>  <span class="c1"># Archive contains a subdirectory with the same name</span>
             <span class="n">move</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">base_name</span><span class="p">),</span> <span class="n">dest</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">contents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">))</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*"</span><span class="p">))</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">tmp_dir_new</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">tmp_dir_new</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>  <span class="c1"># Archive contains a single subdirectory with a different name</span>
                     <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">tmp_dir_new</span>
             <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-                <span class="k">assert</span> <span class="n">force</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Set force=True to replace destination </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">assert</span> <span class="n">force</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Set force=True to replace destination </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">"</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
             <span class="n">move</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span></div>
 
@@ -778,7 +778,7 @@
 
     <span class="n">path</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Program </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found in path&quot;</span>
+        <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Program </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found in path"</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="c1"># path = Path(os.readlink(path))</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
@@ -790,16 +790,16 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_system_llvm">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_system_llvm</span><span class="p">(</span><span class="n">major_version_hint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">major_version_hint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;clang-</span><span class="si">{</span><span class="n">major_version_hint</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"clang-</span><span class="si">{</span><span class="n">major_version_hint</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># This will not always be the latest version but the default one...</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;clang&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"clang"</span>
     <span class="n">clang_path</span> <span class="o">=</span> <span class="n">check_program</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span>
-    <span class="n">llvm_config_path</span> <span class="o">=</span> <span class="n">clang_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;llvm-config&quot;</span>
-    <span class="k">assert</span> <span class="n">llvm_config_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;llvm-config not found in: </span><span class="si">{</span><span class="n">llvm_config_path</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">llvm_prefix</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">llvm_config_path</span><span class="p">,</span> <span class="s2">&quot;--prefix&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">llvm_config_path</span> <span class="o">=</span> <span class="n">clang_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"llvm-config"</span>
+    <span class="k">assert</span> <span class="n">llvm_config_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">"llvm-config not found in: </span><span class="si">{</span><span class="n">llvm_config_path</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">llvm_prefix</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">llvm_config_path</span><span class="p">,</span> <span class="s2">"--prefix"</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">llvm_prefix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not get llvm install dir&quot;</span>
+        <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">"Could not get llvm install dir"</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">llvm_prefix</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
@@ -809,11 +809,11 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_llvm_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_llvm_version</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">llvm_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;Not a directory: </span><span class="si">{</span><span class="n">llvm_dir</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">llvm_config</span> <span class="o">=</span> <span class="n">llvm_dir</span> <span class="o">/</span> <span class="s2">&quot;bin&quot;</span> <span class="o">/</span> <span class="s2">&quot;llvm-config&quot;</span>
+    <span class="k">assert</span> <span class="n">llvm_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">"Not a directory: </span><span class="si">{</span><span class="n">llvm_dir</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">llvm_config</span> <span class="o">=</span> <span class="n">llvm_dir</span> <span class="o">/</span> <span class="s2">"bin"</span> <span class="o">/</span> <span class="s2">"llvm-config"</span>
     <span class="k">assert</span> <span class="n">llvm_config</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
-    <span class="n">llvm_version_full</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">llvm_config</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="n">llvm_version_full</span> <span class="o">=</span> <span class="n">llvm_version_full</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">llvm_version_full</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">llvm_config</span><span class="p">,</span> <span class="s2">"--version"</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">llvm_version_full</span> <span class="o">=</span> <span class="n">llvm_version_full</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">full</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
 
@@ -833,7 +833,7 @@
     <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="k">if</span> <span class="n">user_llvm_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_llvm_dir</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="s2">&quot;Could not find user LLVM install&quot;</span>
+        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_llvm_dir</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="s2">"Could not find user LLVM install"</span>
         <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">user_llvm_dir</span>
     <span class="k">elif</span> <span class="n">use_system_llvm</span><span class="p">:</span>
         <span class="n">llvm_version_major</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">llvm_version</span><span class="p">)</span><span class="o">.</span><span class="n">major</span> <span class="k">if</span> <span class="n">llvm_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
@@ -842,20 +842,20 @@
             <span class="n">system_llvm_dir</span> <span class="o">=</span> <span class="n">detect_system_llvm</span><span class="p">(</span><span class="n">major_version_hint</span><span class="o">=</span><span class="n">llvm_version_major</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">system_llvm_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">llvm_version_major</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">llvm_version_major</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Falling back to default clang version&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Falling back to default clang version"</span><span class="p">)</span>
                 <span class="n">system_llvm_dir</span> <span class="o">=</span> <span class="n">detect_system_llvm</span><span class="p">(</span><span class="n">major_version_hint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">system_llvm_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find system LLVM install&quot;</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">"Could not find system LLVM install"</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">system_llvm_dir</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">mlonmcu_llvm_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find MLonMCU LLVM install&quot;</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">"Could not find MLonMCU LLVM install"</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">mlonmcu_llvm_dir</span>
     <span class="n">llvm_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">)</span>
     <span class="n">llvm_version</span> <span class="o">=</span> <span class="n">detect_llvm_version</span><span class="p">(</span><span class="n">llvm_dir</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">llvm_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unable to get LLVM version&quot;</span>
+    <span class="k">assert</span> <span class="n">llvm_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Unable to get LLVM version"</span>
     <span class="k">return</span> <span class="n">llvm_dir</span><span class="p">,</span> <span class="n">llvm_version</span></div>
 
 
@@ -864,10 +864,10 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.resolve_llvm_wrapper">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_llvm_wrapper</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="n">use_system_llvm</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.use_system&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">llvm_version</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">user_llvm_dir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">mlonmcu_llvm_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;llvm.install_dir&quot;</span><span class="p">)</span>
+    <span class="n">use_system_llvm</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"llvm.use_system"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">llvm_version</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"llvm.version"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">user_llvm_dir</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"llvm.install_dir"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">mlonmcu_llvm_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"llvm.install_dir"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">resolve_llvm</span><span class="p">(</span><span class="n">use_system_llvm</span><span class="p">,</span> <span class="n">llvm_version</span><span class="p">,</span> <span class="n">user_llvm_dir</span><span class="p">,</span> <span class="n">mlonmcu_llvm_dir</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span></div>
 
 
@@ -875,7 +875,7 @@
 <div class="viewcode-block" id="detect_system_cmake">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_system_cmake">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_system_cmake</span><span class="p">(</span><span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cmake&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"cmake"</span>
     <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">check_program</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cmake_exe</span></div>
 
@@ -884,7 +884,7 @@
 <div class="viewcode-block" id="detect_cmake_version">
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.detect_cmake_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_cmake_version</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]):</span>
-    <span class="n">cmake_version</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cmake_version</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">,</span> <span class="s2">"--version"</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">cmake_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
 
@@ -898,22 +898,22 @@
     <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="k">if</span> <span class="n">user_cmake_exe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_cmake_exe</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">&quot;Could not find user CMake&quot;</span>
+        <span class="k">assert</span> <span class="n">Path</span><span class="p">(</span><span class="n">user_cmake_exe</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="s2">"Could not find user CMake"</span>
         <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">user_cmake_exe</span>
     <span class="k">elif</span> <span class="n">use_system_cmake</span><span class="p">:</span>
         <span class="n">system_cmake_exe</span> <span class="o">=</span> <span class="n">detect_system_cmake</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">system_cmake_exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find system CMake&quot;</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">"Could not find system CMake"</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">system_cmake_exe</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">mlonmcu_cmake_exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">&quot;Could not find MLonMCU CMake install&quot;</span>
+            <span class="k">assert</span> <span class="n">allow_none</span><span class="p">,</span> <span class="s2">"Could not find MLonMCU CMake install"</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">mlonmcu_cmake_exe</span>
     <span class="n">cmake_exe</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">)</span>
     <span class="n">cmake_version</span> <span class="o">=</span> <span class="n">detect_cmake_version</span><span class="p">(</span><span class="n">cmake_exe</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">cmake_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Unable to get CMake version&quot;</span>
+    <span class="k">assert</span> <span class="n">cmake_version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Unable to get CMake version"</span>
     <span class="k">return</span> <span class="n">cmake_exe</span><span class="p">,</span> <span class="n">cmake_version</span></div>
 
 
@@ -922,8 +922,8 @@
 <a class="viewcode-back" href="../../../mlonmcu.setup.html#mlonmcu.setup.utils.resolve_cmake_wrapper">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_cmake_wrapper</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">allow_none</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="n">user_vars</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
-    <span class="n">use_system_cmake</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.use_system&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">mlonmcu_cmake_exe</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cmake.exe&quot;</span><span class="p">)</span>
+    <span class="n">use_system_cmake</span> <span class="o">=</span> <span class="n">user_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cmake.use_system"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">mlonmcu_cmake_exe</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cmake.exe"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">resolve_cmake</span><span class="p">(</span><span class="n">use_system_cmake</span><span class="p">,</span> <span class="n">mlonmcu_cmake_exe</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="n">allow_none</span><span class="p">)</span></div>
 
 </pre></div>

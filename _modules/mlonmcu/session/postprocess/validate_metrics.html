@@ -13,8 +13,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -87,19 +87,19 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Validation metrics utilities.&quot;&quot;&quot;</span>
+<span class="sd">"""Validation metrics utilities."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -144,8 +144,8 @@
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.ValidationMetric.get_summary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;N/A&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">%)&quot;</span></div>
+            <span class="k">return</span> <span class="s2">"N/A"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">%)"</span></div>
 </div>
 
 
@@ -184,8 +184,8 @@
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.ClassifyMetric.get_summary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;N/A&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">%)&quot;</span></div>
+            <span class="k">return</span> <span class="s2">"N/A"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_correct</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">num_total</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">%)"</span></div>
 </div>
 
 
@@ -279,17 +279,17 @@
 <div class="viewcode-block" id="TopKLabelsMetric.process_">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.TopKLabelsMetric.process_">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_data</span><span class="p">,</span> <span class="n">label_ref</span><span class="p">,</span> <span class="n">quant</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="c1"># print(&quot;process_&quot;)</span>
-        <span class="c1"># print(&quot;out_data&quot;, out_data)</span>
-        <span class="c1"># print(&quot;label_ref&quot;, label_ref)</span>
+        <span class="c1"># print("process_")</span>
+        <span class="c1"># print("out_data", out_data)</span>
+        <span class="c1"># print("label_ref", label_ref)</span>
         <span class="n">data_sorted_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">out_data</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="c1"># print(&quot;data_sorted_idx&quot;, data_sorted_idx)</span>
+        <span class="c1"># print("data_sorted_idx", data_sorted_idx)</span>
         <span class="n">data_sorted_idx_trunc</span> <span class="o">=</span> <span class="n">data_sorted_idx</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
-        <span class="c1"># print(&quot;data_sorted_idx_trunc&quot;, data_sorted_idx_trunc)</span>
+        <span class="c1"># print("data_sorted_idx_trunc", data_sorted_idx_trunc)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">label_ref</span> <span class="ow">in</span> <span class="n">data_sorted_idx_trunc</span>
-        <span class="c1"># print(&quot;res&quot;, res)</span>
+        <span class="c1"># print("res", res)</span>
         <span class="c1"># TODO: handle same values?</span>
-        <span class="c1"># input(&quot;111&quot;)</span>
+        <span class="c1"># input("111")</span>
         <span class="k">return</span> <span class="n">res</span></div>
 </div>
 
@@ -324,7 +324,7 @@
 <div class="viewcode-block" id="ConfusionMatrixMetric.process">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.ConfusionMatrixMetric.process">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_data</span><span class="p">,</span> <span class="n">label_ref</span><span class="p">,</span> <span class="n">quant</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="c1"># print(&quot;ConfusionMatrixMetric.process&quot;)</span>
+        <span class="c1"># print("ConfusionMatrixMetric.process")</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">out_data</span><span class="p">,</span> <span class="n">label_ref</span><span class="p">,</span> <span class="n">quant</span><span class="o">=</span><span class="n">quant</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_total</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -345,8 +345,8 @@
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.ConfusionMatrixMetric.get_summary">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;N/A&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="si">}</span><span class="s2">&quot;</span></div>
+            <span class="k">return</span> <span class="s2">"N/A"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="si">}</span><span class="s2">"</span></div>
 </div>
 
 
@@ -418,8 +418,8 @@
             <span class="n">ref_res</span> <span class="o">+=</span> <span class="n">ref_res</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">res</span> <span class="o">/=</span> <span class="n">length</span>
         <span class="n">ref_res</span> <span class="o">/=</span> <span class="n">length</span>
-        <span class="c1"># print(&quot;res&quot;, res)</span>
-        <span class="c1"># print(&quot;ref_res&quot;, ref_res)</span>
+        <span class="c1"># print("res", res)</span>
+        <span class="c1"># print("ref_res", ref_res)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">([</span><span class="n">res</span><span class="p">],</span> <span class="p">[</span><span class="n">ref_res</span><span class="p">],</span> <span class="n">atol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">atol</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rtol</span><span class="p">)</span></div>
 </div>
 
@@ -434,7 +434,7 @@
 <div class="viewcode-block" id="PlusMinusOneMetric.check">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.PlusMinusOneMetric.check">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_data</span><span class="p">,</span> <span class="n">out_data_ref</span><span class="p">,</span> <span class="n">quant</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;int&quot;</span> <span class="ow">in</span> <span class="n">out_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">str</span></div>
+        <span class="k">return</span> <span class="s2">"int"</span> <span class="ow">in</span> <span class="n">out_data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">str</span></div>
 
 
 <div class="viewcode-block" id="PlusMinusOneMetric.process_">
@@ -446,9 +446,9 @@
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">jjj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">data_</span><span class="p">[</span><span class="n">jjj</span><span class="p">]</span> <span class="o">-</span> <span class="n">ref_data_</span><span class="p">[</span><span class="n">jjj</span><span class="p">])</span>
-            <span class="c1"># print(&quot;diff&quot;, diff)</span>
+            <span class="c1"># print("diff", diff)</span>
             <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="c1"># print(&quot;r FALSE&quot;)</span>
+                <span class="c1"># print("r FALSE")</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 </div>
@@ -456,19 +456,19 @@
 
 
 <span class="n">LOOKUP</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;allclose&quot;</span><span class="p">:</span> <span class="n">AllCloseMetric</span><span class="p">,</span>
-    <span class="s2">&quot;topk&quot;</span><span class="p">:</span> <span class="n">TopKMetric</span><span class="p">,</span>
-    <span class="s2">&quot;acc&quot;</span><span class="p">:</span> <span class="n">AccuracyMetric</span><span class="p">,</span>
-    <span class="s2">&quot;toy&quot;</span><span class="p">:</span> <span class="n">ToyScoreMetric</span><span class="p">,</span>
-    <span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="n">MSEMetric</span><span class="p">,</span>
-    <span class="s2">&quot;+-1&quot;</span><span class="p">:</span> <span class="n">PlusMinusOneMetric</span><span class="p">,</span>
-    <span class="s2">&quot;pm1&quot;</span><span class="p">:</span> <span class="n">PlusMinusOneMetric</span><span class="p">,</span>
+    <span class="s2">"allclose"</span><span class="p">:</span> <span class="n">AllCloseMetric</span><span class="p">,</span>
+    <span class="s2">"topk"</span><span class="p">:</span> <span class="n">TopKMetric</span><span class="p">,</span>
+    <span class="s2">"acc"</span><span class="p">:</span> <span class="n">AccuracyMetric</span><span class="p">,</span>
+    <span class="s2">"toy"</span><span class="p">:</span> <span class="n">ToyScoreMetric</span><span class="p">,</span>
+    <span class="s2">"mse"</span><span class="p">:</span> <span class="n">MSEMetric</span><span class="p">,</span>
+    <span class="s2">"+-1"</span><span class="p">:</span> <span class="n">PlusMinusOneMetric</span><span class="p">,</span>
+    <span class="s2">"pm1"</span><span class="p">:</span> <span class="n">PlusMinusOneMetric</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">LABELS_LOOKUP</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;topk_label&quot;</span><span class="p">:</span> <span class="n">TopKLabelsMetric</span><span class="p">,</span>
-    <span class="s2">&quot;acc_label&quot;</span><span class="p">:</span> <span class="n">AccuracyLabelsMetric</span><span class="p">,</span>
-    <span class="s2">&quot;confusion_matrix&quot;</span><span class="p">:</span> <span class="n">ConfusionMatrixMetric</span><span class="p">,</span>
+    <span class="s2">"topk_label"</span><span class="p">:</span> <span class="n">TopKLabelsMetric</span><span class="p">,</span>
+    <span class="s2">"acc_label"</span><span class="p">:</span> <span class="n">AccuracyLabelsMetric</span><span class="p">,</span>
+    <span class="s2">"confusion_matrix"</span><span class="p">:</span> <span class="n">ConfusionMatrixMetric</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -476,10 +476,10 @@
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.parse_validate_metric_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_validate_metric_args</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">x</span>
-        <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">"="</span> <span class="ow">in</span> <span class="n">x</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -492,16 +492,16 @@
 <div class="viewcode-block" id="parse_validate_metric">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.parse_validate_metric">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_validate_metric</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">lookup</span><span class="o">=</span><span class="n">LOOKUP</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
-        <span class="n">metric_name</span><span class="p">,</span> <span class="n">inp_</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">inp_</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;)&quot;</span>
+    <span class="k">if</span> <span class="s2">"("</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
+        <span class="n">metric_name</span><span class="p">,</span> <span class="n">inp_</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"("</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">inp_</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">")"</span>
         <span class="n">inp_</span> <span class="o">=</span> <span class="n">inp_</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">metric_args</span> <span class="o">=</span> <span class="n">parse_validate_metric_args</span><span class="p">(</span><span class="n">inp_</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">metric_name</span> <span class="o">=</span> <span class="n">inp</span>
         <span class="n">metric_args</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">metric_cls</span> <span class="o">=</span> <span class="n">lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">metric_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Validate metric not found: </span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">assert</span> <span class="n">metric_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Validate metric not found: </span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">metric</span> <span class="o">=</span> <span class="n">metric_cls</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="o">**</span><span class="n">metric_args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metric</span></div>
 
@@ -511,7 +511,7 @@
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.parse_validate_metrics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_validate_metrics</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">metric_str</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">metric_str</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">):</span>
         <span class="n">metric</span> <span class="o">=</span> <span class="n">parse_validate_metric</span><span class="p">(</span><span class="n">metric_str</span><span class="p">)</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>
@@ -522,7 +522,7 @@
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.validate_metrics.parse_classify_metrics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_classify_metrics</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">metric_str</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">metric_str</span> <span class="ow">in</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">";"</span><span class="p">):</span>
         <span class="n">metric</span> <span class="o">=</span> <span class="n">parse_validate_metric</span><span class="p">(</span><span class="n">metric_str</span><span class="p">,</span> <span class="n">lookup</span><span class="o">=</span><span class="n">LABELS_LOOKUP</span><span class="p">)</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>

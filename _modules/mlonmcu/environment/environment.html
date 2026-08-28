@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -146,11 +146,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">"("</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span> <span class="o">+</span> <span class="s2">")"</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Home directory of mlonmcu environment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Home directory of mlonmcu environment."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_home</span>
 
 <div class="viewcode-block" id="Environment.from_file">
@@ -169,7 +169,7 @@
 <div class="viewcode-block" id="Environment.lookup_path">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.lookup_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">lookup_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unable to find &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; path in environment config&quot;</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unable to find '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">' path in environment config"</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
 
 
@@ -186,7 +186,7 @@
         <span class="k">if</span> <span class="n">frontend</span><span class="p">:</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">frontend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">]</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">frontend</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Frontend </span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+            <span class="k">assert</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Frontend </span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
             <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">frontend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontends</span><span class="p">:</span>
@@ -201,7 +201,7 @@
         <span class="k">if</span> <span class="n">framework</span><span class="p">:</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">]</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Framework </span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+            <span class="k">assert</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Framework </span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
             <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">:</span>
@@ -223,11 +223,11 @@
         <span class="k">if</span> <span class="n">framework</span><span class="p">:</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">framework</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">framework</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">]</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">framework</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Framework </span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+            <span class="k">assert</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Framework </span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
             <span class="k">if</span> <span class="n">backend</span><span class="p">:</span>
                 <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
                 <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+                <span class="k">assert</span> <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
                 <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
@@ -237,7 +237,7 @@
                 <span class="k">if</span> <span class="n">backend</span><span class="p">:</span>
                     <span class="n">names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">]</span>
                     <span class="n">index_</span> <span class="o">=</span> <span class="n">names_</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
-                    <span class="k">assert</span> <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>
+                    <span class="k">assert</span> <span class="n">index_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> not found in environment config"</span>
                     <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameworks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">backends</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">framework</span><span class="o">.</span><span class="n">backends</span><span class="p">:</span>
@@ -255,7 +255,7 @@
             <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Platform </span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>  <span class="c1"># TODO: do not fail, just return empty list</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Platform </span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> not found in environment config"</span>  <span class="c1"># TODO: do not fail, just return empty list</span>
             <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">platform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">platforms</span><span class="p">:</span>
@@ -272,7 +272,7 @@
             <span class="n">index</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Target </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> not found in environment config&quot;</span>  <span class="c1"># TODO: do not fail, just return empty list</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Target </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> not found in environment config"</span>  <span class="c1"># TODO: do not fail, just return empty list</span>
             <span class="n">configs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_feature_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">name</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
@@ -318,7 +318,7 @@
 <div class="viewcode-block" id="Environment.has_feature">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_feature">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;An alias for supports_feature.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""An alias for supports_feature."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">supports_feature</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
@@ -408,7 +408,7 @@
 <div class="viewcode-block" id="Environment.has_backend">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.environment.Environment.has_backend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"none"</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="n">configs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup_backend_configs</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
@@ -458,12 +458,12 @@
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_backends</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;TODO&quot;</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">"TODO"</span>
         <span class="k">return</span> <span class="n">default</span></div>
 
 
@@ -474,12 +474,12 @@
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled frameworks</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_frameworks</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;TODO&quot;</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">"TODO"</span>
         <span class="k">return</span> <span class="n">default</span></div>
 
 
@@ -489,7 +489,7 @@
         <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_target</span>
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled targets</span>
+                <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># Wildcard all enabled targets</span>
                     <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enabled_targets</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">default</span> <span class="o">=</span> <span class="p">[</span><span class="n">default</span><span class="p">]</span>
@@ -515,13 +515,13 @@
             <span class="n">cleanup_keep</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;deps&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./deps&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./logs&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./results&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./plugins&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;models&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="n">PathConfig</span><span class="p">(</span><span class="s2">&quot;./models&quot;</span><span class="p">),</span>
+            <span class="s2">"deps"</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">"./deps"</span><span class="p">),</span>
+            <span class="s2">"logs"</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">"./logs"</span><span class="p">),</span>
+            <span class="s2">"results"</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">"./results"</span><span class="p">),</span>
+            <span class="s2">"plugins"</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">"./plugins"</span><span class="p">),</span>
+            <span class="s2">"temp"</span><span class="p">:</span> <span class="n">PathConfig</span><span class="p">(</span><span class="s2">"out"</span><span class="p">),</span>
+            <span class="s2">"models"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">PathConfig</span><span class="p">(</span><span class="s2">"./models"</span><span class="p">),</span>
             <span class="p">],</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repos</span> <span class="o">=</span> <span class="p">{}</span>

@@ -13,8 +13,8 @@
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" /> 
@@ -71,7 +71,6 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../../../flow.html">mlonmcu.flow</a></li>
       <li class="breadcrumb-item active">mlonmcu.flow.tvm.backend.tvmcg</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -88,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -117,23 +116,23 @@
 <div class="viewcode-block" id="TVMCGBackend">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMCGBackend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TVMCGBackend</span><span class="p">(</span><span class="n">TVMRTBackend</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tvmcg&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"tvmcg"</span>
 
-    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">TVMRTBackend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">TVMRTBackend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"utvmcg.exe"</span><span class="p">}</span>
 
 <div class="viewcode-block" id="TVMCGBackend.get_max_workspace_size_from_metadata">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMCGBackend.get_max_workspace_size_from_metadata">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_max_workspace_size_from_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
         <span class="n">max_workspace</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">if</span> <span class="s2">&quot;modules&quot;</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">][</span><span class="s2">&quot;default&quot;</span><span class="p">][</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"modules"</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"modules"</span><span class="p">][</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"memory"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># backwards compatibility</span>
-            <span class="n">temp</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">][</span><span class="s2">&quot;operator_functions&quot;</span><span class="p">]:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">"memory"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">temp</span><span class="p">[</span><span class="s2">"functions"</span><span class="p">][</span><span class="s2">"operator_functions"</span><span class="p">]:</span>
             <span class="n">max_workspace</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                 <span class="n">max_workspace</span><span class="p">,</span>
-                <span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;workspace_size_bytes&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">&quot;workspace&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">op</span><span class="p">[</span><span class="s2">"workspace"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"workspace_size_bytes"</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="s2">"workspace"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">max_workspace</span></div>
 
@@ -147,18 +146,18 @@
         <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
-                    <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;staticrt.c&quot;</span>
-                    <span class="n">mlf_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mlf&quot;</span>
+                    <span class="n">out_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"staticrt.c"</span>
+                    <span class="n">mlf_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"mlf"</span>
                     <span class="n">mlf_bytes</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
-                    <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">mlf_bytes</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
+                    <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">mlf_bytes</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r"</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
                     <span class="n">artifact</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">,</span> <span class="n">extract</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">metadata</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">"metadata.json"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                         <span class="n">metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
-                    <span class="n">tvmcg_exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;utvmcg.exe&quot;</span><span class="p">]</span>
-                    <span class="c1"># graph_json_file = mlf_path / &quot;executor-config&quot; / &quot;graph&quot; / &quot;graph.json&quot;</span>
-                    <span class="n">graph_json_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;executor-config&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.graph&quot;</span>
-                    <span class="n">params_bin_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;parameters&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.params&quot;</span>
+                    <span class="n">tvmcg_exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"utvmcg.exe"</span><span class="p">]</span>
+                    <span class="c1"># graph_json_file = mlf_path / "executor-config" / "graph" / "graph.json"</span>
+                    <span class="n">graph_json_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">"executor-config"</span> <span class="o">/</span> <span class="s2">"graph"</span> <span class="o">/</span> <span class="s2">"default.graph"</span>
+                    <span class="n">params_bin_file</span> <span class="o">=</span> <span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">"parameters"</span> <span class="o">/</span> <span class="s2">"default.params"</span>
                     <span class="n">max_workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_workspace_size_from_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
                     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graph_json_file</span><span class="p">)</span>
@@ -166,23 +165,23 @@
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span>
                     <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">max_workspace_size</span><span class="p">))</span>
                     <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">tvmcg_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span>
-                    <span class="n">codegen_src</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                    <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;staticrt.c&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">codegen_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span>
+                    <span class="n">codegen_src</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">"staticrt.c"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">codegen_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span>
                     <span class="n">workspace_size_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="s2">&quot;tvmcg_workspace_size.txt&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">max_workspace_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+                        <span class="s2">"tvmcg_workspace_size.txt"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_workspace_size</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
                     <span class="p">)</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">workspace_size_artifact</span><span class="p">)</span>
-                    <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">&quot;tvmcg_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+                    <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">"tvmcg_out.log"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
                 <span class="k">break</span>
-        <span class="k">assert</span> <span class="n">artifact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to find MLF artifact&quot;</span>
+        <span class="k">assert</span> <span class="n">artifact</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Failed to find MLF artifact"</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
         <span class="n">main</span><span class="p">(</span>
             <span class="n">TVMCGBackend</span><span class="p">,</span>

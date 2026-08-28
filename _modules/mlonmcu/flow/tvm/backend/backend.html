@@ -13,8 +13,8 @@
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" /> 
@@ -71,7 +71,6 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../../../flow.html">mlonmcu.flow</a></li>
       <li class="breadcrumb-item active">mlonmcu.flow.tvm.backend.backend</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -88,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -135,53 +134,53 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;autotuned&quot;</span><span class="p">,</span> <span class="s2">&quot;cmsisnnbyoc&quot;</span><span class="p">,</span> <span class="s2">&quot;muriscvnnbyoc&quot;</span><span class="p">,</span> <span class="s2">&quot;disable_legalize&quot;</span><span class="p">,</span> <span class="s2">&quot;moiopt&quot;</span><span class="p">,</span> <span class="s2">&quot;uma_backends&quot;</span><span class="p">,</span> <span class="s2">&quot;fuse_ops&quot;</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"autotuned"</span><span class="p">,</span> <span class="s2">"cmsisnnbyoc"</span><span class="p">,</span> <span class="s2">"muriscvnnbyoc"</span><span class="p">,</span> <span class="s2">"disable_legalize"</span><span class="p">,</span> <span class="s2">"moiopt"</span><span class="p">,</span> <span class="s2">"uma_backends"</span><span class="p">,</span> <span class="s2">"fuse_ops"</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;print_outputs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;opt_level&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-        <span class="s2">&quot;target_device&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_mcpu&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_march&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_mtriple&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_mabi&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_mattr&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_keys&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;target_num_cores&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;tvm_target_str&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;extra_targets&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># list</span>
-        <span class="s2">&quot;extra_target_details&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># dict</span>
-        <span class="s2">&quot;desired_layout&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: NCHW, NHWC, NHWC:HWOI, ...</span>
-        <span class="s2">&quot;desired_layout_ops&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: conv2d, max_pool2d,...</span>
-        <span class="s2">&quot;desired_layout_map&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional, conv2d=NCHW, ...</span>
-        <span class="s2">&quot;disabled_passes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
-        <span class="s2">&quot;extra_pass_config&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
-        <span class="s2">&quot;use_tuning_results&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Currently compile subcommand only!</span>
-        <span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"print_outputs"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"opt_level"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">"target_device"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_mcpu"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_march"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_model"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_mtriple"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_mabi"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_mattr"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_keys"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_num_cores"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"tvm_target_str"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"extra_targets"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># list</span>
+        <span class="s2">"extra_target_details"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># dict</span>
+        <span class="s2">"desired_layout"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: NCHW, NHWC, NHWC:HWOI, ...</span>
+        <span class="s2">"desired_layout_ops"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: conv2d, max_pool2d,...</span>
+        <span class="s2">"desired_layout_map"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional, conv2d=NCHW, ...</span>
+        <span class="s2">"disabled_passes"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
+        <span class="s2">"extra_pass_config"</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
+        <span class="s2">"use_tuning_results"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"tvmc_extra_args"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Currently compile subcommand only!</span>
+        <span class="s2">"tvmc_custom_script"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py</span>
-        <span class="s2">&quot;tophub_url&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;num_threads&quot;</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
-        <span class="s2">&quot;dump&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Supports: c, relay, tir, ll</span>
-        <span class="s2">&quot;disable_vectorize&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;custom_unroll&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Experimental, RISC-V only</span>
-        <span class="s2">&quot;autotuned_mode&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;autotuned_results_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;relay_debug&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use &quot;DEFAULT=2&quot; to have most verbosity. Needs USE_RELAY_DEBUG during setup.</span>
-        <span class="s2">&quot;refresh_model_info&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;generate_wrapper&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;bool_as_int&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"tophub_url"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"num_threads"</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
+        <span class="s2">"dump"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Supports: c, relay, tir, ll</span>
+        <span class="s2">"disable_vectorize"</span><span class="p">:</span> <span class="s2">"auto"</span><span class="p">,</span>
+        <span class="s2">"custom_unroll"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Experimental, RISC-V only</span>
+        <span class="s2">"autotuned_mode"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"autotuned_results_file"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"relay_debug"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.</span>
+        <span class="s2">"refresh_model_info"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"generate_wrapper"</span><span class="p">:</span> <span class="s2">"auto"</span><span class="p">,</span>
+        <span class="s2">"bool_as_int"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.use_tlcpack&quot;</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tvm.build_dir"</span><span class="p">,</span> <span class="s2">"tvm.pythonpath"</span><span class="p">,</span> <span class="s2">"tvm.configs_dir"</span><span class="p">,</span> <span class="s2">"tvm.use_tlcpack"</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;mlf&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">"c"</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">"crt"</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">"mlf"</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="s2">&quot;tvm&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="s2">"tvm"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Actual filename!</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span> <span class="o">=</span> <span class="kc">None</span>
@@ -195,13 +194,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span> <span class="o">=</span> <span class="n">system_lib</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">"default"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[]</span>
         <span class="p">)</span>  <span class="c1"># TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">results_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuned_results_file&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autotuned_mode&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">results_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"autotuned_results_file"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"autotuned_mode"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">[</span><span class="n">tuner_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_file</span>
@@ -213,7 +212,7 @@
     <span class="c1"># def tuning_records(self):</span>
     <span class="c1">#     if self._tuning_records:</span>
     <span class="c1">#         return self._tuning_records</span>
-    <span class="c1">#     return self.config.get(&quot;autotuning_results_file&quot;, None):</span>
+    <span class="c1">#     return self.config.get("autotuning_results_file", None):</span>
 
     <span class="c1"># @tuning_records.setter</span>
     <span class="c1"># def tuning_records(self, filepath):</span>
@@ -223,8 +222,8 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.set_tuning_records">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_tuning_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">records</span><span class="p">,</span> <span class="n">tuner_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuned_mode&quot;</span><span class="p">]</span>
-            <span class="c1"># tuner_name = &quot;autotvm&quot;</span>
+            <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"autotuned_mode"</span><span class="p">]</span>
+            <span class="c1"># tuner_name = "autotvm"</span>
             <span class="k">assert</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">[</span><span class="n">tuner_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">records</span></div>
 
@@ -233,8 +232,8 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tuning_records">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_tuning_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tuner_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;autotuned_mode&quot;</span><span class="p">]</span>
-            <span class="c1"># tuner_name = &quot;autotvm&quot;</span>
+            <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"autotuned_mode"</span><span class="p">]</span>
+            <span class="c1"># tuner_name = "autotvm"</span>
             <span class="k">if</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">tuner_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
@@ -243,14 +242,14 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">disable_vectorize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;disable_vectorize&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">temp</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">]):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"disable_vectorize"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">temp</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"AUTO"</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">"c"</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extra_pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_pass_config&quot;</span><span class="p">]</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"extra_pass_config"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">extra</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -262,209 +261,209 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tir.disable_vectorize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_vectorize</span><span class="p">}</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tir.disable_vectorize"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_vectorize</span><span class="p">}</span>
         <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_pass_config</span>
         <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">base</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_device&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_device"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_mcpu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_mcpu&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mcpu"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_march</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_march&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_march"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_mtriple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_mtriple&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mtriple"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_mabi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_mabi&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mabi"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_mattr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_mattr&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mattr"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_keys&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_keys"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_model&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_model"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_num_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;target_num_cores&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_num_cores"</span><span class="p">]</span>
 
     <span class="c1"># TODO:</span>
-    <span class="c1"># &quot;target_device&quot;: ?,</span>
-    <span class="c1"># &quot;target_libs&quot;: ?,</span>
-    <span class="c1"># &quot;target_tag&quot;: ?,</span>
-    <span class="c1"># &quot;target_march&quot;: ?,</span>
-    <span class="c1"># &quot;target_keys&quot;: ?,</span>
-    <span class="c1"># &quot;target_opt_level&quot;: ?,</span>
-    <span class="c1"># &quot;target_cl_opt&quot;: ?,</span>
-    <span class="c1"># &quot;target_mfloat_abi&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math_ninf&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math_contract&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math_nnan&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math_nsz&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math_reassoc&quot;: ?,</span>
-    <span class="c1"># &quot;target_fast_math_arcp&quot;: ?,</span>
+    <span class="c1"># "target_device": ?,</span>
+    <span class="c1"># "target_libs": ?,</span>
+    <span class="c1"># "target_tag": ?,</span>
+    <span class="c1"># "target_march": ?,</span>
+    <span class="c1"># "target_keys": ?,</span>
+    <span class="c1"># "target_opt_level": ?,</span>
+    <span class="c1"># "target_cl_opt": ?,</span>
+    <span class="c1"># "target_mfloat_abi": ?,</span>
+    <span class="c1"># "target_fast_math_ninf": ?,</span>
+    <span class="c1"># "target_fast_math_contract": ?,</span>
+    <span class="c1"># "target_fast_math_nnan": ?,</span>
+    <span class="c1"># "target_fast_math": ?,</span>
+    <span class="c1"># "target_fast_math_nsz": ?,</span>
+    <span class="c1"># "target_fast_math_reassoc": ?,</span>
+    <span class="c1"># "target_fast_math_arcp": ?,</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bool_as_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;bool_as_int&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"bool_as_int"</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extra_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_targets&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"extra_targets"</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extra_target_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;extra_target_details&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"extra_target_details"</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">desired_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;desired_layout&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"desired_layout"</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">desired_layout_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;desired_layout_ops&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"desired_layout_ops"</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">desired_layout_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;desired_layout_map&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"desired_layout_map"</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">opt_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;opt_level&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"opt_level"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">use_tuning_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_tuning_results&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"use_tuning_results"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvmc_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_extra_args&quot;</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvmc_extra_args"</span><span class="p">],</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvmc_custom_script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvmc_custom_script&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvmc_custom_script"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">disabled_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;disabled_passes&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"disabled_passes"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.pythonpath&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.pythonpath"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.build_dir&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.build_dir"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvm_configs_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.configs_dir&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.configs_dir"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tophub_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tophub_url&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tophub_url"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;print_outputs&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"print_outputs"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">use_tlcpack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm.use_tlcpack&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.use_tlcpack"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">custom_unroll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;custom_unroll&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"custom_unroll"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TVMBackend.gen_tvm_target_str">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.gen_tvm_target_str">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">gen_tvm_target_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">kind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_keys</span> <span class="ow">or</span> <span class="s2">&quot;cpu&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_keys</span> <span class="ow">or</span> <span class="s2">"cpu"</span>
         <span class="k">if</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="n">keys_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;-keys=</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">keys_str</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">keys_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"-keys=</span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">keys_str</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">,</span>
-            <span class="s2">&quot;mcpu&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">,</span>
-            <span class="s2">&quot;march&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span><span class="p">,</span>
-            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">,</span>
-            <span class="s2">&quot;mtriple&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span><span class="p">,</span>
-            <span class="s2">&quot;mabi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span><span class="p">,</span>
-            <span class="o">**</span><span class="p">({</span><span class="s2">&quot;mattr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;llvm&quot;</span> <span class="k">else</span> <span class="p">{}),</span>
-            <span class="s2">&quot;num_cores&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">,</span>
+            <span class="s2">"device"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">,</span>
+            <span class="s2">"mcpu"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">,</span>
+            <span class="s2">"march"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span><span class="p">,</span>
+            <span class="s2">"model"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">,</span>
+            <span class="s2">"mtriple"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span><span class="p">,</span>
+            <span class="s2">"mabi"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">"mattr"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">"llvm"</span> <span class="k">else</span> <span class="p">{}),</span>
+            <span class="s2">"num_cores"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">,</span>
             <span class="c1"># TODO: alignment</span>
         <span class="p">}</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">helper</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">val</span>
 
-        <span class="n">attr_strs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">helper</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">attr_strs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">helper</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_strs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">attrs_str</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr_strs</span><span class="p">)</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">attrs_str</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="c1"># &quot;extra_targets&quot;: None,  # list</span>
-        <span class="c1"># &quot;extra_target_details&quot;: None,  # dict</span>
+            <span class="n">attrs_str</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attr_strs</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">attrs_str</span><span class="si">}</span><span class="s2">"</span>
+        <span class="c1"># "extra_targets": None,  # list</span>
+        <span class="c1"># "extra_target_details": None,  # dict</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tvm_target_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;tvm_target_str&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm_target_str"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_tvm_target_str</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;dump&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"dump"</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">","</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;relay&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;ll&quot;</span><span class="p">,</span> <span class="s2">&quot;tir&quot;</span><span class="p">,</span> <span class="s2">&quot;tir0&quot;</span><span class="p">,</span> <span class="s2">&quot;tir1&quot;</span><span class="p">,</span> <span class="s2">&quot;tir2&quot;</span><span class="p">,</span> <span class="s2">&quot;tir3&quot;</span><span class="p">,</span> <span class="s2">&quot;dso&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"relay"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"ll"</span><span class="p">,</span> <span class="s2">"tir"</span><span class="p">,</span> <span class="s2">"tir0"</span><span class="p">,</span> <span class="s2">"tir1"</span><span class="p">,</span> <span class="s2">"tir2"</span><span class="p">,</span> <span class="s2">"tir3"</span><span class="p">,</span> <span class="s2">"dso"</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">needs_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;llvm&quot;</span>  <span class="c1"># not c</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">"llvm"</span>  <span class="c1"># not c</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">refresh_model_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;refresh_model_info&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"refresh_model_info"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;generate_wrapper&quot;</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"generate_wrapper"</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;mlf&quot;</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"mlf"</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
@@ -472,37 +471,37 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_threads&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"num_threads"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relay_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;relay_debug&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"relay_debug"</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TVMBackend.get_target_details">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_details">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_target_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;device&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"device"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;mcpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"mcpu"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;march&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"march"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;mtriple&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"mtriple"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;mabi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"mabi"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span><span class="p">:</span>
             <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_unroll</span><span class="p">:</span>
-                <span class="n">temp</span> <span class="o">+=</span> <span class="s2">&quot;,+no-default-unroll&quot;</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;mattr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+                <span class="n">temp</span> <span class="o">+=</span> <span class="s2">",+no-default-unroll"</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"mattr"</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_keys</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_keys</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"keys"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_keys</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;num-cores&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"num-cores"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -510,10 +509,10 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_tvmc_compile_args">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aot&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">],</span> <span class="s2">&quot;Unsupported TVM executor&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"aot"</span><span class="p">,</span> <span class="s2">"graph"</span><span class="p">],</span> <span class="s2">"Unsupported TVM executor"</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--relay-params&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">"--relay-params"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="o">*</span><span class="n">get_target_tvmc_args</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
                 <span class="n">extra_targets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_targets</span><span class="p">,</span>
@@ -527,12 +526,12 @@
             <span class="o">*</span><span class="n">get_input_shapes_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_tuning_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tuning_records</span><span class="p">()),</span>
             <span class="o">*</span><span class="n">get_desired_layout_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_layout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_layout_ops</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_layout_map</span><span class="p">),</span>
-            <span class="o">*</span><span class="p">([</span><span class="s2">&quot;--dump-code&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dump</span><span class="p">)]</span> <span class="k">if</span> <span class="n">dump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="o">*</span><span class="p">([</span><span class="s2">"--dump-code"</span><span class="p">,</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dump</span><span class="p">)]</span> <span class="k">if</span> <span class="n">dump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_extra_args</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--opt-level&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--model-format&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--opt-level"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">opt_level</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--output"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"-f"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--model-format"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="p">],</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
@@ -549,11 +548,11 @@
             <span class="n">debug_cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relay_debug</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_tlcpack</span><span class="p">:</span>
-            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tvmc&quot;</span><span class="p">]</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"tvmc"</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">pre</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;tvm.driver.tvmc&quot;</span><span class="p">]</span>
+                <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"tvm.driver.tvmc"</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pre</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_custom_script</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="o">*</span><span class="n">pre</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span></div>
@@ -569,12 +568,12 @@
             <span class="n">ret</span> <span class="o">=</span> <span class="n">exec_timeout</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">,</span>
-                <span class="s2">&quot;compile&quot;</span><span class="p">,</span>
+                <span class="s2">"compile"</span><span class="p">,</span>
                 <span class="o">*</span><span class="n">args</span><span class="p">,</span>
                 <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">&quot;compile&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc</span><span class="p">(</span><span class="s2">"compile"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -602,9 +601,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">=</span> <span class="n">get_model_format</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">!=</span> <span class="s2">&quot;relay&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">!=</span> <span class="s2">"relay"</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Fetching of Model Info failed (</span><span class="si">%s</span><span class="s2">). Falling back to Relay-based info.&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                        <span class="s2">"Fetching of Model Info failed (</span><span class="si">%s</span><span class="s2">). Falling back to Relay-based info."</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -617,7 +616,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span><span class="p">]</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                    <span class="p">),</span> <span class="s2">&quot;Missmatch between provided input names and detected ones&quot;</span>
+                    <span class="p">),</span> <span class="s2">"Missmatch between provided input names and detected ones"</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span> <span class="o">=</span> <span class="p">{</span><span class="n">tensor</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">:</span>
@@ -628,10 +627,10 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_graph_and_params_from_mlf">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_graph_and_params_from_mlf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;executor-config&quot;</span> <span class="o">/</span> <span class="s2">&quot;graph&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.graph&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"executor-config"</span> <span class="o">/</span> <span class="s2">"graph"</span> <span class="o">/</span> <span class="s2">"default.graph"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">graph</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">params</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;parameters&quot;</span> <span class="o">/</span> <span class="s2">&quot;default.params&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"parameters"</span> <span class="o">/</span> <span class="s2">"default.params"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">params</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">params</span></div>
@@ -643,106 +642,106 @@
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">dump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_model_info</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_wrapper</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;relay&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
-            <span class="n">dump</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;relay&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_model_info</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_wrapper</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"relay"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
+            <span class="n">dump</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"relay"</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
-            <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar&quot;</span>
+            <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar"</span>
             <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_compile</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;mlf&quot;</span><span class="p">:</span>
-                <span class="n">mlf_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mlf&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"mlf"</span><span class="p">:</span>
+                <span class="n">mlf_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"mlf"</span>
                 <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">&quot;metadata.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mlf_path</span> <span class="o">/</span> <span class="s2">"metadata.json"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">metadata_txt</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                 <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.json"</span><span class="p">,</span>
                         <span class="n">content</span><span class="o">=</span><span class="n">metadata_txt</span><span class="p">,</span>
                         <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                 <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">Artifact</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar"</span><span class="p">,</span>
                         <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SHARED_OBJECT</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;so&quot;</span> <span class="k">else</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SHARED_OBJECT</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"so"</span> <span class="k">else</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span>
                         <span class="n">archive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;c&quot;</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.c&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"c"</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">".c"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">mod_src</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Artifact</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.c&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.c"</span><span class="p">,</span>
                             <span class="n">content</span><span class="o">=</span><span class="n">mod_src</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
                             <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;relay&quot;</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.relay&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"relay"</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">".relay"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">mod_txt</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Artifact</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.relay&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.relay"</span><span class="p">,</span>
                             <span class="n">content</span><span class="o">=</span><span class="n">mod_txt</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
                             <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;ll&quot;</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.ll&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"ll"</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">".ll"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                     <span class="n">mod_txt</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Artifact</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.ll&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.ll"</span><span class="p">,</span>
                             <span class="n">content</span><span class="o">=</span><span class="n">mod_txt</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
                             <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-            <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tir&quot;</span><span class="p">,</span> <span class="s2">&quot;tir0&quot;</span><span class="p">,</span> <span class="s2">&quot;tir1&quot;</span><span class="p">,</span> <span class="s2">&quot;tir2&quot;</span><span class="p">,</span> <span class="s2">&quot;tir3&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"tir"</span><span class="p">,</span> <span class="s2">"tir0"</span><span class="p">,</span> <span class="s2">"tir1"</span><span class="p">,</span> <span class="s2">"tir2"</span><span class="p">,</span> <span class="s2">"tir3"</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">".</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                         <span class="n">mod_tir</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="n">Artifact</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                                 <span class="n">content</span><span class="o">=</span><span class="n">mod_tir</span><span class="p">,</span>
                                 <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
                                 <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="p">)</span>
                         <span class="p">)</span>
             <span class="c1"># TODO: Handle DSO dump?</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">==</span> <span class="s2">&quot;graph&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;so&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">==</span> <span class="s2">"graph"</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"so"</span><span class="p">:</span>
                     <span class="k">pass</span>
                     <span class="c1"># raise NotImplementedError</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;mlf&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"mlf"</span><span class="p">:</span>
                     <span class="n">graph</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_graph_and_params_from_mlf</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Artifact</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.graph&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.graph"</span><span class="p">,</span>
                             <span class="n">content</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
                     <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Artifact</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.params&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.params"</span><span class="p">,</span>
                             <span class="n">raw</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
                             <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unsupported fmt&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unsupported fmt"</span><span class="p">)</span>
         <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
-            <span class="s2">&quot;tvmc_compile_out.log&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
+            <span class="s2">"tvmc_compile_out.log"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span>
         <span class="p">)</span>  <span class="c1"># TODO: rename to tvmaot_out.log?</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="n">Metrics</span><span class="p">()}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">Metrics</span><span class="p">()}</span></div>
 </div>
 
 </pre></div>

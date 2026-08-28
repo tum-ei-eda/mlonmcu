@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -106,11 +106,11 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.metadata.parse_metadata">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="n">content</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yamlfile</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">yamlfile</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yamlfile</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not open YAML file: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not open YAML file: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
     <span class="k">return</span> <span class="n">content</span></div>
 
 
@@ -125,15 +125,15 @@
 <span class="c1"># class ModelMetadata:</span>
 <span class="c1">#     def __init__(</span>
 <span class="c1">#         self,</span>
-<span class="c1">#         author=&quot;unknown&quot;,</span>
-<span class="c1">#         description=&quot;&quot;,</span>
+<span class="c1">#         author="unknown",</span>
+<span class="c1">#         description="",</span>
 <span class="c1">#         created_at=None,</span>
 <span class="c1">#         references=None,</span>
 <span class="c1">#         comment=None,</span>
 <span class="c1">#         backend_options_map=None,</span>
 <span class="c1">#     ):</span>
-<span class="c1">#         self.author = author if author is not None else &quot;unknown&quot;</span>
-<span class="c1">#         self.description = description if description is not None else &quot;&quot;</span>
+<span class="c1">#         self.author = author if author is not None else "unknown"</span>
+<span class="c1">#         self.description = description if description is not None else ""</span>
 <span class="c1">#         self.created_at = created_at</span>
 <span class="c1">#         self.refrences = references if references is not None else []</span>
 <span class="c1">#         self.comment = comment</span>
@@ -142,14 +142,14 @@
 <span class="c1">#         )</span>
 <span class="c1">#</span>
 <span class="c1">#     def __repr__(self):</span>
-<span class="c1">#         return &quot;ModelMetadata(&quot; + str(vars(self)) + &quot;)&quot;</span>
+<span class="c1">#         return "ModelMetadata(" + str(vars(self)) + ")"</span>
 <span class="c1">#</span>
 <span class="c1">#</span>
 <span class="c1"># class TfLitelMetadata(ModelMetadata):</span>
 <span class="c1">#     def __init__(</span>
 <span class="c1">#         self,</span>
-<span class="c1">#         author=&quot;unknown&quot;,</span>
-<span class="c1">#         description=&quot;&quot;,</span>
+<span class="c1">#         author="unknown",</span>
+<span class="c1">#         description="",</span>
 <span class="c1">#         created_at=None,</span>
 <span class="c1">#         references=None,</span>
 <span class="c1">#         comment=None,</span>
@@ -169,36 +169,36 @@
 <span class="c1">#</span>
 <span class="c1">#</span>
 <span class="c1"># def parse_metadata(path):</span>
-<span class="c1">#     with open(path, &quot;r&quot;) as yamlfile:</span>
+<span class="c1">#     with open(path, "r") as yamlfile:</span>
 <span class="c1">#         try:</span>
 <span class="c1">#             content = yaml.safe_load(yamlfile)</span>
 <span class="c1">#             if not content:</span>
 <span class="c1">#                 # file empty</span>
 <span class="c1">#                 return ModelMetadata()</span>
-<span class="c1">#             if &quot;author&quot; in content:</span>
-<span class="c1">#                 author = content[&quot;author&quot;]</span>
+<span class="c1">#             if "author" in content:</span>
+<span class="c1">#                 author = content["author"]</span>
 <span class="c1">#             else:</span>
 <span class="c1">#                 author = None</span>
-<span class="c1">#             if &quot;description&quot; in content:</span>
-<span class="c1">#                 description = content[&quot;description&quot;]</span>
+<span class="c1">#             if "description" in content:</span>
+<span class="c1">#                 description = content["description"]</span>
 <span class="c1">#             else:</span>
 <span class="c1">#                 description = None</span>
-<span class="c1">#             if &quot;created_at&quot; in content:</span>
-<span class="c1">#                 created_at = content[&quot;created_at&quot;]</span>
+<span class="c1">#             if "created_at" in content:</span>
+<span class="c1">#                 created_at = content["created_at"]</span>
 <span class="c1">#             else:</span>
 <span class="c1">#                 created_at = None</span>
-<span class="c1">#             if &quot;references&quot; in content:</span>
-<span class="c1">#                 references = content[&quot;references&quot;]</span>
+<span class="c1">#             if "references" in content:</span>
+<span class="c1">#                 references = content["references"]</span>
 <span class="c1">#                 assert isinstance(references, list)</span>
 <span class="c1">#             else:</span>
 <span class="c1">#                 references = []</span>
-<span class="c1">#             if &quot;comment&quot; in content:</span>
-<span class="c1">#                 comment = content[&quot;comment&quot;]</span>
+<span class="c1">#             if "comment" in content:</span>
+<span class="c1">#                 comment = content["comment"]</span>
 <span class="c1">#             else:</span>
 <span class="c1">#                 comment = None</span>
 <span class="c1">#             backend_options_map = {}</span>
-<span class="c1">#             if &quot;backends&quot; in content:</span>
-<span class="c1">#                 backends = content[&quot;backends&quot;]</span>
+<span class="c1">#             if "backends" in content:</span>
+<span class="c1">#                 backends = content["backends"]</span>
 <span class="c1">#                 for backend in backends:</span>
 <span class="c1">#                     backend_options = parse_model_options_for_backend(</span>
 <span class="c1">#                         backend, backends[backend]</span>
@@ -214,7 +214,7 @@
 <span class="c1">#             )</span>
 <span class="c1">#             return metadata</span>
 <span class="c1">#         except yaml.YAMLError as err:</span>
-<span class="c1">#             raise RuntimeError(f&quot;Could not open YAML file: {path}&quot;) from err</span>
+<span class="c1">#             raise RuntimeError(f"Could not open YAML file: {path}") from err</span>
 <span class="c1">#</span>
 <span class="c1">#     return None</span>
 </pre></div>

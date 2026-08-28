@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -116,7 +116,7 @@
 <div class="viewcode-block" id="get_model_directories">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.get_model_directories">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_model_directories</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
-    <span class="n">dirs</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span>
+    <span class="n">dirs</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"models"</span><span class="p">]</span>
     <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">path</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">dirs</span></div>
 
@@ -125,8 +125,8 @@
 <div class="viewcode-block" id="find_metadata">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.find_metadata">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_metadata</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">possible_basenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="s2">&quot;definition&quot;</span><span class="p">]</span>
-    <span class="n">possible_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;yml&quot;</span><span class="p">]</span>
+    <span class="n">possible_basenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"model"</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="s2">"definition"</span><span class="p">]</span>
+    <span class="n">possible_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"yaml"</span><span class="p">,</span> <span class="s2">"yml"</span><span class="p">]</span>
     <span class="n">directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
     <span class="n">dirname</span> <span class="o">=</span> <span class="n">directory</span><span class="o">.</span><span class="n">name</span>
     <span class="k">if</span> <span class="n">dirname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">possible_basenames</span><span class="p">:</span>
@@ -135,11 +135,11 @@
         <span class="n">possible_basenames</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">possible_basenames</span><span class="p">,</span> <span class="n">possible_extensions</span><span class="p">):</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">fullpath</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">/</span> <span class="n">filename</span>
         <span class="k">if</span> <span class="n">fullpath</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">fullpath</span>
-            <span class="c1"># logger.debug(&quot;Found match. Ignoring other files&quot;)</span>
+            <span class="c1"># logger.debug("Found match. Ignoring other files")</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
@@ -154,40 +154,40 @@
 <span class="p">):</span>  <span class="c1"># TODO: get config from environment or cmdline!</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
     <span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span> <span class="k">if</span> <span class="n">formats</span> <span class="k">else</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">formats</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;No formats provided for model lookup&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">formats</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"No formats provided for model lookup"</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_cache</span><span class="p">:</span>
         <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">formats</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>  <span class="c1"># TODO: hash!</span>
         <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">in</span> <span class="n">MODELS_CACHE</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Model cache hit.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Model cache hit."</span><span class="p">)</span>
             <span class="n">temp</span> <span class="o">=</span> <span class="n">MODELS_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">temp</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Model cache miss.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Model cache miss."</span><span class="p">)</span>
     <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">depth</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># TODO: implement for arm ml zoo</span>
             <span class="c1"># define all allowed extensions + search recusively (with limit?)</span>
-            <span class="c1"># list(Path(&quot;.&quot;).rglob(f&quot;*.{ext}&quot;)) for ext in allowed_ext</span>
+            <span class="c1"># list(Path(".").rglob(f"*.{ext}")) for ext in allowed_ext</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not a directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Not a directory: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">o</span><span class="p">))]</span>
         <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
             <span class="n">dirname</span> <span class="o">=</span> <span class="n">subdir</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">if</span> <span class="n">dirname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
-                <span class="c1"># logger.debug(&quot;Skipping hidden directory: %s&quot;, str(dirname))</span>
+            <span class="k">if</span> <span class="n">dirname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">):</span>
+                <span class="c1"># logger.debug("Skipping hidden directory: %s", str(dirname))</span>
                 <span class="k">continue</span>
             <span class="n">exts</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">extensions</span>
             <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
-                <span class="n">main_model</span> <span class="o">=</span> <span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">main_model</span> <span class="o">=</span> <span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">main_model</span><span class="p">):</span>
-                    <span class="n">main_model</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">main_model</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">main_model</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">submodels</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;*.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)):</span>
-                    <span class="n">basename</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="n">submodels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"*.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span><span class="p">)):</span>
+                    <span class="n">basename</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">submodels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">submodels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">main_model</span> <span class="o">=</span> <span class="n">submodels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -195,17 +195,17 @@
                 <span class="k">if</span> <span class="n">main_model</span><span class="p">:</span>
                     <span class="n">submodels</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">main_model</span><span class="p">)</span>
 
-                    <span class="n">main_base</span> <span class="o">=</span> <span class="n">main_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">main_base</span> <span class="o">=</span> <span class="n">main_model</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">main_config</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">main_metadata_path</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">main_base</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">main_metadata_path</span><span class="p">:</span>
-                        <span class="n">main_config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">main_base</span><span class="si">}</span><span class="s2">.metadata_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">main_metadata_path</span>
+                        <span class="n">main_config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">main_base</span><span class="si">}</span><span class="s2">.metadata_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">main_metadata_path</span>
                     <span class="n">main_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
                     <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Model</span><span class="p">(</span>
                             <span class="n">main_base</span><span class="p">,</span>
-                            <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">main_model</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                            <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">main_model</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
                             <span class="n">config</span><span class="o">=</span><span class="n">main_config</span><span class="p">,</span>
                             <span class="n">alt</span><span class="o">=</span><span class="n">main_model</span><span class="p">,</span>
                             <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="n">fmt</span><span class="p">],</span>
@@ -213,16 +213,16 @@
                     <span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">submodel</span> <span class="ow">in</span> <span class="n">submodels</span><span class="p">:</span>
-                    <span class="n">sub_base</span> <span class="o">=</span> <span class="n">submodel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">sub_base</span> <span class="o">=</span> <span class="n">submodel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                     <span class="n">submodel_config</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">submodel_metadata_path</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">sub_base</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">submodel_metadata_path</span><span class="p">:</span>
-                        <span class="n">submodel_config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sub_base</span><span class="si">}</span><span class="s2">.metadata_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">submodel_metadata_path</span>
+                        <span class="n">submodel_config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sub_base</span><span class="si">}</span><span class="s2">.metadata_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">submodel_metadata_path</span>
                     <span class="n">submodel_config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
                     <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">Model</span><span class="p">(</span>
                             <span class="n">submodel</span><span class="p">,</span>
-                            <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">submodel</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                            <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">submodel</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
                             <span class="n">config</span><span class="o">=</span><span class="n">submodel_config</span><span class="p">,</span>
                             <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="n">fmt</span><span class="p">],</span>
                         <span class="p">)</span>
@@ -241,7 +241,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.reset_models_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">reset_models_cache</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">MODELS_CACHE</span><span class="p">,</span> <span class="n">MODELGROUPS_CACHE</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Model caches cleared.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Model caches cleared."</span><span class="p">)</span>
     <span class="n">MODELS_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">MODELGROUPS_CACHE</span> <span class="o">=</span> <span class="p">{}</span></div>
 
@@ -253,30 +253,30 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_cache</span><span class="p">:</span>
         <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">directory</span><span class="p">,)</span>
         <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">in</span> <span class="n">MODELGROUPS_CACHE</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Modelgroup cache hit.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Modelgroup cache hit."</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">MODELGROUPS_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Modelgroup cache miss.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Modelgroup cache miss."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not a directory: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Not a directory: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
-    <span class="n">possible_basenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;modelgroups&quot;</span><span class="p">,</span> <span class="s2">&quot;groups&quot;</span><span class="p">]</span>
-    <span class="n">possible_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;yml&quot;</span><span class="p">]</span>
+    <span class="n">possible_basenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"modelgroups"</span><span class="p">,</span> <span class="s2">"groups"</span><span class="p">]</span>
+    <span class="n">possible_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"yaml"</span><span class="p">,</span> <span class="s2">"yml"</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">possible_basenames</span><span class="p">,</span> <span class="n">possible_extensions</span><span class="p">):</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">combination</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">fullpath</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">/</span> <span class="n">filename</span>
         <span class="k">if</span> <span class="n">fullpath</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found match. Ignoring other files&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">yamlfile</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Found match. Ignoring other files"</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fullpath</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">yamlfile</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">content</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">yamlfile</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">groupname</span><span class="p">,</span> <span class="n">groupmodels</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">groupmodels</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;Modelgroups should be defined as a YAML list&quot;</span>
+                        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">groupmodels</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">"Modelgroups should be defined as a YAML list"</span>
                         <span class="n">modelgroup</span> <span class="o">=</span> <span class="n">ModelGroup</span><span class="p">(</span><span class="n">groupname</span><span class="p">,</span> <span class="n">groupmodels</span><span class="p">)</span>
                         <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modelgroup</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Could not open YAML file&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Could not open YAML file"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
             <span class="k">break</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_cache</span><span class="p">:</span>
         <span class="n">MODELGROUPS_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">groups</span>
@@ -330,10 +330,10 @@
 <div class="viewcode-block" id="print_paths">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_paths">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">print_paths</span><span class="p">(</span><span class="n">directories</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Paths:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Paths:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">directories</span><span class="p">:</span>
         <span class="n">exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">exists</span> <span class="k">else</span> <span class="s2">&quot; (skipped)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"    "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">directory</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="k">if</span> <span class="n">exists</span> <span class="k">else</span> <span class="s2">" (skipped)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="c1"># if not exists:</span>
         <span class="c1">#     directories.remove(directory)</span>
     <span class="nb">print</span><span class="p">()</span></div>
@@ -343,20 +343,20 @@
 <div class="viewcode-block" id="print_models">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_models">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">print_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="p">[],</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Models:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Models:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">meta</span> <span class="o">=</span> <span class="s2">&quot;available&quot;</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;not available&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="s2">"available"</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"not available"</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"    "</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">duplicates</span><span class="p">:</span>
             <span class="n">num</span> <span class="o">=</span> <span class="n">duplicates</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2"> duplicates)&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">" (</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2"> duplicates)"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">detailed</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        Path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        Metadata: </span><span class="si">{</span><span class="n">meta</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"        Path: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"        Metadata: </span><span class="si">{</span><span class="n">meta</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">()</span></div>
 
 
@@ -364,7 +364,7 @@
 <div class="viewcode-block" id="print_groups">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.lookup.print_groups">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">print_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="p">[],</span> <span class="n">duplicates</span><span class="o">=</span><span class="p">[],</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Groups:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Groups:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span>
         <span class="n">models</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">models</span>
@@ -372,18 +372,18 @@
         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">all_model_names</span><span class="p">:</span>
                 <span class="c1"># Groupname conflicts with modelname</span>
-                <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;~&quot;</span> <span class="o">+</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"~"</span> <span class="o">+</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span>
         <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> models]&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> models]"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">duplicates</span><span class="p">:</span>
             <span class="n">num</span> <span class="o">=</span> <span class="n">duplicates</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2"> duplicates)&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">" (</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2"> duplicates)"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">detailed</span><span class="p">:</span>
-            <span class="n">groupmodels</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        Models: </span><span class="si">{</span><span class="n">groupmodels</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">groupmodels</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"        Models: </span><span class="si">{</span><span class="n">groupmodels</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">()</span></div>
 
 
@@ -400,7 +400,7 @@
         <span class="n">directories</span><span class="p">,</span> <span class="n">formats</span><span class="p">,</span> <span class="n">ignore_cache</span><span class="o">=</span><span class="n">ignore_cache</span>
     <span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Models Summary</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Models Summary</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">print_paths</span><span class="p">(</span><span class="n">directories</span><span class="p">)</span>
     <span class="n">print_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="n">duplicates</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">detailed</span><span class="p">)</span>
     <span class="n">print_groups</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="n">group_duplicates</span><span class="p">,</span> <span class="n">all_models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="n">detailed</span><span class="p">)</span></div>
@@ -434,18 +434,18 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">filepath</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>  <span class="c1"># Explicit file</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">ext</span> <span class="ow">in</span> <span class="n">allowed_exts</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Unsupported file extension for model which was explicitly passed by path: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Unsupported file extension for model which was explicitly passed by path: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span>
             <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">filepath</span><span class="p">]</span>
             <span class="n">metadata_path</span> <span class="o">=</span> <span class="n">find_metadata</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span> <span class="n">model_name</span><span class="o">=</span><span class="n">real_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">metadata_path</span><span class="p">:</span>
-                <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">real_name</span><span class="si">}</span><span class="s2">.metadata_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata_path</span>
+                <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">real_name</span><span class="si">}</span><span class="s2">.metadata_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata_path</span>
             <span class="n">hint</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">real_name</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">from_extension</span><span class="p">(</span><span class="n">ext</span><span class="p">)])</span>
             <span class="c1"># TODO: look for metadata</span>
             <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Context is required for passing models by name&quot;</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;List of available models is empty&quot;</span>
-            <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Could not find a model matching the name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Context is required for passing models by name"</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"List of available models is empty"</span>
+            <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Could not find a model matching the name: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
             <span class="n">index</span> <span class="o">=</span> <span class="n">model_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">hint</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
             <span class="n">hints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
@@ -465,8 +465,8 @@
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">list_modelgroups</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">groups</span> <span class="ow">and</span> <span class="n">groups</span><span class="p">[</span><span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">!=</span> <span class="n">group</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The model group &#39;</span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; has conflicting definitions. Used the following directories:&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">directories</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"The model group '</span><span class="si">{</span><span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' has conflicting definitions. Used the following directories:"</span>
+                    <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">directories</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="n">groups</span><span class="p">[</span><span class="n">group</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">models</span>
 
@@ -496,7 +496,7 @@
                         <span class="n">new_model</span><span class="o">.</span><span class="n">formats</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
                         <span class="n">new_model</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">new_model</span><span class="p">,</span> <span class="n">frontend</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to find a suitable frontend for model &#39;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to find a suitable frontend for model '</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span></div>
 
 </pre></div>
 

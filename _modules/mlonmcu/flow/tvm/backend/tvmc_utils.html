@@ -13,8 +13,8 @@
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" /> 
@@ -71,7 +71,6 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../../../flow.html">mlonmcu.flow</a></li>
       <li class="breadcrumb-item active">mlonmcu.flow.tvm.backend.tvmc_utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -88,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -109,14 +108,14 @@
     <span class="k">if</span> <span class="n">bool_as_int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">inp</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">inp</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span></div>
+        <span class="k">return</span> <span class="s2">"true"</span> <span class="k">if</span> <span class="n">inp</span> <span class="k">else</span> <span class="s2">"false"</span></div>
 
 
 
 <div class="viewcode-block" id="get_runtime_executor_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_runtime_executor_tvmc_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_runtime_executor_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">executor</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--runtime&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="s2">&quot;--executor&quot;</span><span class="p">,</span> <span class="n">executor</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">"--runtime"</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="s2">"--executor"</span><span class="p">,</span> <span class="n">executor</span><span class="p">]</span></div>
 
 
 
@@ -125,7 +124,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_pass_config_tvmc_args</span><span class="p">(</span><span class="n">pass_config</span><span class="p">):</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">pass_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--pass-config&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--pass-config"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">args</span></div>
 
 
@@ -135,8 +134,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
-    <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--disabled-pass&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
+    <span class="n">arg</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">disabled_passes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">"--disabled-pass"</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
 
 
 
@@ -145,34 +144,34 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_input_shapes_tvmc_args</span><span class="p">(</span><span class="n">input_shapes</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">input_shapes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
-    <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">:[&quot;</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">dims</span><span class="p">)))</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dims</span> <span class="ow">in</span> <span class="n">input_shapes</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--input-shapes&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
+    <span class="n">arg</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">:["</span> <span class="o">+</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">dims</span><span class="p">)))</span> <span class="o">+</span> <span class="s2">"]"</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">dims</span> <span class="ow">in</span> <span class="n">input_shapes</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">"--input-shapes"</span><span class="p">,</span> <span class="n">arg</span><span class="p">]</span></div>
 
 
 
 <div class="viewcode-block" id="check_allowed">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.check_allowed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-    <span class="n">common</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;libs&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="s2">&quot;mcpu&quot;</span><span class="p">,</span> <span class="s2">&quot;device&quot;</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;constants-byte-alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;workspace-bytes-alignment&quot;</span><span class="p">,</span> <span class="s2">&quot;march&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">common</span>
-    <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;llvm&quot;</span><span class="p">:</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"libs"</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="s2">"tag"</span><span class="p">,</span> <span class="s2">"mcpu"</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">,</span> <span class="s2">"keys"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">"c"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"constants-byte-alignment"</span><span class="p">,</span> <span class="s2">"workspace-bytes-alignment"</span><span class="p">,</span> <span class="s2">"march"</span><span class="p">]</span> <span class="o">+</span> <span class="n">common</span>
+    <span class="k">elif</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">"llvm"</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">name</span>
             <span class="ow">in</span> <span class="p">[</span>
-                <span class="s2">&quot;fast-math&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opt-level&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fast-math-ninf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mattr&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;num-cores&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fast-math-nsz&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fast-math-contract&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mtriple&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mfloat-abi&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fast-math-arcp&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fast-math-reassoc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mabi&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;num_cores&quot;</span><span class="p">,</span>
+                <span class="s2">"fast-math"</span><span class="p">,</span>
+                <span class="s2">"opt-level"</span><span class="p">,</span>
+                <span class="s2">"fast-math-ninf"</span><span class="p">,</span>
+                <span class="s2">"mattr"</span><span class="p">,</span>
+                <span class="s2">"num-cores"</span><span class="p">,</span>
+                <span class="s2">"fast-math-nsz"</span><span class="p">,</span>
+                <span class="s2">"fast-math-contract"</span><span class="p">,</span>
+                <span class="s2">"mtriple"</span><span class="p">,</span>
+                <span class="s2">"mfloat-abi"</span><span class="p">,</span>
+                <span class="s2">"fast-math-arcp"</span><span class="p">,</span>
+                <span class="s2">"fast-math-reassoc"</span><span class="p">,</span>
+                <span class="s2">"mabi"</span><span class="p">,</span>
+                <span class="s2">"num_cores"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="o">+</span> <span class="n">common</span>
         <span class="p">)</span>
@@ -194,7 +193,7 @@
 
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;--target-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">helper</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">"--target-</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">helper</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">target_details</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">check_allowed</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
         <span class="p">],</span>
@@ -217,7 +216,7 @@
 <div class="viewcode-block" id="get_target_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_target_tvmc_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_target_tvmc_args</span><span class="p">(</span>
-    <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">extra_targets</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">target</span><span class="o">=</span><span class="s2">"c"</span><span class="p">,</span> <span class="n">extra_targets</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">extra_target_details</span><span class="o">=</span><span class="p">{},</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">):</span>
     <span class="k">if</span> <span class="n">extra_targets</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_targets</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
@@ -229,8 +228,8 @@
         <span class="n">extra_target_details</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">return</span> <span class="p">[</span>
-        <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra_targets</span> <span class="o">+</span> <span class="p">[</span><span class="n">target</span><span class="p">]),</span>
+        <span class="s2">"--target"</span><span class="p">,</span>
+        <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extra_targets</span> <span class="o">+</span> <span class="p">[</span><span class="n">target</span><span class="p">]),</span>
         <span class="c1"># TODO: provide a feature which sets these automatically depending on the chosen target</span>
         <span class="o">*</span><span class="n">gen_target_details_args</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target_details</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">),</span>
         <span class="o">*</span><span class="p">(</span><span class="n">gen_extra_target_details_args</span><span class="p">(</span><span class="n">extra_target_details</span><span class="p">)),</span>
@@ -242,8 +241,8 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tuning_records_tvmc_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="n">use_tuning_results</span><span class="p">,</span> <span class="n">tuning_records_file</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">use_tuning_results</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">tuning_records_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;No tuning records are available&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;--tuning-records&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tuning_records_file</span><span class="p">)]</span>
+        <span class="k">assert</span> <span class="n">tuning_records_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"No tuning records are available"</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">"--tuning-records"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tuning_records_file</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
@@ -254,10 +253,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_rpc_tvmc_args</span><span class="p">(</span><span class="n">enabled</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="p">[</span>
-            <span class="s2">&quot;--rpc-key&quot;</span><span class="p">,</span>
+            <span class="s2">"--rpc-key"</span><span class="p">,</span>
             <span class="n">key</span><span class="p">,</span>
-            <span class="s2">&quot;--rpc-tracker&quot;</span><span class="p">,</span>
-            <span class="n">hostname</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
+            <span class="s2">"--rpc-tracker"</span><span class="p">,</span>
+            <span class="n">hostname</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="n">enabled</span>
         <span class="k">else</span> <span class="p">[]</span>
@@ -268,24 +267,24 @@
 <div class="viewcode-block" id="get_tvmaot_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmaot_tvmc_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_tvmaot_tvmc_args</span><span class="p">(</span>
-    <span class="n">alignment_bytes</span><span class="p">,</span> <span class="n">unpacked_api</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">alignment_bytes</span><span class="p">,</span> <span class="n">unpacked_api</span><span class="p">,</span> <span class="n">runtime</span><span class="o">=</span><span class="s2">"crt"</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">"c"</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">"crt"</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">unpacked_api</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="ow">not</span> <span class="n">system_lib</span><span class="p">,</span> <span class="s2">&quot;Unpacked API is incompatible with system lib&quot;</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">system_lib</span><span class="p">,</span> <span class="s2">"Unpacked API is incompatible with system lib"</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--runtime-crt-system-lib"</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
 
     <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span>
-        <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-unpacked-api&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">unpacked_api</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)],</span>
-        <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-interface-api&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span> <span class="k">if</span> <span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">&quot;packed&quot;</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">[</span><span class="s2">"--executor-aot-unpacked-api"</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">unpacked_api</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)],</span>
+        <span class="o">*</span><span class="p">[</span><span class="s2">"--executor-aot-interface-api"</span><span class="p">,</span> <span class="s2">"c"</span> <span class="k">if</span> <span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">"packed"</span><span class="p">],</span>
     <span class="p">]</span>
-    <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">"c"</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--target-c-constants-byte-alignment&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--target-c-workspace-byte-alignment&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-constant-byte-alignment&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
-            <span class="o">*</span><span class="p">[</span><span class="s2">&quot;--executor-aot-workspace-byte-alignment&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--target-c-constants-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--target-c-workspace-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--executor-aot-constant-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--executor-aot-workspace-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
         <span class="p">]</span>
     <span class="k">return</span> <span class="n">ret</span></div>
 
@@ -293,11 +292,11 @@
 
 <div class="viewcode-block" id="get_tvmrt_tvmc_args">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_tvmrt_tvmc_args">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">&quot;crt&quot;</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tvmrt_tvmc_args</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="s2">"crt"</span><span class="p">,</span> <span class="n">system_lib</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">&quot;crt&quot;</span><span class="p">:</span>
-        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--runtime-crt-system-lib&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
-    <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--executor-graph-link-params&quot;</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">link_params</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">runtime</span> <span class="o">==</span> <span class="s2">"crt"</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--runtime-crt-system-lib"</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
+    <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--executor-graph-link-params"</span><span class="p">,</span> <span class="n">legalize_bool</span><span class="p">(</span><span class="n">link_params</span><span class="p">,</span> <span class="n">bool_as_int</span><span class="o">=</span><span class="n">bool_as_int</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -307,16 +306,16 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_data_tvmc_args</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ins_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outs_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">print_top</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">ins_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--inputs&quot;</span><span class="p">,</span> <span class="n">ins_file</span><span class="p">])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--inputs"</span><span class="p">,</span> <span class="n">ins_file</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--fill-mode&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">])</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--fill-mode"</span><span class="p">,</span> <span class="n">mode</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">outs_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--outputs&quot;</span><span class="p">,</span> <span class="n">outs_file</span><span class="p">])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--outputs"</span><span class="p">,</span> <span class="n">outs_file</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">print_top</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">print_top</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--print-top&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">print_top</span><span class="p">)])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--print-top"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">print_top</span><span class="p">)])</span>
 
     <span class="k">return</span> <span class="n">ret</span></div>
 
@@ -328,19 +327,19 @@
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">print_time</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--print-time&quot;</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--print-time"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">profile</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--profile&quot;</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--profile"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">end_to_end</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--end-to-end&quot;</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--end-to-end"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">repeat</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--repeat&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">repeat</span><span class="p">)])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--repeat"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">repeat</span><span class="p">)])</span>
 
     <span class="k">if</span> <span class="n">number</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--number&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--number"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)])</span>
 
     <span class="k">return</span> <span class="n">ret</span></div>
 
@@ -350,8 +349,8 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_desired_layout_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_desired_layout_args</span><span class="p">(</span><span class="n">layouts</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">mapping</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">layouts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;desired_layout not allowed when using desired_layouts_map&quot;</span>
-        <span class="k">assert</span> <span class="n">ops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;desired_layout_ops not allowed when using desired_layouts_map&quot;</span>
+        <span class="k">assert</span> <span class="n">layouts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"desired_layout not allowed when using desired_layouts_map"</span>
+        <span class="k">assert</span> <span class="n">ops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"desired_layout_ops not allowed when using desired_layouts_map"</span>
         <span class="n">layouts</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
@@ -366,10 +365,10 @@
 
     <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">layouts</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--desired-layout&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">layouts</span><span class="p">])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--desired-layout"</span><span class="p">,</span> <span class="o">*</span><span class="n">layouts</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">ops</span><span class="p">:</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--desired-layout-ops&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">ops</span><span class="p">])</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--desired-layout-ops"</span><span class="p">,</span> <span class="o">*</span><span class="n">ops</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">ret</span></div>
 

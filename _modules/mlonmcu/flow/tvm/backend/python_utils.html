@@ -13,8 +13,8 @@
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" /> 
@@ -71,7 +71,6 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
-          <li class="breadcrumb-item"><a href="../../../flow.html">mlonmcu.flow</a></li>
       <li class="breadcrumb-item active">mlonmcu.flow.tvm.backend.python_utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -88,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -110,19 +109,19 @@
 <span class="p">):</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">debug_cfg</span><span class="p">:</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_LOG_DEBUG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">debug_cfg</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"TVM_LOG_DEBUG"</span><span class="p">]</span> <span class="o">=</span> <span class="n">debug_cfg</span>
     <span class="k">if</span> <span class="n">pythonpath</span><span class="p">:</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"PYTHONPATH"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tvm_build_dir</span><span class="p">:</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_LIBRARY_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tvm_build_dir</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"TVM_LIBRARY_PATH"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tvm_build_dir</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tvm_configs_dir</span><span class="p">:</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_CONFIGS_JSON_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"TVM_CONFIGS_JSON_DIR"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tvm_configs_dir</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tophub_url</span><span class="p">:</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TOPHUB_LOCATION&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tophub_url</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"TOPHUB_LOCATION"</span><span class="p">]</span> <span class="o">=</span> <span class="n">tophub_url</span>
     <span class="k">if</span> <span class="n">num_threads</span><span class="p">:</span>
-        <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"TVM_NUM_THREADS"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">num_threads</span><span class="p">)</span>
     <span class="c1"># Use all cores/threads for building models and let OS scheduler decide on the mapping</span>
-    <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TVM_BIND_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">env</span><span class="p">[</span><span class="s2">"TVM_BIND_THREADS"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">env</span></div>
 
 </pre></div>

@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,19 +87,19 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Helper functions for benchmarking.&quot;&quot;&quot;</span>
+<span class="sd">"""Helper functions for benchmarking."""</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 
@@ -107,28 +107,28 @@
 <div class="viewcode-block" id="parse_bench_results">
 <a class="viewcode-back" href="../../../mlonmcu.target.html#mlonmcu.target.bench.parse_bench_results">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_bench_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;Program start.&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"Program start."</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
             <span class="k">break</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-        <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;Program finish.&quot;</span>
-        <span class="k">if</span> <span class="n">target_name</span> <span class="ow">and</span> <span class="n">target_name</span> <span class="o">==</span> <span class="s2">&quot;ara_rtl&quot;</span><span class="p">:</span>
-            <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;gram finish.&quot;</span>
+        <span class="n">search</span> <span class="o">=</span> <span class="s2">"Program finish."</span>
+        <span class="k">if</span> <span class="n">target_name</span> <span class="ow">and</span> <span class="n">target_name</span> <span class="o">==</span> <span class="s2">"ara_rtl"</span><span class="p">:</span>
+            <span class="n">search</span> <span class="o">=</span> <span class="s2">"gram finish."</span>
         <span class="k">if</span> <span class="n">search</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">break</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-    <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;# (.+): ([0-9.,E-]+)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"# (.+): ([0-9.,E-]+)"</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
         <span class="n">ret</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Setup&quot;</span><span class="p">,</span> <span class="s2">&quot;Run&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">]:</span>
-        <span class="n">cycles</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Cycles&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">instructions</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Instructions&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Setup"</span><span class="p">,</span> <span class="s2">"Run"</span><span class="p">,</span> <span class="s2">"Total"</span><span class="p">]:</span>
+        <span class="n">cycles</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Cycles"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">instructions</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Instructions"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">calc_cpi</span><span class="p">(</span><span class="n">cycles</span><span class="p">,</span> <span class="n">instructions</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cycles</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">instructions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -139,10 +139,10 @@
 
         <span class="n">cpi</span> <span class="o">=</span> <span class="n">calc_cpi</span><span class="p">(</span><span class="n">cycles</span><span class="p">,</span> <span class="n">instructions</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cpi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> CPI&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cpi</span>
+            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> CPI"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cpi</span>
 
-        <span class="n">before</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [us]&quot;</span>
-        <span class="n">after</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [s]&quot;</span>
+        <span class="n">before</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [us]"</span>
+        <span class="n">after</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [s]"</span>
         <span class="k">if</span> <span class="n">before</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">ret</span><span class="p">[</span><span class="n">after</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="n">before</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1e6</span>
             <span class="k">del</span> <span class="n">ret</span><span class="p">[</span><span class="n">before</span><span class="p">]</span>
@@ -155,7 +155,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">parse_bench_results</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="n">allow_missing</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="n">target_name</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">optional</span> <span class="o">=</span> <span class="s2">&quot;Total&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key</span>
+        <span class="n">optional</span> <span class="o">=</span> <span class="s2">"Total"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></div>
 
 </pre></div>

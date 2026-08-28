@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -86,18 +86,18 @@
 <span class="c1"># distributed with this work for additional information</span>
 <span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
 <span class="c1"># to you under the Apache License, Version 2.0 (the</span>
-<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
+<span class="c1"># "License"); you may not use this file except in compliance</span>
 <span class="c1"># with the License.  You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing,</span>
 <span class="c1"># software distributed under the License is distributed on an</span>
-<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="c1"># "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
 <span class="c1"># KIND, either express or implied.  See the License for the</span>
 <span class="c1"># specific language governing permissions and limitations</span>
 <span class="c1"># under the License.</span>
-<span class="sd">&quot;&quot;&quot;Base definitions for RPC.&quot;&quot;&quot;</span>
+<span class="sd">"""Base definitions for RPC."""</span>
 <span class="c1"># pylint: disable=invalid-name</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
@@ -113,7 +113,7 @@
 <div class="viewcode-block" id="py_str">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.py_str">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">py_str</span><span class="p">(</span><span class="n">cstr</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">cstr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">cstr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span></div>
 
 
 
@@ -128,13 +128,13 @@
 <span class="c1"># cannot found matched key in server</span>
 <span class="n">RPC_CODE_MISMATCH</span> <span class="o">=</span> <span class="n">RPC_MAGIC</span> <span class="o">+</span> <span class="mi">2</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;RPCServer&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"RPCServer"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="TrackerCode">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.TrackerCode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TrackerCode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration code for the RPC tracker&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enumeration code for the RPC tracker"""</span>
 
     <span class="n">FAIL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">SUCCESS</span> <span class="o">=</span> <span class="mi">0</span>
@@ -151,8 +151,8 @@
 <span class="n">RPC_SESS_MASK</span> <span class="o">=</span> <span class="mi">128</span>
 
 
-<span class="c1"># Use &quot;127.0.0.1&quot; or &quot;::1&quot; if there is a need to force ip4 or ip6</span>
-<span class="c1"># connection for &quot;localhost&quot;.</span>
+<span class="c1"># Use "127.0.0.1" or "::1" if there is a need to force ip4 or ip6</span>
+<span class="c1"># connection for "localhost".</span>
 <div class="viewcode-block" id="get_addr_family">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.get_addr_family">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_addr_family</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
@@ -164,7 +164,7 @@
 <div class="viewcode-block" id="recvall">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.recvall">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Receive all nbytes from socket.</span>
+<span class="w">    </span><span class="sd">"""Receive all nbytes from socket.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -173,23 +173,23 @@
 
 <span class="sd">    nbytes : int</span>
 <span class="sd">       Number of bytes to be received.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">nread</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">nread</span> <span class="o">&lt;</span> <span class="n">nbytes</span><span class="p">:</span>
         <span class="n">chunk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">nbytes</span> <span class="o">-</span> <span class="n">nread</span><span class="p">,</span> <span class="mi">1024</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;connection reset&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">"connection reset"</span><span class="p">)</span>
         <span class="n">nread</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
         <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="sa">b</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="sendjson">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.sendjson">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sendjson</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;send a python value to remote via json</span>
+<span class="w">    </span><span class="sd">"""send a python value to remote via json</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -198,17 +198,17 @@
 
 <span class="sd">    data : object</span>
 <span class="sd">        Python value to be sent.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
-    <span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div>
+    <span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">"&lt;i"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span></div>
 
 
 
 <div class="viewcode-block" id="recvjson">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.recvjson">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">recvjson</span><span class="p">(</span><span class="n">sock</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;receive python value from remote via json</span>
+<span class="w">    </span><span class="sd">"""receive python value from remote via json</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -219,8 +219,8 @@
 <span class="sd">    -------</span>
 <span class="sd">    value : object</span>
 <span class="sd">        The value received.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;i&quot;</span><span class="p">,</span> <span class="n">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">"&lt;i"</span><span class="p">,</span> <span class="n">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">py_str</span><span class="p">(</span><span class="n">recvall</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">size</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">data</span></div>
 
@@ -228,8 +228,8 @@
 
 <div class="viewcode-block" id="random_key">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.random_key">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">random_key</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a random key</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">random_key</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Generate a random key</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -246,9 +246,9 @@
 <span class="sd">    -------</span>
 <span class="sd">    key : str</span>
 <span class="sd">        The generated random key</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">delimiter</span><span class="si">}{</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">delimiter</span><span class="si">}{</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">cmap</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cmap</span><span class="p">:</span>
             <span class="k">break</span>
     <span class="k">return</span> <span class="n">key</span></div>
@@ -257,8 +257,8 @@
 
 <div class="viewcode-block" id="split_random_key">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.split_random_key">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">split_random_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split a random key by delimiter into prefix and random part</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_random_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">":"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Split a random key by delimiter into prefix and random part</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -272,7 +272,7 @@
 
 <span class="sd">    random_part : str</span>
 <span class="sd">        The generated random</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">delimiter</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
@@ -280,7 +280,7 @@
 <div class="viewcode-block" id="connect_with_retry">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.rpc_utils.connect_with_retry">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">connect_with_retry</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">retry_period</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Connect to a TPC address with retry</span>
+<span class="w">    </span><span class="sd">"""Connect to a TPC address with retry</span>
 
 <span class="sd">    This function is only reliable to short period of server restart.</span>
 
@@ -294,7 +294,7 @@
 
 <span class="sd">    retry_period : float</span>
 <span class="sd">         Number of seconds before we retry again.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">tstart</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -306,8 +306,8 @@
                 <span class="k">raise</span> <span class="n">sock_err</span>
             <span class="n">period</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tstart</span>
             <span class="k">if</span> <span class="n">period</span> <span class="o">&gt;</span> <span class="n">timeout</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to connect to server </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot connect to tracker </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="si">}</span><span class="s2">, retry in </span><span class="si">{</span><span class="n">retry_period</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> secs...&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to connect to server </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot connect to tracker </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="si">}</span><span class="s2">, retry in </span><span class="si">{</span><span class="n">retry_period</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> secs..."</span><span class="p">)</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">retry_period</span><span class="p">)</span></div>
 
 </pre></div>

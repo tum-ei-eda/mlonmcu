@@ -13,8 +13,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -87,34 +87,34 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Definitions of the Report class used by MLonMCU sessions and runs.&quot;&quot;&quot;</span>
+<span class="sd">"""Definitions of the Report class used by MLonMCU sessions and runs."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_rows&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.width&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_rows"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.width"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-<span class="n">SUPPORTED_FMTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;xlsx&quot;</span><span class="p">]</span>
+<span class="n">SUPPORTED_FMTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"csv"</span><span class="p">,</span> <span class="s2">"xlsx"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Report">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Report</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Report class wrapped around multiple pandas dataframes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Report class wrapped around multiple pandas dataframes."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
@@ -123,29 +123,29 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Combine the three internal dataframes to a large one and return in.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Combine the three internal dataframes to a large one and return in."""</span>
         <span class="c1"># TODO: handle this properly by either adding NAN or use a single set(pre=, post=, main=) method</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Report.export">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.export">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export the report to  a file.</span>
+<span class="w">        </span><span class="sd">"""Export the report to  a file.</span>
 
 <span class="sd">        Arguments</span>
 <span class="sd">        ---------</span>
 <span class="sd">        path : str</span>
 <span class="sd">            Destination path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ext</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-        <span class="k">assert</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">SUPPORTED_FMTS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported report format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">SUPPORTED_FMTS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported report format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">"csv"</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;xlsx&quot;</span><span class="p">,</span> <span class="s2">&quot;xls&quot;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"xlsx"</span><span class="p">,</span> <span class="s2">"xls"</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">()</span></div>
@@ -157,28 +157,28 @@
 <div class="viewcode-block" id="Report.set_pre">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_pre">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_pre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the left third of the dataframe.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter for the left third of the dataframe."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pre_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Report.set_post">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_post">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the right third of the dataframe.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter for the right third of the dataframe."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Report.set_main">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set_main">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the center part of the dataframe.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter for the center part of the dataframe."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">main_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Report.set">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">post</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setter for the dataframe.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Setter for the dataframe."""</span>
         <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_pre</span><span class="p">(</span><span class="n">pre</span> <span class="k">if</span> <span class="n">pre</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">main</span><span class="p">)</span> <span class="o">!=</span> <span class="n">size</span><span class="p">:</span>
@@ -192,7 +192,7 @@
 <div class="viewcode-block" id="Report.add">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.report.Report.add">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reports</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to append a line to an existing report.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Helper function to append a line to an existing report."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reports</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">reports</span> <span class="o">=</span> <span class="p">[</span><span class="n">reports</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">reports</span><span class="p">:</span>

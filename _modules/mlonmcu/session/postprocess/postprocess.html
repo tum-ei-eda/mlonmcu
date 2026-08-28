@@ -13,8 +13,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -87,26 +87,26 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Definitions of base classes for MLonMCU postprocesses.&quot;&quot;&quot;</span>
+<span class="sd">"""Definitions of base classes for MLonMCU postprocesses."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_config</span>
 
 
 <div class="viewcode-block" id="Postprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Postprocess</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract postprocess.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Abstract postprocess."""</span>
 
     <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -124,7 +124,7 @@
 <div class="viewcode-block" id="Postprocess.process_features">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess.process_features">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Utility which handles postprocess_features.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Utility which handles postprocess_features."""</span>
         <span class="c1"># Currently there is no support for postprocess features (FIXME)</span>
         <span class="c1"># if features is None:</span>
         <span class="k">return</span> <span class="p">[]</span></div>
@@ -132,7 +132,7 @@
 
         <span class="c1"># features = get_matching_features(features, FeatureType.POSTPROCESS)</span>
         <span class="c1"># for feature in features:</span>
-        <span class="c1">#     assert feature.name in self.FEATURES, f&quot;Incompatible feature: {feature.name}&quot;</span>
+        <span class="c1">#     assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"</span>
         <span class="c1">#     feature.add_target_config(self.name, self.config)</span>
         <span class="c1"># return features</span>
 
@@ -140,12 +140,12 @@
 <div class="viewcode-block" id="SessionPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.SessionPostprocess">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SessionPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Session postprocess which is applied to multiple runs at the end of a session. (multi-row)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Session postprocess which is applied to multiple runs at the end of a session. (multi-row)"""</span>
 
 <div class="viewcode-block" id="SessionPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.SessionPostprocess.post_session">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a session.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Called at the end of a session."""</span></div>
 </div>
 
 
@@ -153,12 +153,12 @@
 <div class="viewcode-block" id="RunPostprocess">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.RunPostprocess">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RunPostprocess</span><span class="p">(</span><span class="n">Postprocess</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run postprocess which is applied to a single run.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run postprocess which is applied to a single run."""</span>
 
 <div class="viewcode-block" id="RunPostprocess.post_run">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.RunPostprocess.post_run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called at the end of a run.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Called at the end of a run."""</span></div>
 </div>
 
 </pre></div>

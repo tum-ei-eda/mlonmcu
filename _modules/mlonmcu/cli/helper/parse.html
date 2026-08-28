@@ -13,8 +13,8 @@
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -87,14 +87,14 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
@@ -108,22 +108,22 @@
 <div class="viewcode-block" id="parse_var">
 <a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.parse_var">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_var</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse a key, value pair, separated by &#39;=&#39;</span>
-<span class="sd">    That&#39;s the reverse of ShellArgs.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Parse a key, value pair, separated by '='</span>
+<span class="sd">    That's the reverse of ShellArgs.</span>
 
 <span class="sd">    On the command line (argparse) a declaration will typically look like:</span>
 <span class="sd">        foo=hello</span>
 <span class="sd">    or</span>
-<span class="sd">        foo=&quot;hello world&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+<span class="sd">        foo="hello world"</span>
+<span class="sd">    """</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"="</span><span class="p">)</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c1"># we remove blanks around keys, as is logical</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="s2">&quot;=&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The argument </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> is not a key-value pair&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="s2">"="</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The argument </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> is not a key-value pair"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># rejoin the rest:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="s2">"="</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 
@@ -131,9 +131,9 @@
 <div class="viewcode-block" id="parse_vars">
 <a class="viewcode-back" href="../../../../mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.parse_vars">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_vars</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>  <span class="c1"># TODO: this needs to be used in other subcommands as well?</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parse a series of key-value pairs and return a dictionary</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">if</span> <span class="n">items</span><span class="p">:</span>
@@ -161,7 +161,7 @@
                 <span class="n">gen</span> <span class="o">=</span> <span class="p">[[]]</span>
                 <span class="k">return</span> <span class="n">gen</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">feature_gen</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"_"</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
                     <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -172,8 +172,8 @@
 
     <span class="n">gens</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_GEN_ARGS</span><span class="p">):</span>
-        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">gen</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;feature_gen&quot;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"feature_gen"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
         <span class="n">gens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
 
     <span class="n">gen</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">gens</span><span class="p">))))</span>
@@ -199,7 +199,7 @@
                 <span class="n">gen</span> <span class="o">=</span> <span class="p">[{}]</span>
                 <span class="k">return</span> <span class="n">gen</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">config_gen</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"_"</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
                     <span class="n">gen</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -211,8 +211,8 @@
 
     <span class="n">gens</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_GEN_ARGS</span><span class="p">):</span>
-        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">gen</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;config_gen&quot;</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">helper</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"config_gen"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
         <span class="n">gens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
 
     <span class="n">gen</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ChainMap</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)),</span> <span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">gens</span><span class="p">))))</span>
@@ -242,8 +242,8 @@
         <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">frontend_names</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># No need to specify a default, because we just use the provided order in the environment.yml</span>
-        <span class="k">assert</span> <span class="n">frontend_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
-        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Need context to resolve default frontends&quot;</span>
+        <span class="k">assert</span> <span class="n">frontend_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"TODO"</span>
+        <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Need context to resolve default frontends"</span>
         <span class="n">all_frontend_names</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_frontend_configs</span><span class="p">(</span><span class="n">names_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_frontend_names</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">names</span></div>
@@ -265,7 +265,7 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">backends</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"TODO"</span>
         <span class="k">assert</span> <span class="n">context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">frameworks</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_default_frameworks</span><span class="p">()</span>
         <span class="n">backends</span> <span class="o">=</span> <span class="p">[]</span>
@@ -284,7 +284,7 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;TODO&quot;</span>
+        <span class="k">assert</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"TODO"</span>
         <span class="c1"># assert context is not None</span>
         <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>

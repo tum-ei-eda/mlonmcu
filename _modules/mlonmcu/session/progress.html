@@ -13,8 +13,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=2b916371"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -87,19 +87,19 @@
 <span class="c1"># This file is part of MLonMCU.</span>
 <span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
 <span class="c1">#</span>
-<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
 <span class="c1"># you may not use this file except in compliance with the License.</span>
 <span class="c1"># You may obtain a copy of the License at</span>
 <span class="c1">#</span>
 <span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
 <span class="c1">#</span>
 <span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
-<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
 <span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Progress bar utilities for MLonMCU session.&quot;&quot;&quot;</span>
+<span class="sd">"""Progress bar utilities for MLonMCU session."""</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
@@ -109,13 +109,13 @@
 
 <div class="viewcode-block" id="init_progress">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.progress.init_progress">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">init_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing...&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to initialize a progress bar for the session.&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">init_progress</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">"Processing..."</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Helper function to initialize a progress bar for the session."""</span>
     <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span>
         <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span>
         <span class="n">desc</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
         <span class="n">ncols</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-        <span class="n">bar_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{l_bar}{bar}</span><span class="s2">| </span><span class="si">{n_fmt}</span><span class="s2">/</span><span class="si">{total_fmt}</span><span class="s2"> [</span><span class="si">{elapsed}</span><span class="s2">s]&quot;</span><span class="p">,</span>
+        <span class="n">bar_format</span><span class="o">=</span><span class="s2">"</span><span class="si">{l_bar}{bar}</span><span class="s2">| </span><span class="si">{n_fmt}</span><span class="s2">/</span><span class="si">{total_fmt}</span><span class="s2"> [</span><span class="si">{elapsed}</span><span class="s2">s]"</span><span class="p">,</span>
         <span class="n">leave</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span></div>
 
@@ -124,7 +124,7 @@
 <div class="viewcode-block" id="update_progress">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.progress.update_progress">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to update the progress bar for the session.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Helper function to update the progress bar for the session."""</span>
     <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">count</span><span class="p">)</span></div>
 
 
@@ -132,7 +132,7 @@
 <div class="viewcode-block" id="close_progress">
 <a class="viewcode-back" href="../../../mlonmcu.session.html#mlonmcu.session.progress.close_progress">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">close_progress</span><span class="p">(</span><span class="n">pbar</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to close the session progressbar, if available.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Helper function to close the session progressbar, if available."""</span>
     <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
         <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 

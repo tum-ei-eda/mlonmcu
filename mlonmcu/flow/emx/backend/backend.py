@@ -29,6 +29,7 @@ from mlonmcu.config import str2bool
 from mlonmcu.logging import get_logger
 from mlonmcu.models.model_info import (
     get_model_info,
+    normalize_shape,
     # get_fallback_model_info,
     # get_supported_formats,
     # get_supported_formats_emx,
@@ -199,6 +200,7 @@ class EMXBackend(Backend):
         "static_kernels": True,
         "accumulation_strategy": None,  # fp32 or fp16
         "verbose": False,
+        "dynamic_shape_default": 1,
         "emx_compile_extra_args": [],
     }
 
@@ -211,6 +213,8 @@ class EMXBackend(Backend):
         self.model = None  # Actual filename!
         self.model_info = None
         self.input_shapes = None
+        self.output_shapes = None
+        self.dynamic_input_shapes = {}
         self.model_format = None
         # self.supported_formats = get_supported_formats_emx()
         # self.supported_formats = [ModelFormats.TFLITE, ModelFormats.MLIR]
@@ -235,6 +239,12 @@ class EMXBackend(Backend):
     def verbose(self):
         value = self.config["verbose"]
         return str2bool(value)
+
+    @property
+    def dynamic_shape_default(self):
+        value = int(self.config["dynamic_shape_default"])
+        assert value > 0, "dynamic_shape_default must be a positive integer"
+        return value
 
     @property
     def inline_kernels(self):
@@ -286,11 +296,36 @@ class EMXBackend(Backend):
         return env
 
     def get_emx_compile_args(self, out, model_path):
+        input_dim_args = []
+        pinned_symbols = {}
+        if self.input_shapes:
+            for tensor_name, original_shape in self.dynamic_input_shapes.items():
+                if tensor_name not in self.input_shapes:
+                    continue
+                concrete_shape = normalize_shape(self.input_shapes[tensor_name])
+                assert len(original_shape) == len(concrete_shape), f"Rank mismatch for input tensor: {tensor_name}"
+                for axis, (original_dim, concrete_dim) in enumerate(zip(original_shape, concrete_shape)):
+                    if original_dim is None or isinstance(original_dim, str):
+                        assert isinstance(concrete_dim, int), (
+                            f"Dynamic input dimension must resolve to int: {tensor_name}[{axis}]"
+                        )
+                        if isinstance(original_dim, str):
+                            if original_dim in pinned_symbols:
+                                assert pinned_symbols[original_dim] == concrete_dim, (
+                                    f"Conflicting values for symbolic dimension '{original_dim}'"
+                                )
+                                continue
+                            pinned_symbols[original_dim] = concrete_dim
+                            assignment = f"{original_dim}={concrete_dim}"
+                        else:
+                            assignment = f"{tensor_name}:{axis}={concrete_dim}"
+                        input_dim_args.extend(["--input-dim", assignment])
         args = [
             "compile",
             model_path,
             *self.emx_compile_extra_args,
             str(out),
+            *input_dim_args,
             *(
                 ["--large-weight-threshold", str(self.large_weight_threshold)]
                 if self.large_weight_threshold is not None
@@ -348,6 +383,15 @@ class EMXBackend(Backend):
         assert params_path is None
         self.model = model
         self.model_format, self.model_info = get_model_info(model, backend_name=self.name)
+        self.input_shapes = input_shapes
+        self.output_shapes = output_shapes
+        self.dynamic_input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+        self.input_shapes = self.model_info.make_static(
+            input_shapes=input_shapes,
+            output_shapes=output_shapes,
+            default_dim=self.dynamic_shape_default,
+        )
+        self.output_shapes = {tensor.name: tensor.shape for tensor in self.model_info.out_tensors}
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
@@ -357,6 +401,13 @@ class EMXBackend(Backend):
             out_dir = Path(temp_dir)
             model_path = self.model
             model_info = self.model_info
+            unresolved = [
+                tensor.name for tensor in model_info.in_tensors + model_info.out_tensors if tensor.size is None
+            ]
+            assert not unresolved, (
+                "The MLIF interface requires concrete input/output buffer sizes. "
+                f"Provide input_shapes/output_shapes for dynamic tensors: {unresolved}"
+            )
             out_file = out_dir / f"{self.identifier}.c"
             out = self.invoke_emx_compile(out_file, model_path, cwd=temp_dir)
             wrapper_content, wrapper_header_content = generate_emx_wrapper(

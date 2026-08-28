@@ -93,7 +93,8 @@ def parse_shape_string(inputs_string):
     # * forward slashes inside names (but not at the beginning or end)
     # * colons inside names (but not at the beginning or end)
     # * dots inside names
-    pattern = r"(?:\w+\/)?[:\w.]+\:\s*\[\-?\d+(?:\,\s*\-?\d+)*\]"
+    dimension = r"(?:-?\d+|\?|None|Any|[A-Za-z_][A-Za-z0-9_]*)"
+    pattern = rf"(?:\w+\/)?[:\w.]+\:\s*\[{dimension}(?:\,\s*{dimension})*\]"
     input_mappings = re.findall(pattern, inputs_string)
     assert input_mappings, f"Invalid shapes string: {inputs_string} (Expected syntax: 'foo:[1,32,32,3] bar:[10,10]')"
     shape_dict = {}
@@ -102,8 +103,16 @@ def parse_shape_string(inputs_string):
         mapping = mapping.replace(" ", "")
         # Split mapping into name and shape.
         name, shape_string = mapping.rsplit(":", 1)
-        # Convert shape string into a list of integers or Anys if negative.
-        shape = [int(x) for x in shape_string.strip("][").split(",")]
+        # Preserve symbolic dimensions and normalize unknown dimensions.
+        shape = []
+        for dim in shape_string.strip("][").split(","):
+            if dim in ("?", "None", "Any", "-1"):
+                shape.append(None)
+            else:
+                try:
+                    shape.append(int(dim))
+                except ValueError:
+                    shape.append(dim)
         # Add parsed mapping to shape dictionary.
         shape_dict[name] = shape
 

@@ -103,9 +103,9 @@ def sendjson(sock, data):
     data : object
         Python value to be sent.
     """
-    data = json.dumps(data)
+    data = json.dumps(data).encode("utf-8")
     sock.sendall(struct.pack("<i", len(data)))
-    sock.sendall(data.encode("utf-8"))
+    sock.sendall(data)
 
 
 def recvjson(sock):

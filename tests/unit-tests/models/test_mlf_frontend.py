@@ -53,7 +53,7 @@ def test_mlf_frontend(tmp_path):
     make_mlf(path)
     model = Model("model", [path], formats=[ModelFormats.MLF])
     artifacts = MLFFrontend().generate_artifacts(model)["default"]
-    assert len(artifacts) == 1
+    assert [artifact.name for artifact in artifacts] == ["model.tar", "load_metrics.csv"]
     assert artifacts[0].fmt == ArtifactFormat.MLF
     assert "model" in artifacts[0].flags
 

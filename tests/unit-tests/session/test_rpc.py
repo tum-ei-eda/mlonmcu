@@ -1,4 +1,5 @@
 import codecs
+import importlib.util
 import pickle
 import socket
 from types import SimpleNamespace
@@ -7,6 +8,13 @@ from unittest.mock import MagicMock
 import pytest
 
 from mlonmcu.session import rpc
+
+
+CLOUDPICKLE_AVAILABLE = importlib.util.find_spec("cloudpickle") is not None
+requires_cloudpickle = pytest.mark.skipif(
+    not CLOUDPICKLE_AVAILABLE,
+    reason="RPC execution requires the optional cloudpickle package",
+)
 
 
 def test_remote_config_parses_tracker_address():
@@ -42,6 +50,7 @@ def encode_result(value):
     return codecs.encode(pickle.dumps(value), "base64").decode("utf-8")
 
 
+@requires_cloudpickle
 def test_rpc_session_execute_round_trip(monkeypatch):
     session = make_rpc_session()
     sendjson = MagicMock()
@@ -60,6 +69,7 @@ def test_rpc_session_execute_round_trip(monkeypatch):
     "response",
     [None, {}, {"success": True}, {"success": False, "results": []}],
 )
+@requires_cloudpickle
 def test_rpc_session_execute_rejects_invalid_responses(monkeypatch, response):
     session = make_rpc_session()
     monkeypatch.setattr(rpc.base, "sendjson", MagicMock())

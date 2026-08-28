@@ -20,6 +20,7 @@ from mlonmcu.models.lookup import print_summary
 from .frontend import (
     PBFrontend,
     TfLiteFrontend,
+    MLFFrontend,
     PackedFrontend,
     ONNXFrontend,
     PTEFrontend,
@@ -74,6 +75,7 @@ def get_frontends():
 
 
 register_frontend("tflite", TfLiteFrontend)
+register_frontend("mlf", MLFFrontend)
 register_frontend("relay", RelayFrontend)
 register_frontend("packed", PackedFrontend)
 register_frontend("onnx", ONNXFrontend)
@@ -105,6 +107,7 @@ register_frontend("cmsis_nn", CmsisNNFrontend)
 __all__ = [
     "print_summary",
     "TfLiteFrontend",
+    "MLFFrontend",
     "PackedFrontend",
     "ONNXFrontend",
     "MLIRFrontend",

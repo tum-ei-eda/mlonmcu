@@ -29,11 +29,10 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 
 from mlonmcu.logging import get_logger
 
-logger = get_logger()
-
 from .tvm_canmv_k230_target import CanMvK230TvmPlatformTarget
 from .tvm_licheerv_d1_target import LicheeRvD1TvmPlatformTarget
 
+logger = get_logger()
 
 TVM_PLATFORM_TARGET_REGISTRY = {}
 

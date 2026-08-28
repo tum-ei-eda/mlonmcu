@@ -60,6 +60,7 @@ class ModelFormats(Enum):
     TORCH_PICKLE = ModelFormat(12, ["pkl", "pickle"])
     TORCH_EXPORTED = ModelFormat(13, ["pt", "pth"])
     TORCH_PYTHON = ModelFormat(14, ["py"])
+    MLF = ModelFormat(15, ["tar"])
 
 
 def parse_metadata_from_path(path):

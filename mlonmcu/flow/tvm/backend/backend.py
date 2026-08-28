@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 import tempfile
+import io
+import json
 import tarfile
 from pathlib import Path
 from typing import Tuple
@@ -27,7 +29,16 @@ from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.config import str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
-from mlonmcu.models.model_info import get_model_info, get_fallback_model_info, get_supported_formats, get_model_format
+from mlonmcu.models.model_info import (
+    get_model_info,
+    get_fallback_model_info,
+    get_supported_formats,
+    get_model_format,
+    get_relay_model_info,
+    ModelInfo,
+    RelayTensorInfo,
+)
+from mlonmcu.models.model import ModelFormats
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .python_utils import prepare_python_environment
@@ -125,6 +136,11 @@ class TVMBackend(Backend):
         self.input_shapes = None
         self.model_format = None
         self.supported_formats = get_supported_formats()
+        self.supported_formats.append(ModelFormats.MLF)
+        self.mlf_data = None
+        self.mlf_metadata = None
+        self.mlf_module_name = None
+        self.mlf_unpacked_api = None
         self.target = target
         self.runtime = runtime
         self.executor = executor
@@ -572,6 +588,9 @@ class TVMBackend(Backend):
     ):
         self.model = model
         self.params_path = params_path
+        if Path(model).suffix.lower() == ".tar":
+            self._load_mlf(model)
+            return
         # TODO: path model class instead of path!
         # fmt = self.model.formats[0]
         need_model_info = True
@@ -610,6 +629,56 @@ class TVMBackend(Backend):
         if self.model_info:
             self.model_info.validate()
 
+    @staticmethod
+    def _mlf_member(archive, name, required=True):
+        """Read an MLF member while accepting the conventional leading './'."""
+        names = {member.name.lstrip("./"): member for member in archive.getmembers() if member.isfile()}
+        member = names.get(name.lstrip("./"))
+        if member is None:
+            if required:
+                raise RuntimeError(f"Invalid MLF archive: missing {name}")
+            return None
+        return archive.extractfile(member).read()
+
+    def _load_mlf(self, model):
+        with open(model, "rb") as handle:
+            self.mlf_data = handle.read()
+        try:
+            with tarfile.open(fileobj=io.BytesIO(self.mlf_data), mode="r:*") as archive:
+                metadata_raw = self._mlf_member(archive, "metadata.json")
+                self.mlf_metadata = json.loads(metadata_raw)
+                modules = self.mlf_metadata.get("modules", {})
+                if len(modules) != 1:
+                    raise RuntimeError("MLF frontend currently requires exactly one module")
+                self.mlf_module_name, module = next(iter(modules.items()))
+                member_names = {member.name.lstrip("./") for member in archive.getmembers() if member.isfile()}
+                self.mlf_unpacked_api = f"codegen/host/include/tvmgen_{self.mlf_module_name}.h" in member_names
+                executors = module.get("executors", [])
+                if self.executor not in executors:
+                    raise RuntimeError(
+                        f"MLF executor mismatch: archive uses {executors}, backend '{self.name}' uses '{self.executor}'"
+                    )
+                relay = self._mlf_member(archive, f"src/{self.mlf_module_name}.relay", required=False)
+                if relay is not None:
+                    self.model_info = get_relay_model_info(relay.decode())
+                else:
+                    main = module["memory"]["functions"]["main"][0]
+
+                    def tensor_info(items):
+                        result = []
+                        for name, info in items.items():
+                            dtype = info["dtype"]
+                            item_size = {"float32": 4, "int32": 4, "int64": 8, "uint8": 1, "int8": 1}[dtype]
+                            result.append(RelayTensorInfo(name, [info["size"] // item_size], dtype))
+                        return result
+
+                    self.model_info = ModelInfo(tensor_info(main["inputs"]), tensor_info(main["outputs"]))
+                self.model_info.validate()
+                self.input_shapes = {tensor.name: tensor.shape for tensor in self.model_info.in_tensors}
+                self.model_format = "mlf"
+        except (tarfile.TarError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"Invalid MLF archive: {model}") from exc
+
     def get_graph_and_params_from_mlf(self, path):
         graph = None
         with open(Path(path) / "executor-config" / "graph" / "default.graph", "r") as handle:
@@ -624,8 +693,24 @@ class TVMBackend(Backend):
         artifacts = []
         out = ""
         assert self.model is not None
+        if self.mlf_data is not None:
+            metadata_txt = json.dumps(self.mlf_metadata, indent=2)
+            artifacts.append(Artifact(f"{self.prefix}.json", content=metadata_txt, fmt=ArtifactFormat.TEXT))
+            artifacts.append(Artifact(f"{self.prefix}.tar", raw=self.mlf_data, fmt=ArtifactFormat.MLF, archive=True))
+            with tarfile.open(fileobj=io.BytesIO(self.mlf_data), mode="r:*") as archive:
+                relay = self._mlf_member(archive, f"src/{self.mlf_module_name}.relay", required=False)
+                if relay is not None:
+                    artifacts.append(
+                        Artifact(f"{self.prefix}.relay", content=relay.decode(), fmt=ArtifactFormat.TEXT, optional=True)
+                    )
+                if self.executor == "graph":
+                    graph = self._mlf_member(archive, f"executor-config/graph/{self.mlf_module_name}.graph").decode()
+                    params = self._mlf_member(archive, f"parameters/{self.mlf_module_name}.params")
+                    artifacts.append(Artifact(f"{self.prefix}.graph", content=graph, fmt=ArtifactFormat.TEXT))
+                    artifacts.append(Artifact(f"{self.prefix}.params", raw=params, fmt=ArtifactFormat.RAW))
+            return {"default": artifacts}, {"default": Metrics()}
         dump = self.dump
-        target_str = self.tvm_target_str
+        # target_str = self.tvm_target_str
         # print("target_str", target_str)
         # input("!")
         if self.refresh_model_info or (self.generate_wrapper and not self.model_info) and "relay" not in dump:

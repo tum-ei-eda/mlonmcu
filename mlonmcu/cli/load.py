@@ -32,7 +32,7 @@ from .helper.parse import extract_config_and_feature_names, extract_frontend_nam
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.models import get_frontends
 from mlonmcu.models.lookup import apply_modelgroups
-from mlonmcu.session.run import RunStage, RunInitializer
+from mlonmcu.session.run import ModelLookupError, RunStage, RunInitializer
 
 
 def add_load_options(parser):
@@ -61,17 +61,23 @@ def get_parser(subparsers):
 
 
 def _handle(args, context):
-    config = context.environment.vars
+    if not args.models and not args.initializer:
+        raise ModelLookupError("No model or run initializer was supplied.")
+
+    config = dict(context.environment.vars)
     new_config, features, gen_config, gen_features = extract_config_and_feature_names(args, context=context)
+    initializers = []
+    for initializer_file in args.initializer or []:
+        initializer_file = Path(initializer_file).resolve()
+        file_initializers = RunInitializer.from_file(initializer_file)
+        initializers.extend(file_initializers)
+        for initializer in file_initializers:
+            config.update(initializer.config or {})
+    # Explicit command-line configuration takes precedence over saved values.
     config.update(new_config)
-    # session = context.get_session(label=args.label, resume=args.resume, config=config)
     session = context.get_session(label=args.label, resume=args.resume, config=config, dest=args.dest)
-    initializers = args.initializer
-    if initializers is not None:
-        for initializer_file in initializers:
-            initializer_file = Path(initializer_file).resolve()
-            initializer = RunInitializer.from_file(initializer_file)
-            session.add_run(initializer, ignore_idx=True)
+    for initializer in initializers:
+        session.add_run(initializer, ignore_idx=True)
     frontends = extract_frontend_names(args, context=context)
     postprocesses = extract_postprocess_names(args, context=context)
     models = apply_modelgroups(args.models, context=context)

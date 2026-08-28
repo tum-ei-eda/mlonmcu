@@ -958,6 +958,28 @@ class SimpleFrontend(Frontend):
         return artifacts
 
 
+class MLFFrontend(SimpleFrontend):
+    """Frontend for pre-compiled TVM Model Library Format archives."""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("mlf", ModelFormats.MLF, features=features, config=config)
+
+    def produce_artifacts(self, model):
+        assert len(model.paths) == 1
+        path = model.paths[0]
+        with open(path, "rb") as handle:
+            raw = handle.read()
+        return [
+            Artifact(
+                f"{model.name}.tar",
+                raw=raw,
+                fmt=ArtifactFormat.MLF,
+                flags=["model"],
+                archive=True,
+            )
+        ]
+
+
 # TODO: move to frontends.py
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?

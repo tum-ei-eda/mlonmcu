@@ -19,7 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
-import pkg_resources
+from importlib.resources import files
 import venv
 import multiprocessing
 from pathlib import Path
@@ -103,11 +103,7 @@ def install_zephyr(
         # TODO: allow to limit installed toolchains
         utils.execute(sdkScript, "-t", "all", "-h", live=verbose)
         # Apply patch to fix esp32c3 support
-        patchFile = Path(
-            pkg_resources.resource_filename(
-                "mlonmcu", os.path.join("..", "resources", "patches", "zephyr", "fix_esp32c3_march.patch")
-            )
-        )
+        patchFile = Path(str(files("mlonmcu").joinpath("resources", "patches", "fix_esp32c3_march.patch")))
         if patchFile.is_file():
             xtensaDir = zephyrInstallDir / "modules" / "hal" / "xtensa"
             utils.patch(patchFile, cwd=xtensaDir)

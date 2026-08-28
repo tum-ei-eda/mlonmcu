@@ -18,23 +18,21 @@
 #
 """Definitions of mlonmcu config templates."""
 
-import pkgutil
-import os
+from importlib.resources import files
 import jinja2
 from pathlib import Path
-import pkg_resources
 
 from .config import get_config_dir
 
 
 def get_template_names():
-    template_files = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "templates"))
-    names = [name.split(".yml.j2")[0] for name in template_files]
+    template_files = files("mlonmcu").joinpath("resources", "templates").iterdir()
+    names = [resource.name.split(".yml.j2")[0] for resource in template_files]
     return names
 
 
 def get_template_text(name):
-    return pkgutil.get_data("mlonmcu", os.path.join("resources", "templates", name + ".yml.j2"))
+    return files("mlonmcu").joinpath("resources", "templates", name + ".yml.j2").read_text(encoding="utf-8")
 
 
 def fill_template(name, data={}):

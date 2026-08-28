@@ -18,9 +18,8 @@
 #
 """Definitions for TVMFramework."""
 
-import os
+from importlib.resources import files
 from pathlib import Path
-import pkg_resources
 
 from mlonmcu.flow.framework import Framework
 
@@ -28,11 +27,10 @@ from mlonmcu.flow.framework import Framework
 
 
 def get_crt_config_dir():
-    files = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "frameworks", "tvm", "crt_config"))
-    if "crt_config.h" not in files:
+    resource = files("mlonmcu").joinpath("resources", "frameworks", "tvm", "crt_config")
+    if not resource.joinpath("crt_config.h").is_file():
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "frameworks", "tvm", "crt_config"))
-    return fname
+    return str(resource)
 
 
 class TVMFramework(Framework):

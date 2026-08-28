@@ -20,7 +20,6 @@
 from mlonmcu.target.riscv.riscv_vext_target import RVVTarget
 
 from mlonmcu.logging import get_logger
-from mlonmcu.utils import filter_none
 
 logger = get_logger()
 

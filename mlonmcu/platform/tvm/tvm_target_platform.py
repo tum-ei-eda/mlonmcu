@@ -22,7 +22,6 @@ import os
 from mlonmcu.config import str2bool
 from .tvm_rpc_platform import TvmRpcPlatform
 from ..platform import TargetPlatform
-from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
 from .tvm_target import create_tvm_platform_target, get_tvm_platform_targets
 from mlonmcu.flow.tvm.backend.tvmc_utils import (

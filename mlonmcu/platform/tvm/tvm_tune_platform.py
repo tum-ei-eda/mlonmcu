@@ -561,7 +561,7 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
                         metrics_.add("Best Runtime [s]", best_runtime, True)
                         metrics_.add("Best Trial", best_idx, True)
                         for c_level, c_trials in confidences.items():
-                            metrics_.add(f"{c_level*100}% Confidence", c_trials, True)
+                            metrics_.add(f"{c_level * 100}% Confidence", c_trials, True)
                         metrics_.add("Target String", target_string, True)
                         metrics_.add("Task Name", task_name, True)
                         metrics_.add("Task Tensors", task_tensors, True)

@@ -127,6 +127,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.emx.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMXBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.executorch.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutorchBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.onnx.backend.onnx2c</span><span class="w"> </span><span class="kn">import</span> <span class="n">Onnx2CBackend</span>
 
 <span class="n">SUPPORTED_FRAMEWORKS</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">SUPPORTED_BACKENDS</span> <span class="o">=</span> <span class="p">{}</span>
@@ -245,6 +246,7 @@
 <span class="n">SUPPORTED_EXECUTORCH_BACKENDS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_backends</span><span class="p">(</span><span class="s2">"executorch"</span><span class="p">))</span>
 
 <span class="n">register_backend</span><span class="p">(</span><span class="s2">"none"</span><span class="p">,</span> <span class="n">NoneBackend</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span>
+<span class="n">register_backend</span><span class="p">(</span><span class="s2">"onnx2c"</span><span class="p">,</span> <span class="n">Onnx2CBackend</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span>
 <span class="n">SUPPORTED_NONE_BACKENDS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_backends</span><span class="p">(</span><span class="s2">"none"</span><span class="p">))</span>
 </pre></div>
 

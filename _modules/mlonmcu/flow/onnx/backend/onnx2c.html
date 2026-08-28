@@ -1,0 +1,686 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.onnx.backend.onnx2c &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.flow.onnx.backend.onnx2c</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.flow.onnx.backend.onnx2c</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">ONNXBackend</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Onnx2CBackend">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.onnx.backend.html#mlonmcu.flow.onnx.Onnx2CBackend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Onnx2CBackend</span><span class="p">(</span><span class="n">ONNXBackend</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"onnx2c"</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"print_outputs"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"log_level"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"func_name"</span><span class="p">:</span> <span class="s2">"entry"</span><span class="p">,</span>
+        <span class="s2">"no_globals"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"extern_init"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"only_init"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"avr"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"optimizations"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"define"</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">"sanitize_legacy_broadcast_attrs"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"sanitized_model_out"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">ONNXBackend</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"onnx2c.exe"</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"print_outputs"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"log_level"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">func_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"func_name"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">no_globals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"no_globals"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extern_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"extern_init"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">only_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"only_init"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">avr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"avr"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">optimizations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"optimizations"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"define"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">str2dict</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sanitize_legacy_broadcast_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"sanitize_legacy_broadcast_attrs"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sanitized_model_out</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"sanitized_model_out"</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_model_for_onnx2c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">out_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sanitize_legacy_broadcast_attrs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model_path</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">onnx</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorProto</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">numpy_helper</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"ONNX package not available, skipping attribute sanitization for onnx2c"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model_path</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">model_path</span><span class="p">))</span>
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">legacy_axis</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">initializer_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">init</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">init</span> <span class="k">for</span> <span class="n">init</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="p">}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">upsert_initializer</span><span class="p">(</span><span class="n">new_init</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">new_init</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_init</span><span class="p">)</span>
+            <span class="n">initializer_map</span><span class="p">[</span><span class="n">new_init</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_init</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_shape_map</span><span class="p">():</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">value_info</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">output</span><span class="p">):</span>
+                <span class="n">tt</span> <span class="o">=</span> <span class="n">vi</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tensor_type</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">tt</span><span class="o">.</span><span class="n">HasField</span><span class="p">(</span><span class="s2">"shape"</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">tt</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">dim</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">dim</span><span class="o">.</span><span class="n">HasField</span><span class="p">(</span><span class="s2">"dim_value"</span><span class="p">):</span>
+                        <span class="n">dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">dim_value</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="p">[</span><span class="n">vi</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dims</span>
+            <span class="k">for</span> <span class="n">init</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="n">init</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">init</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="n">attr_names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"axis"</span><span class="p">,</span> <span class="s2">"broadcast"</span><span class="p">}</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Add"</span><span class="p">,</span> <span class="s2">"Sub"</span><span class="p">,</span> <span class="s2">"Mul"</span><span class="p">,</span> <span class="s2">"Div"</span><span class="p">,</span> <span class="s2">"Sum"</span><span class="p">,</span> <span class="s2">"Max"</span><span class="p">,</span> <span class="s2">"Min"</span><span class="p">,</span> <span class="s2">"Mean"</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">axis_attr</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span> <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"axis"</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">axis_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="n">legacy_axis</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">axis_attr</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span> <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr_names</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">):</span>
+                <span class="k">del</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">[:]</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">nodes_to_drop</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="o">!=</span> <span class="s2">"Reshape"</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">shape_attr</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"shape"</span><span class="p">:</span>
+                    <span class="n">shape_attr</span> <span class="o">=</span> <span class="n">attr</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">shape_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">initializer_map</span><span class="p">:</span>
+                <span class="n">shape_vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shape_attr</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">shape_vals</span><span class="p">:</span>
+                    <span class="n">src_arr</span> <span class="o">=</span> <span class="n">numpy_helper</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">initializer_map</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">reshaped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">src_arr</span><span class="p">,</span> <span class="n">shape_vals</span><span class="p">)</span>
+                    <span class="n">upsert_initializer</span><span class="p">(</span><span class="n">numpy_helper</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">reshaped</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">nodes_to_drop</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"__idx_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">[:]</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">continue</span>
+
+            <span class="n">shape_vals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shape_attr</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">shape_vals</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Reshape node has empty legacy shape attribute: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">shape_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">(</span><span class="s1">'reshape_'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="si">}</span><span class="s2">_shape"</span>
+            <span class="n">upsert_initializer</span><span class="p">(</span><span class="n">helper</span><span class="o">.</span><span class="n">make_tensor</span><span class="p">(</span><span class="n">shape_name</span><span class="p">,</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">INT64</span><span class="p">,</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">shape_vals</span><span class="p">)],</span> <span class="n">shape_vals</span><span class="p">))</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shape_name</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">[:]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">nodes_to_drop</span><span class="p">:</span>
+            <span class="n">new_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"__idx_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nodes_to_drop</span><span class="p">:</span>
+                    <span class="n">new_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[:]</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">)</span>
+
+        <span class="n">shape_map</span> <span class="o">=</span> <span class="n">get_shape_map</span><span class="p">()</span>
+        <span class="n">consumers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">:</span>
+                <span class="n">consumers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="o">!=</span> <span class="s2">"Reshape"</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_reshape1"</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">shape_init_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">shape_init_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">initializer_map</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">shape_vals</span> <span class="o">=</span> <span class="n">numpy_helper</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">initializer_map</span><span class="p">[</span><span class="n">shape_init_name</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_vals</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_vals</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">shape_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">channel</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">cons</span> <span class="ow">in</span> <span class="n">consumers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[]):</span>
+                <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ops</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">cons</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">"Add"</span> <span class="ow">and</span> <span class="n">cons</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Plus"</span><span class="p">):</span>
+                    <span class="n">upsert_initializer</span><span class="p">(</span><span class="n">numpy_helper</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">shape_init_name</span><span class="p">))</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="n">cons</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">cons</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">cons</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">other_shape</span> <span class="o">=</span> <span class="n">shape_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">other_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">other_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">upsert_initializer</span><span class="p">(</span><span class="n">numpy_helper</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">shape_init_name</span><span class="p">))</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="n">shape_map</span> <span class="o">=</span> <span class="n">get_shape_map</span><span class="p">()</span>
+        <span class="n">producer_by_output</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                <span class="n">producer_by_output</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+
+        <span class="n">matmulinteger_a_zero_points</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">matmulinteger_b_zero_points</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">"MatMulInteger"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">matmulinteger_a_zero_points</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">"MatMulInteger"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">matmulinteger_b_zero_points</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">collapse_uniform_zero_point</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">init</span> <span class="o">=</span> <span class="n">initializer_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">init</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">numpy_helper</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">flat</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">flat</span> <span class="o">==</span> <span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">"Collapsing non-uniform MatMulInteger zero-point '</span><span class="si">%s</span><span class="s2">' to scalar for onnx2c compatibility"</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="n">scalar_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">upsert_initializer</span><span class="p">(</span><span class="n">numpy_helper</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">scalar_value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">matmulinteger_b_zero_points</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">collapse_uniform_zero_point</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">zp_redirects</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">rewritten_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">input_index</span><span class="p">,</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">input_name</span> <span class="ow">in</span> <span class="n">zp_redirects</span><span class="p">:</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="n">input_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">zp_redirects</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">"DynamicQuantizeLinear"</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">matmulinteger_a_zero_points</span><span class="p">:</span>
+                <span class="n">zp_shape_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">(</span><span class="s1">'dql_'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="si">}</span><span class="s2">_zero_point_shape"</span>
+                <span class="n">zp_output_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">_rank1"</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">helper</span><span class="o">.</span><span class="n">make_tensor</span><span class="p">(</span><span class="n">zp_shape_name</span><span class="p">,</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">INT64</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">helper</span><span class="o">.</span><span class="n">make_node</span><span class="p">(</span>
+                        <span class="s2">"Reshape"</span><span class="p">,</span>
+                        <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">zp_shape_name</span><span class="p">],</span>
+                        <span class="p">[</span><span class="n">zp_output_name</span><span class="p">],</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_zero_point_fix"</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">zp_redirects</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">zp_output_name</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ops</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">axis_attr</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"axis"</span><span class="p">:</span>
+                    <span class="n">axis_attr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"broadcast"</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">axis_attr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">legacy_axis</span><span class="p">:</span>
+                <span class="n">axis_attr</span> <span class="o">=</span> <span class="n">legacy_axis</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">axis_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">lhs_shape</span> <span class="o">=</span> <span class="n">shape_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">rhs_shape</span> <span class="o">=</span> <span class="n">shape_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">rhs_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">prod</span> <span class="o">=</span> <span class="n">producer_by_output</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">prod</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prod</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">"Reshape"</span><span class="p">:</span>
+                    <span class="n">shape_attr</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">prod</span><span class="o">.</span><span class="n">attribute</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"shape"</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">shape_attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape_attr</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">rhs_shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">shape_attr</span><span class="o">.</span><span class="n">ints</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">prod</span><span class="o">.</span><span class="n">input</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">prod</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">initializer_map</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">shape_vals</span> <span class="o">=</span> <span class="n">numpy_helper</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">initializer_map</span><span class="p">[</span><span class="n">prod</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                            <span class="n">rhs_shape</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shape_vals</span><span class="p">]</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="n">rhs_shape</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">rhs_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">lhs_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">axis_attr</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rhs_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">lhs_shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">rhs_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+            <span class="n">lhs_rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lhs_shape</span><span class="p">)</span>
+            <span class="n">rhs_rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rhs_shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">axis_attr</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">axis_attr</span> <span class="o">+=</span> <span class="n">lhs_rank</span>
+            <span class="k">if</span> <span class="n">rhs_rank</span> <span class="o">&gt;</span> <span class="n">lhs_rank</span> <span class="ow">or</span> <span class="n">axis_attr</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">axis_attr</span> <span class="o">+</span> <span class="n">rhs_rank</span> <span class="o">&gt;</span> <span class="n">lhs_rank</span><span class="p">:</span>
+                <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="n">target_shape</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">lhs_rank</span>
+            <span class="n">target_shape</span><span class="p">[</span><span class="n">axis_attr</span> <span class="p">:</span> <span class="n">axis_attr</span> <span class="o">+</span> <span class="n">rhs_rank</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rhs_shape</span><span class="p">)</span>
+
+            <span class="n">reshape_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">_axisfix"</span>
+            <span class="n">shape_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">(</span><span class="s1">'node_'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="si">}</span><span class="s2">_axis_shape"</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">initializer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">helper</span><span class="o">.</span><span class="n">make_tensor</span><span class="p">(</span><span class="n">shape_name</span><span class="p">,</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">INT64</span><span class="p">,</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">target_shape</span><span class="p">)],</span> <span class="n">target_shape</span><span class="p">))</span>
+            <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">helper</span><span class="o">.</span><span class="n">make_node</span><span class="p">(</span><span class="s2">"Reshape"</span><span class="p">,</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape_name</span><span class="p">],</span> <span class="p">[</span><span class="n">reshape_out</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_axisfix"</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">reshape_out</span>
+            <span class="k">del</span> <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="p">[:]</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">attribute</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+            <span class="n">rewritten_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[:]</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rewritten_nodes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">changed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model_path</span>
+
+        <span class="n">onnx</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Sanitized legacy ONNX broadcast attributes for onnx2c: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out_path</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_function_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_text</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"void\s+</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span><span class="si">}</span><span class="s2">\s*\((.*?)\)\s*\</span><span class="se">{{</span><span class="s2">"</span><span class="p">,</span> <span class="n">source_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to locate onnx2c function signature: </span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2">(...) in generated source"</span><span class="p">)</span>
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">signature</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">","</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
+                    <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">"["</span><span class="p">:</span>
+                <span class="n">depth</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">"]"</span><span class="p">:</span>
+                <span class="n">depth</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">current</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+        <span class="n">final_arg</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">final_arg</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">args</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_runtime_shim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_text</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_function_signature</span><span class="p">(</span><span class="n">source_text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">)</span>
+        <span class="n">input_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">output_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">arg_decls</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^(?P&lt;type&gt;.+?)\s+(?P&lt;name&gt;[A-Za-z_]\w*)(?P&lt;dims&gt;(?:\[[^\]]+\])*)\s*$"</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to parse onnx2c function argument: </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">arg_type</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"const "</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="n">arg_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
+            <span class="n">arg_dims</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"dims"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">arg_dims</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"onnx2c function argument has no array dimensions: </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">arg_decls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"static </span><span class="si">{</span><span class="n">arg_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">arg_name</span><span class="si">}{</span><span class="n">arg_dims</span><span class="si">}</span><span class="s2">;"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">input_args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">arg_name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"sizeof(</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">)"</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output_args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">arg_name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"sizeof(</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">)"</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">input_args</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"onnx2c runtime shim needs at least one model input"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_args</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"onnx2c runtime shim needs at least one model output"</span><span class="p">)</span>
+
+        <span class="n">call_args</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">input_args</span> <span class="o">+</span> <span class="n">output_args</span><span class="p">])</span>
+        <span class="n">input_calls</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">    "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"ret = mlif_request_input(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">, &amp;new_);"</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">input_args</span><span class="p">])</span>
+        <span class="n">output_calls</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">              "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"ret = mlif_handle_result(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">);"</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">output_args</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"""#include "ml_interface.h"</span>
+
+<span class="s2">#include &lt;stdbool.h&gt;</span>
+<span class="s2">#include &lt;stddef.h&gt;</span>
+
+<span class="si">{</span><span class="nb">chr</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arg_decls</span><span class="p">)</span><span class="si">}</span>
+
+<span class="s2">extern void </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="s2">);</span>
+
+<span class="s2">int mlonmcu_init() </span><span class="se">{{</span>
+<span class="s2">  return 0;</span>
+<span class="se">}}</span>
+
+<span class="s2">int mlonmcu_deinit() </span><span class="se">{{</span>
+<span class="s2">  return 0;</span>
+<span class="se">}}</span>
+
+<span class="s2">int mlonmcu_run() </span><span class="se">{{</span>
+<span class="s2">  size_t remaining = NUM_RUNS;</span>
+<span class="s2">  while (remaining) </span><span class="se">{{</span>
+<span class="s2">    </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">call_args</span><span class="si">}</span><span class="s2">);</span>
+<span class="s2">    remaining--;</span>
+<span class="s2">  </span><span class="se">}}</span>
+<span class="s2">  return 0;</span>
+<span class="se">}}</span>
+
+<span class="s2">int mlonmcu_check() </span><span class="se">{{</span>
+<span class="s2">  size_t input_num = 0;</span>
+<span class="s2">  int ret = 0;</span>
+<span class="s2">  bool new_ = false;</span>
+<span class="s2">  while (true) </span><span class="se">{{</span>
+<span class="s2">    </span><span class="si">{</span><span class="n">input_calls</span><span class="si">}</span>
+<span class="s2">    if (ret) </span><span class="se">{{</span>
+<span class="s2">      return ret;</span>
+<span class="s2">    </span><span class="se">}}</span>
+<span class="s2">    if (!new_) </span><span class="se">{{</span>
+<span class="s2">      break;</span>
+<span class="s2">    </span><span class="se">}}</span>
+<span class="s2">    if (input_num == </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">input_args</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">) </span><span class="se">{{</span>
+<span class="s2">      </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">call_args</span><span class="si">}</span><span class="s2">);</span>
+<span class="s2">      </span><span class="si">{</span><span class="n">output_calls</span><span class="si">}</span>
+<span class="s2">      if (ret) </span><span class="se">{{</span>
+<span class="s2">        return ret;</span>
+<span class="s2">      </span><span class="se">}}</span>
+<span class="s2">      input_num = 0;</span>
+<span class="s2">    </span><span class="se">}}</span><span class="s2"> else </span><span class="se">{{</span>
+<span class="s2">      input_num++;</span>
+<span class="s2">    </span><span class="se">}}</span>
+<span class="s2">  </span><span class="se">}}</span>
+<span class="s2">  return ret;</span>
+<span class="se">}}</span>
+<span class="s2">"""</span>
+
+<div class="viewcode-block" id="Onnx2CBackend.generate">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.onnx.backend.html#mlonmcu.flow.onnx.Onnx2CBackend.generate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">onnx2c_exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"onnx2c.exe"</span><span class="p">]</span>
+
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">sanitized_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.sanitized.onnx"</span>
+            <span class="n">model_to_use</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_model_for_onnx2c</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">sanitized_path</span><span class="p">)</span>
+
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">avr</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--avr"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_globals</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--no-globals"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extern_init</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--extern-init"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_init</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--only-init"</span><span class="p">)</span>
+
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--log"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_level</span><span class="p">)])</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--func-name"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func_name</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizations</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--optimizations"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizations</span><span class="p">)])</span>
+
+            <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">define</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"--define"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2">"</span><span class="p">])</span>
+
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">model_to_use</span><span class="p">))</span>
+
+            <span class="n">out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">onnx2c_exe</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">)</span>
+            <span class="n">source_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.c"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_artifact</span><span class="p">)</span>
+
+            <span class="n">shim_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_runtime_shim</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="n">shim_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_mlif.c"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">shim_content</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shim_artifact</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">model_to_use</span> <span class="o">!=</span> <span class="n">model_path</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_to_use</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">in_file</span><span class="p">:</span>
+                    <span class="n">sanitized_data</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">out_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sanitized_model_out</span>
+                <span class="k">if</span> <span class="n">out_path</span><span class="p">:</span>
+                    <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">out_path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+                        <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span> <span class="o">/</span> <span class="n">out_path</span>
+                    <span class="n">out_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">out_path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">sanitized_data</span><span class="p">)</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.sanitized.onnx"</span><span class="p">,</span>
+                        <span class="n">raw</span><span class="o">=</span><span class="n">sanitized_data</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">"onnx2c_out.log"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{}</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+        <span class="n">main</span><span class="p">(</span>
+            <span class="n">Onnx2CBackend</span><span class="p">,</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

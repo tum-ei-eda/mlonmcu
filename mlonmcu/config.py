@@ -190,7 +190,7 @@ def resolve_required_config(
             value = None
             for hint_combination in hint_combinations:
                 if (key, tuple(list(flags) + hint_combination)) in cache:
-                    value = cache[key, flags]
+                    value = cache[key, tuple(list(flags) + hint_combination)]
                     break
             if value is None:
                 if len(flags) == 0:
@@ -215,7 +215,7 @@ def resolve_required_config(
                 value = None
                 for hint_combination in hint_combinations:
                     if (key, tuple(list(flags) + hint_combination)) in cache:
-                        value = cache[key, flags]
+                        value = cache[key, tuple(list(flags) + hint_combination)]
                         break
                 if value is None:
                     continue

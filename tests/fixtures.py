@@ -80,8 +80,10 @@ def fake_context():
 def example_elf_file(request, tmp_path):
     name = request.param
     elf_path = tmp_path / name
-    url = f"https://github.com/JonathanSalwan/binary-samples/raw/master/{name}"
-    urllib.request.urlretrieve(url, elf_path)
+    # The unit tests using this fixture mock execution of the inspection tool,
+    # therefore they only need a valid path.  Downloading a multi-megabyte ELF
+    # made the unit suite depend on GitHub and fail in offline CI jobs.
+    elf_path.touch()
     yield str(elf_path)
 
 

@@ -18,7 +18,15 @@
 #
 import pytest
 
-from mlonmcu.config import filter_config, remove_config_prefix, resolve_required_config, str2bool, str2dict
+from mlonmcu.config import (
+    filter_config,
+    pick_first,
+    remove_config_prefix,
+    resolve_required_config,
+    str2bool,
+    str2dict,
+    str2list,
+)
 
 
 def test_remove_config_prefix_supports_exact_and_wildcard_prefixes():
@@ -80,3 +88,40 @@ def test_str_converters_handle_none_and_invalid_values():
         str2bool("perhaps")
     with pytest.raises((ValueError, SyntaxError)):
         str2dict("not a dictionary")
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (["a", "b"], ["a", "b"]),
+        (("a", "b"), ["a", "b"]),
+        ({"a", "b"}, ["a", "b"]),
+        ("a,b", ["a", "b"]),
+        ("['a', 'b']", ["a", "b"]),
+    ],
+)
+def test_str2list(value, expected):
+    assert sorted(str2list(value)) == sorted(expected)
+
+
+def test_str2list_none_and_invalid_type():
+    assert str2list(None, allow_none=True) is None
+    with pytest.raises(AssertionError):
+        str2list(None)
+    with pytest.raises(AssertionError):
+        str2list(1.5)
+
+
+def test_pick_first_selects_first_valid_candidate():
+    config = {"first": None, "second": 2, "third": 3}
+    assert pick_first(config, ["missing", "first", "second", "third"]) == 2
+    assert pick_first(config, ["first"], allow_none=True) is None
+
+
+def test_pick_first_empty_and_missing_behavior():
+    assert pick_first({}, [], allow_empty=True) is None
+    assert pick_first({}, ["missing"], allow_fail=True) is None
+    with pytest.raises(AssertionError, match="empty list"):
+        pick_first({}, [])
+    with pytest.raises(AssertionError, match="could not find"):
+        pick_first({}, ["missing"])

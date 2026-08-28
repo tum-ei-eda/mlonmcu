@@ -43,7 +43,7 @@ from .calc_lib_mem_footprints import (
     unmangle_helper,
 )
 from .dwarf import analyze_dwarf
-from .db_utils import push_session_to_mlonmcu_db
+from mlonmcu.session.db_utils import push_session_to_mlonmcu_db
 
 logger = get_logger()
 

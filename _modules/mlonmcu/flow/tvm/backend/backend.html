@@ -100,6 +100,8 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
@@ -110,7 +112,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.timeout</span><span class="w"> </span><span class="kn">import</span> <span class="n">exec_timeout</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span><span class="p">,</span> <span class="n">str2dict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model_info</span><span class="p">,</span> <span class="n">get_fallback_model_info</span><span class="p">,</span> <span class="n">get_supported_formats</span><span class="p">,</span> <span class="n">get_model_format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model_info</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_model_info</span><span class="p">,</span>
+    <span class="n">get_fallback_model_info</span><span class="p">,</span>
+    <span class="n">get_supported_formats</span><span class="p">,</span>
+    <span class="n">get_model_format</span><span class="p">,</span>
+    <span class="n">get_relay_model_info</span><span class="p">,</span>
+    <span class="n">ModelInfo</span><span class="p">,</span>
+    <span class="n">RelayTensorInfo</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFormats</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.python_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_python_environment</span>
@@ -127,6 +138,13 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
+<div class="viewcode-block" id="infer_tuner_name">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.infer_tuner_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">infer_tuner_name</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+
 <div class="viewcode-block" id="TVMBackend">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TVMBackend</span><span class="p">(</span><span class="n">Backend</span><span class="p">):</span>
@@ -134,7 +152,16 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"autotuned"</span><span class="p">,</span> <span class="s2">"cmsisnnbyoc"</span><span class="p">,</span> <span class="s2">"muriscvnnbyoc"</span><span class="p">,</span> <span class="s2">"disable_legalize"</span><span class="p">,</span> <span class="s2">"moiopt"</span><span class="p">,</span> <span class="s2">"uma_backends"</span><span class="p">,</span> <span class="s2">"fuse_ops"</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"autotuned"</span><span class="p">,</span>
+        <span class="s2">"cmsisnnbyoc"</span><span class="p">,</span>
+        <span class="s2">"muriscvnnbyoc"</span><span class="p">,</span>
+        <span class="s2">"disable_legalize"</span><span class="p">,</span>
+        <span class="s2">"moiopt"</span><span class="p">,</span>
+        <span class="s2">"uma_backends"</span><span class="p">,</span>
+        <span class="s2">"fuse_ops"</span><span class="p">,</span>
+        <span class="s2">"cfu_wca"</span><span class="p">,</span>
+    <span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"print_outputs"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -145,17 +172,22 @@
         <span class="s2">"target_model"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"target_mtriple"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"target_mabi"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_mfloat_abi"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"target_mattr"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"target_keys"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"target_num_cores"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"target_vector_width"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"cross_compiler"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"tvm_target_str"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"extra_targets"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># list</span>
         <span class="s2">"extra_target_details"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># dict</span>
         <span class="s2">"desired_layout"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: NCHW, NHWC, NHWC:HWOI, ...</span>
         <span class="s2">"desired_layout_ops"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional: conv2d, max_pool2d,...</span>
         <span class="s2">"desired_layout_map"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># optional, conv2d=NCHW, ...</span>
-        <span class="s2">"disabled_passes"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout</span>
+        <span class="s2">"disabled_passes"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># i.e. AlterOpLayout, FuseOps, FoldScaleAxis,</span>
+        <span class="c1"># qnn.Legalize, QnnCanonicalize, tir.CommonSubexprElimTIR</span>
         <span class="s2">"extra_pass_config"</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># TODO: some example (fuse_max_depth etc.)</span>
+        <span class="s2">"tir_add_lower_pass"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># opt_level1,pass1,opt_level2,pass2,...</span>
         <span class="s2">"use_tuning_results"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">"tvmc_extra_args"</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Currently compile subcommand only!</span>
         <span class="s2">"tvmc_custom_script"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -171,6 +203,10 @@
         <span class="s2">"refresh_model_info"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">"generate_wrapper"</span><span class="p">:</span> <span class="s2">"auto"</span><span class="p">,</span>
         <span class="s2">"bool_as_int"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"ms_db"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"filter_ms_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"filter_ms_db_extra_args"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"experimental_tvm_target_vector_width"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -188,6 +224,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supported_formats</span> <span class="o">=</span> <span class="n">get_supported_formats</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_formats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLF</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlf_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlf_metadata</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlf_unpacked_api</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span> <span class="o">=</span> <span class="n">runtime</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">executor</span>
@@ -203,7 +244,10 @@
         <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"autotuned_mode"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">results_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">tuner_name</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
+                <span class="n">tuner_name</span> <span class="o">=</span> <span class="n">infer_tuner_name</span><span class="p">(</span><span class="n">results_file</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">[</span><span class="n">tuner_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># On the long term, we might support multiple TUNE stages in a single run</span>
     <span class="c1"># (i.e. to allow autotvm+graphtuner to be separated)</span>
@@ -225,6 +269,8 @@
             <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"autotuned_mode"</span><span class="p">]</span>
             <span class="c1"># tuner_name = "autotvm"</span>
             <span class="k">assert</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">tuner_name</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
+                <span class="n">tuner_name</span> <span class="o">=</span> <span class="n">infer_tuner_name</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">[</span><span class="n">tuner_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">records</span></div>
 
 
@@ -234,10 +280,22 @@
         <span class="k">if</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">tuner_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"autotuned_mode"</span><span class="p">]</span>
             <span class="c1"># tuner_name = "autotvm"</span>
-            <span class="k">if</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tuner_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">tuner_name</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">tuner_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tuner_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TVMBackend.reconfigure">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.reconfigure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconfigure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># super().reconfigure()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"final_pass_config"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_config</span><span class="p">,</span>
+                <span class="s2">"final_tuning_records"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -260,8 +318,19 @@
         <span class="k">return</span> <span class="n">extra</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tir_add_lower_pass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tir_add_lower_pass"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pass_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tir.disable_vectorize"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_vectorize</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tir_add_lower_pass</span><span class="p">:</span>
+            <span class="c1"># TODO: do not override?</span>
+            <span class="n">base</span><span class="p">[</span><span class="s2">"tir.add_lower_pass"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tir_add_lower_pass</span>
         <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_pass_config</span>
         <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">base</span>
@@ -287,6 +356,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mabi"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_mfloat_abi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mfloat_abi"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_mattr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_mattr"</span><span class="p">]</span>
 
@@ -302,15 +375,22 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">target_num_cores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_num_cores"</span><span class="p">]</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">target_vector_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"target_vector_width"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cross_compiler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"cross_compiler"</span><span class="p">]</span>
+
     <span class="c1"># TODO:</span>
-    <span class="c1"># "target_device": ?,</span>
     <span class="c1"># "target_libs": ?,</span>
     <span class="c1"># "target_tag": ?,</span>
-    <span class="c1"># "target_march": ?,</span>
-    <span class="c1"># "target_keys": ?,</span>
     <span class="c1"># "target_opt_level": ?,</span>
     <span class="c1"># "target_cl_opt": ?,</span>
-    <span class="c1"># "target_mfloat_abi": ?,</span>
     <span class="c1"># "target_fast_math_ninf": ?,</span>
     <span class="c1"># "target_fast_math_contract": ?,</span>
     <span class="c1"># "target_fast_math_nnan": ?,</span>
@@ -407,13 +487,15 @@
             <span class="n">ret</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" </span><span class="si">{</span><span class="n">keys_str</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"device"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">,</span>
-            <span class="s2">"mcpu"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">,</span>
             <span class="s2">"march"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_march</span><span class="p">,</span>
-            <span class="s2">"model"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">,</span>
-            <span class="s2">"mtriple"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span><span class="p">,</span>
             <span class="s2">"mabi"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span><span class="p">,</span>
             <span class="o">**</span><span class="p">({</span><span class="s2">"mattr"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">"llvm"</span> <span class="k">else</span> <span class="p">{}),</span>
-            <span class="s2">"num_cores"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">,</span>
+            <span class="s2">"mcpu"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">,</span>
+            <span class="s2">"mfloat-abi"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mfloat_abi</span><span class="p">,</span>
+            <span class="s2">"model"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">,</span>
+            <span class="s2">"mtriple"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span><span class="p">,</span>
+            <span class="s2">"num-cores"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">({</span><span class="s2">"vector-width"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_vector_width</span><span class="p">}</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">"llvm"</span> <span class="k">else</span> <span class="p">{}),</span>
             <span class="c1"># TODO: alignment</span>
         <span class="p">}</span>
 
@@ -470,12 +552,37 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ms_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"ms_db"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">if</span> <span class="s2">"metascheduler"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_tuning_results</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tuning_records</span><span class="p">[</span><span class="s2">"metascheduler"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_ms_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"filter_ms_db"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_ms_db_extra_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"filter_ms_db_extra_args"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"num_threads"</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">relay_debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"relay_debug"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">experimental_tvm_target_vector_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># only availablein latest TVM or forks</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"experimental_tvm_target_vector_width"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TVMBackend.get_target_details">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_target_details">[docs]</a>
@@ -491,6 +598,8 @@
             <span class="n">ret</span><span class="p">[</span><span class="s2">"mtriple"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mtriple</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"mabi"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mabi</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mfloat_abi</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"mfloat-abi"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mfloat_abi</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span><span class="p">:</span>
             <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_unroll</span><span class="p">:</span>
@@ -502,6 +611,8 @@
             <span class="n">ret</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"num-cores"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_vector_width</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"vector-width"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_vector_width</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 
 
@@ -510,6 +621,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"aot"</span><span class="p">,</span> <span class="s2">"graph"</span><span class="p">],</span> <span class="s2">"Unsupported TVM executor"</span>
+        <span class="n">ms_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ms_db</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
             <span class="o">*</span><span class="p">([</span><span class="s2">"--relay-params"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
@@ -519,12 +631,13 @@
                 <span class="n">target_details</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_target_details</span><span class="p">(),</span>
                 <span class="n">extra_target_details</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_target_details</span><span class="p">,</span>
                 <span class="n">bool_as_int</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bool_as_int</span><span class="p">,</span>
+                <span class="n">has_target_vector_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experimental_tvm_target_vector_width</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="o">*</span><span class="n">get_runtime_executor_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_pass_config_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pass_config</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_disabled_pass_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disabled_passes</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_input_shapes_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span><span class="p">),</span>
-            <span class="o">*</span><span class="n">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_tuning_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tuning_records</span><span class="p">()),</span>
+            <span class="o">*</span><span class="n">get_tuning_records_tvmc_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">use_tuning_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tuning_records</span><span class="p">(),</span> <span class="n">ms_db</span><span class="p">),</span>
             <span class="o">*</span><span class="n">get_desired_layout_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desired_layout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_layout_ops</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_layout_map</span><span class="p">),</span>
             <span class="o">*</span><span class="p">([</span><span class="s2">"--dump-code"</span><span class="p">,</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dump</span><span class="p">)]</span> <span class="k">if</span> <span class="n">dump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tvmc_extra_args</span><span class="p">,</span>
@@ -532,6 +645,11 @@
             <span class="o">*</span><span class="p">[</span><span class="s2">"--output"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)],</span>
             <span class="o">*</span><span class="p">[</span><span class="s2">"-f"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">],</span>
             <span class="o">*</span><span class="p">[</span><span class="s2">"--model-format"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">"--cross-compiler"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_compiler</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_compiler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">!=</span> <span class="s2">"mlf"</span>
+                <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">),</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">args</span></div>
 
@@ -584,6 +702,9 @@
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params_path</span> <span class="o">=</span> <span class="n">params_path</span>
+        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">".tar"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_mlf</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="k">return</span>
         <span class="c1"># TODO: path model class instead of path!</span>
         <span class="c1"># fmt = self.model.formats[0]</span>
         <span class="n">need_model_info</span> <span class="o">=</span> <span class="kc">True</span>
@@ -623,6 +744,56 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span></div>
 
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mlf_member</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Read an MLF member while accepting the conventional leading './'."""</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">member</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"./"</span><span class="p">):</span> <span class="n">member</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">archive</span><span class="o">.</span><span class="n">getmembers</span><span class="p">()</span> <span class="k">if</span> <span class="n">member</span><span class="o">.</span><span class="n">isfile</span><span class="p">()}</span>
+        <span class="n">member</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"./"</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">member</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">required</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid MLF archive: missing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">archive</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">member</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_mlf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mlf_data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_data</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r:*"</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
+                <span class="n">metadata_raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mlf_member</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="s2">"metadata.json"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mlf_metadata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">metadata_raw</span><span class="p">)</span>
+                <span class="n">modules</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlf_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"modules"</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">modules</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"MLF frontend currently requires exactly one module"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span><span class="p">,</span> <span class="n">module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">modules</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+                <span class="n">member_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">member</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"./"</span><span class="p">)</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">archive</span><span class="o">.</span><span class="n">getmembers</span><span class="p">()</span> <span class="k">if</span> <span class="n">member</span><span class="o">.</span><span class="n">isfile</span><span class="p">()}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mlf_unpacked_api</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"codegen/host/include/tvmgen_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span><span class="si">}</span><span class="s2">.h"</span> <span class="ow">in</span> <span class="n">member_names</span>
+                <span class="n">executors</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"executors"</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">executors</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"MLF executor mismatch: archive uses </span><span class="si">{</span><span class="n">executors</span><span class="si">}</span><span class="s2">, backend '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' uses '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="si">}</span><span class="s2">'"</span>
+                    <span class="p">)</span>
+                <span class="n">relay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mlf_member</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"src/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span><span class="si">}</span><span class="s2">.relay"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">relay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">get_relay_model_info</span><span class="p">(</span><span class="n">relay</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">main</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">"memory"</span><span class="p">][</span><span class="s2">"functions"</span><span class="p">][</span><span class="s2">"main"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="k">def</span><span class="w"> </span><span class="nf">tensor_info</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="n">dtype</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">]</span>
+                            <span class="n">item_size</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"float32"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"int32"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"int64"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">"uint8"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"int8"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}[</span><span class="n">dtype</span><span class="p">]</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RelayTensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s2">"size"</span><span class="p">]</span> <span class="o">//</span> <span class="n">item_size</span><span class="p">],</span> <span class="n">dtype</span><span class="p">))</span>
+                        <span class="k">return</span> <span class="n">result</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">ModelInfo</span><span class="p">(</span><span class="n">tensor_info</span><span class="p">(</span><span class="n">main</span><span class="p">[</span><span class="s2">"inputs"</span><span class="p">]),</span> <span class="n">tensor_info</span><span class="p">(</span><span class="n">main</span><span class="p">[</span><span class="s2">"outputs"</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span> <span class="o">=</span> <span class="p">{</span><span class="n">tensor</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="o">.</span><span class="n">in_tensors</span><span class="p">}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">=</span> <span class="s2">"mlf"</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">tarfile</span><span class="o">.</span><span class="n">TarError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid MLF archive: </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
 <div class="viewcode-block" id="TVMBackend.get_graph_and_params_from_mlf">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.get_graph_and_params_from_mlf">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_graph_and_params_from_mlf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -640,13 +811,85 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.generate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlf_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata_txt</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_metadata</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.json"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">metadata_txt</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">))</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar"</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span> <span class="n">archive</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_data</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"r:*"</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
+                <span class="n">relay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mlf_member</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"src/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span><span class="si">}</span><span class="s2">.relay"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">relay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.relay"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">relay</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">==</span> <span class="s2">"graph"</span><span class="p">:</span>
+                    <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mlf_member</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"executor-config/graph/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span><span class="si">}</span><span class="s2">.graph"</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mlf_member</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"parameters/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span><span class="si">}</span><span class="s2">.params"</span><span class="p">)</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.graph"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">))</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.params"</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">Metrics</span><span class="p">()}</span>
         <span class="n">dump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dump</span>
+        <span class="c1"># target_str = self.tvm_target_str</span>
+        <span class="c1"># print("target_str", target_str)</span>
+        <span class="c1"># input("!")</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_model_info</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_wrapper</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"relay"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
             <span class="n">dump</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"relay"</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ms_db</span><span class="p">:</span>
+                <span class="n">ms_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ms_db</span>
+                <span class="n">ms_db_filtered</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"filteted_ms_db.tar"</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span> <span class="o">=</span> <span class="n">ms_db_filtered</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">ms_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">filter_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">ms_db</span><span class="p">,</span> <span class="s2">"-o"</span><span class="p">,</span> <span class="n">ms_db_filtered</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">:</span>
+                    <span class="n">filter_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--filter-target-device"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_device</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">:</span>
+                    <span class="n">filter_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--filter-target-mcpu"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mcpu</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">:</span>
+                    <span class="n">filter_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--filter-target-model"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">:</span>
+                    <span class="n">filter_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--filter-target-num-cores"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_num_cores</span><span class="p">)]</span>
+                <span class="c1"># keys, march, mabi, mfloat-abi, mtriple, vector-width?</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">==</span> <span class="s2">"llvm"</span><span class="p">:</span>
+                    <span class="n">filter_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--filter-target-mattr"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_mattr</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ms_db_extra_args</span><span class="p">:</span>
+                    <span class="n">extra_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_ms_db_extra_args</span>
+                    <span class="c1"># print("extra_args", extra_args)</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_args</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+                    <span class="n">filter_args</span> <span class="o">+=</span> <span class="n">extra_args</span>
+                <span class="c1"># print("filter_args", filter_args)</span>
+                <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span>
+                    <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_tlcpack</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span>
+                    <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_tlcpack</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span>
+                    <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_tlcpack</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_configs_dir</span><span class="p">,</span>
+                    <span class="n">tophub_url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tophub_url</span><span class="p">,</span>
+                    <span class="n">num_threads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">,</span>
+                    <span class="n">debug_cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relay_debug</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="s2">""</span>
+                <span class="n">out</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span>
+                    <span class="s2">"-m"</span> <span class="s2">"tvm.meta_schedule.database.filter_db"</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">filter_args</span><span class="p">,</span>
+                    <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
+                    <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+                    <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># input("123")</span>
             <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar"</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_compile</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invoke_tvmc_compile</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Artifact</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">ARCHIVE</span><span class="p">,</span>
+                            <span class="c1"># archive=True,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">filtered_ms_db</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"mlf"</span><span class="p">:</span>
                 <span class="n">mlf_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"mlf"</span>
                 <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">mlf_path</span><span class="p">)</span>
@@ -661,13 +904,14 @@
                 <span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span>
                     <span class="n">Artifact</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tar"</span><span class="p">,</span>
                         <span class="n">raw</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
                         <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SHARED_OBJECT</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">==</span> <span class="s2">"so"</span> <span class="k">else</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">MLF</span><span class="p">,</span>
                         <span class="n">archive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="p">)</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="s2">"c"</span> <span class="ow">in</span> <span class="n">dump</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span> <span class="o">+</span> <span class="s2">".c"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>

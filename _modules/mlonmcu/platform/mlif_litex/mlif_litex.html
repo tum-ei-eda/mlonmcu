@@ -1,0 +1,504 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.mlif_litex.mlif_litex &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.mlif_litex.mlif_litex</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.mlif_litex.mlif_litex</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">"""MLIF Litex Platform"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># import tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>  <span class="c1"># TODO: Move one level up?</span>
+
+<span class="c1"># from mlonmcu.timeout import exec_timeout</span>
+<span class="c1"># from mlonmcu.artifact import Artifact, ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.target</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+
+<span class="c1"># from mlonmcu.models.utils import get_data_source</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..mlif.mlif</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlifPlatform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.mlif_litex_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mlif_litex_platform_targets</span><span class="p">,</span> <span class="n">create_mlif_litex_platform_target</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlifLitexPlatform</span><span class="p">(</span><span class="n">MlifPlatform</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Model Library Interface + Litex Platform class."""</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">MlifPlatform</span><span class="o">.</span><span class="n">FEATURES</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">MlifPlatform</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">MlifPlatform</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"litex.install_dir"</span><span class="p">,</span> <span class="s2">"litex.venv"</span><span class="p">,</span> <span class="s2">"litex.launcher"</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">MlifPlatform</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"cmake.exe"</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">"mlif_litex"</span><span class="p">,</span>
+            <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempdir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">litex_name</span> <span class="o">=</span> <span class="s2">"sim"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">"build"</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">litex_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gateware_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">workdir</span> <span class="o">/</span> <span class="s2">"gateware"</span>
+
+<div class="viewcode-block" id="MlifLitexPlatform.create_target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.create_target">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_supported_targets</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a valid MLIF Litex target"</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">Target</span>
+        <span class="k">return</span> <span class="n">create_mlif_litex_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_supported_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">target_names</span> <span class="o">=</span> <span class="n">get_mlif_litex_platform_targets</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"target_names"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mlif_litex_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"mlif_litex.src_dir"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">litex_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"litex.install_dir"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">litex_launcher</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"litex.launcher"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">litex_venv_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"litex.venv"</span><span class="p">])</span>
+
+<div class="viewcode-block" id="MlifLitexPlatform.get_definitions">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.get_definitions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_definitions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">definitions</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_definitions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">definitions</span></div>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform.get_cmake_args">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.get_cmake_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cmake_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">cmakeArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cmakeArgs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_cmake_args</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-DLITEX_ROOT=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">litex_install_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-DLITEX_WORKDIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">workdir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">cmakeArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"-DLITEX_CPU=</span><span class="si">{</span><span class="n">target</span><span class="o">.</span><span class="n">litex_cpu</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cmakeArgs</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_soc_gen_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"--cpu-type"</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">litex_cpu</span><span class="p">,</span>
+            <span class="s2">"--cpu-variant"</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">litex_cpu_variant</span><span class="p">,</span>
+            <span class="s2">"--bus-standard"</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">bus_standard</span><span class="p">,</span>
+            <span class="s2">"--sys-clk-freq"</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">sys_clk_freq</span><span class="p">),</span>
+            <span class="s2">"--build"</span><span class="p">,</span>
+            <span class="s2">"--integrated-main-ram-size"</span><span class="p">,</span>
+            <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">integrated_main_ram_size</span><span class="p">),</span>
+            <span class="s2">"--integrated-sram-size"</span><span class="p">,</span>
+            <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">integrated_sram_size</span><span class="p">),</span>
+            <span class="s2">"--name"</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">litex_name</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_litex_soc_gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">soc_gen_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_soc_gen_args</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">litex_launcher</span><span class="p">,</span>
+            <span class="s2">"litex_soc_gen"</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">soc_gen_args</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_sim_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">demo_bin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span> <span class="o">/</span> <span class="s2">"bin"</span> <span class="o">/</span> <span class="s2">"generic_mlonmcu.bin"</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"--cpu-type"</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">litex_cpu</span><span class="p">,</span>
+            <span class="s2">"--cpu-variant"</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">litex_cpu_variant</span><span class="p">,</span>
+            <span class="s2">"--no-compile-gateware"</span><span class="p">,</span>
+            <span class="s2">"--non-interactive"</span><span class="p">,</span>
+            <span class="s2">"--integrated-main-ram-size"</span><span class="p">,</span>
+            <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">integrated_main_ram_size</span><span class="p">),</span>
+            <span class="s2">"--integrated-sram-size"</span><span class="p">,</span>
+            <span class="nb">hex</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">integrated_sram_size</span><span class="p">),</span>
+            <span class="s2">"--ram-init"</span><span class="p">,</span>
+            <span class="n">demo_bin</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_litex_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"cwd"</span><span class="p">)</span>
+        <span class="n">sim_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sim_args</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">litex_launcher</span><span class="p">,</span> <span class="s2">"litex_sim"</span><span class="p">,</span> <span class="o">*</span><span class="n">sim_args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_vsim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"cwd"</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">litex_launcher</span><span class="p">,</span>
+            <span class="s2">"bash"</span><span class="p">,</span>
+            <span class="s2">"build_sim.sh"</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gateware_dir</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="c1"># def _run_vsim(self, target, **kwargs):</span>
+    <span class="c1">#     ret = ""</span>
+    <span class="c1">#     vsim_exe = Path("obj_dir") / "Vsim"</span>
+    <span class="c1">#     assert vsim_exe.is_file()</span>
+    <span class="c1">#     env = self.prepare_environment(target)</span>
+    <span class="c1">#     ret += utils.execute(</span>
+    <span class="c1">#         self.litex_launcher, vsim_exe, cwd=self.gateware_dir, env=env, live=self.print_outputs, **kwargs</span>
+    <span class="c1">#     )</span>
+    <span class="c1">#     return ret</span>
+
+<div class="viewcode-block" id="MlifLitexPlatform.prepare">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.prepare">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">ret</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_litex_soc_gen</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform.prepare_environment">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.prepare_environment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># TODO: refactor</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">riscv_gcc_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">path_old</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span>
+                <span class="n">riscv_prefix</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">riscv_gcc_prefix</span>
+                <span class="n">path_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">riscv_prefix</span><span class="si">}</span><span class="s2">/bin:</span><span class="si">{</span><span class="n">path_old</span><span class="si">}</span><span class="s2">"</span>
+                <span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">path_new</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"VENV_DIR"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">litex_venv_dir</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform.generate">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.generate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="c1"># TODO: store as artifact</span>
+        <span class="c1"># TODO: measure time?</span>
+        <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">artifacts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">artifacts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">artifacts</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">metrics</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform.flash">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.flash">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># TODO: elf to bin?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_litex_sim</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_vsim</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform.monitor">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.monitor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">vsim_exe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gateware_dir</span> <span class="o">/</span> <span class="s2">"obj_dir"</span> <span class="o">/</span> <span class="s2">"Vsim"</span>
+        <span class="k">assert</span> <span class="n">vsim_exe</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+
+        <span class="c1"># import time</span>
+        <span class="c1"># import select</span>
+        <span class="c1"># import fcntl</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_kill_monitor</span><span class="p">():</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># def _set_nonblock(fd):</span>
+        <span class="c1">#     flag = fcntl.fcntl(fd, fcntl.F_GETFL)</span>
+        <span class="c1">#     fcntl.fcntl(fd, fcntl.F_SETFL, flag | os.O_NONBLOCK)</span>
+        <span class="c1">#     new_flag = fcntl.fcntl(fd, fcntl.F_GETFL)</span>
+        <span class="c1">#     assert (new_flag &amp; os.O_NONBLOCK) != 0, "Cannot set file descriptor {fd} to non-blocking"</span>
+
+        <span class="c1"># def _await_ready(rlist, wlist, timeout_sec=None, end_time=None):</span>
+        <span class="c1">#     if timeout_sec is None and end_time is not None:</span>
+        <span class="c1">#         timeout_sec = max(0, end_time - time.monotonic())</span>
+
+        <span class="c1">#     rlist, wlist, xlist = select.select(rlist, wlist, rlist + wlist, timeout_sec)</span>
+        <span class="c1">#     if not rlist and not wlist and not xlist:</span>
+        <span class="c1">#         raise RuntimeError("Timeout?")</span>
+
+        <span class="c1">#     return True</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_monitor_helper</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_match</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+            <span class="c1"># start_match and end_match are inclusive</span>
+            <span class="k">if</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># TODO: implement timeout</span>
+            <span class="n">outStr</span> <span class="o">=</span> <span class="s2">""</span>
+            <span class="n">found_start</span> <span class="o">=</span> <span class="n">start_match</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="c1"># TODO: log command!</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"cwd"</span><span class="p">)</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                <span class="n">vsim_exe</span><span class="p">,</span>
+                <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gateware_dir</span><span class="p">,</span>
+                <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>  <span class="c1"># TODO: store stdout?</span>
+                <span class="c1"># stdin=subprocess.PIPE,</span>
+                <span class="n">bufsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># _set_nonblock(process.stdin.fileno())</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+                    <span class="n">new_line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">new_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+                    <span class="c1"># if not found_menu:</span>
+                    <span class="c1">#     if menu_match in new_line:</span>
+                    <span class="c1">#         # print("FOUND MENU")</span>
+                    <span class="c1">#         found_menu = True</span>
+                    <span class="c1">#         # process.stdin.write(b"3\n")</span>
+                    <span class="c1">#         data = b"3"</span>
+                    <span class="c1">#         fd = process.stdin.fileno()</span>
+                    <span class="c1">#         _await_ready([], [fd], end_time=None)</span>
+                    <span class="c1">#         _ = os.write(fd, data)</span>
+                    <span class="c1">#         # num_written = os.write(fd, data)</span>
+                    <span class="c1">#         # print("num_written", num_written)</span>
+                    <span class="c1"># else:</span>
+                    <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">start_match</span> <span class="ow">and</span> <span class="n">start_match</span> <span class="ow">in</span> <span class="n">new_line</span><span class="p">:</span>
+                            <span class="n">outStr</span> <span class="o">=</span> <span class="n">new_line</span>
+                            <span class="n">found_start</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">outStr</span> <span class="o">=</span> <span class="n">outStr</span> <span class="o">+</span> <span class="n">new_line</span>
+                        <span class="k">if</span> <span class="n">found_start</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">end_match</span> <span class="ow">and</span> <span class="n">end_match</span> <span class="ow">in</span> <span class="n">new_line</span><span class="p">:</span>
+                                <span class="c1"># _kill_monitor()</span>
+                                <span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                                <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">outStr</span><span class="p">)</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="s2">"TODO"</span>
+                <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"The process returned an non-zero exit code </span><span class="si">{}</span><span class="s2">! (CMD: `</span><span class="si">{}</span><span class="s2">`)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">exit_code</span><span class="p">,</span> <span class="n">cmd</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Interrupted subprocess. Sending SIGINT signal..."</span><span class="p">)</span>
+                <span class="n">_kill_monitor</span><span class="p">()</span>
+                <span class="n">pid</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">pid</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
+            <span class="c1"># os.system("reset")</span>
+            <span class="k">return</span> <span class="n">outStr</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Monitoring verilator"</span><span class="p">)</span>
+        <span class="c1"># TODO: do not drop verilator stdout/stderr?</span>
+        <span class="k">return</span> <span class="n">_monitor_helper</span><span class="p">(</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span>
+            <span class="n">start_match</span><span class="o">=</span><span class="s2">"Program start."</span><span class="p">,</span>
+            <span class="n">end_match</span><span class="o">=</span><span class="s2">"Program finish."</span><span class="p">,</span>  <span class="c1"># TODO: missing exit code?</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MlifLitexPlatform.run">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex.MlifLitexPlatform.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Only allow one serial communication at a time</span>
+        <span class="c1"># with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flash</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">diff2</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"Verilator Build Time [s]"</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"Verilator Monitor Time [s]"</span><span class="p">,</span> <span class="n">diff2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"Simulation Time [s]"</span><span class="p">,</span> <span class="n">diff2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">artifacts</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

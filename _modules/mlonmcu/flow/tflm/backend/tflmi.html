@@ -100,12 +100,17 @@
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">TFLMBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span><span class="p">,</span> <span class="n">str2dict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <span class="c1"># TODO: move to another place</span>
@@ -246,10 +251,9 @@
                     <span class="n">new_name</span> <span class="o">+=</span> <span class="n">c</span>
                 <span class="n">prev</span> <span class="o">=</span> <span class="n">c</span>
             <span class="c1"># workarounds for strange op names</span>
-            <span class="n">MAPPINGS</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"Lstm"</span><span class="p">:</span> <span class="s2">"LSTM"</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="n">MAPPINGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Lstm"</span><span class="p">:</span> <span class="s2">"LSTM"</span><span class="p">,</span> <span class="s2">"Padv2"</span><span class="p">:</span> <span class="s2">"PadV2"</span><span class="p">}</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">MAPPINGS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># new_name = new_name.replace(key, value)</span>
                 <span class="n">new_name</span> <span class="o">=</span> <span class="n">new_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">new_name</span>
 
@@ -277,6 +281,7 @@
                 <span class="s2">"CONV_2D"</span><span class="p">,</span>
                 <span class="s2">"DEPTHWISE_CONV_2D"</span><span class="p">,</span>
                 <span class="s2">"FULLY_CONNECTED"</span><span class="p">,</span>
+                <span class="s2">"SLICE"</span><span class="p">,</span>
                 <span class="c1"># "GATHER",</span>
                 <span class="c1"># "LOGISTIC",</span>
                 <span class="s2">"MAX_POOL_2D"</span><span class="p">,</span>
@@ -284,6 +289,13 @@
                 <span class="c1"># "REDUCE_MAX",</span>
                 <span class="s2">"RESHAPE"</span><span class="p">,</span>
                 <span class="s2">"SOFTMAX"</span><span class="p">,</span>
+                <span class="s2">"LOGISTIC"</span><span class="p">,</span>
+                <span class="s2">"TANH"</span><span class="p">,</span>
+                <span class="s2">"MUL"</span><span class="p">,</span>
+                <span class="s2">"TRANSPOSE"</span><span class="p">,</span>
+                <span class="s2">"PAD"</span><span class="p">,</span>
+                <span class="s2">"PADV2"</span><span class="p">,</span>
+                <span class="s2">"SUM"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="n">default_ops</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">convert_op_name</span><span class="p">,</span> <span class="n">default_ops</span><span class="p">))</span>
             <span class="n">ops</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ops</span> <span class="o">+</span> <span class="n">default_ops</span><span class="p">))</span>  <span class="c1"># remove duplicates</span>
@@ -511,7 +523,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">TFLMIBackend</span><span class="p">(</span><span class="n">TFLMBackend</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"tflmi"</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">TFLMBackend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"debug_arena"</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">TFLMBackend</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"debug_arena"</span><span class="p">,</span> <span class="s2">"cfu_wca"</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">TFLMBackend</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
@@ -578,19 +590,61 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">wrapper_code</span><span class="p">,</span> <span class="n">header_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codegen</span><span class="o">.</span><span class="n">generate_wrapper</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-            <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
-            <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">arena_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span><span class="p">,</span>
-            <span class="n">debug_arena</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_arena</span><span class="p">,</span>
-            <span class="n">ops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ops</span><span class="p">,</span>
-            <span class="n">custom_ops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_ops</span><span class="p">,</span>
-            <span class="n">registrations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">registrations</span><span class="p">,</span>
-            <span class="n">ops_resolver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ops_resolver</span><span class="p">,</span>
-            <span class="n">legacy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">,</span>
-            <span class="n">reporter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">,</span>
-        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="c1"># model_path = self.model</span>
+            <span class="c1"># model_info = self.model_info</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">"torch"</span><span class="p">:</span>
+                <span class="c1"># TODO: check ai_edge_torch available?</span>
+                <span class="c1"># resnet18 test</span>
+                <span class="n">tflite_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.tflite"</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">torch2tflite</span><span class="p">(</span><span class="n">torch_model</span><span class="p">,</span> <span class="n">sample_inputs</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="kn">import</span><span class="w"> </span><span class="nn">litert_torch</span>
+                    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: litert-torch"</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">ex</span>
+
+                    <span class="n">edge_model</span> <span class="o">=</span> <span class="n">litert_torch</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">torch_model</span><span class="o">.</span><span class="n">eval</span><span class="p">(),</span> <span class="n">sample_inputs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">edge_model</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">torch2tflite_from_file</span><span class="p">(</span><span class="n">torch_path</span><span class="p">,</span> <span class="n">tflite_path</span><span class="p">):</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.torch_models.torch_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_torch_model</span>
+
+                    <span class="n">torch_model</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">sample_inputs</span> <span class="o">=</span> <span class="n">load_torch_model</span><span class="p">(</span><span class="n">torch_path</span><span class="p">)</span>
+                    <span class="n">edge_model</span> <span class="o">=</span> <span class="n">torch2tflite</span><span class="p">(</span><span class="n">torch_model</span><span class="p">,</span> <span class="n">sample_inputs</span><span class="p">)</span>
+                    <span class="n">edge_model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">tflite_path</span><span class="p">)</span>
+
+                <span class="n">torch_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+                <span class="n">torch2tflite_from_file</span><span class="p">(</span><span class="n">torch_path</span><span class="p">,</span> <span class="n">tflite_path</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tflite_path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">model_raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">tflite_path</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">raw</span><span class="o">=</span><span class="n">model_raw</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">"tflite"</span>
+                <span class="n">tflite_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+            <span class="n">wrapper_code</span><span class="p">,</span> <span class="n">header_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">codegen</span><span class="o">.</span><span class="n">generate_wrapper</span><span class="p">(</span>
+                <span class="n">tflite_path</span><span class="p">,</span>
+                <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">arena_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span><span class="p">,</span>
+                <span class="n">debug_arena</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_arena</span><span class="p">,</span>
+                <span class="n">ops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ops</span><span class="p">,</span>
+                <span class="n">custom_ops</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_ops</span><span class="p">,</span>
+                <span class="n">registrations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">registrations</span><span class="p">,</span>
+                <span class="n">ops_resolver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ops_resolver</span><span class="p">,</span>
+                <span class="n">legacy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">legacy</span><span class="p">,</span>
+                <span class="n">reporter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reporter</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.cc"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_code</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
         <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">Artifact</span><span class="p">(</span>

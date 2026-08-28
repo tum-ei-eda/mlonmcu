@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="mlonmcu.platform package" href="mlonmcu.platform.html" />
+    <link rel="next" title="mlonmcu.models.torch_models package" href="mlonmcu.models.torch_models.html" />
     <link rel="prev" title="mlonmcu.flow.tvm.backend package" href="mlonmcu.flow.tvm.backend.html" /> 
 </head>
 
@@ -108,6 +108,20 @@
              
   <section id="mlonmcu-models-package">
 <h1>mlonmcu.models package<a class="headerlink" href="#mlonmcu-models-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mlonmcu.models.torch_models.html">mlonmcu.models.torch_models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.torch_models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.torch_models.html#module-mlonmcu.models.torch_models.models">mlonmcu.models.torch_models.models module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.torch_models.html#mlonmcu-models-torch-models-torch-utils-module">mlonmcu.models.torch_models.torch_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.models.torch_models.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
@@ -568,6 +582,18 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.MLFFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">MLFFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#MLFFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.MLFFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
+<p>Frontend for pre-compiled TVM Model Library Format archives.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.MLFFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#MLFFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.MLFFrontend.produce_artifacts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.MLIRFrontend">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">MLIRFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#MLIRFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.MLIRFrontend" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
@@ -630,6 +656,12 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.PBFrontend">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">PBFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#PBFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.PBFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.PTEFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">PTEFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#PTEFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.PTEFrontend" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
 </dd></dl>
 
@@ -898,6 +930,60 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchExportedFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">TorchExportedFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TorchExportedFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TorchExportedFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.TorchFrontend" title="mlonmcu.models.frontend.TorchFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">TorchFrontend</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">TorchFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#mlonmcu.models.model.ModelFormats" title="mlonmcu.models.model.ModelFormats"><span class="pre">ModelFormats</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TorchFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.Frontend" title="mlonmcu.models.frontend.Frontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frontend</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gen_data':</span> <span class="pre">False,</span> <span class="pre">'gen_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fill_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_data_number':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_data_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_data_mode':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels':</span> <span class="pre">False,</span> <span class="pre">'gen_ref_labels_file':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_fmt':</span> <span class="pre">None,</span> <span class="pre">'gen_ref_labels_mode':</span> <span class="pre">None,</span> <span class="pre">'use_inout_data':</span> <span class="pre">False}</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend.OPTIONAL">
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend.OPTIONAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend.REQUIRED">
+<span class="sig-name descname"><span class="pre">REQUIRED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend.REQUIRED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend.lookup_models">
+<span class="sig-name descname"><span class="pre">lookup_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TorchFrontend.lookup_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend.lookup_models" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TorchFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend.produce_artifacts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchFrontend.supported_extensions">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">supported_extensions</span></span><a class="headerlink" href="#mlonmcu.models.frontend.TorchFrontend.supported_extensions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchPickleFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">TorchPickleFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TorchPickleFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TorchPickleFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.TorchFrontend" title="mlonmcu.models.frontend.TorchFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">TorchFrontend</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.frontend.TorchPythonFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">TorchPythonFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#TorchPythonFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.TorchPythonFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.TorchFrontend" title="mlonmcu.models.frontend.TorchFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">TorchFrontend</span></code></a></p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.frontend.check_integrity">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.frontend.</span></span><span class="sig-name descname"><span class="pre">check_integrity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#check_integrity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.frontend.check_integrity" title="Link to this definition"></a></dt>
@@ -918,6 +1004,11 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.lookup.apply_modelgroups">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.lookup.</span></span><span class="sig-name descname"><span class="pre">apply_modelgroups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/lookup.html#apply_modelgroups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.lookup.apply_modelgroups" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.lookup.download_model">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.lookup.</span></span><span class="sig-name descname"><span class="pre">download_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allowed_exts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/lookup.html#download_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.lookup.download_model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1220,7 +1311,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ModelFormats.TFLITE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.Model" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ModelFormats.TFLITE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model.Model" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model.Workload" title="mlonmcu.models.model.Workload"><code class="xref py py-class docutils literal notranslate"><span class="pre">Workload</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.Model.DEFAULTS">
@@ -1312,6 +1403,11 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.MLF">
+<span class="sig-name descname"><span class="pre">MLF</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(15,</span> <span class="pre">['tar'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.MLF" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.MLIR">
 <span class="sig-name descname"><span class="pre">MLIR</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(9,</span> <span class="pre">['mlir'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.MLIR" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1342,13 +1438,18 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.PTE">
+<span class="sig-name descname"><span class="pre">PTE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(11,</span> <span class="pre">['pte'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.PTE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.RELAY">
 <span class="sig-name descname"><span class="pre">RELAY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(5,</span> <span class="pre">['relay'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.RELAY" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.SAVED_MODEL">
-<span class="sig-name descname"><span class="pre">SAVED_MODEL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(9,</span> <span class="pre">[''])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.SAVED_MODEL" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">SAVED_MODEL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(10,</span> <span class="pre">[''])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.SAVED_MODEL" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1359,6 +1460,21 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.TFLITE">
 <span class="sig-name descname"><span class="pre">TFLITE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(1,</span> <span class="pre">['tflite'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.TFLITE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.TORCH_EXPORTED">
+<span class="sig-name descname"><span class="pre">TORCH_EXPORTED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(13,</span> <span class="pre">['pt',</span> <span class="pre">'pth'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.TORCH_EXPORTED" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.TORCH_PICKLE">
+<span class="sig-name descname"><span class="pre">TORCH_PICKLE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(12,</span> <span class="pre">['pkl',</span> <span class="pre">'pickle'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.TORCH_PICKLE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.models.model.ModelFormats.TORCH_PYTHON">
+<span class="sig-name descname"><span class="pre">TORCH_PYTHON</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(14,</span> <span class="pre">['py'])</span></span><a class="headerlink" href="#mlonmcu.models.model.ModelFormats.TORCH_PYTHON" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -1554,6 +1670,12 @@ within input_names are supported. Spaces are supported inside of dimension array
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.model_info.PTEModelInfo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">PTEModelInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#PTEModelInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.PTEModelInfo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model_info.ModelInfo" title="mlonmcu.models.model_info.ModelInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfo</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="mlonmcu.models.model_info.PaddleModelInfo">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">PaddleModelInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#PaddleModelInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.PaddleModelInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model_info.ModelInfo" title="mlonmcu.models.model_info.ModelInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfo</span></code></a></p>
@@ -1576,6 +1698,11 @@ within input_names are supported. Spaces are supported inside of dimension array
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">TensorInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#TensorInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.TensorInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.models.model_info.TensorInfo.c_type">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">c_type</span></span><a class="headerlink" href="#mlonmcu.models.model_info.TensorInfo.c_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.models.model_info.TensorInfo.size">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#mlonmcu.models.model_info.TensorInfo.size" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1592,6 +1719,12 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dt class="sig sig-object py" id="mlonmcu.models.model_info.TfLiteTensorInfo">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">TfLiteTensorInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#TfLiteTensorInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.TfLiteTensorInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model_info.TensorInfo" title="mlonmcu.models.model_info.TensorInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensorInfo</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.model_info.TorchModelInfo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">TorchModelInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#TorchModelInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.TorchModelInfo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.model_info.ModelInfo" title="mlonmcu.models.model_info.ModelInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelInfo</span></code></a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -1630,6 +1763,11 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.model_info.get_pte_model_info">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">get_pte_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#get_pte_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.get_pte_model_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.model_info.get_relay_model_info">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">get_relay_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#get_relay_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.get_relay_model_info" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1652,6 +1790,11 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.model_info.get_tflite_model_info">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">get_tflite_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_buf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#get_tflite_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.get_tflite_model_info" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.model_info.get_torch_model_info">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.model_info.</span></span><span class="sig-name descname"><span class="pre">get_torch_model_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/model_info.html#get_torch_model_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.model_info.get_torch_model_info" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1682,6 +1825,12 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dt class="sig sig-object py" id="mlonmcu.models.options.TFLMIModelOptions">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.options.</span></span><span class="sig-name descname"><span class="pre">TFLMIModelOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arena_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">builtin_ops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_ops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/options.html#TFLMIModelOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.options.TFLMIModelOptions" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.options.BackendModelOptions" title="mlonmcu.models.options.BackendModelOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendModelOptions</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.options.TVMLLVMModelOptions">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.options.</span></span><span class="sig-name descname"><span class="pre">TVMLLVMModelOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">supported</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arena_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/options.html#TVMLLVMModelOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.options.TVMLLVMModelOptions" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.options.TVMRTModelOptions" title="mlonmcu.models.options.TVMRTModelOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">TVMRTModelOptions</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
@@ -1775,6 +1924,18 @@ within input_names are supported. Spaces are supported inside of dimension array
 <dl class="py method">
 <dt class="sig sig-object py" id="mlonmcu.models.LayerGenFrontend.produce_artifacts">
 <span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#LayerGenFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.LayerGenFrontend.produce_artifacts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.models.MLFFrontend">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">MLFFrontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#MLFFrontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.MLFFrontend" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.models.frontend.SimpleFrontend" title="mlonmcu.models.frontend.SimpleFrontend"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleFrontend</span></code></a></p>
+<p>Frontend for pre-compiled TVM Model Library Format archives.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.models.MLFFrontend.produce_artifacts">
+<span class="sig-name descname"><span class="pre">produce_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/frontend.html#MLFFrontend.produce_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.MLFFrontend.produce_artifacts" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1930,9 +2091,22 @@ within input_names are supported. Spaces are supported inside of dimension array
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.get_frontends">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">get_frontends</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models.html#get_frontends"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.get_frontends" title="Link to this definition"></a></dt>
+<dd><p>Return the registered frontends.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="mlonmcu.models.print_summary">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">print_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detailed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models/lookup.html#print_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.print_summary" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.models.register_frontend">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.models.</span></span><span class="sig-name descname"><span class="pre">register_frontend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frontend_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frontend_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/models.html#register_frontend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.models.register_frontend" title="Link to this definition"></a></dt>
+<dd><p>Register a frontend class under the given name.</p>
+<p>Can be used directly or as a decorator.</p>
+</dd></dl>
 
 </section>
 </section>
@@ -1942,7 +2116,7 @@ within input_names are supported. Spaces are supported inside of dimension array
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="mlonmcu.flow.tvm.backend.html" class="btn btn-neutral float-left" title="mlonmcu.flow.tvm.backend package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="mlonmcu.platform.html" class="btn btn-neutral float-right" title="mlonmcu.platform package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mlonmcu.models.torch_models.html" class="btn btn-neutral float-right" title="mlonmcu.models.torch_models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

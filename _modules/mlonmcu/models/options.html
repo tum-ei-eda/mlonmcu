@@ -71,6 +71,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../models.html">mlonmcu.models</a></li>
       <li class="breadcrumb-item active">mlonmcu.models.options</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -138,12 +139,20 @@
 
 
 
+<div class="viewcode-block" id="TVMLLVMModelOptions">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.options.TVMLLVMModelOptions">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TVMLLVMModelOptions</span><span class="p">(</span><span class="n">TVMRTModelOptions</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
 <div class="viewcode-block" id="parse_model_options_for_backend">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.options.parse_model_options_for_backend">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_model_options_for_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
     <span class="n">backend_types</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"tflmi"</span><span class="p">:</span> <span class="n">TFLMIModelOptions</span><span class="p">,</span>
         <span class="s2">"tvmrt"</span><span class="p">:</span> <span class="n">TVMRTModelOptions</span><span class="p">,</span>
+        <span class="s2">"tvmllvm"</span><span class="p">:</span> <span class="n">TVMLLVMModelOptions</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">backend</span> <span class="ow">in</span> <span class="n">backend_types</span><span class="p">:</span>
         <span class="n">backend_type</span> <span class="o">=</span> <span class="n">backend_types</span><span class="p">[</span><span class="n">backend</span><span class="p">]</span>

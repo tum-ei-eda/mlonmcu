@@ -152,7 +152,9 @@
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMRTBackend.get_tvmc_compile_args">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_tvmc_compile_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tvmc_compile_args</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">dump</span><span class="o">=</span><span class="n">dump</span><span class="p">)</span> <span class="o">+</span> <span class="n">get_tvmrt_tvmc_args</span><span class="p">(</span>
-            <span class="n">system_lib</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span><span class="p">,</span> <span class="n">link_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">link_params</span>
+            <span class="n">system_lib</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">system_lib</span><span class="p">,</span>
+            <span class="n">link_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">link_params</span><span class="p">,</span>
+            <span class="n">bool_as_int</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bool_as_int</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -164,9 +166,9 @@
         <span class="n">artifacts</span> <span class="o">=</span> <span class="n">artifacts</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">"default"</span> <span class="ow">in</span> <span class="n">metrics</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span>
+        <span class="n">workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span>
+        <span class="k">assert</span> <span class="n">workspace_size</span> <span class="o">&gt;=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_wrapper</span><span class="p">:</span>
-            <span class="n">workspace_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arena_size</span>
-            <span class="k">assert</span> <span class="n">workspace_size</span> <span class="o">&gt;=</span> <span class="mi">0</span>
             <span class="n">graph_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.graph"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">graph</span> <span class="o">=</span> <span class="n">graph_artifact</span><span class="o">.</span><span class="n">content</span>
             <span class="n">params_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">.params"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>

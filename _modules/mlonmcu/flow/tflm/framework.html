@@ -105,6 +105,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">Framework</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tflm</span><span class="w"> </span><span class="kn">import</span> <span class="n">TFLMBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
 
 
 <div class="viewcode-block" id="TFLMFramework">
@@ -114,12 +115,16 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"tflm"</span>
 
-    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"muriscvnn"</span><span class="p">,</span> <span class="s2">"cmsisnn"</span><span class="p">}</span>
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"muriscvnn"</span><span class="p">,</span> <span class="s2">"cmsisnn"</span><span class="p">,</span> <span class="s2">"cfu_wca"</span><span class="p">}</span>
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"optimized_kernel"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"optimized_kernel_inc_dirs"</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">"optimized_kernel_libs"</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="c1"># "cfu_accelerate": False,</span>
+        <span class="c1"># "cfu_conv2d_idx_init": 0,</span>
+        <span class="s2">"override_dir"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"generate_tree"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tf.src_dir"</span><span class="p">}</span>
@@ -134,6 +139,10 @@
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tf.src_dir"</span><span class="p">])</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">override_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"override_dir"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">optimized_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"optimized_kernel"</span><span class="p">]</span>
 
@@ -145,10 +154,27 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">optimized_kernel_inc_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"optimized_kernel_inc_dirs"</span><span class="p">]</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"generate_tree"</span><span class="p">])</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def cfu_accelerate(self):</span>
+    <span class="c1">#     return str2bool(self.config["cfu_accelerate"], allow_none=True)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cfu_conv2d_idx_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"cfu_conv2d_idx_init"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
 <div class="viewcode-block" id="TFLMFramework.get_platform_defs">
 <a class="viewcode-back" href="../../../../mlonmcu.flow.tflm.html#mlonmcu.flow.tflm.framework.TFLMFramework.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_tree</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"TFLM_GENERATE_TREE"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_inc_dirs</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_libs</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">"TFLM_OPTIMIZED_KERNEL"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel</span>
@@ -164,7 +190,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimized_kernel_libs</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">"TFLM_OPTIMIZED_KERNEL_LIB"</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
-        <span class="n">ret</span><span class="p">[</span><span class="s2">"TF_DIR"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_src</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"TF_DIR"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_src</span><span class="p">)</span>
+        <span class="c1"># if self.cfu_accelerate:</span>
+        <span class="c1">#     ret["CFU_ACCELERATE"] = True</span>
+        <span class="c1">#     if self.cfu_conv2d_idx_init is not None:</span>
+        <span class="c1">#         ret["CFU_CONV2D_IDX_INIT"] = self.cfu_conv2d_idx_init</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">override_dir</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"TFLM_OVERRIDE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">override_dir</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
 

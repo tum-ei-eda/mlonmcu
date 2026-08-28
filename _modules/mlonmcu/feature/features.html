@@ -102,9 +102,10 @@
 <span class="sd">"""Definition of MLonMCU features and the feature registry."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_power_of_two</span><span class="p">,</span> <span class="n">filter_none</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span>
@@ -200,6 +201,7 @@
             <span class="s2">"tvmaot"</span><span class="p">,</span>
             <span class="s2">"tvmaotplus"</span><span class="p">,</span>
             <span class="s2">"tvmrt"</span><span class="p">,</span>
+            <span class="s2">"tvmllvm"</span><span class="p">,</span>
             <span class="s2">"tflmi"</span><span class="p">,</span>
         <span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for backend '</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.debug_arena"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
@@ -234,7 +236,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">frontend</span><span class="si">}</span><span class="s2">.use_inout_data"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.ignore_data"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -305,7 +307,7 @@
             <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"cmsis_nn"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"MURISCVNN"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">"MURISCVNN_DIR"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">muriscvnn_dir</span><span class="p">,</span>
@@ -354,7 +356,7 @@
             <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"cmsis_nn"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"CMSISNN"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">"CMSIS_DIR"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmsis_dir</span><span class="p">,</span>
@@ -429,7 +431,7 @@
         <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_target_details"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_target_details</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"CMSISNN"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">"CMSIS_DIR"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmsis_dir</span><span class="p">,</span>
@@ -527,7 +529,7 @@
         <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_target_details"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_target_details</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"MURISCVNN"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">"MURISCVNN_DIR"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">muriscvnn_dir</span><span class="p">,</span>
@@ -583,8 +585,9 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_target_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="c1"># TODO: enforce llvm toolchain using add_compile_config and CompileFeature?</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">&gt;=</span> <span class="n">VEXT_MIN_ALLOWED_VLEN</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">is_power_of_two</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span> <span class="o">&gt;=</span> <span class="n">VEXT_MIN_ALLOWED_VLEN</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">.enable_vext"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -604,7 +607,7 @@
     <span class="c1">#         config["mlif.toolchain"] = "llvm"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"RISCV_VEXT"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="s2">"RISCV_VLEN"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="p">,</span>
@@ -645,7 +648,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"RISCV_PEXT"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -716,7 +719,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"RISCV_PEXT"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1091,6 +1094,7 @@
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"autotvm"</span><span class="p">,</span>  <span class="c1"># further options: autoscheduler, metascheduler</span>
+        <span class="c1"># TODO: auto</span>
         <span class="s2">"results_file"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -1884,7 +1888,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]</span>  <span class="c1"># TODO: support espidf</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]</span>  <span class="c1"># TODO: support espidf</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
 
         <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]:</span>
@@ -1903,10 +1907,10 @@
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"espidf"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">,</span> <span class="s2">"zephyr"</span><span class="p">]</span>  <span class="c1"># TODO: support microtvm and espidf</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">,</span> <span class="s2">"espidf"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">,</span> <span class="s2">"zephyr"</span><span class="p">]</span>  <span class="c1"># TODO: support microtvm and espidf</span>
         <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
 
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="k">return</span> <span class="p">{</span><span class="s2">"NUM_RUNS"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_runs</span><span class="p">}</span>
         <span class="k">elif</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"espidf"</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="s2">"MLONMCU_NUM_RUNS"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_runs</span><span class="p">}</span>
@@ -2361,7 +2365,7 @@
 <div class="viewcode-block" id="HpmCounter.get_platform_defs">
 <a class="viewcode-back" href="../../../mlonmcu.feature.html#mlonmcu.feature.features.HpmCounter.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_counters</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enabled_counters</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enabled_counter</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_counters</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -2490,7 +2494,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">"MEMGRAPH_LLVM_CDFG"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
@@ -2521,7 +2525,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">"GLOBAL_ISEL"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
@@ -2678,7 +2682,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]</span>
         <span class="c1"># if tvm/microtvm: allow using --fill-mode provided by tvmc run</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.set_inputs"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
@@ -2712,7 +2716,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">,</span> <span class="s2">"microtvm"</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.get_outputs"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">.get_outputs_interface"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="p">,</span>
@@ -2747,7 +2751,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"llvm_basic_block_sections"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">filter_none</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">"LLVM_BASIC_BLOCK_SECTIONS"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
@@ -2873,6 +2877,114 @@
 
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metrics_callback</span>
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+
+<span class="nd">@register_feature</span><span class="p">(</span><span class="s2">"cfu_wca"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CFUWCA</span><span class="p">(</span><span class="n">FrameworkFeature</span><span class="p">,</span> <span class="n">BackendFeature</span><span class="p">,</span> <span class="n">PlatformFeature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""CFU-based Weight-Sharing Acceleration."""</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">FeatureBase</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"CFU"</span><span class="p">,</span> <span class="s2">"use_intrin"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"conv2d_idx_init"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>  <span class="c1"># EMUL/CFU/CPU</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"cfu_wca.support_dir"</span><span class="p">}</span>
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"cfu_wca.tflm_overrides"</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"cfu_wca"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">support_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"cfu_wca.support_dir"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tflm_overrides</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"cfu_wca.tflm_overrides"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">value</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_intrin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"use_intrin"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"mode"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"CFU"</span><span class="p">,</span> <span class="s2">"EMUL"</span><span class="p">,</span> <span class="s2">"CPU"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mode_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="n">lookup</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"CPU"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"CFU"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"EMUL"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Failed to lookup mode_idx for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">conv2d_idx_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"conv2d_idx_init"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_framework_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">):</span>  <span class="c1"># TODO: check if other kernels enabled?</span>
+        <span class="k">assert</span> <span class="n">framework</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"tflm"</span><span class="p">,</span> <span class="s2">"tvm"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for framework '</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">incs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">support_dir</span><span class="p">]</span>
+        <span class="n">defs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">defs</span><span class="p">[</span><span class="s2">"MODE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_idx</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_intrin</span><span class="p">:</span>
+            <span class="n">defs</span><span class="p">[</span><span class="s2">"SEAL5"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">defs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">defs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">framework</span> <span class="o">==</span> <span class="s2">"tflm"</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.generate_tree"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflm_overrides</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.override_dir"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflm_overrides</span>
+            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_inc_dirs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">incs</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.optimized_kernel_defs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">defs</span>
+        <span class="k">elif</span> <span class="n">framework</span> <span class="o">==</span> <span class="s2">"tvm"</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.extra_incs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">incs</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">framework</span><span class="si">}</span><span class="s2">.extra_defs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">defs</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"tvm"</span><span class="p">):</span>
+            <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.tir_add_lower_pass"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"3,tvm.tir.transform.CompressWeights"</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">],</span> <span class="sa">f</span><span class="s2">"Unsupported feature '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for platform '</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">'"</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"CFU_ACCELERATE"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2d_idx_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="s2">"CFU_CONV2D_IDX_INIT"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2d_idx_init</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_required_cache_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"tflmc.exe"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"muriscvnn"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span>
 </pre></div>
 
            </div>

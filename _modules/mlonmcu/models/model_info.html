@@ -71,6 +71,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../models.html">mlonmcu.models</a></li>
       <li class="breadcrumb-item active">mlonmcu.models.model_info</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -102,7 +103,12 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFormats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="parse_mlir_signature">
@@ -112,20 +118,31 @@
     <span class="c1"># Find the util.func @main signature</span>
     <span class="n">match1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"util\.func\s+.*?@(\w+)\(([^)(]*?)\)\s*-&gt;\s*\(([^)(]*?)\)\s*\{"</span><span class="p">,</span> <span class="n">mlir_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match1</span><span class="p">:</span>
-        <span class="n">match2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"func\.func\s+@(\w+)\(([^)(]*)\)\s*-&gt;\s*(([^)(]*))\s+{"</span><span class="p">,</span> <span class="n">mlir_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="c1"># match2 = re.search(r"func\.func\s+@(\w+)\(([^)(]*)\)\s*-&gt;\s*(([^)(]*))\s+{", mlir_text, re.DOTALL)</span>
+        <span class="n">match2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">"func\.func\s+@([a-zA-Z0-9_\-</span><span class="se">\"</span><span class="s2">]+)\(([^)(]*?)\)\s*-&gt;\s*\(?([^)(]*?)\)?\s*(?:attributes(.*))?\{"</span><span class="p">,</span>
+            <span class="n">mlir_text</span><span class="p">,</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">match2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No util.func @main(...) -&gt; (...) { } found."</span><span class="p">)</span>
         <span class="n">func_name</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">input_args</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">output_args</span> <span class="o">=</span> <span class="n">match2</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># attr_args = match2.group(4)</span>
     <span class="k">else</span><span class="p">:</span>
 
         <span class="n">func_name</span> <span class="o">=</span> <span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">input_args</span> <span class="o">=</span> <span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">output_args</span> <span class="o">=</span> <span class="n">match1</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># attr_args = ""</span>
 
     <span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># print("func_name", func_name)</span>
+    <span class="c1"># print("input_args", input_args)</span>
+    <span class="c1"># print("output_args", output_args)</span>
+    <span class="c1"># print("attr_args", attr_args)</span>
 
     <span class="c1"># Parse inputs</span>
     <span class="k">if</span> <span class="n">input_args</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
@@ -211,9 +228,13 @@
             <span class="s2">"int32"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
             <span class="s2">"int64"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">size_lookup</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported type: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type_size</span> <span class="o">=</span> <span class="n">size_lookup</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>
+        <span class="c1"># TODO: support dynamic shapes?</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"TensorInfo(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">)"</span>
@@ -232,7 +253,22 @@
                 <span class="n">ret</span> <span class="o">*=</span> <span class="nb">int</span><span class="p">(</span><span class="n">real</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">imag</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">ret</span> <span class="o">*=</span> <span class="n">dim</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">c_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">"float32"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"float"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">"uint8"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"uint8_t"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">"int8"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"int8_t"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">"uint64"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"uint64_t"</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">"int64"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">"int64_t"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown c_type for type: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
@@ -421,7 +457,11 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.PBModelInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PBModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: tensorflow"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ex</span>
 
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">graph_def</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">GraphDef</span><span class="p">()</span>
@@ -439,11 +479,19 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.ONNXModelInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ONNXModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">google.protobuf.json_format</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageToDict</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">google.protobuf.json_format</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageToDict</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: protobuf"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ex</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">onnx.helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">tensor_dtype_to_np_dtype</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: onnx"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ex</span>
 
         <span class="c1"># from onnx.mapping import TENSOR_TYPE_TO_NP_TYPE</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">onnx.helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">tensor_dtype_to_np_dtype</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
 
@@ -474,11 +522,139 @@
 
 
 
+<div class="viewcode-block" id="TorchModelInfo">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.TorchModelInfo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TorchModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.torch_models.torch_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_torch_model</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">exported</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_torch_model</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">exported</span><span class="o">.</span><span class="n">graph</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: torch"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ex</span>
+
+        <span class="n">TORCH_TO_NUMPY_DTYPE</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+            <span class="c1"># torch.bfloat16: np.dtype("bfloat16"),  # requires numpy &gt;= 1.24</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">int8</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">int16</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">complex64</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">complex128</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">torch_dtype_to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TORCH_TO_NUMPY_DTYPE</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported torch dtype: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">TORCH_TO_NUMPY_DTYPE</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+
+        <span class="n">in_tensors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">out_tensors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s2">"placeholder"</span><span class="p">:</span>
+                <span class="n">meta</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"val"</span><span class="p">]</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">dtype</span>
+                <span class="n">np_dtype</span> <span class="o">=</span> <span class="n">torch_dtype_to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="n">in_tensor</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">np_dtype</span><span class="p">)</span>
+                <span class="n">in_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_tensor</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s2">"output"</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">meta</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">"val"</span><span class="p">]</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">dtype</span>
+                    <span class="n">np_dtype</span> <span class="o">=</span> <span class="n">torch_dtype_to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+                    <span class="n">out_tensor</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">np_dtype</span><span class="p">)</span>
+                    <span class="n">out_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_tensor</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PTEModelInfo">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.PTEModelInfo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PTEModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">executorch.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">Runtime</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">executorch.exir.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScalarType</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: executorch"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ex</span>
+
+        <span class="c1"># Load the PTE file</span>
+        <span class="c1"># program = exir.load(model_file)</span>
+        <span class="n">runtime</span> <span class="o">=</span> <span class="n">Runtime</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">program</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">load_program</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">metadata</span><span class="p">(</span><span class="s2">"forward"</span><span class="p">)</span>
+        <span class="c1"># method = program.load_method("forward")</span>
+        <span class="n">in_tensors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">out_tensors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">num_inputs</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">num_inputs</span><span class="p">()</span>
+        <span class="n">num_outputs</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">()</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_helper</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">sizes</span><span class="p">()</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">dtype</span><span class="p">()</span>
+
+            <span class="n">EXECUTORCH_DTYPE_TO_NUMPY</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">HALF</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float16</span><span class="p">,</span>
+                <span class="c1"># ScalarType.BFLOAT16: np.dtype("bfloat16"),</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">CHAR</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">SHORT</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">INT</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">LONG</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">BYTE</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+                <span class="n">ScalarType</span><span class="o">.</span><span class="n">BOOL</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">numpy_dtype</span> <span class="o">=</span> <span class="n">EXECUTORCH_DTYPE_TO_NUMPY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">numpy_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unhandled PTE dtype: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
+            <span class="c1"># numpy_dtype = np.dtype(numpy_dtype).name</span>
+            <span class="n">tensor_info</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">numpy_dtype</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tensor_info</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_inputs</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"input</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"input"</span>
+            <span class="n">input_tensor_meta</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">input_tensor_meta</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">in_tensor</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">input_tensor_meta</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="n">in_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_tensor</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_outputs</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"output</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">"output"</span>
+            <span class="n">output_tensor_meta</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">output_tensor_meta</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">out_tensor</span> <span class="o">=</span> <span class="n">_helper</span><span class="p">(</span><span class="n">output_tensor_meta</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="n">out_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_tensor</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="PaddleModelInfo">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.PaddleModelInfo">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PaddleModelInfo</span><span class="p">(</span><span class="n">ModelInfo</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="p">):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">paddle</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">paddle</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: paddle"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ex</span>
 
         <span class="n">paddle</span><span class="o">.</span><span class="n">enable_static</span><span class="p">()</span>
         <span class="n">paddle</span><span class="o">.</span><span class="n">disable_signal_handler</span><span class="p">()</span>
@@ -534,15 +710,19 @@
         <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
             <span class="n">input_name</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
             <span class="n">dtype</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">]</span>
-            <span class="n">input_type</span> <span class="o">=</span> <span class="n">type_lookup</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+            <span class="n">input_type</span> <span class="o">=</span> <span class="n">type_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">input_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported dtype: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
             <span class="n">input_shape</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="s2">"shape"</span><span class="p">]</span>
             <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">input_name</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">,</span> <span class="n">input_type</span><span class="p">)</span>
             <span class="n">in_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
             <span class="n">output_name</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
             <span class="n">dtype</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">"dtype"</span><span class="p">]</span>
-            <span class="n">output_type</span> <span class="o">=</span> <span class="n">type_lookup</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
             <span class="n">output_shape</span> <span class="o">=</span> <span class="n">outp</span><span class="p">[</span><span class="s2">"shape"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">output_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">output_type</span> <span class="o">=</span> <span class="n">type_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">output_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unsupported dtype: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
             <span class="n">output_tensor</span> <span class="o">=</span> <span class="n">TensorInfo</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">,</span> <span class="n">output_type</span><span class="p">)</span>
             <span class="n">out_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_tensor</span><span class="p">)</span>
 
@@ -554,7 +734,11 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_tflite_model_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_tflite_model_info</span><span class="p">(</span><span class="n">model_buf</span><span class="p">):</span>
     <span class="c1"># Local imports to get rid of tflite dependency for non-tflite models</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">tflite</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">tflite</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: tflite"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ex</span>
 
     <span class="n">tflite_model</span> <span class="o">=</span> <span class="n">tflite</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">GetRootAsModel</span><span class="p">(</span><span class="n">model_buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">model_info</span> <span class="o">=</span> <span class="n">TfLiteModelInfo</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span>
@@ -602,6 +786,36 @@
 
 
 
+<div class="viewcode-block" id="get_pte_model_info">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_pte_model_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pte_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">PTEModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+
+<div class="viewcode-block" id="get_torch_model_info">
+<a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_torch_model_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_torch_model_info</span><span class="p">(</span><span class="n">model_file</span><span class="p">):</span>
+    <span class="n">model_info</span> <span class="o">=</span> <span class="n">TorchModelInfo</span><span class="p">(</span><span class="n">model_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_info</span></div>
+
+
+
+<span class="c1"># def get_torch_python_model_info(model_file):</span>
+<span class="c1">#     raise NotImplementedError</span>
+<span class="c1">#     # TODO: read class from python file?</span>
+<span class="c1">#     return get_torch_model_info(model_class)</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def get_torch_pickle_model_info(model_file):</span>
+<span class="c1">#     import pickle</span>
+<span class="c1">#</span>
+<span class="c1">#     with open(model_file, "rb") as f:</span>
+<span class="c1">#         model_class = pickle.load(f)</span>
+<span class="c1">#     return get_torch_model_info(model_class)</span>
+
+
 <div class="viewcode-block" id="get_model_info">
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model_info.get_model_info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="s2">"unknown"</span><span class="p">):</span>
@@ -623,6 +837,14 @@
         <span class="k">return</span> <span class="s2">"onnx"</span><span class="p">,</span> <span class="n">get_onnx_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PADDLE</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"pdmodel"</span><span class="p">,</span> <span class="n">get_pb_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PTE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"pte"</span><span class="p">,</span> <span class="n">get_pte_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TORCH_PYTHON</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TORCH_PICKLE</span><span class="p">,</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TORCH_EXPORTED</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="s2">"torch"</span><span class="p">,</span> <span class="n">get_torch_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="c1"># elif fmt == ModelFormats.TORCH_PYTHON:</span>
+    <span class="c1">#     return "torch_python", get_torch_model_info(model)</span>
+    <span class="c1"># elif fmt == ModelFormats.TORCH_PICKLE:</span>
+    <span class="c1">#     return "torch_pickle", get_torch_model_info(model)</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLIR</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
             <span class="n">mod_text</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -658,6 +880,8 @@
         <span class="k">return</span> <span class="s2">"pdmodel"</span><span class="p">,</span> <span class="n">info</span>
     <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">MLIR</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">"mlir"</span><span class="p">,</span> <span class="n">info</span>
+    <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PTE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"pte"</span><span class="p">,</span> <span class="n">info</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported model format '</span><span class="si">{</span><span class="n">fmt</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' for backend '</span><span class="si">{</span><span class="n">backend_name</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span></div>
 

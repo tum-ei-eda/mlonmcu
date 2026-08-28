@@ -1,0 +1,1113 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.flow.executorch.backend.backend &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.flow.executorch.backend.backend</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.flow.executorch.backend.backend</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">string</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model_info</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_model_info</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFormats</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="fill">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.fill">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="n">template</span><span class="p">)</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="generate_executorch_wrapper">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.generate_executorch_wrapper">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_executorch_wrapper</span><span class="p">(</span>
+    <span class="n">model_info</span><span class="p">,</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_header</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">"model"</span><span class="p">):</span>
+        <span class="n">upper_prefix</span> <span class="o">=</span> <span class="n">prefix</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">// This file is generated. Do not edit.</span>
+<span class="s2">#ifndef </span><span class="si">{</span><span class="n">upper_prefix</span><span class="si">}</span><span class="s2">_GEN_H</span>
+<span class="s2">#define </span><span class="si">{</span><span class="n">upper_prefix</span><span class="si">}</span><span class="s2">_GEN_H</span>
+
+<span class="s2">#include &lt;stddef.h&gt;</span>
+<span class="s2">#include &lt;stdint.h&gt;</span>
+
+<span class="s2">int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_init();</span>
+<span class="s2">int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_deinit();</span>
+<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_ptr(int index);</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_input_size(int index);</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_inputs();</span>
+<span class="s2">int </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_invoke();</span>
+<span class="s2">void *</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_ptr(int index);</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_output_size(int index);</span>
+<span class="s2">size_t </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_outputs();</span>
+
+<span class="s2">#endif  // </span><span class="si">{</span><span class="n">upper_prefix</span><span class="si">}</span><span class="s2">_GEN_H</span>
+<span class="s2">"""</span>
+        <span class="k">return</span> <span class="n">code</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_wrapper</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">"model"</span><span class="p">):</span>
+        <span class="n">method_pool_size</span> <span class="o">=</span> <span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># TODO: expose</span>
+        <span class="n">temp_pool_size</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># TODO: expose</span>
+        <span class="c1"># TODO: replace</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">"""// Disclaimer: This file is heavily inspired by</span>
+<span class="s2">// https://github.com/pytorch/executorch/tree/main/examples/arm/executor_runner</span>
+<span class="s2">#include &lt;errno.h&gt;</span>
+<span class="s2">#include &lt;executorch/extension/data_loader/buffer_data_loader.h&gt;</span>
+<span class="s2">#include &lt;executorch/extension/runner_util/inputs.h&gt;</span>
+<span class="s2">#include &lt;executorch/runtime/core/exec_aten/util/scalar_type_util.h&gt;</span>
+<span class="s2">#include &lt;executorch/runtime/core/memory_allocator.h&gt;</span>
+<span class="s2">#include &lt;executorch/runtime/executor/program.h&gt;</span>
+<span class="s2">#include &lt;executorch/runtime/platform/log.h&gt;</span>
+<span class="s2">#include &lt;executorch/runtime/platform/platform.h&gt;</span>
+<span class="s2">#include &lt;executorch/runtime/platform/runtime.h&gt;</span>
+<span class="s2">#include &lt;stdio.h&gt;</span>
+<span class="s2">#include &lt;unistd.h&gt;</span>
+<span class="s2">#include &lt;memory&gt;</span>
+<span class="s2">#include &lt;type_traits&gt;</span>
+<span class="s2">#include &lt;utility&gt;</span>
+<span class="s2">#include &lt;vector&gt;</span>
+
+<span class="s2">// ---</span>
+<span class="s2">using executorch::runtime::MemoryAllocator;</span>
+
+<span class="s2">#pragma once</span>
+
+<span class="s2">// Setup our own allocator that can show some extra stuff like used and free</span>
+<span class="s2">// memory info</span>
+<span class="s2">class MlonmcuMemoryAllocator : public executorch::runtime::MemoryAllocator {</span>
+<span class="s2"> public:</span>
+<span class="s2">  MlonmcuMemoryAllocator(uint32_t size, uint8_t* base_address);</span>
+
+<span class="s2">  void* allocate(size_t size, size_t alignment = kDefaultAlignment) override;</span>
+
+<span class="s2">  // Returns the used size of the allocator's memory buffer.</span>
+<span class="s2">  size_t used_size() const;</span>
+
+<span class="s2">  // Returns the free size of the allocator's memory buffer.</span>
+<span class="s2">  size_t free_size() const;</span>
+<span class="s2">  void reset();</span>
+
+<span class="s2"> private:</span>
+<span class="s2">  size_t used_;</span>
+<span class="s2">};</span>
+
+<span class="s2">#if defined(EXECUTORCH_ENABLE_ADDRESS_SANITIZER)</span>
+<span class="s2">extern "C" {</span>
+<span class="s2">void __asan_poison_memory_region(void* addr, size_t size);</span>
+<span class="s2">void __asan_unpoison_memory_region(void* addr, size_t size);</span>
+<span class="s2">}</span>
+
+<span class="s2">static void asan_poison_buffer(uint8_t* base, size_t size) {</span>
+<span class="s2">  if (base != nullptr &amp;&amp; size &gt; 0) {</span>
+<span class="s2">    __asan_poison_memory_region(base, size);</span>
+<span class="s2">  }</span>
+<span class="s2">}</span>
+
+<span class="s2">static void asan_unpoison_buffer(void* base, size_t size) {</span>
+<span class="s2">  if (base != nullptr &amp;&amp; size &gt; 0) {</span>
+<span class="s2">    __asan_unpoison_memory_region(base, size);</span>
+<span class="s2">  }</span>
+<span class="s2">}</span>
+<span class="s2">#endif</span>
+
+<span class="s2">MlonmcuMemoryAllocator::MlonmcuMemoryAllocator(uint32_t size, uint8_t* base_address)</span>
+<span class="s2">    : MemoryAllocator(size, base_address), used_(0) {</span>
+<span class="s2">#if defined(EXECUTORCH_ENABLE_ADDRESS_SANITIZER)</span>
+<span class="s2">  asan_poison_buffer(base_address, size);</span>
+<span class="s2">#endif</span>
+<span class="s2">}</span>
+
+<span class="s2">void* MlonmcuMemoryAllocator::allocate(size_t size, size_t alignment) {</span>
+<span class="s2">  void* ret = executorch::runtime::MemoryAllocator::allocate(size, alignment);</span>
+<span class="s2">  if (ret != nullptr) {</span>
+<span class="s2">#if defined(EXECUTORCH_ENABLE_ADDRESS_SANITIZER)</span>
+<span class="s2">    asan_unpoison_buffer(ret, size);</span>
+<span class="s2">#endif</span>
+<span class="s2">    // Align with the same code as in MemoryAllocator::allocate() to keep</span>
+<span class="s2">    // used_ "in sync" As alignment is expected to be power of 2 (checked by</span>
+<span class="s2">    // MemoryAllocator::allocate()) we can check it the lower bits</span>
+<span class="s2">    // (same as alignment - 1) is zero or not.</span>
+<span class="s2">    if ((size &amp; (alignment - 1)) == 0) {</span>
+<span class="s2">      // Already aligned.</span>
+<span class="s2">      used_ += size;</span>
+<span class="s2">    } else {</span>
+<span class="s2">      used_ = (used_ | (alignment - 1)) + 1 + size;</span>
+<span class="s2">    }</span>
+<span class="s2">  }</span>
+<span class="s2">  return ret;</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t MlonmcuMemoryAllocator::used_size() const {</span>
+<span class="s2">  return used_;</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t MlonmcuMemoryAllocator::free_size() const {</span>
+<span class="s2">  return executorch::runtime::MemoryAllocator::size() - used_;</span>
+<span class="s2">}</span>
+
+<span class="s2">void MlonmcuMemoryAllocator::reset() {</span>
+<span class="s2">  executorch::runtime::MemoryAllocator::reset();</span>
+<span class="s2">  used_ = 0;</span>
+<span class="s2">#if defined(EXECUTORCH_ENABLE_ADDRESS_SANITIZER)</span>
+<span class="s2">  asan_poison_buffer(base_address(), size());</span>
+<span class="s2">#endif</span>
+<span class="s2">}</span>
+
+<span class="s2">// ---</span>
+
+<span class="s2">#include "target.h"</span>
+<span class="s2">#include "printing.h"</span>
+<span class="s2">#include "exit.h"</span>
+
+<span class="s2">#include "$</span><span class="si">{prefix}</span><span class="s2">_pte.h"</span>
+<span class="s2">#include "executorch_wrapper.h"</span>
+
+<span class="s2">using executorch::aten::ScalarType;</span>
+<span class="s2">using executorch::aten::Tensor;</span>
+<span class="s2">using executorch::extension::BufferDataLoader;</span>
+<span class="s2">using executorch::runtime::Error;</span>
+<span class="s2">using executorch::runtime::EValue;</span>
+<span class="s2">using executorch::runtime::HierarchicalAllocator;</span>
+<span class="s2">using executorch::runtime::MemoryAllocator;</span>
+<span class="s2">using executorch::runtime::MemoryManager;</span>
+<span class="s2">using executorch::runtime::Method;</span>
+<span class="s2">using executorch::runtime::MethodMeta;</span>
+<span class="s2">using executorch::runtime::Program;</span>
+<span class="s2">using executorch::runtime::Result;</span>
+<span class="s2">using executorch::runtime::Span;</span>
+<span class="s2">using executorch::runtime::Tag;</span>
+<span class="s2">using executorch::runtime::TensorInfo;</span>
+<span class="s2">using executorch::runtime::toString;</span>
+<span class="s2">/**</span>
+<span class="s2"> * The method_allocation_pool should be large enough to fit the setup, input</span>
+<span class="s2"> * used and other data used like the planned memory pool (e.g. memory-planned</span>
+<span class="s2"> * buffers to use for mutable tensor data) In this example we run on a</span>
+<span class="s2"> * Corstone-3xx FVP so we can use a lot of memory to be able to run and test</span>
+<span class="s2"> * large models if you run on HW this should be lowered to fit into your</span>
+<span class="s2"> * availible memory.</span>
+<span class="s2"> */</span>
+<span class="s2">#if !defined(ET_MLONMCU_BAREMETAL_METHOD_ALLOCATOR_POOL_SIZE)</span>
+<span class="s2">#define ET_MLONMCU_BAREMETAL_METHOD_ALLOCATOR_POOL_SIZE ($</span><span class="si">{method_pool_size}</span><span class="s2">)</span>
+<span class="s2">#endif</span>
+<span class="s2">const size_t method_allocation_pool_size =</span>
+<span class="s2">    ET_MLONMCU_BAREMETAL_METHOD_ALLOCATOR_POOL_SIZE;</span>
+<span class="s2">unsigned char __attribute__((</span>
+<span class="s2">    section("input_data_sec"),</span>
+<span class="s2">    aligned(16))) method_allocation_pool[method_allocation_pool_size];</span>
+
+
+<span class="s2">/**</span>
+<span class="s2"> * The temp_allocation_pool is used for allocating temporary data during kernel</span>
+<span class="s2"> * or delegate execution. This will be reset after each kernel or delegate call.</span>
+<span class="s2"> * Currently a MemoryAllocator is used but a PlatformMemoryAllocator is probably</span>
+<span class="s2"> * a better fit.</span>
+<span class="s2"> *</span>
+<span class="s2"> * The Corstone-300/Corstone-320 platforms have 2MB/4MB of SRAM respectively.</span>
+<span class="s2"> * For Shared_Sram, ET_ARM_BAREMETAL_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE is</span>
+<span class="s2"> * 2MB and the linker script places the .bss.tensor_arena symbol in the SRAM.</span>
+<span class="s2"> * For Dedicated_Sram, the .bss.tensor_arena symbol is placed in the DDR in the</span>
+<span class="s2"> * linker script. Hence, we allocate 128MB in DDR and 384KB in the SRAM</span>
+<span class="s2"> * (.bss.ethosu_scratch is placed in the SRAM). The examples/arm/CMakeLists.txt</span>
+<span class="s2"> * contains the logic for the sizes of</span>
+<span class="s2"> * ET_MLONMCU_BAREMETAL_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE and</span>
+<span class="s2"> * ET_MLONMCU_BAREMETAL_FAST_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE</span>
+<span class="s2"> */</span>
+
+<span class="s2">// TODO</span>
+<span class="s2">#if !defined(ET_MLONMCU_BAREMETAL_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE)</span>
+<span class="s2">#define ET_MLONMCU_BAREMETAL_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE ($</span><span class="si">{temp_pool_size}</span><span class="s2">)</span>
+<span class="s2">#endif</span>
+
+<span class="s2">const size_t temp_allocation_pool_size =</span>
+<span class="s2">    ET_MLONMCU_BAREMETAL_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE;</span>
+<span class="s2">unsigned char __attribute__((</span>
+<span class="s2">    section(".bss.tensor_arena"),</span>
+<span class="s2">    aligned(16))) temp_allocation_pool[temp_allocation_pool_size];</span>
+<span class="s2">#if defined(ET_MLONMCU_BAREMETAL_FAST_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE)</span>
+<span class="s2">extern "C" {</span>
+<span class="s2">size_t ethosu_fast_scratch_size =</span>
+<span class="s2">    ET_MLONMCU_BAREMETAL_FAST_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE;</span>
+<span class="s2">unsigned char __attribute__((section(".bss.ethosu_scratch"), aligned(16)))</span>
+<span class="s2">dedicated_sram[ET_MLONMCU_BAREMETAL_FAST_SCRATCH_TEMP_ALLOCATOR_POOL_SIZE];</span>
+<span class="s2">unsigned char* ethosu_fast_scratch = dedicated_sram;</span>
+<span class="s2">}</span>
+<span class="s2">#endif</span>
+
+<span class="s2">void et_pal_init(void) {</span>
+<span class="s2">}</span>
+
+<span class="s2">/**</span>
+<span class="s2"> * Implementation of the et_pal_&lt;funcs&gt;()</span>
+<span class="s2"> *</span>
+<span class="s2"> * This functions are hardware adaption type of functions for things like</span>
+<span class="s2"> * time/logging/memory allocation that could call your RTOS or need to to</span>
+<span class="s2"> * be implemnted in some way.</span>
+<span class="s2"> */</span>
+
+<span class="s2">ET_NORETURN void et_pal_abort(void) {</span>
+<span class="s2">  mlonmcu_exit(-1);</span>
+<span class="s2">}</span>
+
+<span class="s2">et_timestamp_t et_pal_current_ticks(void) {</span>
+<span class="s2">  return target_cycles();  // TODO: time!?</span>
+<span class="s2">  // return 0;</span>
+<span class="s2">}</span>
+
+<span class="s2">et_tick_ratio_t et_pal_ticks_to_ns_multiplier(void) {</span>
+<span class="s2">  // Since we don't know the CPU freq for your target and justs cycles in the</span>
+<span class="s2">  // FVP for et_pal_current_ticks() we return a conversion ratio of 1</span>
+<span class="s2">  return {1, 1};</span>
+<span class="s2">}</span>
+
+<span class="s2">/**</span>
+<span class="s2"> * Emit a log message via platform output (serial port, console, etc).</span>
+<span class="s2"> */</span>
+<span class="s2">void et_pal_emit_log_message(</span>
+<span class="s2">    ET_UNUSED et_timestamp_t timestamp,</span>
+<span class="s2">    et_pal_log_level_t level,</span>
+<span class="s2">    const char* filename,</span>
+<span class="s2">    ET_UNUSED const char* function,</span>
+<span class="s2">    size_t line,</span>
+<span class="s2">    const char* message,</span>
+<span class="s2">    ET_UNUSED size_t length) {</span>
+<span class="s2">  fprintf( // TODO</span>
+<span class="s2">      stderr,</span>
+<span class="s2">      "</span><span class="si">%c</span><span class="s2"> [executorch:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%lu</span><span class="s2"> </span><span class="si">%s</span><span class="s2">()] </span><span class="si">%s</span><span class="se">\\</span><span class="s2">n",</span>
+<span class="s2">      level,</span>
+<span class="s2">      filename,</span>
+<span class="s2">      static_cast&lt;unsigned long&gt;(line),</span>
+<span class="s2">      function,</span>
+<span class="s2">      message);</span>
+<span class="s2">}</span>
+
+<span class="s2">/**</span>
+<span class="s2"> * Dynamic memory allocators intended to be used by temp_allocator</span>
+<span class="s2"> * to implement malloc()/free() type of allocations.</span>
+<span class="s2"> * Currenyly not used.</span>
+<span class="s2"> */</span>
+
+<span class="s2">void* et_pal_allocate(ET_UNUSED size_t size) {</span>
+<span class="s2">  return nullptr;</span>
+<span class="s2">}</span>
+
+<span class="s2">void et_pal_free(ET_UNUSED void* ptr) </span><span class="si">{}</span>
+
+<span class="s2">namespace {</span>
+
+<span class="s2">/// Lightweight heapless container that constructs and stores a T in-place.</span>
+<span class="s2">/// Useful when you want to avoid heap allocations but need to delay</span>
+<span class="s2">/// construction.</span>
+<span class="s2">template &lt;typename T&gt;</span>
+<span class="s2">class Box {</span>
+<span class="s2"> public:</span>
+<span class="s2">  Box() = default;</span>
+
+<span class="s2">  ~Box() {</span>
+<span class="s2">    if (has_value) {</span>
+<span class="s2">      ptr()-&gt;~T();</span>
+<span class="s2">    }</span>
+<span class="s2">  }</span>
+
+<span class="s2">  Box(const Box&amp;) = delete;</span>
+<span class="s2">  Box&amp; operator=(const Box&amp;) = delete;</span>
+
+<span class="s2">  /// Destructs the already contained object if it's present and initialize a</span>
+<span class="s2">  /// new contained object while forwarding its constructor arguments.</span>
+<span class="s2">  template &lt;typename... Args&gt;</span>
+<span class="s2">  void reset(Args&amp;&amp;... args) {</span>
+<span class="s2">    if (has_value) {</span>
+<span class="s2">      // Destroy the already contained object.</span>
+<span class="s2">      reinterpret_cast&lt;T*&gt;(mem)-&gt;~T();</span>
+<span class="s2">    }</span>
+<span class="s2">    // Init the new object.</span>
+<span class="s2">    new (mem) T(std::forward&lt;Args&gt;(args)...);</span>
+<span class="s2">    has_value = true;</span>
+<span class="s2">  }</span>
+
+<span class="s2">  /// Returns a reference to the contained object.</span>
+<span class="s2">  T&amp; value() {</span>
+<span class="s2">    return *ptr();</span>
+<span class="s2">  }</span>
+
+<span class="s2">  /// Returns a const reference to the contained object.</span>
+<span class="s2">  const T&amp; value() const {</span>
+<span class="s2">    return *ptr();</span>
+<span class="s2">  }</span>
+
+<span class="s2">  T* operator-&gt;() {</span>
+<span class="s2">    return ptr();</span>
+<span class="s2">  }</span>
+
+<span class="s2">  const T* operator-&gt;() const {</span>
+<span class="s2">    return ptr();</span>
+<span class="s2">  }</span>
+
+<span class="s2"> private:</span>
+<span class="s2">  alignas(T) uint8_t mem[sizeof(T)];</span>
+<span class="s2">  bool has_value = false;</span>
+
+<span class="s2">  T* ptr() {</span>
+<span class="s2">    return reinterpret_cast&lt;T*&gt;(mem);</span>
+<span class="s2">  }</span>
+
+<span class="s2">  const T* ptr() const {</span>
+<span class="s2">    return reinterpret_cast&lt;const T*&gt;(mem);</span>
+<span class="s2">  }</span>
+<span class="s2">};</span>
+
+<span class="s2">template &lt;typename ValueType&gt;</span>
+<span class="s2">void fill_tensor_with_default_value(Tensor&amp; tensor) {</span>
+<span class="s2">  ValueType fill_value</span><span class="si">{}</span><span class="s2">;</span>
+<span class="s2">  if constexpr (std::is_same_v&lt;ValueType, bool&gt;) {</span>
+<span class="s2">    fill_value = true;</span>
+<span class="s2">  } else {</span>
+<span class="s2">    fill_value = ValueType(1);</span>
+<span class="s2">  }</span>
+
+<span class="s2">  ValueType* data_ptr = tensor.mutable_data_ptr&lt;ValueType&gt;();</span>
+<span class="s2">  std::fill(data_ptr, data_ptr + tensor.numel(), fill_value);</span>
+<span class="s2">}</span>
+
+<span class="s2">Error prepare_input_tensors(</span>
+<span class="s2">    Method&amp; method,</span>
+<span class="s2">    MemoryAllocator&amp; allocator,</span>
+<span class="s2">    const std::vector&lt;std::pair&lt;char*, size_t&gt;&gt;&amp; input_buffers) {</span>
+<span class="s2">  MethodMeta method_meta = method.method_meta();</span>
+<span class="s2">  size_t num_inputs = method_meta.num_inputs();</span>
+<span class="s2">  size_t num_outputs = method_meta.num_outputs();</span>
+<span class="s2">  size_t num_allocated = 0;</span>
+
+<span class="s2">  EValue* input_evalues = allocator.allocateList&lt;EValue&gt;(num_inputs);</span>
+<span class="s2">  ET_CHECK_OR_RETURN_ERROR(</span>
+<span class="s2">      input_evalues != nullptr,</span>
+<span class="s2">      MemoryAllocationFailed,</span>
+<span class="s2">      "Could not allocate memory for input evalues.");</span>
+
+<span class="s2">  Error err = method.get_inputs(input_evalues, num_inputs);</span>
+<span class="s2">  ET_CHECK_OK_OR_RETURN_ERROR(err);</span>
+
+<span class="s2">  for (size_t i = 0; i &lt; num_inputs; i++) {</span>
+<span class="s2">    auto tag = method_meta.input_tag(i);</span>
+<span class="s2">    ET_CHECK_OK_OR_RETURN_ERROR(tag.error());</span>
+
+<span class="s2">    if (tag.get() != Tag::Tensor) {</span>
+<span class="s2">      ET_LOG(</span>
+<span class="s2">          Debug,</span>
+<span class="s2">          "Skipping non-tensor input </span><span class="si">%lu</span><span class="s2">",</span>
+<span class="s2">          static_cast&lt;unsigned long&gt;(i));</span>
+<span class="s2">      continue;</span>
+<span class="s2">    }</span>
+<span class="s2">    Result&lt;TensorInfo&gt; tensor_meta = method_meta.input_tensor_meta(i);</span>
+<span class="s2">    ET_CHECK_OK_OR_RETURN_ERROR(tensor_meta.error());</span>
+
+<span class="s2">    err = Error::Ok;</span>
+<span class="s2">    if (input_buffers.size() &gt; 0) {</span>
+<span class="s2">      auto [buffer, buffer_size] = input_buffers.at(i);</span>
+<span class="s2">      if (buffer_size != tensor_meta-&gt;nbytes()) {</span>
+<span class="s2">        ET_LOG(</span>
+<span class="s2">            Error,</span>
+<span class="s2">            "input size (</span><span class="si">%d</span><span class="s2">) and tensor size (</span><span class="si">%d</span><span class="s2">) mismatch!",</span>
+<span class="s2">            buffer_size,</span>
+<span class="s2">            tensor_meta-&gt;nbytes());</span>
+<span class="s2">        err = Error::InvalidArgument;</span>
+<span class="s2">      } else if (input_evalues[i].isTensor()) {</span>
+<span class="s2">        // Copy the data from the input buffer to the tensor</span>
+<span class="s2">        Tensor&amp; tensor = input_evalues[i].toTensor();</span>
+<span class="s2">        std::memcpy(tensor.mutable_data_ptr&lt;int8_t&gt;(), buffer, buffer_size);</span>
+<span class="s2">      }</span>
+<span class="s2">    }</span>
+
+<span class="s2">    // If input_buffers.size &lt;= 0, we don't have any input, fill it with 1's.</span>
+<span class="s2">    if (input_buffers.size() &lt;= 0) {</span>
+<span class="s2">      if (input_evalues[i].isTensor()) {</span>
+<span class="s2">        Tensor&amp; tensor = input_evalues[i].toTensor();</span>
+<span class="s2">        switch (tensor.scalar_type()) {</span>
+<span class="s2">#define HANDLE_SCALAR_TYPE(cpp_type, scalar_name)     </span><span class="se">\\</span>
+<span class="s2">  case ScalarType::scalar_name:                       </span><span class="se">\\</span>
+<span class="s2">    fill_tensor_with_default_value&lt;cpp_type&gt;(tensor); </span><span class="se">\\</span>
+<span class="s2">    break;</span>
+<span class="s2">          ET_FORALL_SCALAR_TYPES(HANDLE_SCALAR_TYPE)</span>
+<span class="s2">#undef HANDLE_SCALAR_TYPE</span>
+<span class="s2">          default:</span>
+<span class="s2">            ET_LOG(</span>
+<span class="s2">                Error,</span>
+<span class="s2">                "Unhandled ScalarType </span><span class="si">%s</span><span class="s2">",</span>
+<span class="s2">                toString(tensor.scalar_type()));</span>
+<span class="s2">            err = Error::InvalidArgument;</span>
+<span class="s2">            break;</span>
+<span class="s2">        }</span>
+<span class="s2">      } else {</span>
+<span class="s2">        printf("Input[</span><span class="si">%d</span><span class="s2">]: Not Tensor</span><span class="se">\\</span><span class="s2">n", i);</span>
+<span class="s2">      }</span>
+<span class="s2">    }</span>
+<span class="s2">  }</span>
+
+<span class="s2">  return err;</span>
+<span class="s2">}</span>
+
+<span class="s2">/// Holds all state needed for setup and run phases</span>
+<span class="s2">struct RunnerContext {</span>
+<span class="s2">  RunnerContext() = default;</span>
+<span class="s2">  RunnerContext(const RunnerContext&amp; ctx) = delete;</span>
+<span class="s2">  RunnerContext&amp; operator=(const RunnerContext&amp; ctx) = delete;</span>
+
+<span class="s2">  const char* method_name = nullptr;</span>
+<span class="s2">  size_t planned_buffer_memsize = 0;</span>
+<span class="s2">  size_t method_loaded_memsize = 0;</span>
+<span class="s2">  size_t executor_membase = 0;</span>
+<span class="s2">  size_t program_data_len = 0;</span>
+<span class="s2">  size_t input_memsize = 0;</span>
+<span class="s2">  size_t pte_size = 0;</span>
+<span class="s2">  bool bundle_io = false;</span>
+<span class="s2">  Box&lt;BufferDataLoader&gt; loader;</span>
+<span class="s2">  Box&lt;Program&gt; program;</span>
+<span class="s2">  Box&lt;MlonmcuMemoryAllocator&gt; method_allocator;</span>
+<span class="s2">  Box&lt;MlonmcuMemoryAllocator&gt; temp_allocator;</span>
+<span class="s2">  std::vector&lt;Span&lt;uint8_t&gt;&gt; planned_spans;</span>
+<span class="s2">  Box&lt;HierarchicalAllocator&gt; planned_memory;</span>
+<span class="s2">  Box&lt;MemoryManager&gt; memory_manager;</span>
+<span class="s2">  Box&lt;Result&lt;Method&gt;&gt; method;</span>
+<span class="s2">};</span>
+
+<span class="s2">void runner_init(</span>
+<span class="s2">    RunnerContext&amp; ctx,</span>
+<span class="s2">    std::vector&lt;std::pair&lt;char*, size_t&gt;&gt; input_buffers,</span>
+<span class="s2">    size_t pte_size) {</span>
+<span class="s2">  // Find the offset to the embedded Program.</span>
+<span class="s2">  const void* program_data = model_pte;</span>
+<span class="s2">  ctx.program_data_len = pte_size;</span>
+<span class="s2">  ctx.pte_size = pte_size;</span>
+
+<span class="s2">  ctx.loader.reset(program_data, ctx.program_data_len);</span>
+<span class="s2">  auto&amp; loader = ctx.loader.value();</span>
+<span class="s2">  ET_LOG(</span>
+<span class="s2">      Info,</span>
+<span class="s2">      "PTE Model data loaded. Size: </span><span class="si">%lu</span><span class="s2"> bytes.",</span>
+<span class="s2">      static_cast&lt;unsigned long&gt;(ctx.program_data_len));</span>
+
+<span class="s2">  // Parse the program file. This is immutable, and can also be reused</span>
+<span class="s2">  // between multiple execution invocations across multiple threads.</span>
+<span class="s2">  Result&lt;Program&gt; program_result = Program::load(&amp;loader);</span>
+<span class="s2">  ET_CHECK_MSG(</span>
+<span class="s2">      program_result.ok(),</span>
+<span class="s2">      "Program loading failed @ %p: 0x%" PRIx32,</span>
+<span class="s2">      program_data,</span>
+<span class="s2">      program_result.error());</span>
+<span class="s2">  ctx.program.reset(std::move(program_result.get()));</span>
+<span class="s2">  Program&amp; program = ctx.program.value();</span>
+
+<span class="s2">  ET_LOG(</span>
+<span class="s2">      Info,</span>
+<span class="s2">      "Model buffer loaded, has </span><span class="si">%lu</span><span class="s2"> methods",</span>
+<span class="s2">      static_cast&lt;unsigned long&gt;(program.num_methods()));</span>
+
+<span class="s2">  {</span>
+<span class="s2">    const auto method_name_result = program.get_method_name(0);</span>
+<span class="s2">    ET_CHECK_MSG(method_name_result.ok(), "Program has no methods");</span>
+<span class="s2">    ctx.method_name = *method_name_result;</span>
+<span class="s2">  }</span>
+<span class="s2">  ET_LOG(Info, "Running method </span><span class="si">%s</span><span class="s2">", ctx.method_name);</span>
+
+<span class="s2">  Result&lt;MethodMeta&gt; method_meta = program.method_meta(ctx.method_name);</span>
+<span class="s2">  if (!method_meta.ok()) {</span>
+<span class="s2">    ET_LOG(</span>
+<span class="s2">        Info,</span>
+<span class="s2">        "Failed to get method_meta for </span><span class="si">%s</span><span class="s2">: 0x</span><span class="si">%x</span><span class="s2">",</span>
+<span class="s2">        ctx.method_name,</span>
+<span class="s2">        (unsigned int)method_meta.error());</span>
+<span class="s2">  }</span>
+
+<span class="s2">  ET_LOG(</span>
+<span class="s2">      Info,</span>
+<span class="s2">      "Setup Method allocator pool. Size: </span><span class="si">%lu</span><span class="s2"> bytes.",</span>
+<span class="s2">      static_cast&lt;unsigned long&gt;(method_allocation_pool_size));</span>
+
+<span class="s2">  ctx.method_allocator.reset(</span>
+<span class="s2">      method_allocation_pool_size, method_allocation_pool);</span>
+
+<span class="s2">  ctx.planned_spans.clear();</span>
+<span class="s2">  size_t num_memory_planned_buffers = method_meta-&gt;num_memory_planned_buffers();</span>
+<span class="s2">  ctx.planned_spans.reserve(num_memory_planned_buffers);</span>
+<span class="s2">  size_t planned_buffer_membase = ctx.method_allocator-&gt;used_size();</span>
+
+<span class="s2">  for (size_t id = 0; id &lt; num_memory_planned_buffers; ++id) {</span>
+<span class="s2">    size_t buffer_size =</span>
+<span class="s2">        static_cast&lt;size_t&gt;(method_meta-&gt;memory_planned_buffer_size(id).get());</span>
+<span class="s2">    ET_LOG(</span>
+<span class="s2">        Info,</span>
+<span class="s2">        "Setting up planned buffer </span><span class="si">%lu</span><span class="s2">, size </span><span class="si">%lu</span><span class="s2">.",</span>
+<span class="s2">        static_cast&lt;unsigned long&gt;(id),</span>
+<span class="s2">        static_cast&lt;unsigned long&gt;(buffer_size));</span>
+
+<span class="s2">    /* Move to it's own allocator when MemoryPlanner is in place. */</span>
+<span class="s2">    /* Ethos-U driver requires 16 bit alignment. */</span>
+<span class="s2">    uint8_t* buffer = reinterpret_cast&lt;uint8_t*&gt;(</span>
+<span class="s2">        ctx.method_allocator-&gt;allocate(buffer_size, 16UL));</span>
+<span class="s2">    ET_CHECK_MSG(</span>
+<span class="s2">        buffer != nullptr,</span>
+<span class="s2">        "Could not allocate memory for memory planned buffer size </span><span class="si">%lu</span><span class="s2">",</span>
+<span class="s2">        static_cast&lt;unsigned long&gt;(buffer_size));</span>
+<span class="s2">    ctx.planned_spans.push_back({buffer, buffer_size});</span>
+<span class="s2">  }</span>
+
+<span class="s2">  ctx.planned_buffer_memsize =</span>
+<span class="s2">      ctx.method_allocator-&gt;used_size() - planned_buffer_membase;</span>
+
+<span class="s2">  Span&lt;Span&lt;uint8_t&gt;&gt; planned_memory_span;</span>
+<span class="s2">  if (!ctx.planned_spans.empty()) {</span>
+<span class="s2">    planned_memory_span =</span>
+<span class="s2">        Span&lt;Span&lt;uint8_t&gt;&gt;(ctx.planned_spans.data(), ctx.planned_spans.size());</span>
+<span class="s2">  }</span>
+<span class="s2">  ctx.planned_memory.reset(planned_memory_span);</span>
+
+<span class="s2">  ctx.temp_allocator.reset(temp_allocation_pool_size, temp_allocation_pool);</span>
+
+<span class="s2">  ctx.memory_manager.reset(</span>
+<span class="s2">      &amp;ctx.method_allocator.value(),</span>
+<span class="s2">      &amp;ctx.planned_memory.value(),</span>
+<span class="s2">      &amp;ctx.temp_allocator.value());</span>
+
+<span class="s2">  size_t method_loaded_membase = ctx.method_allocator-&gt;used_size();</span>
+
+<span class="s2">  executorch::runtime::EventTracer* event_tracer_ptr = nullptr;</span>
+
+<span class="s2">  ctx.method.reset(program.load_method(</span>
+<span class="s2">      ctx.method_name, &amp;ctx.memory_manager.value(), event_tracer_ptr));</span>
+
+<span class="s2">  if (!ctx.method-&gt;ok()) {</span>
+<span class="s2">    ET_LOG(</span>
+<span class="s2">        Info,</span>
+<span class="s2">        "Loading of method </span><span class="si">%s</span><span class="s2"> failed with status 0x%" PRIx32,</span>
+<span class="s2">        ctx.method_name,</span>
+<span class="s2">        ctx.method-&gt;error());</span>
+<span class="s2">  }</span>
+<span class="s2">  ctx.method_loaded_memsize =</span>
+<span class="s2">      ctx.method_allocator-&gt;used_size() - method_loaded_membase;</span>
+<span class="s2">  ET_LOG(Info, "Method '</span><span class="si">%s</span><span class="s2">' loaded.", ctx.method_name);</span>
+
+<span class="s2">  ET_LOG(Info, "Preparing inputs...");</span>
+<span class="s2">  size_t input_membase = ctx.method_allocator-&gt;used_size();</span>
+
+<span class="s2">  {</span>
+<span class="s2">    Error status = ::prepare_input_tensors(</span>
+<span class="s2">        *ctx.method.value(), ctx.method_allocator.value(), input_buffers);</span>
+<span class="s2">    ET_CHECK_MSG(</span>
+<span class="s2">        status == Error::Ok, "Failed to prepare inputs 0x%" PRIx32, status);</span>
+<span class="s2">  }</span>
+<span class="s2">  ctx.input_memsize = ctx.method_allocator-&gt;used_size() - input_membase;</span>
+<span class="s2">  ctx.executor_membase = ctx.method_allocator-&gt;used_size();</span>
+
+<span class="s2">  ET_LOG(Info, "Input prepared.");</span>
+<span class="s2">}</span>
+
+<span class="s2">void log_mem_status(RunnerContext&amp; ctx) {</span>
+<span class="s2">  size_t executor_memsize =</span>
+<span class="s2">      ctx.method_allocator-&gt;used_size() - ctx.executor_membase;</span>
+
+<span class="s2">  ET_LOG(</span>
+<span class="s2">      Info,</span>
+<span class="s2">      "model_pte_program_size:     </span><span class="si">%lu</span><span class="s2"> bytes.",</span>
+<span class="s2">      static_cast&lt;unsigned long&gt;(ctx.program_data_len));</span>
+<span class="s2">  ET_LOG(</span>
+<span class="s2">      Info,</span>
+<span class="s2">      "model_pte_loaded_size:      </span><span class="si">%lu</span><span class="s2"> bytes.",</span>
+<span class="s2">      static_cast&lt;unsigned long&gt;(ctx.pte_size));</span>
+
+<span class="s2">}</span>
+
+<span class="s2">bool verify_result(RunnerContext&amp; ctx, const void* model_pte) {</span>
+<span class="s2">  bool model_ok = false;</span>
+<span class="s2">  (void)ctx;</span>
+<span class="s2">  (void)model_pte;</span>
+<span class="s2">  // No checking done, assume true</span>
+<span class="s2">  model_ok = true;</span>
+<span class="s2">  return model_ok;</span>
+<span class="s2">}</span>
+
+<span class="s2">bool run_model(RunnerContext&amp; ctx, const void* model_pte) {</span>
+<span class="s2">  Error status;</span>
+<span class="s2">  status = ctx.method.value()-&gt;execute();</span>
+<span class="s2">  // Reset the temporary allocator holding the scratch buffer between</span>
+<span class="s2">  // inferences. We want to reuse the temp_allocator between inferences of the</span>
+<span class="s2">  // same Ethos-U custom delegate, not allocate memory with every new</span>
+<span class="s2">  // inference.</span>
+<span class="s2">  ctx.temp_allocator.reset(temp_allocation_pool_size, temp_allocation_pool);</span>
+
+<span class="s2">  ET_CHECK_MSG(</span>
+<span class="s2">      status == Error::Ok,</span>
+<span class="s2">      "Execution of method </span><span class="si">%s</span><span class="s2"> failed with status 0x%" PRIx32,</span>
+<span class="s2">      ctx.method_name,</span>
+<span class="s2">      status);</span>
+
+<span class="s2">  // ET_LOG(Info, "</span><span class="si">%d</span><span class="s2"> inferences finished", num_inferences);</span>
+<span class="s2">  bool model_ok = verify_result(ctx, model_pte);</span>
+<span class="s2">  // ET_LOG(Info, "Model run: </span><span class="si">%d</span><span class="s2">", model_ok);</span>
+
+<span class="s2">  return !model_ok;</span>
+<span class="s2">}</span>
+
+<span class="s2">} // namespace</span>
+
+
+<span class="s2">// ---</span>
+
+<span class="s2">static RunnerContext ctx;</span>
+
+<span class="s2">int $</span><span class="si">{prefix}</span><span class="s2">_init()</span>
+<span class="s2">{</span>
+<span class="s2">    executorch::runtime::runtime_init();</span>
+<span class="s2">    std::vector&lt;std::pair&lt;char*, size_t&gt;&gt; input_buffers;</span>
+<span class="s2">    size_t pte_size = sizeof(model_pte);</span>
+<span class="s2">    // Byte 4-7 is usually a nice magic number that could be good to print to make</span>
+<span class="s2">    // sure it's OK ETxx for PTE and BPxx for bundled pte where xx is a number.</span>
+<span class="s2">    ET_LOG(</span>
+<span class="s2">        Info,</span>
+<span class="s2">        "PTE @ %p [----</span><span class="si">%c%c%c%c</span><span class="s2">]",</span>
+<span class="s2">        model_pte,</span>
+<span class="s2">        model_pte[4],</span>
+<span class="s2">        model_pte[5],</span>
+<span class="s2">        model_pte[6],</span>
+<span class="s2">        model_pte[7]);</span>
+
+<span class="s2">    runner_init(ctx, input_buffers, pte_size);</span>
+
+<span class="s2">    return 0;</span>
+<span class="s2">}</span>
+
+<span class="s2">int $</span><span class="si">{prefix}</span><span class="s2">_deinit()</span>
+<span class="s2">{</span>
+<span class="s2">    log_mem_status(ctx);  // TODO: optional</span>
+<span class="s2">    // write_etdump(ctx);  // TODO: optional</span>
+
+<span class="s2">    ET_LOG(Info, "Program complete, exiting.");</span>
+<span class="s2">    ET_LOG(Info, "</span><span class="se">\\</span><span class="s2">04");</span>
+<span class="s2">    return 0;</span>
+<span class="s2">}</span>
+
+<span class="s2">char buf;</span>
+
+<span class="s2">void* $</span><span class="si">{prefix}</span><span class="s2">_input_ptr(int index)</span>
+<span class="s2">{</span>
+<span class="s2">    std::vector&lt;EValue&gt; inputs(ctx.method.value()-&gt;inputs_size());</span>
+<span class="s2">    Error status =</span>
+<span class="s2">        ctx.method.value()-&gt;get_inputs(inputs.data(), inputs.size());</span>
+<span class="s2">    ET_CHECK(status == Error::Ok);</span>
+
+<span class="s2">    ET_CHECK(inputs[index].isTensor());</span>
+<span class="s2">    Tensor tensor = inputs[index].toTensor();</span>
+<span class="s2">    return (void*)tensor.const_data_ptr&lt;char&gt;();</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t $</span><span class="si">{prefix}</span><span class="s2">_input_size(int index)</span>
+<span class="s2">{</span>
+<span class="s2">    // std::vector&lt;EValue&gt; inputs(ctx.method.value()-&gt;inputs_size());</span>
+<span class="s2">    // Error status =</span>
+<span class="s2">    //     ctx.method.value()-&gt;get_inputs(inputs.data(), inputs.size());</span>
+<span class="s2">    // ET_CHECK(status == Error::Ok);</span>
+
+<span class="s2">    // ET_CHECK(inputs[index].isTensor());</span>
+<span class="s2">    // Tensor tensor = inputs[index].toTensor();</span>
+<span class="s2">    // return tensor.nbytes();</span>
+<span class="s2">    MethodMeta method_meta = ctx.method.value()-&gt;method_meta();</span>
+<span class="s2">    Result&lt;TensorInfo&gt; tensor_meta = method_meta.input_tensor_meta(index);</span>
+<span class="s2">    ET_CHECK(tensor_meta.error() == Error::Ok);</span>
+
+<span class="s2">    return tensor_meta-&gt;nbytes();</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t $</span><span class="si">{prefix}</span><span class="s2">_inputs()</span>
+<span class="s2">{</span>
+<span class="s2">    MethodMeta method_meta = ctx.method.value()-&gt;method_meta();</span>
+<span class="s2">    size_t num_inputs = method_meta.num_inputs();</span>
+
+<span class="s2">    return num_inputs;</span>
+<span class="s2">}</span>
+
+<span class="s2">void* $</span><span class="si">{prefix}</span><span class="s2">_output_ptr(int index)</span>
+<span class="s2">{</span>
+<span class="s2">    std::vector&lt;EValue&gt; outputs(ctx.method.value()-&gt;outputs_size());</span>
+<span class="s2">    Error status =</span>
+<span class="s2">        ctx.method.value()-&gt;get_outputs(outputs.data(), outputs.size());</span>
+<span class="s2">    ET_CHECK(status == Error::Ok);</span>
+
+<span class="s2">    ET_CHECK(outputs[index].isTensor());</span>
+<span class="s2">    Tensor tensor = outputs[index].toTensor();</span>
+<span class="s2">    return (void*)tensor.const_data_ptr&lt;char&gt;();</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t $</span><span class="si">{prefix}</span><span class="s2">_output_size(int index)</span>
+<span class="s2">{</span>
+<span class="s2">    // std::vector&lt;EValue&gt; outputs(ctx.method.value()-&gt;outputs_size());</span>
+<span class="s2">    // Error status =</span>
+<span class="s2">    //     ctx.method.value()-&gt;get_outputs(outputs.data(), outputs.size());</span>
+<span class="s2">    // ET_CHECK(status == Error::Ok);</span>
+
+<span class="s2">    // ET_CHECK(outputs[index].isTensor());</span>
+<span class="s2">    // Tensor tensor = outputs[index].toTensor();</span>
+<span class="s2">    // return tensor.nbytes();</span>
+<span class="s2">    MethodMeta method_meta = ctx.method.value()-&gt;method_meta();</span>
+<span class="s2">    Result&lt;TensorInfo&gt; tensor_meta = method_meta.output_tensor_meta(index);</span>
+<span class="s2">    ET_CHECK(tensor_meta.error() == Error::Ok);</span>
+
+<span class="s2">    return tensor_meta-&gt;nbytes();</span>
+<span class="s2">}</span>
+
+<span class="s2">size_t $</span><span class="si">{prefix}</span><span class="s2">_outputs()</span>
+<span class="s2">{</span>
+<span class="s2">    MethodMeta method_meta = ctx.method.value()-&gt;method_meta();</span>
+<span class="s2">    size_t num_outputs = method_meta.num_outputs();</span>
+
+<span class="s2">    return num_outputs;</span>
+<span class="s2">}</span>
+
+<span class="s2">int $</span><span class="si">{prefix}</span><span class="s2">_invoke()</span>
+<span class="s2">{</span>
+<span class="s2">    bool model_ok = run_model(ctx, model_pte);</span>
+
+<span class="s2">    std::vector&lt;EValue&gt; outputs(ctx.method.value()-&gt;outputs_size());</span>
+<span class="s2">    Error status = ctx.method.value()-&gt;get_outputs(outputs.data(), outputs.size());</span>
+
+<span class="s2">    return model_ok;  // TODO</span>
+<span class="s2">}</span>
+<span class="s2">"""</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">fill</span><span class="p">(</span>
+            <span class="n">out</span><span class="p">,</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+            <span class="n">method_pool_size</span><span class="o">=</span><span class="n">method_pool_size</span><span class="p">,</span>
+            <span class="n">temp_pool_size</span><span class="o">=</span><span class="n">temp_pool_size</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="n">wrapper</span> <span class="o">=</span> <span class="n">generate_wrapper</span><span class="p">()</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">generate_header</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wrapper</span><span class="p">,</span> <span class="n">header</span></div>
+
+
+
+<div class="viewcode-block" id="ExecutorchBackend">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.ExecutorchBackend">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExecutorchBackend</span><span class="p">(</span><span class="n">Backend</span><span class="p">):</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># name = None</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"executorch"</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"print_outputs"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># REQUIRED = {"executorch.src_dir", "executorch.build_dir"}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"executorch.src_dir"</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hal_backend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hal_inline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">framework</span><span class="o">=</span><span class="s2">"executorch"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="s2">"model"</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Actual filename!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_shapes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># self.supported_formats = get_supported_formats_executorch()</span>
+        <span class="c1"># self.supported_formats = [ModelFormats.TFLITE, ModelFormats.MLIR]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_formats</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">PTE</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TORCH_PICKLE</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TORCH_PYTHON</span><span class="p">,</span>
+            <span class="n">ModelFormats</span><span class="o">.</span><span class="n">TORCH_EXPORTED</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="c1"># TODO: support PKL,...</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">executorch_src_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"executorch.src_dir"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pte_to_header_exe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">executorch_src_dir</span> <span class="o">/</span> <span class="s2">"examples"</span> <span class="o">/</span> <span class="s2">"riscv"</span> <span class="o">/</span> <span class="s2">"executor_runner"</span> <span class="o">/</span> <span class="s2">"pte_to_header.py"</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def executorch_build_dir(self):</span>
+    <span class="c1">#     return self.config["executorch.build_dir"]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"print_outputs"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExecutorchBackend.prepare_environment">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.ExecutorchBackend.prepare_environment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PYTHONPATH"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">pythonpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">executorch_src_dir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pythonpath</span><span class="si">}</span><span class="s2">"</span>
+        <span class="c1"># print("pythonpath", pythonpath)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s2">"PYTHONPATH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pythonpath</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+
+
+<div class="viewcode-block" id="ExecutorchBackend.generate_pte_header">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.ExecutorchBackend.generate_pte_header">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_pte_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pte_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">out_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">outdir</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pte_to_header_exe</span><span class="p">,</span> <span class="s2">"--pte"</span><span class="p">,</span> <span class="n">pte_file</span><span class="p">,</span> <span class="s2">"--outdir"</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="s2">"--outfile"</span><span class="p">,</span> <span class="n">outfile</span><span class="p">]</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_environment</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExecutorchBackend.load_model">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.ExecutorchBackend.load_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">input_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params_path</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">params_path</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_info</span> <span class="o">=</span> <span class="n">get_model_info</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ExecutorchBackend.generate">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.ExecutorchBackend.generate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+            <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="c1"># model_path = self.model</span>
+            <span class="c1"># model_info = self.model_info</span>
+            <span class="n">pte_file</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.pte"</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">"pte"</span><span class="p">:</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">pte_file</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">"torch"</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">torch.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportedProgram</span>
+                <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: torch"</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">ex</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">executorch.exir</span><span class="w"> </span><span class="kn">import</span> <span class="n">EdgeCompileConfig</span><span class="p">,</span> <span class="n">ExecutorchBackendConfig</span><span class="p">,</span> <span class="n">to_edge_transform_and_lower</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">executorch.extension.export_util.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_pte_program</span>
+                <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Missing Python package: executorch"</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">ex</span>
+
+                <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.torch_models.torch_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_torch_model</span>
+
+                <span class="n">_</span><span class="p">,</span> <span class="n">exported_program</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_torch_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">convert_torch_to_edge</span><span class="p">(</span><span class="n">exported_program</span><span class="p">:</span> <span class="n">ExportedProgram</span><span class="p">,</span> <span class="n">quantize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">quantize</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"quantize"</span><span class="p">)</span>
+                    <span class="n">compile_config</span> <span class="o">=</span> <span class="n">EdgeCompileConfig</span><span class="p">(</span><span class="n">_check_ir_validity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">edge</span> <span class="o">=</span> <span class="n">to_edge_transform_and_lower</span><span class="p">(</span><span class="n">exported_program</span><span class="p">,</span> <span class="n">compile_config</span><span class="o">=</span><span class="n">compile_config</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">edge</span>
+
+                <span class="n">edge</span> <span class="o">=</span> <span class="n">convert_torch_to_edge</span><span class="p">(</span><span class="n">exported_program</span><span class="p">,</span> <span class="n">quantize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">exec_prog</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">to_executorch</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">ExecutorchBackendConfig</span><span class="p">(</span><span class="n">extract_delegate_segments</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+                <span class="n">save_pte_program</span><span class="p">(</span><span class="n">exec_prog</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pte_file</span><span class="p">))</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pte_file</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">model_raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Artifact</span><span class="p">(</span>
+                        <span class="n">pte_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">raw</span><span class="o">=</span><span class="n">model_raw</span><span class="p">,</span>
+                        <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_format</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">pte_header_file</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">_pte.h"</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_pte_header</span><span class="p">(</span><span class="n">pte_file</span><span class="p">,</span> <span class="n">pte_header_file</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pte_header_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pte_header_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="n">pte_header_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">pte_header_content</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">wrapper_content</span><span class="p">,</span> <span class="n">header_content</span> <span class="o">=</span> <span class="n">generate_executorch_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_info</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">"executorch_wrapper.cc"</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">wrapper_content</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Artifact</span><span class="p">(</span>
+                    <span class="s2">"executorch_wrapper.h"</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">header_content</span><span class="p">,</span>
+                    <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">stdout_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">"executorch_out.log"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+            <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdout_artifact</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">metrics</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ExecutorchBackend.get_platform_defs">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.executorch.backend.html#mlonmcu.flow.executorch.ExecutorchBackend.get_platform_defs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">"torch"</span><span class="p">:</span>
+                <span class="n">model_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+                <span class="c1"># model_name = model_path.stem</span>
+                <span class="n">pte_file</span> <span class="o">=</span> <span class="n">model_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.pte"</span>  <span class="c1"># Needs exported artifact!</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_format</span> <span class="o">==</span> <span class="s2">"pte"</span>
+                <span class="n">pte_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s2">"EXECUTORCH_PTE_FILE_PATH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pte_file</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

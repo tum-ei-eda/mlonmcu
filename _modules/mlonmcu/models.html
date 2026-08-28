@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.models &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.models</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.models.lookup</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_summary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.frontend</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PBFrontend</span><span class="p">,</span>
+    <span class="n">TfLiteFrontend</span><span class="p">,</span>
+    <span class="n">MLFFrontend</span><span class="p">,</span>
+    <span class="n">PackedFrontend</span><span class="p">,</span>
+    <span class="n">ONNXFrontend</span><span class="p">,</span>
+    <span class="n">PTEFrontend</span><span class="p">,</span>
+    <span class="n">TorchPickleFrontend</span><span class="p">,</span>
+    <span class="n">TorchPythonFrontend</span><span class="p">,</span>
+    <span class="n">TorchExportedFrontend</span><span class="p">,</span>
+    <span class="n">MLIRFrontend</span><span class="p">,</span>
+    <span class="n">RelayFrontend</span><span class="p">,</span>
+    <span class="n">PaddleFrontend</span><span class="p">,</span>
+    <span class="n">ExampleFrontend</span><span class="p">,</span>
+    <span class="n">EmbenchFrontend</span><span class="p">,</span>  <span class="c1"># 1.0</span>
+    <span class="n">EmbenchIoTFrontend</span><span class="p">,</span>  <span class="c1"># 2.0</span>
+    <span class="n">EmbenchDSPFrontend</span><span class="p">,</span>
+    <span class="n">TaclebenchFrontend</span><span class="p">,</span>
+    <span class="n">PolybenchFrontend</span><span class="p">,</span>
+    <span class="n">CoremarkFrontend</span><span class="p">,</span>
+    <span class="n">DhrystoneFrontend</span><span class="p">,</span>
+    <span class="n">MathisFrontend</span><span class="p">,</span>
+    <span class="n">MibenchFrontend</span><span class="p">,</span>
+    <span class="n">LayerGenFrontend</span><span class="p">,</span>
+    <span class="n">OpenASIPFrontend</span><span class="p">,</span>
+    <span class="n">RVVBenchFrontend</span><span class="p">,</span>
+    <span class="n">ISSBenchFrontend</span><span class="p">,</span>
+    <span class="n">CryptoBenchFrontend</span><span class="p">,</span>
+    <span class="n">CmsisDSPFrontend</span><span class="p">,</span>
+    <span class="n">CmsisNNFrontend</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">SUPPORTED_FRONTENDS</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="register_frontend">
+<a class="viewcode-back" href="../../mlonmcu.models.html#mlonmcu.models.register_frontend">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_frontend</span><span class="p">(</span><span class="n">frontend_name</span><span class="p">,</span> <span class="n">frontend_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Register a frontend class under the given name.</span>
+
+<span class="sd">    Can be used directly or as a decorator.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_register</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">frontend_name</span> <span class="ow">in</span> <span class="n">SUPPORTED_FRONTENDS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Frontend </span><span class="si">{</span><span class="n">frontend_name</span><span class="si">}</span><span class="s2"> is already registered"</span><span class="p">)</span>
+        <span class="n">SUPPORTED_FRONTENDS</span><span class="p">[</span><span class="n">frontend_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
+        <span class="k">return</span> <span class="bp">cls</span>
+
+    <span class="k">if</span> <span class="n">frontend_cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_register</span>
+    <span class="k">return</span> <span class="n">_register</span><span class="p">(</span><span class="n">frontend_cls</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_frontends">
+<a class="viewcode-back" href="../../mlonmcu.models.html#mlonmcu.models.get_frontends">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_frontends</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Return the registered frontends."""</span>
+    <span class="k">return</span> <span class="n">SUPPORTED_FRONTENDS</span></div>
+
+
+
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"tflite"</span><span class="p">,</span> <span class="n">TfLiteFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"mlf"</span><span class="p">,</span> <span class="n">MLFFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"relay"</span><span class="p">,</span> <span class="n">RelayFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"packed"</span><span class="p">,</span> <span class="n">PackedFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"onnx"</span><span class="p">,</span> <span class="n">ONNXFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"pte"</span><span class="p">,</span> <span class="n">PTEFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"torch_pickle"</span><span class="p">,</span> <span class="n">TorchPickleFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"torch_python"</span><span class="p">,</span> <span class="n">TorchPythonFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"torch_exported"</span><span class="p">,</span> <span class="n">TorchExportedFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"mlir"</span><span class="p">,</span> <span class="n">MLIRFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"pb"</span><span class="p">,</span> <span class="n">PBFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"paddle"</span><span class="p">,</span> <span class="n">PaddleFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"example"</span><span class="p">,</span> <span class="n">ExampleFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"embench"</span><span class="p">,</span> <span class="n">EmbenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"embench_iot"</span><span class="p">,</span> <span class="n">EmbenchIoTFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"embench_dsp"</span><span class="p">,</span> <span class="n">EmbenchDSPFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"taclebench"</span><span class="p">,</span> <span class="n">TaclebenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"coremark"</span><span class="p">,</span> <span class="n">CoremarkFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"dhrystone"</span><span class="p">,</span> <span class="n">DhrystoneFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"polybench"</span><span class="p">,</span> <span class="n">PolybenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"mathis"</span><span class="p">,</span> <span class="n">MathisFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"mibench"</span><span class="p">,</span> <span class="n">MibenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"layergen"</span><span class="p">,</span> <span class="n">LayerGenFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"openasip"</span><span class="p">,</span> <span class="n">OpenASIPFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"rvv_bench"</span><span class="p">,</span> <span class="n">RVVBenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"iss_bench"</span><span class="p">,</span> <span class="n">ISSBenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"crypto_bench"</span><span class="p">,</span> <span class="n">CryptoBenchFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"cmsis_dsp"</span><span class="p">,</span> <span class="n">CmsisDSPFrontend</span><span class="p">)</span>
+<span class="n">register_frontend</span><span class="p">(</span><span class="s2">"cmsis_nn"</span><span class="p">,</span> <span class="n">CmsisNNFrontend</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"print_summary"</span><span class="p">,</span>
+    <span class="s2">"TfLiteFrontend"</span><span class="p">,</span>
+    <span class="s2">"MLFFrontend"</span><span class="p">,</span>
+    <span class="s2">"PackedFrontend"</span><span class="p">,</span>
+    <span class="s2">"ONNXFrontend"</span><span class="p">,</span>
+    <span class="s2">"MLIRFrontend"</span><span class="p">,</span>
+    <span class="s2">"TorchFrontend"</span><span class="p">,</span>
+    <span class="s2">"PBFrontend"</span><span class="p">,</span>
+    <span class="s2">"LayerGenFrontend"</span><span class="p">,</span>
+    <span class="s2">"SUPPORTED_FRONTENDS"</span><span class="p">,</span>
+    <span class="s2">"register_frontend"</span><span class="p">,</span>
+    <span class="s2">"get_frontends"</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

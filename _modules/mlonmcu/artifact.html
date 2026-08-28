@@ -101,6 +101,7 @@
 <span class="c1">#</span>
 <span class="sd">"""Artifacts defintions internally used to refer to intermediate results."""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntFlag</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
@@ -111,7 +112,6 @@
 <span class="c1"># TODO: decide if inheritance based scheme would fit better</span>
 
 
-<span class="c1"># class ArtifactFormat(Enum):  # TODO: ArtifactType, ArtifactKind?</span>
 <div class="viewcode-block" id="ArtifactFormat">
 <a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.ArtifactFormat">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ArtifactFormat</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
@@ -131,7 +131,8 @@
     <span class="n">RAW</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">BIN</span> <span class="o">=</span> <span class="n">RAW</span>
     <span class="n">SHARED_OBJECT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Here: the parent tar archive</span>
-    <span class="n">ARCHIVE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+    <span class="n">ARCHIVE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">YAML</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
 
@@ -237,6 +238,8 @@
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">]:</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">]:</span>
+            <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -325,6 +328,70 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"File Location: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="Artifact.copy">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Artifact.convert">
+<a class="viewcode-back" href="../../mlonmcu.html#mlonmcu.artifact.Artifact.convert">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># UNKNOWN = 0</span>
+        <span class="c1"># SOURCE = 1</span>
+        <span class="c1"># TEXT = 2</span>
+        <span class="c1"># MLF = 3</span>
+        <span class="c1"># MODEL = 4</span>
+        <span class="c1"># IMAGE = 5</span>
+        <span class="c1"># DATA = 6</span>
+        <span class="c1"># NUMPY = 7</span>
+        <span class="c1"># PARAMS = 8</span>
+        <span class="c1"># JSON = 9  # ?</span>
+        <span class="c1"># PATH = 10  # NOT A DIRECTORY?</span>
+        <span class="c1"># RAW = 11</span>
+        <span class="c1"># BIN = 11</span>
+        <span class="c1"># SHARED_OBJECT = 12  # Here: the parent tar archive</span>
+        <span class="c1"># ARCHIVE = 13</span>
+        <span class="k">if</span> <span class="n">to</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">:</span>  <span class="c1"># trivial (noop)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">ret</span>
+        <span class="k">if</span> <span class="n">to</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">]:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">to</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">ret</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">]:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">to</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">ret</span>
+        <span class="k">if</span> <span class="n">to</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">]:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">encoding</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"encoding"</span><span class="p">,</span> <span class="s2">"utf-8"</span><span class="p">)</span>
+                <span class="n">raw</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">to</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">ret</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">PATH</span><span class="p">]:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">raw</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="n">to</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">ret</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Missing conversion from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">to</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Should not be reached</span></div>
 </div>
 
 </pre></div>

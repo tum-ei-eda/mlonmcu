@@ -134,7 +134,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
 
-
 <span class="n">RequirementsByPieceType</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]</span>
 
 
@@ -156,7 +155,7 @@
                 <span class="s2">"jinja2"</span><span class="p">,</span>
                 <span class="s2">"mapfile_parser"</span><span class="p">,</span>
                 <span class="s2">"networkx"</span><span class="p">,</span>
-                <span class="s2">"numpy"</span><span class="p">,</span>
+                <span class="c1"># "numpy",</span>
                 <span class="s2">"openpyxl"</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
                 <span class="s2">"packaging"</span><span class="p">,</span>
                 <span class="s2">"pandas"</span><span class="p">,</span>
@@ -167,6 +166,21 @@
                 <span class="s2">"xdg"</span><span class="p">,</span>
                 <span class="s2">"xlsxwriter"</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
                 <span class="s2">"xlwt"</span><span class="p">,</span>  <span class="c1"># xlsx reports</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="c1"># Provide support for cfu_playground platform</span>
+    <span class="p">(</span>
+        <span class="s2">"cfu_playground"</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">"Requirements for using cfu_playground"</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">"construct"</span><span class="p">,</span>
+                <span class="s2">"psutil"</span><span class="p">,</span>
+                <span class="s2">"pyelftools"</span><span class="p">,</span>
+                <span class="s2">"pyyaml"</span><span class="p">,</span>
+                <span class="s2">"robotframework"</span><span class="p">,</span>
+                <span class="s2">"robotframework-retryfailed"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">),</span>
     <span class="p">),</span>
@@ -204,6 +218,15 @@
             <span class="p">[</span><span class="s2">"humanize"</span><span class="p">,</span> <span class="s2">"pyelftools"</span><span class="p">],</span>
         <span class="p">),</span>
     <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">"executorch"</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="s2">"Requirements for using executorch"</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">"executorch"</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
     <span class="p">(</span><span class="s2">"gvsoc_pulp"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"Requirements for gvsoc"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"PrettyTable"</span><span class="p">])),</span>
     <span class="p">(</span>
         <span class="s2">"iree"</span><span class="p">,</span>
@@ -213,6 +236,7 @@
                 <span class="s2">"iree-turbine"</span><span class="p">,</span>
                 <span class="s2">"tensorflow"</span><span class="p">,</span>
                 <span class="s2">"tflite"</span><span class="p">,</span>
+                <span class="s2">"tosa-converter-for-tflite"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">),</span>
     <span class="p">),</span>
@@ -237,6 +261,7 @@
         <span class="p">(</span>
             <span class="s2">"Requirements for using tflite"</span><span class="p">,</span>
             <span class="p">[</span>
+                <span class="s2">"tensorflow"</span><span class="p">,</span>
                 <span class="s2">"tflite"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">),</span>
@@ -263,7 +288,7 @@
                 <span class="s2">"decorator"</span><span class="p">,</span>
                 <span class="s2">"graphviz"</span><span class="p">,</span>  <span class="c1"># for relay visualization</span>
                 <span class="s2">"matplotlib"</span><span class="p">,</span>
-                <span class="s2">"numpy"</span><span class="p">,</span>
+                <span class="c1"># "numpy",</span>
                 <span class="s2">"psutil"</span><span class="p">,</span>
                 <span class="s2">"scipy"</span><span class="p">,</span>
                 <span class="s2">"synr"</span><span class="p">,</span>
@@ -272,7 +297,7 @@
             <span class="p">],</span>
         <span class="p">),</span>
     <span class="p">),</span>
-    <span class="p">(</span><span class="s2">"tvm-autotuning"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"Requirements for using tvm autotuning"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"xgboost"</span><span class="p">])),</span>  <span class="c1"># for autotuning on some target</span>
+    <span class="p">(</span><span class="s2">"tvm-autotuning"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"Requirements for using tvm autotuning"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"xgboost-cpu"</span><span class="p">])),</span>  <span class="c1"># for autotuning on some target</span>
     <span class="c1"># Provide support for visualize.</span>
     <span class="p">(</span>
         <span class="s2">"visualize"</span><span class="p">,</span>
@@ -315,9 +340,11 @@
     <span class="p">(</span><span class="s2">"click"</span><span class="p">,</span> <span class="s2">"&gt;=7.0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"cloudpickle"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"construct"</span><span class="p">,</span> <span class="s2">"==2.10.54"</span><span class="p">),</span>  <span class="c1"># From PR #213.</span>
+    <span class="c1"># ("construct", "==2.10.68"),  # cfu?</span>
     <span class="p">(</span><span class="s2">"cryptography"</span><span class="p">,</span> <span class="s2">"&gt;=2.1.4"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"decorator"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"ecdsa"</span><span class="p">,</span> <span class="s2">"&gt;=0.16.0"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"executorch"</span><span class="p">,</span> <span class="s2">"==1.1.0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"filelock"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"future"</span><span class="p">,</span> <span class="s2">"&gt;=0.15.2"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"gdbgui"</span><span class="p">,</span> <span class="s2">"==0.13.2.0"</span><span class="p">),</span>
@@ -330,33 +357,44 @@
     <span class="p">(</span><span class="s2">"kconfiglib"</span><span class="p">,</span> <span class="s2">"==13.7.1"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"matplotlib"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"networkx"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"numpy"</span><span class="p">,</span> <span class="s2">"&lt;2.0"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"onnx"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="c1"># ("numpy", "&lt;2.0; python_version &lt;= '3.8'"),</span>
+    <span class="c1"># ("numpy", "&gt;=2.0,&lt;2.1.0; python_version &gt;= '3.10'"),</span>
+    <span class="p">(</span><span class="s2">"onnx"</span><span class="p">,</span> <span class="s2">"==1.20.1"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"openpyxl"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"ortools"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"pandas"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"prettytable"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"psutil"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="c1"># ("psutil", "==5.9.3"),  # cfu?</span>
     <span class="p">(</span><span class="s2">"pyelftools"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="c1"># ("pyelftools", "==0.30"),  # cfu?</span>
     <span class="p">(</span><span class="s2">"pygdbmi"</span><span class="p">,</span> <span class="s2">"&lt;=0.9.0.2"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"pyparsing"</span><span class="p">,</span> <span class="s2">"&gt;=2.0.3,&lt;2.4.0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"pyserial"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"python-socketio"</span><span class="p">,</span> <span class="s2">"&lt;5"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"pyusb"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"pyyaml"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="c1"># ("pyyaml", "==6.0.*"),  # cfu?</span>
     <span class="p">(</span><span class="s2">"reedsolo"</span><span class="p">,</span> <span class="s2">"&gt;=1.5.3,&lt;=1.5.4"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"robotframework"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># cfu?</span>
+    <span class="c1"># ("robotframework", "==6.1"),  # cfu?</span>
+    <span class="p">(</span><span class="s2">"robotframework-retryfailed"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># cfu?</span>
+    <span class="c1"># ("robotframework-retryfailed", "==0.2.0"),  # cfu?</span>
     <span class="p">(</span><span class="s2">"scipy"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"synr"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="c1"># ("tensorflow", "~=2.13.0"),</span>
     <span class="p">(</span><span class="s2">"tensorflow"</span><span class="p">,</span> <span class="s2">"~=2.18.0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"tflite"</span><span class="p">,</span> <span class="s2">"&gt;=2.4.0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"tornado"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"tosa-converter-for-tflite"</span><span class="p">,</span> <span class="s2">"==2025.11.0"</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"typing_extensions"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"xdg"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">"xgboost"</span><span class="p">,</span> <span class="s2">"&gt;=1.7.0,&lt;2.0"</span><span class="p">),</span>
+    <span class="c1"># ("xgboost", "&gt;=1.7.0,&lt;2.0"),  # GPU-variant (500MB!)</span>
+    <span class="p">(</span><span class="s2">"xgboost-cpu"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"xlsxwriter"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">"xlwt"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
 <span class="p">]</span>
+
 
 <span class="c1">################################################################################</span>
 <span class="c1"># End of configuration options.</span>

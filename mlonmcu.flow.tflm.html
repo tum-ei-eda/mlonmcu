@@ -221,12 +221,12 @@
 <p>TFLM Framework specialization.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'optimized_kernel':</span> <span class="pre">None,</span> <span class="pre">'optimized_kernel_inc_dirs':</span> <span class="pre">[],</span> <span class="pre">'optimized_kernel_libs':</span> <span class="pre">[]}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'generate_tree':</span> <span class="pre">False,</span> <span class="pre">'optimized_kernel':</span> <span class="pre">None,</span> <span class="pre">'optimized_kernel_inc_dirs':</span> <span class="pre">[],</span> <span class="pre">'optimized_kernel_libs':</span> <span class="pre">[],</span> <span class="pre">'override_dir':</span> <span class="pre">None}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cmsisnn',</span> <span class="pre">'muriscvnn'}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.FEATURES" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cfu_wca',</span> <span class="pre">'cmsisnn',</span> <span class="pre">'muriscvnn'}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.FEATURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -237,6 +237,16 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.backends">
 <span class="sig-name descname"><span class="pre">backends</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'tflmc':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflm.backend.tflmc.TFLMCBackend'&gt;,</span> <span class="pre">'tflmi':</span> <span class="pre">&lt;class</span> <span class="pre">'mlonmcu.flow.tflm.backend.tflmi.TFLMIBackend'&gt;}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.backends" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.cfu_conv2d_idx_init">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cfu_conv2d_idx_init</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.cfu_conv2d_idx_init" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.generate_tree">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generate_tree</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.generate_tree" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -262,6 +272,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.optimized_kernel_libs">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">optimized_kernel_libs</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.optimized_kernel_libs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.flow.tflm.framework.TFLMFramework.override_dir">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">override_dir</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.framework.TFLMFramework.override_dir" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -363,7 +378,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.flow.tflm.TFLMIBackend.FEATURES">
-<span class="sig-name descname"><span class="pre">FEATURES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'debug_arena'}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.TFLMIBackend.FEATURES" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FEATURES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cfu_wca',</span> <span class="pre">'debug_arena'}</span></span><a class="headerlink" href="#mlonmcu.flow.tflm.TFLMIBackend.FEATURES" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

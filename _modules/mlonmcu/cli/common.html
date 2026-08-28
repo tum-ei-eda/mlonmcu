@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.cli.common &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.cli.common</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.cli.common</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_platforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_postprocesses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.feature.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_available_feature_names</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_level</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.helper.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_config</span><span class="p">,</span> <span class="n">parse_parallel_per_stage</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+<span class="n">NUM_GEN_ARGS</span> <span class="o">=</span> <span class="mi">9</span>
+
+
+<div class="viewcode-block" id="handle_logging_flags">
+<a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.handle_logging_flags">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_logging_flags</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"verbose"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"quiet"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"--verbose and --quiet can not be used at the same time"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="n">set_log_level</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+            <span class="n">set_log_level</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">set_log_level</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_flow_options">
+<a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_flow_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_flow_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">flow_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">"flow options"</span><span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
+        <span class="s2">"-t"</span><span class="p">,</span>
+        <span class="s2">"--target"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"TARGET"</span><span class="p">,</span>
+        <span class="c1"># choices=SUPPORTED_TARGETS.keys(),</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+        <span class="c1"># default=None,</span>
+        <span class="c1"># nargs=1,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"The target device/architecture (choices: See --list-targets)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
+        <span class="s2">"--list-targets"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the supported targets in the environment"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--list-platforms"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the supported platforms in the environment"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--list-frontends"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the registered frontends"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--list-frameworks"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the registered frameworks"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--list-backends"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the registered backends"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--list-features"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the registered features"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--list-postprocesses"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List the registered postprocesses"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="c1"># "-p",</span>
+        <span class="s2">"--platform"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"PLATFORM"</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">get_platforms</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Explicitly choose the platforms to use (choices: </span><span class="si">%(choices)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="c1"># "-p",</span>
+        <span class="s2">"--postprocess"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"POSTPROCESS"</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">get_postprocesses</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Choose the postprocesses to apply (choices: </span><span class="si">%(choices)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"-f"</span><span class="p">,</span>
+        <span class="s2">"--feature"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"FEATURE"</span><span class="p">,</span>
+        <span class="c1"># nargs=1,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">get_available_feature_names</span><span class="p">(),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Enabled features for target/framework/backend (choices: </span><span class="si">%(choices)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--initializer"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"INITIALIZER"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+        <span class="c1"># action="append",</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"List of yml files for initializing runs"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"-c"</span><span class="p">,</span>
+        <span class="s2">"--config"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"KEY=VALUE"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"Set a number of key-value pairs "</span>
+            <span class="s2">"(do not put spaces before or after the = sign). "</span>
+            <span class="s2">"If a value contains spaces, you should define "</span>
+            <span class="s2">"it with double quotes: "</span>
+            <span class="s1">'foo="this is a sentence". Note that '</span>
+            <span class="s2">"values are always treated as strings."</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_gen_args</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">""</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">"--feature-gen"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+                <span class="n">dest</span><span class="o">=</span><span class="s2">"feature_gen"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                <span class="n">metavar</span><span class="o">=</span><span class="s2">"FEATURES"</span><span class="p">,</span>
+                <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Generator statement for features. (Also available: --feature-gen2 ... --feature-gen</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">)"</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="k">else</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+                <span class="s2">"--config-gen"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+                <span class="n">dest</span><span class="o">=</span><span class="s2">"config_gen"</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">,</span>
+                <span class="n">metavar</span><span class="o">=</span><span class="s2">"KEY=VALUE"</span><span class="p">,</span>
+                <span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Generator statement for configs. (Also available: --config-gen2 ... --config-gen</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">)"</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="k">else</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="n">add_gen_args</span><span class="p">(</span><span class="n">flow_parser</span><span class="p">,</span> <span class="n">NUM_GEN_ARGS</span><span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--parallel"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"THREADS"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Use multiple threads to process runs in parallel (</span><span class="si">%(const)s</span><span class="s2"> if specified, else </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--parallel-per-stage"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"THREADS_PER_STAGE"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">parse_parallel_per_stage</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Specify max workers per stage. Syntax: --parallel-per-stage BUILD=4,RUN=8"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"-p"</span><span class="p">,</span>
+        <span class="s2">"--progress"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Display progress bar (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--noop"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Skip processing of runs, just initialize (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--resume"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Try to resume the latest session (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>  <span class="c1"># TODO: move to compile.py?</span>
+        <span class="s2">"-l"</span><span class="p">,</span>
+        <span class="s2">"--label"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"LABEL"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Label for the session (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">flow_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--dest"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"DEST"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Custom destination for session artifacts"</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_common_options">
+<a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_common_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_common_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"-v"</span><span class="p">,</span>
+        <span class="s2">"--verbose"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Print detailed messages for easier debugging (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"-q"</span><span class="p">,</span>
+        <span class="s2">"--quiet"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Reduce number of logging statements to a minimum (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--docker"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Execute run.py inside docker container (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_context_options">
+<a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_context_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_context_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">with_home</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">"context options"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">with_home</span><span class="p">:</span>
+        <span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MLONMCU_HOME"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">common</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">"-H"</span><span class="p">,</span>
+            <span class="s2">"--home"</span><span class="p">,</span>
+            <span class="s2">"--hint"</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">home</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"The path to the mlonmcu environment (overwriting $MLONMCU_HOME environment variable)"</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_model_options">
+<a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.add_model_options">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_model_options</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"models"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"model"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"*"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Model to process (optional when --initializer is used)"</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="kickoff_runs">
+<a class="viewcode-back" href="../../../mlonmcu.cli.html#mlonmcu.cli.common.kickoff_runs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kickoff_runs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># session.label = args.label</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">config_gen</span> <span class="o">=</span> <span class="n">extract_config</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="c1"># TODO: move into context/session</span>
+    <span class="n">per_stage</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">print_report</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="s2">"runs_per_stage"</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"runs_per_stage"</span><span class="p">]</span>
+        <span class="n">per_stage</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span> <span class="ow">and</span> <span class="s2">"runs_per_stage"</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"config"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"runs_per_stage"</span><span class="p">]</span>
+        <span class="n">per_stage</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="s2">"runs_per_stage"</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+        <span class="n">per_stage</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="s2">"runs_per_stage"</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"print_report"</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"print_report"</span><span class="p">]</span>
+        <span class="n">print_report</span> <span class="o">=</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+    <span class="k">elif</span> <span class="s2">"print_report"</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">:</span>
+        <span class="n">print_report</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="p">[</span><span class="s2">"print_report"</span><span class="p">])</span>
+    <span class="k">with</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">process_runs</span><span class="p">(</span>
+            <span class="n">until</span><span class="o">=</span><span class="n">until</span><span class="p">,</span>
+            <span class="n">per_stage</span><span class="o">=</span><span class="n">per_stage</span><span class="p">,</span>
+            <span class="n">print_report</span><span class="o">=</span><span class="n">print_report</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">parallel</span><span class="p">,</span>
+            <span class="n">num_workers_per_stage</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">parallel_per_stage</span><span class="p">,</span>
+            <span class="n">progress</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+            <span class="n">export</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">noop</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">noop</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"At least one error occured!"</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

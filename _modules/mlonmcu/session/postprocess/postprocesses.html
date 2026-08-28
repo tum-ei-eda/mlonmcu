@@ -71,6 +71,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../postprocess.html">mlonmcu.session.postprocess</a></li>
       <li class="breadcrumb-item active">mlonmcu.session.postprocess.postprocesses</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -114,6 +115,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.artifact</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artifact</span><span class="p">,</span> <span class="n">ArtifactFormat</span><span class="p">,</span> <span class="n">lookup_artifacts</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2dict</span><span class="p">,</span> <span class="n">str2bool</span><span class="p">,</span> <span class="n">str2list</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionPostprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.validate_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_validate_metrics</span><span class="p">,</span> <span class="n">parse_classify_metrics</span>
@@ -125,7 +127,7 @@
     <span class="n">unmangle_helper</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.dwarf</span><span class="w"> </span><span class="kn">import</span> <span class="n">analyze_dwarf</span>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">.db_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">push_session_to_mlonmcu_db</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -206,7 +208,7 @@
 
 <div class="viewcode-block" id="FilterColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.FilterColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">_filter_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">keep</span><span class="p">,</span> <span class="n">drop</span><span class="p">,</span> <span class="n">drop_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_const</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -272,7 +274,7 @@
 
 <div class="viewcode-block" id="RenameColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge</span><span class="p">:</span>
@@ -328,7 +330,7 @@
 
 <div class="viewcode-block" id="Features2ColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="k">if</span> <span class="s2">"Features"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">return</span>
@@ -383,7 +385,7 @@
 
 <div class="viewcode-block" id="Config2ColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="k">if</span> <span class="s2">"Config"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -520,12 +522,12 @@
 
 <div class="viewcode-block" id="MyPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MyPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""TODO"""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">features2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rename_cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filter_cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features2cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename_cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_cols</span><span class="o">.</span><span class="n">post_session</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">)</span></div>
 </div>
 
 
@@ -541,7 +543,7 @@
 
 <div class="viewcode-block" id="PassConfig2ColumnsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PassConfig2ColumnsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s2">"config_tvmaot.extra_pass_config"</span>
@@ -565,7 +567,7 @@
 
 <div class="viewcode-block" id="Bytes2kBPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Bytes2kBPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span>
         <span class="n">match_strs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ROM"</span><span class="p">,</span> <span class="s2">"RAM"</span><span class="p">]</span>
@@ -603,7 +605,7 @@
 
 <div class="viewcode-block" id="VisualizePostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.VisualizePostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1241,7 +1243,7 @@
 
 <div class="viewcode-block" id="CompareRowsPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.CompareRowsPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">pre_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span>
         <span class="n">main_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span>  <span class="c1"># metrics</span>
@@ -1317,7 +1319,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a run."""</span>
         <span class="n">platform</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">[</span><span class="s2">"Platform"</span><span class="p">]</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">"mlif"</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">dump_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span>
@@ -1374,7 +1376,7 @@
             <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">counts_csv</span> <span class="o">=</span> <span class="s2">"Instruction,Count,Probability</span><span class="se">\n</span><span class="s2">"</span>
         <span class="k">for</span> <span class="n">insn</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">insn</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="o">/</span><span class="n">total</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="n">counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">insn</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
         <span class="n">artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span><span class="s2">"dump_counts.csv"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">counts_csv</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
             <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">artifact</span><span class="p">)</span>
@@ -1667,7 +1669,7 @@
         <span class="k">for</span> <span class="n">ext</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cv_ext_counts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">cv_ext_counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="o">/</span><span class="n">total_counts</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="n">cv_ext_counts_csv</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_counts</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
         <span class="n">cv_ext_unique_counts_csv</span> <span class="o">=</span> <span class="s2">"Set,Used,Utilization</span><span class="se">\n</span><span class="s2">"</span>
         <span class="k">for</span> <span class="n">ext</span><span class="p">,</span> <span class="n">used</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cv_ext_unique_counts</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">if</span> <span class="n">used</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2186,7 +2188,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a run."""</span>
         <span class="n">platform</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">[</span><span class="s2">"Platform"</span><span class="p">]</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">"mlif"</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">platform</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">elf_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"generic_mlonmcu"</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">BIN</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2324,7 +2326,7 @@
 
 <div class="viewcode-block" id="StageTimesGanttPostprocess.post_session">
 <a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.StageTimesGanttPostprocess.post_session">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
         <span class="n">artifacts</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">content</span> <span class="o">=</span> <span class="s2">"""gantt</span>
@@ -2350,6 +2352,8 @@
             <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">for</span> <span class="n">stage</span><span class="p">,</span> <span class="n">times</span> <span class="ow">in</span> <span class="n">stage_times</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"start"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">start</span><span class="p">):</span>
+                    <span class="k">continue</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"end"</span><span class="p">)</span>
                 <span class="c1"># time_s = times.get("time_s")</span>
                 <span class="n">time_s</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2595,6 +2599,412 @@
                 <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">post_df</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">"Either to_file or to_df have to be true"</span>
         <span class="k">return</span> <span class="n">ret_artifacts</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Push2DBPostprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Push2DBPostprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Push2DBPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Push Session report and artifacts to MLonMCU DB."""</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"progress"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"session_artifacts"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"run_artifacts"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">progress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get progress property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">session_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get drop_nan property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"session_artifacts"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get run_artifacts property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"run_artifacts"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"push2db"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Push2DBPostprocess.post_session">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Push2DBPostprocess.post_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
+        <span class="c1"># Credentials are NOT passed via MLonMCU config!</span>
+        <span class="c1"># Please use environment vars to override:</span>
+        <span class="c1"># - POSTGRES_USER</span>
+        <span class="c1"># - POSTGRES_PASSWORD</span>
+        <span class="c1"># - POSTGRES_DB</span>
+        <span class="c1"># - POSTGRES_HOST</span>
+        <span class="c1"># - POSTGRES_PORT</span>
+        <span class="c1"># - S3_ENDPOINT</span>
+        <span class="c1"># - S3_KEY</span>
+        <span class="c1"># - S3_SECRET</span>
+        <span class="c1"># print("post_session")</span>
+        <span class="c1"># print("session_artifacts", artifacts)</span>
+        <span class="n">label_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">"label"</span><span class="p">,),</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">label_artifact</span> <span class="o">=</span> <span class="n">label_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="c1"># print("label_artifact", label_artifact)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">label_artifact</span><span class="o">.</span><span class="n">content</span>
+        <span class="c1"># print("label", label)</span>
+        <span class="n">timestamp_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">"timestamp"</span><span class="p">,),</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">timestamp_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">timestamp_artifact</span> <span class="o">=</span> <span class="n">timestamp_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">)</span>
+        <span class="c1"># print("timestamp_artifact", timestamp_artifact)</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp_artifact</span><span class="o">.</span><span class="n">content</span>
+        <span class="c1"># print("timestamp", timestamp)</span>
+        <span class="n">run_artifact_paths</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">session_artifact_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># TODO: use tuples to handle subs/subdirs!</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_artifacts</span><span class="p">:</span>
+            <span class="n">session_artifact_paths</span> <span class="o">=</span> <span class="p">[(</span><span class="n">artifact</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_artifacts</span><span class="p">:</span>
+            <span class="c1"># TODO receive via artifacts.yml?</span>
+            <span class="c1"># raise NotImplementedError("Run artifacts")</span>
+            <span class="n">label_file</span> <span class="o">=</span> <span class="n">label_artifact</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">sess_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">label_file</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+            <span class="n">runs_dir</span> <span class="o">=</span> <span class="n">sess_dir</span> <span class="o">/</span> <span class="s2">"runs"</span>
+            <span class="k">if</span> <span class="s2">"Run"</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">run_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">"Run"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">run_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"run_ids"</span><span class="p">,</span> <span class="n">run_ids</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
+                <span class="n">run_dir</span> <span class="o">=</span> <span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">run_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+                <span class="c1"># TODO: use artifacts.yml instead</span>
+                <span class="n">artifacts_yml</span> <span class="o">=</span> <span class="n">run_dir</span> <span class="o">/</span> <span class="s2">"artifacts.yml"</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">artifacts_yml</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">artifacts_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">artifact_data</span> <span class="ow">in</span> <span class="n">artifacts_data</span><span class="p">[</span><span class="s2">"artifacts"</span><span class="p">]:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">artifact_data</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">artifact_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"path"</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                    <span class="n">run_artifact_paths</span><span class="p">[</span><span class="n">run_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+        <span class="n">report_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">df</span>
+        <span class="k">if</span> <span class="s2">"Stages"</span> <span class="ow">in</span> <span class="n">report_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">run_stages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report_df</span><span class="p">[</span><span class="s2">"Stages"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">stages</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="n">run_stages</span><span class="p">)</span>
+            <span class="n">stages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stages</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span>
+        <span class="n">push_session_to_mlonmcu_db</span><span class="p">(</span>
+            <span class="n">report</span><span class="p">,</span>
+            <span class="n">session_artifacts</span><span class="o">=</span><span class="n">session_artifact_paths</span><span class="p">,</span>
+            <span class="n">run_artifacts</span><span class="o">=</span><span class="n">run_artifact_paths</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+            <span class="n">progress</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MergeAutoTvmRecordsPostprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MergeAutoTvmRecordsPostprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MergeAutoTvmRecordsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Collect all AutoTVM tuning logs to build combined tuning database."""</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"allow_empty"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get allow_empty property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"allow_empty"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"merge_autotvm_records"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MergeAutoTvmRecordsPostprocess.post_session">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MergeAutoTvmRecordsPostprocess.post_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>  <span class="c1"># TODO: receive all run artifacts via arg!</span>
+<span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
+        <span class="c1"># Workaround: look for run dirs relative to session...</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">label_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">"label"</span><span class="p">,),</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">label_file</span> <span class="o">=</span> <span class="n">label_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">sess_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">label_file</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">runs_dir</span> <span class="o">=</span> <span class="n">sess_dir</span> <span class="o">/</span> <span class="s2">"runs"</span>
+        <span class="k">if</span> <span class="s2">"Run"</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">run_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">"Run"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="c1"># print("run_ids", run_ids)</span>
+        <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
+            <span class="n">run_dir</span> <span class="o">=</span> <span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">run_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+            <span class="c1"># TODO: use artifacts.yml instead</span>
+            <span class="n">records_file</span> <span class="o">=</span> <span class="n">run_dir</span> <span class="o">/</span> <span class="s2">"tuning_results.log.txt"</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">records_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">records_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="c1"># print("len(contents)", len(contents))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_empty</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">combined_content</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">combined_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+            <span class="s2">"combined_tuning_results.log.txt"</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">combined_content</span><span class="p">,</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combined_artifact</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MergeMSDBsPostprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MergeMSDBsPostprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MergeMSDBsPostprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Build an unified MS database based on all tuning runs in the session."""</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"allow_empty"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"prune"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"print_outputs"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tvm.pythonpath"</span><span class="p">,</span> <span class="s2">"tvm.build_dir"</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get allow_empty property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"allow_empty"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get prune property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"prune"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get print_outputs property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"print_outputs"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get tvm.pythonpath property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.pythonpath"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get tvm.build_dir property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.build_dir"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"merge_ms_dbs"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MergeMSDBsPostprocess.post_session">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MergeMSDBsPostprocess.post_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>  <span class="c1"># TODO: receive all run artifacts via arg!</span>
+<span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
+        <span class="c1"># Workaround: look for run dirs relative to session...</span>
+        <span class="n">label_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">"label"</span><span class="p">,),</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">label_file</span> <span class="o">=</span> <span class="n">label_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">sess_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">label_file</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">runs_dir</span> <span class="o">=</span> <span class="n">sess_dir</span> <span class="o">/</span> <span class="s2">"runs"</span>
+        <span class="k">if</span> <span class="s2">"Run"</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">run_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">"Run"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">run_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="c1"># print("run_ids", run_ids)</span>
+        <span class="n">work_dir_archives</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">run_id</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
+            <span class="n">run_dir</span> <span class="o">=</span> <span class="n">runs_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">run_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+            <span class="c1"># TODO: use artifacts.yml instead</span>
+            <span class="n">archive_name</span> <span class="o">=</span> <span class="s2">"work_dir_pruned.tar"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prune</span> <span class="k">else</span> <span class="s2">"work_dir.tar"</span>
+            <span class="c1"># TODO: also prune after union...</span>
+            <span class="n">work_dir_archive</span> <span class="o">=</span> <span class="n">run_dir</span> <span class="o">/</span> <span class="n">archive_name</span>
+            <span class="k">if</span> <span class="n">work_dir_archive</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="n">work_dir_archives</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">work_dir_archive</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"len(work_dir_archives)"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">work_dir_archives</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">work_dir_archives</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_empty</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+            <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+            <span class="n">out_archive</span> <span class="o">=</span> <span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">"merged_ms_db.tar"</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.python_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_python_environment</span>
+
+            <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="n">tvm_configs_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">work_dir_archives</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"-o"</span><span class="p">,</span> <span class="n">out_archive</span><span class="p">]</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"tvm.meta_schedule.database.merge_dbs"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_archive</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+                <span class="n">raw</span> <span class="o">=</span> <span class="n">tar</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">merged_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+            <span class="s2">"merged_ms_db.tar"</span><span class="p">,</span>
+            <span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span>
+            <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">ARCHIVE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged_artifact</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PushMSDB2S3Postprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PushMSDB2S3Postprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PushMSDB2S3Postprocess</span><span class="p">(</span><span class="n">SessionPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Push Session MS DB to S3 Bucket. Needs merge_ms_dbs postprocess to run fist."""</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">SessionPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"s3_url"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"print_outputs"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"allow_empty"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"append"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"tvm.pythonpath"</span><span class="p">,</span> <span class="s2">"tvm.build_dir"</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"push_ms_db2s3"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get allow_empty property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"allow_empty"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">s3_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get run_artifacts property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"s3_url"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get prune property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"prune"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get print_outputs property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"print_outputs"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get append property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"append"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_pythonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get tvm.pythonpath property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.pythonpath"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tvm_build_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get tvm.build_dir property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"tvm.build_dir"</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PushMSDB2S3Postprocess.post_session">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.PushMSDB2S3Postprocess.post_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Called at the end of a session."""</span>
+        <span class="c1"># Credentials are NOT passed via MLonMCU config!</span>
+        <span class="c1"># Please use environment vars to override:</span>
+        <span class="c1"># - AWS_ACCESS_KEY_ID</span>
+        <span class="c1"># - AWS_SECRET_ACCESS_KEY</span>
+        <span class="c1"># print("post_session")</span>
+        <span class="c1"># print("session_artifacts", artifacts)</span>
+        <span class="n">merged_ms_db_artifact</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"merged_ms_db.tar"</span><span class="p">,</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">merged_ms_db_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_empty</span><span class="p">,</span> <span class="s2">"No merged MS DB artifacts found"</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">merged_ms_db_artifact</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">merged_ms_db_artifact</span> <span class="o">=</span> <span class="n">merged_ms_db_artifact</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># print("merged_ms_db_artifact", merged_ms_db_artifact)</span>
+        <span class="n">s3_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3_url</span>
+        <span class="c1"># print("s3_url", s3_url)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.flow.tvm.backend.python_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_python_environment</span>
+
+        <span class="n">env</span> <span class="o">=</span> <span class="n">prepare_python_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tvm_pythonpath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tvm_build_dir</span><span class="p">,</span> <span class="n">tvm_configs_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># args = [s3_url, str(merged_ms_db_artifact.path), "-o", s3_url]</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">merged_ms_db_artifact</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> <span class="s2">"-o"</span><span class="p">,</span> <span class="n">s3_url</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--append"</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">python</span><span class="p">(</span><span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"tvm.meta_schedule.database.merge_dbs"</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+        <span class="c1"># import boto3</span>
+        <span class="c1"># from urllib.parse import urlparse, parse_qs</span>
+        <span class="c1"># parsed = urlparse(s3_url)</span>
+        <span class="c1"># # print("parsed", parsed)</span>
+        <span class="c1"># bucket = parsed.netloc</span>
+        <span class="c1"># # print("self.bucket", self.bucket)</span>
+        <span class="c1"># prefix = parsed.path.lstrip("/")</span>
+        <span class="c1"># # print("self.prefix", self.prefix)</span>
+        <span class="c1"># query = parse_qs(parsed.query)</span>
+        <span class="c1"># # print("query", query)</span>
+
+        <span class="c1"># endpoint = query.get("endpoint", [None])[0]</span>
+        <span class="c1"># # print("endpoint", endpoint)</span>
+        <span class="c1"># region = query.get("region", ["us-east-1"])[0]</span>
+        <span class="c1"># # print("region", region)</span>
+        <span class="c1"># # session = boto3.Session()</span>
+        <span class="c1"># # creds = session.get_credentials()</span>
+        <span class="c1"># # print("Access key:", creds.access_key)</span>
+        <span class="c1"># # print("Secret key:", "SET" if creds.secret_key else None)</span>
+
+        <span class="c1"># s3 = boto3.client(</span>
+        <span class="c1">#     "s3",</span>
+        <span class="c1">#     region_name=region,</span>
+        <span class="c1">#     endpoint_url=endpoint,</span>
+        <span class="c1"># )</span>
+        <span class="c1"># with tempfile.TemporaryDirectory() as tmp_dir:</span>
+        <span class="c1">#     tmp_dir = Path(tmp_dir)</span>
+        <span class="c1"># path_workload = tmp_dir / "database_workload.json"</span>
+        <span class="c1"># path_records = tmp_dir / "database_tuning_record.json"</span>
+        <span class="c1"># s3.upload_file(path_workload, bucket, f"{prefix}/database_workload.json")</span>
+        <span class="c1"># self.s3.upload_file(self.path_records, self.bucket, self._key("database_tuning_record.json"))</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
 </div>
 
 </pre></div>

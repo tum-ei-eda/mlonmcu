@@ -1,0 +1,847 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.context.context &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.context.context</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.context.context</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">"""Definition if the contextmanager for mlonmcu environments."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">filelock</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ask_user</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span><span class="p">,</span> <span class="n">set_log_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchivedRun</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskCache</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_extensions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.context.read_write_filelock</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadFileLock</span><span class="p">,</span> <span class="n">WriteFileLock</span><span class="p">,</span> <span class="n">RWLockTimeout</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.environment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">UserEnvironment</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.list</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environments_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">get_plugins_dir</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="lookup_environment">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.lookup_environment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup_environment</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Helper function to automatically find a suitable environment.</span>
+
+<span class="sd">    This function is used if neither a name nor a path of the environment was specified by the user.</span>
+<span class="sd">    The lookup follows a predefined order:</span>
+<span class="sd">    - Check current working directory</span>
+<span class="sd">    - Check MLONMCU_HOME environment variable</span>
+<span class="sd">    - Default environment for current user</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    environment : Path</span>
+<span class="sd">        The environment (if the lookup was successful).</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Starting lookup for mlonmcu environment"</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"First checking in local working directory"</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">"environment.yml"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Found environment directory: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Next checking environment variables"</span><span class="p">)</span>
+    <span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"MLONMCU_HOME"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">home</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s2">"environment.yml"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Found environment directory: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Looking for default environment for current user"</span><span class="p">)</span>
+    <span class="n">envs_list</span> <span class="o">=</span> <span class="n">get_environments_map</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">"default"</span> <span class="ow">in</span> <span class="n">envs_list</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s2">"path"</span> <span class="ow">in</span> <span class="n">envs_list</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">envs_list</span><span class="p">[</span><span class="s2">"default"</span><span class="p">][</span><span class="s2">"path"</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"environment.yml"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Found environment directory: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="get_environment_by_path">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_environment_by_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_environment_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Utility to find an environment file using a supplied path.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str/Path</span>
+<span class="sd">        The path of the environment (or its YAML file).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Environment:</span>
+<span class="sd">        The environment (if the lookup was successful).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="s2">"environment.yml"</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="get_environment_by_name">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_environment_by_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_environment_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Environment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Utility to find an environment file using a supplied name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The name/alias if the environment.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Environment :</span>
+<span class="sd">        The environment (if the lookup was successful).</span>
+<span class="sd">    """</span>
+    <span class="c1"># TODO: parse the ini file instead</span>
+    <span class="n">environments_dir</span> <span class="o">=</span> <span class="n">get_environments_dir</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">environments_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">environments_dir</span> <span class="o">/</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">get_environment_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="get_ids">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ids</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get a sorted list of ids for sessions/runs found in the given directory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory : Path</span>
+<span class="sd">        Directory where the sessions/runs are stored.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    list</span>
+<span class="sd">        List of integers representing the session numbers. Empty list if directory does not exist.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span> <span class="o">/</span> <span class="n">o</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">directory</span> <span class="o">/</span> <span class="n">o</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>  <span class="c1"># TODO: sort by session datetime?</span></div>
+
+
+
+<div class="viewcode-block" id="lookup_session_label">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.lookup_session_label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup_session_label</span><span class="p">(</span><span class="n">session_labels</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">sess_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">session_labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">session</span> <span class="o">==</span> <span class="n">sess_idx</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">label</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="get_session_labels">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.get_session_labels">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_session_labels</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">Environment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="c1"># TODO: write session label to sess dir instead!</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">results_dir</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"results"</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+    <span class="c1"># TODO: handle excel reports was well?</span>
+    <span class="n">csv_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.csv"</span><span class="p">))</span>
+    <span class="n">max_csv_files</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_csv_files</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">"Too many (</span><span class="si">%d</span><span class="s2">) CSV files in results directory. Reading only </span><span class="si">%d</span><span class="s2"> reports..."</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">csv_files</span><span class="p">),</span> <span class="n">max_csv_files</span>
+        <span class="p">)</span>
+        <span class="n">csv_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">csv_files</span><span class="p">))[</span><span class="o">-</span><span class="n">max_csv_files</span><span class="p">:]</span>
+    <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">csv_file</span><span class="o">.</span><span class="n">stem</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">report_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">pd</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">EmptyDataError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># not all reports will have session col</span>
+        <span class="k">if</span> <span class="s2">"Session"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">report_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">report_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">sessions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">report_df</span><span class="p">[</span><span class="s2">"Session"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sessions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">sessions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ret</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">session</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+
+<div class="viewcode-block" id="load_recent_sessions">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.load_recent_sessions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_recent_sessions</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Get a list of recent sessions for the environment.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env : Environment</span>
+<span class="sd">        MLonMCU environment which should be used.</span>
+<span class="sd">    count : int</span>
+<span class="sd">        Maximum number of sessions to return. Collect all if None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list:</span>
+<span class="sd">        The resulting list of session objects.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="n">sessions</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">sessions_directory</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"temp"</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">"sessions"</span>
+
+    <span class="c1"># TODO: in the future also strs (custom or hash) should be allowed</span>
+    <span class="n">session_ids</span> <span class="o">=</span> <span class="n">get_ids</span><span class="p">(</span><span class="n">sessions_directory</span><span class="p">)</span>
+
+    <span class="n">session_labels</span> <span class="o">=</span> <span class="n">get_session_labels</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">session_ids</span><span class="p">:</span>
+        <span class="n">session_directory</span> <span class="o">=</span> <span class="n">sessions_directory</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+        <span class="c1"># session_file = sessions_directory / str(sid) / "session.txt"</span>
+        <span class="c1"># if not session_file.is_file():</span>
+        <span class="c1">#     continue</span>
+        <span class="n">runs_directory</span> <span class="o">=</span> <span class="n">session_directory</span> <span class="o">/</span> <span class="s2">"runs"</span>
+        <span class="n">run_ids</span> <span class="o">=</span> <span class="n">get_ids</span><span class="p">(</span><span class="n">runs_directory</span><span class="p">)</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
+            <span class="n">run_directory</span> <span class="o">=</span> <span class="n">runs_directory</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+            <span class="c1"># run_file = run_directory / "run.txt"</span>
+            <span class="c1"># run = Run.from_file(run_file)  # TODO: actually implement run restore</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">ArchivedRun</span><span class="o">.</span><span class="n">from_dir</span><span class="p">(</span><span class="n">run_directory</span><span class="p">)</span>
+            <span class="c1"># run.archived = True</span>
+            <span class="c1"># run.dir = run_directory</span>
+            <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">lookup_session_label</span><span class="p">(</span><span class="n">session_labels</span><span class="p">,</span> <span class="n">sid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">"unknown"</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">sid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">archived</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">session_directory</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">runs</span> <span class="o">=</span> <span class="n">runs</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">session_directory</span>
+        <span class="n">sessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sessions</span></div>
+
+
+
+<div class="viewcode-block" id="resolve_environment_file">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.resolve_environment_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_environment_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Utility to find the environment file by a optionally given name or path.</span>
+
+<span class="sd">    The lookup is performed in a predefined order:</span>
+<span class="sd">    - If specified: name/path</span>
+<span class="sd">    - Else: see lookup_environment()</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Hint for the environment name provided by the user.</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Hint for the environment path provided by the user.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path :</span>
+<span class="sd">        Path to the found environment.yml (if sucessful)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"mlonmcu environments are specified either by name OR path"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">env_file</span> <span class="o">=</span> <span class="n">get_environment_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">path</span><span class="p">:</span>
+        <span class="n">env_file</span> <span class="o">=</span> <span class="n">get_environment_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">env_file</span> <span class="o">=</span> <span class="n">lookup_environment</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">env_file</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Lookup for mlonmcu environment was not successful."</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">env_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Environment not found!"</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">env_file</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="setup_logging">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.setup_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_logging</span><span class="p">(</span><span class="n">environment</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Check logging settings for environment and initialize the logs directory.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    environment : Environment</span>
+<span class="sd">        The MLonMCU Environment where paths, repos, features,... are configured.</span>
+<span class="sd">    """</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">defaults</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">log_level</span>
+    <span class="n">to_file</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">log_to_file</span>
+    <span class="n">rotate</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">log_rotate</span>
+    <span class="k">if</span> <span class="n">to_file</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s2">"logs"</span> <span class="ow">in</span> <span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="s2">"To use a logfile, define a logging directory in your environment.yml"</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"logs"</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">directory</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">directory</span> <span class="o">/</span> <span class="s2">"mlonmcu.log"</span>
+        <span class="n">set_log_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="n">rotate</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MlonMcuContext">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlonMcuContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Contextmanager for mlonmcu environments.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    environment : Environment</span>
+<span class="sd">        The MLonMCU Environment where paths, repos, features,... are configured.</span>
+<span class="sd">    deps_lock : str ("read" or "write" default "write")</span>
+<span class="sd">        Read means that the program does not write to the ./deps folder in the env folder.</span>
+<span class="sd">    sessions : list</span>
+<span class="sd">        List of sessions for the current environment.</span>
+<span class="sd">    session_idx : list</span>
+<span class="sd">        A counter for determining the next session index.</span>
+<span class="sd">    cache : TaskCache</span>
+<span class="sd">        The cache where paths of installed dependencies can be looked up.</span>
+
+
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">deps_lock</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"write"</span><span class="p">):</span>
+        <span class="n">env_file</span> <span class="o">=</span> <span class="n">resolve_environment_file</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">env_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Unable to find a MLonMCU environment"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">UserEnvironment</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">env_file</span><span class="p">)</span>  <span class="c1"># TODO: move to __enter__</span>
+        <span class="n">actual_home</span> <span class="o">=</span> <span class="n">env_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">specified_home</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">home</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">specified_home</span> <span class="o">!=</span> <span class="n">actual_home</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"The HOME directory </span><span class="si">%s</span><span class="s2"> specified in environment.yml does not match workspace directory </span><span class="si">%s</span><span class="s2">!"</span><span class="p">,</span>
+                <span class="n">specified_home</span><span class="p">,</span>
+                <span class="n">actual_home</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">setup_logging</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">deps_lock</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"read"</span><span class="p">,</span> <span class="s2">"write"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">deps_lock</span> <span class="o">==</span> <span class="s2">"read"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span> <span class="o">=</span> <span class="n">ReadFileLock</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="s2">".deps_lock"</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">deps_lock</span> <span class="o">==</span> <span class="s2">"write"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span> <span class="o">=</span> <span class="n">WriteFileLock</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="s2">".deps_lock"</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latest_session_link_lock</span> <span class="o">=</span> <span class="n">filelock</span><span class="o">.</span><span class="n">FileLock</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">home</span><span class="p">,</span> <span class="s2">".latest_session_link_lock"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Reusing lock for latest session link here...</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_session_link_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">filelock</span><span class="o">.</span><span class="n">Timeout</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Lock on current context could not be aquired."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="n">load_recent_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">cleanup_auto</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Cleaning up old sessions automaticaly"</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_sessions</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">defaults</span><span class="o">.</span><span class="n">cleanup_keep</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="n">load_recent_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Restored </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span><span class="si">}</span><span class="s2"> recent sessions"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">TaskCache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MlonMcuContext.create_session">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.create_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latest_session_link_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">filelock</span><span class="o">.</span><span class="n">Timeout</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Lock on current context could not be aquired."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
+<span class="w">                </span><span class="sd">"""Create a new session in the current context."""</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="n">load_recent_sessions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Creating a new session with idx </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="n">temp_directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"temp"</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+                <span class="n">sessions_directory</span> <span class="o">=</span> <span class="n">temp_directory</span> <span class="o">/</span> <span class="s2">"sessions"</span>
+                <span class="n">sessions_directory</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">session_dir</span> <span class="o">=</span> <span class="n">sessions_directory</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">dest</span> <span class="k">if</span> <span class="n">dest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">session_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">=</span> <span class="n">idx</span>
+                <span class="c1"># TODO: move this to a helper function</span>
+                <span class="n">session_link</span> <span class="o">=</span> <span class="n">sessions_directory</span> <span class="o">/</span> <span class="s2">"latest"</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">session_link</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">session_link</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">session_dir</span><span class="p">,</span> <span class="n">session_link</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">session</span></div>
+
+
+<div class="viewcode-block" id="MlonMcuContext.load_cache">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.load_cache">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""If available load the cache.ini file in the deps directory"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"deps"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                    <span class="n">deps_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"deps"</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+                    <span class="k">if</span> <span class="n">deps_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                        <span class="n">cache_file</span> <span class="o">=</span> <span class="n">deps_dir</span> <span class="o">/</span> <span class="s2">"cache.ini"</span>
+                        <span class="k">if</span> <span class="n">cache_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading environment cache from file"</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Successfully initialized cache"</span><span class="p">)</span>
+                            <span class="k">return</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No cache found in deps directory"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MlonMcuContext.load_extensions">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.load_extensions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""If available load the extensions.py scripts in the plugin directories"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">:</span>
+            <span class="n">allow_extensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"allow_extensions"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_extensions</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="c1"># TODO: check vars.enable_extensions before!</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">"Unknown"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">plugins_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="n">extensions_file</span> <span class="o">=</span> <span class="n">plugins_dir</span> <span class="o">/</span> <span class="s2">"extensions.py"</span>
+                <span class="k">if</span> <span class="n">extensions_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading extensions.py (</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+                    <span class="n">process_extensions</span><span class="p">(</span><span class="n">extensions_file</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">hint</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="c1"># global (user)</span>
+        <span class="n">plugins_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_plugins_dir</span><span class="p">())</span>
+        <span class="n">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">"User"</span><span class="p">)</span>
+
+        <span class="c1"># local (environment)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"plugins"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                    <span class="n">plugins_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">"plugins"</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+                    <span class="n">_load</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">"Environment"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MlonMcuContext.get_session">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.get_session">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get an active session if available, else create a new one.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Session:</span>
+<span class="sd">            An active session</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">resume</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"There is no recent session available"</span>
+            <span class="c1"># session = self.sessions[-1]</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"The latest session can not be resumed"</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_session</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="n">dest</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Enter MlonMcuContext"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">is_locked</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"Lock on current context could not be acquired. "</span>
+                <span class="sa">f</span><span class="s2">"Current context is locked via: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Locking context"</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">RWLockTimeout</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">"Lock on current context could not be aquired. "</span>
+                    <span class="sa">f</span><span class="s2">"Current context is locked via: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="MlonMcuContext.cleanup">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.cleanup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Clean up the context before leaving the context by closing all active sessions"""</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Cleaning up active sessions"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return true if all sessions in the context are inactive"""</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">active</span> <span class="k">for</span> <span class="n">sess</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span>
+
+    <span class="c1"># WARNING: this will remove the actual session directories!</span>
+<div class="viewcode-block" id="MlonMcuContext.cleanup_sessions">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.cleanup_sessions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_sessions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Utility to cleanup old sessions from the disk."""</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_clean</span>
+        <span class="n">all_sessions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span>
+        <span class="n">to_keep</span> <span class="o">=</span> <span class="n">all_sessions</span><span class="p">[</span><span class="o">-</span><span class="n">keep</span><span class="p">:]</span> <span class="k">if</span> <span class="n">keep</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[:</span><span class="o">-</span><span class="n">keep</span><span class="p">]</span> <span class="k">if</span> <span class="n">keep</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_remove</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">temp_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">"temp"</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
+            <span class="n">sessions_dir</span> <span class="o">=</span> <span class="n">temp_dir</span> <span class="o">/</span> <span class="s2">"sessions"</span>
+            <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"The following </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> sessions will be removed from the environments temp directory (</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">):"</span>
+                <span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">]))</span>
+
+            <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">"Are your sure?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="ow">not</span> <span class="n">interactive</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+                    <span class="n">session_dir</span> <span class="o">=</span> <span class="n">sessions_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">session_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                        <span class="c1"># Skip / Dir does not exist</span>
+                        <span class="k">continue</span>
+                    <span class="n">session_lock</span> <span class="o">=</span> <span class="n">session_dir</span> <span class="o">/</span> <span class="s2">".lock"</span>
+                    <span class="k">if</span> <span class="n">session_lock</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                        <span class="c1"># Skip / Session locked (unclean or in progress)</span>
+                        <span class="k">continue</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">session_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span> <span class="o">=</span> <span class="n">to_keep</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">session_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Done"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">"Aborted"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"No sessions selected for removal"</span><span class="p">)</span></div>
+
+        <span class="c1"># We currently do not support rewirting the indices to start from scratch again as this</span>
+        <span class="c1"># would lead to inconsitencies with the path in the report/cmake build dirtectory</span>
+
+<div class="viewcode-block" id="MlonMcuContext.get_sessions_runs_idx">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.get_sessions_runs_idx">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sessions_runs_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sessions_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
+            <span class="n">session_runs_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="k">if</span> <span class="n">run</span><span class="o">.</span><span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">)]</span>
+            <span class="n">sessions_dict</span><span class="p">[</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">session_runs_idx</span>
+        <span class="k">return</span> <span class="n">sessions_dict</span></div>
+
+
+<div class="viewcode-block" id="MlonMcuContext.print_summary">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.print_summary">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">print_sessions</span><span class="p">(</span><span class="n">sessions_runs</span><span class="p">,</span> <span class="n">with_runs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"Sessions:"</span><span class="p">)</span>
+            <span class="n">session_index_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">session</span><span class="o">.</span><span class="n">idx</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">session</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)}</span>
+            <span class="k">for</span> <span class="n">session</span><span class="p">,</span> <span class="n">runs</span> <span class="ow">in</span> <span class="n">sessions_runs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">with_runs</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">" ("</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="n">session_index_map</span><span class="p">[</span><span class="n">session</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="s2">")"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">with_runs</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">" [runs: "</span> <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">run</span><span class="p">)</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">])</span> <span class="o">+</span> <span class="s2">"]"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Context Summary</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">sessions_runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sessions_runs_idx</span><span class="p">()</span>
+        <span class="n">print_sessions</span><span class="p">(</span><span class="n">sessions_runs</span><span class="p">,</span> <span class="n">with_runs</span><span class="o">=</span><span class="n">runs</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MlonMcuContext.lookup">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.lookup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">user_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">vars</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">user_vars</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">user_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MlonMcuContext.export">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">session_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dest</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span> <span class="ow">or</span> <span class="p">(</span><span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_populated</span><span class="p">(</span><span class="n">dest</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">"Destination is already populated! Overwrite?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"Aborted"</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="n">dest_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">session_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">session_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">session_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">session_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Can not select all sessions, fall back to latest session</span>
+            <span class="n">session_ids</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">run_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Can only choose runs of a single session"</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">find_session</span><span class="p">(</span><span class="n">session_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">session_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">session_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">session_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">session_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">session_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">idx</span> <span class="o">==</span> <span class="n">session_id</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">session</span>
+
+            <span class="k">if</span> <span class="n">session_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">session_label</span><span class="p">:</span>
+                        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Found multiple matches for label </span><span class="si">%s</span><span class="s2">. Picking most recent session!"</span><span class="p">,</span> <span class="n">session_label</span><span class="p">)</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">ret</span>
+
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdirname</span><span class="p">:</span>
+            <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">)</span>
+            <span class="n">sessions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">session_labels</span><span class="p">:</span>
+                <span class="n">session</span> <span class="o">=</span> <span class="n">find_session</span><span class="p">(</span><span class="n">session_label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Lookup for session label </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> failed. Available:"</span><span class="p">,</span>
+                        <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">])),</span>
+                    <span class="p">)</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">sessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">session_ids</span><span class="p">:</span>
+                <span class="n">session</span> <span class="o">=</span> <span class="n">find_session</span><span class="p">(</span><span class="n">session_id</span><span class="o">=</span><span class="n">sid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Lookup for session id </span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2"> failed. Available:"</span><span class="p">,</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">])</span>
+                    <span class="p">)</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">sessions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">sessions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sessions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">base</span> <span class="o">=</span> <span class="n">tmpdir</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">base</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">run_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">src</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">dir</span> <span class="o">/</span> <span class="s2">"runs"</span>
+                    <span class="n">report_path</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">dir</span> <span class="o">/</span> <span class="s2">"report.csv"</span>  <span class="c1"># TODO: only works for csv</span>
+                    <span class="c1"># TODO: use artifacts from restored session instead</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span>
+                        <span class="n">src</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">symlinks</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>  <span class="c1"># Warning: dirs_exist_ok=True requires python 3.8+</span>
+                    <span class="k">if</span> <span class="n">report_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">report_path</span><span class="p">,</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">"report.csv"</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">base</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">"runs"</span>
+                    <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">run_ids</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">rid</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">):</span>
+                            <span class="nb">print</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">"Lookup for run id </span><span class="si">{</span><span class="n">rid</span><span class="si">}</span><span class="s2"> failed in session </span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">. Available:"</span><span class="p">,</span>
+                                <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">))]),</span>
+                            <span class="p">)</span>
+                            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">run</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="n">rid</span><span class="p">]</span>  <span class="c1"># TODO: We currently do not check if the index actually exists</span>
+                        <span class="k">assert</span> <span class="n">run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">run_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">session_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">run_base</span> <span class="o">=</span> <span class="n">tmpdir</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">run_base</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+                        <span class="n">src</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">dir</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span>
+                            <span class="n">src</span><span class="p">,</span> <span class="n">run_base</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>  <span class="c1"># Warning: dirs_exist_ok=True requires python 3.8+</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">".zip"</span><span class="p">,</span> <span class="s2">".tar"</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Creating archive: </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">make_archive</span><span class="p">(</span><span class="n">dest_</span><span class="p">,</span> <span class="n">ext</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">tmpdirname</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Creating directory: </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dest</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>  <span class="c1"># Cleanup old contents</span>
+                <span class="c1"># dest.mkdir(exist_ok=True)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tmpdirname</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dest</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Done"</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Exit MlonMcuContext"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Releasing lock on context"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="MlonMcuContext.get_read_only_context">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.get_read_only_context">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_read_only_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MlonMcuContextMinimal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MlonMcuContextMinimal">
+<a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContextMinimal">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlonMcuContextMinimal</span><span class="p">:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">MlonMcuContext</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">environment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">cache</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

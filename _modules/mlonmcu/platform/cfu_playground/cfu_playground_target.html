@@ -1,0 +1,449 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.platform.cfu_playground.cfu_playground_target &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.platform.cfu_playground.cfu_playground_target</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.platform.cfu_playground.cfu_playground_target</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+
+<span class="c1"># from mlonmcu.target.target import Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.riscv.riscv</span><span class="w"> </span><span class="kn">import</span> <span class="n">RISCVTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.bench</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_bench_metrics</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="n">CFU_PLAYGROUND_PLATFORM_TARGET_REGISTRY</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="register_cfu_playground_platform_target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.register_cfu_playground_platform_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_cfu_playground_platform_target</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># global CFU_PLAYGROUND_PLATFORM_TARGET_REGISTRY</span>
+
+    <span class="k">if</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">CFU_PLAYGROUND_PLATFORM_TARGET_REGISTRY</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">override</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CFU Pplayground platform target </span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> is already registered"</span><span class="p">)</span>
+    <span class="n">CFU_PLAYGROUND_PLATFORM_TARGET_REGISTRY</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span></div>
+
+
+
+<div class="viewcode-block" id="get_cfu_playground_platform_targets">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.get_cfu_playground_platform_targets">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cfu_playground_platform_targets</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">CFU_PLAYGROUND_PLATFORM_TARGET_REGISTRY</span></div>
+
+
+
+<div class="viewcode-block" id="TemplateCFUPlaygroundPlatformTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.TemplateCFUPlaygroundPlatformTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TemplateCFUPlaygroundPlatformTarget</span><span class="p">(</span><span class="n">RISCVTarget</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FullCFUPlaygroundPlatformTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FullCFUPlaygroundPlatformTarget</span><span class="p">(</span><span class="n">TemplateCFUPlaygroundPlatformTarget</span><span class="p">):</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"verbose"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"rtl_sim"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: move to target feature?</span>
+        <span class="s2">"cpu_variant"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"fpu"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>  <span class="c1"># TODO: use</span>
+        <span class="s2">"compressed"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: use</span>
+        <span class="s2">"atomic"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: use</span>
+    <span class="p">}</span>
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"tvm.build_dir"</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cpu_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"cpu_variant"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rtl_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"rtl_sim"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_renode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rtl_sim</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FullRTLCFUPlaygroundPlatformTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FullRTLCFUPlaygroundPlatformTarget</span><span class="p">(</span><span class="n">FullCFUPlaygroundPlatformTarget</span><span class="p">):</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FullCFUPlaygroundPlatformTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"rtl_sim"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="n">register_cfu_playground_platform_target</span><span class="p">(</span><span class="s2">"cfu_full"</span><span class="p">,</span> <span class="n">FullCFUPlaygroundPlatformTarget</span><span class="p">)</span>
+<span class="n">register_cfu_playground_platform_target</span><span class="p">(</span><span class="s2">"cfu_full_rtl"</span><span class="p">,</span> <span class="n">FullRTLCFUPlaygroundPlatformTarget</span><span class="p">)</span>
+
+
+<span class="c1"># class DefaultCFUPlaygroundTarget(Target):</span>
+<span class="c1">#     DEFAULTS = {</span>
+<span class="c1">#         **Target.DEFAULTS,</span>
+<span class="c1">#         "xlen": 32,</span>
+<span class="c1">#         "extensions": ["i", "m", "c"],</span>
+<span class="c1">#         "fpu": "none",</span>
+<span class="c1">#         "arch": None,</span>
+<span class="c1">#         "abi": None,</span>
+<span class="c1">#         "attr": "",</span>
+<span class="c1">#     }</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def xlen(self):</span>
+<span class="c1">#         return int(self.config["xlen"])</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def extensions(self):</span>
+<span class="c1">#         exts = self.config.get("extensions", []).copy()</span>
+<span class="c1">#         if not isinstance(exts, list):</span>
+<span class="c1">#             exts = exts.split(",")</span>
+<span class="c1">#         if "g" not in exts:</span>
+<span class="c1">#             required = []</span>
+<span class="c1">#             if self.fpu == "double":</span>
+<span class="c1">#                 required.append("d")</span>
+<span class="c1">#                 required.append("f")</span>
+<span class="c1">#             if self.fpu == "single":</span>
+<span class="c1">#                 required.append("f")</span>
+<span class="c1">#             for ext in required:</span>
+<span class="c1">#                 if ext not in exts:</span>
+<span class="c1">#                     exts.append(ext)</span>
+<span class="c1">#         return exts</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def arch(self):</span>
+<span class="c1">#         temp = self.config["arch"]  # TODO: allow underscores and versions</span>
+<span class="c1">#         if temp:</span>
+<span class="c1">#             return temp</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             exts_str = join_extensions(sort_extensions_canonical(self.extensions, lower=True))</span>
+<span class="c1">#             return f"rv{self.xlen}{exts_str}"</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def abi(self):</span>
+<span class="c1">#         temp = self.config["abi"]</span>
+<span class="c1">#         if temp:</span>
+<span class="c1">#             return temp</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             if self.xlen == 32:</span>
+<span class="c1">#                 temp = "ilp32"</span>
+<span class="c1">#             elif self.xlen == 64:</span>
+<span class="c1">#                 temp = "lp64"</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 raise RuntimeError(f"Invalid xlen: {self.xlen}")</span>
+<span class="c1">#             if "d" in self.extensions or "g" in self.extensions:</span>
+<span class="c1">#                 temp += "d"</span>
+<span class="c1">#             elif "f" in self.extensions:</span>
+<span class="c1">#                 temp += "f"</span>
+<span class="c1">#             return temp</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def attr(self):</span>
+<span class="c1">#         attrs = str(self.config["attr"]).split(",")</span>
+<span class="c1">#         if len(attrs) == 1 and len(attrs[0]) == 0:</span>
+<span class="c1">#             attrs = []</span>
+<span class="c1">#         for ext in sort_extensions_canonical(self.extensions, lower=True, unpack=True):</span>
+<span class="c1">#             attrs.append(f"+{ext}")</span>
+<span class="c1">#         attrs = list(set(attrs))</span>
+<span class="c1">#         return ",".join(attrs)</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def fpu(self):</span>
+<span class="c1">#         value = self.config["fpu"]</span>
+<span class="c1">#         if value is None or not value:</span>
+<span class="c1">#             value = "none"</span>
+<span class="c1">#         assert value in ["none", "single", "double"]</span>
+<span class="c1">#         return value</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def count(self):</span>
+<span class="c1">#         value = int(self.config["count"])</span>
+<span class="c1">#         return value</span>
+<span class="c1">#</span>
+<span class="c1">#     @property</span>
+<span class="c1">#     def has_fpu(self):</span>
+<span class="c1">#         return self.fpu != "none"</span>
+<span class="c1">#</span>
+<span class="c1">#     def get_platform_defs(self, platform):</span>
+<span class="c1">#         ret = super().get_platform_defs(platform)</span>
+<span class="c1">#         ret["ESP32C3_PERF_COUNT"] = self.count</span>
+<span class="c1">#         return ret</span>
+<span class="c1">#</span>
+<span class="c1">#     def get_target_system(self):</span>
+<span class="c1">#         return "esp32c3"</span>
+<span class="c1">#</span>
+<span class="c1">#     def get_arch(self):</span>
+<span class="c1">#         return "riscv"</span>
+<span class="c1">#</span>
+<span class="c1">#     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):</span>
+<span class="c1">#         ret = {}</span>
+<span class="c1">#         if backend in SUPPORTED_TVM_BACKENDS:</span>
+<span class="c1">#             ret.update(</span>
+<span class="c1">#                 {</span>
+<span class="c1">#                     "target_device": "riscv_cpu",</span>
+<span class="c1">#                     "target_march": self.arch,</span>
+<span class="c1">#                     "target_model": "esp32c3_devkit",</span>
+<span class="c1">#                     "target_mtriple": "riscv32-esp-elf",</span>
+<span class="c1">#                     "target_mabi": self.abi,</span>
+<span class="c1">#                     "target_mattr": self.attr,</span>
+<span class="c1">#                     "target_mcpu": "esp32c3",</span>
+<span class="c1">#                 }</span>
+<span class="c1">#             )</span>
+<span class="c1">#             if optimized_schedules:</span>
+<span class="c1">#                 ret.update(</span>
+<span class="c1">#                     {</span>
+<span class="c1">#                         "target_device": "riscv_cpu",</span>
+<span class="c1">#                     }</span>
+<span class="c1">#                 )</span>
+<span class="c1">#         return ret</span>
+<span class="c1">#</span>
+<span class="c1">#     def add_backend_config(self, backend, config, optimized_layouts=False, optimized_schedules=False):</span>
+<span class="c1">#         new = filter_none(</span>
+<span class="c1">#             self.get_backend_config(</span>
+<span class="c1">#                 backend, optimized_layouts=optimized_layouts, optimized_schedules=optimized_schedules</span>
+<span class="c1">#             )</span>
+<span class="c1">#         )</span>
+<span class="c1">#</span>
+<span class="c1">#         # only allow overwriting non-none values</span>
+<span class="c1">#         # to support accepting user-vars</span>
+<span class="c1">#         new = {key: value for key, value in new.items() if config.get(key, None) is None}</span>
+<span class="c1">#         config.update(new)</span>
+
+
+<div class="viewcode-block" id="create_cfu_playground_platform_target">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.create_cfu_playground_platform_target">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_cfu_playground_platform_target</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">platform</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">RISCVTarget</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">CFUPlaygroundPlatformTarget</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+        <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">base</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+            <span class="s2">"timeout_sec"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># disabled</span>
+            <span class="c1"># "port": None,</span>
+            <span class="c1"># "baud": None,</span>
+        <span class="p">}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="o">=</span> <span class="n">platform</span>
+
+        <span class="nd">@property</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">timeout_sec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"timeout_sec"</span><span class="p">])</span>
+
+        <span class="c1"># @property</span>
+        <span class="c1"># def port(self):</span>
+        <span class="c1">#     return self.config["port"]</span>
+
+        <span class="c1"># @property</span>
+        <span class="c1"># def baud(self):</span>
+        <span class="c1">#     return self.config["baud"]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"""Use target to execute a executable with given arguments"""</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Program arguments are not supported for real hardware devices"</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"CFU Playground targets need a platform to execute programs"</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout_sec</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+            <span class="c1"># CFU Playground actually wants a project directory, but we only get the elf now. As a workaround we</span>
+            <span class="c1"># assume the elf is right in the build directory inside the project directory</span>
+
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+            <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">exit_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"MLONMCU EXIT: (.*)"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exit_match</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">exit_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">exit_code</span>
+
+        <span class="c1"># def parse_stdout(self, out):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+                <span class="c1"># TODO: before or after?</span>
+                <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">code</span>
+                <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">temp</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                    <span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span>
+                <span class="p">)</span>
+            <span class="c1"># metrics = Metrics()</span>
+            <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># TODO: get from handler?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="n">exit_code</span><span class="p">)</span>
+            <span class="c1"># cycles, time_us = self.parse_stdout(out)</span>
+            <span class="n">mips</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">metrics</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s2">"Total Instructions"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">metrics</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s2">"Simulation Time [s]"</span><span class="p">):</span>
+                <span class="n">sim_insns</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Total Instructions"</span><span class="p">)</span>
+                <span class="n">sim_time</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Simulation Time [s]"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sim_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">mips</span> <span class="o">=</span> <span class="p">(</span><span class="n">sim_insns</span> <span class="o">/</span> <span class="n">sim_time</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
+                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"MIPS"</span><span class="p">,</span> <span class="n">mips</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># metrics = Metrics()</span>
+            <span class="c1"># metrics.add("Cycles", cycles)</span>
+            <span class="c1"># time_s = time_us / 1e6 if time_us is not None else time_us</span>
+            <span class="c1"># metrics.add("Runtime [s]", time_s)</span>
+
+            <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">"unkwown"</span>
+
+    <span class="k">return</span> <span class="n">CFUPlaygroundPlatformTarget</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

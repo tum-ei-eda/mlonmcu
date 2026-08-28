@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.target.riscv.ara_rtl &mdash; ML on MCU 0.10.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mlonmcu.target.riscv.ara_rtl</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.target.riscv.ara_rtl</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2022 TUM Department of Electrical and Computer Engineering.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of MLonMCU.</span>
+<span class="c1"># See https://github.com/tum-ei-eda/mlonmcu.git for further info.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">"""MLonMCU ARA Target definitions"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
+
+<span class="c1"># import time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">str2bool</span>
+
+<span class="c1"># from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">execute</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.target.bench</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_bench_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.riscv_vext_target</span><span class="w"> </span><span class="kn">import</span> <span class="n">RVVTarget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_extensions</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="AraRtlTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AraRtlTarget</span><span class="p">(</span><span class="n">RVVTarget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""TODO"""</span>
+
+    <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">FEATURES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"log_instrs"</span><span class="p">,</span> <span class="s2">"vext"</span><span class="p">}</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RVVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"xlen"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="s2">"nr_lanes"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">"vlen"</span><span class="p">:</span> <span class="mi">4096</span><span class="p">,</span>  <span class="c1"># default value for hardware compilation, will be overwritten by -c vext.vlen</span>
+        <span class="s2">"enable_vext"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"vext_spec"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"embedded_vext"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"elen"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="s2">"num_threads"</span><span class="p">:</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
+        <span class="s2">"limit_cycles"</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span>
+        <span class="s2">"ara.src_dir"</span><span class="p">,</span>  <span class="c1"># for the bsp package</span>
+        <span class="s2">"spike.install_dir"</span><span class="p">,</span>  <span class="c1"># for dpi-lib</span>
+        <span class="s2">"verilator.install_dir"</span><span class="p">,</span>  <span class="c1"># for dpi-lib</span>
+    <span class="p">}</span>
+
+    <span class="n">OPTIONAL</span> <span class="o">=</span> <span class="n">RVVTarget</span><span class="o">.</span><span class="n">OPTIONAL</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"questasim.install_dir"</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"ara_rtl"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"xlen"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">64</span><span class="p">,</span> <span class="s1">'ARA target must has xlen equal 64, try "-c ara.xlen=64"'</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ara_apps_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"ara.src_dir"</span><span class="p">])</span> <span class="o">/</span> <span class="s2">"apps"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ara_hardware_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"ara.src_dir"</span><span class="p">])</span> <span class="o">/</span> <span class="s2">"hardware"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spike_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"spike.install_dir"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">verilator_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"verilator.install_dir"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">questasim_install_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"questasim.install_dir"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nr_lanes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"nr_lanes"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vlen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"vlen"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">limit_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"limit_cycles"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enable_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"enable_vext"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vext_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"vext_spec"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">embedded_vext</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"embedded_vext"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">elen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"elen"</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">extensions</span>
+        <span class="k">return</span> <span class="n">update_extensions</span><span class="p">(</span>
+            <span class="n">exts</span><span class="p">,</span>
+            <span class="n">gcc_major_version</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gcc_major_version</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_threads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"num_threads"</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AraRtlTarget.prepare_simulator">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.prepare_simulator">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_simulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># populate the ara verilator testbench directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">questasim_install_dir</span><span class="p">:</span>
+            <span class="n">path_before</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">"PATH"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">questasim_install_dir</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">path_before</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ROOT_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_hardware_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"RISCV_ISA_SIM_INSTALL_DIR=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">spike_install_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"VERILATOR_INCLUDE=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">verilator_install_dir</span><span class="si">}</span><span class="s2">/share/verilator/include/vltstd/"</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"nr_lanes=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_lanes</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"vlen=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vlen</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"buildpath=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">compile_verilator_tb_ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
+            <span class="s2">"make"</span><span class="p">,</span>
+            <span class="s2">"compile"</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_hardware_dir</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">compile_verilator_tb_ret</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.exec">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.exec">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Use target to execute an executable with given arguments"""</span>
+        <span class="c1"># run simulation</span>
+        <span class="c1"># to add trace: https://github.com/pulp-platform/ara/blob/main/hardware/Makefile#L201</span>
+        <span class="n">ara_verilator_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">limit_cycles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit_cycles</span>
+        <span class="k">if</span> <span class="n">limit_cycles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ara_verilator_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"-c"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">limit_cycles</span><span class="p">)])</span>
+        <span class="n">ara_verilator_args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"-l"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"ram,</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">"</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+        <span class="n">vsim_args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"-c"</span><span class="p">,</span>
+            <span class="s2">"+UVM_NO_RELNOTES"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"+PRELOAD=</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"-sv_lib"</span><span class="p">,</span>
+            <span class="s2">"work-dpi/ara_dpi"</span><span class="p">,</span>
+            <span class="s2">"-work"</span><span class="p">,</span>
+            <span class="s2">"work"</span><span class="p">,</span>
+            <span class="s2">"-voptargs=+acc"</span><span class="p">,</span>
+            <span class="s2">"-suppress"</span><span class="p">,</span>
+            <span class="s2">"vsim-3009"</span><span class="p">,</span>
+            <span class="s2">"-suppress"</span><span class="p">,</span>
+            <span class="s2">"vopt-7033"</span><span class="p">,</span>
+            <span class="s2">"-suppress"</span><span class="p">,</span>
+            <span class="s2">"vopt-8386"</span><span class="p">,</span>
+            <span class="s2">"work.ara_tb"</span><span class="p">,</span>
+            <span class="s2">"-do"</span><span class="p">,</span>
+            <span class="s2">"run -a"</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">simulation_ret</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span>
+            <span class="s2">"vsim"</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">vsim_args</span><span class="p">,</span>
+            <span class="c1"># env=env,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">simulation_ret</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.parse_exit">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_exit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="n">exit_code</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exit_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"Simulation timeout of"</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">exit_code</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">exit_code</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.parse_stdout">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.parse_stdout">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_stdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">add_bench_metrics</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">target_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Expected output looks like this:</span>
+
+<span class="sd">        Simulation statistics</span>
+<span class="sd">        =====================</span>
+<span class="sd">        Executed cycles:  5e437</span>
+<span class="sd">        Wallclock time:   150.173 s</span>
+<span class="sd">        Simulation speed: 2571.05 cycles/s (2.57105 kHz)</span>
+<span class="sd">        """</span>
+        <span class="n">sim_insns</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"Executed cycles:\s+([0-9a-f]+)"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sim_insns</span><span class="p">:</span>
+            <span class="n">sim_insns</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sim_insns</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"Simulated Instructions"</span><span class="p">,</span> <span class="n">sim_insns</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">wall</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"Wallclock time:\s+(\d*.?\d*)\ss"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wall</span><span class="p">:</span>
+            <span class="n">wall</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wall</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"Wallclock time"</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">speed</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"Simulation speed: (\d*\.?\d*) cycles\/s"</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">speed</span><span class="p">:</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">speed</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"MIPS"</span><span class="p">,</span> <span class="n">speed</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.get_metrics">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_metrics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_build_dir</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prepare_simulator</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prepare_simulator</span><span class="p">(</span>
+                    <span class="n">elf</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                    <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span>
+                    <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">handle_exit</span><span class="o">=</span><span class="n">handle_exit</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_exit</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="c1"># TODO: before or after?</span>
+            <span class="k">if</span> <span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">code</span>
+            <span class="k">if</span> <span class="n">handle_exit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">handle_exit</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">temp</span>
+
+        <span class="c1"># simulation_start = time.time()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                <span class="n">elf</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span>
+            <span class="p">)</span>
+        <span class="c1"># simulation_end = time.time()</span>
+        <span class="n">exit_code</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">Metrics</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">exit_code</span><span class="o">=</span><span class="n">exit_code</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.get_target_system">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_target_system">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># return self.name</span>
+        <span class="k">return</span> <span class="s2">"ara"</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.get_platform_defs">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_platform_defs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="c1"># ret["RISCV_ARCH"] = "rv32imcxpulpv3"</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"XLEN"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xlen</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"RISCV_ABI"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abi</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"ARA_APPS_DIR"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ara_apps_dir</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"MLONMCU_ARA_NR_LANES"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr_lanes</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"MLONMCU_ARA_VLEN"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vlen</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"CMAKE_VERBOSE_MAKEFILE"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"BOOL=OFF"</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="AraRtlTarget.get_backend_config">
+<a class="viewcode-back" href="../../../../mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara_rtl.AraRtlTarget.get_backend_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_backend_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_backend_config</span><span class="p">(</span>
+            <span class="n">backend</span><span class="p">,</span> <span class="n">optimized_layouts</span><span class="o">=</span><span class="n">optimized_layouts</span><span class="p">,</span> <span class="n">optimized_schedules</span><span class="o">=</span><span class="n">optimized_schedules</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">cli</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">AraRtlTarget</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

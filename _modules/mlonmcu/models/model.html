@@ -71,6 +71,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../models.html">mlonmcu.models</a></li>
       <li class="breadcrumb-item active">mlonmcu.models.model</li>
       <li class="wy-breadcrumbs-aside">
       </li>
@@ -143,7 +144,12 @@
     <span class="n">PADDLE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pdmodel"</span><span class="p">])</span>
     <span class="n">TEXT</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="p">[</span><span class="s2">"txt"</span><span class="p">])</span>
     <span class="n">MLIR</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="p">[</span><span class="s2">"mlir"</span><span class="p">])</span>
-    <span class="n">SAVED_MODEL</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="p">[</span><span class="s2">""</span><span class="p">])</span>  <span class="c1"># tf</span></div>
+    <span class="n">SAVED_MODEL</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="p">[</span><span class="s2">""</span><span class="p">])</span>  <span class="c1"># tf</span>
+    <span class="n">PTE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pte"</span><span class="p">])</span>
+    <span class="n">TORCH_PICKLE</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pkl"</span><span class="p">,</span> <span class="s2">"pickle"</span><span class="p">])</span>
+    <span class="n">TORCH_EXPORTED</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="p">[</span><span class="s2">"pt"</span><span class="p">,</span> <span class="s2">"pth"</span><span class="p">])</span>
+    <span class="n">TORCH_PYTHON</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="p">[</span><span class="s2">"py"</span><span class="p">])</span>
+    <span class="n">MLF</span> <span class="o">=</span> <span class="n">ModelFormat</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="p">[</span><span class="s2">"tar"</span><span class="p">])</span></div>
 
 
 
@@ -284,11 +290,12 @@
         <span class="s2">"params_path"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="n">ModelFormats</span><span class="o">.</span><span class="n">TFLITE</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">alt</span><span class="o">=</span><span class="n">alt</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes</span> <span class="o">=</span> <span class="n">classes</span> <span class="k">if</span> <span class="n">classes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="n">formats</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">formats</span> <span class="o">=</span> <span class="p">[</span><span class="n">formats</span><span class="p">]</span>
@@ -428,7 +435,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.MultiBenchProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_BENCHMARK"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
@@ -477,7 +484,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchIoTProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_scale_factor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">"EMBENCH_IOT_GLOBAL_SCALE_FACTOR"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_scale_factor</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -503,7 +510,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.EmbenchDSPProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_snr_check</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">"EMBENCH_DSP_NO_SNR_CHECK"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_snr_check</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -614,7 +621,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.MathisProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"MATHIS_TEST"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"MATHIS_NARGS"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nargs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"MATHIS_ELEM_SIZE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elem_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -632,7 +639,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.CoremarkProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"COREMARK_ITERATIONS"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
@@ -646,7 +653,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.DhrystoneProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"DHRYSTONE_ITERATIONS"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10000</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
@@ -671,7 +678,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.OpenASIPProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"crc"</span><span class="p">:</span>
                 <span class="n">ret</span><span class="p">[</span><span class="s2">"OPENASIP_CRC_MODE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crc_mode</span>
         <span class="k">return</span> <span class="n">ret</span></div>
@@ -715,7 +722,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.ISSBenchProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"ISS_BENCH_ITERATIONS"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_iter</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"ISS_BENCH_DTYPE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"mem_heavy"</span><span class="p">:</span>
@@ -744,7 +751,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.CryptoBenchProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CRYPTO_BENCH_VERBOSE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
         <span class="k">return</span> <span class="n">ret</span></div>
 </div>
@@ -795,7 +802,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.CmsisDSPProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CMSIS_DSP_SIZE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CMSIS_DSP_BATCH_SIZE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CMSIS_DSP_NUMBER"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number</span>
@@ -847,7 +854,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.models.html#mlonmcu.models.model.CmsisNNProgram.get_platform_defs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">platform</span> <span class="o">==</span> <span class="s2">"mlif"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">platform</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"mlif"</span><span class="p">,</span> <span class="s2">"mlif_litex"</span><span class="p">]:</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CMSIS_NN_SIZE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CMSIS_NN_BATCH_SIZE"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
             <span class="n">ret</span><span class="p">[</span><span class="s2">"CMSIS_NN_NUMBER"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number</span>

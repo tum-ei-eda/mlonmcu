@@ -44,6 +44,7 @@ from mlonmcu.flow.iree.backend.ireellvmc_inline import IREELLVMCInlineBackend
 
 from mlonmcu.flow.emx.backend import EMXBackend
 from mlonmcu.flow.executorch.backend import ExecutorchBackend
+from mlonmcu.flow.onnx.backend.onnx2c import Onnx2CBackend
 
 SUPPORTED_FRAMEWORKS = {}
 SUPPORTED_BACKENDS = {}
@@ -147,4 +148,5 @@ register_backend("executorch", ExecutorchBackend, framework="executorch")
 SUPPORTED_EXECUTORCH_BACKENDS.update(get_backends("executorch"))
 
 register_backend("none", NoneBackend, framework="none")
+register_backend("onnx2c", Onnx2CBackend, framework="none")
 SUPPORTED_NONE_BACKENDS.update(get_backends("none"))

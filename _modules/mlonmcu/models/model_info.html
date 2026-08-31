@@ -363,11 +363,11 @@
     <span class="n">input_tensors</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">output_tensors</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="n">input_tensors_strs</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"%[a-zA-Z0-9_]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]"</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+    <span class="n">input_tensors_strs</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"%[^\s:,]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]"</span><span class="p">)</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
         <span class="n">line</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">input_tensors_str</span> <span class="ow">in</span> <span class="n">input_tensors_strs</span><span class="p">:</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]"</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"%([^\s:,]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]"</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
             <span class="n">input_tensors_str</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>

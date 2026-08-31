@@ -253,11 +253,11 @@ def parse_relay_main(line):
     input_tensors = []
     output_tensors = []
 
-    input_tensors_strs = re.compile(r"%[a-zA-Z0-9_]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
+    input_tensors_strs = re.compile(r"%[^\s:,]+\s?: Tensor\[\((?:\d+)(?:,\s*\d+)*\), (?:[a-zA-Z0-9_]+)\]").findall(
         line
     )
     for input_tensors_str in input_tensors_strs:
-        res = re.compile(r"%([a-zA-Z0-9_]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(
+        res = re.compile(r"%([^\s:,]+)\s?: Tensor\[\(([\di]+(?:, [\di]+)*)\), ([a-zA-Z0-9_]+)\]").match(
             input_tensors_str
         )
         assert res is not None

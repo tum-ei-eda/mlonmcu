@@ -18,7 +18,7 @@
 ##
 ARG ENABLE_CMAKE="false"
 
-FROM debian:bullseye-slim AS cmake-install
+FROM debian:bookworm-slim AS cmake-install
 ARG CMAKE_REPO="https://github.com/Kitware/CMake"
 ARG CMAKE_VERSION="3.22.2"
 ARG CMAKE_TARGET="Linux-x86_64"
@@ -48,7 +48,7 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && rm ./cmake.sh ; \
     fi
 
-FROM debian:bullseye-slim AS mlonmcu-ci
+FROM debian:bookworm-slim AS mlonmcu-ci
 
 COPY --from=cmake-install /opt/tools/cmake/ /opt/tools/cmake/
 ENV PATH="/opt/tools/cmake/bin:${PATH}"

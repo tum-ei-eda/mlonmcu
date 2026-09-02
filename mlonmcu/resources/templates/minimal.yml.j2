@@ -36,10 +36,15 @@ repos:
     url: "https://github.com/PhilippvK/tflite_micro_compiler.git"
     ref: 0e4b533a7a9e8ad30cf81fd24c77d12639431615
   tvm:
-    url: "https://github.com/apache/tvm.git"
-    ref: 76b9ce9b1f7d2b7e64b4b9c9d456a02b8a010473
+    url: "https://github.com/PhilippvK/tvm.git"
+    ref: develop_v0.18.0_clean
     options:
       recursive: true
+      submodules:
+        - 3rdparty/dlpack
+        - 3rdparty/dmlc-core
+        - 3rdparty/libbacktrace
+        - 3rdparty/rang
   utvm_staticrt_codegen:
     url: "https://github.com/tum-ei-eda/utvm_staticrt_codegen.git"
     ref: 1b296f1efcc28671ee21ccbe86a81b968db8b1e5
@@ -63,7 +68,7 @@ repos:
     ref: 21c549c7fdd4f92fb5a16e98212fb9b4df2ab672
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 99624237110838fb564f2e6fce838f1962744635
+    ref: 63a97515b0eeec80b2bb401c21959ad5ba8d23b2
   espidf:
     url: "https://github.com/espressif/esp-idf.git"
     ref: release/v4.4
@@ -228,9 +233,9 @@ vars:
   allow_extensions: false
   # tvm.make_tool: "ninja"
   runs_per_stage: true
-  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
-  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
-  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_22.1.1/clang+llvm-22.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
+  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
   cmake.use_system: true
   llvm.use_system: true
   boost.use_system: true

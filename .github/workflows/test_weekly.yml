@@ -73,7 +73,7 @@ jobs:
           sudo apt update
           sudo apt -qq install -y --no-install-recommends  g++ libboost-all-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler git-lfs libcurl4-openssl-dev
           sudo apt -qq install -y ninja-build
-          sudo apt remove clang-11* llvm-11*
+          # sudo apt remove clang-11* llvm-11*
       - name: Initialize Virtualenv
         run: |
           python -m pip install --upgrade pip setuptools

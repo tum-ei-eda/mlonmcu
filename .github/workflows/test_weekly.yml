@@ -148,5 +148,7 @@ jobs:
           shell: bash
           run: |-
             python3 -m pip install --upgrade pip setuptools
-            pip3 install -r ".[dev]"
+            cd /home/runner/work/mlonmcu/mlonmcu
+            ls
+            pip install -e ".[dev]"
             python3 -m pytest --run-slow --run-user-context ${{ matrix.config.path }} -rs -s -v

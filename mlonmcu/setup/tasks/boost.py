@@ -19,6 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import shutil
+from pathlib import Path
 import multiprocessing
 
 from mlonmcu.setup.task import TaskType
@@ -134,5 +135,6 @@ def clean_boost(
 ):
     """Cleanup boost src dir."""
     boostSrcDir = context.cache["boost.src_dir"]
-    shutil.rmtree(boostSrcDir)
+    if Path(boostSrcDir).is_dir():
+        shutil.rmtree(boostSrcDir)
     del context.cache["boost.src_dir"]

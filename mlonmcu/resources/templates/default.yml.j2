@@ -63,10 +63,12 @@ repos:
     ref: TODO
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+    # ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+    ref: 4ffd6ba860f4190ceac2716fa3c2cf139e85538f
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+    # ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+    ref: 9c61d29846d8521d9487a57739330f9682d5b542
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
     ref: a75f01746df18bb5b929dfb8dc6c9407fac3a0f3
@@ -322,6 +324,12 @@ vars:
   riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
   riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gcv_ilp32d.tar.xz"
   riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
+  spike.legacy: false
+  spike_pk.legacy: false
+  spike_bm.legacy: false
+  spike_rv32.legacy: false
+  spike_rv32_min.legacy: false
+  spike_rv64.legacy: false
 flags:
   tflmc.exe:
   - x86

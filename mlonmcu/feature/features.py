@@ -330,7 +330,8 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         if self.mattr:
             cmsisnn_target_details["mattr"] = self.mattr
         if self.debug_last_error is not None:
-            cmsisnn_target_details["debug_last_error"] = self.debug_last_error
+            # TVM_ATTR_FIELD does not differentiate between bool and int...
+            cmsisnn_target_details["debug_last_error"] = int(self.debug_last_error)
         extra_target_details["cmsis-nn"] = cmsisnn_target_details
 
         config[f"{backend}.extra_target_details"] = extra_target_details
@@ -428,7 +429,8 @@ class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
         if self.mattr:
             cmsisnn_target_details["mattr"] = self.mattr
         if self.debug_last_error is not None:
-            cmsisnn_target_details["debug_last_error"] = self.debug_last_error
+            # TVM_ATTR_FIELD does not differentiate between bool and int...
+            cmsisnn_target_details["debug_last_error"] = int(self.debug_last_error)
         extra_target_details["cmsis-nn"] = cmsisnn_target_details
 
         config[f"{backend}.extra_target_details"] = extra_target_details

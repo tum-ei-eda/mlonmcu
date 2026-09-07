@@ -301,8 +301,8 @@
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="s2">"c"</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">+=</span> <span class="p">[</span>
-            <span class="c1"># *["--target-c-constants-byte-alignment", str(alignment_bytes)],</span>
-            <span class="c1"># *["--target-c-workspace-byte-alignment", str(alignment_bytes)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--target-c-constants-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
+            <span class="o">*</span><span class="p">[</span><span class="s2">"--target-c-workspace-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
             <span class="o">*</span><span class="p">[</span><span class="s2">"--executor-aot-constant-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
             <span class="o">*</span><span class="p">[</span><span class="s2">"--executor-aot-workspace-byte-alignment"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">alignment_bytes</span><span class="p">)],</span>
         <span class="p">]</span>

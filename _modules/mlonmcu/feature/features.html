@@ -425,7 +425,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mattr</span><span class="p">:</span>
             <span class="n">cmsisnn_target_details</span><span class="p">[</span><span class="s2">"mattr"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mattr</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_last_error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmsisnn_target_details</span><span class="p">[</span><span class="s2">"debug_last_error"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_last_error</span>
+            <span class="c1"># TVM_ATTR_FIELD does not differentiate between bool and int...</span>
+            <span class="n">cmsisnn_target_details</span><span class="p">[</span><span class="s2">"debug_last_error"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_last_error</span><span class="p">)</span>
         <span class="n">extra_target_details</span><span class="p">[</span><span class="s2">"cmsis-nn"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmsisnn_target_details</span>
 
         <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_target_details"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_target_details</span>
@@ -523,7 +524,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mattr</span><span class="p">:</span>
             <span class="n">cmsisnn_target_details</span><span class="p">[</span><span class="s2">"mattr"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mattr</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_last_error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmsisnn_target_details</span><span class="p">[</span><span class="s2">"debug_last_error"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug_last_error</span>
+            <span class="c1"># TVM_ATTR_FIELD does not differentiate between bool and int...</span>
+            <span class="n">cmsisnn_target_details</span><span class="p">[</span><span class="s2">"debug_last_error"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_last_error</span><span class="p">)</span>
         <span class="n">extra_target_details</span><span class="p">[</span><span class="s2">"cmsis-nn"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmsisnn_target_details</span>
 
         <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">.extra_target_details"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_target_details</span>

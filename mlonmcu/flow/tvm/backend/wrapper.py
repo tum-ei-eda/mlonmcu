@@ -538,6 +538,11 @@ void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
     mlonmcu_exit(1);
 }
 
+TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)
+{
+    return 0;
+}
+
 int TVMWrap_Init()
 {
 """

@@ -470,6 +470,7 @@ def validate_checksum(path: Path, checksum: str, mode: str = "auto", allow_missm
         if mode_ is not None:
             assert mode == mode_, "Checksum mode missmatch"
     mode_lookup = {
+        "sha1": hashlib.sha1,
         "sha256": hashlib.sha256,
         "md5": hashlib.md5,
     }

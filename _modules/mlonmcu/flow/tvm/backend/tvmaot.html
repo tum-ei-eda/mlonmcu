@@ -128,6 +128,7 @@
         <span class="s2">"arena_size"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Determined automatically</span>
         <span class="s2">"unpacked_api"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">"alignment_bytes"</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="s2">"minimal_runtime"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"tvmaot"</span>
@@ -157,6 +158,11 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">debug_arena</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"debug_arena"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minimal_runtime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"minimal_runtime"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -218,12 +224,21 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">mlf_module_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
                 <span class="n">api</span><span class="o">=</span><span class="s2">"c"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unpacked_api</span> <span class="k">else</span> <span class="s2">"packed"</span><span class="p">,</span>
                 <span class="n">debug_arena</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug_arena</span><span class="p">,</span>
+                <span class="n">minimal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minimal_runtime</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">"aot_wrapper.c"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">wrapper_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
             <span class="n">header_src</span> <span class="o">=</span> <span class="n">generate_wrapper_header</span><span class="p">()</span>
             <span class="n">artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Artifact</span><span class="p">(</span><span class="s2">"tvm_wrapper.h"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">header_src</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">SOURCE</span><span class="p">))</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"Workspace Size [B]"</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">artifacts</span><span class="p">},</span> <span class="p">{</span><span class="s2">"default"</span><span class="p">:</span> <span class="n">metrics</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="TVMAOTBackend.get_platform_defs">
+<a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.TVMAOTBackend.get_platform_defs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">platform</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_platform_defs</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">[</span><span class="s2">"TVM_MINIMAL_RUNTIME"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimal_runtime</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
 </div>
 
 

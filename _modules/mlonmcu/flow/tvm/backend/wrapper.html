@@ -498,7 +498,7 @@
 
 <div class="viewcode-block" id="generate_tvmaot_wrapper">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.generate_tvmaot_wrapper">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">"c"</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">"c"</span><span class="p">,</span> <span class="n">debug_arena</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">minimal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">modPrefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tvmgen_</span><span class="si">{</span><span class="n">mod_name</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">writeTensors</span><span class="p">(</span><span class="n">in_tensors</span><span class="p">,</span> <span class="n">out_tensors</span><span class="p">,</span> <span class="n">modPrefix</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
@@ -652,6 +652,21 @@
 <span class="s2">{</span>
 <span class="s2">    mlonmcu_exit(1);</span>
 <span class="s2">}</span>
+<span class="s2">"""</span>
+    <span class="k">if</span> <span class="n">minimal</span><span class="p">:</span>
+        <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">"""</span>
+<span class="s2">TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)</span>
+<span class="s2">{</span>
+<span class="s2">    return 0;</span>
+<span class="s2">}</span>
+
+<span class="s2">void TVMAPISetLastError(const char *msg)</span>
+<span class="s2">{</span>
+<span class="s2">    // fprintf(stderr, "TVM error: </span><span class="si">%s</span><span class="se">\\</span><span class="s2">n", msg);</span>
+<span class="s2">    mlonmcu_printf("TVM error: </span><span class="si">%s</span><span class="se">\\</span><span class="s2">n", msg);</span>
+<span class="s2">}</span>
+<span class="s2">"""</span>
+    <span class="n">mainCode</span> <span class="o">+=</span> <span class="s2">"""</span>
 
 <span class="s2">int TVMWrap_Init()</span>
 <span class="s2">{</span>
@@ -762,9 +777,9 @@
 
 <div class="viewcode-block" id="write_tvmaot_wrapper">
 <a class="viewcode-back" href="../../../../../mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.wrapper.write_tvmaot_wrapper">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write_tvmaot_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">"c"</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_tvmaot_wrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="s2">"c"</span><span class="p">,</span> <span class="n">minimal</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="n">api</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">generate_tvmaot_wrapper</span><span class="p">(</span><span class="n">model_info</span><span class="p">,</span> <span class="n">workspace_size</span><span class="p">,</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="n">api</span><span class="p">,</span> <span class="n">minimal</span><span class="o">=</span><span class="n">minimal</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
 </pre></div>

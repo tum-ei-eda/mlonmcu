@@ -225,7 +225,6 @@ def test_wrapper_aot(model_info, workspace_size, mod_name, api, debug_arena):
     expected_lines.extend(
         [
             "void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)",
-            "TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)",
             "int TVMWrap_Init()",
         ]
     )

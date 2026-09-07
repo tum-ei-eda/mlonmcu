@@ -236,13 +236,17 @@ class Onnx2CBackend(ONNXBackend):
                 if cons.op_type not in ops or len(cons.input) < 2:
                     continue
                 if cons.op_type == "Add" and cons.name.startswith("Plus"):
-                    upsert_initializer(numpy_helper.from_array(np.array([1, channel, 1, 1], dtype=np.int64), name=shape_init_name))
+                    upsert_initializer(
+                        numpy_helper.from_array(np.array([1, channel, 1, 1], dtype=np.int64), name=shape_init_name)
+                    )
                     changed = True
                     break
                 other = cons.input[0] if cons.input[1] == node.output[0] else cons.input[1]
                 other_shape = shape_map.get(other)
                 if other_shape is not None and len(other_shape) == 4:
-                    upsert_initializer(numpy_helper.from_array(np.array([1, channel, 1, 1], dtype=np.int64), name=shape_init_name))
+                    upsert_initializer(
+                        numpy_helper.from_array(np.array([1, channel, 1, 1], dtype=np.int64), name=shape_init_name)
+                    )
                     changed = True
                     break
 
@@ -288,7 +292,11 @@ class Onnx2CBackend(ONNXBackend):
                 if input_name in zp_redirects:
                     node.input[input_index] = zp_redirects[input_name]
 
-            if node.op_type == "DynamicQuantizeLinear" and len(node.output) >= 3 and node.output[2] in matmulinteger_a_zero_points:
+            if (
+                node.op_type == "DynamicQuantizeLinear"
+                and len(node.output) >= 3
+                and node.output[2] in matmulinteger_a_zero_points
+            ):
                 zp_shape_name = f"{node.name or ('dql_' + str(idx))}_zero_point_shape"
                 zp_output_name = f"{node.output[2]}_rank1"
                 model.graph.initializer.append(helper.make_tensor(zp_shape_name, TensorProto.INT64, [1], [1]))
@@ -363,7 +371,9 @@ class Onnx2CBackend(ONNXBackend):
 
             reshape_out = f"{node.input[1]}_axisfix"
             shape_name = f"{node.name or ('node_' + str(idx))}_axis_shape"
-            model.graph.initializer.append(helper.make_tensor(shape_name, TensorProto.INT64, [len(target_shape)], target_shape))
+            model.graph.initializer.append(
+                helper.make_tensor(shape_name, TensorProto.INT64, [len(target_shape)], target_shape)
+            )
             rewritten_nodes.append(
                 helper.make_node("Reshape", [node.input[1], shape_name], [reshape_out], name=f"{node.name}_axisfix")
             )
@@ -439,7 +449,9 @@ class Onnx2CBackend(ONNXBackend):
 
         call_args = ", ".join([name for name, _ in input_args + output_args])
         input_calls = "\n    ".join([f"ret = mlif_request_input({name}, {size}, &new_);" for name, size in input_args])
-        output_calls = "\n              ".join([f"ret = mlif_handle_result({name}, {size});" for name, size in output_args])
+        output_calls = "\n              ".join(
+            [f"ret = mlif_handle_result({name}, {size});" for name, size in output_args]
+        )
 
         return f"""#include "ml_interface.h"
 

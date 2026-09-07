@@ -25,7 +25,7 @@ import multiprocessing
 import pickle
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Dict, Union
+from typing import Tuple, List, Dict
 
 import numpy as np
 
@@ -63,27 +63,12 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
-def check_integrity(algorithm: str, value: str, file_path: Union[str, Path], check: bool = True):
-    import hashlib
-
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, "rb") as file:
-        # Read the file in chunks of 8192 bytes
-        while chunk := file.read(8192):
-            hash_func.update(chunk)
-
-    file_hash = hash_func.hexdigest()
-    hash_matches = file_hash == value
-    if check:
-        assert hash_matches, f"Model hash ({algorithm}) missmatch: {file_hash} vs. {value}"
-    return hash_matches
-
-
 class Frontend(ABC):
     FEATURES = {"validate"}
 
     DEFAULTS = {
         "use_inout_data": False,
+        "check_integrity": True,
         # the following should be configured using gen_data feature
         "gen_data": False,
         "gen_data_fill_mode": None,
@@ -121,6 +106,10 @@ class Frontend(ABC):
         if self.config and len(self.config) > 0:
             probs.append(str(self.config))
         return "Frontend(" + ",".join(probs) + ")"
+
+    @property
+    def check_integrity(self):
+        return str2bool(self.config["check_integrity"])
 
     @property
     def use_inout_data(self):
@@ -592,6 +581,13 @@ class Frontend(ABC):
         else:
             model_dir = Path(model.paths[0]).parent.resolve()
             metadata = model.metadata
+        if self.check_integrity and metadata is not None:
+            network = metadata.get("network") or {}
+            checksum = network.get("hash") or {}
+            if checksum.get("value") is not None:
+                utils.validate_checksum(model.paths[0], checksum["value"], mode=checksum.get("algorithm", "sha1"))
+            else:
+                logger.debug("Skipping integrity check (missing hash)")
         in_paths = []
         out_paths = []
         labels_paths = []
@@ -1001,7 +997,6 @@ class TfLiteFrontend(SimpleFrontend):
         "pack_script": None,
         "analyze_enable": False,
         "analyze_script": None,
-        "check_integrity": False,
     }
 
     REQUIRED = Frontend.REQUIRED
@@ -1015,29 +1010,6 @@ class TfLiteFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
-
-    def process_metadata(self, model, cfg=None):
-        ret = super().process_metadata(model, cfg=cfg)
-        metadata = model.metadata
-        if self.check_integrity:
-            checked = False
-            if metadata is not None:
-                network_data = metadata.get("network")
-                if network_data is not None:
-                    hash_data = network_data.get("hash")
-                    if hash_data is not None:
-                        algorithm = hash_data.get("algorithm", "sha1")
-                        value = hash_data.get("value", None)
-                        check_integrity(algorithm, value, model.paths[0])
-                        checked = True
-            if not checked:
-                logger.debug("Skipping integrity check (missing hash)")
-        return ret
-
-    @property
-    def check_integrity(self):
-        value = self.config["check_integrity"]
-        return str2bool(value)
 
     @property
     def visualize_enable(self):

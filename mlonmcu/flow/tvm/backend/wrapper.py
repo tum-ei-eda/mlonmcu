@@ -383,7 +383,7 @@ size_t TVMWrap_GetNumOutputs()
     return out
 
 
-def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug_arena=False):
+def generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api="c", debug_arena=False, minimal=True):
     modPrefix = f"tvmgen_{mod_name}"
 
     def writeTensors(in_tensors, out_tensors, modPrefix, api):
@@ -537,11 +537,21 @@ void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
     mlonmcu_exit(1);
 }
-
+"""
+    if minimal:
+        mainCode += """
 TVM_DLL int TVMFuncRegisterGlobal(const char* name, TVMFunctionHandle f, int override)
 {
     return 0;
 }
+
+void TVMAPISetLastError(const char *msg)
+{
+    // fprintf(stderr, "TVM error: %s\\n", msg);
+    mlonmcu_printf("TVM error: %s\\n", msg);
+}
+"""
+    mainCode += """
 
 int TVMWrap_Init()
 {
@@ -649,7 +659,7 @@ size_t TVMWrap_GetNumOutputs()
     return out
 
 
-def write_tvmaot_wrapper(path, model_info, workspace_size, mod_name, api="c"):
+def write_tvmaot_wrapper(path, model_info, workspace_size, mod_name, api="c", minimal=False):
     with open(path, "w") as f:
-        text = generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api=api)
+        text = generate_tvmaot_wrapper(model_info, workspace_size, mod_name, api=api, minimal=minimal)
         f.write(text)

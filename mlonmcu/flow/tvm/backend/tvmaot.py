@@ -43,6 +43,7 @@ class TVMAOTBackend(TVMBackend):
         "arena_size": None,  # Determined automatically
         "unpacked_api": False,
         "alignment_bytes": 16,
+        "minimal_runtime": True,
     }
 
     name = "tvmaot"
@@ -72,6 +73,11 @@ class TVMAOTBackend(TVMBackend):
     @property
     def debug_arena(self):
         value = self.config["debug_arena"]
+        return str2bool(value)
+
+    @property
+    def minimal_runtime(self):
+        value = self.config["minimal_runtime"]
         return str2bool(value)
 
     @property
@@ -125,12 +131,18 @@ class TVMAOTBackend(TVMBackend):
                 self.mlf_module_name or self.prefix,
                 api="c" if self.unpacked_api else "packed",
                 debug_arena=self.debug_arena,
+                minimal=self.minimal_runtime,
             )
             artifacts.append(Artifact("aot_wrapper.c", content=wrapper_src, fmt=ArtifactFormat.SOURCE))
             header_src = generate_wrapper_header()
             artifacts.append(Artifact("tvm_wrapper.h", content=header_src, fmt=ArtifactFormat.SOURCE))
         metrics.add("Workspace Size [B]", workspace_size, True)
         return {"default": artifacts}, {"default": metrics}
+
+    def get_platform_defs(self, platform):
+        ret = super().get_platform_defs(platform)
+        ret["TVM_MINIMAL_RUNTIME"] = self.minimal_runtime
+        return ret
 
 
 if __name__ == "__main__":

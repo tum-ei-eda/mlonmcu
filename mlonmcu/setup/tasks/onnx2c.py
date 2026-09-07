@@ -49,9 +49,7 @@ def clone_onnx2c(
     onnx2c_src_dir = context.environment.paths["deps"].path / "src" / onnx2c_name
     if rebuild or not utils.is_populated(onnx2c_src_dir):
         if "onnx2c" not in context.environment.repos:
-            raise RuntimeError(
-                "Missing repository definition for 'onnx2c' in environment.yml (repos section)."
-            )
+            raise RuntimeError("Missing repository definition for 'onnx2c' in environment.yml (repos section).")
         onnx2c_repo = context.environment.repos["onnx2c"]
         utils.clone_wrapper(onnx2c_repo, onnx2c_src_dir, refresh=rebuild)
     context.cache["onnx2c.src_dir"] = onnx2c_src_dir
@@ -62,7 +60,9 @@ def clone_onnx2c(
 @Tasks.provides(["onnx2c.build_dir", "onnx2c.exe"])
 @Tasks.validate(_validate_onnx2c)
 @Tasks.register(category=TaskType.BACKEND)
-def build_onnx2c(context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()):
+def build_onnx2c(
+    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
+):
     """Build the onnx2c compiler executable."""
     del params
     user_vars = context.environment.vars

@@ -23,7 +23,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
@@ -59,25 +59,15 @@ class OVPSimTarget(RVPTarget, RVVTarget):
 
     FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | {"gdbserver", "log_instrs", "trace"}
 
-    DEFAULTS = {
-        **RVPTarget.DEFAULTS,
-        **RVVTarget.DEFAULTS,
-        "bitmanip_spec": 0.94,
-        # TODO: add bext feature
-        "variant": None,
-        "end_to_end_cycles": True,
-        "gdbserver_enable": False,
-        "gdbserver_attach": False,
-        "gdbserver_port": 2222,
-    }
-    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | {"ovpsim.exe"}
+    bitmanip_spec = cfg(0.94, cast=float)
+    end_to_end_cycles = cfg(True, cast=str2bool)
+    gdbserver_enable = cfg(False, cast=str2bool)
+    gdbserver_attach = cfg(False, cast=str2bool)
+    gdbserver_port = cfg(2222, cast=int)
+    ovpsim_exe = required("ovpsim.exe", cast=Path)
 
     def __init__(self, name="ovpsim", features=None, config=None):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def ovpsim_exe(self):
-        return Path(self.config["ovpsim.exe"])
 
     @property
     def variant(self):
@@ -95,25 +85,6 @@ class OVPSimTarget(RVPTarget, RVVTarget):
             exts,
             gcc_major_version=self.gcc_major_version,
         )
-
-    @property
-    def end_to_end_cycles(self):
-        value = self.config["end_to_end_cycles"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_enable(self):
-        value = self.config["gdbserver_enable"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_attach(self):
-        value = self.config["gdbserver_attach"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_port(self):
-        return int(self.config["gdbserver_port"])
 
     def get_default_ovpsim_args(self):
         extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)

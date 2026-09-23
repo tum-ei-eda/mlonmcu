@@ -18,7 +18,7 @@
 #
 """TVM RPC Platform"""
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from ...platform import Platform
 
 
@@ -29,27 +29,7 @@ class TvmRpcPlatform(Platform):
         "tvm_rpc",
     }
 
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-        "use_rpc": False,
-        "rpc_key": None,
-        "rpc_hostname": None,
-        "rpc_port": None,
-    }
-
-    @property
-    def use_rpc(self):
-        value = self.config["use_rpc"]
-        return str2bool(value)
-
-    @property
-    def rpc_key(self):
-        return self.config["rpc_key"]
-
-    @property
-    def rpc_hostname(self):
-        return self.config["rpc_hostname"]
-
-    @property
-    def rpc_port(self):
-        return self.config["rpc_port"]
+    use_rpc = cfg(False, cast=str2bool)
+    rpc_key = cfg(None)
+    rpc_hostname = cfg(None)
+    rpc_port = cfg(None)

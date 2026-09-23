@@ -25,7 +25,7 @@ from tempfile import TemporaryDirectory
 import time
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, one_of, optional, required, str2bool
 
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
@@ -43,50 +43,30 @@ class Vicuna2Target(RVVTarget):
 
     FEATURES = RVVTarget.FEATURES | {"log_instrs"}  # TODO: cache feature?, support log_instrs
 
-    DEFAULTS = {
-        **RVVTarget.DEFAULTS,
-        # vext config
-        "vlen": 128,  # default value for hardware compilation, will be overwritten by -c vext.vlen
-        "embedded_vext": True,
-        "elen": 32,
-        # riscv config
-        "compressed": False,
-        "atomic": False,
-        "fpu": None,  # supports: none, half
-        # processor config
-        "core": "cv32e40x",  # cv32e40x or cv32a60x
-        # vproc config
-        "mem_size": 4194304,
-        "mem_width": 32,
-        "vlane_width": 32,
-        "vmem_width": 32,
-        "mem_latency": 1,
-        "vproc_pipelines": None,
-        # cache config
-        # "ic_size": 0,  # off
-        # "ic_line_width": 128,
-        # "dc_size": 0,  # off
-        # "dc_line_width": None,  # AUTO (2*VMEM_W)
-        # trace config
-        # TODO
-        # testbench config
-        "abort_cycles": 10000000,  # Used to detect freezes
-        "extra_cycles": 1,  # Number of remaining cycles after jump to reset vector
-        "log_instrs": False,
-        "trace": False,
-        "trace_full": False,
-    }
-
-    REQUIRED = RVVTarget.REQUIRED | {
-        "vicuna2.src_dir",
-        "verilator.install_dir",  # for simulation
-    }
-    OPTIONAL = RVVTarget.OPTIONAL | {
-        "cmake.exe",
-        "vicuna2.model_dir",
-        "vicuna2.bsp_dir",
-        "vicuna2.vsim_exe",
-    }
+    vlen = cfg(128)
+    embedded_vext = cfg(True, cast=str2bool)
+    elen = cfg(32, cast=int)
+    compressed = cfg(False, cast=str2bool)
+    atomic = cfg(False, cast=str2bool)
+    fpu = cfg(None)
+    core = cfg("cv32e40x", cast=one_of(("cv32e40x",)))
+    mem_size = cfg(4194304, cast=int)
+    mem_width = cfg(32, cast=int)
+    vlane_width = cfg(32, cast=int)
+    vmem_width = cfg(32, cast=int)
+    mem_latency = cfg(1, cast=int)
+    vproc_pipelines = cfg(None)
+    abort_cycles = cfg(10000000, cast=int, preserve_none=False)
+    extra_cycles = cfg(1, cast=int, preserve_none=False)
+    log_instrs = cfg(False, cast=str2bool)
+    trace = cfg(False, cast=str2bool)
+    trace_full = cfg(False, cast=str2bool)
+    verilator_install_dir = required("verilator.install_dir", cast=Path)
+    vicuna2_src_dir = required("vicuna2.src_dir", cast=Path)
+    vicuna2_model_dir_config = optional("vicuna2.model_dir", cast=Path)
+    vicuna2_bsp_dir_config = optional("vicuna2.bsp_dir", cast=Path)
+    vicuna2_vsim_exe_config = optional("vicuna2.vsim_exe", cast=Path)
+    cmake_exe = optional("cmake.exe")
 
     def __init__(self, name="vicuna2", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -96,58 +76,25 @@ class Vicuna2Target(RVVTarget):
         self.model_build_dir = None
 
     @property
-    def verilator_install_dir(self):
-        return Path(self.config["verilator.install_dir"])
-
-    @property
-    def vicuna2_src_dir(self):
-        return Path(self.config["vicuna2.src_dir"])
-
-    @property
     def vicuna2_model_dir(self):
-        value = self.config["vicuna2.model_dir"]
+        value = self.vicuna2_model_dir_config
         if value is None:
             return self.vicuna2_src_dir / "build_model"
-        return Path(value)
-
-    @property
-    def vicuna2_bsp_dir(self):
-        value = self.config["vicuna2.bsp_dir"]
-        if value is None:
-            return self.vicuna2_src_dir / "bsp"
-        return Path(value)
-
-    @property
-    def vicuna2_vsim_exe(self):
-        value = self.config["vicuna2.vsim_exe"]
-        if value is None:
-            return None
-        return Path(value)
-
-    @property
-    def cmake_exe(self):
-        return self.config["cmake.exe"]
-
-    @property
-    def core(self):
-        value = self.config["core"]
-        assert value == "cv32e40x"
         return value
 
     @property
-    def mem_width(self):
-        value = self.config["mem_width"]
-        return int(value) if value is not None else value
+    def vicuna2_bsp_dir(self):
+        value = self.vicuna2_bsp_dir_config
+        if value is None:
+            return self.vicuna2_src_dir / "bsp"
+        return value
 
     @property
-    def mem_size(self):
-        value = self.config["mem_size"]
-        return int(value) if value is not None else value
-
-    @property
-    def mem_latency(self):
-        value = self.config["mem_latency"]
-        return int(value) if value is not None else value
+    def vicuna2_vsim_exe(self):
+        value = self.vicuna2_vsim_exe_config
+        if value is None:
+            return None
+        return value
 
     # @property
     # def ic_size(self):
@@ -178,46 +125,6 @@ class Vicuna2Target(RVVTarget):
     # def vport_policy(self):
     #     value = self.config["vport_policy"]
     #     return value
-
-    @property
-    def vmem_width(self):
-        value = self.config["vmem_width"]
-        return int(value) if value is not None else value
-
-    @property
-    def vlane_width(self):
-        value = self.config["vlane_width"]
-        return int(value) if value is not None else value
-
-    @property
-    def vproc_pipelines(self):
-        value = self.config["vproc_pipelines"]
-        return value
-
-    @property
-    def abort_cycles(self):
-        value = self.config["abort_cycles"]
-        return int(value)
-
-    @property
-    def extra_cycles(self):
-        value = self.config["extra_cycles"]
-        return int(value)
-
-    @property
-    def log_instrs(self):
-        value = self.config["log_instrs"]
-        return str2bool(value)
-
-    @property
-    def trace(self):
-        value = self.config["trace"]
-        return str2bool(value)
-
-    @property
-    def trace_full(self):
-        value = self.config["trace_full"]
-        return str2bool(value)
 
     def get_model_cmake_args(self):
         ret = []

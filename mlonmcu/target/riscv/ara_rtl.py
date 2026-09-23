@@ -27,7 +27,7 @@ from tempfile import TemporaryDirectory
 import multiprocessing
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, optional, required, str2bool
 
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
@@ -45,26 +45,21 @@ class AraRtlTarget(RVVTarget):
 
     FEATURES = RVVTarget.FEATURES | {"log_instrs", "vext"}
 
-    DEFAULTS = {
-        **RVVTarget.DEFAULTS,
-        "xlen": 64,
-        "nr_lanes": 4,
-        "vlen": 4096,  # default value for hardware compilation, will be overwritten by -c vext.vlen
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
-        "elen": 64,
-        "num_threads": multiprocessing.cpu_count(),
-        "limit_cycles": 10000000,
-    }
-
-    REQUIRED = RVVTarget.REQUIRED | {
-        "ara.src_dir",  # for the bsp package
-        "spike.install_dir",  # for dpi-lib
-        "verilator.install_dir",  # for dpi-lib
-    }
-
-    OPTIONAL = RVVTarget.OPTIONAL | {"questasim.install_dir"}
+    # ``xlen`` remains legacy metadata because RISCVTarget's property also
+    # supports deriving it from an explicitly supplied architecture string.
+    DEFAULTS = {"xlen": 64}
+    nr_lanes = cfg(4)
+    vlen = cfg(4096)
+    enable_vext = cfg(False, cast=str2bool)
+    vext_spec = cfg(1.0, cast=float)
+    embedded_vext = cfg(False, cast=str2bool)
+    elen = cfg(64, cast=int)
+    num_threads = cfg(multiprocessing.cpu_count())
+    limit_cycles = cfg(10000000, cast=int)
+    ara_src_dir = required("ara.src_dir", cast=Path)
+    spike_install_dir = required("spike.install_dir", cast=Path)
+    verilator_install_dir = required("verilator.install_dir", cast=Path)
+    questasim_install_dir = optional("questasim.install_dir", cast=Path)
 
     def __init__(self, name="ara_rtl", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -73,57 +68,11 @@ class AraRtlTarget(RVVTarget):
 
     @property
     def ara_apps_dir(self):
-        return Path(self.config["ara.src_dir"]) / "apps"
+        return self.ara_src_dir / "apps"
 
     @property
     def ara_hardware_dir(self):
-        return Path(self.config["ara.src_dir"]) / "hardware"
-
-    @property
-    def spike_install_dir(self):
-        return Path(self.config["spike.install_dir"])
-
-    @property
-    def verilator_install_dir(self):
-        return Path(self.config["verilator.install_dir"])
-
-    @property
-    def questasim_install_dir(self):
-        value = self.config["questasim.install_dir"]
-        return Path(value) if value is not None else None
-
-    @property
-    def nr_lanes(self):
-        value = self.config["nr_lanes"]
-        return value
-
-    @property
-    def vlen(self):
-        value = self.config["vlen"]
-        return value
-
-    @property
-    def limit_cycles(self):
-        value = self.config["limit_cycles"]
-        return int(value) if value is not None else None
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value)
-
-    @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
-        return str2bool(value)
-
-    @property
-    def elen(self):
-        return int(self.config["elen"])
+        return self.ara_src_dir / "hardware"
 
     @property
     def extensions(self):
@@ -132,10 +81,6 @@ class AraRtlTarget(RVVTarget):
             exts,
             gcc_major_version=self.gcc_major_version,
         )
-
-    @property
-    def num_threads(self):
-        return self.config["num_threads"]
 
     def prepare_simulator(self, program, *_, cwd=os.getcwd(), **kwargs):
         # populate the ara verilator testbench directory

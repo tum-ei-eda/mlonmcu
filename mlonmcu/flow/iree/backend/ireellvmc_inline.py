@@ -34,9 +34,6 @@ class IREELLVMCInlineBackend(IREEBackend):
     name = None
 
     FEATURES = IREEBackend.FEATURES | set()
-
-    DEFAULTS = IREEBackend.DEFAULTS
-
     REQUIRED = IREEBackend.REQUIRED | set()
 
     OPTIONAL = IREEBackend.OPTIONAL

@@ -18,10 +18,10 @@
 #
 """Definitions of base classes for MLonMCU postprocesses."""
 
-from mlonmcu.config import filter_config
+from mlonmcu.config import Configurable, filter_config
 
 
-class Postprocess:
+class Postprocess(Configurable):
     """Abstract postprocess."""
 
     FEATURES = set()

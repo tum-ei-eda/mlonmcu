@@ -29,7 +29,7 @@ import numpy as np
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
-from mlonmcu.config import str2dict, str2bool, str2list
+from mlonmcu.config import cfg, optional, str2bool, str2dict, str2list
 from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
 
@@ -71,14 +71,10 @@ def _parse_cfg(value):
 class FilterColumnsPostprocess(SessionPostprocess):
     """Postprocess which can be used to drop unwanted columns from a report."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "keep": None,
-        "drop": None,
-        "drop_nan": False,
-        "drop_empty": False,
-        "drop_const": False,
-    }
+    DEFAULTS = {}
+    drop_nan = cfg(False, cast=str2bool)
+    drop_empty = cfg(False, cast=str2bool)
+    drop_const = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("filter_cols", features=features, config=config)
@@ -98,24 +94,6 @@ class FilterColumnsPostprocess(SessionPostprocess):
         if isinstance(cfg, str):
             return _parse_cfg(cfg)
         return cfg
-
-    @property
-    def drop_nan(self):
-        """Get drop_nan property."""
-        value = self.config["drop_nan"]
-        return str2bool(value)
-
-    @property
-    def drop_empty(self):
-        """Get drop_empty property."""
-        value = self.config["drop_empty"]
-        return str2bool(value)
-
-    @property
-    def drop_const(self):
-        """Get drop_const property."""
-        value = self.config["drop_const"]
-        return str2bool(value)
 
     def post_session(self, report, artifacts):
         """Called at the end of a session."""
@@ -156,26 +134,11 @@ class FilterColumnsPostprocess(SessionPostprocess):
 class RenameColumnsPostprocess(SessionPostprocess):
     """Postprocess which can rename columns based on a provided mapping."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "mapping": {},
-        "merge": True,
-    }
+    mapping = cfg({}, cast=str2dict)
+    merge = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("rename_cols", features=features, config=config)
-
-    @property
-    def mapping(self):
-        value = self.config["mapping"]
-        if not isinstance(value, dict):
-            return str2dict(value)
-        return value
-
-    @property
-    def merge(self):
-        value = self.config["merge"]
-        return str2bool(value)
 
     def post_session(self, report, artifacts):
         """Called at the end of a session."""
@@ -204,28 +167,11 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Features' Column
     in a dataframe for easier filtering."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "limit": [],
-        "drop": True,
-    }
+    limit = cfg([], cast=str2list)
+    drop = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("features2cols", features=features, config=config)
-
-    @property
-    def limit(self):
-        """Get limit property."""
-        value = self.config["limit"]
-        if not isinstance(value, list):
-            return str2list(value)
-        return value
-
-    @property
-    def drop(self):
-        """Get drop property."""
-        value = self.config["drop"]
-        return str2bool(value)
 
     def post_session(self, report, artifacts):
         df = report.post_df
@@ -253,28 +199,11 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Config' Column in a dataframe for easier filtering."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "limit": [],
-        "drop": True,
-    }
+    limit = cfg([], cast=lambda value: str2list(value) if not isinstance(value, list) else value)
+    drop = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("config2cols", features=features, config=config)
-
-    @property
-    def limit(self):
-        """Get limit property."""
-        value = self.config["limit"]
-        if not isinstance(value, list):
-            return str2list(value)
-        return value
-
-    @property
-    def drop(self):
-        """Get drop property."""
-        value = self.config["drop"]
-        return str2bool(value)
 
     def post_session(self, report, artifacts):
         """Called at the end of a session."""
@@ -459,18 +388,10 @@ class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
 class VisualizePostprocess(SessionPostprocess):
     """A very simple example on how to generate a plot of the results using a postprocess."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "format": "png",
-    }
+    format = cfg("png")
 
     def __init__(self, features=None, config=None):
         super().__init__("visualize", features=features, config=config)
-
-    @property
-    def format(self):
-        """Get format property."""
-        return self.config["format"]
 
     def post_session(self, report, artifacts):
         """Called at the end of a session."""
@@ -511,21 +432,10 @@ class VisualizePostprocess(SessionPostprocess):
 class Artifact2ColumnPostprocess(RunPostprocess):
     """Postprocess for converting artifacts to columns in the report."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "file2colname": {},
-    }
+    file2colname = cfg({}, cast=str2dict)
 
     def __init__(self, features=None, config=None):
         super().__init__("artifacts2cols", features=features, config=config)
-
-    @property
-    def file2colname(self):
-        """Get file2colname property."""
-        value = self.config["file2colname"]
-        if not isinstance(value, dict):
-            return str2dict(value)
-        return value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -563,59 +473,16 @@ class Artifact2ColumnPostprocess(RunPostprocess):
 class AnalyseInstructionsPostprocess(RunPostprocess):
     """Counting specific types of instructions."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "groups": True,
-        "sequences": True,
-        "seq_depth": 3,
-        "top": 10,
-        "to_df": False,
-        "to_file": True,
-        "corev": False,
-    }
+    groups = cfg(True, cast=str2bool)
+    sequences = cfg(True, cast=str2bool)
+    seq_depth = cfg(3, cast=int)
+    top = cfg(10, cast=int)
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
+    corev = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_instructions", features=features, config=config)
-
-    @property
-    def groups(self):
-        """Get groups property."""
-        value = self.config["groups"]
-        return str2bool(value)
-
-    @property
-    def sequences(self):
-        """get sequences property."""
-        value = self.config["sequences"]
-        return str2bool(value)
-
-    @property
-    def seq_depth(self):
-        """get seq_depth property."""
-        return int(self.config["seq_depth"])
-
-    @property
-    def top(self):
-        """get top property."""
-        return int(self.config["top"])
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
-
-    @property
-    def corev(self):
-        """Get corev property."""
-        value = self.config["corev"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1043,54 +910,15 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
 class CompareRowsPostprocess(SessionPostprocess):
     """TODO"""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "to_compare": None,
-        "group_by": None,
-        "baseline": 0,
-        "percent": False,
-        "invert": False,
-        "substract": False,
-    }
+    to_compare = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    group_by = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    baseline = cfg(0, cast=int)
+    percent = cfg(False, cast=str2bool)
+    invert = cfg(False, cast=str2bool)
+    substract = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("compare_rows", features=features, config=config)
-
-    @property
-    def to_compare(self):
-        """Get to_compare property."""
-        value = self.config["to_compare"]
-        return str2list(value, allow_none=True)
-
-    @property
-    def group_by(self):
-        """Get group_by property."""
-        value = self.config["group_by"]
-        return str2list(value, allow_none=True)
-
-    @property
-    def baseline(self):
-        """Get baseline property."""
-        value = self.config["baseline"]
-        return int(value)
-
-    @property
-    def percent(self):
-        """Get percent property."""
-        value = self.config["percent"]
-        return str2bool(value)
-
-    @property
-    def invert(self):
-        """Get invert property."""
-        value = self.config["invert"]
-        return str2bool(value)
-
-    @property
-    def substract(self):
-        """Get substract property."""
-        value = self.config["substract"]
-        return str2bool(value)
 
     def post_session(self, report, artifacts):
         """Called at the end of a session."""
@@ -1138,26 +966,11 @@ class CompareRowsPostprocess(SessionPostprocess):
 class AnalyseDumpPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "to_df": False,
-        "to_file": True,
-    }
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_dump", features=features, config=config)
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1234,26 +1047,11 @@ class AnalyseDumpPostprocess(RunPostprocess):
 class AnalyseCoreVCountsPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "to_df": False,
-        "to_file": True,
-    }
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_corev_counts", features=features, config=config)
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1549,33 +1347,12 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
 class ValidateOutputsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "report": False,
-        "validate_metrics": "topk(n=1);topk(n=2)",
-        "validate_range": True,
-    }
+    report = cfg(False, cast=str2bool)
+    validate_metrics = cfg("topk(n=1);topk(n=2)")
+    validate_range = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("validate_outputs", features=features, config=config)
-
-    @property
-    def validate_metrics(self):
-        """Get validate_metrics property."""
-        value = self.config["validate_metrics"]
-        return value
-
-    @property
-    def report(self):
-        """Get report property."""
-        value = self.config["report"]
-        return str2bool(value)
-
-    @property
-    def validate_range(self):
-        """Get validate_range property."""
-        value = self.config["validate_range"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1723,26 +1500,11 @@ class ValidateOutputsPostprocess(RunPostprocess):
 class ValidateLabelsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "report": False,
-        "classify_metrics": "topk_label(n=1);topk_label(n=2)",
-    }
+    report = cfg(False, cast=str2bool)
+    classify_metrics = cfg("topk_label(n=1);topk_label(n=2)")
 
     def __init__(self, features=None, config=None):
         super().__init__("validate_labels", features=features, config=config)
-
-    @property
-    def classify_metrics(self):
-        """Get classify_metrics property."""
-        value = self.config["classify_metrics"]
-        return value
-
-    @property
-    def report(self):
-        """Get report property."""
-        value = self.config["report"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1796,49 +1558,14 @@ class ValidateLabelsPostprocess(RunPostprocess):
 class ExportOutputsPostprocess(RunPostprocess):
     """Postprocess for writing model outputs to a directory."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "dest": None,  # if none: export as artifact
-        "use_ref": False,
-        "skip_dequant": False,
-        "fmt": "bin",
-        "archive_fmt": None,
-    }
+    dest = cfg(None, cast=Path)
+    use_ref = cfg(False, cast=str2bool)
+    skip_dequant = cfg(False, cast=str2bool)
+    fmt = cfg("bin")
+    archive_fmt = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("export_outputs", features=features, config=config)
-
-    @property
-    def dest(self):
-        """Get dest property."""
-        value = self.config["dest"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
-    def use_ref(self):
-        """Get use_ref property."""
-        value = self.config["use_ref"]
-        return str2bool(value)
-
-    @property
-    def skip_dequant(self):
-        """Get skip_dequant property."""
-        value = self.config["skip_dequant"]
-        return str2bool(value)
-
-    @property
-    def fmt(self):
-        """Get fmt property."""
-        return self.config["fmt"]
-
-    @property
-    def archive_fmt(self):
-        """Get archive_fmt property."""
-        return self.config["archive_fmt"]
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1938,65 +1665,16 @@ class ExportOutputsPostprocess(RunPostprocess):
 class AnalyseLinkerMapPostprocess(RunPostprocess):
     """Calculate memory footprints."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        # "to_df": True,
-        "to_df": False,
-        "to_file": True,
-        "per_func": True,
-        "per_object": True,
-        "per_library": True,
-        "ignore": [],
-        "sum": False,
-    }
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
+    per_func = cfg(True, cast=str2bool)
+    per_object = cfg(True, cast=str2bool)
+    per_library = cfg(True, cast=str2bool)
+    ignore = cfg([], cast=lambda value: str2list(value) if not isinstance(value, list) else value)
+    sum = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_linker_map", features=features, config=config)
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
-
-    @property
-    def per_func(self):
-        """Get per_func property."""
-        value = self.config["per_func"]
-        return str2bool(value)
-
-    @property
-    def per_object(self):
-        """Get per_object property."""
-        value = self.config["per_object"]
-        return str2bool(value)
-
-    @property
-    def per_library(self):
-        """Get per_library property."""
-        value = self.config["per_library"]
-        return str2bool(value)
-
-    @property
-    def ignore(self):
-        """Get ignore property."""
-        value = self.config["ignore"]
-        # print("value", value)
-        if not isinstance(value, list):
-            return str2list(value)
-        return value
-
-    @property
-    def sum(self):
-        """Get sum property."""
-        value = self.config["sum"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -2183,71 +1861,17 @@ class StageTimesGanttPostprocess(SessionPostprocess):
 class ProfileFunctionsPostprocess(RunPostprocess):
     """Instr-trace based profiling of pcs/functions/objects/libraries."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "per_func": True,
-        "per_object": False,
-        "per_library": False,
-        "topk": None,
-        "min_weight": None,
-        "to_df": False,
-        "to_file": True,
-    }
+    per_func = cfg(True, cast=str2bool)
+    per_object = cfg(False, cast=str2bool)
+    per_library = cfg(False, cast=str2bool)
+    topk = cfg(None, cast=int)
+    min_weight = cfg(None, cast=float)
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
+    per_pc = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("profile_functions", features=features, config=config)
-
-    @property
-    def per_pc(self):
-        """Get per_pc property."""
-        value = self.config["per_pc"]
-        return str2bool(value)
-
-    @property
-    def per_func(self):
-        """Get per_func property."""
-        value = self.config["per_func"]
-        return str2bool(value)
-
-    @property
-    def per_object(self):
-        """Get per_object property."""
-        value = self.config["per_object"]
-        return str2bool(value)
-
-    @property
-    def per_library(self):
-        """Get per_library property."""
-        value = self.config["per_library"]
-        return str2bool(value)
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def topk(self):
-        """Get topk property."""
-        value = self.config["topk"]
-        if value is None:
-            return None
-        return int(value)
-
-    @property
-    def min_weight(self):
-        """Get min_weight property."""
-        value = self.config["min_weight"]
-        if value is None:
-            return None
-        return float(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -2405,30 +2029,9 @@ class ProfileFunctionsPostprocess(RunPostprocess):
 class Push2DBPostprocess(SessionPostprocess):
     """Push Session report and artifacts to MLonMCU DB."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "progress": True,
-        "session_artifacts": True,
-        "run_artifacts": False,
-    }
-
-    @property
-    def progress(self):
-        """Get progress property."""
-        value = self.config["progress"]
-        return str2bool(value)
-
-    @property
-    def session_artifacts(self):
-        """Get drop_nan property."""
-        value = self.config["session_artifacts"]
-        return str2bool(value)
-
-    @property
-    def run_artifacts(self):
-        """Get run_artifacts property."""
-        value = self.config["run_artifacts"]
-        return str2bool(value)
+    progress = cfg(True, cast=str2bool)
+    session_artifacts = cfg(True, cast=str2bool)
+    run_artifacts = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("push2db", features=features, config=config)
@@ -2515,16 +2118,7 @@ class Push2DBPostprocess(SessionPostprocess):
 class MergeAutoTvmRecordsPostprocess(SessionPostprocess):
     """Collect all AutoTVM tuning logs to build combined tuning database."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "allow_empty": False,
-    }
-
-    @property
-    def allow_empty(self):
-        """Get allow_empty property."""
-        value = self.config["allow_empty"]
-        return str2bool(value)
+    allow_empty = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("merge_autotvm_records", features=features, config=config)
@@ -2571,46 +2165,27 @@ class MergeAutoTvmRecordsPostprocess(SessionPostprocess):
 class MergeMSDBsPostprocess(SessionPostprocess):
     """Build an unified MS database based on all tuning runs in the session."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "allow_empty": False,
-        "prune": False,
-        "print_outputs": False,
-    }
+    allow_empty = cfg(False, cast=str2bool)
+    prune = cfg(False, cast=str2bool)
+    print_outputs = cfg(False, cast=str2bool)
+    tvm_pythonpath_config = optional("tvm.pythonpath", cast=Path)
+    tvm_build_dir_config = optional("tvm.build_dir", cast=Path)
 
     OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
 
     @property
-    def allow_empty(self):
-        """Get allow_empty property."""
-        value = self.config["allow_empty"]
-        return str2bool(value)
-
-    @property
-    def prune(self):
-        """Get prune property."""
-        value = self.config["prune"]
-        return str2bool(value)
-
-    @property
-    def print_outputs(self):
-        """Get print_outputs property."""
-        value = self.config["print_outputs"]
-        return str2bool(value)
-
-    @property
     def tvm_pythonpath(self):
         """Get tvm.pythonpath property."""
-        value = self.config["tvm.pythonpath"]
+        value = self.tvm_pythonpath_config
         assert value is not None
-        return Path(value)
+        return value
 
     @property
     def tvm_build_dir(self):
         """Get tvm.build_dir property."""
-        value = self.config["tvm.build_dir"]
+        value = self.tvm_build_dir_config
         assert value is not None
-        return Path(value)
+        return value
 
     def __init__(self, features=None, config=None):
         super().__init__("merge_ms_dbs", features=features, config=config)
@@ -2667,24 +2242,18 @@ class MergeMSDBsPostprocess(SessionPostprocess):
 class PushMSDB2S3Postprocess(SessionPostprocess):
     """Push Session MS DB to S3 Bucket. Needs merge_ms_dbs postprocess to run fist."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "s3_url": None,
-        "print_outputs": False,
-        "allow_empty": False,
-        "append": True,
-    }
+    DEFAULTS = {"s3_url": None}
+    print_outputs = cfg(False, cast=str2bool)
+    allow_empty = cfg(False, cast=str2bool)
+    append = cfg(True, cast=str2bool)
+    prune = cfg(False, cast=str2bool)
+    tvm_pythonpath_config = optional("tvm.pythonpath", cast=Path)
+    tvm_build_dir_config = optional("tvm.build_dir", cast=Path)
 
     OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__("push_ms_db2s3", features=features, config=config)
-
-    @property
-    def allow_empty(self):
-        """Get allow_empty property."""
-        value = self.config["allow_empty"]
-        return str2bool(value)
 
     @property
     def s3_url(self):
@@ -2694,36 +2263,18 @@ class PushMSDB2S3Postprocess(SessionPostprocess):
         return value
 
     @property
-    def prune(self):
-        """Get prune property."""
-        value = self.config["prune"]
-        return str2bool(value)
-
-    @property
-    def print_outputs(self):
-        """Get print_outputs property."""
-        value = self.config["print_outputs"]
-        return str2bool(value)
-
-    @property
-    def append(self):
-        """Get append property."""
-        value = self.config["append"]
-        return str2bool(value)
-
-    @property
     def tvm_pythonpath(self):
         """Get tvm.pythonpath property."""
-        value = self.config["tvm.pythonpath"]
+        value = self.tvm_pythonpath_config
         assert value is not None
-        return Path(value)
+        return value
 
     @property
     def tvm_build_dir(self):
         """Get tvm.build_dir property."""
-        value = self.config["tvm.build_dir"]
+        value = self.tvm_build_dir_config
         assert value is not None
-        return Path(value)
+        return value
 
     def post_session(self, report, artifacts):
         """Called at the end of a session."""

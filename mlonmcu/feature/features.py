@@ -25,7 +25,7 @@ from pathlib import Path
 import pandas as pd
 
 from mlonmcu.utils import is_power_of_two, filter_none
-from mlonmcu.config import str2bool, str2list
+from mlonmcu.config import cfg, one_of, optional, required, str2bool, str2list
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .feature import (
     BackendFeature,
@@ -117,23 +117,11 @@ class DebugArena(BackendFeature):
 class Validate(FrontendFeature, PlatformFeature):
     """Enable validaton of inout and output tensors."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "allow_missing": True,
-        "fail_on_error": None,
-    }
+    allow_missing = cfg(True, cast=str2bool)
+    fail_on_error = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("validate", features=features, config=config)
-
-    @property
-    def allow_missing(self):
-        value = self.config["allow_missing"]
-        return str2bool(value)
-
-    @property
-    def fail_on_error(self):
-        return self.config["fail_on_error"]
 
     def get_frontend_config(self, frontend):
         if not self.allow_missing:
@@ -154,22 +142,11 @@ class Validate(FrontendFeature, PlatformFeature):
 class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
     """muRISCV-V NN wrappers for TFLite Micro"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "use_vext": "AUTO",
-        "use_portable": "AUTO",
-        "use_pext": "AUTO",
-        "use_corev": False,
-    }
-
-    REQUIRED = {"muriscvnn.src_dir"}
+    DEFAULTS = {"use_vext": "AUTO", "use_portable": "AUTO", "use_pext": "AUTO", "use_corev": False}
+    muriscvnn_dir = required("muriscvnn.src_dir", cast=str)
 
     def __init__(self, features=None, config=None):
         super().__init__("muriscvnn", features=features, config=config)
-
-    @property
-    def muriscvnn_dir(self):
-        return str(self.config["muriscvnn.src_dir"])
 
     @property
     def use_vext(self):
@@ -233,22 +210,11 @@ class Muriscvnn(SetupFeature, FrameworkFeature, PlatformFeature):
 class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
     """CMSIS-NN kernels for TFLite Micro"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-    }
-
-    REQUIRED = {"cmsisnn.dir", "cmsis.dir"}
+    cmsisnn_dir = required("cmsisnn.dir", cast=str)
+    cmsis_dir = required("cmsis.dir", cast=str)
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnn", features=features, config=config)
-
-    @property
-    def cmsisnn_dir(self):
-        return str(self.config["cmsisnn.dir"])
-
-    @property
-    def cmsis_dir(self):
-        return str(self.config["cmsis.dir"])
 
     def add_framework_config(self, framework, config):
         assert framework == "tflm", f"Unsupported feature '{self.name}' for framework '{framework}'"
@@ -278,37 +244,14 @@ class Cmsisnn(SetupFeature, FrameworkFeature, PlatformFeature):
 class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     """CMSIS-NN kernels for TVM using BYOC wrappers."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
-        "mattr": None,  # for +nodsp, +nomve
-        "debug_last_error": False,
-    }
-
-    REQUIRED = {"cmsisnn.dir", "cmsis.dir"}
+    mcpu = cfg(None)
+    mattr = cfg(None)
+    debug_last_error = cfg(False, cast=str2bool)
+    cmsisnn_dir = required("cmsisnn.dir", cast=str)
+    cmsis_dir = required("cmsis.dir", cast=str)
 
     def __init__(self, features=None, config=None):
         super().__init__("cmsisnnbyoc", features=features, config=config)
-
-    @property
-    def cmsisnn_dir(self):
-        return str(self.config["cmsisnn.dir"])
-
-    @property
-    def cmsis_dir(self):
-        return str(self.config["cmsis.dir"])
-
-    @property
-    def mcpu(self):
-        return self.config["mcpu"]
-
-    @property
-    def mattr(self):
-        return self.config["mattr"]
-
-    @property
-    def debug_last_error(self):
-        return str2bool(self.config["debug_last_error"])
 
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -354,36 +297,14 @@ class CmsisnnByoc(SetupFeature, BackendFeature, PlatformFeature):
 class MuriscvnnByoc(SetupFeature, BackendFeature, PlatformFeature):
     """MuRiscvNN kernels for TVM using BYOC wrappers."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "mcpu": None,  # mve: cortex-m55, dsp: cortex-m4, cortex-m7, cortex-m33, cortex-m35p
-        "mattr": None,  # for +nodsp, +nomve
-        "debug_last_error": False,
-        "use_vext": "AUTO",
-        "use_portable": "AUTO",
-        "use_pext": "AUTO",
-    }
-
-    REQUIRED = {"muriscvnn.src_dir"}
+    DEFAULTS = {"use_vext": "AUTO", "use_portable": "AUTO", "use_pext": "AUTO"}
+    mcpu = cfg(None)
+    mattr = cfg(None)
+    debug_last_error = cfg(False, cast=str2bool)
+    muriscvnn_dir = required("muriscvnn.src_dir", cast=str)
 
     def __init__(self, features=None, config=None):
         super().__init__("muriscvnnbyoc", features=features, config=config)
-
-    @property
-    def muriscvnn_dir(self):
-        return str(self.config["muriscvnn.src_dir"])
-
-    @property
-    def mcpu(self):
-        return self.config["mcpu"]
-
-    @property
-    def mattr(self):
-        return self.config["mattr"]
-
-    @property
-    def debug_last_error(self):
-        return str2bool(self.config["debug_last_error"])
 
     @property
     def use_vext(self):
@@ -459,36 +380,13 @@ VEXT_MIN_ALLOWED_VLEN = 64
 class Vext(SetupFeature, TargetFeature, PlatformFeature):
     """Enable vector extension for supported RISC-V targets"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        # None -> use target setting
-        "vlen": None,  # 64 does not work with every toolchain
-        "elen": None,  # some toolchains may generate auto-vectorized programs with elen 64
-        # use target-side settings by default
-        "spec": None,
-        "embedded": None,
-    }
+    vlen = cfg(None, cast=int)
+    elen = cfg(None, cast=int)
+    spec = cfg(None)
+    embedded = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("vext", features=features, config=config)
-
-    @property
-    def vlen(self):
-        value = self.config["vlen"]
-        return None if value is None else int(value)
-
-    @property
-    def elen(self):
-        value = self.config["elen"]
-        return None if value is None else int(value)
-
-    @property
-    def spec(self):
-        return self.config["spec"]
-
-    @property
-    def embedded(self):
-        return self.config["embedded"]
 
     def get_target_config(self, target):
         # TODO: enforce llvm toolchain using add_compile_config and CompileFeature?
@@ -533,18 +431,10 @@ class Vext(SetupFeature, TargetFeature, PlatformFeature):
 class Pext(SetupFeature, TargetFeature, PlatformFeature):
     """Enable packed SIMD extension for supported RISC-V targets"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        # use target-side settings by default
-        "spec": None,
-    }
+    spec = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("pext", features=features, config=config)
-
-    @property
-    def spec(self):
-        return self.config["spec"]
 
     def get_target_config(self, target):
         return filter_none(
@@ -576,42 +466,14 @@ class Pext(SetupFeature, TargetFeature, PlatformFeature):
 class Bext(SetupFeature, TargetFeature, PlatformFeature):
     """Enable bitmanipulation extension for supported RISC-V targets"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        # use target-side settings by default
-        "spec": None,
-        "zba": True,
-        "zbb": True,
-        "zbc": True,
-        "zbs": True,
-    }
+    spec = cfg(None)
+    zba = cfg(True, cast=str2bool)
+    zbb = cfg(True, cast=str2bool)
+    zbc = cfg(True, cast=str2bool)
+    zbs = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("bext", features=features, config=config)
-
-    @property
-    def spec(self):
-        return self.config["spec"]
-
-    @property
-    def zba(self):
-        value = self.config["zba"]
-        return str2bool(value)
-
-    @property
-    def zbb(self):
-        value = self.config["zbb"]
-        return str2bool(value)
-
-    @property
-    def zbc(self):
-        value = self.config["zbc"]
-        return str2bool(value)
-
-    @property
-    def zbs(self):
-        value = self.config["zbs"]
-        return str2bool(value)
 
     def get_target_config(self, target):
         return filter_none(
@@ -657,23 +519,11 @@ class Debug(SetupFeature, PlatformFeature):
 class GdbServer(TargetFeature):
     """Start debugging session for target software using gdbserver."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "attach": None,
-        "port": None,
-    }
+    attach = cfg(None, cast=lambda value: str2bool(value, allow_none=True))
+    port = cfg(None, cast=int)
 
     def __init__(self, features=None, config=None):
         super().__init__("gdbserver", features=features, config=config)
-
-    @property
-    def attach(self):
-        value = self.config["attach"]
-        return str2bool(value, allow_none=True)
-
-    @property
-    def port(self):
-        return int(self.config["port"]) if self.config["port"] is not None else None
 
     def get_target_config(self, target):
         assert target in ["host_x86", "etiss_pulpino", "etiss", "etiss_rv32", "etiss_rv64", "ovpsim", "corev_ovpsim"]
@@ -705,12 +555,7 @@ class ETISSDebug(SetupFeature, TargetFeature):
 class Trace(TargetFeature):
     """Enable tracing of all memory accesses in ETISS."""
 
-    DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": True}  # ETISS can only trace to file
-
-    @property
-    def to_file(self):
-        value = self.config["to_file"]
-        return str2bool(value, allow_none=True)
+    to_file = cfg(True, cast=lambda value: str2bool(value, allow_none=True))
 
     def __init__(self, features=None, config=None):
         super().__init__("trace", features=features, config=config)
@@ -818,23 +663,11 @@ class Packing(FrontendFeature):
 class Usmp(BackendFeature):
     """Unified Static Memory Planning algorithm integrated in TVM"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "algorithm": "greedy_by_conflicts",  # options: greedy_by_conflicts, greedy_by_size, hill_climb
-        "use_workspace_io": False,
-    }
+    algorithm = cfg("greedy_by_conflicts", cast=str)
+    use_workspace_io = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("usmp", features=features, config=config)
-
-    @property
-    def algorithm(self):
-        return str(self.config["algorithm"])
-
-    @property
-    def use_workspace_io(self):
-        value = self.config["use_workspace_io"]
-        return str2bool(value)
 
     def add_backend_config(self, backend, config):
         assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -866,17 +699,10 @@ class Usmp(BackendFeature):
 class FuseOps(BackendFeature):
     """Exposes relay.FuseOps.max_depth settings for TVM backends."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "max_depth": 100,
-    }
+    max_depth = cfg(100, cast=int)
 
     def __init__(self, features=None, config=None):
         super().__init__("fuse_ops", features=features, config=config)
-
-    @property
-    def max_depth(self):
-        return int(self.config["max_depth"])
 
     def add_backend_config(self, backend, config):
         # assert backend in ["tvmaot"], f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -900,13 +726,10 @@ class FuseOps(BackendFeature):
 class MOIOPT(BackendFeature):
     """Memory-Optimizing, Inter-Operator Tiling - currently only supported with custom TVM"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "noftp": False,
-        "onlyftp": False,
-        "norecurse": False,
-        "maxpartitions": 0,
-    }
+    noftp = cfg(False, cast=str2bool)
+    onlyftp = cfg(False, cast=str2bool)
+    norecurse = cfg(False, cast=str2bool)
+    maxpartitions = cfg(0, cast=int)
 
     def __init__(self, features=None, config=None):
         super().__init__("moiopt", features=features, config=config)
@@ -920,10 +743,10 @@ class MOIOPT(BackendFeature):
         else:
             tmp = {}
         tmp["relay.moiopt.enable"] = self.enabled
-        tmp["relay.moiopt.noftp"] = self.config["noftp"]
-        tmp["relay.moiopt.onlyftp"] = self.config["onlyftp"]
-        tmp["relay.moiopt.norecurse"] = self.config["norecurse"]
-        tmp["relay.moiopt.maxpartitions"] = self.config["maxpartitions"]
+        tmp["relay.moiopt.noftp"] = self.noftp
+        tmp["relay.moiopt.onlyftp"] = self.onlyftp
+        tmp["relay.moiopt.norecurse"] = self.norecurse
+        tmp["relay.moiopt.maxpartitions"] = self.maxpartitions
         config.update({f"{backend}.extra_pass_config": tmp})
 
     # -> enable this via backend
@@ -933,18 +756,10 @@ class MOIOPT(BackendFeature):
 class Visualize(FrontendFeature):
     """Visualize TFLite models."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-    }
-
-    REQUIRED = {"tflite_visualize.exe"}
+    tflite_visualize_exe = required("tflite_visualize.exe")
 
     def __init__(self, features=None, config=None):
         super().__init__("visualize", features=features, config=config)
-
-    @property
-    def tflite_visualize_exe(self):
-        return self.config["tflite_visualize.exe"]
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
@@ -965,17 +780,10 @@ class Visualize(FrontendFeature):
 class Relayviz(FrontendFeature):
     """Visualize TVM relay models."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "plotter": "term",  # Alternative: dot
-    }
+    plotter = cfg("term")
 
     def __init__(self, features=None, config=None):
         super().__init__("relayviz", features=features, config=config)
-
-    @property
-    def plotter(self):
-        return self.config.get("plotter", None)
 
     def get_frontend_config(self, frontend):
         assert frontend in ["relay"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
@@ -998,19 +806,11 @@ class Autotuned(BackendFeature):
 
     # TODO: FronendFeature to collect tuning logs or will we store them somewhere else?
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "mode": "autotvm",  # further options: autoscheduler, metascheduler
-        # TODO: auto
-        "results_file": None,
-    }
+    DEFAULTS = {"mode": "autotvm"}  # validated below
+    results_file = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("autotuned", features=features, config=config)
-
-    @property
-    def results_file(self):
-        return self.config.get("results_file", None)
 
     @property
     def mode(self):
@@ -1043,75 +843,19 @@ class Autotune(RunFeature):
 
 # not registered!
 class TVMTuneBase(PlatformFeature):
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "results_file": None,
-        "append": None,
-        "trials": None,
-        "trials_single": None,
-        "early_stopping": None,
-        "num_workers": None,
-        "max_parallel": None,
-        "use_rpc": None,
-        "timeout": None,
-        "visualize": None,
-        "visualize_file": None,
-        "visualize_live": None,
-        "tasks": None,
-        # All None to use the defaults defined in the backend instead
-    }
-
-    @property
-    def results_file(self):
-        return self.config["results_file"] if "results_file" in self.config else None
-
-    @property
-    def append(self):
-        return self.config["append"] if "append" in self.config else None
-
-    @property
-    def trials(self):
-        return self.config["trials"] if "trials" in self.config else None
-
-    @property
-    def trials_single(self):
-        return self.config["trials_single"] if "trials_single" in self.config else None
-
-    @property
-    def early_stopping(self):
-        return self.config["early_stopping"] if "early_stopping" in self.config else None
-
-    @property
-    def num_workers(self):
-        return self.config["num_workers"] if "num_workers" in self.config else None
-
-    @property
-    def max_parallel(self):
-        return self.config["max_parallel"] if "max_parallel" in self.config else None
-
-    @property
-    def use_rpc(self):
-        return self.config["use_rpc"] if "use_rpc" in self.config else None
-
-    @property
-    def timeout(self):
-        return self.config["timeout"] if "timeout" in self.config else None
-
-    @property
-    def visualize(self):
-        return self.config["visualize"]
-
-    @property
-    def visualize_file(self):
-        return self.config["visualize_file"]
-
-    @property
-    def visualize_live(self):
-        return self.config["visualize_live"]
-
-    @property
-    def tasks(self):
-        return self.config["tasks"]
+    results_file = cfg(None)
+    append = cfg(None)
+    trials = cfg(None)
+    trials_single = cfg(None)
+    early_stopping = cfg(None)
+    num_workers = cfg(None)
+    max_parallel = cfg(None)
+    use_rpc = cfg(None)
+    timeout = cfg(None)
+    visualize = cfg(None)
+    visualize_file = cfg(None)
+    visualize_live = cfg(None)
+    tasks = cfg(None)
 
     def get_platform_config(self, platform):
         assert platform in ["tvm", "microtvm"]
@@ -1141,17 +885,10 @@ class AutoTVM(TVMTuneBase):
     # TODO: graphtuner
     # TODO: tuner base feature class
 
-    DEFAULTS = {
-        **TVMTuneBase.DEFAULTS,
-        "tuner": None,
-    }
+    tuner = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("autotvm", features=features, config=config)
-
-    @property
-    def tuner(self):
-        return self.config["tuner"] if "tuner" in self.config else None
 
     def get_platform_config(self, platform):
         ret = super().get_platform_config(platform)
@@ -1173,22 +910,11 @@ class AutoScheduler(TVMTuneBase):
     # TODO: graphtuner
     # TODO: tuner base feature class
 
-    DEFAULTS = {
-        **TVMTuneBase.DEFAULTS,
-        "include_simple_tasks": None,
-        "log_estimated_latency": None,
-    }
+    include_simple_tasks = cfg(None)
+    log_estimated_latency = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("autoschedule", features=features, config=config)
-
-    @property
-    def include_simple_tasks(self):
-        return self.config["include_simple_tasks"]
-
-    @property
-    def log_estimated_latency(self):
-        return self.config["log_estimated_latency"]
 
     def get_platform_config(self, platform):
         ret = super().get_platform_config(platform)
@@ -1229,14 +955,10 @@ class MetaScheduler(TVMTuneBase):
 class DisableLegalize(BackendFeature, SetupFeature):
     """Enable transformation to reduces sizes of intermediate buffers by skipping legalization passes."""
 
-    REQUIRED = {"tvm_extensions.wrapper"}
+    tvm_extensions_wrapper = required("tvm_extensions.wrapper")
 
     def __init__(self, features=None, config=None):
         super().__init__("disable_legalize", features=features, config=config)
-
-    @property
-    def tvm_extensions_wrapper(self):
-        return self.config["tvm_extensions.wrapper"]
 
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -1263,24 +985,11 @@ class DisableLegalize(BackendFeature, SetupFeature):
 class UMABackends(BackendFeature):
     """Add directories that contain UMA backends."""
 
-    REQUIRED = set()
-
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "uma_dir": "",
-        "uma_target": "",
-    }
+    uma_dir = cfg("")
+    uma_target = cfg("")
 
     def __init__(self, features=None, config=None):
         super().__init__("uma_backends", features=features, config=config)
-
-    @property
-    def uma_dir(self):
-        return self.config["uma_dir"]
-
-    @property
-    def uma_target(self):
-        return self.config["uma_target"]
 
     def add_backend_config(self, backend, config):
         assert backend in SUPPORTED_TVM_BACKENDS, f"Unsupported feature '{self.name}' for backend '{backend}'"
@@ -1301,27 +1010,12 @@ class UMABackends(BackendFeature):
 class Demo(PlatformFeature):
     """Run demo application instead of benchmarking code."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "board": None,
-        "print_stats": False,
-        "print_interval_ms": 5000,
-    }
+    board = cfg(None)
+    print_stats = cfg(False)
+    print_interval_ms = cfg(5000, cast=int)
 
     def __init__(self, features=None, config=None):
         super().__init__("demo", features=features, config=config)
-
-    @property
-    def board(self):
-        return self.config["board"]
-
-    @property
-    def print_stats(self):
-        return self.config["print_stats"]
-
-    @property
-    def print_interval_ms(self):
-        return self.config["print_interval_ms"]
 
     def get_platform_defs(self, platform):
         assert platform in ["espidf"], f"Unsupported feature '{self.name}' for platform '{platform}'"
@@ -1338,57 +1032,17 @@ class Demo(PlatformFeature):
 class CacheSim(TargetFeature):
     """Collect information on cache misses etc. with spike target"""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "ic_enable": False,
-        "ic_config": "64:8:32",
-        "dc_enable": False,
-        "dc_config": "64:8:32",
-        "l2_enable": False,
-        "l2_config": "262144:8:32",  # TODO: find a meaningful value
-        "log_misses": False,
-        "detailed": False,
-    }
+    ic_enable = cfg(False, cast=str2bool)
+    ic_config = cfg("64:8:32")
+    dc_enable = cfg(False, cast=str2bool)
+    dc_config = cfg("64:8:32")
+    l2_enable = cfg(False, cast=str2bool)
+    l2_config = cfg("262144:8:32")
+    log_misses = cfg(False, cast=str2bool)
+    detailed = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("cachesim", features=features, config=config)
-
-    @property
-    def ic_enable(self):
-        value = self.config["ic_enable"]
-        return str2bool(value)
-
-    @property
-    def ic_config(self):
-        return self.config["ic_config"]
-
-    @property
-    def dc_enable(self):
-        value = self.config["dc_enable"]
-        return str2bool(value)
-
-    @property
-    def dc_config(self):
-        return self.config["dc_config"]
-
-    @property
-    def l2_enable(self):
-        value = self.config["l2_enable"]
-        return str2bool(value)
-
-    @property
-    def l2_config(self):
-        return self.config["l2_config"]
-
-    @property
-    def log_misses(self):
-        value = self.config["log_misses"]
-        return str2bool(value)
-
-    @property
-    def detailed(self):
-        value = self.config["detailed"]
-        return str2bool(value)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1449,22 +1103,13 @@ class CacheSim(TargetFeature):
 class LogInstructions(TargetFeature):
     """Enable logging of the executed instructions of a simulator-based target."""
 
-    DEFAULTS = {**FeatureBase.DEFAULTS, "to_file": False}
-
-    OPTIONAL = {"etiss.experimental_print_to_file"}
+    to_file = cfg(False, cast=lambda value: str2bool(value, allow_none=True))
+    etiss_experimental_print_to_file = optional(
+        "etiss.experimental_print_to_file", cast=lambda value: str2bool(value, allow_none=True)
+    )
 
     def __init__(self, features=None, config=None):
         super().__init__("log_instrs", features=features, config=config)
-
-    @property
-    def to_file(self):
-        value = self.config["to_file"]
-        return str2bool(value, allow_none=True)
-
-    @property
-    def etiss_experimental_print_to_file(self):
-        value = self.config["etiss.experimental_print_to_file"]
-        return str2bool(value, allow_none=True)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -1638,21 +1283,8 @@ class ArmDsp(SetupFeature, TargetFeature, PlatformFeature):
 class TargetOptimized(RunFeature):
     """Overwrite backend options according to chosen target."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "layouts": True,
-        "schedules": True,
-    }
-
-    @property
-    def layouts(self):
-        value = self.config["layouts"]
-        return str2bool(value)
-
-    @property
-    def schedules(self):
-        value = self.config["schedules"]
-        return str2bool(value)
+    layouts = cfg(True, cast=str2bool)
+    schedules = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("target_optimized", features=features, config=config)
@@ -1676,14 +1308,13 @@ class AutoVectorize(PlatformFeature):
     """Enable auto_vectorization for supported MLIF platform targets."""
 
     DEFAULTS = {
-        **FeatureBase.DEFAULTS,
         "verbose": False,
-        "loop": True,
-        "slp": True,
         "force_vector_width": None,  # llvm only
         "force_vector_interleave": None,  # llvm only
-        "custom_unroll": False,  # TODO: this is not related to vectorization -> move to llvm toolchain!
     }
+    loop = cfg(True, cast=str2bool)
+    slp = cfg(True, cast=str2bool)
+    custom_unroll = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("auto_vectorize", features=features, config=config)
@@ -1698,16 +1329,6 @@ class AutoVectorize(PlatformFeature):
         value = value.lower()
         assert value in ["loop", "slp", "none"]
         return value
-
-    @property
-    def loop(self):
-        value = self.config["loop"]
-        return str2bool(value)
-
-    @property
-    def slp(self):
-        value = self.config["slp"]
-        return str2bool(value)
 
     @property
     def force_vector_width(self):
@@ -1735,11 +1356,6 @@ class AutoVectorize(PlatformFeature):
             return "OFF"
         return value
 
-    @property
-    def custom_unroll(self):
-        value = self.config["custom_unroll"]
-        return str2bool(value)
-
     def get_platform_defs(self, platform):
         return {
             "RISCV_AUTO_VECTORIZE": self.enabled,
@@ -1758,29 +1374,13 @@ class Benchmark(PlatformFeature, TargetFeature):
 
     # TODO: would make sense to move end_to_end here as well!
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "num_runs": 1,
-        "num_repeat": 1,
-        "total": False,
-        "aggregate": "avg",  # Allowed: avg, max, min, none, all
-    }
+    DEFAULTS = {"aggregate": "avg"}  # validated below
+    num_runs = cfg(1, cast=int)
+    num_repeat = cfg(1, cast=int)
+    total = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("benchmark", features=features, config=config)
-
-    @property
-    def num_runs(self):
-        return int(self.config["num_runs"])
-
-    @property
-    def num_repeat(self):
-        return int(self.config["num_repeat"])
-
-    @property
-    def total(self):
-        value = self.config["total"]
-        return str2bool(value)
 
     @property
     def aggregate(self):
@@ -1901,26 +1501,12 @@ class Benchmark(PlatformFeature, TargetFeature):
 class TvmRpc(PlatformFeature):
     """Run TVM models on a RPC device."""
 
-    DEFAULTS = {**FeatureBase.DEFAULTS, "hostname": None, "port": None, "key": None}  # tracker
+    hostname = cfg(None)
+    port = cfg(None)
+    key = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("tvm_rpc", features=features, config=config)
-
-    @property
-    def use_rpc(self):
-        return self.config["use_rpc"]
-
-    @property
-    def hostname(self):
-        return self.config["hostname"]
-
-    @property
-    def port(self):
-        return self.config["port"]
-
-    @property
-    def key(self):
-        return self.config["key"]
 
     def get_platform_config(self, platform):
         assert platform in ["tvm", "microtvm"]
@@ -1951,54 +1537,16 @@ class TvmProfile(PlatformFeature):
 
 @register_feature("xcorev")
 class XCoreV(TargetFeature, PlatformFeature, SetupFeature):
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "mac": True,
-        "mem": True,
-        "bi": True,
-        "alu": True,
-        "bitmanip": True,
-        "simd": True,
-        "hwlp": True,
-    }
+    mac = cfg(True, cast=str2bool)
+    mem = cfg(True, cast=str2bool)
+    bi = cfg(True, cast=str2bool)
+    alu = cfg(True, cast=str2bool)
+    bitmanip = cfg(True, cast=str2bool)
+    simd = cfg(True, cast=str2bool)
+    hwlp = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("xcorev", features=features, config=config)
-
-    @property
-    def mac(self):
-        value = self.config["mac"]
-        return str2bool(value)
-
-    @property
-    def mem(self):
-        value = self.config["mem"]
-        return str2bool(value)
-
-    @property
-    def bi(self):
-        value = self.config["bi"]
-        return str2bool(value)
-
-    @property
-    def alu(self):
-        value = self.config["alu"]
-        return str2bool(value)
-
-    @property
-    def bitmanip(self):
-        value = self.config["bitmanip"]
-        return str2bool(value)
-
-    @property
-    def simd(self):
-        value = self.config["simd"]
-        return str2bool(value)
-
-    @property
-    def hwlp(self):
-        value = self.config["hwlp"]
-        return str2bool(value)
 
     # def add_target_config(self, target, config, directory=None):
     def add_target_config(self, target, config):
@@ -2171,14 +1719,10 @@ class Xpulp(TargetFeature, PlatformFeature, SetupFeature):
 class SplitLayers(FrontendFeature):
     """Split TFLite models into subruns."""
 
-    REQUIRED = {"tflite_pack.exe"}
+    tflite_pack_exe = required("tflite_pack.exe")
 
     def __init__(self, features=None, config=None):
         super().__init__("split_layers", features=features, config=config)
-
-    @property
-    def tflite_pack_exe(self):
-        return self.config["tflite_pack.exe"]
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
@@ -2194,14 +1738,10 @@ class SplitLayers(FrontendFeature):
 class TfLiteAnalyze(FrontendFeature):
     """Get the estimated ROM, RAM and MACs from a TFLite model."""
 
-    REQUIRED = {"tflite_analyze.exe"}
+    tflite_analyze_exe = required("tflite_analyze.exe")
 
     def __init__(self, features=None, config=None):
         super().__init__("tflite_analyze", features=features, config=config)
-
-    @property
-    def tflite_analyze_exe(self):
-        return self.config["tflite_analyze.exe"]
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflite"], f"Unsupported feature '{self.name}' for frontend '{frontend}'"
@@ -2317,24 +1857,11 @@ class CV32HpmCounter(HpmCounter):  # TODO: SetupFeature?
 class VanillaAccelerator(TargetFeature):
     """BYOC Vanilla Accelerator Feature for TVM."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "plugin_name": "VanillaAccelerator",
-        "base_addr": None,
-    }
+    plugin_name = cfg("VanillaAccelerator")
+    base_addr = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("vanilla_accelerator", features=features, config=config)
-
-    @property
-    def plugin_name(self):
-        value = self.config["plugin_name"]
-        return value
-
-    @property
-    def base_addr(self):
-        value = self.config["base_addr"]
-        return value
 
     def add_target_config(self, target, config):
         assert target in ["etiss"]
@@ -2354,36 +1881,13 @@ class VanillaAccelerator(TargetFeature):
 class MemgraphLlvmCdfg(PlatformFeature):
     """Enable LLVM CDFG extraction pass (needs custom LLVM build)."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "host": None,  # localhost
-        "port": None,  # 7687
-        "purge": None,  # false
-        "session": None,  # default,
-    }
+    host = cfg(None)
+    port = cfg(None)
+    purge = cfg(None, cast=lambda value: str2bool(value, allow_none=True))
+    session = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("memgraph_llvm_cdfg", features=features, config=config)
-
-    @property
-    def host(self):
-        value = self.config["host"]
-        return value
-
-    @property
-    def port(self):
-        value = self.config["port"]
-        return value
-
-    @property
-    def purge(self):
-        value = self.config["purge"]
-        return str2bool(value, allow_none=True)
-
-    @property
-    def session(self):
-        value = self.config["session"]
-        return value
 
     def get_platform_defs(self, platform):
         assert platform in ["mlif", "mlif_litex"]
@@ -2430,37 +1934,13 @@ class GlobalIsel(PlatformFeature):
 class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
     """Generate input data for validation."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "fill_mode": "file",  # Allowed: random, ones, zeros, file, dataset
-        "file": "auto",  # Only relevant if fill_mode=file
-        "number": 10,  # generate up to number samples (may be less if file has less inputs)
-        "fmt": "npy",  # Allowed: npy, npz
-    }
+    fill_mode = cfg("file", cast=one_of(("random", "ones", "zeros", "file", "dataset")))
+    file = cfg("auto")
+    number = cfg(10, cast=int)
+    fmt = cfg("npy", cast=one_of(("npy", "npz")))
 
     def __init__(self, features=None, config=None):
         super().__init__("gen_data", features=features, config=config)
-
-    @property
-    def fill_mode(self):
-        value = self.config["fill_mode"]
-        assert value in ["random", "ones", "zeros", "file", "dataset"]
-        return value
-
-    @property
-    def file(self):
-        value = self.config["file"]
-        return value
-
-    @property
-    def number(self):
-        return int(self.config["number"])
-
-    @property
-    def fmt(self):
-        value = self.config["fmt"]
-        assert value in ["npy", "npz"]
-        return value
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflite"]
@@ -2477,32 +1957,12 @@ class GenData(FrontendFeature):  # TODO: use custom stage instead of LOAD
 class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
     """Generate reference outputs for validation."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "mode": "file",  # Allowed: file, model
-        "file": "auto",  # Only relevant if mode=file
-        "fmt": "npy",  # Allowed: npy, npz
-    }
+    mode = cfg("file", cast=one_of(("file", "model")))
+    file = cfg("auto")
+    fmt = cfg("npy", cast=one_of(("npy", "npz")))
 
     def __init__(self, features=None, config=None):
         super().__init__("gen_ref_data", features=features, config=config)
-
-    @property
-    def mode(self):
-        value = self.config["mode"]
-        assert value in ["file", "model"]
-        return value
-
-    @property
-    def file(self):
-        value = self.config["file"]
-        return value
-
-    @property
-    def fmt(self):
-        value = self.config["fmt"]
-        assert value in ["npy", "npz"]
-        return value
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflite"]
@@ -2518,32 +1978,12 @@ class GenRefData(FrontendFeature):  # TODO: use custom stage instead of LOAD
 class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
     """Generate reference labels for classification."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "mode": "file",  # Allowed: file, model
-        "file": "auto",  # Only relevant if mode=file
-        "fmt": "npy",  # Allowed: npy, npz, txt
-    }
+    mode = cfg("file", cast=one_of(("file", "model")))
+    file = cfg("auto")
+    fmt = cfg("npy", cast=one_of(("npy", "npz")))
 
     def __init__(self, features=None, config=None):
         super().__init__("gen_ref_labels", features=features, config=config)
-
-    @property
-    def mode(self):
-        value = self.config["mode"]
-        assert value in ["file", "model"]
-        return value
-
-    @property
-    def file(self):
-        value = self.config["file"]
-        return value
-
-    @property
-    def fmt(self):
-        value = self.config["fmt"]
-        assert value in ["npy", "npz"]
-        return value
 
     def get_frontend_config(self, frontend):
         assert frontend in ["tflite"]
@@ -2559,19 +1999,10 @@ class GenRefLabels(FrontendFeature):  # TODO: use custom stage instead of LOAD
 class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
     """Apply test inputs to model."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "interface": "auto",  # Allowed: auto, rom, filesystem, stdin, stdin_raw, uart
-    }
+    interface = cfg("auto", cast=one_of(("auto", "rom", "filesystem", "stdin", "stdin_raw", "uart")))
 
     def __init__(self, features=None, config=None):
         super().__init__("set_inputs", features=features, config=config)
-
-    @property
-    def interface(self):
-        value = self.config["interface"]
-        assert value in ["auto", "rom", "filesystem", "stdin", "stdin_raw", "uart"]
-        return value
 
     def get_platform_config(self, platform):
         assert platform in ["mlif", "mlif_litex", "tvm", "microtvm"]
@@ -2586,26 +2017,11 @@ class SetInputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
     """Extract resulting outputs from model."""
 
-    DEFAULTS = {
-        **FeatureBase.DEFAULTS,
-        "interface": "auto",  # Allowed: auto, filesystem, stdout, stdout_raw, uart
-        "fmt": "npy",  # Allowed: npz, npz
-    }
+    interface = cfg("auto", cast=one_of(("auto", "filesystem", "stdout", "stdout_raw", "uart")))
+    fmt = cfg("npy", cast=one_of(("npy", "npz")))
 
     def __init__(self, features=None, config=None):
         super().__init__("get_outputs", features=features, config=config)
-
-    @property
-    def interface(self):
-        value = self.config["interface"]
-        assert value in ["auto", "filesystem", "stdout", "stdout_raw", "uart"]
-        return value
-
-    @property
-    def fmt(self):
-        value = self.config["fmt"]
-        assert value in ["npy", "npz"]
-        return value
 
     def get_platform_config(self, platform):
         assert platform in ["mlif", "mlif_litex", "tvm", "microtvm"]
@@ -2657,35 +2073,16 @@ class PerfSim(TargetFeature):
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,
-        "core": "cv32e40p",
-        "estimator": True,
-        "trace_asm": False,  # TODO: move to owen feature, save files!
-        "trace_instr": False,  # TODO: move to owen feature, save files!
         "to_file": False,
     }
 
+    core = cfg("cv32e40p")
+    estimator = cfg(True, cast=str2bool)
+    trace_asm = cfg(False, cast=str2bool)
+    trace_instr = cfg(False, cast=str2bool)
+
     def __init__(self, features=None, config=None):
         super().__init__("perf_sim", features=features, config=config)
-
-    @property
-    def core(self):
-        value = self.config["core"]
-        return value
-
-    @property
-    def estimator(self):
-        value = self.config["estimator"]
-        return str2bool(value)
-
-    @property
-    def trace_asm(self):
-        value = self.config["trace_asm"]
-        return str2bool(value)
-
-    @property
-    def trace_instr(self):
-        value = self.config["trace_instr"]
-        return str2bool(value)
 
     def to_file(self):
         value = self.config["to_file"]
@@ -2777,15 +2174,13 @@ class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
 
     DEFAULTS = {**FeatureBase.DEFAULTS, "mode": "CFU", "use_intrin": False, "conv2d_idx_init": None}  # EMUL/CFU/CPU
 
-    REQUIRED = {"cfu_wca.support_dir"}
+    support_dir = required("cfu_wca.support_dir", cast=str)
     OPTIONAL = {"cfu_wca.tflm_overrides"}
+    use_intrin = cfg(False, cast=str2bool)
+    conv2d_idx_init = cfg(None, cast=int)
 
     def __init__(self, features=None, config=None):
         super().__init__("cfu_wca", features=features, config=config)
-
-    @property
-    def support_dir(self):
-        return str(self.config["cfu_wca.support_dir"])
 
     @property
     def tflm_overrides(self):
@@ -2795,10 +2190,6 @@ class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
         value = Path(value)
         assert value.is_dir()
         return value
-
-    @property
-    def use_intrin(self):
-        return str2bool(self.config["use_intrin"])
 
     @property
     def mode(self):
@@ -2822,13 +2213,6 @@ class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
         ret = lookup.get(self.mode)
         assert ret is not None, f"Failed to lookup mode_idx for: {self.mode}"
         return ret
-
-    @property
-    def conv2d_idx_init(self):
-        value = self.config["conv2d_idx_init"]
-        if value is None:
-            return None
-        return int(value)
 
     def get_framework_config(self, framework):  # TODO: check if other kernels enabled?
         assert framework in ["tflm", "tvm"], f"Unsupported feature '{self.name}' for framework '{framework}'"

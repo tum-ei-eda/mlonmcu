@@ -28,6 +28,163 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
+# ``None`` is a useful configuration value, so it cannot also mean "no
+# default" internally.
+_MISSING = object()
+
+
+def parse_int(value):
+    """Parse an integer, accepting integers and Python-style base prefixes."""
+    return value if isinstance(value, int) else int(value, 0)
+
+
+def one_of(values):
+    """Return a legalizer which accepts only values from ``values``."""
+    values = tuple(values)
+
+    def legalize(value):
+        assert value in values
+        return value
+
+    return legalize
+
+
+class ConfigField:
+    """A declarative, optionally legalized configuration value.
+
+    Instance access reads the value from ``instance.config``.  ``Configurable``
+    collects fields when a class is created and exposes their metadata through
+    the legacy ``DEFAULTS``, ``REQUIRED`` and ``OPTIONAL`` views used by
+    :func:`filter_config`.
+    """
+
+    def __init__(
+        self,
+        default=_MISSING,
+        *,
+        key=None,
+        cast=None,
+        required=False,
+        optional=False,
+        preserve_none=True,
+        source="config",
+    ):
+        if required and optional:
+            raise ValueError("A config field cannot be both required and optional")
+        if required and default is not _MISSING:
+            raise ValueError("A required config field cannot have a default")
+        self.default = default
+        self.key = key
+        self.cast = cast
+        self.required = required
+        self.optional = optional
+        self.preserve_none = preserve_none
+        self.source = source
+        self.name = None
+
+    def __set_name__(self, owner, name):
+        self.name = name
+        if self.key is None:
+            self.key = name
+
+    def __get__(self, obj, owner=None):
+        if obj is None:
+            return self
+        value = getattr(obj, self.source)[self.key]
+        # Optional/default fields can explicitly be null.  Existing properties
+        # nearly universally preserved that null rather than converting it.
+        if value is None and self.preserve_none:
+            return None
+        return self.cast(value) if self.cast is not None else value
+
+
+def cfg(default=_MISSING, *, key=None, cast=None, preserve_none=True, source="config"):
+    """Declare a default-valued configuration field."""
+    return ConfigField(default, key=key, cast=cast, preserve_none=preserve_none, source=source)
+
+
+def required(key=None, *, cast=None, preserve_none=True, source="config"):
+    """Declare a required configuration field."""
+    return ConfigField(key=key, cast=cast, required=True, preserve_none=preserve_none, source=source)
+
+
+def optional(key=None, *, cast=None, preserve_none=True, source="config"):
+    """Declare an optional configuration field."""
+    return ConfigField(key=key, cast=cast, optional=True, preserve_none=preserve_none, source=source)
+
+
+class Configurable:
+    """Base for classes with declarative config fields.
+
+    Field metadata is composed at class creation time, allowing constructors to
+    keep passing ``DEFAULTS``, ``REQUIRED`` and ``OPTIONAL`` to
+    :func:`filter_config`.  ``CONFIG_FIELDS`` remains the canonical registry of
+    descriptor fields, keyed by Python attribute name.
+    """
+
+    DEFAULTS = {}
+    REQUIRED = set()
+    OPTIONAL = set()
+    CONFIG_FIELDS = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        defaults, required_keys, optional_keys, fields = {}, set(), set(), {}
+        for base in cls.__bases__:
+            defaults.update(getattr(base, "DEFAULTS", {}))
+            required_keys.update(getattr(base, "REQUIRED", set()))
+            optional_keys.update(getattr(base, "OPTIONAL", set()))
+            fields.update(getattr(base, "CONFIG_FIELDS", {}))
+
+        # Honor old-style declarations, including classes which have not yet
+        # been migrated.  Apply them before this class's descriptors.
+        legacy_defaults = cls.__dict__.get("DEFAULTS", {})
+        legacy_required = cls.__dict__.get("REQUIRED", set())
+        legacy_optional = cls.__dict__.get("OPTIONAL", set())
+        for key, value in legacy_defaults.items():
+            required_keys.discard(key)
+            optional_keys.discard(key)
+            defaults[key] = value
+        for key in legacy_required:
+            defaults.pop(key, None)
+            optional_keys.discard(key)
+            required_keys.add(key)
+        for key in legacy_optional:
+            defaults.pop(key, None)
+            required_keys.discard(key)
+            optional_keys.add(key)
+
+        for name, field in cls.__dict__.items():
+            if not isinstance(field, ConfigField):
+                continue
+            old = fields.get(name)
+            if old is not None:
+                defaults.pop(old.key, None)
+                required_keys.discard(old.key)
+                optional_keys.discard(old.key)
+            # A changed explicit key must also replace a field which used that
+            # key under a different Python name.
+            for old_name, old_field in list(fields.items()):
+                if old_field.key == field.key:
+                    fields.pop(old_name)
+            defaults.pop(field.key, None)
+            required_keys.discard(field.key)
+            optional_keys.discard(field.key)
+            fields[name] = field
+            if field.required:
+                required_keys.add(field.key)
+            elif field.optional:
+                optional_keys.add(field.key)
+            else:
+                assert field.default is not _MISSING
+                defaults[field.key] = field.default
+
+        cls.DEFAULTS = defaults
+        cls.REQUIRED = required_keys
+        cls.OPTIONAL = optional_keys
+        cls.CONFIG_FIELDS = fields
+
+
 def remove_config_prefix(config, prefix, skip=None):
     """Iterate over keys in dict and remove given prefix.
 

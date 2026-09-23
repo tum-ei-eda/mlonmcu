@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Tuple
 
 from .backend import TFLMBackend
-from mlonmcu.config import str2bool, str2list, str2dict
+from mlonmcu.config import cfg, str2bool, str2dict, str2list
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
@@ -422,17 +422,14 @@ class TFLMIBackend(TFLMBackend):
 
     FEATURES = TFLMBackend.FEATURES | {"debug_arena", "cfu_wca"}
 
-    DEFAULTS = {
-        **TFLMBackend.DEFAULTS,
-        "arena_size": 2**20,  # 1 MB
-        "debug_arena": False,
-        "ops": [],
-        "custom_ops": [],
-        "registrations": {},
-        "ops_resolver": "mutable",
-        "legacy": False,
-        "reporter": False,  # Has to be disabled for support with latest upstream
-    }
+    arena_size = cfg(2**20, cast=int)
+    debug_arena = cfg(False, cast=str2bool)
+    ops = cfg([], cast=str2list)
+    custom_ops = cfg([], cast=str2list)
+    registrations = cfg({}, cast=str2dict)
+    ops_resolver = cfg("mutable")
+    legacy = cfg(False, cast=str2bool)
+    reporter = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
@@ -443,44 +440,6 @@ class TFLMIBackend(TFLMBackend):
             []
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
-
-    @property
-    def legacy(self):
-        value = self.config["legacy"]
-        return str2bool(value)
-
-    @property
-    def debug_arena(self):
-        value = self.config["debug_arena"]
-        return str2bool(value)
-
-    @property
-    def arena_size(self):
-        return int(self.config["arena_size"])
-
-    @property
-    def ops(self):
-        value = self.config["ops"]
-        return str2list(value)
-
-    @property
-    def custom_ops(self):
-        value = self.config["custom_ops"]
-        return str2list(value)
-
-    @property
-    def registrations(self):
-        value = self.config["registrations"]
-        return str2dict(value)
-
-    @property
-    def ops_resolver(self):
-        return self.config["ops_resolver"]
-
-    @property
-    def reporter(self):
-        value = self.config["reporter"]
-        return str2bool(value)
 
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []

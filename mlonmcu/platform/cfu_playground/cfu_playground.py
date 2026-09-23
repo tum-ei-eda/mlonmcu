@@ -24,6 +24,7 @@ import shutil
 import tempfile
 from importlib.resources import files
 from pathlib import Path
+from mlonmcu.config import cfg, optional, required
 
 
 from mlonmcu.setup import utils
@@ -52,20 +53,16 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
-        **CompilePlatform.DEFAULTS,
-        **TargetPlatform.DEFAULTS,
-        "project_template": None,
-        "project_dir": None,
         "optimize": None,  # values: 0,1,2,3,s
-        "mlif_template": None,
         # "device": "digilent_arty",  # TODO: FPGA support?
     }
 
-    REQUIRED = {
-        "cfu_playground.src_dir",
-        "mlif.src_dir",
-    }  # TODO: riscv tc?
-    OPTIONAL = {"tvm.src_dir", "mlif.template", "yosys.install_dir", "verilator.install_dir"}
+    cfu_playground_src_dir = required("cfu_playground.src_dir", cast=Path)
+    mlif_src_dir = required("mlif.src_dir", cast=Path)
+    tvm_src_dir = optional("tvm.src_dir", cast=Path)
+    yosys_install_dir = optional("yosys.install_dir", cast=Path)
+    verilator_install_dir = optional("verilator.install_dir", cast=Path)
+    mlif_template = cfg(None, cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -76,39 +73,6 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
-
-    @property
-    def cfu_playground_src_dir(self):
-        return Path(self.config["cfu_playground.src_dir"])
-
-    @property
-    def mlif_src_dir(self):
-        return Path(self.config["mlif.src_dir"])
-
-    @property
-    def tvm_src_dir(self):
-        return Path(self.config["tvm.src_dir"])
-
-    @property
-    def yosys_install_dir(self):
-        ret = self.config["yosys.install_dir"]
-        if ret is None:
-            return ret
-        return Path(ret)
-
-    @property
-    def verilator_install_dir(self):
-        ret = self.config["verilator.install_dir"]
-        if ret is None:
-            return ret
-        return Path(ret)
-
-    @property
-    def mlif_template(self):
-        value = self.config["mlif_template"]
-        if value is None:
-            return None
-        return Path(value)
 
     def init_directory(self, path=None, context=None):
         if self.project_dir is not None:

@@ -22,7 +22,7 @@ import stat
 import multiprocessing
 from pathlib import Path
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from mlonmcu.setup.utils import execute
 from .common import cli
 from .target import Target
@@ -36,31 +36,14 @@ class HostX86Target(Target):
 
     FEATURES = Target.FEATURES | {"gdbserver"}
 
-    DEFAULTS = {
-        **Target.DEFAULTS,
-        "gdbserver_enable": False,
-        "gdbserver_attach": False,
-        "gdbserver_port": 2222,
-    }
+    gdbserver_enable = cfg(False, cast=str2bool)
+    gdbserver_attach = cfg(False, cast=str2bool)
+    gdbserver_port = cfg(2222, cast=int)
 
     def __init__(self, name="host_x86", features=None, config=None):
         super().__init__(name, features=features, config=config)
         self.gdb_path = "gdb"
         self.gdb_server_path = "gdbserver"
-
-    @property
-    def gdbserver_enable(self):
-        value = self.config["gdbserver_enable"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_attach(self):
-        value = self.config["gdbserver_attach"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_port(self):
-        return int(self.config["gdbserver_port"])
 
     def exec(self, program, *args, **kwargs):
         def make_executable(exe):

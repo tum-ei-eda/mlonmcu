@@ -24,7 +24,7 @@ from typing import Tuple
 from .backend import TVMBackend
 from .wrapper import generate_tvmrt_wrapper, generate_wrapper_header
 from mlonmcu.flow.backend import main
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from .tvmc_utils import get_tvmrt_tvmc_args
 from mlonmcu.models.model_info import get_relay_model_info
@@ -33,13 +33,9 @@ from mlonmcu.models.model_info import get_relay_model_info
 class TVMRTBackend(TVMBackend):
     FEATURES = TVMBackend.FEATURES | {"debug_arena"}
 
-    DEFAULTS = {
-        **TVMBackend.DEFAULTS,
-        "debug_arena": False,
-        "link_params": True,
-        "arena_size": 2**20,  # Can not be detemined automatically (Very large)
-        # TODO: arena size warning!
-    }
+    debug_arena = cfg(False, cast=str2bool)
+    link_params = cfg(True, cast=str2bool)
+    arena_size = cfg(2**20, cast=lambda value: int(value) if value else None)
 
     name = "tvmrt"
 
@@ -47,21 +43,6 @@ class TVMRTBackend(TVMBackend):
         super().__init__(
             executor="graph", runtime=runtime, fmt=fmt, system_lib=system_lib, features=features, config=config
         )
-
-    @property
-    def arena_size(self):
-        size = self.config["arena_size"]
-        return int(size) if size else None
-
-    @property
-    def debug_arena(self):
-        value = self.config["debug_arena"]
-        return str2bool(value)
-
-    @property
-    def link_params(self):
-        value = self.config["link_params"]
-        return str2bool(value)
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmrt_tvmc_args(

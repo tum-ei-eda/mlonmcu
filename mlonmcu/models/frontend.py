@@ -53,7 +53,7 @@ from mlonmcu.models.model import (
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import filter_config, str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, one_of, required, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
 from mlonmcu.target.metrics import Metrics
@@ -63,31 +63,24 @@ from mlonmcu.logging import get_logger
 logger = get_logger()
 
 
-class Frontend(ABC):
+class Frontend(Configurable, ABC):
     FEATURES = {"validate"}
 
-    DEFAULTS = {
-        "use_inout_data": False,
-        "check_integrity": True,
-        # the following should be configured using gen_data feature
-        "gen_data": False,
-        "gen_data_fill_mode": None,
-        "gen_data_file": None,
-        "gen_data_number": None,
-        "gen_data_fmt": None,
-        # the following should be configured using gen_ref_data feature
-        "gen_ref_data": False,
-        "gen_ref_data_mode": None,
-        "gen_ref_data_file": None,
-        "gen_ref_data_fmt": None,
-        "gen_ref_labels": False,
-        "gen_ref_labels_mode": None,
-        "gen_ref_labels_file": None,
-        "gen_ref_labels_fmt": None,
-    }
-
-    REQUIRED = set()
-    OPTIONAL = set()
+    check_integrity = cfg(True, cast=str2bool)
+    use_inout_data = cfg(False, cast=str2bool)
+    gen_data = cfg(False, cast=str2bool)
+    gen_data_file = cfg(None)
+    gen_data_fill_mode = cfg(None, cast=one_of(("random", "ones", "zeros", "file", "dataset")), preserve_none=False)
+    gen_data_number = cfg(None, cast=int, preserve_none=False)
+    gen_data_fmt = cfg(None, cast=one_of(("npy", "npz")), preserve_none=False)
+    gen_ref_data = cfg(False, cast=str2bool)
+    gen_ref_data_file = cfg(None)
+    gen_ref_data_mode = cfg(None, cast=one_of(("file", "model")), preserve_none=False)
+    gen_ref_data_fmt = cfg(None, cast=one_of(("npy", "npz")), preserve_none=False)
+    gen_ref_labels = cfg(False, cast=str2bool)
+    gen_ref_labels_file = cfg(None)
+    gen_ref_labels_mode = cfg(None, cast=one_of(("file", "model")), preserve_none=False)
+    gen_ref_labels_fmt = cfg(None, cast=one_of(("npy", "npz", "txt", "csv")), preserve_none=False)
 
     def __init__(self, name, input_formats=None, output_formats=None, features=None, config=None):
         self.name = name
@@ -106,82 +99,6 @@ class Frontend(ABC):
         if self.config and len(self.config) > 0:
             probs.append(str(self.config))
         return "Frontend(" + ",".join(probs) + ")"
-
-    @property
-    def check_integrity(self):
-        return str2bool(self.config["check_integrity"])
-
-    @property
-    def use_inout_data(self):
-        value = self.config["use_inout_data"]
-        return str2bool(value)
-
-    @property
-    def gen_data(self):
-        value = self.config["gen_data"]
-        return str2bool(value)
-
-    @property
-    def gen_data_fill_mode(self):
-        value = self.config["gen_data_fill_mode"]
-        assert value in ["random", "ones", "zeros", "file", "dataset"]
-        return value
-
-    @property
-    def gen_data_file(self):
-        return self.config["gen_data_file"]
-
-    @property
-    def gen_data_number(self):
-        return int(self.config["gen_data_number"])
-
-    @property
-    def gen_data_fmt(self):
-        value = self.config["gen_data_fmt"]
-        assert value in ["npy", "npz"]
-        return value
-
-    @property
-    def gen_ref_data(self):
-        value = self.config["gen_ref_data"]
-        return str2bool(value)
-
-    @property
-    def gen_ref_data_mode(self):
-        value = self.config["gen_ref_data_mode"]
-        assert value in ["file", "model"]
-        return value
-
-    @property
-    def gen_ref_data_file(self):
-        return self.config["gen_ref_data_file"]
-
-    @property
-    def gen_ref_data_fmt(self):
-        value = self.config["gen_ref_data_fmt"]
-        assert value in ["npy", "npz"]
-        return value
-
-    @property
-    def gen_ref_labels(self):
-        value = self.config["gen_ref_labels"]
-        return str2bool(value)
-
-    @property
-    def gen_ref_labels_mode(self):
-        value = self.config["gen_ref_labels_mode"]
-        assert value in ["file", "model"]
-        return value
-
-    @property
-    def gen_ref_labels_file(self):
-        return self.config["gen_ref_labels_file"]
-
-    @property
-    def gen_ref_labels_fmt(self):
-        value = self.config["gen_ref_labels_fmt"]
-        assert value in ["npy", "npz", "txt", "csv"]
-        return value
 
     def inference(self, model: Model, input_data: Dict[str, np.array]):
         raise NotImplementedError
@@ -989,19 +906,13 @@ class TfLiteFrontend(SimpleFrontend):
         "gen_ref_labels",
     }
 
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "visualize_enable": False,
-        "visualize_script": None,
-        "split_layers": False,
-        "pack_script": None,
-        "analyze_enable": False,
-        "analyze_script": None,
-    }
-
-    REQUIRED = Frontend.REQUIRED
-
-    OPTIONAL = SimpleFrontend.OPTIONAL | {"tflite_analyze.script"}
+    visualize_enable = cfg(False, cast=str2bool)
+    visualize_script = cfg(None)
+    split_layers = cfg(False, cast=str2bool)
+    pack_script = cfg(None)
+    analyze_enable = cfg(False, cast=str2bool)
+    analyze_script = cfg(None)
+    OPTIONAL = {"tflite_analyze.script"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1010,33 +921,6 @@ class TfLiteFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
-
-    @property
-    def visualize_enable(self):
-        value = self.config["visualize_enable"]
-        return str2bool(value)
-
-    @property
-    def split_layers(self):
-        value = self.config["split_layers"]
-        return str2bool(value)
-
-    @property
-    def visualize_script(self):
-        return self.config["visualize_script"]
-
-    @property
-    def pack_script(self):
-        return self.config["pack_script"]
-
-    @property
-    def analyze_enable(self):
-        value = self.config["analyze_enable"]
-        return str2bool(value)
-
-    @property
-    def analyze_script(self):
-        return self.config["analyze_script"]
 
     def extract_model_info(self, model: Model):
         try:
@@ -1288,10 +1172,10 @@ class TfLiteFrontend(SimpleFrontend):
 
 class RelayFrontend(SimpleFrontend):
     FEATURES = Frontend.FEATURES | {"relayviz"}
-
-    DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False, "relayviz_plotter": "term"}
-
-    REQUIRED = Frontend.REQUIRED | {"tvm.build_dir", "tvm.pythonpath"}
+    visualize_graph = cfg(False, cast=str2bool)
+    relayviz_plotter = cfg("term")
+    tvm_build_dir = required("tvm.build_dir")
+    tvm_pythonpath = required("tvm.pythonpath")
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1300,23 +1184,6 @@ class RelayFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
-
-    @property
-    def visualize_graph(self):
-        value = self.config["visualize_graph"]
-        return str2bool(value)
-
-    @property
-    def relayviz_plotter(self):
-        return self.config["relayviz_plotter"]
-
-    @property
-    def tvm_build_dir(self):
-        return self.config["tvm.build_dir"]
-
-    @property
-    def tvm_pythonpath(self):
-        return self.config["tvm.pythonpath"]
 
     def produce_artifacts(self, model):
         assert len(self.input_formats) == len(model.paths) == 1
@@ -1401,17 +1268,11 @@ class RelayFrontend(SimpleFrontend):
 
 class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?
     FEATURES = Frontend.FEATURES | {"packing", "packed"}
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "ignore_existing": True,
-        "fake_pack": False,  # Pretend that every compatible tensor is packable
-        # (best case scenerio, TODO: rename to force_pack?)
-        "use_packed": True,
-        "check": False,  # Unimplemented
-    }
-
-    REQUIRED = {"packer.exe"}  # TODO move to feature?
+    ignore_existing = cfg(True, cast=str2bool)
+    fake_pack = cfg(False, cast=str2bool)
+    use_packed = cfg(True, cast=str2bool)
+    check = cfg(False, cast=str2bool)
+    packer_exe = required("packer.exe", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(name="packed", features=features, config=config)
@@ -1430,26 +1291,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
         # else:
         #     self.output_formats = [ModelFormats.TFLITE]
         # Order of formats ir irrelevant here, hot for artifacts, the first one will always be the main object
-
-    @property
-    def ignore_existing(self):
-        value = self.config["ignore_existing"]
-        return str2bool(value)
-
-    @property
-    def fake_pack(self):
-        value = self.config["fake_pack"]
-        return str2bool(value)
-
-    @property
-    def use_packed(self):
-        value = self.config["use_packed"]
-        return str2bool(value)
-
-    @property
-    def check(self):
-        value = self.config["check"]
-        return str2bool(value)
 
     def produce_artifacts(self, model):
         tflite_data = None
@@ -1480,7 +1321,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             # Do packing
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug("Using temporary directory for packing results: %s", tmpdirname)
-                packer_exe = self.config["packer_exe"]
+                packer_exe = self.packer_exe
                 assert packer_exe is not None
                 in_file = Path(tmpdirname) / "in.tflite"
                 with open(in_file, "wb") as handle:
@@ -1524,13 +1365,6 @@ class ONNXFrontend(SimpleFrontend):
 
 
 class TorchFrontend(Frontend):
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-    }
-
-    REQUIRED = Frontend.REQUIRED
-    OPTIONAL = Frontend.OPTIONAL
-
     def __init__(self, name: str, fmt: ModelFormats, features=None, config=None):
         super().__init__(
             name,
@@ -1832,7 +1666,7 @@ class ExampleFrontend(BenchFrontend):
 
 
 class EmbenchFrontend(BenchFrontend):
-    REQUIRED = {"embench.src_dir"}
+    embench_src_dir = required("embench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1873,12 +1707,12 @@ class EmbenchFrontend(BenchFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform in ["mlif", "mlif_litex"]:
-            ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
+            ret["EMBENCH_DIR"] = self.embench_src_dir
         return ret
 
 
 class EmbenchIoTFrontend(BenchFrontend):
-    REQUIRED = {"embench_iot.src_dir"}
+    embench_iot_src_dir = required("embench_iot.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1921,12 +1755,12 @@ class EmbenchIoTFrontend(BenchFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform in ["mlif", "mlif_litex"]:
-            ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
+            ret["EMBENCH_IOT_DIR"] = self.embench_iot_src_dir
         return ret
 
 
 class EmbenchDSPFrontend(BenchFrontend):
-    REQUIRED = {"embench_dsp.src_dir"}
+    embench_dsp_src_dir = required("embench_dsp.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1955,12 +1789,12 @@ class EmbenchDSPFrontend(BenchFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform in ["mlif", "mlif_litex"]:
-            ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
+            ret["EMBENCH_DSP_DIR"] = self.embench_dsp_src_dir
         return ret
 
 
 class TaclebenchFrontend(BenchFrontend):
-    REQUIRED = {"taclebench.src_dir"}
+    taclebench_src_dir = required("taclebench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -2036,18 +1870,13 @@ class TaclebenchFrontend(BenchFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform in ["mlif", "mlif_litex"]:
-            ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
+            ret["TACLEBENCH_DIR"] = self.taclebench_src_dir
         return ret
 
 
 class PolybenchFrontend(BenchFrontend):
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "dataset": "large",  # mini/small/medium/large/extralarge
-    }
-
-    REQUIRED = {"polybench.src_dir"}
+    dataset = cfg("large")
+    polybench_src_dir = required("polybench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -2096,8 +1925,8 @@ class PolybenchFrontend(BenchFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform in ["mlif", "mlif_litex"]:
-            ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
-            ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
+            ret["POLYBENCH_DIR"] = self.polybench_src_dir
+            ret["POLYBENCH_DATASET"] = self.dataset.upper() + "_DATASET"
         return ret
 
 
@@ -2164,7 +1993,7 @@ class MathisFrontend(BenchFrontend):
 
 
 class MibenchFrontend(BenchFrontend):
-    REQUIRED = {"mibench.src_dir"}
+    mibench_src_dir = required("mibench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -2196,7 +2025,7 @@ class MibenchFrontend(BenchFrontend):
     def get_platform_defs(self, platform):
         ret = {}
         if platform in ["mlif", "mlif_litex"]:
-            ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
+            ret["MIBENCH_DIR"] = self.mibench_src_dir
 
         return ret
 
@@ -2218,12 +2047,8 @@ class LayerGenFrontend(Frontend):
 
     FEATURES = Frontend.FEATURES
 
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "fmt": "tflite",  # TODO: relay
-    }
-
-    REQUIRED = Frontend.REQUIRED | {"layergen.exe"}
+    DEFAULTS = {"fmt": "tflite"}  # TODO: relay
+    layergen_exe = required("layergen.exe", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -2240,10 +2065,6 @@ class LayerGenFrontend(Frontend):
         value = value.upper()
         assert value in ["TFLITE", "RELAY"]
         return value
-
-    @property
-    def layergen_exe(self):
-        return Path(self.config["layergen.exe"])
 
     def produce_artifacts(self, model):
         pass

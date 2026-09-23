@@ -32,7 +32,7 @@ import yaml
 
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
-from mlonmcu.config import str2bool
+from mlonmcu.config import Configurable, cfg, str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
@@ -277,23 +277,18 @@ class RunResult:
         return self.report
 
 
-class Run:
+class Run(Configurable):
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
     FEATURES = {"autotune", "target_optimized", "validate_new"}
 
-    DEFAULTS = {
-        "export_optional": False,
-        "tune_enabled": False,
-        "target_to_backend": True,
-        "target_optimized_layouts": False,
-        "target_optimized_schedules": False,
-        "stage_subdirs": False,
-        "profile_stages": False,
-    }
-
-    REQUIRED = set()
-    OPTIONAL = set()
+    export_optional = cfg(False, cast=str2bool, source="run_config")
+    tune_enabled = cfg(False, cast=str2bool, source="run_config")
+    target_to_backend = cfg(True, cast=str2bool, source="run_config")
+    target_optimized_layouts = cfg(False, cast=str2bool, source="run_config")
+    target_optimized_schedules = cfg(False, cast=str2bool, source="run_config")
+    stage_subdirs = cfg(False, cast=str2bool, source="run_config")
+    profile_stages = cfg(False, cast=str2bool, source="run_config")
 
     @classmethod
     def from_file(cls, path):
@@ -361,46 +356,6 @@ class Run:
 
     def has_target(self):
         return self.target is not None
-
-    @property
-    def tune_enabled(self):
-        """Get tune_enabled property."""
-        value = self.run_config["tune_enabled"]
-        return str2bool(value)
-
-    @property
-    def target_to_backend(self):
-        """Get target_to_backend property."""
-        value = self.run_config["target_to_backend"]
-        return str2bool(value)
-
-    @property
-    def target_optimized_layouts(self):
-        """Get target_optimized_layouts property."""
-        value = self.run_config["target_optimized_layouts"]
-        return str2bool(value)
-
-    @property
-    def target_optimized_schedules(self):
-        """Get target_optimized_schedules property."""
-        value = self.run_config["target_optimized_schedules"]
-        return str2bool(value)
-
-    @property
-    def export_optional(self):
-        """Get export_optional property."""
-        value = self.run_config["export_optional"]
-        return str2bool(value)
-
-    @property
-    def stage_subdirs(self):
-        value = self.run_config["stage_subdirs"]
-        return str2bool(value)
-
-    @property
-    def profile_stages(self):
-        value = self.run_config["profile_stages"]
-        return str2bool(value)
 
     @property
     def build_platform(self):

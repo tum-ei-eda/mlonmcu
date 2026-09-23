@@ -22,6 +22,7 @@ from enum import Enum
 
 from mlonmcu.utils import filter_none
 from mlonmcu.target.target import Target
+from mlonmcu.config import cfg
 from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
@@ -64,19 +65,14 @@ def get_espidf_platform_targets():
 
 class Esp32C3Target(Target):
     DEFAULTS = {
-        **Target.DEFAULTS,
-        "xlen": 32,
         "extensions": ["i", "m", "c"],
         "fpu": "none",
         "arch": None,
         "abi": None,
         "attr": "",
-        "count": Esp32C3PerfCount.CYCLE,
     }
-
-    @property
-    def xlen(self):
-        return int(self.config["xlen"])
+    xlen = cfg(32, cast=int)
+    count = cfg(Esp32C3PerfCount.CYCLE, cast=int)
 
     @property
     def extensions(self):
@@ -138,11 +134,6 @@ class Esp32C3Target(Target):
         if value is None or not value:
             value = "none"
         assert value in ["none", "single", "double"]
-        return value
-
-    @property
-    def count(self):
-        value = int(self.config["count"])
         return value
 
     @property

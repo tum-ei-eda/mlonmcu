@@ -26,7 +26,7 @@ from pathlib import Path
 from filelock import FileLock
 from typing import Tuple, List
 
-from mlonmcu.config import filter_config
+from mlonmcu.config import Configurable, cfg, filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.target.metrics import Metrics
@@ -38,17 +38,12 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 logger = get_logger()
 
 
-class Platform:
+class Platform(Configurable):
     """Abstract platform class."""
 
     FEATURES = set()
 
-    DEFAULTS = {
-        "print_outputs": False,
-    }
-
-    REQUIRED = set()
-    OPTIONAL = set()
+    print_outputs = cfg(False, cast=str2bool)
 
     def __init__(self, name, features=None, config=None):
         self.name = name
@@ -81,11 +76,6 @@ class Platform:
     @property
     def supports_monitor(self):
         return False
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
 
     def process_features(self, features):
         if features is None:
@@ -186,25 +176,13 @@ class CompilePlatform(Platform):
 
     FEATURES = Platform.FEATURES | {"debug"}
 
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-        "debug": False,
-        "build_dir": None,
-        "num_threads": multiprocessing.cpu_count(),
-    }
+    debug = cfg(False, cast=str2bool)
+    build_dir = cfg(None)
+    num_threads = cfg(multiprocessing.cpu_count(), cast=lambda value: max(1, int(value)), preserve_none=False)
 
     @property
     def supports_compile(self):
         return True
-
-    @property
-    def debug(self):
-        value = self.config["debug"]
-        return str2bool(value)
-
-    @property
-    def num_threads(self):
-        return max(1, int(self.config["num_threads"]))
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)

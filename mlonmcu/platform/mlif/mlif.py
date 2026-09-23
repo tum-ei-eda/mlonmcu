@@ -26,7 +26,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 
-from mlonmcu.config import str2bool, str2list
+from mlonmcu.config import cfg, required, str2bool, str2list
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -73,48 +73,46 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     )
 
     DEFAULTS = {
-        **CompilePlatform.DEFAULTS,
-        **TargetPlatform.DEFAULTS,
         "template": "ml_interface",
         "template_version": None,
-        "ignore_data": True,
-        "skip_check": False,
-        "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
         "toolchain": "gcc",
         "prebuild_lib_path": None,
         "optimize": None,  # values: 0,1,2,3,s
         "input_data_path": None,
         "output_data_path": None,
-        "mem_only": False,
-        "debug_symbols": False,
-        "verbose_makefile": False,
-        "lto": False,
-        "slim_cpp": True,
-        "garbage_collect": True,
-        "strip_strings": False,
         "unroll_loops": None,
         "inline_functions": None,
-        "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
-        "set_inputs": False,
-        "set_inputs_interface": None,
-        "get_outputs": False,
-        "get_outputs_interface": None,
-        "get_outputs_fmt": None,
-        "batch_size": None,
         "model_support_file": None,
         "model_support_dir": None,
         "model_support_lib": None,
         # llvm specific (TODO: move to toolchain components)
         "fuse_ld": None,
-        "global_isel": False,
-        "extend_attrs": False,
-        "ccache": False,
         "custom_entry": None,
         "extra_paths": None,
     }
 
-    REQUIRED = {"mlif.src_dir"}
+    mlif_src_dir = required("mlif.src_dir", cast=Path)
+    goal = cfg("generic_mlonmcu")
+    ccache = cfg(False, cast=str2bool)
+    set_inputs = cfg(False, cast=str2bool)
+    set_inputs_interface = cfg(None)
+    get_outputs = cfg(False, cast=str2bool)
+    get_outputs_interface = cfg(None)
+    get_outputs_fmt = cfg(None)
+    batch_size = cfg(None, cast=lambda value: int(value) if isinstance(value, str) else value)
+    ignore_data = cfg(True, cast=str2bool)
+    skip_check = cfg(False, cast=str2bool)
+    fail_on_error = cfg(False, cast=str2bool)
+    mem_only = cfg(False, cast=str2bool)
+    debug_symbols = cfg(False, cast=str2bool)
+    verbose_makefile = cfg(False, cast=str2bool)
+    lto = cfg(False, cast=str2bool)
+    slim_cpp = cfg(True, cast=str2bool)
+    garbage_collect = cfg(True, cast=str2bool)
+    strip_strings = cfg(False, cast=str2bool)
+    global_isel = cfg(False, cast=str2bool)
+    extend_attrs = cfg(False, cast=str2bool)
     OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.exe"}
 
     def __init__(self, name="mlif", features=None, config=None):
@@ -125,47 +123,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         )
         self.tempdir = None
         self.build_dir = None
-
-    @property
-    def goal(self):
-        return self.config["goal"]
-
-    @property
-    def ccache(self):
-        value = self.config["ccache"]
-        return str2bool(value)
-
-    @property
-    def set_inputs(self):
-        value = self.config["set_inputs"]
-        return str2bool(value)
-
-    @property
-    def set_inputs_interface(self):
-        value = self.config["set_inputs_interface"]
-        return value
-
-    @property
-    def get_outputs(self):
-        value = self.config["get_outputs"]
-        return str2bool(value)
-
-    @property
-    def get_outputs_interface(self):
-        value = self.config["get_outputs_interface"]
-        return value
-
-    @property
-    def get_outputs_fmt(self):
-        value = self.config["get_outputs_fmt"]  # TODO: use
-        return value
-
-    @property
-    def batch_size(self):
-        value = self.config["batch_size"]  # TODO: use
-        if isinstance(value, str):
-            value = int(value)
-        return value
 
     @property
     def inputs_artifact(self):
@@ -294,21 +251,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["template_version"]
 
     @property
-    def ignore_data(self):
-        value = self.config["ignore_data"]
-        return str2bool(value)
-
-    @property
-    def skip_check(self):
-        value = self.config["skip_check"]
-        return str2bool(value)
-
-    @property
-    def fail_on_error(self):
-        value = self.config["fail_on_error"]
-        return str2bool(value)
-
-    @property
     def validate_outputs(self):
         return not self.ignore_data
 
@@ -351,54 +293,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["output_data_path"]
 
     @property
-    def mem_only(self):
-        value = self.config["mem_only"]
-        return str2bool(value)
-
-    @property
-    def debug_symbols(self):
-        value = self.config["debug_symbols"]
-        return str2bool(value)
-
-    @property
-    def verbose_makefile(self):
-        value = self.config["verbose_makefile"]
-        return str2bool(value)
-
-    @property
-    def lto(self):
-        value = self.config["lto"]
-        return str2bool(value)
-
-    @property
-    def slim_cpp(self):
-        value = self.config["slim_cpp"]
-        return str2bool(value)
-
-    @property
-    def garbage_collect(self):
-        value = self.config["garbage_collect"]
-        return str2bool(value)
-
-    @property
     def fuse_ld(self):
         value = self.config["fuse_ld"]
         return value
-
-    @property
-    def global_isel(self):
-        value = self.config["global_isel"]
-        return str2bool(value)
-
-    @property
-    def extend_attrs(self):
-        value = self.config["extend_attrs"]
-        return str2bool(value)
-
-    @property
-    def strip_strings(self):
-        value = self.config["strip_strings"]
-        return str2bool(value)
 
     @property
     def unroll_loops(self):

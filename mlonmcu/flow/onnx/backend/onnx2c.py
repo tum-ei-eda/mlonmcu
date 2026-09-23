@@ -25,7 +25,7 @@ from typing import Tuple
 
 import mlonmcu.setup.utils as utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.config import str2bool, str2dict
+from mlonmcu.config import cfg, required, str2bool, str2dict
 from mlonmcu.flow.backend import main
 from mlonmcu.logging import get_logger
 
@@ -39,69 +39,18 @@ class Onnx2CBackend(ONNXBackend):
 
     FEATURES = set()
 
-    DEFAULTS = {
-        "print_outputs": False,
-        "log_level": 0,
-        "func_name": "entry",
-        "no_globals": False,
-        "extern_init": False,
-        "only_init": False,
-        "avr": False,
-        "optimizations": None,
-        "define": {},
-        "sanitize_legacy_broadcast_attrs": True,
-        "sanitized_model_out": None,
-    }
-
-    REQUIRED = ONNXBackend.REQUIRED | {"onnx2c.exe"}
-
-    @property
-    def print_outputs(self):
-        return str2bool(self.config["print_outputs"])
-
-    @property
-    def log_level(self):
-        return int(self.config["log_level"])
-
-    @property
-    def func_name(self):
-        return self.config["func_name"]
-
-    @property
-    def no_globals(self):
-        return str2bool(self.config["no_globals"])
-
-    @property
-    def extern_init(self):
-        return str2bool(self.config["extern_init"])
-
-    @property
-    def only_init(self):
-        return str2bool(self.config["only_init"])
-
-    @property
-    def avr(self):
-        return str2bool(self.config["avr"])
-
-    @property
-    def optimizations(self):
-        return self.config["optimizations"]
-
-    @property
-    def define(self):
-        value = self.config["define"]
-        if isinstance(value, str):
-            value = str2dict(value)
-        assert isinstance(value, dict)
-        return value
-
-    @property
-    def sanitize_legacy_broadcast_attrs(self):
-        return str2bool(self.config["sanitize_legacy_broadcast_attrs"])
-
-    @property
-    def sanitized_model_out(self):
-        return self.config["sanitized_model_out"]
+    print_outputs = cfg(False, cast=str2bool)
+    log_level = cfg(0, cast=int)
+    func_name = cfg("entry")
+    no_globals = cfg(False, cast=str2bool)
+    extern_init = cfg(False, cast=str2bool)
+    only_init = cfg(False, cast=str2bool)
+    avr = cfg(False, cast=str2bool)
+    optimizations = cfg(None)
+    define = cfg({}, cast=str2dict, preserve_none=False)
+    sanitize_legacy_broadcast_attrs = cfg(True, cast=str2bool)
+    sanitized_model_out = cfg(None)
+    onnx2c_exe = required("onnx2c.exe")
 
     def _sanitize_model_for_onnx2c(self, model_path, out_path):
         if not self.sanitize_legacy_broadcast_attrs:
@@ -509,7 +458,7 @@ int mlonmcu_check() {{
     def generate(self) -> Tuple[dict, dict]:
         assert self.model is not None
         artifacts = []
-        onnx2c_exe = self.config["onnx2c.exe"]
+        onnx2c_exe = self.onnx2c_exe
 
         base_name = Path(self.model).stem
 

@@ -26,6 +26,7 @@ from mlonmcu.target.common import cli
 from mlonmcu.setup.utils import execute
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
+from mlonmcu.config import cfg, required
 
 from .riscv import RISCVTarget
 
@@ -39,7 +40,6 @@ class TGCTarget(RISCVTarget):
     FEATURES = RISCVTarget.FEATURES
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
         "extensions": ["i", "m", "c"],
         "fpu": None,
         "atomic": False,
@@ -48,7 +48,11 @@ class TGCTarget(RISCVTarget):
         "backend": "interp",
         # TODO: plugins
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"tgc.exe", "tgc_bsp.src_dir"}
+    tgc_exe = required("tgc.exe", cast=Path)
+    tgc_bsp_dir = required("tgc_bsp.src_dir", cast=Path)
+    iss_args = cfg(None)
+    isa = cfg("tgc5c")
+    backend = cfg("interp")
 
     def __init__(self, name="tgc", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -56,26 +60,6 @@ class TGCTarget(RISCVTarget):
         #     self.config["extensions"] = self.isa_dict[self.isa]
         if "e" in self.config["extensions"]:
             self.config["abi"] = "ilp32e"
-
-    @property
-    def tgc_exe(self):
-        return Path(self.config["tgc.exe"])
-
-    @property
-    def tgc_bsp_dir(self):
-        return Path(self.config["tgc_bsp.src_dir"])
-
-    @property
-    def iss_args(self):
-        return self.config["iss_args"]
-
-    @property
-    def isa(self):
-        return self.config["isa"]
-
-    @property
-    def backend(self):
-        return self.config["backend"]
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         # assert len(args) == 0, "at the moment no args supported"

@@ -38,6 +38,17 @@ def parse_int(value):
     return value if isinstance(value, int) else int(value, 0)
 
 
+def one_of(values):
+    """Return a legalizer which accepts only values from ``values``."""
+    values = tuple(values)
+
+    def legalize(value):
+        assert value in values
+        return value
+
+    return legalize
+
+
 class ConfigField:
     """A declarative, optionally legalized configuration value.
 
@@ -47,7 +58,17 @@ class ConfigField:
     :func:`filter_config`.
     """
 
-    def __init__(self, default=_MISSING, *, key=None, cast=None, required=False, optional=False):
+    def __init__(
+        self,
+        default=_MISSING,
+        *,
+        key=None,
+        cast=None,
+        required=False,
+        optional=False,
+        preserve_none=True,
+        source="config",
+    ):
         if required and optional:
             raise ValueError("A config field cannot be both required and optional")
         if required and default is not _MISSING:
@@ -57,6 +78,8 @@ class ConfigField:
         self.cast = cast
         self.required = required
         self.optional = optional
+        self.preserve_none = preserve_none
+        self.source = source
         self.name = None
 
     def __set_name__(self, owner, name):
@@ -67,27 +90,27 @@ class ConfigField:
     def __get__(self, obj, owner=None):
         if obj is None:
             return self
-        value = obj.config[self.key]
+        value = getattr(obj, self.source)[self.key]
         # Optional/default fields can explicitly be null.  Existing properties
         # nearly universally preserved that null rather than converting it.
-        if value is None:
+        if value is None and self.preserve_none:
             return None
         return self.cast(value) if self.cast is not None else value
 
 
-def cfg(default=_MISSING, *, key=None, cast=None):
+def cfg(default=_MISSING, *, key=None, cast=None, preserve_none=True, source="config"):
     """Declare a default-valued configuration field."""
-    return ConfigField(default, key=key, cast=cast)
+    return ConfigField(default, key=key, cast=cast, preserve_none=preserve_none, source=source)
 
 
-def required(key=None, *, cast=None):
+def required(key=None, *, cast=None, preserve_none=True, source="config"):
     """Declare a required configuration field."""
-    return ConfigField(key=key, cast=cast, required=True)
+    return ConfigField(key=key, cast=cast, required=True, preserve_none=preserve_none, source=source)
 
 
-def optional(key=None, *, cast=None):
+def optional(key=None, *, cast=None, preserve_none=True, source="config"):
     """Declare an optional configuration field."""
-    return ConfigField(key=key, cast=cast, optional=True)
+    return ConfigField(key=key, cast=cast, optional=True, preserve_none=preserve_none, source=source)
 
 
 class Configurable:

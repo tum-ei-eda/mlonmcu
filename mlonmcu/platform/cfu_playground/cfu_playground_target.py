@@ -19,7 +19,7 @@
 import re
 import os
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 
 # from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget
@@ -53,25 +53,14 @@ class TemplateCFUPlaygroundPlatformTarget(RISCVTarget):
 
 class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "verbose": False,
-        "rtl_sim": False,  # TODO: move to target feature?
-        "cpu_variant": None,
         "fpu": "none",  # TODO: use
         "compressed": False,  # TODO: use
         "atomic": False,  # TODO: use
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"tvm.build_dir"}
-
-    @property
-    def cpu_variant(self):
-        value = self.config["cpu_variant"]
-        return value
-
-    @property
-    def rtl_sim(self):
-        value = self.config["rtl_sim"]
-        return str2bool(value)
+    tvm_build_dir = required("tvm.build_dir")
+    verbose = cfg(False, cast=str2bool)
+    rtl_sim = cfg(False, cast=str2bool)
+    cpu_variant = cfg(None)
 
     @property
     def use_renode(self):
@@ -82,10 +71,7 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
 
 
 class FullRTLCFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
-    DEFAULTS = {
-        **FullCFUPlaygroundPlatformTarget.DEFAULTS,
-        "rtl_sim": True,
-    }
+    rtl_sim = cfg(True, cast=str2bool)
 
 
 register_cfu_playground_platform_target("cfu_full", FullCFUPlaygroundPlatformTarget)

@@ -30,7 +30,6 @@ class LicheeRvD1TvmPlatformTarget(RISCVTarget):
     FEATURES = RISCVTarget.FEATURES | set()
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
         "xlen": 64,
         "vlen": 128,
         "elen": 64,
@@ -42,7 +41,6 @@ class LicheeRvD1TvmPlatformTarget(RISCVTarget):
         "fclk": 1e9,
         "fcpu": 1e9,  # TODO: remove this!
     }
-    REQUIRED = RISCVTarget.REQUIRED | set()
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

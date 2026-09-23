@@ -26,13 +26,12 @@ from pathlib import Path
 from typing import List, Tuple
 
 
-from mlonmcu.config import filter_config
+from mlonmcu.config import Configurable, cfg, filter_config, str2bool
 from mlonmcu.utils import filter_none
 from mlonmcu.feature.feature import Feature
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.artifact import Artifact, ArtifactFormat
-from mlonmcu.config import str2bool
 
 
 from mlonmcu.setup.utils import execute
@@ -40,7 +39,7 @@ from mlonmcu.target.bench import add_bench_metrics
 from .metrics import Metrics
 
 
-class Target:
+class Target(Configurable):
     """Base target class
 
     Attributes
@@ -60,15 +59,10 @@ class Target:
     """
 
     FEATURES = {"benchmark"}
-    DEFAULTS = {
-        "print_outputs": False,
-        "repeat": None,
-        "temp_dir_base": None,
-        "fclk": None,
-    }
-
-    REQUIRED = set()
-    OPTIONAL = set()
+    print_outputs = cfg(False, cast=str2bool)
+    repeat = cfg(None)
+    temp_dir_base = cfg(None)
+    fclk = cfg(None, cast=lambda value: int(float(value)))
 
     def __init__(
         self,
@@ -93,24 +87,6 @@ class Target:
     #     assert path is not None
     #         self.dir = Path(path)
     #     self.dir.mkdir(exist_ok=True)
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
-
-    @property
-    def repeat(self):
-        return self.config["repeat"]
-
-    @property
-    def temp_dir_base(self):
-        return self.config["temp_dir_base"]
-
-    @property
-    def fclk(self):
-        value = self.config["fclk"]
-        return int(float(value)) if value is not None else None
 
     def __repr__(self):
         return f"Target({self.name})"

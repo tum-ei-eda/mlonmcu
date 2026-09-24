@@ -126,15 +126,21 @@ class PathConfig(BaseConfig):
 
 
 class PythonConfig(BaseConfig):
-    def __init__(self, extra=None, requirements=None):
+    def __init__(self, extra=None, requirements=None, venv=None, base=None):
         self.extra = extra if extra is not None else []
         assert isinstance(self.extra, list)
         assert all(isinstance(item, str) for item in self.extra)
         self.requirements = requirements if requirements is not None else []
         assert isinstance(self.requirements, list)
+        self.venv = None
+        if venv:
+            self.venv = Path(venv)
+            if base and not self.venv.is_absolute():
+                self.venv = Path(base) / self.venv
+            self.venv = self.venv.resolve()
 
     def __repr(self):
-        return f"PythonConfig(extra={self.extra}, requirements={self.requirements})"
+        return f"PythonConfig(venv={self.venv}, extra={self.extra}, requirements={self.requirements})"
 
 
 class RepoConfig(BaseConfig):

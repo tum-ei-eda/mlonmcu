@@ -99,7 +99,8 @@ def load_environment_from_file(filename, base):
         if "python" in loaded:
             extra = loaded["python"].get("extra")
             requirements = loaded["python"].get("requirements")
-            python_config = PythonConfig(extra=extra, requirements=requirements)
+            venv = loaded["python"].get("venv")
+            python_config = PythonConfig(extra=extra, requirements=requirements, venv=venv, base=home)
         else:
             python_config = None
         if "paths" in loaded:

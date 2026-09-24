@@ -21,6 +21,7 @@ import logging
 from .config import (
     DefaultsConfig,
     PathConfig,
+    PythonConfig,
 )
 from .loader import load_environment_from_file
 from .writer import write_environment_to_file
@@ -49,6 +50,7 @@ class Environment:
     def __init__(self):
         self._home = None
         self.alias = None
+        self.python = None
         self.defaults = DefaultsConfig()
         self.paths = {}
         self.repos = {}
@@ -340,6 +342,7 @@ class DefaultEnvironment(Environment):
             cleanup_auto=False,
             cleanup_keep=100,
         )
+        self.python = PythonConfig()
         self.paths = {
             "deps": PathConfig("./deps"),
             "logs": PathConfig("./logs"),
@@ -367,6 +370,7 @@ class UserEnvironment(DefaultEnvironment):
         merge=False,
         alias=None,
         defaults=None,
+        python=None,
         paths=None,
         repos=None,
         frameworks=None,
@@ -387,6 +391,8 @@ class UserEnvironment(DefaultEnvironment):
             self.alias = alias
         if defaults:
             self.defaults = defaults
+        if python:
+            self.python = python
         if paths:
             self.paths = paths
         if repos:

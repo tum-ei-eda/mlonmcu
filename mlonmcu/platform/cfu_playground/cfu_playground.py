@@ -31,6 +31,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.logging import get_logger
 from mlonmcu.flow.tvm.framework import get_crt_config_dir
+from mlonmcu.config import str2bool
 
 from ..platform import CompilePlatform, TargetPlatform
 from .cfu_playground_target import create_cfu_playground_platform_target, get_cfu_playground_platform_targets
@@ -58,14 +59,14 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         "project_dir": None,
         "optimize": None,  # values: 0,1,2,3,s
         "mlif_template": None,
-        # "device": "digilent_arty",  # TODO: FPGA support?
+        "wait_for_user": True,
     }
 
     REQUIRED = {
         "cfu_playground.src_dir",
         "mlif.src_dir",
     }  # TODO: riscv tc?
-    OPTIONAL = {"tvm.src_dir", "mlif.template", "yosys.install_dir", "verilator.install_dir"}
+    OPTIONAL = {"tvm.src_dir", "mlif.template", "yosys.install_dir", "verilator.install_dir", "vivado.install_dir"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -99,6 +100,13 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def verilator_install_dir(self):
         ret = self.config["verilator.install_dir"]
+        if ret is None:
+            return ret
+        return Path(ret)
+
+    @property
+    def vivado_install_dir(self):
+        ret = self.config["vivado.install_dir"]
         if ret is None:
             return ret
         return Path(ret)
@@ -159,9 +167,9 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     def port(self):
         return self.config["port"]
 
-    @property
-    def baud(self):
-        return self.config["baud"]
+    # @property
+    # def baud(self):
+    #     return self.config["baud"]
 
     @property
     def optimize(self):
@@ -174,6 +182,11 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             val = str(val)
         assert val in ["0", "1", "2", "3", "s"], f"Unsupported: {val}"
         return val
+
+    @property
+    def wait_for_user(self):
+        value = self.config["wait_for_user"]
+        return str2bool(value)
 
     def close(self):
         if self.tempdir:
@@ -223,6 +236,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # TODO: riscv tc from target
         # TODO: ...
         env["CFU_ROOT"] = self.cfu_playground_src_dir
+        env["SOC_DIR"] = self.cfu_playground_src_dir / "soc"
         env["PROJ"] = "cfu_playground"
         env["PROJ_DIR"] = self.project_dir
         new_path = env.get("PATH", "")
@@ -231,6 +245,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             new_path = f"{self.yosys_install_dir}:{new_path}"
         if self.verilator_install_dir:
             new_path = f"{self.verilator_install_dir}:{new_path}"
+        if self.vivado_install_dir:
+            new_path = f"{self.vivado_install_dir}/bin:{new_path}"
         if target:
             new_path = f"{target.riscv_gcc_prefix}/bin:{new_path}"
         # print("new_path", new_path)
@@ -492,8 +508,19 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 lines_to_append.append(f"DEFINES += {key}={val}")
         for inc in makefile_includes:
             lines_to_append.append(f"INCLUDES += {inc}")
+        if target.fpga_sim and target.fpga_variant:
+            lines_to_append.append(f"export EXTRA_LITEX_ARGS += --variant {target.fpga_variant}")
         if target.cpu_variant:
             lines_to_append.append(f"export EXTRA_LITEX_ARGS += --cpu-variant {target.cpu_variant}")
+        if target.sys_clk_freq:
+            lines_to_append.append(f"export EXTRA_LITEX_ARGS += --sys-clk-freq={target.sys_clk_freq}")
+        if target.use_sw_dir:
+            lines_to_append.append(f"export EXTRA_LITEX_ARGS += --software-dir {target.use_sw_dir}")
+            lines_to_append.append(f"export SOC_SOFTWARE_DIR={target.use_sw_dir}")
+        if target.use_gateware_dir:
+            lines_to_append.append(f"export EXTRA_LITEX_ARGS += --gateware-dir {target.use_gateware_dir}")
+            lines_to_append.append(f"export SOC_GATEWARE_DIR={target.use_gateware_dir}")
+            lines_to_append.append(f"export CSR_JSON={target.use_gateware_dir}/../csr.json")
         lines_to_append.append(f"export EXTRA_LITEX_ARGS += --workdir {self.project_dir}")
         if self.num_threads:
             lines_to_append.append(f"export BUILD_JOBS={self.num_threads}")
@@ -527,14 +554,23 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
 
         return out
 
+    def pick_platform(self, target):
+        if target.rtl_sim or target.fpga_sim:
+            return "common_soc"
+        return "sim"
+
     def compile(self, target, src=None):
         # TODO: call make (without renode)?
         out = self.prepare(target, src=src)
+        platform = self.pick_platform(target)
         out += utils.make(
             "software",
             f"OUT_DIR={self.out_dir}",
             f"SOC_BUILD_DIR={self.out_dir}",
-            *(["PLATFORM=sim"] if target.rtl_sim else []),
+            f"PLATFORM={platform}",
+            *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+            # *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+            # *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
             cwd=self.project_dir,
             env=self.prepare_environment(target=target),
             live=self.print_outputs,
@@ -573,16 +609,22 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # TODO: implement timeout
         # TODO: make sure that already compiled? -> error or just call compile routine?
         if target.use_renode:
-            pass
+            assert not target.rtl_sim
+            assert not target.fpga_sim
         elif target.rtl_sim:
+            assert not target.fpga_sim
             # TODO: move to flash to avoid output?
             out = ""
             out_dir = self.out_dir
             env_ = self.prepare_environment(target=target)
             env_["LIBC_CLEANUP"] = "1"
+            platform = self.pick_platform(target)
             out += utils.make(
                 "load2",
-                *(["PLATFORM=sim"] if target.rtl_sim else []),
+                f"PLATFORM={platform}",
+                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+                # *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+                # *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
                 f"OUT_DIR={out_dir}",
                 f"SOC_BUILD_DIR={out_dir}",
                 cwd=self.project_dir,
@@ -601,16 +643,51 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             )
             vsim = gateware_dir / "obj_dir" / "Vsim"
             assert vsim.is_file()
-        else:
-            raise NotImplementedError("Only renode & verilator sim is supported (no FPGAs)")
+        elif target.fpga_sim:
+            assert not target.rtl_sim
+            out_dir = self.out_dir
+            env_ = self.prepare_environment(target=target)
+            env_["LIBC_CLEANUP"] = "1"
+            platform = self.pick_platform(target)
+            out = ""
+            out += utils.make(
+                # "load2",
+                "bitstream",
+                f"PLATFORM={platform}",
+                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+                *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+                *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+                f"OUT_DIR={out_dir}",
+                f"SOC_BUILD_DIR={out_dir}",
+                cwd=self.project_dir,
+                env=env_,
+                live=self.print_outputs,
+                threads=self.num_threads,
+            )
             if self.wait_for_user:  # INTERACTIVE
                 answer = input(
-                    f"Make sure that the device '{target.name}' is connected before you press [Enter]"
+                    f"Make sure that the device '{target.name}' is connected via TTY {target.fpga_tty} before you press [Enter]"
                     + " (Type 'Abort' to cancel)"
                 )
                 if answer.lower() == "abort":
                     return ""
-            logger.debug("Flashing target software")
+            logger.debug("Flashing bitstream & target software")
+            out += utils.make(
+                # "load2",
+                "prog",
+                f"PLATFORM={platform}",
+                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+                *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+                *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+                f"OUT_DIR={out_dir}",
+                f"SOC_BUILD_DIR={out_dir}",
+                cwd=self.project_dir,
+                env=env_,
+                live=self.print_outputs,
+                threads=self.num_threads,
+            )
+        else:
+            raise RuntimeError("Only renode & verilator sim & fpga sim are supported")
 
     def monitor(self, target, timeout=60):
         # if self.flash_only:
@@ -736,6 +813,35 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 start_match="Program start.",
                 end_match="Program finish.",  # TODO: missing exit code?
                 timeout=timeout,
+            )
+        if target.fpga_sim:
+            # platform = self.pick_platform(target)
+            env = self.prepare_environment(target=target)
+            print("env", env)
+            out = ""
+            # out += utils.make(
+            #     "run",
+            #     'TEST_FLAGS="--show-log"',
+            #     f"PLATFORM={platform}",
+            #     f"TTY={target.fpga_tty}",
+            #     *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+            #     f"TARGET={target.fpga_target}",
+            #     'RUN_MENU_ITEMS="3 3 3"',
+            #     cwd=self.project_dir,
+            #     env=env,
+            #     live=self.print_outputs,
+            #     threads=self.num_threads,
+            # )
+            assert target.baud is not None
+            out += utils.execute(
+                self.project_dir / "build" / "interact_mlonmcu.expect",  # TODO: expose?
+                self.project_dir / "build" / "software.bin",
+                target.fpga_tty,
+                str(target.baud),
+                "3 3 3",
+                cwd=self.project_dir,
+                env=env,
+                live=self.print_outputs,
             )
         else:
             raise NotImplementedError("Only renode is supported")

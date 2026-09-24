@@ -55,8 +55,54 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
     DEFAULTS = {
         **RISCVTarget.DEFAULTS,
         "verbose": False,
+        "use_sw_dir": None,
+        "use_gateware_dir": None,
         "rtl_sim": False,  # TODO: move to target feature?
+        "fpga_sim": False,  # TODO: move to target feature?
+        "fpga_tty": None,
+        "fpga_target": "digilent_arty",
+        "fpga_variant": "a7-100",
+        "sys_clk_freq": None,
+        "baud": 1843200,  # TODO: fix?
         "cpu_variant": None,
+        # Variants:
+        # - full+cfu
+        # - full+cfu+debug
+        # - perf+cfu
+        # - perf+cfu+debug
+        # - slim+cfu
+        # - slim+cfu+debug
+        # - slimperf+cfu
+        # - slimperf+cfu+debug
+        # - minimal+cfu
+        # - fpu
+        # - fpu+debug
+        # - ...
+        # Build a custom variant using for example:
+        # `-c cfu_full_rtl.cpu_variant="generate+iCacheSize:2048+csrPluginConfig:all+cfu"`
+        # Available attributes:
+        # csrPluginConfig=mcycle/small/all/linux/linux-minimal
+        # bypass=true/false
+        # cfu=true/false
+        # dCacheSize=4096
+        # hardwareDiv=false/true
+        # iCacheSize=4096
+        # mulDiv=true/false
+        # prediction=none/static/dynamic/dynamic_target
+        # safe=true/false
+        # singleCycleShift=true/false
+        # singleCycleMulDiv=true/false
+        # debug=true/false
+        # UNTESTES:
+        # pmpRegions=0?
+        # pmpGranularity=256?
+        # hardwareBreakpointCount=0
+        # atomics=false/true
+        # compressedGen=false/true
+        # relaxedPcCalculation=false/true
+        # externalInterruptArray=true/false
+        # resetVector=null?
+        # machineTrapVector=null?
         "fpu": "none",  # TODO: use
         "compressed": False,  # TODO: use
         "atomic": False,  # TODO: use
@@ -69,13 +115,63 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
         return value
 
     @property
+    def use_sw_dir(self):
+        value = self.config["use_sw_dir"]
+        return value
+
+    @property
+    def use_gateware_dir(self):
+        value = self.config["use_gateware_dir"]
+        return value
+
+    @property
     def rtl_sim(self):
         value = self.config["rtl_sim"]
         return str2bool(value)
 
     @property
+    def fpga_sim(self):
+        value = self.config["fpga_sim"]
+        return str2bool(value)
+
+    @property
+    def fpga_tty(self):
+        value = self.config["fpga_tty"]
+        if value is None:
+            raise ValueError("fpga_tty can not be undefined")
+        return value
+
+    @property
+    def fpga_target(self):
+        value = self.config["fpga_target"]
+        if value is None:
+            raise ValueError("fpga_target can not be undefined")
+        return value
+
+    @property
+    def fpga_variant(self):
+        value = self.config["fpga_variant"]
+        if value is None:
+            raise ValueError("fpga_variant can not be undefined")
+        return value
+
+    @property
     def use_renode(self):
-        return not self.rtl_sim
+        return not self.rtl_sim and not self.fpga_sim
+
+    @property
+    def sys_clk_freq(self):
+        value = self.config["sys_clk_freq"]
+        if value is None:
+            return None
+        return int(float(value))
+
+    @property
+    def baud(self):
+        value = self.config["baud"]
+        if value is None:
+            return None
+        return int(value)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -88,8 +184,16 @@ class FullRTLCFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
     }
 
 
+class FullFPGACFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
+    DEFAULTS = {
+        **FullCFUPlaygroundPlatformTarget.DEFAULTS,
+        "fpga_sim": True,
+    }
+
+
 register_cfu_playground_platform_target("cfu_full", FullCFUPlaygroundPlatformTarget)
 register_cfu_playground_platform_target("cfu_full_rtl", FullRTLCFUPlaygroundPlatformTarget)
+register_cfu_playground_platform_target("cfu_full_fpga", FullFPGACFUPlaygroundPlatformTarget)
 
 
 # class DefaultCFUPlaygroundTarget(Target):

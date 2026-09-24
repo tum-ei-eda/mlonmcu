@@ -557,7 +557,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         return out
 
     def pick_platform(self, target):
-        if target.rtl_sim or target.fpga_sim:
+        # if target.rtl_sim or target.fpga_sim:
+        if target.fpga_sim:
             return "common_soc"
         return "sim"
 

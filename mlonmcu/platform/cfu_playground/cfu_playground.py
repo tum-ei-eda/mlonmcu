@@ -816,7 +816,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 end_match="Program finish.",  # TODO: missing exit code?
                 timeout=timeout,
             )
-        if target.fpga_sim:
+        elif target.fpga_sim:
             # platform = self.pick_platform(target)
             env = self.prepare_environment(target=target)
             print("env", env)

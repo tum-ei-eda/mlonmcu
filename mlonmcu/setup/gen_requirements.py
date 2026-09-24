@@ -202,47 +202,6 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    # Provide support for cfu_playground platform
-    (
-        "cfu_playground",
-        (
-            "Requirements for using cfu_playground",
-            [
-                "construct",
-                "psutil",
-                "pyelftools",
-                "pyyaml",
-                "robotframework",
-                "robotframework-retryfailed",
-            ],
-        ),
-    ),
-    # Provide support for espidf.
-    (
-        "espidf",
-        (
-            "Requirements for using espidf",
-            [
-                "bitstring",
-                "click",
-                "construct",
-                "cryptography",
-                "ecdsa",
-                "future",
-                "gdbgui",
-                "idf-component-manager",
-                "itsdangerous",  # there are two espidf in origin requirements.txt this is from the 2nd
-                "jinja2",  # there are two espidf in origin requirements.txt this is from the 2nd
-                "kconfiglib",
-                "psutil",
-                "pygdbmi",
-                "pyparsing",
-                "pyserial",  # for custom monitor
-                "python-socketio",
-                "reedsolo",
-            ],
-        ),
-    ),
     # Provide support for etiss.
     (
         "etiss",
@@ -369,25 +328,14 @@ ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]
 CONSTRAINTS = [
     ("GitPython", None),
     ("Pillow", None),
-    ("bitstring", ">=3.1.6"),
-    ("click", ">=7.0"),
     ("cloudpickle", None),
-    ("construct", "==2.10.54"),  # From PR #213.
-    # ("construct", "==2.10.68"),  # cfu?
-    ("cryptography", ">=2.1.4"),
     ("decorator", None),
-    ("ecdsa", ">=0.16.0"),
     ("executorch", "==1.1.0"),
     ("filelock", None),
-    ("future", ">=0.15.2"),
-    ("gdbgui", "==0.13.2.0"),
     ("graphviz", None),
     ("humanize", None),
     ("hydra-core", None),
-    ("idf-component-manager", "~=1.0"),
-    ("itsdangerous", "<2.1"),
     ("jinja2", ">=3.1.3"),
-    ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),
     # ("numpy", "<2.0; python_version <= '3.8'"),
@@ -401,18 +349,9 @@ CONSTRAINTS = [
     # ("psutil", "==5.9.3"),  # cfu?
     ("pyelftools", None),
     # ("pyelftools", "==0.30"),  # cfu?
-    ("pygdbmi", "<=0.9.0.2"),
-    ("pyparsing", ">=2.0.3,<2.4.0"),
-    ("pyserial", None),
-    ("python-socketio", "<5"),
     ("pyusb", None),
     ("pyyaml", None),
     # ("pyyaml", "==6.0.*"),  # cfu?
-    ("reedsolo", ">=1.5.3,<=1.5.4"),
-    ("robotframework", None),  # cfu?
-    # ("robotframework", "==6.1"),  # cfu?
-    ("robotframework-retryfailed", None),  # cfu?
-    # ("robotframework-retryfailed", "==0.2.0"),  # cfu?
     ("scipy", None),
     ("synr", None),
     # ("tensorflow", "~=2.13.0"),

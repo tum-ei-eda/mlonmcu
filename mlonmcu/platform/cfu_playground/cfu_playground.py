@@ -18,6 +18,8 @@
 #
 """CFU Playground Platform"""
 
+# Warning: use `export LITEX_BOARDS_REF=c498f00938bba94fe7ddc27dad9ed84294208201` for openocd 0.10.0 (Ubuntu 20.04)
+
 import os
 import time
 import shutil
@@ -666,8 +668,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             )
             if self.wait_for_user:  # INTERACTIVE
                 answer = input(
-                    f"Make sure that the device '{target.name}' is connected via TTY {target.fpga_tty} before you press [Enter]"
-                    + " (Type 'Abort' to cancel)"
+                    f"Make sure that the device '{target.name}' is connected via TTY {target.fpga_tty}"
+                    + " before you press [Enter] (Type 'Abort' to cancel)"
                 )
                 if answer.lower() == "abort":
                     return ""

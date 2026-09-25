@@ -27,6 +27,46 @@ class Metrics:
         self.optional_keys = []
         self.order = []
 
+    def merge(self, *others, overwrite=False):
+        """Merge one or more Metrics objects into this object.
+
+        Metrics are appended in the order they are provided. Column order and
+        optional-key information are preserved.
+
+        By default, duplicate metric names are rejected. If ``overwrite`` is
+        True, values and optional status from later Metrics objects replace
+        earlier ones while retaining the original column position.
+
+        Returns
+        -------
+        Metrics
+            self, allowing chained calls.
+        """
+        for other in others:
+            if not isinstance(other, Metrics):
+                raise TypeError(f"Can only merge Metrics objects, got {type(other).__name__}")
+
+            for name in other.order:
+                if name in self.data:
+                    if not overwrite:
+                        raise ValueError(f"Column '{name}' already exists in metrics")
+
+                    self.data[name] = other.data[name]
+
+                    # The incoming metric determines optional status.
+                    if name in other.optional_keys:
+                        if name not in self.optional_keys:
+                            self.optional_keys.append(name)
+                    elif name in self.optional_keys:
+                        self.optional_keys.remove(name)
+                else:
+                    self.data[name] = other.data[name]
+                    self.order.append(name)
+                    if name in other.optional_keys:
+                        self.optional_keys.append(name)
+
+        return self
+
     @staticmethod
     def from_csv(text):
         # TODO: how to find out data types? -> pandas?
@@ -56,13 +96,22 @@ class Metrics:
     def add(self, name, value, optional=False, overwrite=False, prepend=False):
         if not overwrite:
             assert name not in self.data, "Column with the same name already exists in metrics"
+
+        exists = name in self.data
         self.data[name] = value
-        if optional:
+
+        if optional and name not in self.optional_keys:
             self.optional_keys.append(name)
-        if prepend:
-            self.order.insert(0, name)
-        else:
-            self.order.append(name)
+
+        elif overwrite and not optional and name in self.optional_keys:
+            self.optional_keys.remove(name)
+
+        # Overwriting an existing metric shouldn't duplicate it in order.
+        if not exists:
+            if prepend:
+                self.order.insert(0, name)
+            else:
+                self.order.append(name)
 
     def get(self, name):
         value = self.data[name]

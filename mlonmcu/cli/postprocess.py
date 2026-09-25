@@ -91,9 +91,19 @@ def apply_run_postprocess(postprocess, report, session_dir):
         artifacts = postprocess.post_run(run_report, get_run_artifacts(run_dir)) or []
         for artifact in artifacts:
             artifact.export(run_dir)
-        report.pre_df.iloc[[row]] = run_report.pre_df
-        report.main_df.iloc[[row]] = run_report.main_df
-        report.post_df.iloc[[row]] = run_report.post_df
+        for attr, run_df in (
+            ("pre_df", run_report.pre_df),
+            ("main_df", run_report.main_df),
+            ("post_df", run_report.post_df),
+        ):
+            report_df = getattr(report, attr)
+            new_columns = run_df.columns.difference(report_df.columns)
+            if len(new_columns) > 0:
+                report_df = pd.concat(
+                    [report_df, pd.DataFrame(pd.NA, index=report_df.index, columns=new_columns)], axis=1
+                )
+                setattr(report, attr, report_df)
+            report_df.loc[report_df.index[row], run_df.columns] = run_df.iloc[0].values
 
 
 def add_postprocess_options(parser):
@@ -142,8 +152,10 @@ def handle(args):
     with MlonMcuContext(path=args.home, deps_lock="read") as context:
         if not context.sessions:
             raise RuntimeError("There are no saved sessions in this environment")
-        session = context.sessions[-1] if args.session == -1 else next(
-            (item for item in context.sessions if item.idx == args.session), None
+        session = (
+            context.sessions[-1]
+            if args.session == -1
+            else next((item for item in context.sessions if item.idx == args.session), None)
         )
         if session is None:
             available = ", ".join(str(item.idx) for item in context.sessions)

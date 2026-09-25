@@ -106,6 +106,8 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
         "fpu": "none",  # TODO: use
         "compressed": False,  # TODO: use
         "atomic": False,  # TODO: use
+        "integrated_main_ram_size": 0,
+        # "integrated_main_ram_size":  256 * 1024,
     }
     REQUIRED = RISCVTarget.REQUIRED | {"tvm.build_dir"}
 
@@ -169,6 +171,13 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
     @property
     def baud(self):
         value = self.config["baud"]
+        if value is None:
+            return None
+        return int(value)
+
+    @property
+    def integrated_main_ram_size(self):
+        value = self.config["integrated_main_ram_size"]
         if value is None:
             return None
         return int(value)
@@ -366,8 +375,8 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
             # CFU Playground actually wants a project directory, but we only get the elf now. As a workaround we
             # assume the elf is right in the build directory inside the project directory
 
-            ret = self.platform.run(program, self)
-            return ret
+            out, artifacts, metrics = self.platform.run(program, self)
+            return out, artifacts, metrics
 
         def parse_exit(self, out):
             exit_code = None
@@ -392,9 +401,9 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
                 return temp
 
             if self.print_outputs:
-                out, metrics = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
+                out, artifacts, metrics = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
             else:
-                out, metrics = self.exec(
+                out, artifacts, metrics = self.exec(
                     elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
                 )
             # metrics = Metrics()
@@ -408,13 +417,23 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
                 if sim_time > 0:
                     mips = (sim_insns / sim_time) / 1e6
                     metrics.add("MIPS", mips, True)
+            # Add time based on clock freq
+            if self.sys_clk_freq:
+                for mode in ["Setup", "Run", "Total"]:
+                    if metrics.has(f"{mode} Runtime [s]") or metrics.has(f"{mode} Runtime [us]"):
+                        continue  # Already populated
+                    cycles = metrics.get(f"{mode} Cycles", None)
+                    if cycles is None:
+                        continue  # Missing cycles
+                    secs = cycles / self.sys_clk_freq
+                    metrics.add(f"{mode} Runtime [s]", secs, True)
 
             # metrics = Metrics()
             # metrics.add("Cycles", cycles)
             # time_s = time_us / 1e6 if time_us is not None else time_us
             # metrics.add("Runtime [s]", time_s)
 
-            return metrics, out, []
+            return metrics, out, artifacts
 
         def get_arch(self):
             return "unkwown"

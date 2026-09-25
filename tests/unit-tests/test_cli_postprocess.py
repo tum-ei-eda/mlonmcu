@@ -2,6 +2,7 @@ import pandas as pd
 import yaml
 
 from mlonmcu.cli.postprocess import get_run_artifacts, load_report
+from mlonmcu.session.postprocess.postprocesses import AnalyseVivadoReportsPostprocess
 
 
 def test_load_report_restores_report_sections(tmp_path):
@@ -38,3 +39,13 @@ def test_get_run_artifacts_restores_flags(tmp_path):
     assert len(artifacts) == 1
     assert artifacts[0].path == artifact_path
     assert artifacts[0].flags == ("vivado", "report")
+
+
+def test_vivado_metric_categories():
+    postprocess = AnalyseVivadoReportsPostprocess(config={"analyse_vivado_reports.limit": "timing,power"})
+
+    metrics = postprocess.resolve_limit(
+        ["timing_met", "wns_ns", "tns_ns", "whs_ns", "power_total_w", "power_dynamic_w", "power_static_w"]
+    )
+
+    assert metrics == ["timing_met", "wns_ns", "tns_ns", "whs_ns", "power_total_w", "power_dynamic_w", "power_static_w"]

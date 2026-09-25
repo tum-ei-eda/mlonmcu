@@ -23,6 +23,7 @@ import argparse
 import sys
 import subprocess
 import platform
+from pathlib import Path
 
 
 from mlonmcu.logging import get_logger
@@ -33,10 +34,38 @@ import mlonmcu.cli.cleanup as cleanup
 import mlonmcu.cli.export as export
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
+import mlonmcu.cli.postprocess as postprocess
 from .common import handle_logging_flags, add_common_options
 from ..version import __version__
+from mlonmcu.context.context import resolve_environment_file
+from mlonmcu.environment.environment import UserEnvironment
+from mlonmcu.environment.python_utils import get_venv_python
 
 logger = get_logger()
+
+
+def maybe_reexec_in_workspace_venv(argv):
+    """Restart the CLI under an opted-in workspace interpreter, if necessary."""
+    if "init" in argv or os.environ.get("MLONMCU_VENV_REEXEC"):
+        return
+    home = None
+    for index, argument in enumerate(argv):
+        if argument in ("-H", "--home", "--hint") and index + 1 < len(argv):
+            home = argv[index + 1]
+            break
+    try:
+        env_file = resolve_environment_file(path=home) if home else resolve_environment_file()
+        environment = UserEnvironment.from_file(env_file)
+    except (AssertionError, RuntimeError, OSError):
+        return
+    if not environment.python.venv:
+        return
+    python = get_venv_python(environment.python.venv)
+    if not python.is_file() or python.resolve() == Path(sys.executable).resolve():
+        return
+    child_env = os.environ.copy()
+    child_env["MLONMCU_VENV_REEXEC"] = "1"
+    os.execve(str(python), [str(python), "-m", "mlonmcu.cli.main", *argv], child_env)
 
 
 def handle_docker(args):
@@ -82,6 +111,8 @@ def handle_docker(args):
 def main(args=None):
     """Console script for mlonmcu."""
 
+    maybe_reexec_in_workspace_venv(args if args is not None else sys.argv[1:])
+
     parser = argparse.ArgumentParser(
         description="ML on MCU Flow",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -97,6 +128,7 @@ def main(args=None):
     export.get_parser(subparsers)
     env.get_parser(subparsers)
     models.get_parser(subparsers)
+    postprocess.get_parser(subparsers)
     if args:
         args = parser.parse_args(args)
     else:

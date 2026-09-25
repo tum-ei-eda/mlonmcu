@@ -37,6 +37,7 @@ def create_environment_dict(environment):
     }
     if environment.python:
         data["python"] = {
+            "venv": str(environment.python.venv) if environment.python.venv else None,
             "extra": environment.python.extra,
             "requirements": environment.python.requirements,
         }

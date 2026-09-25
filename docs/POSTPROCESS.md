@@ -22,6 +22,21 @@ In the future it might be possible to also insert postprocesses at earlier stage
 
 ## Usage of Postprocesses
 
+Session postprocesses can also be applied after a flow has finished. The
+`postprocess` command reads the saved report from `temp/sessions`, writes the
+updated report back by default, and places generated artifacts in the same
+directory:
+
+```
+mlonmcu postprocess --session 42 config2cols
+mlonmcu postprocess --session 42 --output postprocessed.csv filter_cols -c filter_cols.drop=Config
+mlonmcu postprocess --session 42 --print-report features2cols
+```
+
+Omit `--session` to use the latest saved session. Run postprocesses are applied
+to every saved run; their input artifacts are restored from each run's
+`artifacts.yml` metadata.
+
 
 ### Implement custom postprocesses
 

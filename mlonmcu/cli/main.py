@@ -34,6 +34,7 @@ import mlonmcu.cli.cleanup as cleanup
 import mlonmcu.cli.export as export
 import mlonmcu.cli.env as env
 import mlonmcu.cli.models as models
+import mlonmcu.cli.postprocess as postprocess
 from .common import handle_logging_flags, add_common_options
 from ..version import __version__
 from mlonmcu.context.context import resolve_environment_file
@@ -127,6 +128,7 @@ def main(args=None):
     export.get_parser(subparsers)
     env.get_parser(subparsers)
     models.get_parser(subparsers)
+    postprocess.get_parser(subparsers)
     if args:
         args = parser.parse_args(args)
     else:

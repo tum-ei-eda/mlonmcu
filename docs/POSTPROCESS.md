@@ -37,6 +37,19 @@ Omit `--session` to use the latest saved session. Run postprocesses are applied
 to every saved run; their input artifacts are restored from each run's
 `artifacts.yml` metadata.
 
+For `analyse_vivado_reports`, enable report columns with
+`analyse_vivado_reports.to_df=1`. Use `analyse_vivado_reports.limit` to add
+only selected parsed metrics, for example
+`-c analyse_vivado_reports.to_df=1 analyse_vivado_reports.limit=place_slice_luts_used,power_total_w`.
+It also accepts category shortcuts: `identity`, `timing`, `total_area`,
+`area_utilization`, `lut_breakdown`, `bram_breakdown`, `cpu_hierarchy`,
+`d_cache_hierarchy`, `i_cache_hierarchy`, `cfu_hierarchy`, `power`, and
+`thermal`. For example, `analyse_vivado_reports.limit=identity,timing,total_area`
+adds the identity, timing, and total-area Vivado metrics. The pre-existing
+`CPU Variant` and `Integrated RAM Size` report columns remain available for the
+`identity` view. The `timing` category also adds `Estimated Fmax [MHz]` and,
+when `Total Cycles` is available, `Estimated latency at Fmax [ms]`.
+
 
 ### Implement custom postprocesses
 

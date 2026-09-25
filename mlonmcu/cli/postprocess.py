@@ -20,7 +20,6 @@ from mlonmcu.report import Report
 from mlonmcu.session.postprocess import get_postprocesses
 from mlonmcu.session.postprocess.postprocess import RunPostprocess, SessionPostprocess
 
-
 # These columns are produced by Run.get_report().  A report is persisted as one
 # dataframe, so use the known boundaries to recreate the three report sections
 # expected by session postprocesses.

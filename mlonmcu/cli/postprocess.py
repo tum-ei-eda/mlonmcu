@@ -110,6 +110,7 @@ def add_postprocess_options(parser):
     postprocess_parser.add_argument(
         "postprocess",
         choices=get_postprocesses().keys(),
+        nargs="+",
         help="Session postprocess to apply",
     )
     postprocess_parser.add_argument(
@@ -160,7 +161,6 @@ def handle(args):
             available = ", ".join(str(item.idx) for item in context.sessions)
             raise RuntimeError(f"Session {args.session} was not found (available: {available})")
 
-        postprocess_cls = get_postprocesses()[args.postprocess]
         report_path = next(
             (path for path in (session.dir / "report.csv", session.dir / "report.xlsx") if path.is_file()), None
         )
@@ -168,19 +168,22 @@ def handle(args):
             raise RuntimeError(f"Saved report does not exist in {session.dir}")
         report = load_report(report_path)
         config, _ = extract_config(args)
-        postprocess = postprocess_cls(config={**context.environment.vars, **config})
-        if isinstance(postprocess, SessionPostprocess):
-            artifacts = postprocess.post_session(report, get_session_artifacts(session.dir)) or []
-        elif isinstance(postprocess, RunPostprocess):
-            apply_run_postprocess(postprocess, report, session.dir)
-            artifacts = []
-        else:
-            raise RuntimeError(f"Unsupported postprocess type: {type(postprocess).__name__}")
+        output = Path(args.output) if args.output is not None else report_path
+        output.parent.mkdir(parents=True, exist_ok=True)
+        session_artifacts = get_session_artifacts(session.dir)
+        for name in args.postprocess:
+            postprocess_cls = get_postprocesses()[name]
+            postprocess = postprocess_cls(config={**context.environment.vars, **config})
+            if isinstance(postprocess, SessionPostprocess):
+                artifacts = postprocess.post_session(report, session_artifacts) or []
+                session_artifacts.extend(artifacts)
+                for artifact in artifacts:
+                    artifact.export(output.parent)
+            elif isinstance(postprocess, RunPostprocess):
+                apply_run_postprocess(postprocess, report, session.dir)
+            else:
+                raise RuntimeError(f"Unsupported postprocess type: {type(postprocess).__name__}")
 
-        output = args.output if args.output is not None else report_path
-        output = Path(output)
         report.export(output)
-        for artifact in artifacts:
-            artifact.export(output.parent)
         if args.print_report:
             print(report.df)

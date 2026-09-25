@@ -31,11 +31,14 @@ directory:
 mlonmcu postprocess --session 42 config2cols
 mlonmcu postprocess --session 42 --output postprocessed.csv filter_cols -c filter_cols.drop=Config
 mlonmcu postprocess --session 42 --print-report features2cols
+mlonmcu postprocess --session 42 analyse_vivado_reports filter_cols -c analyse_vivado_reports.to_df=1 filter_cols.drop=Comment
 ```
 
 Omit `--session` to use the latest saved session. Run postprocesses are applied
 to every saved run; their input artifacts are restored from each run's
 `artifacts.yml` metadata.
+Multiple postprocess names are run in the order supplied, making it possible to
+add Vivado metrics and then filter or rename the resulting report in one call.
 
 For `analyse_vivado_reports`, enable report columns with
 `analyse_vivado_reports.to_df=1`. Use `analyse_vivado_reports.limit` to add

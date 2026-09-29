@@ -698,9 +698,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 "utilization_hierarchical_place",
             ]
             for report_type in report_types:
-                print("report_type", report_type)
                 matches = list(gateware_dir.glob(f"*_{report_type}.rpt"))
-                print("matches", matches)
                 assert len(matches) == 1  # TODO: loosen?
                 report_match = matches[0]
                 artifact = Artifact(
@@ -709,7 +707,6 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                     fmt=ArtifactFormat.PATH,
                     flags=("vivado", "report", report_type, self.name, target.name),
                 ).convert(ArtifactFormat.TEXT)
-                print("artifact", artifact)
                 artifacts.append(artifact)
             if self.wait_for_user:  # INTERACTIVE
                 answer = input(
@@ -722,7 +719,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             logger.debug("Flashing bitstream & target software")
             out += utils.make(
                 # "load2",
-                "prog",
+                # "prog",
+                "prog-only",
                 f"PLATFORM={platform}",
                 *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
                 *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
@@ -750,7 +748,6 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             metrics.add("FPGA Bitstream Time [s]", diff_bitstream, True)
             metrics.add("FPGA Prog Time [s]", diff_prog, True)
         # return out, {"default": artifacts}, {"default": metrics}
-        print("artifacts", artifacts)
         return out, artifacts, metrics
 
     def monitor(self, target, timeout=60):
@@ -927,13 +924,10 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         # Only allow one serial communication at a time
         # with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
         flash_output, flash_artifacts, flash_metrics = self.flash(elf, target, timeout=timeout)
-        print("flash_artifacts", flash_artifacts)
         monitor_output, monitor_artifacts, monitor_metrics = self.monitor(target, timeout=timeout)
-        print("monitor_artifacts", monitor_artifacts)
         output = flash_output + monitor_output
         metrics = Metrics()
         metrics.merge(flash_metrics, monitor_metrics)
         artifacts = flash_artifacts + monitor_artifacts
-        print("artifacts", artifacts)
 
         return output, artifacts, metrics

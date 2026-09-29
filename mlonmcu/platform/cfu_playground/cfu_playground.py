@@ -62,6 +62,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         "optimize": None,  # values: 0,1,2,3,s
         "mlif_template": None,
         "wait_for_user": True,
+        "verilog_file": None,
     }
 
     REQUIRED = {
@@ -116,6 +117,13 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     @property
     def mlif_template(self):
         value = self.config["mlif_template"]
+        if value is None:
+            return None
+        return Path(value)
+
+    @property
+    def verilog_file(self):
+        value = self.config["verilog_file"]
         if value is None:
             return None
         return Path(value)
@@ -280,6 +288,9 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         #     backend = "tflmi"
         assert backend is not None, "Could not infer used backend"
         shutil.copytree(template_dir, self.project_dir, dirs_exist_ok=True)
+        if self.verilog_file:
+            assert self.verilog_file.is_file()
+            shutil.copy2(self.verilog_file, self.project_dir / "cfu.v")
         # print("src", src)
         dest_base = self.project_dir / "src"
         makefile_exports = self.get_makefile_exports()

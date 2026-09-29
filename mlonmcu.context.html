@@ -396,8 +396,7 @@ The process is the following:
 3. check if the lock is already occupied by another write process
 4.1. release filelock and raise exception(or return 0) if the lock is already occupied by another write process
 4.2. otherwise write the updated lock occupation situation back, release filelock and return</p>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>Parameters:</dt><dd><p>raise_exception (bool): whether an exception should be raised when failed (default: True)</p>
 </dd>
 <dt>Returns:</dt><dd><dl class="simple">
@@ -407,7 +406,6 @@ A RWLockTimeout exception will be raised if failed (if the param raiseException 
 </dl>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py property">
@@ -418,12 +416,10 @@ the process is the following:
 1. acquire filelock
 2. read the lock occupation situation
 3. check if the lock is already occupied(locked) by another write process</p>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>Returns:</dt><dd><p>is_locked (bool): whether the lock is already occupied(locked) by another write process</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -453,8 +449,7 @@ The process is the following:
 3. check if the lock is already occupied by another write process
 4.1. release filelock and raise exception(or return 0) if the lock is already occupied by another write process
 4.2. otherwise write the updated lock occupation situation back, release filelock and return</p>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>Parameters:</dt><dd><p>raise_exception (bool): whether raises an exception when failed (default: True)</p>
 </dd>
 <dt>Returns:</dt><dd><dl class="simple">
@@ -464,7 +459,6 @@ A RWLockTimeout exception will be raised if failed (if the param raiseException 
 </dl>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py property">
@@ -475,12 +469,10 @@ the process is the following:
 1. acquire filelock
 2. read the lock occupation situation
 3. check if the lock is already occupied(locked) by another write process</p>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
 <dt>Returns:</dt><dd><p>is_locked (bool): whether the lock is already occupied(locked) by another write process</p>
 </dd>
 </dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py method">

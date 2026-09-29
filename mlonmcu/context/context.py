@@ -39,6 +39,7 @@ from mlonmcu.environment.environment import Environment, UserEnvironment
 
 from mlonmcu.environment.list import get_environments_map
 from mlonmcu.environment.config import get_environments_dir, get_plugins_dir
+from mlonmcu.environment.python_utils import get_workspace_process_env
 
 logger = get_logger()
 
@@ -351,6 +352,7 @@ class MlonMcuContext:
                 logger.debug(f"Restored {len(self.sessions)} recent sessions")
         self.cache = TaskCache()
         self.export_paths = set()
+        self._previous_process_env = None
 
     def create_session(self, label="", config=None, dest: Optional[Union[str, Path]] = None):
         try:
@@ -453,6 +455,10 @@ class MlonMcuContext:
                     "Lock on current context could not be aquired. "
                     f"Current context is locked via: {self.deps_lock.filepath}"
                 ) from err
+        if self.environment.python.venv:
+            paths_file = self.environment.lookup_path("deps").path / "paths.sh"
+            self._previous_process_env = {key: os.environ.get(key) for key in ("PATH", "VIRTUAL_ENV")}
+            os.environ.update(get_workspace_process_env(self.environment.python.venv, paths_file=paths_file))
         self.load_cache()
         self.load_extensions()
         return self
@@ -652,6 +658,13 @@ class MlonMcuContext:
     def __exit__(self, exception_type, exception_value, traceback):
         logger.debug("Exit MlonMcuContext")
         self.cleanup()
+        if self._previous_process_env is not None:
+            for key, value in self._previous_process_env.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+            self._previous_process_env = None
         if self.deps_lock:
             logger.debug("Releasing lock on context")
             self.deps_lock.release()

@@ -20,6 +20,8 @@ import sys
 from pathlib import Path
 import venv
 import os
+import subprocess
+import yaml
 from .list import get_environment_names, get_alternative_name, register_environment
 from .config import (
     get_environments_dir,
@@ -33,6 +35,7 @@ from .templates import write_environment_yaml_from_template
 from mlonmcu.utils import in_virtualenv, ask_user
 from mlonmcu.setup import utils
 from mlonmcu.logging import get_logger
+from .python_utils import get_install_requirement, get_venv_python
 
 logger = get_logger()
 
@@ -52,13 +55,28 @@ def clone_models_repo(dest, url=None, ref=None, refresh=False, recursive=False):
     utils.clone(url, dest, ref, refresh=refresh, recursive=False)
 
 
-def create_venv_directory(base, hidden=True):
+def create_venv_directory(base, extras=None, hidden=True):
     if not isinstance(base, Path):
         base = Path(base)
     dirname = ".venv" if hidden else "venv"
     venv_dir = base / dirname
-    venv.create(venv_dir)
-    print(f"Virtual environment was created in {venv_dir}. Make sure to activate it before using mlonmcu.")
+    venv.create(venv_dir, with_pip=True)
+    python = get_venv_python(venv_dir)
+    activate = base / "activate"
+    activate.write_text(f'export MLONMCU_HOME="{base}"\nsource "{venv_dir / "bin" / "activate"}"\n', encoding="utf-8")
+    launcher = base / "mlonmcu"
+    launcher.write_text(
+        f'#!/usr/bin/env sh\nexec "{python}" -m mlonmcu.cli.main --home "{base}" "$@"\n', encoding="utf-8"
+    )
+    launcher.chmod(0o755)
+    print(f"Virtual environment was created in {venv_dir}. Use `source {activate}` or `{launcher}`.")
+    return venv_dir
+
+
+def bootstrap_venv_directory(venv_dir, extras=None):
+    python = get_venv_python(venv_dir)
+    subprocess.run([python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
+    subprocess.run([python, "-m", "pip", "install", *get_install_requirement(extras or [])], check=True)
 
 
 def initialize_environment(
@@ -130,19 +148,29 @@ def initialize_environment(
         os.path.join(target_dir, "environment.yml"), template, home_dir=target_dir, config=config
     )
 
+    environment_file = Path(target_dir) / "environment.yml"
+
     # FIXME: controversial?
     if create_venv is None:
         if not in_virtualenv():
             print("It is strongly recommended to use mlonmcu inside a virtual Python environment.")
             if ask_user("Create one automatically?", default=False, interactive=interactive):
-                # TODO: create venv
-                create_venv_directory(target_dir)
+                venv_dir = create_venv_directory(target_dir)
+                bootstrap_venv_directory(venv_dir)
         else:
             print("Skipping creation of virtual environment. (already inside one)")
     else:
         if create_venv:
             print("The creation of a virtual environment was requested")
-            create_venv_directory(target_dir)
+            with open(environment_file, encoding="utf-8") as handle:
+                environment_data = yaml.safe_load(handle)
+            python_data = environment_data.setdefault("python", {})
+            python_data["venv"] = ".venv"
+            extras = python_data.get("extra", [])
+            with open(environment_file, "w", encoding="utf-8") as handle:
+                yaml.safe_dump(environment_data, handle, sort_keys=False)
+            venv_dir = create_venv_directory(target_dir, extras=extras)
+            bootstrap_venv_directory(venv_dir, extras=extras)
         else:
             print("Skipping creation of virtual environment.")
 

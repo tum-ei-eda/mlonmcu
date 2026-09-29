@@ -23,6 +23,7 @@ import logging
 from .config import (
     DefaultsConfig,
     PathConfig,
+    PythonConfig,
     RepoConfig,
     FrameworkConfig,
     FrameworkFeatureConfig,
@@ -95,6 +96,13 @@ def load_environment_from_file(filename, base):
         else:
             cleanup_auto = False
             cleanup_keep = 100
+        if "python" in loaded:
+            extra = loaded["python"].get("extra")
+            requirements = loaded["python"].get("requirements")
+            venv = loaded["python"].get("venv")
+            python_config = PythonConfig(extra=extra, requirements=requirements, venv=venv, base=home)
+        else:
+            python_config = None
         if "paths" in loaded:
             paths = {}
             for key in loaded["paths"]:
@@ -237,6 +245,7 @@ def load_environment_from_file(filename, base):
         env = base(
             home,
             defaults=defaults,
+            python=python_config,
             paths=paths,
             repos=repos,
             frameworks=frameworks,

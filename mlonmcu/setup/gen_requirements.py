@@ -50,8 +50,124 @@ import re
 import textwrap
 import sys
 import typing
+from pathlib import Path
+
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
+from packaging.version import InvalidVersion, Version
 
 RequirementsByPieceType = typing.List[typing.Tuple[str, typing.Tuple[str, typing.List[str]]]]
+
+
+def get_extra_requirements(extras: typing.List[str]) -> typing.List[str]:
+    """Return requirements declared by project extras in ``pyproject.toml``.
+
+    MLonMCU declares its optional dependencies dynamically from requirement files.
+    Keeping the lookup here makes the environment's ``python.extra`` use exactly
+    the same source as ``pip install 'mlonmcu[<extra>]'``.
+    """
+    if not extras:
+        return []
+    if not isinstance(extras, list) or not all(isinstance(item, str) for item in extras):
+        raise ValueError("python.extra must be a list of strings")
+
+    try:
+        import tomllib
+    except ImportError:  # pragma: no cover - MLonMCU requires Python 3.10+
+        import tomli as tomllib
+
+    root = Path(__file__).resolve().parents[2]
+    with open(root / "pyproject.toml", "rb") as handle:
+        pyproject = tomllib.load(handle)
+    optional = pyproject.get("tool", {}).get("setuptools", {}).get("dynamic", {}).get("optional-dependencies", {})
+
+    requirements = []
+    for name in extras:
+        if name not in optional:
+            raise ValueError(f"Unknown MLonMCU Python extra: {name}")
+        files = optional[name].get("file", [])
+        if isinstance(files, str):
+            files = [files]
+        for filename in files:
+            with open(root / filename, encoding="utf-8") as handle:
+                for line in handle:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        requirements.append(line)
+    return requirements
+
+
+def _specifier_conflicts(specifiers):
+    """Return whether a set of PEP 440 specifiers has an obvious empty intersection."""
+    exact_versions = []
+    wildcard_prefixes = []
+    lower = upper = None
+    lower_inclusive = upper_inclusive = False
+    for specifier in specifiers:
+        operator, value = specifier.operator, specifier.version
+        if operator in ("==", "===") and not value.endswith(".*"):
+            try:
+                exact_versions.append(Version(value))
+            except InvalidVersion:
+                continue
+        elif operator == "==" and value.endswith(".*"):
+            wildcard_prefixes.append(value[:-2])
+        elif operator in (">", ">=", "<", "<="):
+            try:
+                version = Version(value)
+            except InvalidVersion:
+                continue
+            if operator in (">", ">=") and (lower is None or version > lower or (version == lower and operator == ">")):
+                lower, lower_inclusive = version, operator == ">="
+            if operator in ("<", "<=") and (upper is None or version < upper or (version == upper and operator == "<")):
+                upper, upper_inclusive = version, operator == "<="
+
+    if exact_versions:
+        return any(not all(version in specifier for specifier in specifiers) for version in exact_versions)
+    if wildcard_prefixes:
+        return any(
+            not (
+                prefix == wildcard_prefixes[0]
+                or prefix.startswith(wildcard_prefixes[0] + ".")
+                or wildcard_prefixes[0].startswith(prefix + ".")
+            )
+            for prefix in wildcard_prefixes[1:]
+        )
+    return (
+        lower is not None
+        and upper is not None
+        and (lower > upper or (lower == upper and not (lower_inclusive and upper_inclusive)))
+    )
+
+
+def merge_requirements(requirements: typing.Iterable[str]) -> typing.List[str]:
+    """Combine requirements by distribution name and reject incompatible versions."""
+    merged = collections.OrderedDict()
+    for text in requirements:
+        try:
+            requirement = Requirement(text)
+        except InvalidRequirement as err:
+            raise ValueError(f"Invalid Python requirement '{text}': {err}") from err
+        if requirement.url:
+            raise ValueError(f"Direct URL requirements are not supported: {text}")
+        if requirement.marker:
+            raise ValueError(f"Environment markers are not supported in generated requirements: {text}")
+        name = canonicalize_name(requirement.name)
+        if name not in merged:
+            merged[name] = {"name": requirement.name, "extras": set(requirement.extras), "specifiers": []}
+        merged[name]["extras"].update(requirement.extras)
+        merged[name]["specifiers"].extend(requirement.specifier)
+
+    result = []
+    for data in merged.values():
+        specifiers = data["specifiers"]
+        if _specifier_conflicts(specifiers):
+            specs = ",".join(str(specifier) for specifier in specifiers)
+            raise ValueError(f"Conflicting version requirements for {data['name']}: {specs}")
+        extras = f"[{','.join(sorted(data['extras']))}]" if data["extras"] else ""
+        unique_specifiers = list(dict.fromkeys(str(specifier) for specifier in specifiers))
+        result.append(f"{data['name']}{extras}{','.join(unique_specifiers)}")
+    return result
 
 
 # Maps named MLonMCU piece (see description above) to a list of names of Python packages. Please use
@@ -83,47 +199,6 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "xdg",
                 "xlsxwriter",  # xlsx reports
                 "xlwt",  # xlsx reports
-            ],
-        ),
-    ),
-    # Provide support for cfu_playground platform
-    (
-        "cfu_playground",
-        (
-            "Requirements for using cfu_playground",
-            [
-                "construct",
-                "psutil",
-                "pyelftools",
-                "pyyaml",
-                "robotframework",
-                "robotframework-retryfailed",
-            ],
-        ),
-    ),
-    # Provide support for espidf.
-    (
-        "espidf",
-        (
-            "Requirements for using espidf",
-            [
-                "bitstring",
-                "click",
-                "construct",
-                "cryptography",
-                "ecdsa",
-                "future",
-                "gdbgui",
-                "idf-component-manager",
-                "itsdangerous",  # there are two espidf in origin requirements.txt this is from the 2nd
-                "jinja2",  # there are two espidf in origin requirements.txt this is from the 2nd
-                "kconfiglib",
-                "psutil",
-                "pygdbmi",
-                "pyparsing",
-                "pyserial",  # for custom monitor
-                "python-socketio",
-                "reedsolo",
             ],
         ),
     ),
@@ -253,25 +328,14 @@ ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]
 CONSTRAINTS = [
     ("GitPython", None),
     ("Pillow", None),
-    ("bitstring", ">=3.1.6"),
-    ("click", ">=7.0"),
     ("cloudpickle", None),
-    ("construct", "==2.10.54"),  # From PR #213.
-    # ("construct", "==2.10.68"),  # cfu?
-    ("cryptography", ">=2.1.4"),
     ("decorator", None),
-    ("ecdsa", ">=0.16.0"),
     ("executorch", "==1.1.0"),
     ("filelock", None),
-    ("future", ">=0.15.2"),
-    ("gdbgui", "==0.13.2.0"),
     ("graphviz", None),
     ("humanize", None),
     ("hydra-core", None),
-    ("idf-component-manager", "~=1.0"),
-    ("itsdangerous", "<2.1"),
     ("jinja2", ">=3.1.3"),
-    ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),
     # ("numpy", "<2.0; python_version <= '3.8'"),
@@ -285,18 +349,9 @@ CONSTRAINTS = [
     # ("psutil", "==5.9.3"),  # cfu?
     ("pyelftools", None),
     # ("pyelftools", "==0.30"),  # cfu?
-    ("pygdbmi", "<=0.9.0.2"),
-    ("pyparsing", ">=2.0.3,<2.4.0"),
-    ("pyserial", None),
-    ("python-socketio", "<5"),
     ("pyusb", None),
     ("pyyaml", None),
     # ("pyyaml", "==6.0.*"),  # cfu?
-    ("reedsolo", ">=1.5.3,<=1.5.4"),
-    ("robotframework", None),  # cfu?
-    # ("robotframework", "==6.1"),  # cfu?
-    ("robotframework-retryfailed", None),  # cfu?
-    # ("robotframework-retryfailed", "==0.2.0"),  # cfu?
     ("scipy", None),
     ("synr", None),
     # ("tensorflow", "~=2.13.0"),

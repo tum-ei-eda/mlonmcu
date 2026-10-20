@@ -95,11 +95,7 @@ class ThreadPoolSessionExecutor(concurrent.futures.ThreadPoolExecutor):
         cleanup=False,
     ):
         fn = _process_default
-        needs_post = (
-            any(run.has_stage(RunStage.POSTPROCESS) for run in runs)
-            and RunStage.POSTPROCESS not in (skip or [])
-            and until != RunStage.POSTPROCESS
-        )
+        needs_post = any(_needs_postprocess(run, until, skip) for run in runs)
         args = [
             runs,
         ]
@@ -244,19 +240,38 @@ def _handle_context(context, allow_none: bool = False, minimal: bool = False):
     return context
 
 
+def _needs_postprocess(run, until, skip):
+    stage = run.postprocess_stage
+    skipped = {stage_key(value) for value in (skip or [])}
+    return (
+        stage is not None
+        and run.has_stage(stage)
+        and stage not in skipped
+        and stage_key(until) not in (stage, RunStage.POSTPROCESS)
+    )
+
+
+def _finish_postprocess(run, skip, export):
+    stage = run.postprocess_stage
+    if (
+        not run.failing
+        and stage is not None
+        and run.has_stage(stage)
+        and stage not in {stage_key(value) for value in (skip or [])}
+        and not run.completed.get(stage, False)
+    ):
+        run.process(until=stage, start=stage, skip=skip, export=export)
+
+
 def _process_default(runs, until, skip, export, context, runs_dir, save, cleanup, needs_post):
     """Helper function to invoke the run."""
     assert isinstance(runs, list)
     rets = []
     for run in runs:
-        run.process(until=until, skip=skip, export=export)
-        if (
-            needs_post
-            and not run.failing
-            and run.has_stage(RunStage.POSTPROCESS)
-            and not run.completed.get(RunStage.POSTPROCESS, False)
-        ):
-            run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
+        run_skip = [stage for stage in (skip or []) if stage_key(stage) in run.pipeline.specs]
+        run.process(until=until, skip=run_skip, export=export)
+        if needs_post:
+            _finish_postprocess(run, run_skip, export)
         ret = run.result()
         rets.append(ret)
         if save:
@@ -278,20 +293,10 @@ def _process_pickable(run_initializers, until, skip, export, context, runs_dir, 
         run_initializer.save(run.dir / "initializer.yml")
         used_stages = _used_stages([run], until)
         assert skip is None
-        skip = [stage for stage in RunStage if stage not in used_stages]
+        skip = [stage for stage in run.pipeline.stages if stage not in used_stages]
         run.process(until=until, skip=skip, export=export)
-        needs_post = (
-            run.has_stage(RunStage.POSTPROCESS)
-            and RunStage.POSTPROCESS not in (skip or [])
-            and until != RunStage.POSTPROCESS
-        )
-        if (
-            needs_post
-            and not run.failing
-            and run.has_stage(RunStage.POSTPROCESS)
-            and not run.completed.get(RunStage.POSTPROCESS, False)
-        ):
-            run.process(until=RunStage.POSTPROCESS, start=RunStage.POSTPROCESS, skip=skip, export=export)
+        if _needs_postprocess(run, until, skip):
+            _finish_postprocess(run, skip, export)
         ret = run.result()
         rets.append(ret)
         save = True
@@ -443,19 +448,29 @@ def _used_stages(runs, until, merge_order=True):
     for run in runs:
         stages = run.pipeline.through(until)
         # Keep the existing behavior: postprocess partial runs as well.
-        if run.has_stage(RunStage.POSTPROCESS) and RunStage.POSTPROCESS not in stages:
-            stages.append(RunStage.POSTPROCESS)
+        post = run.postprocess_stage
+        if post is not None and run.has_stage(post) and post not in stages:
+            stages.append(post)
         previous = None
         for stage in stages:
             graph.setdefault(stage, set())
             if previous is not None:
                 graph[stage].add(previous)
             previous = stage
+    if merge_order:
+        posts = {run.postprocess_stage for run in runs if run.postprocess_stage in graph}
+        regular = {
+            stage for run in runs for stage in graph if stage in run.pipeline.specs and stage != run.postprocess_stage
+        }
+        if posts & regular:
+            raise ValueError("Stage IDs cannot mix postprocessing and regular implementations")
+        for post in posts:
+            graph[post].update(regular)
     try:
         ordered = list(TopologicalSorter(graph).static_order()) if merge_order else list(graph)
     except CycleError as exc:
         raise ValueError("Run pipelines have incompatible stage orderings") from exc
-    return [stage for stage in ordered if any(run.has_stage(stage) for run in runs)]
+    return [stage for stage in ordered if any(stage in run.pipeline.specs and run.has_stage(stage) for run in runs)]
 
 
 class SessionScheduler:
@@ -578,7 +593,9 @@ class SessionScheduler:
         if self.executor in ["process_pool", "cmdline", "context", "rpc"] or self.use_init_stage:
             return None, None  # TODO
         used_stages = _used_stages(self.runs, self.until, merge_order=self.per_stage)
-        skipped_stages = [stage for stage in RunStage if stage not in used_stages]
+        skipped_stages = list(
+            dict.fromkeys(stage for run in self.runs for stage in run.pipeline.stages if stage not in used_stages)
+        )
         return used_stages, skipped_stages
 
     @property
@@ -661,7 +678,11 @@ class SessionScheduler:
         if self.used_stages is None:
             assert self.skipped_stages is None
             self.used_stages = _used_stages(self.runs, self.until, merge_order=self.per_stage)
-            self.skipped_stages = [stage for stage in RunStage if stage not in self.used_stages]
+            self.skipped_stages = list(
+                dict.fromkeys(
+                    stage for run in self.runs for stage in run.pipeline.stages if stage not in self.used_stages
+                )
+            )
         if self.progress:
             close_progress(pbar)
 
@@ -699,7 +720,6 @@ class SessionScheduler:
                     max_workers_per_stage = self.num_workers
                 stage_executor_kwargs = {**self._executor_kwargs, "max_workers": max_workers_per_stage}
                 with self._executor_cls(**stage_executor_kwargs) as executor:
-                    is_last = stage == self.used_stages[-1]
                     if self.progress:
                         pbar = init_progress(len(batches), msg=f"Processing stage {run_stage}")
                     else:
@@ -711,8 +731,11 @@ class SessionScheduler:
                         idxs = [run.idx for run in runs_]
                         assert len(runs) > 0
                         skip = [stage for stage in self.skipped_stages]
-                        if not is_last:
-                            skip.append(RunStage.POSTPROCESS)
+                        skip.extend(
+                            run.postprocess_stage
+                            for run in self.runs
+                            if run.postprocess_stage is not None and run.postprocess_stage != stage
+                        )
                         f = executor.submit_runs(
                             runs_,
                             until=stage,

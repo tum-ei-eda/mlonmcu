@@ -128,17 +128,17 @@ def test_missing_inputs_and_unknown_implementation_fail_at_stage(tmp_path, imple
     assert "Unknown stage implementation" in str(run.reason)
 
 
-def test_initializer_roundtrip_and_fresh_worker(tmp_path):
+@pytest.mark.parametrize("implementation", ["worker_source", "load"])
+def test_initializer_roundtrip_and_fresh_worker(tmp_path, implementation):
     extension = tmp_path / "extensions.py"
     extension.write_text(
-        """from mlonmcu.session.stage import Stage, StageResult, register_stage
-@register_stage("worker_source")
-class WorkerSource(Stage):
-    def execute(self, context):
-        return StageResult({"default": []}, metrics={"default": {"Worker metric": 42}})
-"""
+        "from mlonmcu.session.stage import Stage, StageResult, register_stage\n"
+        f'@register_stage("{implementation}", override={implementation == "load"})\n'
+        "class WorkerSource(Stage):\n"
+        "    def execute(self, context):\n"
+        '        return StageResult({"default": []}, metrics={"default": {"Worker metric": 42}})\n'
     )
-    initializer = RunInitializer(pipeline=[{"id": "source", "uses": "worker_source", "config": {"dtype": "int8"}}])
+    initializer = RunInitializer(pipeline=[{"id": "source", "uses": implementation, "config": {"dtype": "int8"}}])
     path = tmp_path / "initializer.yml"
     initializer.save(path)
     restored = RunInitializer.from_file(path)[0]
@@ -152,7 +152,10 @@ from mlonmcu.session.run import RunInitializer
 context = object.__new__(MlonMcuContextMinimal)
 context.environment = SimpleNamespace(vars={"allow_extensions": True},
     paths={"plugins": SimpleNamespace(path=Path(sys.argv[1]).parent)})
-run = RunInitializer.from_file(sys.argv[2])[0].realize(context=context)
+initializer = RunInitializer.from_file(sys.argv[2])[0]
+run = initializer.realize(context=context)
+# Repeated jobs must not re-register strict extensions in the same worker.
+initializer.realize(context=context)
 run.dir = Path(sys.argv[3])
 report = run.process(until="done", export=True)
 assert not run.failing, run.reason
@@ -227,7 +230,6 @@ except Timeout:
         [{"id": "../bad", "uses": "custom"}],
         [{"id": "custom", "inputs": {"model": "future.model"}}],
         ["postprocess", "load"],
-        [{"id": "renamed_load", "uses": "load"}],
         ["load", {"id": "compile", "inputs": {"model": "load.model"}}],
     ],
 )
@@ -276,7 +278,7 @@ def test_generic_cli_endpoint():
 
 
 @pytest.mark.parametrize("split", [False, True])
-def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split):
+def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split, monkeypatch):
     from mlonmcu.platform.platform import CompilePlatform, TargetPlatform
 
     calls = []
@@ -312,12 +314,11 @@ def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split):
     elf = tmp_path / "firmware.elf"
     elf.write_bytes(b"firmware")
 
-    def compile_firmware():
-        run.artifacts_per_stage[RunStage.COMPILE] = {"default": [Artifact(elf.name, path=elf, fmt=ArtifactFormat.PATH)]}
-        run.sub_parents[(RunStage.COMPILE, "default")] = (None, None)
-        run.completed[RunStage.COMPILE] = True
+    class FirmwareStage(Stage):
+        def execute(self, context):
+            return StageResult({"default": [Artifact(elf.name, path=elf, fmt=ArtifactFormat.PATH)]})
 
-    run.compile = compile_firmware
+    monkeypatch.setitem(STAGES, "compile", FirmwareStage)
     if split:
         run.process(until="flash")
         assert not run.failing, run.reason
@@ -358,21 +359,21 @@ def test_external_quantizer_example(tmp_path, implementations, monkeypatch):
 def test_postprocessing_partial_runs_and_done(tmp_path, implementations, per_stage):
     from mlonmcu.session.schedule import _process_default
 
-    postprocess = SimpleNamespace(name="counter", config={}, DEFAULTS={})
-    run = make_run(tmp_path, description() + ["postprocess"], postprocesses=[postprocess])
+    from mlonmcu.session.postprocess.postprocess import RunPostprocess
+
     calls = []
 
-    def post():
-        calls.append("postprocess")
-        run.report = run.get_report()
-        run.completed[RunStage.POSTPROCESS] = True
+    class Counter(RunPostprocess):
+        def post_run(self, report, artifacts):
+            calls.append("postprocess")
+            return []
 
-    run.postprocess = post
+    run = make_run(tmp_path, description() + ["postprocess"], postprocesses=[Counter("counter")])
     _process_default([run], stage_key("source"), [], False, None, tmp_path, False, False, True)
     assert calls == ["postprocess"]
     run.idx = 0
     scheduler = SessionScheduler([run], until="done", per_stage=per_stage, runs_dir=tmp_path)
     scheduler.process(context=SimpleNamespace(get_read_only_context=lambda: None))
     assert scheduler.num_failures == 0
-    assert calls == ["postprocess", "postprocess"]
+    assert calls == ["postprocess", "postprocess", "postprocess"]
     assert run.completed[RunStage.POSTPROCESS]

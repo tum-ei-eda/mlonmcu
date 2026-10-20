@@ -4,8 +4,10 @@ Custom run pipelines
 Runs accept an optional ``pipeline`` argument. A session schedules these run
 pipelines using the existing executors. Omitting it preserves the default
 ``LOAD → TUNE → BUILD → COMPILE → RUN → POSTPROCESS`` workflow and its capability
-checks. Existing ``RunStage`` arguments remain supported. Custom IDs are
-case-insensitive strings; ``DONE`` means the end of the selected pipeline.
+checks. All default stages and ``flash`` are registered ``Stage`` classes, using
+the same registry and result contract as extensions. Existing ``RunStage``
+arguments and ``run.load()``, ``run.build()``, etc. remain compatibility APIs.
+IDs are case-insensitive strings; ``DONE`` means the end of the selected pipeline.
 
 Describe pipelines in Python, or in the existing YAML run initializer format::
 
@@ -32,6 +34,7 @@ Describe pipelines in Python, or in the existing YAML run initializer format::
             - id: compile
             - id: run
             - id: postprocess
+              optional: true
 
 Select component names available in your environment. To use the example
 quantization adapter, copy ``examples/custom_stages/extensions.py`` into the
@@ -87,7 +90,11 @@ Register a class from an ``extensions.py`` file::
 ``VERILATE`` and ``GENERATE_BITSTREAM``. Register extensions in every execution
 environment, including RPC workers. ``override=True`` permits reloading the
 same extension when another context opens in the same Python process; omit it
-to reject duplicate registration. Built-in enum stage names cannot be replaced.
+to reject duplicate registration. The same explicit ``override=True`` permits
+replacing a default implementation. ``NOP`` and ``DONE`` are reserved sentinels
+and cannot be registered as implementations. Spawned process-pool workers load
+their environment extensions, including overrides of default names. Extensions
+already loaded in a worker or inherited through a fork are not registered again.
 
 The context contains:
 
@@ -107,31 +114,104 @@ this is required when inputs exist. Root stages omit parents. Variants may be
 renamed, split, or dropped. Each output has one lineage parent; additional named
 inputs can supply supporting artifacts. ``metrics`` optionally maps each output
 variant to a dictionary of metric names and values. The engine handles metrics
-CSV artifacts, inherited metrics, timing, completion, failures, and export.
+CSV artifacts, inherited metrics, timing, completion, failures, locking, and
+export for every implementation. ``StageResult.report`` optionally carries a
+transformed report, as used by the registered postprocessing stage.
 
-Custom artifacts live under ``stages/<id>/``, including when
+Artifacts from instances with custom IDs live under ``stages/<id>/``, including when
 ``run.stage_subdirs`` is disabled. Pipeline definitions are exported as
 ``pipeline.yml``. IDs must use letters, digits and underscores and start with a
-letter. Built-in IDs keep their existing identity. Custom implementations may
-appear multiple times under distinct IDs.
+letter. Legacy built-in IDs keep their existing artifact directories. Any
+implementation, including a default one, may appear multiple times under distinct
+IDs. Component-generated metrics filenames are adapted to the instance ID
+without changing the component artifact. Legacy enum endpoints can resolve a
+uniquely aliased implementation; use an explicit instance ID when ambiguous.
 
-Model transformations
----------------------
+Default stage bindings and optional stages
+------------------------------------------
 
-``BUILD.model`` and ``TUNE.model`` support explicit model bindings. Without a
-binding, they retain their existing ``LOAD`` input. When tuning a transformed
-model, bind both stages to the same producer::
+Default stage logic lives in ``mlonmcu.session.builtin_stages``. Each class
+implements the public ``Stage`` contract:
 
-    - id: tune
+* ``available(run)`` describes required component capabilities;
+* ``enabled(run)`` determines whether an optional instance applies;
+* ``default_inputs(run, key)`` supplies implicit producer bindings;
+* ``validate(context)`` checks stage configuration;
+* ``execute(context)`` returns a ``StageResult`` without setting completion state.
+
+The automatically generated default pipeline marks its stages optional, keeping
+the existing capability checks and the ``run.tune_enabled`` switch. Explicit
+pipeline instances are required unless marked ``optional: true``. A required
+stage fails if its capabilities or inputs are missing; it is never silently
+skipped. A required ``tune`` instance runs independently of ``run.tune_enabled``
+but still requires a backend and tuning platform. Mark optional postprocessing
+instances accordingly when no postprocessors are configured. Existing explicit
+pipeline descriptions that relied on automatic skipping need these optional
+markers.
+
+Inputs default to the nearest enabled earlier instance of the appropriate
+implementation. Explicit bindings override these defaults:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 30 50
+
+   * - Implementation
+     - Input names
+     - Implicit producer
+   * - ``load``
+     - None
+     - Selected model/frontend
+   * - ``tune``
+     - ``model``
+     - Nearest ``load`` model artifacts
+   * - ``build``
+     - ``model``, ``records``
+     - Nearest enabled ``tune`` records and its model, or nearest ``load`` model
+   * - ``compile``
+     - ``code``
+     - Nearest enabled ``build``, falling back to ``load`` for program frontends
+   * - ``run``
+     - ``program``, ``deployment``
+     - Nearest enabled ``compile``, falling back to ``build``; completed ``flash`` deployment if present
+   * - ``postprocess``
+     - ``artifacts``
+     - Latest completed earlier stage with output variants
+   * - ``flash``
+     - ``program``
+     - Explicit binding required
+
+A compilation input selects the producer's exported code directory per variant.
+A program input can select a particular artifact flag, avoiding assumptions about
+artifact ordering. Default wildcard program bindings retain the existing
+first-artifact convention. Tuning records retain their variant lineage back to
+the model. Bind tuning and building to the same transformed model::
+
+    - id: tune_int8
+      uses: tune
       inputs: {model: quantize.model}
-    - id: build
-      inputs: {model: quantize.model}
+    - id: generate_int8
+      uses: build
+      inputs: {model: quantize.model, records: 'tune_int8.*'}
+    - id: compile_int8
+      uses: compile
+      inputs: {code: 'generate_int8.*'}
+    - id: measure_int8
+      uses: run
+      inputs: {program: compile_int8.executable}
 
-``BUILD`` still consumes tuning records from ``TUNE`` and follows its model
-lineage. Other built-in stage input bindings are rejected explicitly; custom
-stages can consume any named artifact flags. Omitted built-in stages are not
-implicitly inserted. ``POSTPROCESS``, if present, must be last and retains the
-existing session behavior of processing partial runs.
+The program selector requires the producer to mark its executable with that
+flag; use ``compile_int8.*`` to retain the legacy artifact ordering instead.
+Stage classes can declare ``input_names`` to reject unsupported bindings.
+Custom stages accept arbitrary names unless they declare this set.
+``context.source(name)`` returns a producer instance ID, while
+``context.require_inputs(...)`` checks required names. ``context.spec`` contains
+the effective bindings, including resolved defaults.
+
+Omitted stages are not implicitly inserted. Postprocessing is identified by the
+implementation's ``is_postprocess`` flag, including when its instance is renamed.
+It must be the final pipeline stage. Sessions retain partial-run postprocessing,
+and explicit restarts invalidate downstream artifacts, completion and reports.
 
 Scheduling and hardware resources
 ---------------------------------

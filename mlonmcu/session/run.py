@@ -31,7 +31,7 @@ from collections import defaultdict
 import yaml
 
 from mlonmcu.logging import get_logger
-from mlonmcu.artifact import ArtifactFormat, lookup_artifacts
+from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from mlonmcu.config import str2bool
 from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
@@ -44,6 +44,7 @@ from mlonmcu.models.model import Model, Program
 from mlonmcu.platform import get_platforms
 from mlonmcu.flow import get_frameworks, get_backends
 
+from .stage import Pipeline, StageId, StageContext, StageResult, STAGES, stage_key
 from .postprocess import get_postprocesses
 from .postprocess.postprocess import RunPostprocess
 
@@ -119,6 +120,7 @@ class RunInitializer:
         config=None,
         postprocess_names=None,
         comment=None,
+        pipeline=None,
         # from_stage=None,
         # frozen=False,
     ):
@@ -133,12 +135,14 @@ class RunInitializer:
         self.target_name = target_name
         self.config = config
         self.feature_names = feature_names
+        self.pipeline = Pipeline(pipeline)
         self.frozen = False
 
     def _serialize(self):
         return {
             "runs": [
                 {
+                    "pipeline": self.pipeline.serialize(),
                     "idx": self.idx,
                     "model_name": self.model_name,
                     "frontend_names": self.frontend_names,
@@ -173,9 +177,17 @@ class RunInitializer:
 
     def realize(self, context=None):
         assert context is not None
+        # Spawned process-pool workers receive a minimal context rather than
+        # opening a full context (which normally loads extensions).
+        if not STAGES and any(isinstance(stage, StageId) for stage in self.pipeline.stages):
+            from mlonmcu.context.context import MlonMcuContext, MlonMcuContextMinimal
+
+            if isinstance(context, MlonMcuContextMinimal):
+                MlonMcuContext.load_extensions(context)
         run = Run(
             idx=self.idx,
             config=self.config,
+            pipeline=self.pipeline.serialize(),
         )
         if self.comment:
             run.comment = self.comment
@@ -314,6 +326,7 @@ class Run:
         postprocesses=None,
         archived=False,
         comment="",
+        pipeline=None,
     ):
         self.idx = idx
         self.model = model  # Model name, not object?
@@ -326,7 +339,10 @@ class Run:
         self.postprocesses = postprocesses if postprocesses else []
         self.comment = comment
         # self.stage = RunStage.NOP  # max executed stage
-        self.completed = {stage: stage == RunStage.NOP for stage in RunStage}
+        self.pipeline = Pipeline(pipeline)
+        self.completed = {
+            stage: stage == RunStage.NOP for stage in [RunStage.NOP, *self.pipeline.stages, RunStage.DONE]
+        }
         self.directories = {}
         self.target = target
         self.cache_hints = []
@@ -449,7 +465,12 @@ class Run:
 
     def has_stage(self, stage):
         """Returns true if the given stage is available for this run."""
+        stage = stage_key(stage)
         if stage == RunStage.NOP:
+            return True
+        if stage not in self.pipeline.specs:
+            return False
+        if isinstance(stage, StageId):
             return True
         if stage == RunStage.LOAD:
             return self.model is not None and len(self.frontends) > 0
@@ -489,7 +510,7 @@ class Run:
                 if not completed:
                     return last
                 last = stage
-        return None
+        return last
 
     def lock(self):
         """Aquire a mutex to lock the current run."""
@@ -904,8 +925,8 @@ class Run:
                 for artifact in artifacts:
                     if not artifact.optional or optional:
                         dest = self.dir
-                        if subdir:
-                            stage_idx = int(stage)
+                        if subdir or isinstance(stage, StageId):
+                            stage_idx = stage.name.lower() if isinstance(stage, StageId) else int(stage)
                             dest = dest / "stages" / str(stage_idx)
                             # TODO: stages.txt for mapping between stage idx and name
                         if name not in ["", "default"]:
@@ -989,7 +1010,14 @@ class Run:
             self.export_stage(RunStage.COMPILE, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.COMPILE]:
                 elf_artifact = self.artifacts_per_stage[RunStage.COMPILE][name][0]
-                artifacts = self.target.generate_artifacts(elf_artifact.path)
+                from contextlib import nullcontext
+
+                preflashed = (
+                    getattr(self, "_flashed_program", None) is not None and self._flashed_program == elf_artifact.path
+                )
+                execution = self.target_platform.preflashed() if preflashed else nullcontext()
+                with execution:
+                    artifacts = self.target.generate_artifacts(elf_artifact.path)
                 if isinstance(artifacts, dict):
                     new = {
                         (
@@ -1084,6 +1112,7 @@ class Run:
         """Process the run using the choosen backend."""
         logger.debug("%s Processing stage BUILD", self.prefix)
         self.lock()
+        model_source = self.model_source(RunStage.BUILD)
         assert (not self.has_stage(RunStage.TUNE)) or self.completed[RunStage.TUNE]
 
         target_to_backend = self.target_to_backend and (self.target is not None)
@@ -1110,10 +1139,19 @@ class Run:
             else:
                 new = {name if name in ["", "default"] else f"{name}": artifacts}
             self.artifacts_per_stage[RunStage.BUILD].update(new)
-            self.sub_parents.update({(RunStage.BUILD, key): (self.last_stage, name) for key in new.keys()})
+            self.sub_parents.update(
+                {
+                    (RunStage.BUILD, key): (RunStage.TUNE if self.has_stage(RunStage.TUNE) else model_source, name)
+                    for key in new.keys()
+                }
+            )
 
         self.artifacts_per_stage[RunStage.BUILD] = {}
         if self.has_stage(RunStage.TUNE):
+            if "model" in self.pipeline.specs[RunStage.BUILD]["inputs"] and model_source != self.model_source(
+                RunStage.TUNE
+            ):
+                raise ValueError("BUILD and TUNE must bind the same model source")
             self.export_stage(RunStage.TUNE, optional=self.export_optional)
             for name in self.artifacts_per_stage[RunStage.TUNE]:
                 tune_stage_artifacts = self.artifacts_per_stage[RunStage.TUNE][name]
@@ -1138,8 +1176,7 @@ class Run:
                 candidate = (RunStage.TUNE, name)
                 assert candidate in self.sub_parents
                 parent_stage, parent_name = self.sub_parents[candidate]
-                assert parent_stage == RunStage.LOAD
-                assert parent_name in self.artifacts_per_stage[RunStage.LOAD]
+                assert parent_name in self.artifacts_per_stage[parent_stage]
                 load_stage_artifacts = self.artifacts_per_stage[parent_stage][parent_name]
                 model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
                 assert len(model_artifact) > 0
@@ -1150,6 +1187,7 @@ class Run:
                 output_shapes = None
                 input_types = None
                 output_types = None
+                params_path = None
                 if model_artifact.name.split(".", 1)[0] == self.model.name:
                     input_shapes = self.model.input_shapes
                     output_shapes = self.model.output_shapes
@@ -1169,9 +1207,9 @@ class Run:
                     self.backend.add_platform_defs(self.compile_platform.name, self.compile_platform.definitions)
 
         else:
-            self.export_stage(RunStage.LOAD, optional=self.export_optional)  # Not required anymore?
-            for name in self.artifacts_per_stage[RunStage.LOAD]:
-                load_stage_artifacts = self.artifacts_per_stage[RunStage.LOAD][name]
+            self.export_stage(model_source, optional=self.export_optional)  # Not required anymore?
+            for name in self.artifacts_per_stage[model_source]:
+                load_stage_artifacts = self.artifacts_per_stage[model_source][name]
                 model_artifact = lookup_artifacts(load_stage_artifacts, flags=["model"], first_only=True)
                 if len(model_artifact) == 0:
                     # TODO: This breaks because number of subs can not decrease...
@@ -1213,7 +1251,8 @@ class Run:
         """Tune the run using the choosen backend (if supported)."""
         logger.debug("%s Processing stage TUNE", self.prefix)
         self.lock()
-        assert self.completed[RunStage.LOAD]
+        model_source = self.model_source(RunStage.TUNE)
+        assert self.completed[model_source]
 
         target_to_backend = self.target_to_backend and (self.target is not None)
         if self.backend.needs_target or self.target_optimized_layouts or self.target_optimized_schedules:
@@ -1228,10 +1267,12 @@ class Run:
                 optimized_schedules=self.target_optimized_schedules,
             )
 
-        self.export_stage(RunStage.LOAD, optional=self.export_optional)
+        self.export_stage(model_source, optional=self.export_optional)
         self.artifacts_per_stage[RunStage.TUNE] = {}
-        for name in self.artifacts_per_stage[RunStage.LOAD]:
-            model_artifact = self.artifacts_per_stage[RunStage.LOAD][name][0]
+        for name in self.artifacts_per_stage[model_source]:
+            model_artifact = lookup_artifacts(
+                self.artifacts_per_stage[model_source][name], flags=["model"], first_only=True
+            )[0]
             # if not model_artifact.exported:
             #     model_artifact.export(self.dir)
 
@@ -1245,7 +1286,7 @@ class Run:
                 else:
                     new = {name if name in ["", "default"] else f"{name}": res}
             self.artifacts_per_stage[RunStage.TUNE].update(new)
-            self.sub_parents.update({(RunStage.TUNE, key): (RunStage.LOAD, name) for key in new.keys()})
+            self.sub_parents.update({(RunStage.TUNE, key): (model_source, name) for key in new.keys()})
         self.sub_names.extend(self.artifacts_per_stage[RunStage.TUNE])
         self.sub_names = list(set(self.sub_names))
 
@@ -1301,76 +1342,136 @@ class Run:
         self.completed[RunStage.LOAD] = True
         self.unlock()
 
-    def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
-        """Process the run until a given stage."""
-        skip = skip if skip is not None else []
-        if until == RunStage.DONE:
-            until = RunStage.DONE - 1
-        start = self.next_stage if start is None else start
-        if until < start:
-            logger.debug("%s Nothing to do", self.prefix)
-            return self.get_report()
+    def model_source(self, stage):
+        binding = self.pipeline.specs[stage].get("inputs", {}).get("model")
+        return stage_key(binding.split(".", 1)[0]) if binding else RunStage.LOAD
 
-        if start > RunStage.NOP:
-            logger.debug(
-                # self.prefix + "Processing run until stage %s: %s",
-                "%s Continuing run from stage %s until stage %s",
-                self.prefix,
-                str(RunStage(start).name),
-                str(RunStage(until).name),
-                # str(self),
-            )
-        else:
-            logger.debug(
-                # self.prefix + "Processing run until stage %s: %s",
-                "%s Processing run until stage %s",
-                self.prefix,
-                str(RunStage(until).name),
-                # str(self),
-            )
-        for stage in range(start, until + 1):
-            if not self.has_stage(stage):
-                continue
-            if stage in skip:
-                logger.debug("%s Skipping stage %s", self.prefix, str(RunStage(stage).name))
-                continue
-            if stage < RunStage.POSTPROCESS:
-                self.report = None  # Regenerate report if earlier stages are executed
-            stage_funcs = {
-                RunStage.NOP: lambda *args, **kwargs: None,  # stage already done
-                RunStage.LOAD: self.load,
-                RunStage.TUNE: self.tune,
-                RunStage.BUILD: self.build,
-                RunStage.COMPILE: self.compile,
-                RunStage.RUN: self.run,
-                RunStage.POSTPROCESS: self.postprocess,
+    def execute_custom_stage(self, stage):
+        spec = self.pipeline.specs[stage]
+        from .builtin_stages import BUILTIN_STAGES
+
+        implementation = STAGES.get(spec["uses"], BUILTIN_STAGES.get(spec["uses"]))
+        if implementation is None:
+            raise ValueError(f"Unknown stage implementation: {spec['uses']}. Load its extensions.py in every worker.")
+        workdir = self.dir / "stages" / stage.name.lower()
+        workdir.mkdir(parents=True, exist_ok=True)
+        inputs = self.pipeline.inputs(self, stage)
+        for binding in spec["inputs"].values():
+            self.export_stage(stage_key(binding.split(".", 1)[0]), optional=True)
+        context = StageContext(self, spec, inputs, workdir)
+        handler = implementation()
+        handler.validate(context)
+        result = handler.execute(context)
+        if not isinstance(result, StageResult):
+            raise TypeError("Custom stages must return StageResult")
+        sources = {stage_key(binding.split(".", 1)[0]) for binding in spec["inputs"].values()}
+        parents = {}
+        artifacts = {name: list(items) for name, items in result.artifacts.items()}
+        if set(result.parents) - set(artifacts) or set(result.metrics) - set(artifacts):
+            raise ValueError("Parents and metrics must refer to output variants")
+        for name in artifacts:
+            if not name or Path(name).name != name or name in (".", ".."):
+                raise ValueError(f"Invalid output variant: {name}")
+            if not all(isinstance(artifact, Artifact) for artifact in artifacts[name]):
+                raise TypeError("Stage outputs must contain Artifact objects")
+            parent = result.parents.get(name)
+            if parent is None and sources:
+                raise ValueError(f"Missing parent for output variant: {name}")
+            if parent is not None:
+                parent = (stage_key(parent[0]), parent[1])
+                if parent[0] not in sources or parent[1] not in self.artifacts_per_stage.get(parent[0], {}):
+                    raise ValueError(f"Invalid output parent: {parent}")
+            parents[(stage, name)] = parent if parent else (None, None)
+            if name in result.metrics:
+                if lookup_artifacts(artifacts[name], name=f"{stage.name.lower()}_metrics.csv"):
+                    raise ValueError("Return either a metrics CSV or StageResult.metrics, not both")
+                metrics = Metrics()
+                for key, value in result.metrics[name].items():
+                    metrics.add(key, value)
+                artifacts[name].append(
+                    Artifact(f"{stage.name.lower()}_metrics.csv", content=metrics.to_csv(), fmt=ArtifactFormat.TEXT)
+                )
+        self.artifacts_per_stage[stage] = artifacts
+        self.sub_parents.update(parents)
+        self.sub_names = list(dict.fromkeys([*self.sub_names, *artifacts]))
+        self.completed[stage] = True
+
+    def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
+        """Execute an inclusive pipeline prefix; resource locks cover the whole invocation."""
+        from contextlib import ExitStack
+        import hashlib
+        import tempfile
+        from filelock import FileLock
+
+        resources = sorted(
+            {
+                resource
+                for spec in self.pipeline.specs.values()
+                for resource in spec.get("resources", {}).get("exclusive", [])
             }
-            func = stage_funcs[stage]
-            if func:
-                self.failing = False
-                try:
-                    if self.profile_stages:
-                        start = time.time()
-                    func()
-                    if self.profile_stages:
-                        end = time.time()
-                        self.times[stage] = (start, end)
-                except Exception as e:
-                    self.failing = True
-                    self.reason = e
-                    if self.locked:
-                        self.unlock()
-                    logger.exception(e)
-                    run_stage = RunStage(stage).name
-                    self.failed_stage = run_stage
-                    logger.error("%s Run failed at stage '%s', aborting...", self.prefix, run_stage)
-                    break
-            # self.stage = stage  # FIXME: The stage_func should update the stage intead?
+        )
+        self._flashed_program = None  # Never trust device state from a previous invocation.
+        with ExitStack() as stack:
+            for resource in resources:
+                digest = hashlib.sha256(resource.encode()).hexdigest()
+                stack.enter_context(FileLock(Path(tempfile.gettempdir()) / f"mlonmcu-resource-{digest}.lock"))
+            return self._process_pipeline(until, start, skip, export)
+
+    def _process_pipeline(self, until, start, skip, export):
+        skip = {stage_key(stage) for stage in (skip or [])}
+        stages = self.pipeline.through(until)
+        explicit_start = start is not None
+        start = self.next_stage if start is None else self.pipeline.resolve(start)
+        if explicit_start and start in self.pipeline.stages and start in stages:
+            for stale in self.pipeline.stages[self.pipeline.stages.index(start) :]:
+                self.completed[stale] = False
+                self.artifacts_per_stage.pop(stale, None)
+                self.times.pop(stale, None)
+                self.sub_parents = {key: parent for key, parent in self.sub_parents.items() if key[0] != stale}
+            self.report = None
+        if start == RunStage.DONE:
+            stages = []
+        elif start != RunStage.NOP:
+            stages = stages[stages.index(start) :] if start in stages else []
+        funcs = {
+            RunStage.LOAD: self.load,
+            RunStage.TUNE: self.tune,
+            RunStage.BUILD: self.build,
+            RunStage.COMPILE: self.compile,
+            RunStage.RUN: self.run,
+            RunStage.POSTPROCESS: self.postprocess,
+        }
+        for stage in stages:
+            if not self.has_stage(stage) or stage in skip:
+                continue
+            self.report = None
+            if stage != RunStage.POSTPROCESS and RunStage.POSTPROCESS in self.completed:
+                self.completed[RunStage.POSTPROCESS] = False
+                self.artifacts_per_stage.pop(RunStage.POSTPROCESS, None)
+            self.failing = False
+            self.failed_stage = None
+            self.reason = None
+            try:
+                self.pipeline.inputs(self, stage)  # fail before executing consumers of skipped inputs
+                started = time.time()
+                if isinstance(stage, StageId):
+                    self.execute_custom_stage(stage)
+                else:
+                    funcs[stage]()
+                if self.profile_stages:
+                    self.times[stage] = (started, time.time())
+            except Exception as exc:
+                self.failing = True
+                self.reason = exc
+                self.failed_stage = stage.name
+                if self.locked:
+                    self.unlock()
+                logger.exception("%s Run failed at stage '%s'", self.prefix, stage.name)
+                break
         report = self.get_report()
         if export:
-            self.export(optional=self.export_optional)  # TODO: set to flase?
-            report_file = Path(self.dir) / "report.csv"
-            report.export(report_file)
+            self.export(optional=self.export_optional)
+            report.export(Path(self.dir) / "report.csv")
         return report
 
     def write_run_file(self):
@@ -1380,6 +1481,8 @@ class Run:
         filename = self.dir / "run.txt"
         with open(filename, "w", encoding="utf-8") as handle:
             handle.write(str(self))
+        with open(self.dir / "pipeline.yml", "w", encoding="utf-8") as handle:
+            yaml.safe_dump(self.pipeline.serialize(), handle, sort_keys=False)
 
     @property
     def prefix(self):
@@ -1456,7 +1559,8 @@ class Run:
             ret.update(
                 {key: value for key, value in self.config.items() if not has_prefix(key)}
             )  # Only config without a prefix!
-        ret.update(config_helper(self.model))
+        if self.model:
+            ret.update(config_helper(self.model))
         for frontend in self.frontends:
             ret.update(config_helper(frontend))
         if self.backend:
@@ -1477,7 +1581,7 @@ class Run:
 
     def get_report(self, session=None):
         """Returns teh complete report of this run."""
-        if self.completed[RunStage.POSTPROCESS]:
+        if self.completed.get(RunStage.POSTPROCESS, False):
             if self.report is not None:
                 return (
                     self.report
@@ -1521,46 +1625,35 @@ class Run:
         # metrics = Metrics()
         metrics_by_sub = {}
 
-        def metrics_helper(stage, subs):
-            # if self.failing:
-            #     return subs
-            if stage in self.artifacts_per_stage:
-                prev_metrics_by_sub = metrics_by_sub.copy()
-                names = self.artifacts_per_stage[stage].keys()
-                subs = names
-                for name in self.artifacts_per_stage[stage]:
-                    # metrics_by_sub[name] = Metrics()
-                    if len(self.artifacts_per_stage[stage][name]) > 0:
-                        filename = f"{stage.name.lower()}_metrics.csv"
-                        metrics_artifact = lookup_artifacts(self.artifacts_per_stage[stage][name], name=filename)
-                        if len(metrics_artifact) == 0:
-                            continue
-                        assert len(metrics_artifact) == 1
-                        metrics_artifact = metrics_artifact[0]
-                        metrics = Metrics.from_csv(metrics_artifact.content)
-                        metrics_data = metrics.get_data(include_optional=self.export_optional)
-                        # Combine with existing metrics
-                        parents = self.sub_parents[(stage, name)]
-                        parent_stage, parent_name = parents
-                        if parent_name in prev_metrics_by_sub:
-                            parent_metrics_data = prev_metrics_by_sub[parent_name].get_data(
-                                include_optional=self.export_optional
-                            )
-                        else:
-                            parent_metrics_data = {}
-                        for key, value in parent_metrics_data.items():
-                            if key not in metrics_data:
-                                metrics.add(key, value)
-                        metrics_by_sub[name] = metrics
-            return subs
+        metric_cache = {}
 
-        for stage in range(RunStage.LOAD, RunStage.POSTPROCESS):
-            subs_ = metrics_helper(RunStage(stage), subs)
-            if len(subs_) < len(subs):
-                # assert self.failing
-                pass
-            else:
-                subs = subs_
+        def variant_metrics(stage, name):
+            key = (stage, name)
+            if key in metric_cache:
+                return metric_cache[key]
+            metrics = Metrics()
+            parent_stage, parent_name = self.sub_parents.get(key, (None, None))
+            if parent_stage is not None:
+                inherited = variant_metrics(parent_stage, parent_name)
+                for metric, value in inherited.get_data(include_optional=self.export_optional).items():
+                    metrics.add(metric, value)
+            artifacts = self.artifacts_per_stage[stage][name]
+            matches = lookup_artifacts(artifacts, name=f"{stage.name.lower()}_metrics.csv")
+            if matches:
+                assert len(matches) == 1
+                current = Metrics.from_csv(matches[0].content)
+                for metric, value in current.get_data(include_optional=self.export_optional).items():
+                    metrics.add(metric, value, overwrite=True)
+            metric_cache[key] = metrics
+            return metrics
+
+        for stage in self.pipeline.stages:
+            if stage == RunStage.POSTPROCESS or not self.artifacts_per_stage.get(stage):
+                continue
+            subs = list(self.artifacts_per_stage[stage])
+            metrics_by_sub = {name: variant_metrics(stage, name) for name in subs}
+        if not subs:
+            subs = ["default"]
 
         pres = []
         mains = []
@@ -1578,8 +1671,8 @@ class Run:
                 for stage, stage_times in self.times.items():
                     assert len(stage_times) == 2
                     start, end = stage_times
-                    main[f"{RunStage(stage).name.capitalize()} Stage Start Time [s]"] = start
-                    main[f"{RunStage(stage).name.capitalize()} Stage End Time [s]"] = end
+                    main[f"{stage_key(stage).name.capitalize()} Stage Start Time [s]"] = start
+                    main[f"{stage_key(stage).name.capitalize()} Stage End Time [s]"] = end
             mains.append(main if len(main) > 0 else {"Incomplete": True})
             posts.append(post)  # TODO: omit for subs?
         report.set(pre=pres, main=mains, post=posts)
@@ -1591,7 +1684,7 @@ class Run:
         if path is not None:
             raise NotImplementedError
         assert not self.locked
-        for stage in range(self.next_stage):
+        for stage in self.completed_stages:
             if not self.has_stage(stage):
                 continue
             self.export_stage(stage, optional=optional)
@@ -1683,16 +1776,17 @@ class Run:
     def initializer(self):
         return RunInitializer(
             idx=self.idx,
-            model_name=self.model.name,
-            framework_name=self.framework.name,
+            model_name=self.model.name if self.model else None,
+            framework_name=self.framework.name if self.framework else None,
             frontend_names=[frontend.name for frontend in self.frontends],
-            backend_name=self.backend.name,
-            target_name=self.target.name,
+            backend_name=self.backend.name if self.backend else None,
+            target_name=self.target.name if self.target else None,
             platform_names=[platform.name for platform in self.platforms],
             feature_names=[feature.name for feature in self.features],
             config={**self.config},
             postprocess_names=[postprocess.name for postprocess in self.postprocesses],
             comment=self.comment,
+            pipeline=self.pipeline.serialize(),
         )
 
 

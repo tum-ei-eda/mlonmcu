@@ -264,6 +264,10 @@ class TargetPlatform(Platform):
     def supports_monitor(self):
         return True
 
+    @property
+    def needs_lock(self):
+        return False
+
     def flash(self, elf, target, timeout=120):
         raise NotImplementedError
 
@@ -272,8 +276,7 @@ class TargetPlatform(Platform):
 
     def run(self, elf, target, timeout=120, **kwargs):
         # Only allow one serial communication at a time
-        needs_lock = False  # TODO: get from property?
-        if needs_lock:
+        if self.needs_lock:
             # TODO: move lockfile!
             # TODO: store flash output?
             with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):

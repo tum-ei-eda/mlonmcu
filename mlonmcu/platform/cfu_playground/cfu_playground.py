@@ -26,6 +26,7 @@ import shutil
 import tempfile
 from importlib.resources import files
 from pathlib import Path
+from filelock import FileLock
 
 
 from mlonmcu.setup import utils
@@ -619,6 +620,72 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         artifacts.append(stdout_artifact)
         return {"default": artifacts}, {"default": metrics}
 
+    def synth(self, elf, target, timeout=120):
+        start_time = time.time()
+        artifacts = []
+        if target.use_renode:
+            assert not target.rtl_sim
+            assert not target.fpga_sim
+        elif target.rtl_sim:
+            assert not target.fpga_sim
+        elif target.fpga_sim:
+            assert not target.rtl_sim
+            out_dir = self.out_dir
+            env_ = self.prepare_environment(target=target)
+            env_["LIBC_CLEANUP"] = "1"
+            platform = self.pick_platform(target)
+            out = ""
+            out += utils.make(
+                # "load2",
+                "bitstream",
+                f"PLATFORM={platform}",
+                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+                *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+                *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+                f"OUT_DIR={out_dir}",
+                f"SOC_BUILD_DIR={out_dir}",
+                cwd=self.project_dir,
+                env=env_,
+                live=self.print_outputs,
+                threads=self.num_threads,
+            )
+            gateware_dir = out_dir / "gateware"
+            assert gateware_dir.is_dir()
+            report_types = [
+                "utilization_place",
+                "timing",
+                "utilization_synth",
+                "power",
+                "utilization_hierarchical_place",
+            ]
+            for report_type in report_types:
+                matches = list(gateware_dir.glob(f"*_{report_type}.rpt"))
+                assert len(matches) == 1  # TODO: loosen?
+                report_match = matches[0]
+                artifact = Artifact(
+                    f"vivado_report_{report_type}.rpt",
+                    path=report_match,
+                    fmt=ArtifactFormat.PATH,
+                    flags=("vivado", "report", report_type, self.name, target.name),
+                ).convert(ArtifactFormat.TEXT)
+                artifacts.append(artifact)
+        else:
+            raise RuntimeError("Only renode & verilator sim & fpga sim are supported")
+        metrics = Metrics()
+        end_time = time.time()
+        diff = end_time - start_time
+        if target.use_renode:
+            pass
+            # metrics.add("Renode Build Time [s]", diff, True)
+        elif target.rtl_sim:
+            pass
+            # metrics.add("Verilator Prepare Time [s]", diff, True)
+        else:
+            assert target.fpga_sim
+            metrics.add("FPGA Bitstream Time [s]", diff, True)
+        # return out, {"default": artifacts}, {"default": metrics}
+        return out, artifacts, metrics
+
     def flash(self, elf, target, timeout=120):
         # Ignore elf, as we use self.project_dir instead
         # TODO: add alternative approach which allows passing elf instead
@@ -664,50 +731,11 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             vsim = gateware_dir / "obj_dir" / "Vsim"
             assert vsim.is_file()
         elif target.fpga_sim:
-            bitstream_start_time = time.time()
             assert not target.rtl_sim
             out_dir = self.out_dir
             env_ = self.prepare_environment(target=target)
             env_["LIBC_CLEANUP"] = "1"
             platform = self.pick_platform(target)
-            out = ""
-            out += utils.make(
-                # "load2",
-                "bitstream",
-                f"PLATFORM={platform}",
-                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
-                *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
-                *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
-                f"OUT_DIR={out_dir}",
-                f"SOC_BUILD_DIR={out_dir}",
-                cwd=self.project_dir,
-                env=env_,
-                live=self.print_outputs,
-                threads=self.num_threads,
-            )
-            bitstream_end_time = time.time()
-            diff_bitstream = bitstream_end_time - bitstream_start_time
-            gateware_dir = out_dir / "gateware"
-            assert gateware_dir.is_dir()
-            vsim = gateware_dir / "obj_dir" / "Vsim"
-            report_types = [
-                "utilization_place",
-                "timing",
-                "utilization_synth",
-                "power",
-                "utilization_hierarchical_place",
-            ]
-            for report_type in report_types:
-                matches = list(gateware_dir.glob(f"*_{report_type}.rpt"))
-                assert len(matches) == 1  # TODO: loosen?
-                report_match = matches[0]
-                artifact = Artifact(
-                    f"vivado_report_{report_type}.rpt",
-                    path=report_match,
-                    fmt=ArtifactFormat.PATH,
-                    flags=("vivado", "report", report_type, self.name, target.name),
-                ).convert(ArtifactFormat.TEXT)
-                artifacts.append(artifact)
             if self.wait_for_user:  # INTERACTIVE
                 answer = input(
                     f"Make sure that the device '{target.name}' is connected via TTY {target.fpga_tty}"
@@ -715,8 +743,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 )
                 if answer.lower() == "abort":
                     return ""
-            prog_start_time = time.time()
             logger.debug("Flashing bitstream & target software")
+            out = ""
             out += utils.make(
                 # "load2",
                 # "prog",
@@ -732,8 +760,6 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 live=self.print_outputs,
                 threads=self.num_threads,
             )
-            prog_end_time = time.time()
-            diff_prog = prog_end_time - prog_start_time
         else:
             raise RuntimeError("Only renode & verilator sim & fpga sim are supported")
         metrics = Metrics()
@@ -745,8 +771,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             metrics.add("Verilator Build Time [s]", diff, True)
         else:
             assert target.fpga_sim
-            metrics.add("FPGA Bitstream Time [s]", diff_bitstream, True)
-            metrics.add("FPGA Prog Time [s]", diff_prog, True)
+            metrics.add("FPGA Prog Time [s]", diff, True)
         # return out, {"default": artifacts}, {"default": metrics}
         return out, artifacts, metrics
 
@@ -920,14 +945,27 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             metrics.add("Simulation Time [s]", diff2, True)
         return out, artifacts, metrics
 
+    @property
+    def needs_lock(self):
+        return True
+
     def run(self, elf, target, timeout=120):
         # Only allow one serial communication at a time
         # with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
-        flash_output, flash_artifacts, flash_metrics = self.flash(elf, target, timeout=timeout)
-        monitor_output, monitor_artifacts, monitor_metrics = self.monitor(target, timeout=timeout)
-        output = flash_output + monitor_output
+        synth_output, synth_artifacts, synth_metrics = self.synth(elf, target, timeout=timeout)
+        if self.needs_lock:
+            # TODO: move lockfile!
+            with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
+                # flash_output, flash_artifacts, flash_metrics = self.flash(elf, target, timeout=timeout)
+                flash_output, flash_artifacts, flash_metrics = self.flash(elf, target, timeout=timeout)
+                monitor_output, monitor_artifacts, monitor_metrics = self.monitor(target, timeout=timeout)
+        else:
+            # flash_output, flash_artifacts, flash_metrics = self.flash(elf, target, timeout=timeout)
+            flash_output, flash_artifacts, flash_metrics = self.flash(elf, target, timeout=timeout)
+            monitor_output, monitor_artifacts, monitor_metrics = self.monitor(target, timeout=timeout)
+        output = synth_output + flash_output + monitor_output
         metrics = Metrics()
-        metrics.merge(flash_metrics, monitor_metrics)
-        artifacts = flash_artifacts + monitor_artifacts
+        metrics.merge(synth_metrics, flash_metrics, monitor_metrics)
+        artifacts = synth_artifacts + flash_artifacts + monitor_artifacts
 
         return output, artifacts, metrics

@@ -18,9 +18,124 @@
 #
 """Model-independent helpers for validation inputs, references, labels, and metadata."""
 
+import hashlib
+import json
 from pathlib import Path
 
 import numpy as np
+from filelock import FileLock
+
+from mlonmcu.logging import get_logger
+from mlonmcu.setup import utils
+
+
+def write_model_data_manifest(model_dir, paths, destination=None):
+    """Record SHA-256 hashes and sample count from a complete, trusted dataset."""
+    model_dir = Path(model_dir).resolve()
+    files = {}
+    sample_sets = []
+    for entry in paths:
+        path = (model_dir / entry).resolve()
+        path.relative_to(model_dir)
+        if path.is_dir():
+            entries = sorted(path.glob("*.bin"))
+            samples = {int(item.stem.split("_", 1)[0]) for item in entries}
+            if not samples or samples != set(range(len(samples))):
+                raise ValueError(f"Expected contiguous samples starting at zero in {path}")
+            sample_sets.append(samples)
+        else:
+            entries = [path]
+        for item in entries:
+            files[item.relative_to(model_dir).as_posix()] = hashlib.sha256(item.read_bytes()).hexdigest()
+    if not sample_sets or any(samples != sample_sets[0] for samples in sample_sets):
+        raise ValueError("Manifest data directories must describe the same samples")
+    manifest = {"version": 1, "sample_count": len(sample_sets[0]), "files": files}
+    destination = Path(destination) if destination is not None else model_dir / "data_manifest.json"
+    with destination.open("x") as handle:
+        json.dump(manifest, handle, indent=2, sort_keys=True)
+        handle.write("\n")
+    return manifest
+
+
+def ensure_model_data(model_dir, input_paths=(), output_paths=(), label_paths=(), number=10):
+    """Ensure requested default validation files exist, downloading only when needed.
+
+    Callers opt in before invoking this function. A data_manifest.json supplies
+    the dataset size and trusted SHA-256 hashes. Only requested files are hashed.
+    Return the requested sample count, capped by the manifest's dataset size.
+    """
+    if model_dir is None or not (input_paths or output_paths or label_paths):
+        return number
+    model_dir = Path(model_dir).resolve()
+    script = model_dir / "download_data.sh"
+    manifest_path = model_dir / "data_manifest.json"
+    hashes = None
+    if manifest_path.is_file():
+        manifest = json.loads(manifest_path.read_text())
+        count = manifest.get("sample_count")
+        if manifest.get("version") != 1 or type(count) is not int or count <= 0:
+            raise ValueError(f"Invalid version or sample_count in {manifest_path}")
+        hashes = manifest.get("files")
+        if not isinstance(hashes, dict):
+            raise ValueError(f"Missing file hashes in {manifest_path}")
+        for filename, digest in hashes.items():
+            path = Path(filename)
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError(f"Manifest filenames must be relative to the model directory: {filename}")
+            if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError(f"Invalid SHA-256 digest for {filename}")
+        number = min(number, count)
+
+    requirements = []
+    for paths in (input_paths, output_paths):
+        for tensor, directory in enumerate(paths):
+            directory = Path(directory)
+            for sample in range(number):
+                filename = f"{sample}.bin" if len(paths) == 1 else f"{sample}_{tensor}.bin"
+                alternatives = [directory / filename]
+                if len(paths) == 1:
+                    alternatives.append(directory / f"{sample}_0.bin")
+                requirements.append(alternatives)
+    requirements.extend([[Path(path)] for path in label_paths])
+    if hashes is not None:
+        for alternatives in requirements:
+            alternatives[:] = [
+                path for path in alternatives if path.resolve().relative_to(model_dir).as_posix() in hashes
+            ]
+            if not alternatives:
+                raise ValueError(f"{manifest_path} does not describe all requested validation files")
+
+    def valid_file(path):
+        if not path.is_file() or not path.stat().st_size:
+            return False
+        if hashes is None:
+            return True
+        name = path.resolve().relative_to(model_dir).as_posix()
+        return hashlib.sha256(path.read_bytes()).hexdigest() == hashes[name]
+
+    def missing_files():
+        return [paths[0] for paths in requirements if not any(valid_file(path) for path in paths)]
+
+    missing = missing_files()
+    if not missing:
+        return number
+    if not script.is_file():
+        if hashes is not None:
+            raise RuntimeError(f"Missing or invalid validation data: {missing[0]}; no download_data.sh available")
+        return number
+    # Parallel runs/backends can share one model directory. Recheck under the lock.
+    with FileLock(str(model_dir / ".download_data.lock")):
+        if not missing_files():
+            return number
+        get_logger().info("Downloading missing validation data using %s", script)
+        # The existing model downloaders expect their extraction directories to exist.
+        for path in (*input_paths, *output_paths):
+            Path(path).mkdir(parents=True, exist_ok=True)
+        utils.execute("bash", "-e", str(script), cwd=model_dir)
+        missing = missing_files()
+        if missing:
+            raise RuntimeError(f"{script} did not provide required validation data: {missing[0]}")
+    return number
 
 
 def generate_input_data(

@@ -53,6 +53,7 @@ from mlonmcu.models.model import (
 )
 from mlonmcu.models.lookup import lookup_models
 from mlonmcu.models.data_utils import (
+    ensure_model_data,
     generate_input_data,
     generate_output_ref_data,
     generate_ref_labels,
@@ -75,6 +76,7 @@ class Frontend(ABC):
     DEFAULTS = {
         "use_inout_data": False,
         "check_integrity": True,
+        "download_data": False,
         # the following should be configured using gen_data feature
         "gen_data": False,
         "gen_data_fill_mode": None,
@@ -116,6 +118,10 @@ class Frontend(ABC):
     @property
     def check_integrity(self):
         return str2bool(self.config["check_integrity"])
+
+    @property
+    def download_data(self):
+        return str2bool(self.config["download_data"])
 
     @property
     def use_inout_data(self):
@@ -260,6 +266,13 @@ class Frontend(ABC):
         output_ranges = {}
         input_quant_details = {}
         output_quant_details = {}
+        needs_inputs = self.use_inout_data or (
+            self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"
+        )
+        needs_outputs = self.use_inout_data or (
+            self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"
+        )
+        needs_labels = self.gen_ref_labels and self.gen_ref_labels_mode == "file" and self.gen_ref_labels_file == "auto"
         if metadata is not None and "network_parameters" in metadata:
             network = metadata["network_parameters"]
             assert "input_nodes" in network
@@ -285,16 +298,11 @@ class Frontend(ABC):
                     quant_range = quantize.get("range", None)
                     quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
                     input_quant_details[name] = quant_details
-                if self.use_inout_data or (
-                    self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"
-                ):
+                if needs_inputs:
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
                         # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
                         in_path = model_dir / in_data_dir
-                        assert (
-                            in_path.is_dir()
-                        ), f"Input data directory defined in model metadata does not exist: {in_path}"
                         in_paths.append(in_path)
             assert "output_nodes" in network
             outs = network["output_nodes"]
@@ -319,34 +327,35 @@ class Frontend(ABC):
                     quant_range = dequantize.get("range", None)
                     quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
                     output_quant_details[name] = quant_details
-                if self.use_inout_data or (
-                    self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"
-                ):
+                if needs_outputs:
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])
                         out_path = model_dir / out_data_dir
-                        assert (
-                            out_path.is_dir()
-                        ), f"Output data directory defined in model metadata does not exist: {out_path}"
                         out_paths.append(out_path)
-                if self.gen_ref_labels and self.gen_ref_labels_mode == "file" and self.gen_ref_labels_file == "auto":
+                if needs_labels:
                     if "test_labels_file" in outp:
                         labels_file = Path(outp["test_labels_file"])
                         labels_path = model_dir / labels_file
-                        assert (
-                            labels_path.is_file()
-                        ), f"Labels file defined in model metadata does not exist: {labels_path}"
                         labels_paths.append(labels_path)
         elif model_dir is not None:
             fallback_in_path = model_dir / "input"
-            if fallback_in_path.is_dir():
+            if fallback_in_path.is_dir() or (self.download_data and needs_inputs):
                 in_paths.append(fallback_in_path)
             fallback_out_path = model_dir / "output"
-            if fallback_out_path.is_dir():
+            if fallback_out_path.is_dir() or (self.download_data and needs_outputs):
                 out_paths.append(fallback_out_path)
             fallback_labels_path = model_dir / "output_labels.csv"
-            if fallback_labels_path.is_file():
+            if fallback_labels_path.is_file() or (self.download_data and needs_labels):
                 labels_paths.append(fallback_labels_path)
+        data_number = self.gen_data_number if self.gen_data else 1
+        if self.download_data:
+            data_number = ensure_model_data(
+                model_dir,
+                input_paths=in_paths if needs_inputs and not model.inputs_path else (),
+                output_paths=out_paths if needs_outputs and not model.outputs_path else (),
+                label_paths=labels_paths if needs_labels and not model.output_labels_path else (),
+                number=data_number,
+            )
         if model.inputs_path:
             logger.info("Overriding default model input data with user path")
             in_paths = [model.inputs_path]
@@ -356,6 +365,16 @@ class Frontend(ABC):
         if model.output_labels_path:  # TODO
             logger.info("Overriding default model output labels with user path")
             labels_paths = [model.output_labels_path]
+
+        if needs_inputs:
+            for path in in_paths:
+                assert path.exists(), f"Input data path does not exist: {path}"
+        if needs_outputs:
+            for path in out_paths:
+                assert path.exists(), f"Output data path does not exist: {path}"
+        if needs_labels:
+            for path in labels_paths:
+                assert path.is_file(), f"Labels file defined in model metadata does not exist: {path}"
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -461,7 +480,7 @@ class Frontend(ABC):
                 in_paths,
                 fill_mode=self.gen_data_fill_mode,
                 data_file=self.gen_data_file,
-                number=self.gen_data_number,
+                number=data_number,
             )
             fmt = self.gen_data_fmt
             if fmt == "npy":

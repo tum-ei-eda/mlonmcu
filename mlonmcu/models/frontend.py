@@ -234,82 +234,26 @@ class Frontend(ABC):
         assert self.gen_data
         inputs_data = []
         if self.gen_data_fill_mode in ["zeros", "ones", "random"]:
-            for i in range(self.gen_data_number):
+            for _ in range(self.gen_data_number):
                 data = {}
-                NEW = True
-                for ii, input_name in enumerate(input_names):
-                    assert input_name in input_types, f"Unknown dtype for input: {input_name}"
-                    dtype = input_types[input_name]
-                    quant = input_quant_details.get(input_name, None)
-                    rng = input_ranges.get(input_name, None)
-                    gen_dtype = dtype
-                    if quant:
-                        _, _, ty = quant
-                        assert "float" in ty, "Input already quantized?"
-                        if NEW:
-                            gen_dtype = ty
-                    assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
-                    shape = input_shapes[input_name]
+                for name in input_names:
+                    dtype = np.dtype(input_types[name])
+                    shape = input_shapes[name]
+                    # Synthetic data is generated directly in the model tensor's dtype.
                     if self.gen_data_fill_mode == "zeros":
-                        arr = np.zeros(shape, dtype=gen_dtype)
+                        arr = np.zeros(shape, dtype=dtype)
                     elif self.gen_data_fill_mode == "ones":
-                        arr = np.ones(shape, dtype=gen_dtype)
-                    elif self.gen_data_fill_mode == "random":
-                        DIST = "uniform"
-                        if DIST == "uniform":
-                            UPPER = None
-                            LOWER = None
-                            if rng is not None:
-                                assert len(rng) == 2, "Range should be a tuple (lower, upper)"
-                                LOWER, UPPER = rng
-                            if "float" in gen_dtype:
-                                if UPPER is None:
-                                    # UPPER = 1.0
-                                    UPPER = 0.5
-                                if LOWER is None:
-                                    # LOWER = -1.0
-                                    LOWER = -0.5
-                            elif "int" in gen_dtype:
-                                dtype_info = (np.iinfo(gen_dtype),)
-                                if UPPER is None:
-                                    UPPER = dtype_info.max
-                                else:
-                                    assert UPPER <= dtype_info.max, "Out of dtype bound"
-                                if LOWER is None:
-                                    LOWER = dtype_info.min
-                                else:
-                                    assert LOWER >= dtype_info.min, "Out of dtype bound"
-                            else:
-                                raise RuntimeError(f"Unsupported dtype: {gen_dtype}")
-                            assert LOWER <= UPPER
-                            RANGE = UPPER - LOWER
-                            assert RANGE > 0
-                            arr = np.random.uniform(LOWER, UPPER, shape)
-                            arr = arr.astype(gen_dtype)
-                            # input("?=")
-                            # if "float" in dtype:
-                            #     arr = np.random.rand(*shape).astype(dtype)
-                            # elif "int" in dtype:
-                            #     arr = np.random.randint(np.iinfo(dtype).min,
-                            #     np.iinfo(dtype).max, size=shape, dtype=dtype)
-                            # else:
-                            #     assert False
-                        # Quantize if required
-                        # if gen_dtype != dtype:
-                        if quant:
-                            assert "int" in dtype
-                            # assert quant
-                            scale, shift, ty = quant
-                            arr = (arr / scale) + shift
-                            arr = np.around(arr)
-                            arr = arr.astype(dtype)
-                            # input("!=")
-                        else:
-                            raise RuntimeError(f"Unsupported distribution: {DIST}")
+                        arr = np.ones(shape, dtype=dtype)
                     else:
-                        assert False
-                    data[input_name] = arr
-                assert len(data) > 0
+                        bounds = input_ranges.get(name)
+                        if np.issubdtype(dtype, np.integer):
+                            info = np.iinfo(dtype)
+                            lower, upper = bounds or (info.min, info.max)
+                            arr = np.random.randint(lower, int(upper) + 1, size=shape, dtype=dtype)
+                        else:
+                            lower, upper = bounds or (-0.5, 0.5)
+                            arr = np.random.uniform(lower, upper, size=shape).astype(dtype)
+                    data[name] = arr
                 inputs_data.append(data)
         elif self.gen_data_fill_mode == "file":
             if self.gen_data_file == "auto":
@@ -325,6 +269,8 @@ class Frontend(ABC):
                 temp = {}
                 NEW = True
                 for file in files:
+                    if int(Path(file).stem.split("_", 1)[0]) >= self.gen_data_number:
+                        continue
                     if not isinstance(file, Path):
                         file = Path(file)
                     assert file.is_file(), f"Not found: {file}"
@@ -368,7 +314,7 @@ class Frontend(ABC):
                         arr = np.reshape(arr, shape)
                         # Quantize if required
                         # if gen_dtype != dtype:
-                        if True:
+                        if quant and gen_dtype != dtype:
                             assert "int" in dtype
                             # assert quant
                             scale, shift, ty, qrng = quant
@@ -388,7 +334,8 @@ class Frontend(ABC):
                                     ), "Range missmatch (upper)"
                             arr = (arr / scale) + shift
                             arr = np.around(arr)
-                            arr = arr.astype(dtype)
+                            limits = np.iinfo(dtype)
+                            arr = np.clip(arr, limits.min, limits.max).astype(dtype)
                             # input("!=")
                         if rng is not None:
                             # TODO: Move shared code!
@@ -407,6 +354,7 @@ class Frontend(ABC):
                 assert self.gen_data_file is not None, "Missing value for gen_data_file"
                 file = Path(self.gen_data_file)
                 assert file.is_file(), f"File not found: {file}"
+                raise NotImplementedError("Explicit gen_data.file is not implemented; use raw model input directories")
             # for i, input_name in enumerate(input_names):
 
         elif self.gen_data_fill_mode == "dataset":
@@ -441,6 +389,8 @@ class Frontend(ABC):
                     files
                 ), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
                 for file in files:
+                    if int(Path(file).stem.split("_", 1)[0]) >= len(inputs_data):
+                        continue
                     if not isinstance(file, Path):
                         file = Path(file)
                     assert file.is_file()
@@ -463,7 +413,7 @@ class Frontend(ABC):
                     else:
                         raise RuntimeError(f"Unsupported ext: {ext}")
                 # TODO: handle case where there are more output samples than input samples?
-                for i in range(len(temp)):
+                for i in range(len(inputs_data)):
                     assert i in temp
                     data = {}
                     for ii, output_name in enumerate(output_names):
@@ -482,7 +432,7 @@ class Frontend(ABC):
                     outputs_data.append(data)
             else:
                 assert self.gen_ref_data_file is not None, "Missing value for gen_ref_data_file"
-                file = Path(self.gen_data_file)
+                file = Path(self.gen_ref_data_file)
                 assert file.is_file(), f"File not found: {file}"
                 raise NotImplementedError
         else:
@@ -546,14 +496,14 @@ class Frontend(ABC):
         model_info_dict = {
             "input_names": input_names,
             "output_names": output_names,
-            "input_shapes": list(input_shapes.values()),
-            "output_shapes": list(output_shapes.values()),
-            "input_types": list(input_types.values()),
-            "output_types": list(output_types.values()),
-            "input_ranges": list(input_ranges.values()),
-            "output_ranges": list(output_ranges.values()),
-            "input_quant_details": list(input_quant_details.values()),
-            "output_quant_details": list(output_quant_details.values()),
+            "input_shapes": [input_shapes.get(name) for name in input_names],
+            "output_shapes": [output_shapes.get(name) for name in output_names],
+            "input_types": [input_types.get(name) for name in input_names],
+            "output_types": [output_types.get(name) for name in output_names],
+            "input_ranges": [input_ranges.get(name) for name in input_names],
+            "output_ranges": [output_ranges.get(name) for name in output_names],
+            "input_quant_details": [input_quant_details.get(name) for name in input_names],
+            "output_quant_details": [output_quant_details.get(name) for name in output_names],
         }
         # nested version
         # model_info_dict = {
@@ -812,7 +762,7 @@ class Frontend(ABC):
             outputs_ref_data = self.generate_output_ref_data(
                 inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
             )
-            fmt = self.gen_data_fmt
+            fmt = self.gen_ref_data_fmt
             if fmt == "npy":
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     tempfilename = Path(tmpdirname) / "outputs_ref.npy"
@@ -1062,18 +1012,18 @@ class TfLiteFrontend(SimpleFrontend):
             input_names.append(name)
             input_shapes[name] = inp["shape"].tolist()
             input_types[name] = np.dtype(inp["dtype"]).name
-            if "quantization" in inp:
+            if inp.get("quantization", (0, 0))[0] > 0:
                 scale, zero_point = inp["quantization"]
-                quant = [scale, zero_point, "float32"]
+                quant = [scale, zero_point, "float32", None]
                 input_quant_details[name] = quant
         for outp in output_details:
             name = str(outp["name"])
             output_names.append(name)
             output_shapes[name] = outp["shape"].tolist()
             output_types[name] = np.dtype(outp["dtype"]).name
-            if "quantization" in outp:
+            if outp.get("quantization", (0, 0))[0] > 0:
                 scale, zero_point = outp["quantization"]
-                quant = [scale, zero_point, "float32"]
+                quant = [scale, zero_point, "float32", None]
                 output_quant_details[name] = quant
         return (
             input_names,

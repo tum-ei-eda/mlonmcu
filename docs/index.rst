@@ -12,6 +12,8 @@ Welcome to ML on MCU's documentation!
    components
    environments
    postprocess
+   validation
+   validation_results
    logging
    docs
    contributing

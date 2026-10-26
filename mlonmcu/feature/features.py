@@ -2618,7 +2618,7 @@ class GetOutputs(PlatformFeature):  # TODO: use custom stage instead of LOAD
 
 @register_feature("validate_new", depends=["gen_data", "gen_ref_data", "set_inputs", "get_outputs"])
 class ValidateNew(RunFeature):
-    """Wrapper feature for enabling all validatioon related features at once."""
+    """Enable validation data generation and tensor I/O; use --post validate_outputs to compare."""
 
     DEFAULTS = {
         **FeatureBase.DEFAULTS,

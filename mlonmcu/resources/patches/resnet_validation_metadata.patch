@@ -1,0 +1,13 @@
+--- a/resnet/definition.yml
++++ b/resnet/definition.yml
+@@ -31,8 +31,8 @@
+     quantize:
+       scale: 1.0
+       zero_shift: -128
+-      dtype: int8
+-      range: [-128, 127]
++      dtype: uint8
++      range: [0, 255]
+   output_nodes:
+   - description: Resulting class probabilities
+     name: Identity_int8

@@ -119,11 +119,12 @@ def create_mlif_platform_target(name, platform, base=Target):
                         stdin_data = b""
                         for cur_data in batch_data:
                             # print("cur_data", cur_data)
-                            for key, value in cur_data.items():
+                            for key in model_info_data["input_names"]:
+                                value = cur_data[key]
                                 # print("key", key)
                                 # print("value", value, type(value))
-                                # print("value.tostring", value.tostring())
-                                stdin_data += value.tostring()
+                                # print("value.tostring", value.tobytes())
+                                stdin_data += value.tobytes()
                         # TODO: check that stdin_data has expected size
                         # This is just a placeholder example!
                         # stdin_data = "input[0] = {0, 1, 2, ...};\nDONE\n""".encode()
@@ -131,6 +132,9 @@ def create_mlif_platform_target(name, platform, base=Target):
                         # raise NotImplementedError
                         # TODO: generate input stream here!
 
+                if encoding is None or stdin_data is not None:
+                    kwargs["live"] = False
+                    kwargs["print_func"] = None
                 ret_, artifacts_ = super().exec(
                     program, *args, cwd=cwd, **kwargs, stdin_data=stdin_data, encoding=encoding
                 )
@@ -145,52 +149,39 @@ def create_mlif_platform_target(name, platform, base=Target):
                         # TODO: get output_data from stdout
                         raise NotImplementedError
                     elif out_interface == "stdout_raw":
-                        # DUMMY BELOW
                         assert model_info_data is not None
-                        # print("model_info_data", model_info_data)
-                        # dtype = "int8"
-                        # shape = [1, 10]
-                        # input("!")
-                        # print("ret_", ret_, type(ret_))
-                        # out_idx = 0
-                        x = ret_  # Does this copy?
+                        # Payload sizes come from model metadata: marker bytes may occur inside tensors.
+                        cursor = 0
+                        names = model_info_data["output_names"]
                         while True:
-                            out_data_temp = {}
-                            # substr = ret_[ret_.find("-?-".encode())+3:ret_.find("-!-".encode())]
-                            # print("substr", substr, len(substr))
-                            found_start = x.find("-?-".encode())
-                            # print("found_start", found_start)
-                            if found_start < 0:
+                            sample = {}
+                            for tensor_idx, name in enumerate(names):
+                                start = ret_.find(b"-?-", cursor)
+                                if start < 0:
+                                    if sample:
+                                        raise ValueError("Incomplete output sample")
+                                    break
+                                dtype = np.dtype(model_info_data["output_types"][tensor_idx])
+                                shape = model_info_data["output_shapes"][tensor_idx]
+                                size = int(np.prod(shape)) * dtype.itemsize
+                                start += 3
+                                end = start + size
+                                if ret_[end : end + 3] != b"-!-":
+                                    raise ValueError(f"Invalid or truncated output tensor: {name}")
+                                sample[name] = np.frombuffer(ret_[start:end], dtype=dtype).reshape(shape).copy()
+                                cursor = end + 3
+                            if not sample:
                                 break
-                            x = x[found_start + 3 :]
-                            # print("x[:20]", x[:20])
-                            found_end = x.find("-!-".encode())
-                            # print("found_end", found_end)
-                            assert found_end >= 0
-                            x_ = x[:found_end]
-                            x = x[found_end + 3 :]
-                            # print("x[:20]", x[:20])
-                            # print("x_", x_)
-                            # out_idx += 1
-                            dtype = model_info_data["output_types"][0]
-                            arr = np.frombuffer(x_, dtype=dtype)
-                            # print("arr", arr)
-                            shape = model_info_data["output_shapes"][0]
-                            arr = arr.reshape(shape)
-                            # print("arr2", arr)
-                            assert len(model_info_data["output_names"]) == 1, "Multi-output models not yet supported"
-                            out_name = model_info_data["output_names"][0]
-                            out_data_temp[out_name] = arr
-                            outs_data.append(out_data_temp)
-                        # {"output_0": arr}])
+                            outs_data.append(sample)
                         ret_ = ret_.decode("utf-8", errors="replace")
-                        # raise NotImplementedError
                     else:
                         assert False
                 ret += ret_
                 artifacts += artifacts_
             # print("outs_data", outs_data)
             # input("$")
+            if self.platform.get_outputs and num_inputs and len(outs_data) != num_inputs:
+                raise ValueError(f"Expected {num_inputs} output samples, received {len(outs_data)}")
             if len(outs_data) > 0:
                 outs_path = Path(cwd) / "outputs.npy"
                 np.save(outs_path, outs_data)
@@ -205,7 +196,9 @@ def create_mlif_platform_target(name, platform, base=Target):
         def get_metrics(self, elf, directory, handle_exit=None):
             # This is wrapper around the original exec function to catch special return codes thrown by the inout data
             # feature (TODO: catch edge cases: no input data available (skipped) and no return code (real hardware))
-            if self.platform.validate_outputs or not self.platform.skip_check:
+            if not self.platform.needs_model_support and (
+                self.platform.validate_outputs or not self.platform.skip_check
+            ):
 
                 def _handle_exit(code, out=None):
                     if handle_exit is not None:
@@ -227,7 +220,9 @@ def create_mlif_platform_target(name, platform, base=Target):
 
             metrics, out, artifacts = super().get_metrics(elf, directory, handle_exit=_handle_exit)
 
-            if self.platform.validate_outputs or not self.platform.skip_check:
+            if not self.platform.needs_model_support and (
+                self.platform.validate_outputs or not self.platform.skip_check
+            ):
                 metrics.add("Validation", self.validation_result)
             return metrics, out, artifacts
 

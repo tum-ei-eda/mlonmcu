@@ -52,6 +52,12 @@ from mlonmcu.models.model import (
     CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
+from mlonmcu.models.data_utils import (
+    generate_input_data,
+    generate_output_ref_data,
+    generate_ref_labels,
+    generate_model_info,
+)
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.config import filter_config, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -228,301 +234,6 @@ class Frontend(ABC):
     # def produce_artifacts(self, model):
     def produce_artifacts(self, model):
         pass
-
-    def generate_input_data(self, input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths):
-        # TODO: drop self and move method out of frontends.py, support non-tflite models
-        assert self.gen_data
-        inputs_data = []
-        if self.gen_data_fill_mode in ["zeros", "ones", "random"]:
-            for _ in range(self.gen_data_number):
-                data = {}
-                for name in input_names:
-                    dtype = np.dtype(input_types[name])
-                    shape = input_shapes[name]
-                    # Synthetic data is generated directly in the model tensor's dtype.
-                    if self.gen_data_fill_mode == "zeros":
-                        arr = np.zeros(shape, dtype=dtype)
-                    elif self.gen_data_fill_mode == "ones":
-                        arr = np.ones(shape, dtype=dtype)
-                    else:
-                        bounds = input_ranges.get(name)
-                        if np.issubdtype(dtype, np.integer):
-                            info = np.iinfo(dtype)
-                            lower, upper = bounds or (info.min, info.max)
-                            arr = np.random.randint(lower, int(upper) + 1, size=shape, dtype=dtype)
-                        else:
-                            lower, upper = bounds or (-0.5, 0.5)
-                            arr = np.random.uniform(lower, upper, size=shape).astype(dtype)
-                    data[name] = arr
-                inputs_data.append(data)
-        elif self.gen_data_fill_mode == "file":
-            if self.gen_data_file == "auto":
-                assert len(in_paths) > 0, "in_paths is empty"
-                if len(in_paths) == 1:
-                    if in_paths[0].is_dir():
-                        files = list(in_paths[0].iterdir())
-                    else:
-                        assert in_paths[0].is_file(), "in_paths not found"
-                        files = [in_paths[0]]
-                else:
-                    files = in_paths
-                temp = {}
-                NEW = True
-                for file in files:
-                    if int(Path(file).stem.split("_", 1)[0]) >= self.gen_data_number:
-                        continue
-                    if not isinstance(file, Path):
-                        file = Path(file)
-                    assert file.is_file(), f"Not found: {file}"
-                    basename, ext = file.stem, file.suffix
-                    if ext == ".bin":
-                        if "_" in basename:
-                            i, ii = basename.split("_", 1)
-                            i = int(i)
-                            ii = int(ii)
-                        else:
-                            i = int(basename)
-                            ii = 0
-                        with open(file, "rb") as f:
-                            data = f.read()
-                        if i not in temp:
-                            temp[i] = {}
-                        temp[i][ii] = data
-                    elif ext in [".npy", ".npz"]:
-                        raise NotImplementedError
-                    else:
-                        raise RuntimeError(f"Unsupported ext: {ext}")
-                assert len(temp) > 0
-                for i in range(min(self.gen_data_number, len(temp))):
-                    assert i in temp
-                    data = {}
-                    for ii, input_name in enumerate(input_names):
-                        assert ii in temp[i]
-                        assert input_name in input_types, f"Unknown dtype for input: {input_name}"
-                        dtype = input_types[input_name]
-                        quant = input_quant_details.get(input_name, None)
-                        rng = input_ranges.get(input_name, None)
-                        gen_dtype = dtype
-                        if quant:
-                            _, _, ty, _ = quant
-                            # assert "float" in ty, "Input already quantized?"
-                            if NEW:
-                                gen_dtype = ty
-                        arr = np.frombuffer(temp[i][ii], dtype=gen_dtype)
-                        assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
-                        shape = input_shapes[input_name]
-                        arr = np.reshape(arr, shape)
-                        # Quantize if required
-                        # if gen_dtype != dtype:
-                        if quant and gen_dtype != dtype:
-                            assert "int" in dtype
-                            # assert quant
-                            scale, shift, ty, qrng = quant
-                            if qrng is not None:
-                                assert len(qrng) == 2, "Range should be a tuple (lower, upper)"
-                                lower, upper = qrng
-                                assert lower <= upper
-                                CLIP_INPUTS = True
-                                if CLIP_INPUTS:
-                                    arr = np.clip(arr, lower, upper)
-                                else:
-                                    assert np.min(arr) >= lower or np.isclose(
-                                        np.min(arr), lower
-                                    ), "Range missmatch (lower)"
-                                    assert np.max(arr) <= upper or np.isclose(
-                                        np.max(arr), upper
-                                    ), "Range missmatch (upper)"
-                            arr = (arr / scale) + shift
-                            arr = np.around(arr)
-                            limits = np.iinfo(dtype)
-                            arr = np.clip(arr, limits.min, limits.max).astype(dtype)
-                            # input("!=")
-                        if rng is not None:
-                            # TODO: Move shared code!
-                            assert len(rng) == 2, "Range should be a tuple (lower, upper)"
-                            lower, upper = rng
-                            assert lower <= upper
-                            CLIP_INPUTS = True
-                            if CLIP_INPUTS:
-                                arr = np.clip(arr, lower, upper)
-                            else:
-                                assert np.min(arr) >= lower or np.isclose(np.min(arr), lower), "Range missmatch (lower)"
-                                assert np.max(arr) <= upper or np.isclose(np.max(arr), upper), "Range missmatch (upper)"
-                        data[input_name] = arr
-                    inputs_data.append(data)
-            else:
-                assert self.gen_data_file is not None, "Missing value for gen_data_file"
-                file = Path(self.gen_data_file)
-                assert file.is_file(), f"File not found: {file}"
-                raise NotImplementedError("Explicit gen_data.file is not implemented; use raw model input directories")
-            # for i, input_name in enumerate(input_names):
-
-        elif self.gen_data_fill_mode == "dataset":
-            raise NotImplementedError
-        else:
-            raise RuntimeError(f"unsupported fill_mode: {self.gen_data_fill_mode}")
-        return inputs_data
-
-    def generate_output_ref_data(
-        self, inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
-    ):
-        assert self.gen_ref_data
-        outputs_data = []
-        if self.gen_ref_data_mode == "model":
-            assert len(inputs_data) > 0
-            for i, input_data in enumerate(inputs_data):
-                # input("321?")
-                output_data = self.inference(model, input_data, quant=False, dequant=True)
-                outputs_data.append(output_data)
-                # input("321!")
-
-        elif self.gen_ref_data_mode == "file":
-            if self.gen_ref_data_file == "auto":
-                assert len(out_paths) > 0, "out_paths is empty"
-                if len(out_paths) == 1:
-                    if out_paths[0].is_dir():
-                        files = list(out_paths[0].iterdir())
-                else:
-                    files = out_paths
-                temp = {}
-                assert len(inputs_data) <= len(
-                    files
-                ), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
-                for file in files:
-                    if int(Path(file).stem.split("_", 1)[0]) >= len(inputs_data):
-                        continue
-                    if not isinstance(file, Path):
-                        file = Path(file)
-                    assert file.is_file()
-                    basename, ext = file.stem, file.suffix
-                    if ext == ".bin":
-                        if "_" in basename:
-                            i, ii = basename.split("_", 1)
-                            i = int(i)
-                            ii = int(ii)
-                        else:
-                            i = int(basename)
-                            ii = 0
-                        with open(file, "rb") as f:
-                            data = f.read()
-                        if i not in temp:
-                            temp[i] = {}
-                        temp[i][ii] = data
-                    elif ext in [".npy", ".npz"]:
-                        raise NotImplementedError
-                    else:
-                        raise RuntimeError(f"Unsupported ext: {ext}")
-                # TODO: handle case where there are more output samples than input samples?
-                for i in range(len(inputs_data)):
-                    assert i in temp
-                    data = {}
-                    for ii, output_name in enumerate(output_names):
-                        assert ii in temp[i]
-                        assert output_name in output_types, f"Unknown dtype for output: {output_name}"
-                        dtype = output_types[output_name]
-                        dequant = output_quant_details.get(output_name, None)
-                        if dequant:
-                            _, _, ty, _ = dequant
-                            dtype = ty
-                        arr = np.frombuffer(temp[i][ii], dtype=dtype)
-                        assert output_name in output_shapes, f"Unknown shape for output: {output_name}"
-                        shape = output_shapes[output_name]
-                        arr = np.reshape(arr, shape)
-                        data[output_name] = arr
-                    outputs_data.append(data)
-            else:
-                assert self.gen_ref_data_file is not None, "Missing value for gen_ref_data_file"
-                file = Path(self.gen_ref_data_file)
-                assert file.is_file(), f"File not found: {file}"
-                raise NotImplementedError
-        else:
-            raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_data_mode}")
-        return outputs_data
-
-    def generate_ref_labels(
-        self, inputs_data, model, out_labels_paths, output_names, output_types, output_shapes, output_quant_details
-    ):
-        assert self.gen_ref_labels
-        labels = []
-        if self.gen_ref_labels_mode == "model":
-            assert len(inputs_data) > 0
-            for i, input_data in enumerate(inputs_data):
-                output_data = self.inference(model, input_data, quant=False, dequant=True)
-                assert len(output_data) == 1, "Does not support multi-output classification"
-                output_data = output_data[list(output_data)[0]]
-                top_label = np.argmax(output_data)
-                labels.append(top_label)
-
-        elif self.gen_ref_labels_mode == "file":
-            if self.gen_ref_labels_file == "auto":
-                assert len(out_labels_paths) > 0, "labels_paths is empty"
-                assert len(out_labels_paths) == 1
-                file = Path(out_labels_paths[0])
-            else:
-                assert self.gen_ref_labels_file is not None, "Missing value for gen_ref_labels_file"
-                file = Path(self.gen_ref_labels_file)
-            assert file.is_file(), f"File not found: {file}"
-            ext = file.suffix
-            assert len(ext) > 1
-            fmt = ext[1:].lower()
-            if fmt == "csv":
-                import pandas as pd
-
-                labels_df = pd.read_csv(file, sep=",")
-                assert "i" in labels_df.columns
-                assert "label_idx" in labels_df.columns
-                assert len(inputs_data) <= len(labels_df)
-                labels_df.sort_values("i", inplace=True)
-                labels = list(labels_df["label_idx"].astype(int))[: len(inputs_data)]
-            else:
-                raise NotImplementedError(f"Fmt not supported: {fmt}")
-        else:
-            raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_labels_mode}")
-        return labels
-
-    def generate_model_info(
-        self,
-        input_names,
-        output_names,
-        input_shapes,
-        output_shapes,
-        input_types,
-        output_types,
-        input_ranges,
-        output_ranges,
-        input_quant_details,
-        output_quant_details,
-    ):
-        model_info_dict = {
-            "input_names": input_names,
-            "output_names": output_names,
-            "input_shapes": [input_shapes.get(name) for name in input_names],
-            "output_shapes": [output_shapes.get(name) for name in output_names],
-            "input_types": [input_types.get(name) for name in input_names],
-            "output_types": [output_types.get(name) for name in output_names],
-            "input_ranges": [input_ranges.get(name) for name in input_names],
-            "output_ranges": [output_ranges.get(name) for name in output_names],
-            "input_quant_details": [input_quant_details.get(name) for name in input_names],
-            "output_quant_details": [output_quant_details.get(name) for name in output_names],
-        }
-        # nested version
-        # model_info_dict = {
-        #     "inputs": [
-        #         {
-        #             "name": "input_1",
-        #             "shape": [1, 1014],
-        #             "type": "int8",
-        #         }
-        #     ],
-        #     "outputs": [
-        #         {
-        #             "name": "output",
-        #             "shape": [1, 10],
-        #             "type": "int8",
-        #         }
-        #     ],
-        # }
-        return model_info_dict  # TODO: turn into class
 
     def process_metadata(self, model, cfg=None):
         if len(model.paths) == 0:
@@ -721,7 +432,7 @@ class Frontend(ABC):
         inputs_data = None
         gen_model_info = True  # TODO: move to self (configurable)
         if gen_model_info:
-            model_info_dict = self.generate_model_info(
+            model_info_dict = generate_model_info(
                 input_names,
                 output_names,
                 input_shapes,
@@ -741,8 +452,16 @@ class Frontend(ABC):
             )
             artifacts.append(model_info_artifact)
         if self.gen_data:
-            inputs_data = self.generate_input_data(
-                input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths
+            inputs_data = generate_input_data(
+                input_names,
+                input_types,
+                input_shapes,
+                input_ranges,
+                input_quant_details,
+                in_paths,
+                fill_mode=self.gen_data_fill_mode,
+                data_file=self.gen_data_file,
+                number=self.gen_data_number,
             )
             fmt = self.gen_data_fmt
             if fmt == "npy":
@@ -759,8 +478,17 @@ class Frontend(ABC):
             inputs_data_artifact = Artifact(f"inputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("inputs", fmt))
             artifacts.append(inputs_data_artifact)
         if self.gen_ref_data:
-            outputs_ref_data = self.generate_output_ref_data(
-                inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
+            outputs_ref_data = generate_output_ref_data(
+                inputs_data,
+                model,
+                out_paths,
+                output_names,
+                output_types,
+                output_shapes,
+                output_quant_details,
+                mode=self.gen_ref_data_mode,
+                data_file=self.gen_ref_data_file,
+                inference=self.inference,
             )
             fmt = self.gen_ref_data_fmt
             if fmt == "npy":
@@ -779,8 +507,13 @@ class Frontend(ABC):
             )
             artifacts.append(outputs_ref_artifact)
         if self.gen_ref_labels:
-            labels_ref = self.generate_ref_labels(
-                inputs_data, model, labels_paths, output_names, output_types, output_shapes, output_quant_details
+            labels_ref = generate_ref_labels(
+                inputs_data,
+                model,
+                labels_paths,
+                mode=self.gen_ref_labels_mode,
+                data_file=self.gen_ref_labels_file,
+                inference=self.inference,
             )
             fmt = self.gen_ref_labels_fmt
             if fmt == "npy":

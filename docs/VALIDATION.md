@@ -58,7 +58,7 @@ In this workspace, all four models already have input and reference data:
 
 ResNet files contain unsigned image pixels (0–255). Their model inputs are int8;
 conversion uses scale 1 and zero point -128. Declaring the file dtype as int8
-misinterprets the images. The accompanying metadata patch corrects this.
+misinterprets the images. The updated model definition corrects this.
 
 ToyCar's original `output_tflite` directory duplicates the input spectrograms.
 Those files are reconstruction targets, not golden inference outputs, and are
@@ -112,13 +112,15 @@ tensors, incomplete samples, and missing/extra output samples raise errors.
 Generated v2 support takes precedence over legacy model support directories.
 V1 and v2 retain their different callback APIs but share the MLIF CMake setup,
 including framework dependencies, compilation settings, and target support.
-The MLIF patch is preserved at
-`mlonmcu/resources/patches/mlif_validation_v2.patch`; apply it from the mlonmcu-sw
-repository root with `git apply`. It is already applied in this workspace.
-The ResNet metadata patch is `mlonmcu/resources/patches/resnet_validation_metadata.patch`,
-applied from the mlonmcu-models root, and is also already applied here. ToyCar's path change is recorded in
-`mlonmcu/resources/patches/toycar_validation_metadata.patch`; generate its new
-references before applying that metadata patch to a fresh workspace.
+Use an MLIF checkout containing commit `f590e44` on `restore-validation-v2`
+(`Share ML interface build setup across v1 and v2`), which is already selected
+in this workspace. No additional MLIF patch is needed.
+Use a models checkout containing commit `69b4372` on `restore-validation-v2`
+(`Correct validation metadata and add ToyCar golden outputs`). It includes the
+ResNet input storage correction, ToyCar reference path, and ten generated ToyCar
+reference samples. The full 10,000 generated samples remain available in this
+workspace; use the reference generator above for larger datasets in a fresh
+workspace. No additional model metadata patches are needed.
 
 MLIF currently implements ROM/raw-stdin input and raw-stdout output. Filesystem,
 text, UART, and RAM transports remain unimplemented. TVM's separate target platform

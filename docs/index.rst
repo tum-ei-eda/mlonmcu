@@ -13,6 +13,7 @@ Welcome to ML on MCU's documentation!
    environments
    postprocess
    logging
+   remote
    docs
    contributing
    authors

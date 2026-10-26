@@ -18,7 +18,11 @@
 #
 """Definition of MLonMCU session schedulers."""
 
+import copy
+import os
 import random
+import tarfile
+import tempfile
 from pathlib import Path
 import concurrent.futures
 from typing import List, Optional, Dict
@@ -28,6 +32,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 
+from .postprocess import get_postprocesses
 from .postprocess.postprocess import SessionPostprocess
 from .progress import init_progress, update_progress, close_progress
 from .rpc import connect_tracker, RemoteConfig
@@ -229,6 +234,7 @@ class RPCSessionExecutor(concurrent.futures.ProcessPoolExecutor):
             # "cleanup": cleanup,
             "parallel_jobs": self.parallel_jobs,
             "rpc_config": self.remote_config,
+            "runs_dir": runs_dir,
         }
         return self.submit(fn, *args, **kwargs)
 
@@ -334,7 +340,6 @@ def _process_context(run_initializers, until, skip, export, runs_dir, save, clea
         with context.get_session(resume=False) as session:
             for run_initializer in run_initializers:
                 session.add_run(run_initializer, ignore_idx=True)
-                rets.append(None)
             success = session.process_runs(
                 until=until,
                 per_stage=False,
@@ -344,11 +349,38 @@ def _process_context(run_initializers, until, skip, export, runs_dir, save, clea
                 context=context,
                 export=True,
             )
+            rets = list(session.results)
         assert success
     return rets
 
 
-def _process_rpc(run_initializers, until, parallel_jobs, rpc_config):
+def _extract_run_dirs(archive, run_initializers, results, runs_dir):
+    """Unpack the run directories received from a server into the local runs directory."""
+    runs_dir = Path(runs_dir)
+
+    def local_name(name):
+        pos, _, rest = name.partition("/")
+        if not pos.isdigit() or int(pos) >= len(run_initializers) or ".." in Path(rest).parts or name.startswith("/"):
+            raise RuntimeError(f"Unexpected member in artifacts archive: {name}")
+        return f"{run_initializers[int(pos)].idx}/{rest}" if rest else str(run_initializers[int(pos)].idx)
+
+    with tarfile.open(archive) as tar:
+        for member in tar.getmembers():
+            member.name = local_name(member.name)
+            if member.islnk():
+                member.linkname = local_name(member.linkname)
+            elif member.issym():
+                if os.path.isabs(member.linkname) or ".." in Path(member.linkname).parts:
+                    continue  # only keep links which stay inside the run directory
+            elif not (member.isfile() or member.isdir()):
+                continue
+            tar.extract(member, path=runs_dir)
+    for pos, res in enumerate(results):
+        if res is not None:
+            res.dir = runs_dir / str(run_initializers[pos].idx)
+
+
+def _process_rpc(run_initializers, until, parallel_jobs, rpc_config, runs_dir=None):
     """Helper function to invoke the run."""
     # print("_process_rpc")
     # TODO: allow overriding home
@@ -357,15 +389,30 @@ def _process_rpc(run_initializers, until, parallel_jobs, rpc_config):
     # print("tracker", tracker)
     server = tracker.request_server(key=rpc_config.key)
     # print("server", server)
-    results = server.execute(run_initializers=run_initializers, until=until, parallel=parallel_jobs)
-    # print("results", results)
-    tracker.free_server(server)
+    transfer = rpc_config.artifacts == "all"
+    if transfer:
+        assert runs_dir is not None, "rpc_artifacts=all needs the runs directory of the session"
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "artifacts.tar"
+            results = server.execute(
+                run_initializers=run_initializers,
+                until=until,
+                parallel=parallel_jobs,
+                artifacts_dest=archive if transfer else None,
+            )
+            if transfer and archive.is_file():
+                _extract_run_dirs(archive, run_initializers, results, runs_dir)
+    finally:
+        # The server reports itself free to the tracker once the session ends.
+        server.close()
+        tracker.close()
     # -> msg: {"action": "execute", "initializers": run_initializers, "until": until, "parallel": parallel_jobs}
     # <- msg: {"action": "response", "results": results}
     return results
 
 
-def _postprocess_default(runs, report, dest, progress=False):
+def _postprocess_default(runs, report, dest, progress=False, context=None):
     session_postprocesses = []
     num_failing = 0
     for run in runs:
@@ -412,9 +459,20 @@ def _postprocess_default(runs, report, dest, progress=False):
     return num_failing
 
 
-def _postprocess_pickable(runs, report, dest, progress=False):
-    logger.error("Session Postprocesses are not supported in pickable mode!")
-    return 0
+def _postprocess_pickable(runs, report, dest, progress=False, context=None):
+    """Apply session postprocesses locally (on the merged report) for runs which were processed elsewhere.
+
+    The runs only exist as initializers here, so minimal runs holding nothing but the session postprocesses are created.
+    """
+    available = get_postprocesses()
+    stubs = []
+    for run in runs:
+        names = [n for n in (run.postprocess_names or []) if issubclass(available[n], SessionPostprocess)]
+        if names:
+            stub = Run(idx=run.idx, config=copy.deepcopy(run.config))
+            stub.add_postprocesses_by_name(names, context=context)
+            stubs.append(stub)
+    return _postprocess_default(stubs, report, dest, progress=progress)
 
 
 # TODO: alternative _process functions
@@ -596,6 +654,11 @@ class SessionScheduler:
                         else:
                             run_index = run_idxs[res_idx]
                             res.idx = run_index
+                            pre_df = res.report.pre_df
+                            if "Run" in pre_df.columns:
+                                # Runs processed elsewhere (rpc) are numbered per batch, restore the session-wide index
+                                pre_df["Run"] = run_index
+                                res.report.pre_df = pre_df
                         # run = res
                         # self.runs[run_index] = res
                         self.results[run_index] = res
@@ -730,11 +793,11 @@ class SessionScheduler:
         return self.runs, self.results
         # return num_failures == 0
 
-    def postprocess(self, report, dest):
+    def postprocess(self, report, dest, context=None):
         logger.info("Postprocessing session report")
         # Warning: currently we only support one instance of the same type of postprocess,
         # also it will be applied to all rows!
-        num_failing = self._postprocess(self.runs, report, dest, progress=self.progress)
+        num_failing = self._postprocess(self.runs, report, dest, progress=self.progress, context=context)
         self.num_failures += num_failing
         return report
 

@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 
 from mlonmcu.feature.features import get_available_features
+from mlonmcu.models.frontend import TfLiteFrontend
 
 GenData = get_available_features()["gen_data"]
-from mlonmcu.models.frontend import TfLiteFrontend
 
 
 @pytest.mark.parametrize("fill", ["zeros", "ones", "random"])

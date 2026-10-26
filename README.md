@@ -17,7 +17,6 @@ This project contains research code related to the deployment of inference or le
 * Free software: Apache License, Version 2.0
 * Python Package: [https://pypi.org/project/mlonmcu/](https://pypi.org/project/mlonmcu/)
 * Documentation: [https://mlonmcu.readthedocs.io](https://mlonmcu.readthedocs.io) or [https://tum-ei-eda.github.io/mlonmcu/](https://tum-ei-eda.github.io/mlonmcu/)
-* [Output validation (v2)](docs/VALIDATION.md): data, commands, transports, and metrics.
 
 
 ## Features

@@ -725,7 +725,12 @@ class SessionScheduler:
                     else:
                         logger.info("%sProcessing stage %s", self._prefix, run_stage)
                     for b, runs in enumerate(batches):
-                        runs_ = [run for run in runs if not run.failing and stage in run.pipeline.specs]
+                        runs_ = [
+                            run
+                            for run in runs
+                            if not run.failing
+                            and (stage in run.pipeline.through(self.until) or stage == run.postprocess_stage)
+                        ]
                         if not runs_:
                             continue
                         idxs = [run.idx for run in runs_]

@@ -52,6 +52,7 @@ class QuantizeStage(Stage):
             directory = context.workdir / "outputs" / variant
             directory.mkdir(parents=True, exist_ok=True)
             output = directory / context.config.get("output_name", "quantized.tflite")
+            output.unlink(missing_ok=True)
             command = [arg.format(input=models[0].path, output=output) for arg in context.config["command"]]
             started = time.monotonic()
             result = subprocess.run(

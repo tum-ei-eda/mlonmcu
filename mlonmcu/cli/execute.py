@@ -36,4 +36,11 @@ def get_parser(subparsers):
 def handle(args):
     with MlonMcuContext(path=args.home, deps_lock="read") as context:
         handle_compile(args, context)
+        from mlonmcu.session.run import RunInitializer
+
+        session = context.sessions[-1]
+        if not session.needs_initializer:
+            session.runs = [
+                run.realize(context=context) if isinstance(run, RunInitializer) else run for run in session.runs
+            ]
         kickoff_runs(args, stage_key(args.until), context)

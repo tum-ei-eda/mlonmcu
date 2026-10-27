@@ -69,6 +69,8 @@ class EtissTarget(RVVTarget):
         "ram_size": 0x4000000,  # 64 MB
         "flash_start": None,
         "flash_size": None,
+        "min_stack_size": None,
+        "min_heap_size": None,
         "cycle_time_ps": 31250,  # 32 MHz
         "enable_pext": False,
         "pext_spec": 0.96,
@@ -221,6 +223,20 @@ class EtissTarget(RVVTarget):
     @property
     def flash_size(self):
         value = self.config["flash_size"]
+        if value is None:
+            return None
+        return int(value, 0) if not isinstance(value, int) else value
+
+    @property
+    def min_stack_size(self):
+        value = self.config["min_stack_size"]
+        if value is None:
+            return None
+        return int(value, 0) if not isinstance(value, int) else value
+
+    @property
+    def min_heap_size(self):
+        value = self.config["min_heap_size"]
         if value is None:
             return None
         return int(value, 0) if not isinstance(value, int) else value
@@ -856,6 +872,10 @@ class EtissTarget(RVVTarget):
             ret["MEM_FLASH_ORIGIN"] = self.flash_start
         if self.flash_size is not None:
             ret["MEM_FLASH_LENGTH"] = self.flash_size
+        if self.min_stack_size is not None:
+            ret["MIN_STACK_SIZE"] = self.min_stack_size
+        if self.min_heap_size is not None:
+            ret["MIN_HEAP_SIZE"] = self.min_heap_size
         ret.update(RVVTarget.get_platform_defs(self, platform))
         return ret
 

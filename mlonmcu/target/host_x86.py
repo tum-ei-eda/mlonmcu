@@ -62,6 +62,10 @@ class HostX86Target(Target):
     def gdbserver_port(self):
         return int(self.config["gdbserver_port"])
 
+    @property
+    def supports_stdin(self):
+        return True
+
     def exec(self, program, *args, **kwargs):
         def make_executable(exe):
             f = Path(exe)

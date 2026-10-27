@@ -1574,7 +1574,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
     DEFAULTS = {
         **RunPostprocess.DEFAULTS,
         "report": False,
-        "validate_metrics": "topk(n=1);topk(n=2)",
+        "validate_metrics": "allclose(atol=0.01,rtol=0.01);topk(n=1);topk(n=2)",
         "validate_range": True,
     }
 
@@ -1607,8 +1607,6 @@ class ValidateOutputsPostprocess(RunPostprocess):
         import yaml
 
         model_info_data = yaml.safe_load(model_info_artifact.content)
-        if len(model_info_data["output_names"]) > 1:
-            raise NotImplementedError("Multi-outputs not yet supported.")
         outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
         assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
         outputs_ref_artifact = outputs_ref_artifact[0]
@@ -1622,6 +1620,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        if len(outputs) != len(outputs_ref) or len(outputs) == 0:
+            raise ValueError(f"Output sample count mismatch: {len(outputs)} actual, {len(outputs_ref)} reference")
         in_data = None
         # compared = 0
         # matching = 0
@@ -1656,10 +1656,10 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         # fallback for custom name-based npy dict
                         out_data = list(output.values())[ii]
                     else:  # fallback for index-based npy array
-                        assert isinstance(output, (list, np.array)), "expected dict, list or np.array type"
+                        assert isinstance(output, (list, np.ndarray)), "expected dict, list or np.array type"
                         out_data = output[ii]
                 else:
-                    RuntimeError(f"Output not found: {out_name}")
+                    raise RuntimeError(f"Output not found: {out_name}")
                 # optional dequantize
                 # print("out_data_before_quant", out_data)
                 # print("sum(out_data_before_quant", np.sum(out_data))
@@ -1685,7 +1685,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                             assert lower <= upper
                             assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
 
-                        return np.around((data / quant_scale) + quant_zero_point).astype("int8")
+                        return np.clip(np.around((data / quant_scale) + quant_zero_point), -128, 127).astype("int8")
 
                     def dequant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:

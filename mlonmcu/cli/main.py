@@ -61,7 +61,7 @@ def maybe_reexec_in_workspace_venv(argv):
     if not environment.python.venv:
         return
     python = get_venv_python(environment.python.venv)
-    if not python.is_file() or python.resolve() == Path(sys.executable).resolve():
+    if not python.is_file() or environment.python.venv.resolve() == Path(sys.prefix).resolve():
         return
     child_env = os.environ.copy()
     child_env["MLONMCU_VENV_REEXEC"] = "1"

@@ -15,6 +15,7 @@ Welcome to ML on MCU's documentation!
    validation
    validation_results
    logging
+   remote
    docs
    contributing
    authors

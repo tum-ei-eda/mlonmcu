@@ -64,6 +64,7 @@ class Session:
         "parallel_jobs": 1,
         "rpc_tracker": None,
         "rpc_key": None,
+        "rpc_artifacts": "none",  # "all": transfer the run directories from the server to this machine
     }
 
     def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
@@ -159,6 +160,11 @@ class Session:
     def rpc_key(self):
         """get rpc_key property."""
         return self.config["rpc_key"]
+
+    @property
+    def rpc_artifacts(self):
+        """get rpc_artifacts property."""
+        return self.config["rpc_artifacts"]
 
     @property
     def needs_initializer(self):
@@ -274,7 +280,7 @@ class Session:
         remote_config = None
         if self.rpc_tracker:
             assert self.executor == "rpc"
-            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key, self.rpc_artifacts)
         else:
             assert self.executor != "rpc"
         scheduler = SessionScheduler(
@@ -300,7 +306,7 @@ class Session:
         self.runs, self.results = scheduler.process(export=export, context=context)
         report = self.get_reports(results=self.results)
         scheduler.print_summary()
-        report = scheduler.postprocess(report, dest=self.dir)
+        report = scheduler.postprocess(report, dest=self.dir, context=context)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
@@ -312,7 +318,6 @@ class Session:
             logger.info(self.prefix + "Cleaning up runs")
             count = 0
             for run in self.runs:
-                print("run", run, type(run), dir(run))
                 if hasattr(run, "cleanup_directories"):
                     run.cleanup_directories()
                     count += 1

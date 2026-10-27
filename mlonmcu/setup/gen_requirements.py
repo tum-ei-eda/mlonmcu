@@ -50,7 +50,7 @@ import re
 import textwrap
 import sys
 import typing
-from pathlib import Path
+from importlib import metadata
 
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.utils import canonicalize_name
@@ -60,40 +60,31 @@ RequirementsByPieceType = typing.List[typing.Tuple[str, typing.Tuple[str, typing
 
 
 def get_extra_requirements(extras: typing.List[str]) -> typing.List[str]:
-    """Return requirements declared by project extras in ``pyproject.toml``.
+    """Return applicable extra dependencies from installed package metadata.
 
-    MLonMCU declares its optional dependencies dynamically from requirement files.
-    Keeping the lookup here makes the environment's ``python.extra`` use exactly
-    the same source as ``pip install 'mlonmcu[<extra>]'``.
+    Evaluate markers for this interpreter and remove them before writing the
+    requirements file: pip evaluates standalone requirements without an extra.
     """
-    if not extras:
-        return []
     if not isinstance(extras, list) or not all(isinstance(item, str) for item in extras):
         raise ValueError("python.extra must be a list of strings")
+    if not extras:
+        return []
 
-    try:
-        import tomllib
-    except ImportError:  # pragma: no cover - MLonMCU requires Python 3.10+
-        import tomli as tomllib
-
-    root = Path(__file__).resolve().parents[2]
-    with open(root / "pyproject.toml", "rb") as handle:
-        pyproject = tomllib.load(handle)
-    optional = pyproject.get("tool", {}).get("setuptools", {}).get("dynamic", {}).get("optional-dependencies", {})
+    dist = metadata.distribution("mlonmcu")
+    available = {canonicalize_name(name) for name in dist.metadata.get_all("Provides-Extra", [])}
+    selected = {canonicalize_name(name) for name in extras}
+    for name in selected:
+        if name not in available:
+            raise ValueError(f"Unknown MLonMCU Python extra: {name}")
 
     requirements = []
-    for name in extras:
-        if name not in optional:
-            raise ValueError(f"Unknown MLonMCU Python extra: {name}")
-        files = optional[name].get("file", [])
-        if isinstance(files, str):
-            files = [files]
-        for filename in files:
-            with open(root / filename, encoding="utf-8") as handle:
-                for line in handle:
-                    line = line.strip()
-                    if line and not line.startswith("#"):
-                        requirements.append(line)
+    for value in dist.requires or []:
+        requirement = Requirement(value)
+        if requirement.marker is None or not re.search(r"\bextra\b", str(requirement.marker)):
+            continue
+        if any(requirement.marker.evaluate({"extra": name}) for name in selected):
+            requirement.marker = None
+            requirements.append(str(requirement))
     return requirements
 
 

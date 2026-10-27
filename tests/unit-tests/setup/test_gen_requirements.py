@@ -1,5 +1,6 @@
 import pytest
 from types import SimpleNamespace
+from email.message import Message
 
 from mlonmcu.environment.config import PythonConfig
 from mlonmcu.setup.gen_requirements import get_extra_requirements, merge_requirements
@@ -17,10 +18,35 @@ def test_merge_requirements_rejects_conflicting_pins():
         merge_requirements(["construct==2.10.54", "construct==2.10.68"])
 
 
-def test_get_extra_requirements_reads_pyproject_extra_file():
-    requirements = get_extra_requirements(["cfu"])
+@pytest.fixture
+def extra_metadata(monkeypatch):
+    metadata = Message()
+    metadata["Provides-Extra"] = "cfu"
+    metadata["Provides-Extra"] = "other_extra"
+    dist = SimpleNamespace(
+        metadata=metadata,
+        requires=[
+            "packaging",
+            'construct==2.10.68; extra == "cfu"',
+            'future-only; python_version >= "99" and extra == "cfu"',
+            'shared>=1; extra == "cfu" or extra == "other-extra"',
+            'other; extra == "other-extra"',
+        ],
+    )
+    monkeypatch.setattr("mlonmcu.setup.gen_requirements.metadata.distribution", lambda name: dist)
 
-    assert "construct==2.10.68" in requirements
+
+def test_get_extra_requirements_uses_metadata_and_evaluates_markers(extra_metadata):
+    assert get_extra_requirements(["cfu"]) == ["construct==2.10.68", "shared>=1"]
+
+
+def test_get_extra_requirements_normalizes_names_and_deduplicates(extra_metadata):
+    assert get_extra_requirements(["cfu", "Other_Extra"]) == ["construct==2.10.68", "shared>=1", "other"]
+
+
+def test_get_extra_requirements_rejects_unknown_extra(extra_metadata):
+    with pytest.raises(ValueError, match="Unknown MLonMCU Python extra: missing"):
+        get_extra_requirements(["missing"])
 
 
 def test_get_extra_requirements_rejects_single_extra_string():

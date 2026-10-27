@@ -24,4 +24,4 @@ try:
     __version__ = version("mlonmcu")
 except PackageNotFoundError:
     # Allow importing an uninstalled source checkout.
-    __version__ = "0.10.dev0"
+    __version__ = "0.10.0"

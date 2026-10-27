@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.platform.cfu_playground.cfu_playground_target &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.platform.cfu_playground.cfu_playground_target &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../_static/documentation_options.js?v=179c9b62"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -149,11 +149,59 @@
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RISCVTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
         <span class="s2">"verbose"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"use_sw_dir"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"use_gateware_dir"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">"rtl_sim"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: move to target feature?</span>
+        <span class="s2">"fpga_sim"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: move to target feature?</span>
+        <span class="s2">"fpga_tty"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"fpga_target"</span><span class="p">:</span> <span class="s2">"digilent_arty"</span><span class="p">,</span>
+        <span class="s2">"fpga_variant"</span><span class="p">:</span> <span class="s2">"a7-100"</span><span class="p">,</span>
+        <span class="s2">"sys_clk_freq"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"baud"</span><span class="p">:</span> <span class="mi">1843200</span><span class="p">,</span>  <span class="c1"># TODO: fix?</span>
         <span class="s2">"cpu_variant"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># Variants:</span>
+        <span class="c1"># - full+cfu</span>
+        <span class="c1"># - full+cfu+debug</span>
+        <span class="c1"># - perf+cfu</span>
+        <span class="c1"># - perf+cfu+debug</span>
+        <span class="c1"># - slim+cfu</span>
+        <span class="c1"># - slim+cfu+debug</span>
+        <span class="c1"># - slimperf+cfu</span>
+        <span class="c1"># - slimperf+cfu+debug</span>
+        <span class="c1"># - minimal+cfu</span>
+        <span class="c1"># - fpu</span>
+        <span class="c1"># - fpu+debug</span>
+        <span class="c1"># - ...</span>
+        <span class="c1"># Build a custom variant using for example:</span>
+        <span class="c1"># `-c cfu_full_rtl.cpu_variant="generate+iCacheSize:2048+csrPluginConfig:all+cfu"`</span>
+        <span class="c1"># Available attributes:</span>
+        <span class="c1"># csrPluginConfig=mcycle/small/all/linux/linux-minimal</span>
+        <span class="c1"># bypass=true/false</span>
+        <span class="c1"># cfu=true/false</span>
+        <span class="c1"># dCacheSize=4096</span>
+        <span class="c1"># hardwareDiv=false/true</span>
+        <span class="c1"># iCacheSize=4096</span>
+        <span class="c1"># mulDiv=true/false</span>
+        <span class="c1"># prediction=none/static/dynamic/dynamic_target</span>
+        <span class="c1"># safe=true/false</span>
+        <span class="c1"># singleCycleShift=true/false</span>
+        <span class="c1"># singleCycleMulDiv=true/false</span>
+        <span class="c1"># debug=true/false</span>
+        <span class="c1"># UNTESTES:</span>
+        <span class="c1"># pmpRegions=0?</span>
+        <span class="c1"># pmpGranularity=256?</span>
+        <span class="c1"># hardwareBreakpointCount=0</span>
+        <span class="c1"># atomics=false/true</span>
+        <span class="c1"># compressedGen=false/true</span>
+        <span class="c1"># relaxedPcCalculation=false/true</span>
+        <span class="c1"># externalInterruptArray=true/false</span>
+        <span class="c1"># resetVector=null?</span>
+        <span class="c1"># machineTrapVector=null?</span>
         <span class="s2">"fpu"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>  <span class="c1"># TODO: use</span>
         <span class="s2">"compressed"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: use</span>
         <span class="s2">"atomic"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO: use</span>
+        <span class="s2">"integrated_main_ram_size"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="c1"># "integrated_main_ram_size":  256 * 1024,</span>
     <span class="p">}</span>
     <span class="n">REQUIRED</span> <span class="o">=</span> <span class="n">RISCVTarget</span><span class="o">.</span><span class="n">REQUIRED</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"tvm.build_dir"</span><span class="p">}</span>
 
@@ -163,13 +211,70 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_sw_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"use_sw_dir"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_gateware_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"use_gateware_dir"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rtl_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"rtl_sim"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fpga_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"fpga_sim"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fpga_tty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"fpga_tty"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"fpga_tty can not be undefined"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fpga_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"fpga_target"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"fpga_target can not be undefined"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fpga_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"fpga_variant"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"fpga_variant can not be undefined"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">use_renode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rtl_sim</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rtl_sim</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpga_sim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sys_clk_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"sys_clk_freq"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">baud</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"baud"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">integrated_main_ram_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"integrated_main_ram_size"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span></div>
@@ -186,8 +291,19 @@
 
 
 
+<div class="viewcode-block" id="FullFPGACFUPlaygroundPlatformTarget">
+<a class="viewcode-back" href="../../../../mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FullFPGACFUPlaygroundPlatformTarget</span><span class="p">(</span><span class="n">FullCFUPlaygroundPlatformTarget</span><span class="p">):</span>
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">FullCFUPlaygroundPlatformTarget</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"fpga_sim"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
 <span class="n">register_cfu_playground_platform_target</span><span class="p">(</span><span class="s2">"cfu_full"</span><span class="p">,</span> <span class="n">FullCFUPlaygroundPlatformTarget</span><span class="p">)</span>
 <span class="n">register_cfu_playground_platform_target</span><span class="p">(</span><span class="s2">"cfu_full_rtl"</span><span class="p">,</span> <span class="n">FullRTLCFUPlaygroundPlatformTarget</span><span class="p">)</span>
+<span class="n">register_cfu_playground_platform_target</span><span class="p">(</span><span class="s2">"cfu_full_fpga"</span><span class="p">,</span> <span class="n">FullFPGACFUPlaygroundPlatformTarget</span><span class="p">)</span>
 
 
 <span class="c1"># class DefaultCFUPlaygroundTarget(Target):</span>
@@ -362,8 +478,8 @@
             <span class="c1"># CFU Playground actually wants a project directory, but we only get the elf now. As a workaround we</span>
             <span class="c1"># assume the elf is right in the build directory inside the project directory</span>
 
-            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">ret</span>
+            <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">parse_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
             <span class="n">exit_code</span> <span class="o">=</span> <span class="kc">None</span>
@@ -388,9 +504,9 @@
                 <span class="k">return</span> <span class="n">temp</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_outputs</span><span class="p">:</span>
-                <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span><span class="p">)</span>
+                <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">out</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
+                <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">,</span> <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span>
                     <span class="n">elf</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">print_func</span><span class="o">=</span><span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handle_exit</span><span class="o">=</span><span class="n">_handle_exit</span>
                 <span class="p">)</span>
             <span class="c1"># metrics = Metrics()</span>
@@ -404,13 +520,23 @@
                 <span class="k">if</span> <span class="n">sim_time</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">mips</span> <span class="o">=</span> <span class="p">(</span><span class="n">sim_insns</span> <span class="o">/</span> <span class="n">sim_time</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
                     <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"MIPS"</span><span class="p">,</span> <span class="n">mips</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Add time based on clock freq</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys_clk_freq</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Setup"</span><span class="p">,</span> <span class="s2">"Run"</span><span class="p">,</span> <span class="s2">"Total"</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">metrics</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [s]"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">metrics</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [us]"</span><span class="p">):</span>
+                        <span class="k">continue</span>  <span class="c1"># Already populated</span>
+                    <span class="n">cycles</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Cycles"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">cycles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">continue</span>  <span class="c1"># Missing cycles</span>
+                    <span class="n">secs</span> <span class="o">=</span> <span class="n">cycles</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sys_clk_freq</span>
+                    <span class="n">metrics</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> Runtime [s]"</span><span class="p">,</span> <span class="n">secs</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># metrics = Metrics()</span>
             <span class="c1"># metrics.add("Cycles", cycles)</span>
             <span class="c1"># time_s = time_us / 1e6 if time_us is not None else time_us</span>
             <span class="c1"># metrics.add("Runtime [s]", time_s)</span>
 
-            <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">artifacts</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">"unkwown"</span>

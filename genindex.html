@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>Index &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2b916371"></script>
+      <script src="_static/documentation_options.js?v=179c9b62"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -334,6 +334,8 @@
         <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunInitializer.add_postprocess_by_name">(mlonmcu.session.run.RunInitializer method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.add_postprocess_options">add_postprocess_options() (in module mlonmcu.cli.postprocess)</a>
+</li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_postprocesses">add_postprocesses() (mlonmcu.session.run.Run method)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.add_postprocesses_by_name">add_postprocesses_by_name() (mlonmcu.session.run.Run method)</a>
@@ -404,6 +406,8 @@
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess">AnalyseLinkerMapPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
 </li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess">AnalyseVivadoReportsPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
+</li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.dwarf.analyze_dwarf">analyze_dwarf() (in module mlonmcu.session.postprocess.dwarf)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.frontend.TfLiteFrontend.analyze_enable">analyze_enable (mlonmcu.models.frontend.TfLiteFrontend property)</a>
@@ -431,6 +435,8 @@
       <li><a href="mlonmcu.models.html#mlonmcu.models.lookup.apply_modelgroups">apply_modelgroups() (in module mlonmcu.models.lookup)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.task.apply_params">apply_params() (in module mlonmcu.setup.task)</a>
+</li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.apply_run_postprocess">apply_run_postprocess() (in module mlonmcu.cli.postprocess)</a>
 </li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.ara_apps_dir">ara_apps_dir (mlonmcu.target.riscv.ara.AraTarget property)</a>
 
@@ -622,11 +628,9 @@
         <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.batch_size">(mlonmcu.session.session.Session property)</a>
 </li>
       </ul></li>
-      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.baud">baud (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform property)</a>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.baud">baud (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
 
       <ul>
-        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.baud">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform property)</a>
-</li>
         <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.baud">(mlonmcu.platform.espidf.espidf.EspIdfPlatform property)</a>
 </li>
         <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.EspIdfPlatform.baud">(mlonmcu.platform.espidf.EspIdfPlatform property)</a>
@@ -652,10 +656,10 @@
 </li>
       <li><a href="mlonmcu.html#mlonmcu.artifact.ArtifactFormat.BIN">BIN (mlonmcu.artifact.ArtifactFormat attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget.board">board (mlonmcu.platform.microtvm.microtvm_espidf_target.EspidfMicroTvmPlatformTarget property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.bool_as_int">bool_as_int (mlonmcu.flow.tvm.backend.backend.TVMBackend property)</a>
 
       <ul>
@@ -668,6 +672,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.boost_install_dir">(mlonmcu.target.riscv.EtissTarget property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.init.bootstrap_venv_directory">bootstrap_venv_directory() (in module mlonmcu.environment.init)</a>
+</li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH">BRANCH (mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount attribute)</a>
 </li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount.BRANCH_TAKEN">BRANCH_TAKEN (mlonmcu.platform.espidf.espidf_target.Esp32C3PerfCount attribute)</a>
@@ -863,6 +869,8 @@
 </li>
       </ul></li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.common.cli">cli() (in module mlonmcu.target.common)</a>
+</li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.clock">clock (mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess property)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.clone">clone() (in module mlonmcu.setup.utils)</a>
 </li>
@@ -1515,6 +1523,8 @@
 </li>
         <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.DEFAULTS">(mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget attribute)</a>
 </li>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget.DEFAULTS">(mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget attribute)</a>
+</li>
         <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget.DEFAULTS">(mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget attribute)</a>
 </li>
         <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.DEFAULTS">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform attribute)</a>
@@ -1612,6 +1622,8 @@
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess attribute)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess attribute)</a>
+</li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess attribute)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess.DEFAULTS">(mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess attribute)</a>
 </li>
@@ -3218,6 +3230,14 @@
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.ValidationError.format_problems">format_problems() (mlonmcu.setup.gen_requirements.ValidationError static method)</a>
 </li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_sim">fpga_sim (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+</li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_target">fpga_target (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+</li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_tty">fpga_tty (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+</li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_variant">fpga_variant (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+</li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf_target.Esp32C3Target.fpu">fpu (mlonmcu.platform.espidf.espidf_target.Esp32C3Target property)</a>
 
       <ul>
@@ -3287,6 +3307,8 @@
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.FrontendFeatureConfig">FrontendFeatureConfig (class in mlonmcu.environment.config)</a>
 </li>
       <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget">FullCFUPlaygroundPlatformTarget (class in mlonmcu.platform.cfu_playground.cfu_playground_target)</a>
+</li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget">FullFPGACFUPlaygroundPlatformTarget (class in mlonmcu.platform.cfu_playground.cfu_playground_target)</a>
 </li>
       <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget">FullRTLCFUPlaygroundPlatformTarget (class in mlonmcu.platform.cfu_playground.cfu_playground_target)</a>
 </li>
@@ -3948,6 +3970,8 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.Corstone300Target.get_ethosu_fvp_args">(mlonmcu.target.Corstone300Target method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.get_extra_requirements">get_extra_requirements() (in module mlonmcu.setup.gen_requirements)</a>
+</li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.model_info.get_fallback_model_info">get_fallback_model_info() (in module mlonmcu.models.model_info)</a>
 </li>
       <li><a href="mlonmcu.html#mlonmcu.logging.get_formatter">get_formatter() (in module mlonmcu.logging)</a>
@@ -4038,6 +4062,8 @@
       </ul></li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_input_shapes_tvmc_args">get_input_shapes_tvmc_args() (in module mlonmcu.flow.tvm.backend.tvmc_utils)</a>
 </li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_install_requirement">get_install_requirement() (in module mlonmcu.environment.python_utils)</a>
+</li>
       <li><a href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.backend.IREEBackend.get_iree_c_embed_data_args">get_iree_c_embed_data_args() (mlonmcu.flow.iree.backend.backend.IREEBackend method)</a>
 
       <ul>
@@ -4092,8 +4118,6 @@
       </ul></li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tuner.get_metascheduler_defaults">get_metascheduler_defaults() (in module mlonmcu.flow.tvm.backend.tuner)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_tune_platform.TvmTunePlatform.get_metascheduler_tune_args">get_metascheduler_tune_args() (mlonmcu.platform.tvm.tvm_tune_platform.TvmTunePlatform method)</a>
 </li>
       <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.CompilePlatform.get_metrics">get_metrics() (mlonmcu.platform.platform.CompilePlatform method)</a>
@@ -4170,6 +4194,8 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.TGCTarget.get_metrics">(mlonmcu.target.TGCTarget method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_backend.get_microtvm_platform_backends">get_microtvm_platform_backends() (in module mlonmcu.platform.microtvm.microtvm_backend)</a>
 </li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_target.get_microtvm_platform_targets">get_microtvm_platform_targets() (in module mlonmcu.platform.microtvm.microtvm_target)</a>
@@ -4242,6 +4268,8 @@
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.load.get_parser">(in module mlonmcu.cli.load)</a>
 </li>
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.models.get_parser">(in module mlonmcu.cli.models)</a>
+</li>
+        <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.get_parser">(in module mlonmcu.cli.postprocess)</a>
 </li>
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.run.get_parser">(in module mlonmcu.cli.run)</a>
 </li>
@@ -4560,6 +4588,8 @@
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_rpc_tvmc_args">get_rpc_tvmc_args() (in module mlonmcu.flow.tvm.backend.tvmc_utils)</a>
 </li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.get_run_artifacts">get_run_artifacts() (in module mlonmcu.cli.postprocess)</a>
+</li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.feature.RunFeature.get_run_config">get_run_config() (mlonmcu.feature.feature.RunFeature method)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmc_utils.get_runtime_executor_tvmc_args">get_runtime_executor_tvmc_args() (in module mlonmcu.flow.tvm.backend.tvmc_utils)</a>
@@ -4576,6 +4606,8 @@
         <li><a href="mlonmcu.context.html#mlonmcu.context.MlonMcuContext.get_session">(mlonmcu.context.MlonMcuContext method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.get_session_artifacts">get_session_artifacts() (in module mlonmcu.cli.postprocess)</a>
+</li>
       <li><a href="mlonmcu.context.html#mlonmcu.context.context.get_session_labels">get_session_labels() (in module mlonmcu.context.context)</a>
 </li>
       <li><a href="mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.get_sessions_runs_idx">get_sessions_runs_idx() (mlonmcu.context.context.MlonMcuContext method)</a>
@@ -4780,12 +4812,18 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.riscv_vext_target.RVVTarget.get_vector_width">(mlonmcu.target.riscv.riscv_vext_target.RVVTarget method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_venv_bin_dir">get_venv_bin_dir() (in module mlonmcu.environment.python_utils)</a>
+</li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_venv_python">get_venv_python() (in module mlonmcu.environment.python_utils)</a>
+</li>
       <li><a href="mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.get_west_cmake_args">get_west_cmake_args() (mlonmcu.platform.zephyr.zephyr.ZephyrPlatform method)</a>
 
       <ul>
         <li><a href="mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.ZephyrPlatform.get_west_cmake_args">(mlonmcu.platform.zephyr.ZephyrPlatform method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_workspace_process_env">get_workspace_process_env() (in module mlonmcu.environment.python_utils)</a>
+</li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.get_workspace_size_from_metadata">get_workspace_size_from_metadata() (mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend method)</a>
 
       <ul>
@@ -4868,6 +4906,8 @@
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.load.handle">(in module mlonmcu.cli.load)</a>
 </li>
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.models.handle">(in module mlonmcu.cli.models)</a>
+</li>
+        <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.handle">(in module mlonmcu.cli.postprocess)</a>
 </li>
         <li><a href="mlonmcu.cli.html#mlonmcu.cli.run.handle">(in module mlonmcu.cli.run)</a>
 </li>
@@ -5164,8 +5204,12 @@
 </li>
       <li><a href="mlonmcu.setup.tasks.html#mlonmcu.setup.tasks.zephyr.install_zephyr">install_zephyr() (in module mlonmcu.setup.tasks.zephyr)</a>
 </li>
-      <li><a href="mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget.integrated_main_ram_size">integrated_main_ram_size (mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget property)</a>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.integrated_main_ram_size">integrated_main_ram_size (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget.integrated_main_ram_size">(mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget property)</a>
 </li>
+      </ul></li>
       <li><a href="mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget.integrated_sram_size">integrated_sram_size (mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget property)</a>
 </li>
       <li><a href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif_target.MlifExitCode.INVALID_SIZE">INVALID_SIZE (mlonmcu.platform.mlif.mlif_target.MlifExitCode attribute)</a>
@@ -5558,9 +5602,11 @@
 </li>
       <li><a href="mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_licheerv_d1_target.LicheeRvD1TvmPlatformTarget">LicheeRvD1TvmPlatformTarget (class in mlonmcu.platform.tvm.tvm_licheerv_d1_target)</a>
 </li>
-      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.limit">limit (mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess property)</a>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.limit">limit (mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess property)</a>
 
       <ul>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess.limit">(mlonmcu.session.postprocess.postprocesses.Config2ColumnsPostprocess property)</a>
+</li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess.limit">(mlonmcu.session.postprocess.postprocesses.Features2ColumnsPostprocess property)</a>
 </li>
       </ul></li>
@@ -5728,6 +5774,8 @@
       </ul></li>
       <li><a href="mlonmcu.context.html#mlonmcu.context.context.load_recent_sessions">load_recent_sessions() (in module mlonmcu.context.context)</a>
 </li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.postprocess.load_report">load_report() (in module mlonmcu.cli.postprocess)</a>
+</li>
       <li><a href="mlonmcu.context.html#mlonmcu.context.read_write_filelock.RWLockTimeout.lock">lock (mlonmcu.context.read_write_filelock.RWLockTimeout attribute)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.lock">lock() (mlonmcu.session.run.Run method)</a>
@@ -5886,6 +5934,8 @@
       </ul></li>
       <li><a href="mlonmcu.feature.html#mlonmcu.feature.features.TVMTuneBase.max_parallel">max_parallel (mlonmcu.feature.features.TVMTuneBase property)</a>
 </li>
+      <li><a href="mlonmcu.cli.html#mlonmcu.cli.main.maybe_reexec_in_workspace_venv">maybe_reexec_in_workspace_venv() (in module mlonmcu.cli.main)</a>
+</li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna.VicunaTarget.mem_latency">mem_latency (mlonmcu.target.riscv.vicuna.VicunaTarget property)</a>
 
       <ul>
@@ -5923,6 +5973,10 @@
 </li>
       </ul></li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess.merge">merge (mlonmcu.session.postprocess.postprocesses.RenameColumnsPostprocess property)</a>
+</li>
+      <li><a href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.merge">merge() (mlonmcu.target.metrics.Metrics method)</a>
+</li>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.merge_requirements">merge_requirements() (in module mlonmcu.setup.gen_requirements)</a>
 </li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.MergeAutoTvmRecordsPostprocess">MergeAutoTvmRecordsPostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
 </li>
@@ -5966,8 +6020,20 @@
 </li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_tune_platform.MicroTvmTunePlatform">MicroTvmTunePlatform (class in mlonmcu.platform.microtvm.microtvm_tune_platform)</a>
 </li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.min_heap_size">min_heap_size (mlonmcu.target.riscv.etiss.EtissTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.min_heap_size">(mlonmcu.target.riscv.EtissTarget property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.platform.tvm.html#mlonmcu.platform.tvm.tvm_tune_platform.TvmTunePlatform.min_repeat_ms">min_repeat_ms (mlonmcu.platform.tvm.tvm_tune_platform.TvmTunePlatform property)</a>
 </li>
+      <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.etiss.EtissTarget.min_stack_size">min_stack_size (mlonmcu.target.riscv.etiss.EtissTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.min_stack_size">(mlonmcu.target.riscv.EtissTarget property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.min_weight">min_weight (mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend.minimal_runtime">minimal_runtime (mlonmcu.flow.tvm.backend.tvmaot.TVMAOTBackend property)</a>
@@ -6178,6 +6244,13 @@
 </li>
       </ul></li>
       <li>
+    mlonmcu.cli.postprocess
+
+      <ul>
+        <li><a href="mlonmcu.cli.html#module-mlonmcu.cli.postprocess">module</a>
+</li>
+      </ul></li>
+      <li>
     mlonmcu.cli.run
 
       <ul>
@@ -6266,6 +6339,13 @@
 
       <ul>
         <li><a href="mlonmcu.environment.html#module-mlonmcu.environment.loader">module</a>
+</li>
+      </ul></li>
+      <li>
+    mlonmcu.environment.python_utils
+
+      <ul>
+        <li><a href="mlonmcu.environment.html#module-mlonmcu.environment.python_utils">module</a>
 </li>
       </ul></li>
       <li>
@@ -7158,6 +7238,13 @@
 </li>
       </ul></li>
       <li>
+    mlonmcu.session.postprocess.vivado
+
+      <ul>
+        <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.vivado">module</a>
+</li>
+      </ul></li>
+      <li>
     mlonmcu.session.progress
 
       <ul>
@@ -7276,6 +7363,8 @@
         <li><a href="mlonmcu.setup.tasks.html#module-mlonmcu.setup.tasks.cfu">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mlonmcu.setup.tasks.cmake
 
@@ -7290,8 +7379,6 @@
         <li><a href="mlonmcu.setup.tasks.html#module-mlonmcu.setup.tasks.cmsisnn">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     mlonmcu.setup.tasks.common
 
@@ -7896,6 +7983,8 @@
 </li>
         <li><a href="mlonmcu.cli.html#module-mlonmcu.cli.models">mlonmcu.cli.models</a>
 </li>
+        <li><a href="mlonmcu.cli.html#module-mlonmcu.cli.postprocess">mlonmcu.cli.postprocess</a>
+</li>
         <li><a href="mlonmcu.cli.html#module-mlonmcu.cli.run">mlonmcu.cli.run</a>
 </li>
         <li><a href="mlonmcu.cli.html#module-mlonmcu.cli.setup">mlonmcu.cli.setup</a>
@@ -7921,6 +8010,8 @@
         <li><a href="mlonmcu.environment.html#module-mlonmcu.environment.list">mlonmcu.environment.list</a>
 </li>
         <li><a href="mlonmcu.environment.html#module-mlonmcu.environment.loader">mlonmcu.environment.loader</a>
+</li>
+        <li><a href="mlonmcu.environment.html#module-mlonmcu.environment.python_utils">mlonmcu.environment.python_utils</a>
 </li>
         <li><a href="mlonmcu.environment.html#module-mlonmcu.environment.templates">mlonmcu.environment.templates</a>
 </li>
@@ -8175,6 +8266,8 @@
         <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.postprocesses">mlonmcu.session.postprocess.postprocesses</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.validate_metrics">mlonmcu.session.postprocess.validate_metrics</a>
+</li>
+        <li><a href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.vivado">mlonmcu.session.postprocess.vivado</a>
 </li>
         <li><a href="mlonmcu.session.html#module-mlonmcu.session.progress">mlonmcu.session.progress</a>
 </li>
@@ -8555,6 +8648,14 @@
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.session.Session.needs_initializer">needs_initializer (mlonmcu.session.session.Session property)</a>
 </li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.needs_lock">needs_lock (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.needs_lock">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform property)</a>
+</li>
+        <li><a href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.needs_lock">(mlonmcu.platform.platform.TargetPlatform property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.needs_model_support">needs_model_support (mlonmcu.platform.mlif.mlif.MlifPlatform property)</a>
 
       <ul>
@@ -9029,6 +9130,8 @@
         <li><a href="mlonmcu.target.html#mlonmcu.target.target.Target.parse_exit">(mlonmcu.target.target.Target method)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.vivado.parse_gateware_dir">parse_gateware_dir() (in module mlonmcu.session.postprocess.vivado)</a>
+</li>
       <li><a href="mlonmcu.flow.iree.backend.html#mlonmcu.flow.iree.backend.iree_utils.parse_iree_version">parse_iree_version() (in module mlonmcu.flow.iree.backend.iree_utils)</a>
 </li>
       <li><a href="mlonmcu.models.html#mlonmcu.models.metadata.parse_metadata">parse_metadata() (in module mlonmcu.models.metadata)</a>
@@ -9133,6 +9236,8 @@
 </li>
       <li><a href="mlonmcu.cli.helper.html#mlonmcu.cli.helper.parse.parse_vars">parse_vars() (in module mlonmcu.cli.helper.parse)</a>
 </li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.vivado.parse_vivado_artifacts">parse_vivado_artifacts() (in module mlonmcu.session.postprocess.vivado)</a>
+</li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.elf.parseElf">parseElf() (in module mlonmcu.target.elf)</a>
 </li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.pass_config">pass_config (mlonmcu.flow.tvm.backend.backend.TVMBackend property)</a>
@@ -9193,6 +9298,12 @@
       </ul></li>
       <li><a href="mlonmcu.html#mlonmcu.config.pick_first">pick_first() (in module mlonmcu.config)</a>
 </li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.pick_platform">pick_platform() (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform method)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.pick_platform">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform method)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.rpc_utils.TrackerCode.PING">PING (mlonmcu.session.rpc_utils.TrackerCode attribute)</a>
 </li>
       <li><a href="mlonmcu.platform.html#mlonmcu.platform.Platform">Platform (class in mlonmcu.platform)</a>
@@ -9258,6 +9369,8 @@
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess method)</a>
 </li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess method)</a>
+</li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.Artifact2ColumnPostprocess method)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ExportOutputsPostprocess.post_run">(mlonmcu.session.postprocess.postprocesses.ExportOutputsPostprocess method)</a>
@@ -9303,6 +9416,8 @@
       </ul></li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocess.Postprocess">Postprocess (class in mlonmcu.session.postprocess.postprocess)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.RunStage.POSTPROCESS">POSTPROCESS (mlonmcu.session.run.RunStage attribute)</a>
 </li>
       <li><a href="mlonmcu.session.html#mlonmcu.session.run.Run.postprocess">postprocess() (mlonmcu.session.run.Run method)</a>
@@ -9311,8 +9426,6 @@
         <li><a href="mlonmcu.session.html#mlonmcu.session.schedule.SessionScheduler.postprocess">(mlonmcu.session.schedule.SessionScheduler method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.platform.mlif.html#mlonmcu.platform.mlif.mlif.MlifPlatform.prebuild_lib_dir">prebuild_lib_dir (mlonmcu.platform.mlif.mlif.MlifPlatform property)</a>
 
       <ul>
@@ -9668,6 +9781,8 @@
       <li><a href="mlonmcu.session.html#mlonmcu.session.rpc_utils.py_str">py_str() (in module mlonmcu.session.rpc_utils)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.python">python() (in module mlonmcu.setup.utils)</a>
+</li>
+      <li><a href="mlonmcu.environment.html#mlonmcu.environment.config.PythonConfig">PythonConfig (class in mlonmcu.environment.config)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -10271,6 +10386,8 @@
 </li>
       <li><a href="mlonmcu.context.html#mlonmcu.context.context.resolve_environment_file">resolve_environment_file() (in module mlonmcu.context.context)</a>
 </li>
+      <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.resolve_limit">resolve_limit() (mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess method)</a>
+</li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.resolve_llvm">resolve_llvm() (in module mlonmcu.setup.utils)</a>
 </li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.resolve_llvm_wrapper">resolve_llvm_wrapper() (in module mlonmcu.setup.utils)</a>
@@ -10629,14 +10746,14 @@
       </ul></li>
       <li><a href="mlonmcu.platform.microtvm.html#mlonmcu.platform.microtvm.microtvm_spike_target.SpikeRV64MicroTvmPlatformTarget">SpikeRV64MicroTvmPlatformTarget (class in mlonmcu.platform.microtvm.microtvm_spike_target)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.SpikeRV64Target">SpikeRV64Target (class in mlonmcu.target.riscv)</a>
 
       <ul>
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.spike.SpikeRV64Target">(class in mlonmcu.target.riscv.spike)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="mlonmcu.target.html#mlonmcu.target.SpikeTarget">SpikeTarget (class in mlonmcu.target)</a>
 
       <ul>
@@ -10845,8 +10962,18 @@
       </ul></li>
       <li><a href="mlonmcu.setup.html#mlonmcu.setup.utils.symlink">symlink() (in module mlonmcu.setup.utils)</a>
 </li>
-      <li><a href="mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget.sys_clk_freq">sys_clk_freq (mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget property)</a>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.synth">synth() (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform method)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.synth">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform method)</a>
 </li>
+      </ul></li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.sys_clk_freq">sys_clk_freq (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget.sys_clk_freq">(mlonmcu.platform.mlif_litex.mlif_litex_target.TemplateMlifLitexPlatformTarget property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -11142,6 +11269,8 @@
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_df">(mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
 </li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.to_df">(mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess property)</a>
+</li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.to_df">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
       </ul></li>
@@ -11155,6 +11284,8 @@
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.AnalyseInstructionsPostprocess property)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess property)</a>
+</li>
+        <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess property)</a>
 </li>
         <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess.to_file">(mlonmcu.session.postprocess.postprocesses.ProfileFunctionsPostprocess property)</a>
 </li>
@@ -11485,6 +11616,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_gateware_dir">use_gateware_dir (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+</li>
       <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.use_idf_monitor">use_idf_monitor (mlonmcu.platform.espidf.espidf.EspIdfPlatform property)</a>
 
       <ul>
@@ -11533,6 +11666,8 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.EtissTarget.use_stats_file">(mlonmcu.target.riscv.EtissTarget property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_sw_dir">use_sw_dir (mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget property)</a>
+</li>
       <li><a href="mlonmcu.flow.tvm.backend.html#mlonmcu.flow.tvm.backend.backend.TVMBackend.use_tlcpack">use_tlcpack (mlonmcu.flow.tvm.backend.backend.TVMBackend property)</a>
 
       <ul>
@@ -11657,6 +11792,12 @@
         <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.VicunaTarget.verilator_install_dir">(mlonmcu.target.riscv.VicunaTarget property)</a>
 </li>
       </ul></li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.verilog_file">verilog_file (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.verilog_file">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.platform.mlif_litex.html#mlonmcu.platform.mlif_litex.mlif_litex_target.VexRiscvTarget">VexRiscvTarget (class in mlonmcu.platform.mlif_litex.mlif_litex_target)</a>
 </li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.ara.AraTarget.vext_spec">vext_spec (mlonmcu.target.riscv.ara.AraTarget property)</a>
@@ -11745,6 +11886,12 @@
       </ul></li>
       <li><a href="mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.VisualizePostprocess">VisualizePostprocess (class in mlonmcu.session.postprocess.postprocesses)</a>
 </li>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.vivado_install_dir">vivado_install_dir (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform property)</a>
+
+      <ul>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.vivado_install_dir">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform property)</a>
+</li>
+      </ul></li>
       <li><a href="mlonmcu.target.riscv.html#mlonmcu.target.riscv.vicuna2.Vicuna2Target.vlane_width">vlane_width (mlonmcu.target.riscv.vicuna2.Vicuna2Target property)</a>
 
       <ul>
@@ -11811,9 +11958,13 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.wait_for_user">wait_for_user (mlonmcu.platform.espidf.espidf.EspIdfPlatform property)</a>
+      <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.wait_for_user">wait_for_user (mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform property)</a>
 
       <ul>
+        <li><a href="mlonmcu.platform.cfu_playground.html#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.wait_for_user">(mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform property)</a>
+</li>
+        <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.espidf.EspIdfPlatform.wait_for_user">(mlonmcu.platform.espidf.espidf.EspIdfPlatform property)</a>
+</li>
         <li><a href="mlonmcu.platform.espidf.html#mlonmcu.platform.espidf.EspIdfPlatform.wait_for_user">(mlonmcu.platform.espidf.EspIdfPlatform property)</a>
 </li>
         <li><a href="mlonmcu.platform.zephyr.html#mlonmcu.platform.zephyr.zephyr.ZephyrPlatform.wait_for_user">(mlonmcu.platform.zephyr.zephyr.ZephyrPlatform property)</a>
@@ -11835,10 +11986,10 @@
 </li>
       <li><a href="mlonmcu.target.html#mlonmcu.target.elf.write_csv">write_csv() (in module mlonmcu.target.elf)</a>
 </li>
-      <li><a href="mlonmcu.setup.html#mlonmcu.setup.setup.Setup.write_env_file">write_env_file() (mlonmcu.setup.setup.Setup method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="mlonmcu.setup.html#mlonmcu.setup.setup.Setup.write_env_file">write_env_file() (mlonmcu.setup.setup.Setup method)</a>
+</li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.writer.write_environment_to_file">write_environment_to_file() (in module mlonmcu.environment.writer)</a>
 </li>
       <li><a href="mlonmcu.environment.html#mlonmcu.environment.templates.write_environment_yaml_from_template">write_environment_yaml_from_template() (in module mlonmcu.environment.templates)</a>

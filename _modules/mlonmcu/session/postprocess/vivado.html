@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mlonmcu.session.postprocess.vivado &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=179c9b62"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            ML on MCU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">ML on MCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../design.html">Important Terms and Design Decisions (RFC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../components.html#components-in-detail">Components in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../postprocess.html">Postprocesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging and Verbosity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docs.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ML on MCU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../postprocess.html">mlonmcu.session.postprocess</a></li>
+      <li class="breadcrumb-item active">mlonmcu.session.postprocess.vivado</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mlonmcu.session.postprocess.vivado</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Utilities for extracting metrics from Vivado text report artifacts."""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">NUM_RE</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"[-+]?(?:\d+(?:\.\d*)?|\.\d+)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="k">else</span> <span class="s2">""</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_num</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="s2">"NA"</span><span class="p">,</span> <span class="s2">"N/A"</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">is_integer</span><span class="p">()</span> <span class="k">else</span> <span class="n">value</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">directory</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.rpt"</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">matches</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_metadata</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"vivado_version"</span><span class="p">:</span> <span class="sa">r</span><span class="s2">"\| Tool Version\s*:\s*(.+?)\s*$"</span><span class="p">,</span>
+        <span class="s2">"report_date"</span><span class="p">:</span> <span class="sa">r</span><span class="s2">"\| Date\s*:\s*(.+?)\s*$"</span><span class="p">,</span>
+        <span class="s2">"host"</span><span class="p">:</span> <span class="sa">r</span><span class="s2">"\| Host\s*:\s*(.+?)\s*$"</span><span class="p">,</span>
+        <span class="s2">"design"</span><span class="p">:</span> <span class="sa">r</span><span class="s2">"\| Design\s*:\s*(.+?)\s*$"</span><span class="p">,</span>
+        <span class="s2">"device"</span><span class="p">:</span> <span class="sa">r</span><span class="s2">"\| Device\s*:\s*(.+?)\s*$"</span><span class="p">,</span>
+        <span class="s2">"design_state"</span><span class="p">:</span> <span class="sa">r</span><span class="s2">"\| Design State\s*:\s*(.+?)\s*$"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="p">(</span><span class="n">match</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">))</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_table_row</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\|\s*"</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">"\*?\s*\|(.+)$"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"|"</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_utilization</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"Slice LUTs"</span><span class="p">:</span> <span class="s2">"slice_luts"</span><span class="p">,</span>
+        <span class="s2">"LUT as Logic"</span><span class="p">:</span> <span class="s2">"lut_as_logic"</span><span class="p">,</span>
+        <span class="s2">"LUT as Memory"</span><span class="p">:</span> <span class="s2">"lut_as_memory"</span><span class="p">,</span>
+        <span class="s2">"Slice Registers"</span><span class="p">:</span> <span class="s2">"slice_registers"</span><span class="p">,</span>
+        <span class="s2">"Slice"</span><span class="p">:</span> <span class="s2">"slices"</span><span class="p">,</span>
+        <span class="s2">"Block RAM Tile"</span><span class="p">:</span> <span class="s2">"bram_tiles"</span><span class="p">,</span>
+        <span class="s2">"RAMB36/FIFO*"</span><span class="p">:</span> <span class="s2">"ramb36_fifo"</span><span class="p">,</span>
+        <span class="s2">"RAMB18"</span><span class="p">:</span> <span class="s2">"ramb18"</span><span class="p">,</span>
+        <span class="s2">"DSPs"</span><span class="p">:</span> <span class="s2">"dsps"</span><span class="p">,</span>
+        <span class="s2">"Bonded IOB"</span><span class="p">:</span> <span class="s2">"bonded_iob"</span><span class="p">,</span>
+        <span class="s2">"BUFGCTRL"</span><span class="p">:</span> <span class="s2">"bufgctrl"</span><span class="p">,</span>
+        <span class="s2">"PLLE2_ADV"</span><span class="p">:</span> <span class="s2">"plle2_adv"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">stem</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">_table_row</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_used"</span><span class="p">:</span> <span class="n">_to_num</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_available"</span><span class="p">:</span> <span class="n">_to_num</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_util_pct"</span><span class="p">:</span> <span class="n">_to_num</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_hierarchical_utilization</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"VexRiscv"</span><span class="p">:</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"IBusCachedPlugin_cache"</span><span class="p">:</span> <span class="s2">"icache"</span><span class="p">,</span> <span class="s2">"dataCache_1"</span><span class="p">:</span> <span class="s2">"dcache"</span><span class="p">,</span> <span class="s2">"Cfu"</span><span class="p">:</span> <span class="s2">"cfu"</span><span class="p">}</span>
+    <span class="n">row_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|"</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">"\s*([0-9.]+)\s*\|"</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">"$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"total_luts"</span><span class="p">,</span> <span class="s2">"logic_luts"</span><span class="p">,</span> <span class="s2">"lutram"</span><span class="p">,</span> <span class="s2">"srl"</span><span class="p">,</span> <span class="s2">"ffs"</span><span class="p">,</span> <span class="s2">"ramb36"</span><span class="p">,</span> <span class="s2">"ramb18"</span><span class="p">,</span> <span class="s2">"dsps"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">row_re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">wanted</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]]</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">"hier_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">is_integer</span><span class="p">()</span> <span class="k">else</span> <span class="n">value</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="sa">f</span><span class="s2">"hier_</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_bram_tiles"</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_timing</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"timing_met"</span><span class="p">:</span> <span class="s2">"All user specified timing constraints are met."</span> <span class="ow">in</span> <span class="n">text</span><span class="p">}</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"| Design Timing Summary"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">marker</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">marker</span> <span class="p">:</span> <span class="n">marker</span> <span class="o">+</span> <span class="mi">2500</span><span class="p">]</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">"WNS(ns)"</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="s2">"TNS(ns)"</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">6</span><span class="p">]:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">NUM_RE</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">12</span><span class="p">:</span>
+                        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="s2">"wns_ns"</span><span class="p">,</span>
+                            <span class="s2">"tns_ns"</span><span class="p">,</span>
+                            <span class="s2">"tns_failing_endpoints"</span><span class="p">,</span>
+                            <span class="s2">"tns_total_endpoints"</span><span class="p">,</span>
+                            <span class="s2">"whs_ns"</span><span class="p">,</span>
+                            <span class="s2">"ths_ns"</span><span class="p">,</span>
+                            <span class="s2">"ths_failing_endpoints"</span><span class="p">,</span>
+                            <span class="s2">"ths_total_endpoints"</span><span class="p">,</span>
+                            <span class="s2">"wpws_ns"</span><span class="p">,</span>
+                            <span class="s2">"tpws_ns"</span><span class="p">,</span>
+                            <span class="s2">"tpws_failing_endpoints"</span><span class="p">,</span>
+                            <span class="s2">"tpws_total_endpoints"</span><span class="p">,</span>
+                        <span class="p">]</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">_to_num</span><span class="p">,</span> <span class="n">values</span><span class="p">[:</span><span class="mi">12</span><span class="p">]))))</span>
+                        <span class="k">break</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_clock_summary</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"| Clock Summary"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">marker</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"clock"</span><span class="p">,</span> <span class="s2">"period_ns"</span><span class="p">,</span> <span class="s2">"frequency_mhz"</span><span class="p">])</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">[</span><span class="n">marker</span> <span class="p">:</span> <span class="n">marker</span> <span class="o">+</span> <span class="mi">5000</span><span class="p">]</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"^\s*([A-Za-z0-9_./\[\]-]+)\s+\</span><span class="se">{{</span><span class="s2">[^</span><span class="se">}}</span><span class="s2">]+\</span><span class="se">}}</span><span class="s2">\s+(</span><span class="si">{</span><span class="n">NUM_RE</span><span class="si">}</span><span class="s2">)\s+(</span><span class="si">{</span><span class="n">NUM_RE</span><span class="si">}</span><span class="s2">)\s*$"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"clock"</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="s2">"period_ns"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span>
+                    <span class="s2">"frequency_mhz"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_intra_clock_wns</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"| Intra Clock Table"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">marker</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="p">[</span><span class="n">marker</span> <span class="p">:</span> <span class="n">marker</span> <span class="o">+</span> <span class="mi">7000</span><span class="p">]</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"^\s*([A-Za-z0-9_./\[\]-]+)\s+(</span><span class="si">{</span><span class="n">NUM_RE</span><span class="si">}</span><span class="s2">)\s+(</span><span class="si">{</span><span class="n">NUM_RE</span><span class="si">}</span><span class="s2">)\s+"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_choose_clock</span><span class="p">(</span><span class="n">clocks</span><span class="p">,</span> <span class="n">requested</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">clocks</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="p">(</span><span class="n">requested</span><span class="p">,</span> <span class="s2">"soc_crg_clkout0"</span><span class="p">,</span> <span class="s2">"sys_clk"</span><span class="p">,</span> <span class="s2">"clk100"</span><span class="p">):</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">clocks</span><span class="p">[</span><span class="n">clocks</span><span class="p">[</span><span class="s2">"clock"</span><span class="p">]</span> <span class="o">==</span> <span class="n">candidate</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">selected</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">selected</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">clocks</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_power</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"Total On-Chip Power (W)"</span><span class="p">:</span> <span class="s2">"power_total_w"</span><span class="p">,</span>
+        <span class="s2">"Dynamic (W)"</span><span class="p">:</span> <span class="s2">"power_dynamic_w"</span><span class="p">,</span>
+        <span class="s2">"Device Static (W)"</span><span class="p">:</span> <span class="s2">"power_static_w"</span><span class="p">,</span>
+        <span class="s2">"Junction Temperature (C)"</span><span class="p">:</span> <span class="s2">"junction_temp_c"</span><span class="p">,</span>
+        <span class="s2">"Max Ambient (C)"</span><span class="p">:</span> <span class="s2">"max_ambient_c"</span><span class="p">,</span>
+        <span class="s2">"Confidence Level"</span><span class="p">:</span> <span class="s2">"power_confidence"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\|\s*"</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">"\s*\|\s*([^|]+?)\s*\|"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_num</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="parse_gateware_dir">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.vivado.parse_gateware_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_gateware_dir</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="s2">"soc_crg_clkout0"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Parse the reports in one Vivado gateware directory into one record."""</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+    <span class="n">place</span> <span class="o">=</span> <span class="n">_read</span><span class="p">(</span><span class="n">_find_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"utilization_place"</span><span class="p">))</span>
+    <span class="n">synth</span> <span class="o">=</span> <span class="n">_read</span><span class="p">(</span><span class="n">_find_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"utilization_synth"</span><span class="p">))</span>
+    <span class="n">timing</span> <span class="o">=</span> <span class="n">_read</span><span class="p">(</span><span class="n">_find_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"timing"</span><span class="p">))</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="n">_read</span><span class="p">(</span><span class="n">_find_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"power"</span><span class="p">))</span>
+    <span class="n">hierarchical</span> <span class="o">=</span> <span class="n">_read</span><span class="p">(</span><span class="n">_find_report</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">"utilization_hierarchical_place"</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">directory</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_metadata</span><span class="p">(</span><span class="n">place</span> <span class="ow">or</span> <span class="n">timing</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_parse_utilization</span><span class="p">(</span><span class="n">synth</span><span class="p">,</span> <span class="s2">"synth_"</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_parse_utilization</span><span class="p">(</span><span class="n">place</span><span class="p">,</span> <span class="s2">"place_"</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_parse_hierarchical_utilization</span><span class="p">(</span><span class="n">hierarchical</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_parse_timing</span><span class="p">(</span><span class="n">timing</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_parse_power</span><span class="p">(</span><span class="n">power</span><span class="p">))</span>
+    <span class="n">selected_clock</span> <span class="o">=</span> <span class="n">_choose_clock</span><span class="p">(</span><span class="n">_parse_clock_summary</span><span class="p">(</span><span class="n">timing</span><span class="p">),</span> <span class="n">clock</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">selected_clock</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"clock"</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_clock</span><span class="o">.</span><span class="n">clock</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"clock_period_ns"</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_clock</span><span class="o">.</span><span class="n">period_ns</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">"clock_freq_mhz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_clock</span><span class="o">.</span><span class="n">frequency_mhz</span>
+        <span class="n">wns</span> <span class="o">=</span> <span class="n">_parse_intra_clock_wns</span><span class="p">(</span><span class="n">timing</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">selected_clock</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">selected_clock</span><span class="o">.</span><span class="n">period_ns</span> <span class="o">&gt;</span> <span class="n">wns</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"clock_wns_ns"</span><span class="p">]</span> <span class="o">=</span> <span class="n">wns</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"estimated_min_period_ns"</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_clock</span><span class="o">.</span><span class="n">period_ns</span> <span class="o">-</span> <span class="n">wns</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">"estimated_fmax_mhz"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="s2">"estimated_min_period_ns"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="parse_vivado_artifacts">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.vivado.parse_vivado_artifacts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_vivado_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="s2">"soc_crg_clkout0"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Parse individual Vivado report artifacts as one temporary gateware directory."""</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tempdir</span><span class="p">:</span>
+        <span class="n">gateware_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"gateware"</span>
+        <span class="n">gateware_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">artifact</span> <span class="ow">in</span> <span class="n">artifacts</span><span class="p">:</span>
+            <span class="n">report_type</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">flag</span>
+                    <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">artifact</span><span class="o">.</span><span class="n">flags</span>
+                    <span class="k">if</span> <span class="n">flag</span>
+                    <span class="ow">in</span> <span class="p">{</span><span class="s2">"utilization_place"</span><span class="p">,</span> <span class="s2">"utilization_synth"</span><span class="p">,</span> <span class="s2">"timing"</span><span class="p">,</span> <span class="s2">"power"</span><span class="p">,</span> <span class="s2">"utilization_hierarchical_place"</span><span class="p">}</span>
+                <span class="p">),</span>
+                <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">report_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="n">gateware_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"report_</span><span class="si">{</span><span class="n">report_type</span><span class="si">}</span><span class="s2">.rpt"</span>
+            <span class="k">if</span> <span class="n">artifact</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">destination</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">artifact</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">artifact</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">parse_gateware_dir</span><span class="p">(</span><span class="n">gateware_dir</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">)])</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, TUM Department of Electrical and Computer Engineering - Chair of Electronic Design Automation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

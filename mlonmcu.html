@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu package &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu package &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2b916371"></script>
+      <script src="_static/documentation_options.js?v=179c9b62"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -184,12 +184,23 @@
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.main">mlonmcu.cli.main module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.main.handle_docker"><code class="docutils literal notranslate"><span class="pre">handle_docker()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.main.maybe_reexec_in_workspace_venv"><code class="docutils literal notranslate"><span class="pre">maybe_reexec_in_workspace_venv()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.models">mlonmcu.cli.models module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.models.add_models_options"><code class="docutils literal notranslate"><span class="pre">add_models_options()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.models.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.models.handle"><code class="docutils literal notranslate"><span class="pre">handle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.postprocess">mlonmcu.cli.postprocess module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.add_postprocess_options"><code class="docutils literal notranslate"><span class="pre">add_postprocess_options()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.apply_run_postprocess"><code class="docutils literal notranslate"><span class="pre">apply_run_postprocess()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.get_parser"><code class="docutils literal notranslate"><span class="pre">get_parser()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.get_run_artifacts"><code class="docutils literal notranslate"><span class="pre">get_run_artifacts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.get_session_artifacts"><code class="docutils literal notranslate"><span class="pre">get_session_artifacts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.handle"><code class="docutils literal notranslate"><span class="pre">handle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.cli.html#mlonmcu.cli.postprocess.load_report"><code class="docutils literal notranslate"><span class="pre">load_report()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.cli.html#module-mlonmcu.cli.run">mlonmcu.cli.run module</a><ul>
@@ -305,6 +316,7 @@
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.PathConfig"><code class="docutils literal notranslate"><span class="pre">PathConfig</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.PlatformConfig"><code class="docutils literal notranslate"><span class="pre">PlatformConfig</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.PlatformFeatureConfig"><code class="docutils literal notranslate"><span class="pre">PlatformFeatureConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.PythonConfig"><code class="docutils literal notranslate"><span class="pre">PythonConfig</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.RepoConfig"><code class="docutils literal notranslate"><span class="pre">RepoConfig</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.RepoConfig.recursive"><code class="docutils literal notranslate"><span class="pre">RepoConfig.recursive</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.config.RepoConfig.single_branch"><code class="docutils literal notranslate"><span class="pre">RepoConfig.single_branch</span></code></a></li>
@@ -356,6 +368,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.init">mlonmcu.environment.init module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.init.bootstrap_venv_directory"><code class="docutils literal notranslate"><span class="pre">bootstrap_venv_directory()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.init.clone_models_repo"><code class="docutils literal notranslate"><span class="pre">clone_models_repo()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.init.create_environment_directories"><code class="docutils literal notranslate"><span class="pre">create_environment_directories()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.init.create_venv_directory"><code class="docutils literal notranslate"><span class="pre">create_venv_directory()</span></code></a></li>
@@ -372,6 +385,13 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.loader">mlonmcu.environment.loader module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.loader.load_environment_from_file"><code class="docutils literal notranslate"><span class="pre">load_environment_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.python_utils">mlonmcu.environment.python_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_install_requirement"><code class="docutils literal notranslate"><span class="pre">get_install_requirement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_venv_bin_dir"><code class="docutils literal notranslate"><span class="pre">get_venv_bin_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_venv_python"><code class="docutils literal notranslate"><span class="pre">get_venv_python()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.environment.html#mlonmcu.environment.python_utils.get_workspace_process_env"><code class="docutils literal notranslate"><span class="pre">get_workspace_process_env()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlonmcu.environment.html#module-mlonmcu.environment.templates">mlonmcu.environment.templates module</a><ul>
@@ -1298,6 +1318,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.create_target"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.create_target()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.flash"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.flash()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.monitor"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.monitor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.needs_lock"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.needs_lock</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.run"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.supports_flash"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.supports_flash</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.supports_monitor"><code class="docutils literal notranslate"><span class="pre">TargetPlatform.supports_monitor</span></code></a></li>
@@ -1346,6 +1367,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.postprocess">mlonmcu.session.postprocess.postprocess module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.postprocesses">mlonmcu.session.postprocess.postprocesses module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.validate_metrics">mlonmcu.session.postprocess.validate_metrics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess.vivado">mlonmcu.session.postprocess.vivado module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.session.postprocess.html#module-mlonmcu.session.postprocess">Module contents</a></li>
 </ul>
 </li>
@@ -1685,9 +1707,11 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.ValidationError.format_problems"><code class="docutils literal notranslate"><span class="pre">ValidationError.format_problems()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.get_extra_requirements"><code class="docutils literal notranslate"><span class="pre">get_extra_requirements()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.join_and_write_requirements"><code class="docutils literal notranslate"><span class="pre">join_and_write_requirements()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.join_requirements"><code class="docutils literal notranslate"><span class="pre">join_requirements()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.merge_requirements"><code class="docutils literal notranslate"><span class="pre">merge_requirements()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.parse_semver"><code class="docutils literal notranslate"><span class="pre">parse_semver()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlonmcu.setup.html#mlonmcu.setup.gen_requirements.semver_to_requirements"><code class="docutils literal notranslate"><span class="pre">semver_to_requirements()</span></code></a></li>
@@ -1884,6 +1908,7 @@
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.get"><code class="docutils literal notranslate"><span class="pre">Metrics.get()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.get_data"><code class="docutils literal notranslate"><span class="pre">Metrics.get_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.has"><code class="docutils literal notranslate"><span class="pre">Metrics.has()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.merge"><code class="docutils literal notranslate"><span class="pre">Metrics.merge()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlonmcu.target.html#mlonmcu.target.metrics.Metrics.to_csv"><code class="docutils literal notranslate"><span class="pre">Metrics.to_csv()</span></code></a></li>
 </ul>
 </li>

@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.environment.init &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.environment.init &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../_static/documentation_options.js?v=179c9b62"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -103,6 +103,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">venv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.list</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environment_names</span><span class="p">,</span> <span class="n">get_alternative_name</span><span class="p">,</span> <span class="n">register_environment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_environments_dir</span><span class="p">,</span>
@@ -116,6 +118,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">in_virtualenv</span><span class="p">,</span> <span class="n">ask_user</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.python_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_install_requirement</span><span class="p">,</span> <span class="n">get_venv_python</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -143,13 +146,31 @@
 
 <div class="viewcode-block" id="create_venv_directory">
 <a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.create_venv_directory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_venv_directory</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_venv_directory</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
     <span class="n">dirname</span> <span class="o">=</span> <span class="s2">".venv"</span> <span class="k">if</span> <span class="n">hidden</span> <span class="k">else</span> <span class="s2">"venv"</span>
     <span class="n">venv_dir</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="n">dirname</span>
-    <span class="n">venv</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Virtual environment was created in </span><span class="si">{</span><span class="n">venv_dir</span><span class="si">}</span><span class="s2">. Make sure to activate it before using mlonmcu."</span><span class="p">)</span></div>
+    <span class="n">venv</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">,</span> <span class="n">with_pip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">python</span> <span class="o">=</span> <span class="n">get_venv_python</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">)</span>
+    <span class="n">activate</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">"activate"</span>
+    <span class="n">activate</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="sa">f</span><span class="s1">'export MLONMCU_HOME="</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">"</span><span class="se">\n</span><span class="s1">source "</span><span class="si">{</span><span class="n">venv_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s2">"bin"</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s2">"activate"</span><span class="si">}</span><span class="s1">"</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+    <span class="n">launcher</span> <span class="o">=</span> <span class="n">base</span> <span class="o">/</span> <span class="s2">"mlonmcu"</span>
+    <span class="n">launcher</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'#!/usr/bin/env sh</span><span class="se">\n</span><span class="s1">exec "</span><span class="si">{</span><span class="n">python</span><span class="si">}</span><span class="s1">" -m mlonmcu.cli.main --home "</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">" "$@"</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span>
+    <span class="p">)</span>
+    <span class="n">launcher</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o755</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Virtual environment was created in </span><span class="si">{</span><span class="n">venv_dir</span><span class="si">}</span><span class="s2">. Use `source </span><span class="si">{</span><span class="n">activate</span><span class="si">}</span><span class="s2">` or `</span><span class="si">{</span><span class="n">launcher</span><span class="si">}</span><span class="s2">`."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">venv_dir</span></div>
+
+
+
+<div class="viewcode-block" id="bootstrap_venv_directory">
+<a class="viewcode-back" href="../../../mlonmcu.environment.html#mlonmcu.environment.init.bootstrap_venv_directory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bootstrap_venv_directory</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">python</span> <span class="o">=</span> <span class="n">get_venv_python</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">python</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="s2">"--upgrade"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">python</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="o">*</span><span class="n">get_install_requirement</span><span class="p">(</span><span class="n">extras</span> <span class="ow">or</span> <span class="p">[])],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -224,19 +245,29 @@
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s2">"environment.yml"</span><span class="p">),</span> <span class="n">template</span><span class="p">,</span> <span class="n">home_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span>
     <span class="p">)</span>
 
+    <span class="n">environment_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"environment.yml"</span>
+
     <span class="c1"># FIXME: controversial?</span>
     <span class="k">if</span> <span class="n">create_venv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">in_virtualenv</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"It is strongly recommended to use mlonmcu inside a virtual Python environment."</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ask_user</span><span class="p">(</span><span class="s2">"Create one automatically?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="n">interactive</span><span class="p">):</span>
-                <span class="c1"># TODO: create venv</span>
-                <span class="n">create_venv_directory</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+                <span class="n">venv_dir</span> <span class="o">=</span> <span class="n">create_venv_directory</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+                <span class="n">bootstrap_venv_directory</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping creation of virtual environment. (already inside one)"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">create_venv</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"The creation of a virtual environment was requested"</span><span class="p">)</span>
-            <span class="n">create_venv_directory</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">environment_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">environment_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+            <span class="n">python_data</span> <span class="o">=</span> <span class="n">environment_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"python"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">python_data</span><span class="p">[</span><span class="s2">"venv"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">".venv"</span>
+            <span class="n">extras</span> <span class="o">=</span> <span class="n">python_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"extra"</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">environment_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+                <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">environment_data</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">venv_dir</span> <span class="o">=</span> <span class="n">create_venv_directory</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="n">extras</span><span class="p">)</span>
+            <span class="n">bootstrap_venv_directory</span><span class="p">(</span><span class="n">venv_dir</span><span class="p">,</span> <span class="n">extras</span><span class="o">=</span><span class="n">extras</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"Skipping creation of virtual environment."</span><span class="p">)</span>
 

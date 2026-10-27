@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.session.postprocess.postprocesses &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.session.postprocess.postprocesses &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../../_static/documentation_options.js?v=179c9b62"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -118,6 +118,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.postprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">SessionPostprocess</span><span class="p">,</span> <span class="n">RunPostprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.vivado</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_vivado_artifacts</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.validate_metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_validate_metrics</span><span class="p">,</span> <span class="n">parse_classify_metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.calc_lib_mem_footprints</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">parse_elf</span><span class="p">,</span>
@@ -130,6 +131,27 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.session.db_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">push_session_to_mlonmcu_db</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="n">VIVADO_METRIC_CATEGORIES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"identity"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"device"</span><span class="p">,</span> <span class="s2">"vivado_version"</span><span class="p">],</span>
+    <span class="s2">"timing"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"timing_met"</span><span class="p">,</span> <span class="s2">"wns_ns"</span><span class="p">,</span> <span class="s2">"tns_ns"</span><span class="p">,</span> <span class="s2">"whs_ns"</span><span class="p">,</span> <span class="s2">"estimated_fmax_mhz"</span><span class="p">],</span>
+    <span class="s2">"total_area"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"place_slice_luts_used"</span><span class="p">,</span> <span class="s2">"place_slice_registers_used"</span><span class="p">,</span> <span class="s2">"place_bram_tiles_used"</span><span class="p">,</span> <span class="s2">"place_dsps_used"</span><span class="p">],</span>
+    <span class="s2">"area_utilization"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"place_slice_luts_util_pct"</span><span class="p">,</span>
+        <span class="s2">"place_slice_registers_util_pct"</span><span class="p">,</span>
+        <span class="s2">"place_bram_tiles_util_pct"</span><span class="p">,</span>
+        <span class="s2">"place_dsps_util_pct"</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">"lut_breakdown"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"place_lut_as_logic_used"</span><span class="p">,</span> <span class="s2">"place_lut_as_memory_used"</span><span class="p">],</span>
+    <span class="s2">"bram_breakdown"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"place_ramb36_fifo_used"</span><span class="p">,</span> <span class="s2">"place_ramb18_used"</span><span class="p">],</span>
+    <span class="s2">"cpu_hierarchy"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"hier_cpu_total_luts"</span><span class="p">,</span> <span class="s2">"hier_cpu_ffs"</span><span class="p">,</span> <span class="s2">"hier_cpu_bram_tiles"</span><span class="p">,</span> <span class="s2">"hier_cpu_dsps"</span><span class="p">],</span>
+    <span class="s2">"d_cache_hierarchy"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"hier_dcache_total_luts"</span><span class="p">,</span> <span class="s2">"hier_dcache_ffs"</span><span class="p">,</span> <span class="s2">"hier_dcache_bram_tiles"</span><span class="p">],</span>
+    <span class="s2">"i_cache_hierarchy"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"hier_icache_total_luts"</span><span class="p">,</span> <span class="s2">"hier_icache_ffs"</span><span class="p">,</span> <span class="s2">"hier_icache_bram_tiles"</span><span class="p">],</span>
+    <span class="s2">"cfu_hierarchy"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"hier_cfu_total_luts"</span><span class="p">,</span> <span class="s2">"hier_cfu_ffs"</span><span class="p">,</span> <span class="s2">"hier_cfu_bram_tiles"</span><span class="p">,</span> <span class="s2">"hier_cfu_dsps"</span><span class="p">],</span>
+    <span class="s2">"power"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"power_total_w"</span><span class="p">,</span> <span class="s2">"power_dynamic_w"</span><span class="p">,</span> <span class="s2">"power_static_w"</span><span class="p">],</span>
+    <span class="s2">"thermal"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"junction_temp_c"</span><span class="p">],</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="match_rows">
@@ -2125,7 +2147,6 @@
 
     <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
-        <span class="c1"># "to_df": True,</span>
         <span class="s2">"to_df"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">"to_file"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">"per_func"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -3005,6 +3026,103 @@
         <span class="c1"># s3.upload_file(path_workload, bucket, f"{prefix}/database_workload.json")</span>
         <span class="c1"># self.s3.upload_file(self.path_records, self.bucket, self._key("database_tuning_record.json"))</span>
         <span class="k">return</span> <span class="p">[]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnalyseVivadoReportsPostprocess">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalyseVivadoReportsPostprocess</span><span class="p">(</span><span class="n">RunPostprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Parse Vivado FPGA Synthesis Reports."""</span>
+
+    <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">RunPostprocess</span><span class="o">.</span><span class="n">DEFAULTS</span><span class="p">,</span>
+        <span class="s2">"to_df"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"to_file"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"clock"</span><span class="p">:</span> <span class="s2">"soc_crg_clkout0"</span><span class="p">,</span>
+        <span class="s2">"limit"</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">"analyse_vivado_reports"</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get to_df property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"to_df"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Get to_file property."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"to_file"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">str2bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Clock name used when extracting timing metrics."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"clock"</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Optional list of parsed metrics or metric categories to add to the report dataframe."""</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">"limit"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">str2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnalyseVivadoReportsPostprocess.resolve_limit">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.resolve_limit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Expand category shortcuts and validate the requested Vivado metrics."""</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">requested_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">VIVADO_METRIC_CATEGORIES</span><span class="p">:</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">metric</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">VIVADO_METRIC_CATEGORIES</span><span class="p">[</span><span class="n">category</span><span class="p">]</span> <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">requested_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">metrics</span><span class="p">))</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">requested_metrics</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">unknown</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unknown Vivado metric columns/categories: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">))</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">return</span> <span class="n">metrics</span></div>
+
+
+<div class="viewcode-block" id="AnalyseVivadoReportsPostprocess.post_run">
+<a class="viewcode-back" href="../../../../mlonmcu.session.postprocess.html#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.post_run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">artifacts</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Called at the end of a run."""</span>
+        <span class="n">platform</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">pre_df</span><span class="p">[</span><span class="s2">"Platform"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">~</span><span class="n">platform</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">"cfu_playground"</span><span class="p">]))</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">ret_artifacts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">vivado_artifacts</span> <span class="o">=</span> <span class="n">lookup_artifacts</span><span class="p">(</span><span class="n">artifacts</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s2">"vivado"</span><span class="p">,</span> <span class="s2">"report"</span><span class="p">),</span> <span class="n">first_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vivado_artifacts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">vivado_report_df</span> <span class="o">=</span> <span class="n">parse_vivado_artifacts</span><span class="p">(</span><span class="n">vivado_artifacts</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">:</span>
+            <span class="n">vivado_metrics_artifact</span> <span class="o">=</span> <span class="n">Artifact</span><span class="p">(</span>
+                <span class="s2">"vivado_metrics.csv"</span><span class="p">,</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">vivado_report_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="n">fmt</span><span class="o">=</span><span class="n">ArtifactFormat</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ret_artifacts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vivado_metrics_artifact</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">:</span>
+            <span class="n">post_df</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">post_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">:</span>
+                <span class="n">vivado_report_df</span> <span class="o">=</span> <span class="n">vivado_report_df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">resolve_limit</span><span class="p">(</span><span class="n">vivado_report_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)]</span>
+            <span class="n">metrics_df</span> <span class="o">=</span> <span class="n">vivado_report_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">column</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Vivado </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"estimated_fmax_mhz"</span> <span class="ow">in</span> <span class="n">vivado_report_df</span><span class="p">:</span>
+                <span class="n">estimated_fmax</span> <span class="o">=</span> <span class="n">vivado_report_df</span><span class="p">[</span><span class="s2">"estimated_fmax_mhz"</span><span class="p">]</span>
+                <span class="n">metrics_df</span><span class="p">[</span><span class="s2">"Estimated Fmax [MHz]"</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimated_fmax</span>
+                <span class="k">if</span> <span class="s2">"Total Cycles"</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">:</span>
+                    <span class="n">metrics_df</span><span class="p">[</span><span class="s2">"Estimated latency at Fmax [ms]"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">report</span><span class="o">.</span><span class="n">main_df</span><span class="p">[</span><span class="s2">"Total Cycles"</span><span class="p">]</span> <span class="o">/</span> <span class="n">estimated_fmax</span> <span class="o">/</span> <span class="mi">1000</span>
+                    <span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">post_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">post_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">metrics_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">,</span> <span class="s2">"Either to_file or to_df have to be true"</span>
+        <span class="k">return</span> <span class="n">ret_artifacts</span></div>
 </div>
 
 </pre></div>

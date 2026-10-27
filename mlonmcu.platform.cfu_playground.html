@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.platform.cfu_playground package &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.platform.cfu_playground package &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2b916371"></script>
+      <script src="_static/documentation_options.js?v=179c9b62"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -122,7 +122,7 @@
 <p>CFU Playground Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'mlif_template':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'mlif_template':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'verilog_file':</span> <span class="pre">None,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -132,17 +132,12 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mlif.template',</span> <span class="pre">'tvm.src_dir',</span> <span class="pre">'verilator.install_dir',</span> <span class="pre">'yosys.install_dir'}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.OPTIONAL" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mlif.template',</span> <span class="pre">'tvm.src_dir',</span> <span class="pre">'verilator.install_dir',</span> <span class="pre">'vivado.install_dir',</span> <span class="pre">'yosys.install_dir'}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.OPTIONAL" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cfu_playground.src_dir',</span> <span class="pre">'mlif.src_dir'}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.REQUIRED" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.baud">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.baud" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -226,6 +221,11 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.needs_lock">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">needs_lock</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.needs_lock" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.optimize">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">optimize</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.optimize" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -233,6 +233,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.out_dir">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">out_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.out_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.pick_platform">
+<span class="sig-name descname"><span class="pre">pick_platform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground.html#CFUPlaygroundPlatform.pick_platform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.pick_platform" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -260,6 +265,11 @@
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground.html#CFUPlaygroundPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.run" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.synth">
+<span class="sig-name descname"><span class="pre">synth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground.html#CFUPlaygroundPlatform.synth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.synth" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.tvm_src_dir">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tvm_src_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.tvm_src_dir" title="Link to this definition"></a></dt>
@@ -268,6 +278,21 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.verilator_install_dir">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">verilator_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.verilator_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.verilog_file">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">verilog_file</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.verilog_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.vivado_install_dir">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">vivado_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.vivado_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.wait_for_user">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground.CFUPlaygroundPlatform.wait_for_user" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -291,7 +316,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.TemplateCFUPlaygroundPlatformTarget" title="mlonmcu.platform.cfu_playground.cfu_playground_target.TemplateCFUPlaygroundPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateCFUPlaygroundPlatformTarget</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">False,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'cmodel':</span> <span class="pre">None,</span> <span class="pre">'compressed':</span> <span class="pre">False,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'cpu_variant':</span> <span class="pre">None,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'float_abi':</span> <span class="pre">None,</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'rtl_sim':</span> <span class="pre">False,</span> <span class="pre">'temp_dir_base':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">False,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'baud':</span> <span class="pre">1843200,</span> <span class="pre">'cmodel':</span> <span class="pre">None,</span> <span class="pre">'compressed':</span> <span class="pre">False,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'cpu_variant':</span> <span class="pre">None,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'float_abi':</span> <span class="pre">None,</span> <span class="pre">'fpga_sim':</span> <span class="pre">False,</span> <span class="pre">'fpga_target':</span> <span class="pre">'digilent_arty',</span> <span class="pre">'fpga_tty':</span> <span class="pre">None,</span> <span class="pre">'fpga_variant':</span> <span class="pre">'a7-100',</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'integrated_main_ram_size':</span> <span class="pre">0,</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'rtl_sim':</span> <span class="pre">False,</span> <span class="pre">'sys_clk_freq':</span> <span class="pre">None,</span> <span class="pre">'temp_dir_base':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'use_gateware_dir':</span> <span class="pre">None,</span> <span class="pre">'use_sw_dir':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -300,8 +325,38 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.baud">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.baud" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.cpu_variant">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">cpu_variant</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.cpu_variant" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_sim">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fpga_sim</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_sim" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_target">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fpga_target</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_target" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_tty">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fpga_tty</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_tty" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_variant">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fpga_variant</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.fpga_variant" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.integrated_main_ram_size">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">integrated_main_ram_size</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.integrated_main_ram_size" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -310,8 +365,34 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.sys_clk_freq">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sys_clk_freq</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.sys_clk_freq" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_gateware_dir">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">use_gateware_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_gateware_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_renode">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">use_renode</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_renode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_sw_dir">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">use_sw_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget.use_sw_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.platform.cfu_playground.cfu_playground_target.</span></span><span class="sig-name descname"><span class="pre">FullFPGACFUPlaygroundPlatformTarget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground_target.html#FullFPGACFUPlaygroundPlatformTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget" title="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">FullCFUPlaygroundPlatformTarget</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">False,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'baud':</span> <span class="pre">1843200,</span> <span class="pre">'cmodel':</span> <span class="pre">None,</span> <span class="pre">'compressed':</span> <span class="pre">False,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'cpu_variant':</span> <span class="pre">None,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'float_abi':</span> <span class="pre">None,</span> <span class="pre">'fpga_sim':</span> <span class="pre">True,</span> <span class="pre">'fpga_target':</span> <span class="pre">'digilent_arty',</span> <span class="pre">'fpga_tty':</span> <span class="pre">None,</span> <span class="pre">'fpga_variant':</span> <span class="pre">'a7-100',</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'integrated_main_ram_size':</span> <span class="pre">0,</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'rtl_sim':</span> <span class="pre">False,</span> <span class="pre">'sys_clk_freq':</span> <span class="pre">None,</span> <span class="pre">'temp_dir_base':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'use_gateware_dir':</span> <span class="pre">None,</span> <span class="pre">'use_sw_dir':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullFPGACFUPlaygroundPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -322,7 +403,7 @@
 <dd><p>Bases: <a class="reference internal" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget" title="mlonmcu.platform.cfu_playground.cfu_playground_target.FullCFUPlaygroundPlatformTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">FullCFUPlaygroundPlatformTarget</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">False,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'cmodel':</span> <span class="pre">None,</span> <span class="pre">'compressed':</span> <span class="pre">False,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'cpu_variant':</span> <span class="pre">None,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'float_abi':</span> <span class="pre">None,</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'rtl_sim':</span> <span class="pre">True,</span> <span class="pre">'temp_dir_base':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'abi':</span> <span class="pre">None,</span> <span class="pre">'arch':</span> <span class="pre">None,</span> <span class="pre">'atomic':</span> <span class="pre">False,</span> <span class="pre">'attr':</span> <span class="pre">'',</span> <span class="pre">'baud':</span> <span class="pre">1843200,</span> <span class="pre">'cmodel':</span> <span class="pre">None,</span> <span class="pre">'compressed':</span> <span class="pre">False,</span> <span class="pre">'cpu':</span> <span class="pre">None,</span> <span class="pre">'cpu_variant':</span> <span class="pre">None,</span> <span class="pre">'embedded':</span> <span class="pre">False,</span> <span class="pre">'extensions':</span> <span class="pre">[],</span> <span class="pre">'extra_args':</span> <span class="pre">'',</span> <span class="pre">'fclk':</span> <span class="pre">None,</span> <span class="pre">'float_abi':</span> <span class="pre">None,</span> <span class="pre">'fpga_sim':</span> <span class="pre">False,</span> <span class="pre">'fpga_target':</span> <span class="pre">'digilent_arty',</span> <span class="pre">'fpga_tty':</span> <span class="pre">None,</span> <span class="pre">'fpga_variant':</span> <span class="pre">'a7-100',</span> <span class="pre">'fpu':</span> <span class="pre">'none',</span> <span class="pre">'integrated_main_ram_size':</span> <span class="pre">0,</span> <span class="pre">'multiply':</span> <span class="pre">True,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'repeat':</span> <span class="pre">None,</span> <span class="pre">'rtl_sim':</span> <span class="pre">True,</span> <span class="pre">'sys_clk_freq':</span> <span class="pre">None,</span> <span class="pre">'temp_dir_base':</span> <span class="pre">None,</span> <span class="pre">'timeout_sec':</span> <span class="pre">0,</span> <span class="pre">'use_gateware_dir':</span> <span class="pre">None,</span> <span class="pre">'use_sw_dir':</span> <span class="pre">None,</span> <span class="pre">'verbose':</span> <span class="pre">False,</span> <span class="pre">'xlen':</span> <span class="pre">32}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.cfu_playground_target.FullRTLCFUPlaygroundPlatformTarget.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -359,7 +440,7 @@
 <p>CFU Playground Platform class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.DEFAULTS">
-<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'mlif_template':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.DEFAULTS" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'build_dir':</span> <span class="pre">None,</span> <span class="pre">'debug':</span> <span class="pre">False,</span> <span class="pre">'mlif_template':</span> <span class="pre">None,</span> <span class="pre">'num_threads':</span> <span class="pre">4,</span> <span class="pre">'optimize':</span> <span class="pre">None,</span> <span class="pre">'print_outputs':</span> <span class="pre">False,</span> <span class="pre">'project_dir':</span> <span class="pre">None,</span> <span class="pre">'project_template':</span> <span class="pre">None,</span> <span class="pre">'verilog_file':</span> <span class="pre">None,</span> <span class="pre">'wait_for_user':</span> <span class="pre">True}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.DEFAULTS" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -369,17 +450,12 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.OPTIONAL">
-<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mlif.template',</span> <span class="pre">'tvm.src_dir',</span> <span class="pre">'verilator.install_dir',</span> <span class="pre">'yosys.install_dir'}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.OPTIONAL" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">OPTIONAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'mlif.template',</span> <span class="pre">'tvm.src_dir',</span> <span class="pre">'verilator.install_dir',</span> <span class="pre">'vivado.install_dir',</span> <span class="pre">'yosys.install_dir'}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.OPTIONAL" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.REQUIRED">
 <span class="sig-name descname"><span class="pre">REQUIRED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'cfu_playground.src_dir',</span> <span class="pre">'mlif.src_dir'}</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.REQUIRED" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.baud">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">baud</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.baud" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -463,6 +539,11 @@
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.needs_lock">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">needs_lock</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.needs_lock" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.optimize">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">optimize</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.optimize" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -470,6 +551,11 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.out_dir">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">out_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.out_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.pick_platform">
+<span class="sig-name descname"><span class="pre">pick_platform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground.html#CFUPlaygroundPlatform.pick_platform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.pick_platform" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -497,6 +583,11 @@
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground.html#CFUPlaygroundPlatform.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.run" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.synth">
+<span class="sig-name descname"><span class="pre">synth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/platform/cfu_playground/cfu_playground.html#CFUPlaygroundPlatform.synth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.synth" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.tvm_src_dir">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tvm_src_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.tvm_src_dir" title="Link to this definition"></a></dt>
@@ -505,6 +596,21 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.verilator_install_dir">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">verilator_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.verilator_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.verilog_file">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">verilog_file</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.verilog_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.vivado_install_dir">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">vivado_install_dir</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.vivado_install_dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.wait_for_user">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wait_for_user</span></span><a class="headerlink" href="#mlonmcu.platform.cfu_playground.CFUPlaygroundPlatform.wait_for_user" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

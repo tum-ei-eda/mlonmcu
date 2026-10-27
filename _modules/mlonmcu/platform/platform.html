@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.platform.platform &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.platform.platform &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../_static/documentation_options.js?v=179c9b62"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -394,6 +394,10 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">supports_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">needs_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
 <div class="viewcode-block" id="TargetPlatform.flash">
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.flash">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">flash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">):</span>
@@ -410,8 +414,7 @@
 <a class="viewcode-back" href="../../../mlonmcu.platform.html#mlonmcu.platform.platform.TargetPlatform.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elf</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># Only allow one serial communication at a time</span>
-        <span class="n">needs_lock</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: get from property?</span>
-        <span class="k">if</span> <span class="n">needs_lock</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">needs_lock</span><span class="p">:</span>
             <span class="c1"># TODO: move lockfile!</span>
             <span class="c1"># TODO: store flash output?</span>
             <span class="k">with</span> <span class="n">FileLock</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s2">"mlonmcu_serial.lock"</span><span class="p">):</span>

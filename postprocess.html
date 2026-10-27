@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Postprocesses &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>Postprocesses &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2b916371"></script>
+      <script src="_static/documentation_options.js?v=179c9b62"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -114,6 +114,33 @@
 </section>
 <section id="usage-of-postprocesses">
 <h2>Usage of Postprocesses<a class="headerlink" href="#usage-of-postprocesses" title="Link to this heading"></a></h2>
+<p>Session postprocesses can also be applied after a flow has finished. The
+<code class="docutils literal notranslate"><span class="pre">postprocess</span></code> command reads the saved report from <code class="docutils literal notranslate"><span class="pre">temp/sessions</span></code>, writes the
+updated report back by default, and places generated artifacts in the same
+directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mlonmcu</span> <span class="n">postprocess</span> <span class="o">--</span><span class="n">session</span> <span class="mi">42</span> <span class="n">config2cols</span>
+<span class="n">mlonmcu</span> <span class="n">postprocess</span> <span class="o">--</span><span class="n">session</span> <span class="mi">42</span> <span class="o">--</span><span class="n">output</span> <span class="n">postprocessed</span><span class="o">.</span><span class="n">csv</span> <span class="n">filter_cols</span> <span class="o">-</span><span class="n">c</span> <span class="n">filter_cols</span><span class="o">.</span><span class="n">drop</span><span class="o">=</span><span class="n">Config</span>
+<span class="n">mlonmcu</span> <span class="n">postprocess</span> <span class="o">--</span><span class="n">session</span> <span class="mi">42</span> <span class="o">--</span><span class="nb">print</span><span class="o">-</span><span class="n">report</span> <span class="n">features2cols</span>
+<span class="n">mlonmcu</span> <span class="n">postprocess</span> <span class="o">--</span><span class="n">session</span> <span class="mi">42</span> <span class="n">analyse_vivado_reports</span> <span class="n">filter_cols</span> <span class="o">-</span><span class="n">c</span> <span class="n">analyse_vivado_reports</span><span class="o">.</span><span class="n">to_df</span><span class="o">=</span><span class="mi">1</span> <span class="n">filter_cols</span><span class="o">.</span><span class="n">drop</span><span class="o">=</span><span class="n">Comment</span>
+</pre></div>
+</div>
+<p>Omit <code class="docutils literal notranslate"><span class="pre">--session</span></code> to use the latest saved session. Run postprocesses are applied
+to every saved run; their input artifacts are restored from each run’s
+<code class="docutils literal notranslate"><span class="pre">artifacts.yml</span></code> metadata.
+Multiple postprocess names are run in the order supplied, making it possible to
+add Vivado metrics and then filter or rename the resulting report in one call.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">analyse_vivado_reports</span></code>, enable report columns with
+<code class="docutils literal notranslate"><span class="pre">analyse_vivado_reports.to_df=1</span></code>. Use <code class="docutils literal notranslate"><span class="pre">analyse_vivado_reports.limit</span></code> to add
+only selected parsed metrics, for example
+<code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">analyse_vivado_reports.to_df=1</span> <span class="pre">analyse_vivado_reports.limit=place_slice_luts_used,power_total_w</span></code>.
+It also accepts category shortcuts: <code class="docutils literal notranslate"><span class="pre">identity</span></code>, <code class="docutils literal notranslate"><span class="pre">timing</span></code>, <code class="docutils literal notranslate"><span class="pre">total_area</span></code>,
+<code class="docutils literal notranslate"><span class="pre">area_utilization</span></code>, <code class="docutils literal notranslate"><span class="pre">lut_breakdown</span></code>, <code class="docutils literal notranslate"><span class="pre">bram_breakdown</span></code>, <code class="docutils literal notranslate"><span class="pre">cpu_hierarchy</span></code>,
+<code class="docutils literal notranslate"><span class="pre">d_cache_hierarchy</span></code>, <code class="docutils literal notranslate"><span class="pre">i_cache_hierarchy</span></code>, <code class="docutils literal notranslate"><span class="pre">cfu_hierarchy</span></code>, <code class="docutils literal notranslate"><span class="pre">power</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">thermal</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">analyse_vivado_reports.limit=identity,timing,total_area</span></code>
+adds the identity, timing, and total-area Vivado metrics. The pre-existing
+<code class="docutils literal notranslate"><span class="pre">CPU</span> <span class="pre">Variant</span></code> and <code class="docutils literal notranslate"><span class="pre">Integrated</span> <span class="pre">RAM</span> <span class="pre">Size</span></code> report columns remain available for the
+<code class="docutils literal notranslate"><span class="pre">identity</span></code> view. The <code class="docutils literal notranslate"><span class="pre">timing</span></code> category also adds <code class="docutils literal notranslate"><span class="pre">Estimated</span> <span class="pre">Fmax</span> <span class="pre">[MHz]</span></code> and,
+when <code class="docutils literal notranslate"><span class="pre">Total</span> <span class="pre">Cycles</span></code> is available, <code class="docutils literal notranslate"><span class="pre">Estimated</span> <span class="pre">latency</span> <span class="pre">at</span> <span class="pre">Fmax</span> <span class="pre">[ms]</span></code>.</p>
 <section id="implement-custom-postprocesses">
 <h3>Implement custom postprocesses<a class="headerlink" href="#implement-custom-postprocesses" title="Link to this heading"></a></h3>
 <p>To extend the list of predefined post-processes with a custom implementation a Python class has to be developed as follows:</p>

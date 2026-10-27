@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.context.context &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.context.context &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2b916371"></script>
+      <script src="../../../_static/documentation_options.js?v=179c9b62"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -122,6 +122,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.list</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environments_map</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_environments_dir</span><span class="p">,</span> <span class="n">get_plugins_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mlonmcu.environment.python_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_workspace_process_env</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">()</span>
 
@@ -463,6 +464,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Restored </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="p">)</span><span class="si">}</span><span class="s2"> recent sessions"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">TaskCache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">export_paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_previous_process_env</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="MlonMcuContext.create_session">
 <a class="viewcode-back" href="../../../mlonmcu.context.html#mlonmcu.context.context.MlonMcuContext.create_session">[docs]</a>
@@ -577,6 +579,10 @@
                     <span class="s2">"Lock on current context could not be aquired. "</span>
                     <span class="sa">f</span><span class="s2">"Current context is locked via: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">filepath</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">venv</span><span class="p">:</span>
+            <span class="n">paths_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">lookup_path</span><span class="p">(</span><span class="s2">"deps"</span><span class="p">)</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">"paths.sh"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_previous_process_env</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"PATH"</span><span class="p">,</span> <span class="s2">"VIRTUAL_ENV"</span><span class="p">)}</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">get_workspace_process_env</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">venv</span><span class="p">,</span> <span class="n">paths_file</span><span class="o">=</span><span class="n">paths_file</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_cache</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_extensions</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -794,6 +800,13 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Exit MlonMcuContext"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_previous_process_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_previous_process_env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_previous_process_env</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Releasing lock on context"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deps_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>

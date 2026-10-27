@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.cli package &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.cli package &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2b916371"></script>
+      <script src="_static/documentation_options.js?v=179c9b62"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -356,6 +356,12 @@
 <dd><p>Console script for mlonmcu.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.main.maybe_reexec_in_workspace_venv">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.main.</span></span><span class="sig-name descname"><span class="pre">maybe_reexec_in_workspace_venv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/main.html#maybe_reexec_in_workspace_venv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.main.maybe_reexec_in_workspace_venv" title="Link to this definition"></a></dt>
+<dd><p>Restart the CLI under an opted-in workspace interpreter, if necessary.</p>
+</dd></dl>
+
 </section>
 <section id="module-mlonmcu.cli.models">
 <span id="mlonmcu-cli-models-module"></span><h2>mlonmcu.cli.models module<a class="headerlink" href="#module-mlonmcu.cli.models" title="Link to this heading"></a></h2>
@@ -375,6 +381,50 @@
 <dt class="sig sig-object py" id="mlonmcu.cli.models.handle">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.models.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/models.html#handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.models.handle" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.cli.postprocess">
+<span id="mlonmcu-cli-postprocess-module"></span><h2>mlonmcu.cli.postprocess module<a class="headerlink" href="#module-mlonmcu.cli.postprocess" title="Link to this heading"></a></h2>
+<p>Apply a session postprocess to an archived MLonMCU session.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.add_postprocess_options">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">add_postprocess_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#add_postprocess_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.add_postprocess_options" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.apply_run_postprocess">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">apply_run_postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">postprocess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#apply_run_postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.apply_run_postprocess" title="Link to this definition"></a></dt>
+<dd><p>Apply a run postprocess to every row of an archived session report.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.get_parser">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">get_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#get_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.get_parser" title="Link to this definition"></a></dt>
+<dd><p>Define the parser for the postprocess subcommand.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.get_run_artifacts">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">get_run_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#get_run_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.get_run_artifacts" title="Link to this definition"></a></dt>
+<dd><p>Restore the artifact paths and flags recorded for an archived run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.get_session_artifacts">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">get_session_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#get_session_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.get_session_artifacts" title="Link to this definition"></a></dt>
+<dd><p>Restore the session metadata artifacts supplied to session postprocesses.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.handle">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.handle" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.cli.postprocess.load_report">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.cli.postprocess.</span></span><span class="sig-name descname"><span class="pre">load_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/cli/postprocess.html#load_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.cli.postprocess.load_report" title="Link to this definition"></a></dt>
+<dd><p>Load a persisted report and restore its pre/main/post dataframe layout.</p>
+</dd></dl>
 
 </section>
 <section id="module-mlonmcu.cli.run">

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mlonmcu.session.postprocess package &mdash; ML on MCU 0.10.dev0 documentation</title>
+  <title>mlonmcu.session.postprocess package &mdash; ML on MCU 0.9.1.dev404+g786296c53 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=2b916371"></script>
+      <script src="_static/documentation_options.js?v=179c9b62"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -411,6 +411,54 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_file">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_file</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseLinkerMapPostprocess.to_file" title="Link to this definition"></a></dt>
+<dd><p>Get to_file property.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.postprocesses.</span></span><span class="sig-name descname"><span class="pre">AnalyseVivadoReportsPostprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#AnalyseVivadoReportsPostprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mlonmcu.session.postprocess.postprocess.RunPostprocess" title="mlonmcu.session.postprocess.postprocess.RunPostprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPostprocess</span></code></a></p>
+<p>Parse Vivado FPGA Synthesis Reports.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.DEFAULTS">
+<span class="sig-name descname"><span class="pre">DEFAULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'clock':</span> <span class="pre">'soc_crg_clkout0',</span> <span class="pre">'limit':</span> <span class="pre">[],</span> <span class="pre">'to_df':</span> <span class="pre">False,</span> <span class="pre">'to_file':</span> <span class="pre">True}</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.DEFAULTS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.clock">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">clock</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.clock" title="Link to this definition"></a></dt>
+<dd><p>Clock name used when extracting timing metrics.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.limit">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">limit</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.limit" title="Link to this definition"></a></dt>
+<dd><p>Optional list of parsed metrics or metric categories to add to the report dataframe.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.post_run">
+<span class="sig-name descname"><span class="pre">post_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#AnalyseVivadoReportsPostprocess.post_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.post_run" title="Link to this definition"></a></dt>
+<dd><p>Called at the end of a run.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.resolve_limit">
+<span class="sig-name descname"><span class="pre">resolve_limit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/postprocesses.html#AnalyseVivadoReportsPostprocess.resolve_limit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.resolve_limit" title="Link to this definition"></a></dt>
+<dd><p>Expand category shortcuts and validate the requested Vivado metrics.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.to_df">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_df</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.to_df" title="Link to this definition"></a></dt>
+<dd><p>Get to_df property.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.to_file">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_file</span></span><a class="headerlink" href="#mlonmcu.session.postprocess.postprocesses.AnalyseVivadoReportsPostprocess.to_file" title="Link to this definition"></a></dt>
 <dd><p>Get to_file property.</p>
 </dd></dl>
 
@@ -1286,6 +1334,22 @@ requires prior Config2Columns pass.</p>
 <dt class="sig sig-object py" id="mlonmcu.session.postprocess.validate_metrics.parse_validate_metrics">
 <span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.validate_metrics.</span></span><span class="sig-name descname"><span class="pre">parse_validate_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/validate_metrics.html#parse_validate_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.validate_metrics.parse_validate_metrics" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+</section>
+<section id="module-mlonmcu.session.postprocess.vivado">
+<span id="mlonmcu-session-postprocess-vivado-module"></span><h2>mlonmcu.session.postprocess.vivado module<a class="headerlink" href="#module-mlonmcu.session.postprocess.vivado" title="Link to this heading"></a></h2>
+<p>Utilities for extracting metrics from Vivado text report artifacts.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.vivado.parse_gateware_dir">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.vivado.</span></span><span class="sig-name descname"><span class="pre">parse_gateware_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'soc_crg_clkout0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/vivado.html#parse_gateware_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.vivado.parse_gateware_dir" title="Link to this definition"></a></dt>
+<dd><p>Parse the reports in one Vivado gateware directory into one record.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mlonmcu.session.postprocess.vivado.parse_vivado_artifacts">
+<span class="sig-prename descclassname"><span class="pre">mlonmcu.session.postprocess.vivado.</span></span><span class="sig-name descname"><span class="pre">parse_vivado_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'soc_crg_clkout0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mlonmcu/session/postprocess/vivado.html#parse_vivado_artifacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlonmcu.session.postprocess.vivado.parse_vivado_artifacts" title="Link to this definition"></a></dt>
+<dd><p>Parse individual Vivado report artifacts as one temporary gateware directory.</p>
+</dd></dl>
 
 </section>
 <section id="module-mlonmcu.session.postprocess">

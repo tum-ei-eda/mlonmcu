@@ -251,6 +251,9 @@ class RunStage(Stage):
             # producer's artifacts. Wildcard defaults retain the legacy order.
             program = artifacts[0]
             preflashed = getattr(run, "_flashed_program", None) is not None and run._flashed_program == program.path
+            if not preflashed:
+                run._flashed_program = None
+                run._flash_parent = None
             execution = run.target_platform.preflashed() if preflashed else nullcontext()
             with execution:
                 outputs = run.target.generate_artifacts(program.path)

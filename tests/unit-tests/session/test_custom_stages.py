@@ -18,6 +18,7 @@
 #
 """Exercise custom pipelines through the real run engine and scheduler."""
 
+import os
 import pickle
 import subprocess
 import sys
@@ -278,7 +279,8 @@ def test_generic_cli_endpoint():
 
 
 @pytest.mark.parametrize("split", [False, True])
-def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split, monkeypatch):
+@pytest.mark.parametrize("rebuild", [False, True])
+def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split, rebuild, monkeypatch):
     from mlonmcu.platform.platform import CompilePlatform, TargetPlatform
 
     calls = []
@@ -310,12 +312,20 @@ def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split, monkeypatc
         },
         "run",
     ]
+    if rebuild:
+        pipeline.insert(2, {"id": "compile_b", "uses": "compile"})
     run = make_run(tmp_path, pipeline, target=target, platforms=[platform])
     elf = tmp_path / "firmware.elf"
     elf.write_bytes(b"firmware")
 
     class FirmwareStage(Stage):
         def execute(self, context):
+            if context.key == stage_key("compile_b"):
+                # PATH artifacts keep this path when exported. Rebuild in place,
+                # retaining the size and timestamp to require content identity.
+                stat = elf.stat()
+                elf.write_bytes(b"rebuild!")
+                os.utime(elf, ns=(stat.st_atime_ns, stat.st_mtime_ns))
             return StageResult({"default": [Artifact(elf.name, path=elf, fmt=ArtifactFormat.PATH)]})
 
     monkeypatch.setitem(STAGES, "compile", FirmwareStage)
@@ -326,7 +336,7 @@ def test_explicit_flash_and_run_do_not_program_twice(tmp_path, split, monkeypatc
     run.process(until="done")
     assert not run.failing, run.reason
     # A new invocation must not assume that the board still contains our image.
-    assert calls == (["flash", "flash", "monitor"] if split else ["flash", "monitor"])
+    assert calls == (["flash", "flash", "monitor"] if split or rebuild else ["flash", "monitor"])
     assert not getattr(platform, "_preflashed", False)
 
 

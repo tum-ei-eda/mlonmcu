@@ -20,6 +20,7 @@
 
 from contextlib import nullcontext
 from pathlib import Path
+import hashlib
 import tempfile
 
 from filelock import FileLock
@@ -30,6 +31,15 @@ from mlonmcu.models.model import Model
 from mlonmcu.platform.platform import TargetPlatform
 from .postprocess.postprocess import RunPostprocess
 from .stage import Stage, StageResult, register_stage, stage_key
+
+
+def program_identity(path):
+    """Identify the current image even when a build reuses its output path."""
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return (path, digest.digest())
 
 
 def bind_previous(run, key, name, implementation, flag="*"):
@@ -250,7 +260,8 @@ class RunStage(Stage):
             # Explicit flag bindings can select a program anywhere in the
             # producer's artifacts. Wildcard defaults retain the legacy order.
             program = artifacts[0]
-            preflashed = getattr(run, "_flashed_program", None) is not None and run._flashed_program == program.path
+            flashed_program = getattr(run, "_flashed_program", None)
+            preflashed = flashed_program is not None and flashed_program == program_identity(program.path)
             if not preflashed:
                 run._flashed_program = None
                 run._flash_parent = None
@@ -347,9 +358,12 @@ class FlashStage(Stage):
             raise ValueError("FLASH requires exactly one ELF, BIN, BIT, or executable-flagged artifact")
         program = programs[0]
         lock = FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock") if platform.needs_lock else nullcontext()
+        identity = program_identity(program.path)
+        run._flashed_program = None
+        run._flash_parent = None
         with lock:
             output = platform.flash(program.path, run.target, timeout=context.config.get("timeout", 120))
-        run._flashed_program = program.path
+        run._flashed_program = identity
         run._flash_parent = (context.key, variant)
         return StageResult(
             {variant: [Artifact("flash.log", content=str(output or ""), fmt=ArtifactFormat.TEXT)]},

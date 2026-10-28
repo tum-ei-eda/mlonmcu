@@ -1390,6 +1390,9 @@ class CacheSim(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             spike_args = config.get(f"{target}.extra_args", [])
@@ -1411,6 +1414,9 @@ class CacheSim(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
@@ -1466,6 +1472,9 @@ class LogInstructions(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
             "etiss_pulpino",
             "etiss",
             "etiss_rv32",
@@ -1479,7 +1488,7 @@ class LogInstructions(TargetFeature):
         if not self.enabled:
             return
         if target.startswith("spike"):
-            extra_args_new = config.get("extra_args", [])
+            extra_args_new = list(config.get(f"{target}.extra_args", []))
             extra_args_new.append("-l")
             if self.to_file:
                 # assert directory is not None
@@ -1524,6 +1533,9 @@ class LogInstructions(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
             "etiss_pulpino",
             "etiss",
             "etiss_rv32",
@@ -1564,7 +1576,7 @@ class LogInstructions(TargetFeature):
                             with open(log_file, "r") as f:
                                 content = f.read()
                         else:
-                            assert target in ["spike", "spike_rv32", "spike_rv64", "ovpsim", "corev_ovpsim"]
+                            assert target.startswith("spike") or target in ["ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
                             with open(log_file, "r") as f:
                                 content = f.read()

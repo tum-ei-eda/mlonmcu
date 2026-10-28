@@ -64,7 +64,8 @@ def _validate_riscv_gcc(context: MlonMcuContext, params=None):
     if not (
         context.environment.has_target("etiss_pulpino")
         or context.environment.has_target("etiss")
-        or context.environment.has_target("spike")
+        or any(context.environment.has_target(name) for name in
+               ("spike", "spike_bm", "spike_pk", "spike_rv32", "spike_rv64", "spike_rv32_min"))
         or context.environment.has_target("ovpsim")
         or context.environment.has_target("ara")
         or context.environment.has_target("tgc")

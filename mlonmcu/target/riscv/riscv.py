@@ -150,8 +150,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "e" in exts:
-                return True
+            return "e" in exts
         value = self.config["embedded"]
         return str2bool(value)
 
@@ -160,8 +159,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "c" in exts:
-                return True
+            return "c" in exts or "zca" in exts
         value = self.config["compressed"]
         return str2bool(value)
 
@@ -170,8 +168,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "a" in exts or "g" in exts:
-                return True
+            return "a" in exts or "g" in exts or {"zaamo", "zalrsc"} <= exts
         value = self.config["atomic"]
         return str2bool(value)
 
@@ -180,8 +177,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "m" in exts or "g" in exts:
-                return True
+            return "m" in exts or "g" in exts or "zmmul" in exts
         value = self.config["multiply"]
         return str2bool(value)
 

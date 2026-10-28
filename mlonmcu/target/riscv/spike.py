@@ -19,6 +19,8 @@
 """MLonMCU Spike Target definitions"""
 
 import os
+import json
+import subprocess
 import re
 import time
 import tempfile
@@ -32,7 +34,7 @@ from mlonmcu.setup import utils
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
-from mlonmcu.config import pick_first, str2bool
+from mlonmcu.config import pick_first, str2bool, str2list
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
 from .riscv_bext_target import RVBTarget
@@ -110,6 +112,9 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         **RVVTarget.DEFAULTS,
         **RVBTarget.DEFAULTS,
         "legacy": True,
+        "plugin_manifest": None,
+        "extlibs": [],
+        "extension_names": [],
     }
     REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED
 
@@ -144,9 +149,34 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         exts_str = join_extensions(sort_extensions_canonical(exts, lower=True))
         return f"rv{self.xlen}{exts_str}"
 
+    @property
+    def plugin_manifest(self):
+        path = self.config["plugin_manifest"]
+        if path is None:
+            return {}
+        with Path(path).open() as handle:
+            manifest = json.load(handle)
+        if manifest.get("schema") != 1:
+            raise ValueError("Unsupported Spike plugin manifest schema")
+        return manifest
+
+    @property
+    def extension_names(self):
+        return str2list(self.config["extension_names"]) + self.plugin_manifest.get("extension_names", [])
+
     def get_spike_args(self):
         spike_args = []
-        spike_args.append(f"--isa={self.isa}")
+        isa = self.isa
+        # Compiler-only custom ISA names are implemented by the loaded extensions.
+        if self.extension_names:
+            isa = "_".join(part for part in isa.split("_") if not part.startswith("xisaac"))
+        spike_args.append(f"--isa={isa}")
+        for library in str2list(self.config["extlibs"]) + self.plugin_manifest.get("extlibs", []):
+            library = Path(library).expanduser().resolve()
+            if not library.is_file():
+                raise FileNotFoundError(f"Spike extension library not found: {library}")
+            spike_args.append(f"--extlib={library}")
+        spike_args.extend(f"--extension={name}" for name in self.extension_names)
 
         if self.enable_vext:
             assert self.vlen < 8192, "Spike does not support VLEN >= 8192"
@@ -163,6 +193,8 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         raise NotImplementedError()  # TODO: abstract!
 
     def parse_stdout(self, out, metrics, exit_code=0):
+        if re.search(r"assertion failed|Access exception occurred while loading payload|could not open", out, re.I):
+            raise RuntimeError(f"Spike or proxy kernel failed before benchmark completion:\n{out}")
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         sim_insns = re.search(r"(\d*) cycles", out)
         if sim_insns:  # PK only
@@ -232,6 +264,9 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
 
 class SpikePKTarget(SpikeBaseTarget):
 
+    def __init__(self, name="spike_pk", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
     DEFAULTS = {
         **SpikeBaseTarget.DEFAULTS,
         "spikepk_extra_args": [],
@@ -276,6 +311,19 @@ class SpikePKTarget(SpikeBaseTarget):
     @property
     def spikepk_extra_args(self):
         return self.config["spikepk_extra_args"]
+
+    def get_spike_args(self):
+        """Add supervisor mode required by the proxy kernel."""
+        spike_args = super().get_spike_args()
+        for index, arg in enumerate(spike_args):
+            if arg.startswith("--isa="):
+                isa = arg[len("--isa=") :]
+                base, separator, extensions = isa.partition("_")
+                if "s" not in base[4:].lower():
+                    base += "s"
+                spike_args[index] = "--isa=" + base + (separator + extensions if separator else "")
+                break
+        return spike_args
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""

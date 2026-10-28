@@ -38,7 +38,8 @@ Tasks = get_task_factory()
 
 
 def _validate_spike(context: MlonMcuContext, params=None):
-    if not context.environment.has_target("spike") and not _validate_ara_rtl(context, params=params):
+    if not any(context.environment.has_target(name) for name in
+               ("spike", "spike_bm", "spike_pk", "spike_rv32", "spike_rv64", "spike_rv32_min")) and not _validate_ara_rtl(context, params=params):
         return False
     # user_vars = context.environment.vars
     # if "spike.exe" in user_vars:  # TODO: also check command line flags?
@@ -150,7 +151,7 @@ def build_spike_pk(
     spikepkSrcDir = context.cache["spikepk.src_dir"]
     spikepkBuildDir = context.environment.paths["deps"].path / "build" / spikepkName
     spikepkInstallDir = context.environment.paths["deps"].path / "install" / spikepkName
-    if "spike.pk_rv{xlen}" in user_vars:  # TODO: also check command line flags?
+    if f"spike.pk_rv{xlen}" in user_vars:  # TODO: also check command line flags?
         return False
     arch = user_vars.get(
         f"spikepk_rv{xlen}.default_arch", "rv32imafdc_zifencei_zicsr" if xlen == 32 else "rv64imafdc_zifencei_zicsr"
@@ -241,7 +242,7 @@ def clone_spike(
 
 @Tasks.needs(["spike.src_dir"])
 @Tasks.optional(["boost.install_dir"])
-@Tasks.provides(["spike.build_dir", "spike.exe"])
+@Tasks.provides(["spike.build_dir", "spike.install_dir", "spike.exe"])
 @Tasks.validate(_validate_spike_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike(
@@ -253,7 +254,7 @@ def build_spike(
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
-    full = user_vars.get("spike.full", False)
+    full = str2bool(user_vars.get("spike.full", True))
     spikeName = utils.makeDirName("spike")
     spikeSrcDir = context.cache["spike.src_dir"]
     boostDir = context.cache.get("boost.install_dir")
@@ -263,7 +264,9 @@ def build_spike(
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
-    if rebuild or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file()):
+    if rebuild or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file()) or (
+        full and not (spikeInstallDir / "include/riscv/extension.h").is_file()
+    ):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikeBuildDir)
         spikeArgs = []

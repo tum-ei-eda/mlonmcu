@@ -19,11 +19,11 @@
 from abc import ABC
 
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import filter_config
+from mlonmcu.config import Configurable, filter_config
 from mlonmcu.feature.features import get_matching_features
 
 
-class Framework(ABC):
+class Framework(Configurable, ABC):
     registry = {}
 
     name = None

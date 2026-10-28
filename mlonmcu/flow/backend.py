@@ -25,7 +25,7 @@ from typing import Tuple, List
 
 from mlonmcu.cli.helper.parse import extract_feature_names, extract_config
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import filter_config
+from mlonmcu.config import Configurable, filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
@@ -34,7 +34,7 @@ from mlonmcu.target.metrics import Metrics
 logger = get_logger()
 
 
-class Backend(ABC):
+class Backend(Configurable, ABC):
     name = None
 
     FEATURES = set()

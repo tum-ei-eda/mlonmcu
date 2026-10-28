@@ -25,7 +25,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
@@ -40,62 +40,19 @@ class CV32E40PTarget(RISCVTarget):
 
     FEATURES = RISCVTarget.FEATURES | {"xcorev"}
 
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "enable_xcorevmac": False,
-        "enable_xcorevmem": False,
-        "enable_xcorevbi": False,
-        "enable_xcorevalu": False,
-        "enable_xcorevbitmanip": False,
-        "enable_xcorevsimd": False,
-        "enable_xcorevhwlp": False,
-        "fpu": "none",  # FIXED
-        "atomic": False,  # FIXED
-    }
-    REQUIRED = RISCVTarget.REQUIRED | {"cv32e40p.verilator_executable"}
+    DEFAULTS = {"fpu": "none", "atomic": False}  # FIXED
+    verilator_executable = required("cv32e40p.verilator_executable")
+    enable_xcorevmac = cfg(False, cast=str2bool)
+    enable_xcorevmem = cfg(False, cast=str2bool)
+    enable_xcorevbi = cfg(False, cast=str2bool)
+    enable_xcorevalu = cfg(False, cast=str2bool)
+    enable_xcorevbitmanip = cfg(False, cast=str2bool)
+    enable_xcorevsimd = cfg(False, cast=str2bool)
+    enable_xcorevhwlp = cfg(False, cast=str2bool)
 
     def __init__(self, name="cv32e40p", features=None, config=None):
         super().__init__(name, features=features, config=config)
         # TODO: make optional or move to mlonmcu pkg
-
-    @property
-    def verilator_executable(self):
-        return self.config["cv32e40p.verilator_executable"]
-
-    @property
-    def enable_xcorevmac(self):
-        value = self.config["enable_xcorevmac"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevmem(self):
-        value = self.config["enable_xcorevmem"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbi(self):
-        value = self.config["enable_xcorevbi"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevalu(self):
-        value = self.config["enable_xcorevalu"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbitmanip(self):
-        value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevsimd(self):
-        value = self.config["enable_xcorevsimd"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevhwlp(self):
-        value = self.config["enable_xcorevhwlp"]
-        return str2bool(value)
 
     @property
     def extensions(self):

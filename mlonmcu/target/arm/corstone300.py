@@ -25,7 +25,7 @@ from pathlib import Path
 from mlonmcu.logging import get_logger
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.target import Target
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
@@ -39,85 +39,22 @@ class Corstone300Target(Target):
 
     FEATURES = {"ethosu", "arm_mvei", "arm_dsp"}
 
-    DEFAULTS = {
-        **Target.DEFAULTS,
-        "model": "cortex-m55",  # Options: cortex-m{0,0plus,1,3,4,7,23,33,35p,55} (Frequency is fixed at 25MHz)
-        # Warning: FVP is still M55 based!
-        "timeout_sec": 0,  # disabled
-        "enable_ethosu": False,
-        "enable_fpu": True,
-        "enable_mvei": False,  # unused
-        "enable_dsp": False,  # unused
-        "ethosu_num_macs": 256,
-        "extra_args": "",
-    }
-    REQUIRED = {
-        "corstone300.exe",
-        "cmsis.dir",
-        "cmsisnn.dir",
-        "ethosu_platform.dir",
-        "arm_gcc.install_dir",
-    }  # Actually cmsisnn.dir points to the root CMSIS_5 directory
+    model = cfg("cortex-m55")
+    timeout_sec = cfg(0, cast=int)
+    enable_ethosu = cfg(False, cast=str2bool)
+    enable_fpu = cfg(True, cast=str2bool)
+    enable_mvei = cfg(False, cast=str2bool)
+    enable_dsp = cfg(False, cast=str2bool)
+    ethosu_num_macs = cfg(256, cast=int)
+    extra_args = cfg("", cast=str)
+    fvp_exe = required("corstone300.exe", cast=Path)
+    gcc_prefix = required("arm_gcc.install_dir", cast=str)
+    cmsis_dir = required("cmsis.dir", cast=Path)
+    cmsisnn_dir = required("cmsisnn.dir", cast=Path)
+    ethosu_platform_dir = required("ethosu_platform.dir", cast=Path)
 
     def __init__(self, name="corstone300", features=None, config=None):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def model(self):
-        return self.config["model"]
-
-    @property
-    def enable_ethosu(self):
-        value = self.config["enable_ethosu"]
-        return str2bool(value)
-
-    @property
-    def enable_fpu(self):
-        value = self.config["enable_fpu"]
-        return str2bool(value)
-
-    @property
-    def enable_mvei(self):
-        value = self.config["enable_mvei"]
-        return str2bool(value)
-
-    @property
-    def enable_dsp(self):
-        value = self.config["enable_dsp"]
-        return str2bool(value)
-
-    @property
-    def ethosu_num_macs(self):
-        return int(self.config["ethosu_num_macs"])
-
-    @property
-    def fvp_exe(self):
-        return Path(self.config["corstone300.exe"])
-
-    @property
-    def gcc_prefix(self):
-        return str(self.config["arm_gcc.install_dir"])
-
-    @property
-    def cmsis_dir(self):
-        return Path(self.config["cmsis.dir"])
-
-    @property
-    def cmsisnn_dir(self):
-        return Path(self.config["cmsisnn.dir"])
-
-    @property
-    def ethosu_platform_dir(self):
-        return Path(self.config["ethosu_platform.dir"])
-
-    @property
-    def extra_args(self):
-        return str(self.config["extra_args"])
-
-    @property
-    def timeout_sec(self):
-        # 0 = off
-        return int(self.config["timeout_sec"])
 
     def get_default_fvp_args(self):
         return [

@@ -23,7 +23,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.target import Target
-from mlonmcu.config import str2list, str2bool, pick_first
+from mlonmcu.config import optional, str2list, str2bool, pick_first
 from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
 
 logger = get_logger()
@@ -75,6 +75,8 @@ class RISCVTarget(Target):
         "riscv_gcc.version",
         "llvm.version",
     }
+
+    llvm_version = optional("llvm.version")
 
     def reconfigure(self):
         # super().reconfigure()
@@ -161,10 +163,6 @@ class RISCVTarget(Target):
         assert "." in temp
         ret = int(temp.split(".", 1)[0])
         return ret
-
-    @property
-    def llvm_version(self):
-        return self.config["llvm.version"]
 
     @property
     def llvm_major_version(self):

@@ -307,6 +307,7 @@ class SpikeBMTarget(SpikeBaseTarget):
     htif_nano = cfg(True, cast=str2bool)
     htif_wrap = cfg(True, cast=str2bool)
     htif_argv = cfg(False, cast=str2bool)
+    htif_fallback = cfg("auto", cast=lambda value: str(value).lower())
 
     # def get_target_system(self):
     #     return "generic_riscv_bm"
@@ -346,6 +347,7 @@ class SpikeBMTarget(SpikeBaseTarget):
                 "HTIF_NANO": self.htif_nano,
                 "HTIF_WRAP": self.htif_wrap,
                 "HTIF_ARGV": self.htif_argv,
+                "HTIF_FALLBACK": self.htif_fallback.lower(),
             }
         )
         return ret

@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import pytest
 from mlonmcu.feature.features import get_available_features
 from mlonmcu.target.riscv.spike import SpikeBMTarget, SpikePKTarget
@@ -35,3 +36,17 @@ def test_missing_library_fails_before_simulator_launch(tmp_path):
     target = SpikeBMTarget(config={'spike_bm.extlibs': [str(tmp_path / 'missing.so')]})
     with pytest.raises(FileNotFoundError, match='extension library'):
         target.get_spike_args()
+
+
+def test_plugin_manifest_resolves_library_relative_to_manifest(tmp_path):
+    library = tmp_path / 'service-output' / 'libextension.so'
+    library.parent.mkdir()
+    library.touch()
+    manifest = tmp_path / 'service-output' / 'spike_plugin.json'
+    manifest.write_text(json.dumps({
+        'schema': 1, 'core': 'XIsaacCore', 'extlibs': ['libextension.so'],
+        'extension_names': ['m2_XIsaacCore'],
+    }))
+    target = SpikeBMTarget(config={'spike_bm.plugin_manifest': str(manifest)})
+    args = target.get_spike_args()
+    assert f'--extlib={library.resolve()}' in args

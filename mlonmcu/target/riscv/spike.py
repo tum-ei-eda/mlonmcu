@@ -154,10 +154,15 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         path = self.config["plugin_manifest"]
         if path is None:
             return {}
-        with Path(path).open() as handle:
+        path = Path(path).expanduser().resolve()
+        with path.open() as handle:
             manifest = json.load(handle)
         if manifest.get("schema") != 1:
             raise ValueError("Unsupported Spike plugin manifest schema")
+        manifest["extlibs"] = [
+            str((path.parent / library).resolve()) if not Path(library).is_absolute() else library
+            for library in manifest.get("extlibs", [])
+        ]
         return manifest
 
     @property
@@ -439,14 +444,28 @@ class SpikeBMTarget(SpikeBaseTarget):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret.update(
-            {
-                "HTIF": self.htif,
-                "HTIF_NANO": self.htif_nano,
-                "HTIF_WRAP": self.htif_wrap,
-                "HTIF_ARGV": self.htif_argv,
-            }
-        )
+        if self.htif:
+            # Link libgloss-htif explicitly so both Clang and GCC work, including
+            # MLIF branches which predate its HTIF CMake options.
+            compiler = self.riscv_gcc_prefix / "bin" / f"{self.riscv_gcc_basename}-gcc"
+            def find_runtime(name):
+                result = subprocess.run([str(compiler), f"-march={self.isa}", f"-mabi={self.abi}",
+                                         f"-print-file-name={name}"], check=True, capture_output=True, text=True)
+                path = Path(result.stdout.strip())
+                if not path.is_file():
+                    raise FileNotFoundError(f"GNU toolchain lacks {name} for {self.isa}/{self.abi}: {compiler}")
+                return path.resolve()
+            script = find_runtime("htif.ld")
+            library = find_runtime("libgloss_htif.a")
+            flags = ["-nostartfiles", f"-Wl,-T,{script}", "-Wl,-u,_start",
+                     "-Wl,--whole-archive", str(library), "-Wl,--no-whole-archive"]
+            if self.htif_wrap:
+                flags += [f"-Wl,--wrap={name}" for name in ("puts", "printf", "sprintf", "snprintf")]
+            ret["EXTRA_CMAKE_LD_FLAGS"] = ";".join(flags)
+            ret["RISCV_CMODEL"] = "medany"
+            for language in ("C", "CXX", "ASM"):
+                ret[f"EXTRA_CMAKE_{language}_FLAGS"] = "-mcmodel=medany"
+        ret["HTIF"] = False  # Flags above also cover older MLIF checkouts.
         return ret
 
 

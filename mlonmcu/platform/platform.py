@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import time
+from contextlib import contextmanager
 import tempfile
 import multiprocessing
 
@@ -242,23 +243,38 @@ class TargetPlatform(Platform):
     def supports_monitor(self):
         return True
 
+    @property
+    def needs_lock(self):
+        return False
+
     def flash(self, elf, target, timeout=120):
         raise NotImplementedError
 
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
+    @contextmanager
+    def preflashed(self):
+        """Monitor firmware programmed earlier in the same locked pipeline invocation."""
+        previous = getattr(self, "_preflashed", False)
+        self._preflashed = True
+        try:
+            yield
+        finally:
+            self._preflashed = previous
+
     def run(self, elf, target, timeout=120, **kwargs):
         # Only allow one serial communication at a time
-        needs_lock = False  # TODO: get from property?
-        if needs_lock:
+        if self.needs_lock:
             # TODO: move lockfile!
             # TODO: store flash output?
             with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
-                self.flash(elf, target, timeout=timeout, **kwargs)
+                if not getattr(self, "_preflashed", False):
+                    self.flash(elf, target, timeout=timeout, **kwargs)
                 output = self.monitor(target, timeout=timeout, **kwargs)
         else:
-            self.flash(elf, target, timeout=timeout, **kwargs)
+            if not getattr(self, "_preflashed", False):
+                self.flash(elf, target, timeout=timeout, **kwargs)
             output = self.monitor(target, timeout=timeout, **kwargs)
 
         return output

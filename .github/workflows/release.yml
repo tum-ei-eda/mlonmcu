@@ -5,6 +5,8 @@ on:
     tags:
       - v\d+.\d+.\d+  # Push events for v0.1.0, v20.15.10 but not v0.1.0dev0
 name: Create Release
+permissions:
+  contents: write
 jobs:
   build:
     name: Create Release
@@ -15,6 +17,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
+          fetch-depth: 0
       - name: Generate changelog
         id: changelog
         uses: metcalfc/changelog-generator@v4.3.1
@@ -33,21 +36,3 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
           draft: true
           prerelease: false
-  publish:
-    name: Publish to PyPI
-    runs-on: ubuntu-24.04
-    if: ${{ github.repository == 'tum-ei-eda/mlonmcu' }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-      - name: Build package
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install build
-          make dist
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}

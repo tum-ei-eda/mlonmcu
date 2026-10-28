@@ -35,6 +35,12 @@ def create_environment_dict(environment):
         "auto": environment.defaults.cleanup_auto,
         "keep": environment.defaults.cleanup_keep,
     }
+    if environment.python:
+        data["python"] = {
+            "venv": str(environment.python.venv) if environment.python.venv else None,
+            "extra": environment.python.extra,
+            "requirements": environment.python.requirements,
+        }
     data["paths"] = {
         path: (
             str(path_config.path)

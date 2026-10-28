@@ -18,4 +18,10 @@
 #
 """Version module for mlonmcu."""
 
-__version__ = "0.10.dev0"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("mlonmcu")
+except PackageNotFoundError:
+    # Allow importing an uninstalled source checkout.
+    __version__ = "0.10.0"

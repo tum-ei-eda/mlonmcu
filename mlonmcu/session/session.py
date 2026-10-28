@@ -61,6 +61,7 @@ class Session(Configurable):
     parallel_jobs = cfg(1, cast=int)
     rpc_tracker = cfg(None)
     rpc_key = cfg(None)
+    rpc_artifacts = cfg("none")
 
     def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
@@ -222,7 +223,7 @@ class Session(Configurable):
         remote_config = None
         if self.rpc_tracker:
             assert self.executor == "rpc"
-            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key, self.rpc_artifacts)
         else:
             assert self.executor != "rpc"
         scheduler = SessionScheduler(
@@ -248,7 +249,7 @@ class Session(Configurable):
         self.runs, self.results = scheduler.process(export=export, context=context)
         report = self.get_reports(results=self.results)
         scheduler.print_summary()
-        report = scheduler.postprocess(report, dest=self.dir)
+        report = scheduler.postprocess(report, dest=self.dir, context=context)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
@@ -260,7 +261,6 @@ class Session(Configurable):
             logger.info(self.prefix + "Cleaning up runs")
             count = 0
             for run in self.runs:
-                print("run", run, type(run), dir(run))
                 if hasattr(run, "cleanup_directories"):
                     run.cleanup_directories()
                     count += 1

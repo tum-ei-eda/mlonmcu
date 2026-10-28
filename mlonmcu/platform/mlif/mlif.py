@@ -248,7 +248,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def template_version(self):
-        return self.config["template_version"]
+        value = self.config["template_version"]
+        if self.needs_model_support:
+            if value not in (None, "v2"):
+                raise ValueError("set_inputs/get_outputs require mlif.template_version=v2")
+            return "v2"
+        return value
 
     @property
     def validate_outputs(self):
@@ -341,8 +346,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["TEMPLATE_VERSION"] = self.template_version
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
-        definitions["SKIP_CHECK"] = self.skip_check
-        if self.batch_size is not None:
+        definitions["SKIP_CHECK"] = False if self.needs_model_support else self.skip_check
+        if self.batch_size is not None and not self.needs_model_support:
             definitions["BATCH_SIZE"] = self.batch_size
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
@@ -428,6 +433,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         artifacts = []
         batch_size = self.batch_size
         inputs_data = None
+        model_info = None
         if self.inputs_artifact is not None:
             inputs_data = np.load(self.inputs_artifact, allow_pickle=True)
         if self.model_info_file is not None:
@@ -463,7 +469,6 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 model_support_file = self.build_dir / model_support_artifact.name
                 model_support_artifact.export(model_support_file)
                 self.definitions["MODEL_SUPPORT_FILE"] = model_support_file
-            del target
         if not isinstance(src, Path):
             src = Path(src)
         cmakeArgs = self.get_cmake_args(target)

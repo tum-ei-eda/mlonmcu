@@ -34,6 +34,7 @@ from mlonmcu.logging import get_logger
 from mlonmcu.setup import utils
 
 from .postprocess import SessionPostprocess, RunPostprocess
+from .vivado import parse_vivado_artifacts
 from .validate_metrics import parse_validate_metrics, parse_classify_metrics
 from .calc_lib_mem_footprints import (
     parse_elf,
@@ -46,6 +47,27 @@ from .dwarf import analyze_dwarf
 from mlonmcu.session.db_utils import push_session_to_mlonmcu_db
 
 logger = get_logger()
+
+
+VIVADO_METRIC_CATEGORIES = {
+    "identity": ["device", "vivado_version"],
+    "timing": ["timing_met", "wns_ns", "tns_ns", "whs_ns", "estimated_fmax_mhz"],
+    "total_area": ["place_slice_luts_used", "place_slice_registers_used", "place_bram_tiles_used", "place_dsps_used"],
+    "area_utilization": [
+        "place_slice_luts_util_pct",
+        "place_slice_registers_util_pct",
+        "place_bram_tiles_util_pct",
+        "place_dsps_util_pct",
+    ],
+    "lut_breakdown": ["place_lut_as_logic_used", "place_lut_as_memory_used"],
+    "bram_breakdown": ["place_ramb36_fifo_used", "place_ramb18_used"],
+    "cpu_hierarchy": ["hier_cpu_total_luts", "hier_cpu_ffs", "hier_cpu_bram_tiles", "hier_cpu_dsps"],
+    "d_cache_hierarchy": ["hier_dcache_total_luts", "hier_dcache_ffs", "hier_dcache_bram_tiles"],
+    "i_cache_hierarchy": ["hier_icache_total_luts", "hier_icache_ffs", "hier_icache_bram_tiles"],
+    "cfu_hierarchy": ["hier_cfu_total_luts", "hier_cfu_ffs", "hier_cfu_bram_tiles", "hier_cfu_dsps"],
+    "power": ["power_total_w", "power_dynamic_w", "power_static_w"],
+    "thermal": ["junction_temp_c"],
+}
 
 
 def match_rows(df, cols):
@@ -1348,7 +1370,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
     report = cfg(False, cast=str2bool)
-    validate_metrics = cfg("topk(n=1);topk(n=2)")
+    validate_metrics = cfg("allclose(atol=0.01,rtol=0.01);topk(n=1);topk(n=2)")
     validate_range = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
@@ -1362,8 +1384,6 @@ class ValidateOutputsPostprocess(RunPostprocess):
         import yaml
 
         model_info_data = yaml.safe_load(model_info_artifact.content)
-        if len(model_info_data["output_names"]) > 1:
-            raise NotImplementedError("Multi-outputs not yet supported.")
         outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
         assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
         outputs_ref_artifact = outputs_ref_artifact[0]
@@ -1377,6 +1397,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        if len(outputs) != len(outputs_ref) or len(outputs) == 0:
+            raise ValueError(f"Output sample count mismatch: {len(outputs)} actual, {len(outputs_ref)} reference")
         in_data = None
         # compared = 0
         # matching = 0
@@ -1411,10 +1433,10 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         # fallback for custom name-based npy dict
                         out_data = list(output.values())[ii]
                     else:  # fallback for index-based npy array
-                        assert isinstance(output, (list, np.array)), "expected dict, list or np.array type"
+                        assert isinstance(output, (list, np.ndarray)), "expected dict, list or np.array type"
                         out_data = output[ii]
                 else:
-                    RuntimeError(f"Output not found: {out_name}")
+                    raise RuntimeError(f"Output not found: {out_name}")
                 # optional dequantize
                 # print("out_data_before_quant", out_data)
                 # print("sum(out_data_before_quant", np.sum(out_data))
@@ -1440,7 +1462,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                             assert lower <= upper
                             assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
 
-                        return np.around((data / quant_scale) + quant_zero_point).astype("int8")
+                        return np.clip(np.around((data / quant_scale) + quant_zero_point), -128, 127).astype("int8")
 
                     def dequant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
@@ -2333,3 +2355,91 @@ class PushMSDB2S3Postprocess(SessionPostprocess):
         # s3.upload_file(path_workload, bucket, f"{prefix}/database_workload.json")
         # self.s3.upload_file(self.path_records, self.bucket, self._key("database_tuning_record.json"))
         return []
+
+
+class AnalyseVivadoReportsPostprocess(RunPostprocess):
+    """Parse Vivado FPGA Synthesis Reports."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": False,
+        "to_file": True,
+        "clock": "soc_crg_clkout0",
+        "limit": [],
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_vivado_reports", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value)
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value)
+
+    @property
+    def clock(self):
+        """Clock name used when extracting timing metrics."""
+        return self.config["clock"]
+
+    @property
+    def limit(self):
+        """Optional list of parsed metrics or metric categories to add to the report dataframe."""
+        value = self.config["limit"]
+        return value if isinstance(value, list) else str2list(value)
+
+    def resolve_limit(self, columns):
+        """Expand category shortcuts and validate the requested Vivado metrics."""
+        metrics = []
+        requested_metrics = []
+        for item in self.limit:
+            category = item.lower().replace(" ", "_").replace("-", "_")
+            if category in VIVADO_METRIC_CATEGORIES:
+                metrics.extend(metric for metric in VIVADO_METRIC_CATEGORIES[category] if metric in columns)
+            else:
+                requested_metrics.append(item)
+                metrics.append(item)
+        metrics = list(dict.fromkeys(metrics))
+        unknown = set(requested_metrics) - set(columns)
+        assert not unknown, f"Unknown Vivado metric columns/categories: {', '.join(sorted(unknown))}"
+        return metrics
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        platform = report.pre_df["Platform"]
+        if (~platform.isin(["cfu_playground"])).any():
+            return []
+        ret_artifacts = []
+        vivado_artifacts = lookup_artifacts(artifacts, flags=("vivado", "report"), first_only=False)
+        if len(vivado_artifacts) == 0:
+            return []
+        vivado_report_df = parse_vivado_artifacts(vivado_artifacts, clock=self.clock)
+        if self.to_file:
+            vivado_metrics_artifact = Artifact(
+                "vivado_metrics.csv",
+                content=vivado_report_df.to_csv(index=False),
+                fmt=ArtifactFormat.TEXT,
+            )
+            ret_artifacts.append(vivado_metrics_artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            if self.limit:
+                vivado_report_df = vivado_report_df[self.resolve_limit(vivado_report_df.columns)]
+            metrics_df = vivado_report_df.rename(columns=lambda column: f"Vivado {column}")
+            if "estimated_fmax_mhz" in vivado_report_df:
+                estimated_fmax = vivado_report_df["estimated_fmax_mhz"]
+                metrics_df["Estimated Fmax [MHz]"] = estimated_fmax
+                if "Total Cycles" in report.main_df:
+                    metrics_df["Estimated latency at Fmax [ms]"] = (
+                        report.main_df["Total Cycles"] / estimated_fmax / 1000
+                    )
+            report.post_df = pd.concat([post_df.reset_index(drop=True), metrics_df], axis=1)
+
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts

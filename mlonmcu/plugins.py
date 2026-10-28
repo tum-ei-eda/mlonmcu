@@ -19,12 +19,20 @@
 """Utilities for MLonMCUs extension mechanism."""
 
 import importlib
+from pathlib import Path
+
+_loaded_extensions = set()
 
 
-def process_extensions(file, desc=None):
+def process_extensions(file, desc=None, skip_loaded=False):
+    """Load an extension, optionally retaining registrations inherited by workers."""
+    path = Path(file).resolve()
+    if skip_loaded and path in _loaded_extensions:
+        return
     mod_name = "mlonmcu.extensions"
     if desc:
         mod_name += f".{desc}"
     spec = importlib.util.spec_from_file_location(mod_name, file)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
+    _loaded_extensions.add(path)

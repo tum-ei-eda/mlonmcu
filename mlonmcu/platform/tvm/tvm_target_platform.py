@@ -19,7 +19,7 @@
 """TVM Target Platform"""
 
 import os
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from .tvm_rpc_platform import TvmRpcPlatform
 from ..platform import TargetPlatform
 from mlonmcu.target.target import Target
@@ -49,90 +49,26 @@ class TvmTargetPlatform(TargetPlatform, TvmRpcPlatform):
     )
 
     DEFAULTS = {
-        **TargetPlatform.DEFAULTS,
-        **TvmRpcPlatform.DEFAULTS,
-        "fill_mode": None,  # random, zeros, ones, none
-        "ins_file": None,
-        "outs_file": None,
-        "print_top": False,
-        "profile": False,
-        "repeat": 1,
-        "number": 1,
         "aggregate": "none",  # Allowed: avg, max, min, none, all
-        "total_time": False,
-        "set_inputs": False,
-        "set_inputs_interface": None,
-        "get_outputs": False,
-        "get_outputs_interface": None,
-        "get_outputs_fmt": None,
     }
-
-    REQUIRED = TargetPlatform.REQUIRED | TvmRpcPlatform.REQUIRED
-
-    @property
-    def fill_mode(self):
-        return self.config["fill_mode"]
-
-    @property
-    def ins_file(self):
-        return self.config["ins_file"]
-
-    @property
-    def outs_file(self):
-        return self.config["outs_file"]
-
-    @property
-    def print_top(self):
-        value = self.config["print_top"]
-        return int(value) if isinstance(value, str) else None
-
-    @property
-    def profile(self):
-        value = self.config["profile"]
-        return str2bool(value)
-
-    @property
-    def repeat(self):
-        return self.config["repeat"]
-
-    @property
-    def number(self):
-        return self.config["number"]
+    fill_mode = cfg(None)
+    ins_file = cfg(None)
+    outs_file = cfg(None)
+    print_top = cfg(False, cast=lambda value: int(value) if isinstance(value, str) else None)
+    profile = cfg(False, cast=str2bool)
+    repeat = cfg(1)
+    number = cfg(1)
+    total_time = cfg(False, cast=str2bool)
+    set_inputs = cfg(False, cast=str2bool)
+    set_inputs_interface = cfg(None)
+    get_outputs = cfg(False, cast=str2bool)
+    get_outputs_interface = cfg(None)
+    get_outputs_fmt = cfg(None)
 
     @property
     def aggregate(self):
         value = self.config["aggregate"]
         assert value in ["avg", "all", "max", "min", "none"]
-        return value
-
-    @property
-    def total_time(self):
-        value = self.config["total_time"]
-        return str2bool(value)
-
-    @property
-    def set_inputs(self):
-        value = self.config["set_inputs"]
-        return str2bool(value)
-
-    @property
-    def set_inputs_interface(self):
-        value = self.config["set_inputs_interface"]
-        return value
-
-    @property
-    def get_outputs(self):
-        value = self.config["get_outputs"]
-        return str2bool(value)
-
-    @property
-    def get_outputs_interface(self):
-        value = self.config["get_outputs_interface"]
-        return value
-
-    @property
-    def get_outputs_fmt(self):
-        value = self.config["get_outputs_fmt"]  # TODO: use
         return value
 
     @property

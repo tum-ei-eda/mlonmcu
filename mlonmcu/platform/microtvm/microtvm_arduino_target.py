@@ -18,7 +18,7 @@
 #
 from pathlib import Path
 
-from mlonmcu.target.target import Target
+from mlonmcu.config import cfg, required
 
 from mlonmcu.logging import get_logger
 
@@ -28,16 +28,12 @@ logger = get_logger()
 
 
 class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    DEFAULTS = {
-        **Target.DEFAULTS,
-        "project_type": None,
-        "warning_as_error": False,
-        "arduino_board": "?",
-        # "arduino_cli_cmd": None,
-        "verbose": False,
-        "port": -1,
-    }
-    REQUIRED = Target.REQUIRED | {"arduino.install_dir"}
+    project_type = cfg(None)
+    warning_as_error = cfg(False)
+    arduino_board = cfg("?")
+    verbose = cfg(False)
+    port = cfg(-1, cast=Path)
+    arduino_install_dir = required("arduino.install_dir", cast=Path)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -46,14 +42,6 @@ class ArduinoMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         self.option_names = ["project_type", "warning_as_error", "arduino_board", "port"]
         # self.platform = platform
         # self.template = name2template(name)
-
-    @property
-    def arduino_install_dir(self):
-        return Path(self.config["arduino.install_dir"])
-
-    @property
-    def port(self):
-        return Path(self.config["port"])
 
     def get_project_options(self):
         ret = super().get_project_options()

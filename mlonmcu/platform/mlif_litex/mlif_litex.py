@@ -31,6 +31,7 @@ from mlonmcu.setup import utils  # TODO: Move one level up?
 # from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.logging import get_logger
+from mlonmcu.config import required
 from mlonmcu.target.target import Target
 
 # from mlonmcu.models.utils import get_data_source
@@ -46,12 +47,10 @@ class MlifLitexPlatform(MlifPlatform):
 
     FEATURES = MlifPlatform.FEATURES
 
-    DEFAULTS = {
-        **MlifPlatform.DEFAULTS,
-    }
-
-    REQUIRED = MlifPlatform.REQUIRED | {"litex.install_dir", "litex.venv", "litex.launcher"}
-    OPTIONAL = MlifPlatform.OPTIONAL | {"cmake.exe"}
+    litex_install_dir = required("litex.install_dir", cast=Path)
+    litex_launcher = required("litex.launcher", cast=Path)
+    litex_venv_dir = required("litex.venv", cast=Path)
+    OPTIONAL = {"cmake.exe"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -62,6 +61,10 @@ class MlifLitexPlatform(MlifPlatform):
         self.tempdir = None
         self.build_dir = None
         self.litex_name = "sim"
+
+    @property
+    def mlif_litex_dir(self):
+        return Path(self.config["mlif_litex.src_dir"])
 
     @property
     def workdir(self):
@@ -84,22 +87,6 @@ class MlifLitexPlatform(MlifPlatform):
         target_names = get_mlif_litex_platform_targets()
         print("target_names")
         return target_names
-
-    @property
-    def mlif_litex_dir(self):
-        return Path(self.config["mlif_litex.src_dir"])
-
-    @property
-    def litex_install_dir(self):
-        return Path(self.config["litex.install_dir"])
-
-    @property
-    def litex_launcher(self):
-        return Path(self.config["litex.launcher"])
-
-    @property
-    def litex_venv_dir(self):
-        return Path(self.config["litex.venv"])
 
     def get_definitions(self):
         definitions = super().get_definitions()

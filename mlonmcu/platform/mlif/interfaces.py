@@ -173,9 +173,7 @@ class ModelSupport:
     def select_set_inputs_interface(self, in_interface, batch_size):
         if in_interface == "auto":
             assert self.target is not None
-            if self.target.supports_filesystem:
-                in_interface = "filesystem"
-            elif self.target.supports_stdin:
+            if self.target.supports_stdin:
                 in_interface = "stdin_raw"
                 # TODO: also allow stdin?
             else:  # Fallback
@@ -186,14 +184,16 @@ class ModelSupport:
                 batch_size = MAX_BATCH_SIZE  # all inputs are in already compiled into program
             else:
                 batch_size = DEFAULT_BATCH_SIZE
+        if batch_size <= 0:
+            raise ValueError("mlif.batch_size must be positive")
+        if in_interface == "rom" and self.inputs_data is not None:
+            batch_size = max(len(self.inputs_data), 1)
         return in_interface, batch_size
 
     def select_get_outputs_interface(self, out_interface, batch_size):
         if out_interface == "auto":
             assert self.target is not None
-            if self.target.supports_filesystem:
-                out_interface = "filesystem"
-            elif self.target.supports_stdin:
+            if self.target.supports_stdout:
                 out_interface = "stdout_raw"
                 # TODO: also allow stdout?
             else:  # Fallback

@@ -31,8 +31,7 @@ import filelock
 from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
-from mlonmcu.config import filter_config
-from mlonmcu.config import str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, str2bool
 
 from .run import RunStage
 from .rpc import RemoteConfig
@@ -50,21 +49,19 @@ class SessionStatus(Enum):  # TODO: remove?
     ERROR = 3
 
 
-class Session:
+class Session(Configurable):
     """A session which wraps around multiple runs in a context."""
 
-    DEFAULTS = {
-        "report_fmt": "csv",
-        # "process_pool": False,
-        "executor": "thread_pool",
-        "use_init_stage": False,
-        "cleanup_runs": False,
-        "shuffle": False,
-        "batch_size": 1,  # TODO: auto
-        "parallel_jobs": 1,
-        "rpc_tracker": None,
-        "rpc_key": None,
-    }
+    report_fmt = cfg("csv", cast=str)
+    executor = cfg("thread_pool", cast=str)
+    use_init_stage = cfg(False, cast=str2bool)
+    cleanup_runs = cfg(False, cast=str2bool)
+    shuffle = cfg(False, cast=str2bool)
+    batch_size = cfg(1, cast=int)
+    parallel_jobs = cfg(1, cast=int)
+    rpc_tracker = cfg(None)
+    rpc_key = cfg(None)
+    rpc_artifacts = cfg("none")
 
     def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
@@ -106,59 +103,11 @@ class Session:
         """get prefix property."""
         return f"[session-{self.idx}] " if self.idx else ""
 
-    @property
-    def report_fmt(self):
-        """get report_fmt property."""
-        return str(self.config["report_fmt"])
-
     # @property
     # def process_pool(self):
     #     """get process_pool property."""
     #     value = self.config["process_pool"]
     #     return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def executor(self):
-        """get executor property."""
-        return str(self.config["executor"])
-
-    @property
-    def use_init_stage(self):
-        """get use_init_stage property."""
-        value = self.config["use_init_stage"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def shuffle(self):
-        """get shuffle property."""
-        value = self.config["shuffle"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def cleanup_runs(self):
-        """get cleanup_runs property."""
-        value = self.config["cleanup_runs"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def batch_size(self):
-        """get batch_size property."""
-        return int(self.config["batch_size"])
-
-    @property
-    def parallel_jobs(self):
-        """get parallel_jobs property."""
-        return int(self.config["parallel_jobs"])
-
-    @property
-    def rpc_tracker(self):
-        """get rpc_tracker property."""
-        return self.config["rpc_tracker"]
-
-    @property
-    def rpc_key(self):
-        """get rpc_key property."""
-        return self.config["rpc_key"]
 
     @property
     def needs_initializer(self):
@@ -274,7 +223,7 @@ class Session:
         remote_config = None
         if self.rpc_tracker:
             assert self.executor == "rpc"
-            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key, self.rpc_artifacts)
         else:
             assert self.executor != "rpc"
         scheduler = SessionScheduler(
@@ -300,7 +249,7 @@ class Session:
         self.runs, self.results = scheduler.process(export=export, context=context)
         report = self.get_reports(results=self.results)
         scheduler.print_summary()
-        report = scheduler.postprocess(report, dest=self.dir)
+        report = scheduler.postprocess(report, dest=self.dir, context=context)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
@@ -312,7 +261,6 @@ class Session:
             logger.info(self.prefix + "Cleaning up runs")
             count = 0
             for run in self.runs:
-                print("run", run, type(run), dir(run))
                 if hasattr(run, "cleanup_directories"):
                     run.cleanup_directories()
                     count += 1

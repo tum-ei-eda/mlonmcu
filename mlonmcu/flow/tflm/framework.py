@@ -22,7 +22,7 @@ from pathlib import Path
 
 from mlonmcu.flow.framework import Framework
 from mlonmcu.flow.tflm import TFLMBackend
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 
 
 class TFLMFramework(Framework):
@@ -32,46 +32,17 @@ class TFLMFramework(Framework):
 
     FEATURES = {"muriscvnn", "cmsisnn", "cfu_wca"}
 
-    DEFAULTS = {
-        "optimized_kernel": None,
-        "optimized_kernel_inc_dirs": [],
-        "optimized_kernel_libs": [],
-        # "cfu_accelerate": False,
-        # "cfu_conv2d_idx_init": 0,
-        "override_dir": None,
-        "generate_tree": False,
-    }
-
-    REQUIRED = {"tf.src_dir"}
+    tf_src = required("tf.src_dir", cast=Path)
+    optimized_kernel = cfg(None)
+    optimized_kernel_inc_dirs = cfg([])
+    optimized_kernel_libs = cfg([])
+    override_dir = cfg(None)
+    generate_tree = cfg(False, cast=str2bool)
 
     backends = TFLMBackend.registry
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
-
-    @property
-    def tf_src(self):
-        return Path(self.config["tf.src_dir"])
-
-    @property
-    def override_dir(self):
-        return self.config["override_dir"]
-
-    @property
-    def optimized_kernel(self):
-        return self.config["optimized_kernel"]
-
-    @property
-    def optimized_kernel_libs(self):
-        return self.config["optimized_kernel_libs"]
-
-    @property
-    def optimized_kernel_inc_dirs(self):
-        return self.config["optimized_kernel_inc_dirs"]
-
-    @property
-    def generate_tree(self):
-        return str2bool(self.config["generate_tree"])
 
     # @property
     # def cfu_accelerate(self):

@@ -23,7 +23,7 @@ import re
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
@@ -58,31 +58,26 @@ class COREVOVPSimTarget(RISCVTarget):
     FEATURES = RISCVTarget.FEATURES | {"xcorev", "gdbserver", "log_instrs", "trace"}
 
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
         "variant": None,
         "processor": None,
         "fpu": "none",
         "atomic": False,
-        "end_to_end_cycles": False,
-        "gdbserver_enable": False,
-        "gdbserver_attach": False,
-        "gdbserver_port": 2222,
-        "enable_xcorevmac": False,
-        "enable_xcorevmem": False,
-        "enable_xcorevbi": False,
-        "enable_xcorevalu": False,
-        "enable_xcorevbitmanip": False,
-        "enable_xcorevsimd": False,
-        "enable_xcorevhwlp": False,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"corev_ovpsim.exe"}
+    ovpsim_exe = required("corev_ovpsim.exe", cast=Path)
+    end_to_end_cycles = cfg(False, cast=str2bool)
+    gdbserver_enable = cfg(False, cast=str2bool)
+    gdbserver_attach = cfg(False, cast=str2bool)
+    gdbserver_port = cfg(2222, cast=int)
+    enable_xcorevmac = cfg(False, cast=str2bool)
+    enable_xcorevmem = cfg(False, cast=str2bool)
+    enable_xcorevbi = cfg(False, cast=str2bool)
+    enable_xcorevalu = cfg(False, cast=str2bool)
+    enable_xcorevbitmanip = cfg(False, cast=str2bool)
+    enable_xcorevsimd = cfg(False, cast=str2bool)
+    enable_xcorevhwlp = cfg(False, cast=str2bool)
 
     def __init__(self, name="corev_ovpsim", features=None, config=None):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def ovpsim_exe(self):
-        return Path(self.config["corev_ovpsim.exe"])
 
     @property
     def variant(self):
@@ -99,41 +94,6 @@ class COREVOVPSimTarget(RISCVTarget):
             return temp
         else:
             return "CVE4P"
-
-    @property
-    def enable_xcorevmac(self):
-        value = self.config["enable_xcorevmac"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevmem(self):
-        value = self.config["enable_xcorevmem"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbi(self):
-        value = self.config["enable_xcorevbi"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevalu(self):
-        value = self.config["enable_xcorevalu"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbitmanip(self):
-        value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevsimd(self):
-        value = self.config["enable_xcorevsimd"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevhwlp(self):
-        value = self.config["enable_xcorevhwlp"]
-        return str2bool(value)
 
     @property
     def extensions(self):
@@ -184,25 +144,6 @@ class COREVOVPSimTarget(RISCVTarget):
             if "xcorevhwlp" not in attrs:
                 attrs.append("+xcvhwlp")
         return ",".join(attrs)
-
-    @property
-    def end_to_end_cycles(self):
-        value = self.config["end_to_end_cycles"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_enable(self):
-        value = self.config["gdbserver_enable"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_attach(self):
-        value = self.config["gdbserver_attach"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_port(self):
-        return int(self.config["gdbserver_port"])
 
     def get_default_ovpsim_args(self):
         extensions_before = sort_extensions_canonical(self.extensions, lower=False, unpack=True)

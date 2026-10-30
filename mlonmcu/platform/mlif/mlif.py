@@ -26,7 +26,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 
-from mlonmcu.config import cfg, required, str2bool, str2list
+from mlonmcu.config import cfg, one_of, required, str2bool, str2list
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -37,6 +37,7 @@ from mlonmcu.models.utils import get_data_source
 
 from ..platform import CompilePlatform, TargetPlatform
 from .interfaces import ModelSupport
+from .ccache import prepare_ccache_environment, get_ccache_definitions, stage_model_sources
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()
@@ -69,6 +70,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "memgraph_llvm_cdfg",
             "global_isel",
             "cfu_wca",
+            "ccache",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
@@ -95,6 +97,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
     mlif_src_dir = required("mlif.src_dir", cast=Path)
     goal = cfg("generic_mlonmcu")
     ccache = cfg(False, cast=str2bool)
+    ccache_mode = cfg("session", cast=one_of(("global", "workspace", "session")))
+    ccache_max_size = cfg(None)
+    ccache_max_files = cfg(None, cast=int)
+    ccache_compression = cfg(None, cast=str2bool)
+    ccache_compiler_check = cfg(None)
+    ccache_exe = cfg("ccache", cast=str)
     set_inputs = cfg(False, cast=str2bool)
     set_inputs_interface = cfg(None)
     get_outputs = cfg(False, cast=str2bool)
@@ -187,6 +195,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
 
     def init_directory(self, path=None, context=None):
+        if context is not None:
+            self.set_context(workspace=context.environment.home)
         if self.build_dir is not None:
             self.build_dir.mkdir(exist_ok=True)
             logger.debug("Build directory already initialized")
@@ -388,8 +398,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.inline_functions is not None:
             definitions["INLINE_FUNCTIONS"] = self.inline_functions
         if self.ccache:
-            definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
-            definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
+            # Do not accumulate path mapping flags when configuring repeatedly.
+            definitions = get_ccache_definitions(self, definitions)
         if self.custom_entry is not None:
             definitions["CUSTOM_ENTRY"] = self.custom_entry
 
@@ -426,6 +436,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 path = str(path)
                 path_new = f"{path}:{path_new}"
         env["PATH"] = path_new
+
+        if self.ccache:
+            env = prepare_ccache_environment(self, env)
 
         return env
 
@@ -475,6 +488,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
+            if self.ccache:
+                src = stage_model_sources(self, src)
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")

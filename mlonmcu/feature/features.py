@@ -93,6 +93,32 @@ def get_matching_features(features, feature_type):
     return [feature for feature in features if feature_type in feature.types()]
 
 
+@register_feature("ccache")
+class Ccache(PlatformFeature):
+    """Cache MLIF C/C++ compilations within a session, workspace, or globally."""
+
+    mode = cfg("session", cast=one_of(("global", "workspace", "session")))
+    max_size = cfg(None)
+    max_files = cfg(None, cast=int)
+    compression = cfg(None, cast=str2bool)
+    compiler_check = cfg(None)
+    exe = cfg("ccache", cast=str)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("ccache", features=features, config=config)
+
+    def get_platform_config(self, platform):
+        assert platform in ("mlif", "mlif_litex"), f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {
+            f"{platform}.ccache": self.enabled,
+            **{
+                f"{platform}.ccache_{key}": getattr(self, key)
+                for key in ("mode", "max_size", "max_files", "compression", "compiler_check", "exe")
+                if getattr(self, key) is not None
+            },
+        }
+
+
 # @register_feature("debug_arena", depends=["debug"])
 @register_feature("debug_arena")
 class DebugArena(BackendFeature):

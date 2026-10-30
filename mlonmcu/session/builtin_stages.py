@@ -91,7 +91,8 @@ class LoadStage(Stage):
             metadata = run.frontend.process_metadata(run.model, cfg=cfg_new)
             if metadata is not None:
                 if isinstance(artifacts, dict):
-                    artifacts["default"].extend(metadata)
+                    for variant_artifacts in artifacts.values():
+                        variant_artifacts.extend(metadata)
                 else:
                     artifacts.extend(metadata)
             for key, value in cfg_new.items():
@@ -369,3 +370,7 @@ class FlashStage(Stage):
             {variant: [Artifact("flash.log", content=str(output or ""), fmt=ArtifactFormat.TEXT)]},
             parents={variant: (context.source("program"), variant)},
         )
+
+
+# Optional dependencies are imported only when a transformation executes.
+from . import model_stages  # noqa: E402,F401

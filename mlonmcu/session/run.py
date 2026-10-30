@@ -292,7 +292,7 @@ class RunResult:
 class Run(Configurable):
     """A run is single model/backend/framework/target combination with a given set of features and configs."""
 
-    FEATURES = {"autotune", "target_optimized", "validate_new"}
+    FEATURES = {"autotune", "target_optimized", "validate_new", "quant_onnx", "quant_tflite"}
 
     export_optional = cfg(False, cast=str2bool, source="run_config")
     tune_enabled = cfg(False, cast=str2bool, source="run_config")
@@ -362,11 +362,26 @@ class Run(Configurable):
         if features is None:
             return []
         features = get_matching_features(features, FeatureType.RUN)
+        quantizers = {
+            feature.name
+            for feature in features
+            if feature.enabled and feature.name in ("quant_onnx", "quant_tflite")
+        }
+        if len(quantizers) > 1:
+            raise ValueError("quant_onnx and quant_tflite are mutually exclusive; select one per run")
         for feature in features:
             assert feature.name in self.FEATURES, f"Incompatible feature: {feature.name}"
             feature.used = True
             tmp_run_config = {f"run.{key}": value for key, value in self.run_config.items()}
             feature.add_run_config(tmp_run_config)
+            updated = Pipeline(feature.get_pipeline(self.pipeline.serialize()))
+            if updated.serialize() != self.pipeline.serialize():
+                if any(value for key, value in self.completed.items() if key != RunStage.NOP):
+                    raise ValueError("Cannot change a pipeline after stages have completed")
+                self.pipeline = updated
+                self.completed = {
+                    stage: stage == RunStage.NOP for stage in [RunStage.NOP, *self.pipeline.stages, RunStage.DONE]
+                }
             self.run_config = filter_config(tmp_run_config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         return features
 
@@ -586,7 +601,7 @@ class Run(Configurable):
             if not isinstance(self.model, Model):
                 self.backend = None
                 return
-            if not self.model.skip_check:
+            if not self.model.skip_check and not any(spec["uses"] == "convert" for spec in self.pipeline.specs.values()):
                 assert self.backend.supports_model(self.model), (
                     "The added backend does not support the chosen model. "
                     "Add the backend before adding a model to find a suitable frontend."
@@ -705,6 +720,7 @@ class Run(Configurable):
                     if (
                         self.backend is None
                         or isinstance(model_hint, Program)
+                        or any(spec["uses"] == "convert" for spec in self.pipeline.specs.values())
                         or (self.backend is not None and self.backend.supports_model(model_hint))
                     ):
                         self.frontends = [frontend]

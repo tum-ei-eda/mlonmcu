@@ -25,7 +25,7 @@ from pathlib import Path
 import pandas as pd
 
 from mlonmcu.utils import is_power_of_two, filter_none
-from mlonmcu.config import cfg, one_of, optional, required, str2bool, str2list
+from mlonmcu.config import cfg, one_of, optional, required, str2bool, str2list, str2dict
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .feature import (
     BackendFeature,
@@ -2261,3 +2261,140 @@ class CFUWCA(FrameworkFeature, BackendFeature, PlatformFeature):
 
         ret["tflmc.exe"] = ["muriscvnn"]
         return ret
+
+
+@register_feature("quant_onnx")
+class QuantOnnx(RunFeature):
+    """Insert ONNX conversion and quantization into a run's model pipeline."""
+
+    mode = cfg("dynamic", cast=one_of(("auto", "dynamic", "static")))
+    weight_type = cfg("int8")
+    activation_type = cfg(None)
+    per_channel = cfg(False, cast=str2bool)
+    reduce_range = cfg(False, cast=str2bool)
+    reuse_validation_inputs = cfg(False, cast=str2bool)
+    representative_data = cfg(None)
+    calibration_data_reader = cfg(None)
+    data_reader_args = cfg({}, cast=str2dict)
+    input_name_map = cfg({}, cast=str2dict)
+    quant_format = cfg(None)
+    calibration_method = cfg(None)
+    op_types_to_quantize = cfg(None, cast=str2list)
+    opset = cfg(15, cast=int)
+    input_layouts = cfg({}, cast=str2dict)
+    output_layouts = cfg({}, cast=str2dict)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("quant_onnx", features=features, config=config)
+
+    def get_pipeline(self, pipeline):
+        if not self.enabled:
+            return pipeline
+        quant_config = {
+            name: getattr(self, name)
+            for name in (
+                "mode",
+                "weight_type",
+                "activation_type",
+                "per_channel",
+                "reduce_range",
+                "reuse_validation_inputs",
+                "representative_data",
+                "calibration_data_reader",
+                "data_reader_args",
+                "input_name_map",
+                "quant_format",
+                "calibration_method",
+                "op_types_to_quantize",
+            )
+            if getattr(self, name) is not None
+        }
+        convert_config = {
+            "output_format": "onnx",
+            "opset": self.opset,
+            "input_layouts": self.input_layouts,
+            "output_layouts": self.output_layouts,
+        }
+        return configure_quant_pipeline(self.name, pipeline, convert_config, quant_config)
+
+
+def configure_quant_pipeline(name, pipeline, convert_config, quant_config):
+    """Insert a format-specific quantizer, preserving explicit downstream bindings."""
+    from copy import deepcopy
+
+    result = deepcopy(pipeline)
+    stages = result["stages"]
+    by_id = {spec["id"]: spec for spec in stages}
+    current = None
+    rewritten = []
+    for spec in stages:
+        if spec["uses"] == "load":
+            current = spec["id"]
+            rewritten.append(spec)
+            convert_id, quant_id = f"{name}_convert_{current}", f"{name}_{current}"
+            for stage_id, uses, source, config in (
+                (convert_id, "convert", current, convert_config),
+                (quant_id, "quantize", convert_id, quant_config),
+            ):
+                if stage_id in by_id:
+                    existing = by_id[stage_id]
+                    if existing["uses"] != uses or existing["inputs"].get("model") != f"{source}.model":
+                        raise ValueError(f"{name} stage ID conflicts with pipeline: {stage_id}")
+                    continue
+                rewritten.append(
+                    {"id": stage_id, "uses": uses, "inputs": {"model": f"{source}.model"}, "config": deepcopy(config)}
+                )
+        else:
+            if current is not None and spec["uses"] in ("tune", "build"):
+                binding = spec["inputs"].get("model")
+                if binding is None or binding.lower() == f"{current}.model":
+                    spec["inputs"]["model"] = f"{name}_{current}.model"
+            rewritten.append(spec)
+    if current is None:
+        raise ValueError(f"{name} requires a LOAD stage")
+    result["stages"] = rewritten
+    return result
+
+
+@register_feature("quant_tflite")
+class QuantTflite(RunFeature):
+    """Insert calibrated TFLite quantization with an explicit TFLite output requirement."""
+
+    mode = cfg("static", cast=one_of(("auto", "static")))
+    weight_type = cfg("int8")
+    input_type = cfg("int8")
+    output_type = cfg("int8")
+    activation_type = cfg("int8")
+    per_channel = cfg(True, cast=str2bool)
+    allow_float = cfg(False, cast=str2bool)
+    reuse_validation_inputs = cfg(False, cast=str2bool)
+    representative_data = cfg(None)
+    calibration_data_reader = cfg(None)
+    data_reader_args = cfg({}, cast=str2dict)
+    input_name_map = cfg({}, cast=str2dict)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("quant_tflite", features=features, config=config)
+
+    def get_pipeline(self, pipeline):
+        if not self.enabled:
+            return pipeline
+        config = {
+            name: getattr(self, name)
+            for name in (
+                "mode",
+                "weight_type",
+                "input_type",
+                "output_type",
+                "activation_type",
+                "per_channel",
+                "allow_float",
+                "reuse_validation_inputs",
+                "representative_data",
+                "calibration_data_reader",
+                "data_reader_args",
+                "input_name_map",
+            )
+            if getattr(self, name) is not None
+        }
+        return configure_quant_pipeline(self.name, pipeline, {"output_format": "tflite"}, config)

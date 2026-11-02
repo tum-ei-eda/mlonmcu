@@ -126,3 +126,47 @@ Inspect the session cache without falling back to user/system settings::
 Cache hits require matching compiler inputs and settings. Changed model code,
 headers, compilation options, or compiler identity can cause misses. Linking
 and backend model generation are not cached by this feature.
+
+Compiler identity
+-----------------
+
+By default, ccache identifies the compiler using its modification time and
+size, and also includes the compiler's name in the cache key. The absolute
+executable path alone does not identify the compiler. Replacing a compiler
+at the same path normally causes misses; relocating an identical compiler
+with the same name and metadata can still allow hits, provided the other
+compiler inputs match.
+
+For locally rebuilt or frequently redeployed compilers, use::
+
+    -c ccache.compiler_check=content
+
+This hashes the compiler executable's bytes. A byte-identical rebuild or copy
+can reuse entries even when its timestamp changes; a different executable
+gets a different identity. This does not fingerprint every component of a
+toolchain: a GCC driver can invoke a separate ``cc1`` binary, and compilers
+can load shared libraries. If those components change independently, use
+an immutable full-toolchain build identifier with ccache's
+``compiler_check=string:<identifier>`` setting, or configure
+``extra_files_to_hash`` in the managed ``ccache.conf``. A version banner alone
+may not distinguish locally patched compilers. See the
+`ccache compiler-check documentation <https://ccache.dev/manual/3.7.7.html#_configuration_settings>`_.
+
+Scheduling experiments
+----------------------
+
+``--parallel`` controls concurrent runs; ``mlif.num_threads`` controls make
+parallelism inside each compilation. ``runs_per_stage=0`` processes complete
+run pipelines concurrently. ``runs_per_stage=1`` processes all runs through
+one stage before starting the next, and permits stage-specific limits such as
+``--parallel-per-stage BUILD=2,COMPILE=4,RUN=4``. Unspecified stages use
+``--parallel``. The limits count runs, not individual compiler processes.
+
+An empty shared cache makes scheduling order significant: later runs can
+reuse completed compilations, while concurrent equivalent cache misses can
+repeat the same compilation. A warm cache changes the best allocation, since
+compiler CPU work is replaced by hashing, file reads, configuration and
+linking. Measure empty-cache batch time and warm-cache batch time separately,
+and compare complete experiment wall time rather than summed per-run times.
+For overlapping compile stages, the union of their time intervals measures
+time with at least one active compile; the sum measures accumulated run time.

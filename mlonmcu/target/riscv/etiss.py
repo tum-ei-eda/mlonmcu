@@ -26,7 +26,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool, str2list, str2dict
+from mlonmcu.config import cfg, optional, parse_int, required, str2bool, str2dict, str2list
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
@@ -52,16 +52,15 @@ class EtissTarget(RVVTarget):
         "vanilla_accelerator",
     }
 
+    gdbserver_enable = cfg(False, cast=str2bool)
+    gdbserver_attach = cfg(False, cast=str2bool)
+    gdbserver_port = cfg(2222, cast=int)
+    debug_etiss = cfg(False, cast=str2bool)
+    trace_memory = cfg(False, cast=str2bool)
+    plugins = cfg([], cast=str2list)
+    verbose = cfg(False, cast=str2bool)
+    # cpu_arch is derived when its configured override is absent.
     DEFAULTS = {
-        **RVVTarget.DEFAULTS,
-        "gdbserver_enable": False,
-        "gdbserver_attach": False,
-        "gdbserver_port": 2222,
-        "debug_etiss": False,
-        "trace_memory": False,
-        # "plugins": ["PrintInstruction"],
-        "plugins": [],
-        "verbose": False,
         "cpu_arch": None,
         "rom_start": 0x1000000,
         "rom_size": 0x800000,  # 8 MB
@@ -103,21 +102,56 @@ class EtissTarget(RVVTarget):
         "fclk": 100e6,
         "use_stats_file": False,
     }
-    REQUIRED = RVVTarget.REQUIRED | {"etiss.src_dir", "etiss.install_dir"}
-    OPTIONAL = RVVTarget.OPTIONAL | {"boost.install_dir", "etiss.exe", "etiss.script", "etissvp.exe", "etissvp.script"}
+    etiss_src_dir = required("etiss.src_dir")
+    etiss_dir = required("etiss.install_dir")
+    use_stats_file = cfg(False, cast=str2bool)
+    rom_start = cfg(0x1000000, cast=parse_int)
+    rom_size = cfg(0x800000, cast=parse_int)
+    ram_start = cfg(0x1800000, cast=parse_int)
+    ram_size = cfg(0x4000000, cast=parse_int)
+    flash_start = cfg(None, cast=parse_int)
+    flash_size = cfg(None, cast=parse_int)
+    min_stack_size = cfg(None, cast=parse_int)
+    min_heap_size = cfg(None, cast=parse_int)
+    cycle_time_ps = cfg(31250, cast=int)
+    enable_pext = cfg(False, cast=str2bool)
+    pext_spec = cfg(0.96, cast=float)
+    vlen = cfg(0, cast=int)
+    elen = cfg(32, cast=int)
+    jit = cfg(None)
+    allow_error = cfg(False, cast=str2bool)
+    max_block_size = cfg(None, cast=lambda value: int(value) if isinstance(value, str) else value)
+    enable_xcorevmac = cfg(False, cast=str2bool)
+    enable_xcorevmem = cfg(False, cast=str2bool)
+    enable_xcorevbi = cfg(False, cast=str2bool)
+    enable_xcorevalu = cfg(False, cast=str2bool)
+    enable_xcorevbitmanip = cfg(False, cast=str2bool)
+    enable_xcorevsimd = cfg(False, cast=str2bool)
+    enable_xcorevhwlp = cfg(False, cast=str2bool)
+    extra_int_config = cfg({}, cast=str2dict)
+    extra_bool_config = cfg({}, cast=str2dict)
+    extra_string_config = cfg({}, cast=str2dict)
+    extra_plugin_config = cfg({}, cast=str2dict)
+    use_run_helper = cfg(True, cast=str2bool)
+    exit_on_loop = cfg(False, cast=str2bool)
+    log_pc = cfg(False, cast=str2bool)
+    log_level = cfg(None, cast=lambda value: int(value) if isinstance(value, str) else value)
+    enable_semihosting = cfg(True, cast=str2bool)
+    output_path_prefix = cfg("")
+    jit_gcc_cleanup = cfg(True, cast=str2bool)
+    jit_verify = cfg(False, cast=str2bool)
+    jit_debug = cfg(False, cast=str2bool)
+    load_integrated_libraries = cfg(True, cast=str2bool)
+    OPTIONAL = {"boost.install_dir"}
+    etiss_exe_config = optional("etiss.exe")
+    etiss_script_config = optional("etiss.script")
+    etissvp_exe = optional("etissvp.exe")
+    etissvp_script = optional("etissvp.script")
 
     def __init__(self, name="etiss", features=None, config=None):
         super().__init__(name, features=features, config=config)
         # TODO: make optional or move to mlonmcu pkg
         self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
-
-    @property
-    def etiss_src_dir(self):
-        return self.config["etiss.src_dir"]
-
-    @property
-    def etiss_dir(self):
-        return self.config["etiss.install_dir"]
 
     @property
     def etiss_script(self):
@@ -144,106 +178,15 @@ class EtissTarget(RVVTarget):
         return value
 
     @property
-    def use_stats_file(self):
-        value = self.config["use_stats_file"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_enable(self):
-        value = self.config["gdbserver_enable"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_attach(self):
-        value = self.config["gdbserver_attach"]
-        return str2bool(value)
-
-    @property
-    def gdbserver_port(self):
-        return int(self.config["gdbserver_port"])
-
-    @property
-    def debug_etiss(self):
-        value = self.config["debug_etiss"]
-        return str2bool(value)
-
-    @property
-    def trace_memory(self):
-        value = self.config["trace_memory"]
-        return str2bool(value)
-
-    @property
     def enable_dmi(self):
         return False
         # return not self.trace_memory
-
-    @property
-    def plugins(self):
-        value = self.config["plugins"]
-        return str2list(value)
 
     def get_plugin_names(self):
         ret = self.plugins
         if self.gdbserver_enable:
             ret.append("gdbserver")
         return list(set(ret))
-
-    @property
-    def verbose(self):
-        value = self.config["verbose"]
-        return str2bool(value)
-
-    @property
-    def rom_start(self):
-        value = self.config["rom_start"]
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def rom_size(self):
-        value = self.config["rom_size"]
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def ram_start(self):
-        value = self.config["ram_start"]
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def ram_size(self):
-        value = self.config["ram_size"]
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def flash_start(self):
-        value = self.config["flash_start"]
-        if value is None:
-            return None
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def flash_size(self):
-        value = self.config["flash_size"]
-        if value is None:
-            return None
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def min_stack_size(self):
-        value = self.config["min_stack_size"]
-        if value is None:
-            return None
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def min_heap_size(self):
-        value = self.config["min_heap_size"]
-        if value is None:
-            return None
-        return int(value, 0) if not isinstance(value, int) else value
-
-    @property
-    def cycle_time_ps(self):
-        return int(self.config["cycle_time_ps"])
 
     @property
     def cpu_arch(self):
@@ -255,78 +198,6 @@ class EtissTarget(RVVTarget):
             return f"RV{self.xlen}IMACFDV"
         else:
             return f"RV{self.xlen}IMACFD"
-
-    @property
-    def enable_pext(self):
-        value = self.config["enable_pext"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevmac(self):
-        value = self.config["enable_xcorevmac"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevmem(self):
-        value = self.config["enable_xcorevmem"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbi(self):
-        value = self.config["enable_xcorevbi"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevalu(self):
-        value = self.config["enable_xcorevalu"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbitmanip(self):
-        value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevsimd(self):
-        value = self.config["enable_xcorevsimd"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevhwlp(self):
-        value = self.config["enable_xcorevhwlp"]
-        return str2bool(value)
-
-    @property
-    def vlen(self):
-        return int(self.config["vlen"])
-
-    @property
-    def elen(self):
-        return int(self.config["elen"])
-
-    @property
-    def jit(self):
-        return self.config["jit"]
-
-    @property
-    def extra_bool_config(self):
-        value = self.config["extra_bool_config"]
-        return str2dict(value)
-
-    @property
-    def extra_int_config(self):
-        value = self.config["extra_int_config"]
-        return str2dict(value)
-
-    @property
-    def extra_string_config(self):
-        value = self.config["extra_string_config"]
-        return str2dict(value)
-
-    @property
-    def extra_plugin_config(self):
-        value = self.config["extra_plugin_config"]
-        return str2dict(value)
 
     @property
     def extensions(self):
@@ -380,73 +251,6 @@ class EtissTarget(RVVTarget):
             if "xcorevhwlp" not in attrs:
                 attrs.append("+xcvhwlp")
         return ",".join(attrs)
-
-    @property
-    def allow_error(self):
-        value = self.config["allow_error"]
-        return str2bool(value)
-
-    @property
-    def use_run_helper(self):
-        value = self.config["use_run_helper"]
-        return str2bool(value)
-
-    @property
-    def exit_on_loop(self):
-        value = self.config["exit_on_loop"]
-        return str2bool(value)
-
-    @property
-    def log_pc(self):
-        value = self.config["log_pc"]
-        return str2bool(value)
-
-    @property
-    def log_level(self):
-        value = self.config["log_level"]
-        if isinstance(value, str):
-            value = int(value)
-        return value
-
-    @property
-    def enable_semihosting(self):
-        value = self.config["enable_semihosting"]
-        return str2bool(value)
-
-    @property
-    def output_path_prefix(self):
-        return self.config["output_path_prefix"]
-
-    @property
-    def jit_gcc_cleanup(self):
-        value = self.config["jit_gcc_cleanup"]
-        return str2bool(value)
-
-    @property
-    def jit_verify(self):
-        value = self.config["jit_verify"]
-        return str2bool(value)
-
-    @property
-    def jit_debug(self):
-        value = self.config["jit_debug"]
-        return str2bool(value)
-
-    @property
-    def load_integrated_libraries(self):
-        value = self.config["load_integrated_libraries"]
-        return str2bool(value)
-
-    @property
-    def pext_spec(self):
-        return float(self.config["pext_spec"])
-
-    @property
-    def max_block_size(self):
-        value = self.config["max_block_size"]
-        if isinstance(value, str):
-            value = int(value)
-        return value
 
     def get_ini_bool_config(self, override=None):
         override = {k: v for k, v in override.items() if isinstance(v, bool)}

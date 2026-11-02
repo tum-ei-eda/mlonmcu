@@ -19,7 +19,7 @@
 import re
 import os
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 
 # from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget
@@ -53,83 +53,24 @@ class TemplateCFUPlaygroundPlatformTarget(RISCVTarget):
 
 class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "verbose": False,
-        "use_sw_dir": None,
-        "use_gateware_dir": None,
-        "rtl_sim": False,  # TODO: move to target feature?
-        "fpga_sim": False,  # TODO: move to target feature?
+        "fpga_sim": False,
         "fpga_tty": None,
         "fpga_target": "digilent_arty",
         "fpga_variant": "a7-100",
         "sys_clk_freq": None,
-        "baud": 1843200,  # TODO: fix?
-        "cpu_variant": None,
-        # Variants:
-        # - full+cfu
-        # - full+cfu+debug
-        # - perf+cfu
-        # - perf+cfu+debug
-        # - slim+cfu
-        # - slim+cfu+debug
-        # - slimperf+cfu
-        # - slimperf+cfu+debug
-        # - minimal+cfu
-        # - fpu
-        # - fpu+debug
-        # - ...
-        # Build a custom variant using for example:
-        # `-c cfu_full_rtl.cpu_variant="generate+iCacheSize:2048+csrPluginConfig:all+cfu"`
-        # Available attributes:
-        # csrPluginConfig=mcycle/small/all/linux/linux-minimal
-        # bypass=true/false
-        # cfu=true/false
-        # dCacheSize=4096
-        # hardwareDiv=false/true
-        # iCacheSize=4096
-        # mulDiv=true/false
-        # prediction=none/static/dynamic/dynamic_target
-        # safe=true/false
-        # singleCycleShift=true/false
-        # singleCycleMulDiv=true/false
-        # debug=true/false
-        # UNTESTES:
-        # pmpRegions=0?
-        # pmpGranularity=256?
-        # hardwareBreakpointCount=0
-        # atomics=false/true
-        # compressedGen=false/true
-        # relaxedPcCalculation=false/true
-        # externalInterruptArray=true/false
-        # resetVector=null?
-        # machineTrapVector=null?
+        "baud": 1843200,
         "fpu": "none",  # TODO: use
         "compressed": False,  # TODO: use
         "atomic": False,  # TODO: use
         "integrated_main_ram_size": 0,
         # "integrated_main_ram_size":  256 * 1024,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"tvm.build_dir"}
-
-    @property
-    def cpu_variant(self):
-        value = self.config["cpu_variant"]
-        return value
-
-    @property
-    def use_sw_dir(self):
-        value = self.config["use_sw_dir"]
-        return value
-
-    @property
-    def use_gateware_dir(self):
-        value = self.config["use_gateware_dir"]
-        return value
-
-    @property
-    def rtl_sim(self):
-        value = self.config["rtl_sim"]
-        return str2bool(value)
+    tvm_build_dir = required("tvm.build_dir")
+    verbose = cfg(False, cast=str2bool)
+    rtl_sim = cfg(False, cast=str2bool)
+    cpu_variant = cfg(None)
+    use_sw_dir = cfg(None)
+    use_gateware_dir = cfg(None)
 
     @property
     def fpga_sim(self):
@@ -187,10 +128,7 @@ class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
 
 
 class FullRTLCFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
-    DEFAULTS = {
-        **FullCFUPlaygroundPlatformTarget.DEFAULTS,
-        "rtl_sim": True,
-    }
+    rtl_sim = cfg(True, cast=str2bool)
 
 
 class FullFPGACFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):

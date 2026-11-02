@@ -19,6 +19,9 @@
 import pytest
 
 from mlonmcu.config import (
+    Configurable,
+    ConfigField,
+    cfg,
     filter_config,
     pick_first,
     remove_config_prefix,
@@ -26,7 +29,65 @@ from mlonmcu.config import (
     str2bool,
     str2dict,
     str2list,
+    optional,
+    parse_int,
+    required,
 )
+
+
+def test_config_fields_metadata_access_and_legalization():
+    class Base(Configurable):
+        enabled = cfg(False, cast=str2bool)
+        nullable = cfg(None, cast=lambda value: (_ for _ in ()).throw(RuntimeError("called")))
+        source = required("external.source")
+        tool = optional("external.tool")
+
+    class Child(Base):
+        enabled = required("child.enabled", cast=str2bool)
+        port = cfg(12, cast=int)
+
+    assert isinstance(Base.enabled, ConfigField)
+    assert Base.DEFAULTS == {"enabled": False, "nullable": None}
+    assert Base.REQUIRED == {"external.source"}
+    assert Base.OPTIONAL == {"external.tool"}
+    assert Child.DEFAULTS == {"nullable": None, "port": 12}
+    assert Child.REQUIRED == {"external.source", "child.enabled"}
+    assert Child.OPTIONAL == {"external.tool"}
+    assert Base.DEFAULTS == {"enabled": False, "nullable": None}  # no parent mutation
+    obj = Child.__new__(Child)
+    obj.config = {
+        "child.enabled": "yes",
+        "external.source": "src",
+        "external.tool": None,
+        "nullable": None,
+        "port": "4",
+    }
+    assert obj.enabled is True
+    assert obj.nullable is None
+    assert obj.source == "src"
+    assert obj.tool is None
+    assert obj.port == 4
+    assert set(Child.CONFIG_FIELDS) == {"enabled", "nullable", "source", "tool", "port"}
+
+
+def test_config_fields_compose_with_legacy_metadata():
+    class Legacy(Configurable):
+        DEFAULTS = {"old": 1, "reclassified": 2}
+        REQUIRED = {"needed"}
+        OPTIONAL = {"maybe"}
+
+    class Modern(Legacy):
+        reclassified = required(cast=str)
+        maybe = cfg("now-default")
+
+    assert Modern.DEFAULTS == {"old": 1, "maybe": "now-default"}
+    assert Modern.REQUIRED == {"needed", "reclassified"}
+    assert Modern.OPTIONAL == set()
+
+
+@pytest.mark.parametrize("value, expected", [(4, 4), ("42", 42), ("0x20", 32)])
+def test_parse_int(value, expected):
+    assert parse_int(value) == expected
 
 
 def test_remove_config_prefix_supports_exact_and_wildcard_prefixes():

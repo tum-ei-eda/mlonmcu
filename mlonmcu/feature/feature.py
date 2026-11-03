@@ -222,6 +222,10 @@ class RunFeature(FeatureBase):
     def add_run_config(self, config):
         config.update(self.get_run_config())
 
+    def get_pipeline(self, pipeline):
+        """Return a serializable pipeline description, optionally adding run stages."""
+        return pipeline
+
     # def get_postprocesses(self):
     #     return []
 

@@ -36,6 +36,7 @@ from .riscv import (
     Vicuna2Target,
     CanMvK230SSHTarget,
     TGCTarget,
+    NailgunTarget,
 )
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
@@ -81,3 +82,5 @@ register_target("vicuna", VicunaTarget)
 register_target("vicuna2", Vicuna2Target)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
 register_target("tgc", TGCTarget)
+
+register_target("nailgun", NailgunTarget)

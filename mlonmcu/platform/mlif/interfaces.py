@@ -192,7 +192,7 @@ class ModelSupport:
             assert self.target is not None
             if self.target.supports_filesystem:
                 out_interface = "filesystem"
-            elif self.target.supports_stdin:
+            elif self.target.supports_stdout:
                 out_interface = "stdout_raw"
                 # TODO: also allow stdout?
             else:  # Fallback

@@ -13,6 +13,7 @@ from .vicuna import VicunaTarget
 from .vicuna2 import Vicuna2Target
 from .canmv_k230_ssh import CanMvK230SSHTarget
 from .tgc import TGCTarget
+from .nailgun import NailgunTarget
 
 __all__ = [
     "EtissPulpinoTarget",
@@ -37,4 +38,5 @@ __all__ = [
     "Vicuna2Target",
     "CanMvK230SSHTarget",
     "TGCTarget",
+    "NailgunTarget",
 ]

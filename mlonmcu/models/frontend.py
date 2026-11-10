@@ -375,9 +375,9 @@ class Frontend(ABC):
                         assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
                         shape = input_shapes[input_name]
                         arr = np.reshape(arr, shape)
-                        # Quantize if required
-                        # if gen_dtype != dtype:
-                        if True:
+                        # File inputs need quantization only when their stored
+                        # dtype differs from the quantized model input dtype.
+                        if quant and gen_dtype != dtype:
                             assert "int" in dtype
                             # assert quant
                             scale, shift, ty, qrng = quant

@@ -34,7 +34,7 @@ from mlonmcu.setup import utils
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
-from mlonmcu.config import pick_first, str2bool, str2list
+from mlonmcu.config import cfg, optional, pick_first, str2bool, str2list
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
 from .riscv_bext_target import RVBTarget
@@ -107,30 +107,14 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
 
     FEATURES = RVPTarget.FEATURES | RVVTarget.FEATURES | RVBTarget.FEATURES | {"cachesim", "log_instrs"}
 
-    DEFAULTS = {
-        **RVPTarget.DEFAULTS,
-        **RVVTarget.DEFAULTS,
-        **RVBTarget.DEFAULTS,
-        "legacy": True,
-        "plugin_manifest": None,
-        "extlibs": [],
-        "extension_names": [],
-    }
-    REQUIRED = RVPTarget.REQUIRED | RVVTarget.REQUIRED | RVBTarget.REQUIRED
-
-    OPTIONAL = RVPTarget.OPTIONAL | RVVTarget.OPTIONAL | RVBTarget.OPTIONAL | {"spike.exe"}
+    legacy = cfg(True, cast=str2bool)
+    spike_exe = optional("spike.exe", cast=Path)
+    plugin_manifest_path = cfg(None, key="plugin_manifest")
+    extlibs = cfg([])
+    configured_extension_names = cfg([], key="extension_names")
 
     def __init__(self, name, features=None, config=None):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def legacy(self):
-        value = self.config["legacy"]
-        return str2bool(value)
-
-    @property
-    def spike_exe(self):
-        return Path(self.config["spike.exe"])
 
     @property
     def extensions(self):
@@ -151,7 +135,7 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
 
     @property
     def plugin_manifest(self):
-        path = self.config["plugin_manifest"]
+        path = self.plugin_manifest_path
         if path is None:
             return {}
         path = Path(path).expanduser().resolve()
@@ -167,7 +151,7 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
 
     @property
     def extension_names(self):
-        return str2list(self.config["extension_names"]) + self.plugin_manifest.get("extension_names", [])
+        return str2list(self.configured_extension_names) + self.plugin_manifest.get("extension_names", [])
 
     def get_spike_args(self):
         spike_args = []
@@ -176,7 +160,7 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         if self.extension_names:
             isa = "_".join(part for part in isa.split("_") if not part.startswith("xisaac"))
         spike_args.append(f"--isa={isa}")
-        for library in str2list(self.config["extlibs"]) + self.plugin_manifest.get("extlibs", []):
+        for library in str2list(self.extlibs) + self.plugin_manifest.get("extlibs", []):
             library = Path(library).expanduser().resolve()
             if not library.is_file():
                 raise FileNotFoundError(f"Spike extension library not found: {library}")
@@ -269,16 +253,13 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
 
 class SpikePKTarget(SpikeBaseTarget):
 
+    spikepk_extra_args = cfg([])
+    build_pk = cfg(False, cast=str2bool)
+
     def __init__(self, name="spike_pk", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
-    DEFAULTS = {
-        **SpikeBaseTarget.DEFAULTS,
-        "spikepk_extra_args": [],
-        "build_pk": False,
-    }
-
-    OPTIONAL = SpikeBaseTarget.OPTIONAL | {
+    OPTIONAL = {
         "spike.pk",
         "spike.pk_rv32",
         "spike.pk_rv64",
@@ -287,11 +268,6 @@ class SpikePKTarget(SpikeBaseTarget):
         "spike_pk.pk_rv32",
         "spike_pk.pk_rv64",
     }
-
-    @property
-    def build_pk(self):
-        value = self.config["build_pk"]
-        return str2bool(value)
 
     @property
     def spike_pk(self):
@@ -308,14 +284,12 @@ class SpikePKTarget(SpikeBaseTarget):
         )
         return ret
 
-    @property
-    def spike_pk_src_dir(self):
-        value = self.config["spikepk.src_dir"]
-        return value if value is None else Path(value)
+    spikepk_src_dir = optional("spikepk.src_dir")
 
     @property
-    def spikepk_extra_args(self):
-        return self.config["spikepk_extra_args"]
+    def spike_pk_src_dir(self):
+        value = self.spikepk_src_dir
+        return value if value is None else Path(value)
 
     def get_spike_args(self):
         """Add supervisor mode required by the proxy kernel."""
@@ -384,39 +358,16 @@ class SpikePKTarget(SpikeBaseTarget):
 
 class SpikeBMTarget(SpikeBaseTarget):
 
-    DEFAULTS = {
-        **SpikeBaseTarget.DEFAULTS,
-        "htif": True,
-        "htif_nano": True,
-        "htif_wrap": True,
-        "htif_argv": False,
-    }
+    htif = cfg(True, cast=str2bool)
+    htif_nano = cfg(True, cast=str2bool)
+    htif_wrap = cfg(True, cast=str2bool)
+    htif_argv = cfg(False, cast=str2bool)
 
     # def get_target_system(self):
     #     return "generic_riscv_bm"
 
     def __init__(self, name="spike_bm", features=None, config=None):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def htif(self):
-        value = self.config["htif"]
-        return str2bool(value)
-
-    @property
-    def htif_nano(self):
-        value = self.config["htif_nano"]
-        return str2bool(value)
-
-    @property
-    def htif_wrap(self):
-        value = self.config["htif_wrap"]
-        return str2bool(value)
-
-    @property
-    def htif_argv(self):
-        value = self.config["htif_argv"]
-        return str2bool(value)
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""

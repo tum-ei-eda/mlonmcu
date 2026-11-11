@@ -242,11 +242,9 @@ class ConfigTracker:
         return self.used - self.names - self.ignore
 
     def track(self, key: str):
-        print("TRACK", key)
         self.used.add(key)
 
     def track_all(self, all_keys: set):
-        print("TRACK_ALL", all_keys)
         assert isinstance(all_keys, set)
         self.used = self.used | all_keys
 
@@ -261,28 +259,14 @@ class ConfigTracker:
 
     def check(self, fail_on_err: bool = False):
         unused = self.unused
-        unknown = self.unknown
-        print("names", self.names)
-        print("used", self.used)
-        print("unused", unused)
-        print("unknown", unknown)
         ret = False
         if len(unused):
             unused_str = ", ".join(sorted(list(unused)))
-            msg = f"Unsued config vars found: {unused_str}"
+            msg = f"Unused config vars found: {unused_str}"
             if fail_on_err:
                 raise RuntimeError(msg)
             logger.warning(msg)
             ret = True
-        # if len(unknown):
-        #     unknown_str = ", ".join(sorted(list(unknown)))
-        #     msg = f"Unknown config vars found: {unknown_str}"
-        #     if fail_on_err:
-        #         raise RuntimeError(msg)
-        #     logger.warning(msg)
-        #     ret = True
-        print("ret", ret)
-        # input("!")
         return ret
 
     def merge(self, other: "ConfigTracker"):
@@ -291,8 +275,6 @@ class ConfigTracker:
         merged = ConfigTracker()
         merged.names = new_names
         merged.used = new_used
-        print("merged", merged)
-        # input("!")
         return merged
 
 
@@ -323,7 +305,6 @@ def filter_config(config, prefix, defaults, optionals, required_keys, config_tra
     ------
     AssertionError: If a required key is missing.
     """
-    print("filter_config", config, prefix, defaults, optionals, required_keys, config_tracker)
     if not isinstance(required_keys, set):
         logger.warning(
             "Deprecated: FEATURES, REQUIRED, OPTIONAL should now be sets, not lists for component %s", prefix
@@ -371,10 +352,6 @@ def filter_config(config, prefix, defaults, optionals, required_keys, config_tra
         if key not in set(defaults.keys()) | required_keys:
             # logger.warn("Component received an unknown config key: %s", key)
             pass
-    print("---")
-    print("prefix", prefix)
-    print("cfg", cfg)
-    print("config_tracker", config_tracker)
     return cfg
 
 

@@ -16,9 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from unittest.mock import patch
+
 import pytest
 
 from mlonmcu.config import (
+    ConfigTracker,
     Configurable,
     ConfigField,
     cfg,
@@ -103,6 +106,77 @@ def test_filter_config_merges_scoped_global_and_default_values():
 
     with pytest.raises(AssertionError, match="Required config key"):
         filter_config({}, "demo", {}, set(), {"required"})
+
+
+def test_config_tracker_tracks_used_keys_and_ignores_known_keys(capsys):
+    tracker = ConfigTracker({"used": 1, "unused": 2, "runs_per_stage": 3})
+
+    tracker.track("used")
+    tracker.track_all({"another"})
+
+    assert tracker.used == {"used", "another"}
+    assert tracker.unused == {"unused"}
+    assert tracker.unknown == {"another"}
+    assert capsys.readouterr().out == ""
+
+
+def test_config_tracker_check_warns_about_unused_keys(capsys):
+    tracker = ConfigTracker({"used": 1, "unused": 2})
+    tracker.track("used")
+
+    with patch("mlonmcu.config.logger.warning") as warning:
+        assert tracker.check() is True
+
+    warning.assert_called_once_with("Unused config vars found: unused")
+    assert capsys.readouterr().out == ""
+
+
+def test_config_tracker_check_succeeds_when_all_keys_are_used():
+    tracker = ConfigTracker({"used": 1})
+    tracker.track("used")
+
+    with patch("mlonmcu.config.logger.warning") as warning:
+        assert tracker.check() is False
+
+    warning.assert_not_called()
+
+
+def test_config_tracker_check_fails_on_unused_keys():
+    tracker = ConfigTracker({"unused": 1})
+
+    with pytest.raises(RuntimeError, match="Unused config vars found: unused"):
+        tracker.check(fail_on_err=True)
+
+
+def test_config_tracker_merge_combines_names_and_used_keys(capsys):
+    first = ConfigTracker({"first": 1})
+    first.track("first")
+    second = ConfigTracker({"second": 2})
+    second.track("second")
+
+    merged = first.merge(second)
+
+    assert merged.names == {"first", "second"}
+    assert merged.used == {"first", "second"}
+    assert merged.unused == set()
+    assert capsys.readouterr().out == ""
+
+
+def test_filter_config_tracker_records_scoped_and_global_keys(capsys):
+    tracker = ConfigTracker({"demo.enabled": True, "required": "value"})
+
+    config = filter_config(
+        {"demo.enabled": True, "required": "value"},
+        "demo",
+        {"enabled": False},
+        set(),
+        {"required"},
+        config_tracker=tracker,
+    )
+
+    assert config == {"enabled": True, "required": "value"}
+    assert tracker.used == {"demo.enabled", "required"}
+    assert capsys.readouterr().out == ""
 
 
 class FakeCache(dict):

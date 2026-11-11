@@ -348,13 +348,7 @@ class Run(Configurable):
         self.config_tracker = None
         if not archived:
             self.config_tracker = ConfigTracker(self.config)
-            print("self.config", self.config)
         self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
-        if not archived:
-            print("self.run_config", self.run_config)
-            print("self.config_tracker", self.config_tracker)
-            # input("!")
-            # self.config_tracker.check()
         self.sub_names = []
         self.sub_parents = {}
         self.times = {}
@@ -1350,7 +1344,6 @@ class Run(Configurable):
     # Everything in Run is serializable except PlatformTargets and PlatformBackends...
     # def __getstate__(self):
     #     state = self.__dict__.copy()
-    #     print("state", state)
     #     # Don't pickle baz
     #     # del state["baz"]
     #     # del state["platforms"]
@@ -1458,7 +1451,6 @@ class ArchivedRun(Run):
         assert path.is_file()
         with open(path, "r") as f:
             yaml_data = yaml.safe_load(f)
-        print("yaml_data", yaml_data)
         return ArchivedRun(**yaml_data)
 
     @staticmethod

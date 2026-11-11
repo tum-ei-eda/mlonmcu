@@ -98,6 +98,8 @@ def _validate_spikepk_build(context: MlonMcuContext, params=None):
     enable_rv64 = str2bool(user_vars.get("spikepk.enable_rv64", False))
     assert params is not None
     xlen = params.get("xlen")
+    if f"spike.pk_rv{xlen}" in user_vars:
+        return False
     if xlen == 32 and not enable_rv32:
         return False
     if xlen == 64 and not enable_rv64:

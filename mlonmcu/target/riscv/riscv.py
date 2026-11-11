@@ -177,7 +177,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            return "m" in exts or "g" in exts or "zmmul" in exts
+            return "m" in exts or "g" in exts
         value = self.config["multiply"]
         return str2bool(value)
 

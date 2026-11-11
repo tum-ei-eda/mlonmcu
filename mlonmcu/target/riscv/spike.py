@@ -445,6 +445,11 @@ class SpikeBMTarget(SpikeBaseTarget):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.htif:
+            if not self.htif_nano or self.htif_argv:
+                ret["HTIF"] = True
+                ret["HTIF_NANO"] = self.htif_nano
+                ret["HTIF_ARGV"] = self.htif_argv
+                return ret
             # Link libgloss-htif explicitly so both Clang and GCC work, including
             # MLIF branches which predate its HTIF CMake options.
             compiler = self.riscv_gcc_prefix / "bin" / f"{self.riscv_gcc_basename}-gcc"

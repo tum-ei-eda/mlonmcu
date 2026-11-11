@@ -1488,7 +1488,11 @@ class LogInstructions(TargetFeature):
         if not self.enabled:
             return
         if target.startswith("spike"):
-            extra_args_new = list(config.get(f"{target}.extra_args", []))
+            extra_args_new = config.get(f"{target}.extra_args", [])
+            if isinstance(extra_args_new, str):
+                extra_args_new = [extra_args_new] if extra_args_new else []
+            else:
+                extra_args_new = list(extra_args_new)
             extra_args_new.append("-l")
             if self.to_file:
                 # assert directory is not None

@@ -31,7 +31,7 @@ paths:
 repos:
   tensorflow:  # TODO: rename to tflite-micro?
     url: "https://github.com/tensorflow/tflite-micro.git"
-    ref: 19aaea85e4679a9a2f265e07ba190ac5ea4d3766
+    ref: 8f1f3b2623dcfe477c7a07febdcbec21ea3bde50
     options:
       single_branch: true
   # tflite_micro_compiler:
@@ -39,7 +39,7 @@ repos:
   #   ref: patches
   tvm:
     url: "https://github.com/PhilippvK/tvm.git"  # TODO: change to upstream after pr merged
-    ref: develop_v0.17.0
+    ref: develop_v0.18.0_clean
     options:
       recursive: true
       submodules:
@@ -54,17 +54,21 @@ repos:
   #   url: "https://github.com/tum-ei-eda/tvm_extensions.git"
   #   ref: main
   etiss:  # TODO: wait for merge
-    url: "https://github.com/PhilippvK/etiss.git"
-    ref: staging-new  # TODO: change after fixing semihosting issue
+    url: "https://github.com/tum-ei-eda/etiss.git"
+    ref: 74451e05512e10c2e8574b914e7dc8a19de67975
+    options:
+      recursive: true
   muriscvnn:
     url: "https://github.com/tum-ei-eda/muriscv-nn.git"
-    ref: cec46aa94277417b3cb48bdb0dcd783abbe670da
+    ref: f69494442858980be78180868d96c3524dbf26f9
   spike:
     url: "https://github.com/riscv-software-src/riscv-isa-sim.git"
-    ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+    # ref: 0bc176b3fca43560b9e8586cdbc41cfde073e17a
+    ref: 4ffd6ba860f4190ceac2716fa3c2cf139e85538f
   spikepk:
     url: "https://github.com/riscv-software-src/riscv-pk.git"
-    ref: 573c858d9071a2216537f71de651a814f76ee76d
+    # ref: 7e9b671c0415dfd7b562ac934feb9380075d4aa2
+    ref: 9c61d29846d8521d9487a57739330f9682d5b542
   cmsis:
     url: "https://github.com/ARM-software/CMSIS_5.git"
     ref: 51263182d16c92649a48144ba56c0945f9fce60e
@@ -74,15 +78,13 @@ repos:
       # shallow: true
   cmsisnn:
     url: "https://github.com/ARM-software/CMSIS-NN.git"
-    # ref: v4.0.0
-    # ref: 5a11800c20b3f41ce78b8c3c6ea1e92b4f9d2549
-    ref: v6.0.0
+    ref: v8.0.0
   ethosu_platform:
     url: "https://review.mlplatform.org/ml/ethos-u/ethos-u-core-platform"
     ref: fc42c71353d15c564558249bd4f13350119ab6a9
   mlif:
     url: "https://github.com/tum-ei-eda/mlonmcu-sw.git"
-    ref: 6fcaddfc4af9b4604243106088ebc665cd75d1e9
+    ref: d467dfa833c7c40ab894bcef071edc109d8f809a
   # espidf:
   #   url: "https://github.com/espressif/esp-idf.git"
   #   ref: release/v4.4
@@ -249,7 +251,7 @@ targets:
     enabled: true
     features:
       vext: true
-      pext: true
+      # pext: true
       bext: true
       cachesim: true
       log_instrs: true
@@ -257,7 +259,7 @@ targets:
     enabled: true
     features:
       vext: true
-      pext: true
+      # pext: true
   corstone300:
     enabled: false
     features:
@@ -334,15 +336,21 @@ vars:
   runs_per_stage: true
   # tvm.make_tool: "ninja"
   # llvm.version: "16.0.0"
-  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
+  llvm.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/llvm_22.1.1/clang+llvm-22.1.1-x86_64-linux-gnu-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}.tar.xz"
   # llvm.distribution: x86_64-linux-gnu-ubuntu-18.04
   # llvm.version: 18.1.8
-  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
-  riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gcv_ilp32d.tar.xz"
-  riscv_gcc_rv32.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcp_ilp32d.tar.xz"
-  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2024.09.03_gcc14/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
+  riscv_gcc_rv32.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gc_ilp32d.tar.xz"
+  riscv_gcc_rv32.dl_url_vext: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv32-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-rv32gcv_ilp32d.tar.xz"
+  # riscv_gcc_rv32.dl_url_pext: "https://syncandshare.lrz.de/dl/fiWBtDLWz17RBc1Yd4VDW7/GCC/pext/2022.04.28/Ubuntu/{{ ubuntu_version if ubuntu_version is defined else '20.04'}}/rv32gcp_ilp32d.tar.xz"
+  riscv_gcc_multilib.dl_url: "https://github.com/PhilippvK/riscv-tools/releases/download/gnu_2025.08.08_min/riscv64-unknown-elf-ubuntu-{{ ubuntu_version if ubuntu_version is defined else '20.04'}}-multilib_default.tar.xz"
   spike.keep_build_dir: false
   etiss.keep_build_dir: false
+  spike.legacy: false
+  spike_pk.legacy: false
+  spike_bm.legacy: false
+  spike_rv32.legacy: false
+  spike_rv32_min.legacy: false
+  spike_rv64.legacy: false
 flags:
   tflmc.exe:
   - x86

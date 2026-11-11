@@ -20,15 +20,13 @@ import os
 import string
 import tempfile
 from pathlib import Path
-from typing import Tuple, Optional
-import multiprocessing
+from typing import Tuple
 
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.logging import get_logger
-from mlonmcu.target.elf import get_code_size_from_static_lib
 from mlonmcu.models.model_info import (
     get_model_info,
     # get_fallback_model_info,
@@ -61,7 +59,8 @@ def fill(template, **kwargs):
 
 
 def generate_emx_wrapper(
-    model_info, identifier: str,
+    model_info,
+    identifier: str,
 ):
     def generate_header(prefix="model"):
         upper_prefix = prefix.upper()
@@ -88,6 +87,7 @@ size_t {prefix}_outputs();
 
     def generate_wrapper(prefix="model"):
         out = ""
+
         def writeTensors(in_tensors, out_tensors):
             retStr = """
 """
@@ -164,7 +164,10 @@ size_t ${prefix}_outputs()
     return ${numOutputs};
 }
 """
-        model_input_args = ", ".join([f"inputs[{idx}]" for idx in range(len(model_info.in_tensors))] + [f"outputs[{idx}]" for idx in range(len(model_info.out_tensors))])
+        model_input_args = ", ".join(
+            [f"inputs[{idx}]" for idx in range(len(model_info.in_tensors))]
+            + [f"outputs[{idx}]" for idx in range(len(model_info.out_tensors))]
+        )
         out += fill(
             mainCode,
             inSizes=getSizes(model_info.in_tensors),
@@ -175,6 +178,7 @@ size_t ${prefix}_outputs()
             model_input_args=model_input_args,
         )
         return out
+
     wrapper = generate_wrapper()
     header = generate_header()
     return wrapper, header
@@ -186,14 +190,23 @@ class EMXBackend(Backend):
     # name = None
     name = "emx"
 
+    # These retain explicit properties because they implement value aliases
+    # and validation beyond a direct lookup/legalization.
     DEFAULTS = {
-        "print_outputs": False,
-        "emx_compile_extra_args": [],
+        "inline_kernels": "preferred",
+        "accumulation_strategy": None,
     }
 
-    REQUIRED = {"emx.src_dir"}
+    emx_src_dir = required("emx.src_dir")
+    emx_compile_extra_args = cfg([])
+    print_outputs = cfg(False, cast=str2bool)
+    verbose = cfg(False, cast=str2bool)
+    static_kernels = cfg(True, cast=str2bool)
+    restrict_arrays = cfg(None, cast=lambda value: str2bool(value, allow_none=True))
+    large_weight_threshold = cfg(10000000, cast=int)
+    large_temp_threshold = cfg(None, cast=int)
 
-    def __init__(self, output_format=None, hal_backend=None, hal_inline=False, features=None, config=None):
+    def __init__(self, features=None, config=None):
         super().__init__(framework="emx", features=features, config=config)
         self.identifier = "model"
 
@@ -208,21 +221,21 @@ class EMXBackend(Backend):
         self.artifacts = []
 
     @property
-    def emx_compile_extra_args(self):
-        return self.config["emx_compile_extra_args"]
-
-    @property
-    def emx_src_dir(self):
-        return self.config["emx.src_dir"]
-
-    @property
-    def emx_compile_extra_args(self):
-        return self.config["emx_compile_extra_args"]
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
+    def inline_kernels(self):
+        value = self.config["inline_kernels"]
+        if value in ["always", "preferred", "never", "force"]:
+            return value
+        if value in ["", "none", "None", None]:
+            return None
         return str2bool(value)
+
+    @property
+    def accumulation_strategy(self):
+        value = self.config["accumulation_strategy"]
+        if value is None:
+            return None
+        assert value in ["fp16", "fp32"]
+        return int(value)
 
     def prepare_environment(self):
         env = os.environ.copy()
@@ -238,11 +251,30 @@ class EMXBackend(Backend):
             model_path,
             *self.emx_compile_extra_args,
             str(out),
-            "--large-weight-threshold",
-            "10000000",
-            # "--verbose",  # TODO: expose
+            *(
+                ["--large-weight-threshold", str(self.large_weight_threshold)]
+                if self.large_weight_threshold is not None
+                else []
+            ),
+            *(
+                ["--large-temp-threshold", str(self.large_temp_threshold)]
+                if self.large_temp_threshold is not None
+                else []
+            ),
+            *(
+                [f"--{self.accumulation_strategy}-accumulation-strategy"]
+                if self.accumulation_strategy is not None
+                else []
+            ),
+            *(
+                ["--restrict-arrays" if self.restrict_arrays else "--no-restrict-arrays"]
+                if self.restrict_arrays is not None
+                else []
+            ),
+            *(["--verbose"] if self.verbose is not None else []),
             # f"--model-name={self.identifier}",
-            # --emit-data-file, --truncate-weights-after, --large-temp-threshold, --large-weight-threshold, --restrict-arrays, --no-restrict-arrays, --fp32-accumulation-strategy, --fp16-accumulation-strategy
+            # --emit-data-file, --truncate-weights-after, --large-temp-threshold,
+            # --restrict-arrays, --no-restrict-arrays, --fp32-accumulation-strategy, --fp16-accumulation-strategy
         ]
         return args
 
@@ -255,7 +287,6 @@ class EMXBackend(Backend):
             "onnx": "emx-onnx-cgen",
         }
         exe = fmt2exe.get(self.model_format)
-        print("exe", exe)
         assert exe is not None, f"Unsupported format: {self.model_format}"
         args = self.get_emx_compile_args(out, model_path)
         self.timeout_sec = 0
@@ -315,13 +346,25 @@ class EMXBackend(Backend):
                     fmt=ArtifactFormat.SOURCE,
                 )
             )
-            stdout_artifact = Artifact(
-                "emx_compile_out.log", content=out, fmt=ArtifactFormat.TEXT
-            )
+            stdout_artifact = Artifact("emx_compile_out.log", content=out, fmt=ArtifactFormat.TEXT)
             artifacts.append(stdout_artifact)
-        print("artifacts", artifacts)
         return {"default": artifacts}, {"default": metrics}
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        prefix = ""
+        if self.static_kernels:
+            prefix += "static"
+        if self.inline_kernels in ["always", "force"]:
+            prefix += " __attribute__((always_inline)) inline"
+        elif self.inline_kernels is None:
+            pass
+        elif self.inline_kernels == "never" or not self.inline_kernels:
+            prefix += " __attribute__((noinline))"
+        elif self.inline_kernels == "preferred" or self.inline_kernels:
+            prefix += " inline"
+        else:
+            raise ValueError(f"Unhandled inline_functions value: {self.inline_kernels}")
+            prefix += " inline"
+        ret["EMX_NODE_FN"] = prefix
         return ret

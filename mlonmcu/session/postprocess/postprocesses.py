@@ -29,10 +29,12 @@ import numpy as np
 import pandas as pd
 
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
-from mlonmcu.config import str2dict, str2bool, str2list
+from mlonmcu.config import cfg, optional, str2bool, str2dict, str2list
 from mlonmcu.logging import get_logger
+from mlonmcu.setup import utils
 
 from .postprocess import SessionPostprocess, RunPostprocess
+from .vivado import parse_vivado_artifacts
 from .validate_metrics import parse_validate_metrics, parse_classify_metrics
 from .calc_lib_mem_footprints import (
     parse_elf,
@@ -42,9 +44,30 @@ from .calc_lib_mem_footprints import (
     unmangle_helper,
 )
 from .dwarf import analyze_dwarf
-
+from mlonmcu.session.db_utils import push_session_to_mlonmcu_db
 
 logger = get_logger()
+
+
+VIVADO_METRIC_CATEGORIES = {
+    "identity": ["device", "vivado_version"],
+    "timing": ["timing_met", "wns_ns", "tns_ns", "whs_ns", "estimated_fmax_mhz"],
+    "total_area": ["place_slice_luts_used", "place_slice_registers_used", "place_bram_tiles_used", "place_dsps_used"],
+    "area_utilization": [
+        "place_slice_luts_util_pct",
+        "place_slice_registers_util_pct",
+        "place_bram_tiles_util_pct",
+        "place_dsps_util_pct",
+    ],
+    "lut_breakdown": ["place_lut_as_logic_used", "place_lut_as_memory_used"],
+    "bram_breakdown": ["place_ramb36_fifo_used", "place_ramb18_used"],
+    "cpu_hierarchy": ["hier_cpu_total_luts", "hier_cpu_ffs", "hier_cpu_bram_tiles", "hier_cpu_dsps"],
+    "d_cache_hierarchy": ["hier_dcache_total_luts", "hier_dcache_ffs", "hier_dcache_bram_tiles"],
+    "i_cache_hierarchy": ["hier_icache_total_luts", "hier_icache_ffs", "hier_icache_bram_tiles"],
+    "cfu_hierarchy": ["hier_cfu_total_luts", "hier_cfu_ffs", "hier_cfu_bram_tiles", "hier_cfu_dsps"],
+    "power": ["power_total_w", "power_dynamic_w", "power_static_w"],
+    "thermal": ["junction_temp_c"],
+}
 
 
 def match_rows(df, cols):
@@ -70,14 +93,10 @@ def _parse_cfg(value):
 class FilterColumnsPostprocess(SessionPostprocess):
     """Postprocess which can be used to drop unwanted columns from a report."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "keep": None,
-        "drop": None,
-        "drop_nan": False,
-        "drop_empty": False,
-        "drop_const": False,
-    }
+    DEFAULTS = {}
+    drop_nan = cfg(False, cast=str2bool)
+    drop_empty = cfg(False, cast=str2bool)
+    drop_const = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("filter_cols", features=features, config=config)
@@ -98,25 +117,7 @@ class FilterColumnsPostprocess(SessionPostprocess):
             return _parse_cfg(cfg)
         return cfg
 
-    @property
-    def drop_nan(self):
-        """Get drop_nan property."""
-        value = self.config["drop_nan"]
-        return str2bool(value)
-
-    @property
-    def drop_empty(self):
-        """Get drop_empty property."""
-        value = self.config["drop_empty"]
-        return str2bool(value)
-
-    @property
-    def drop_const(self):
-        """Get drop_const property."""
-        value = self.config["drop_const"]
-        return str2bool(value)
-
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
 
         def _filter_df(df, keep, drop, drop_nan=False, drop_empty=False, drop_const=False):
@@ -155,28 +156,13 @@ class FilterColumnsPostprocess(SessionPostprocess):
 class RenameColumnsPostprocess(SessionPostprocess):
     """Postprocess which can rename columns based on a provided mapping."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "mapping": {},
-        "merge": True,
-    }
+    mapping = cfg({}, cast=str2dict)
+    merge = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("rename_cols", features=features, config=config)
 
-    @property
-    def mapping(self):
-        value = self.config["mapping"]
-        if not isinstance(value, dict):
-            return str2dict(value)
-        return value
-
-    @property
-    def merge(self):
-        value = self.config["merge"]
-        return str2bool(value)
-
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         values = self.mapping.values()
         if len(values) != len(set(values)) and not self.merge:
@@ -203,30 +189,13 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Features' Column
     in a dataframe for easier filtering."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "limit": [],
-        "drop": True,
-    }
+    limit = cfg([], cast=str2list)
+    drop = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("features2cols", features=features, config=config)
 
-    @property
-    def limit(self):
-        """Get limit property."""
-        value = self.config["limit"]
-        if not isinstance(value, list):
-            return str2list(value)
-        return value
-
-    @property
-    def drop(self):
-        """Get drop property."""
-        value = self.config["drop"]
-        return str2bool(value)
-
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         df = report.post_df
         if "Features" not in df.columns:
             return
@@ -252,30 +221,13 @@ class Features2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
 class Config2ColumnsPostprocess(SessionPostprocess):  # RunPostprocess?
     """Postprocess which can be used to transform (explode) the 'Config' Column in a dataframe for easier filtering."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "limit": [],
-        "drop": True,
-    }
+    limit = cfg([], cast=lambda value: str2list(value) if not isinstance(value, list) else value)
+    drop = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("config2cols", features=features, config=config)
 
-    @property
-    def limit(self):
-        """Get limit property."""
-        value = self.config["limit"]
-        if not isinstance(value, list):
-            return str2list(value)
-        return value
-
-    @property
-    def drop(self):
-        """Get drop property."""
-        value = self.config["drop"]
-        return str2bool(value)
-
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.post_df
         if "Config" not in df.columns:
@@ -406,12 +358,12 @@ class MyPostprocess(SessionPostprocess):
             }
         )
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """TODO"""
-        self.config2cols.post_session(report)
-        self.features2cols.post_session(report)
-        self.rename_cols.post_session(report)
-        self.filter_cols.post_session(report)
+        self.config2cols.post_session(report, artifacts)
+        self.features2cols.post_session(report, artifacts)
+        self.rename_cols.post_session(report, artifacts)
+        self.filter_cols.post_session(report, artifacts)
 
 
 class PassConfig2ColumnsPostprocess(SessionPostprocess):
@@ -421,7 +373,7 @@ class PassConfig2ColumnsPostprocess(SessionPostprocess):
     def __init__(self, features=None, config=None):
         super().__init__("passcfg2cols", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.post_df
         name = "config_tvmaot.extra_pass_config"
@@ -439,7 +391,7 @@ class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
     def __init__(self, features=None, config=None):
         super().__init__("bytes2kb", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = report.main_df
         match_strs = ["ROM", "RAM"]
@@ -458,20 +410,12 @@ class Bytes2kBPostprocess(SessionPostprocess):  # RunPostprocess?
 class VisualizePostprocess(SessionPostprocess):
     """A very simple example on how to generate a plot of the results using a postprocess."""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "format": "png",
-    }
+    format = cfg("png")
 
     def __init__(self, features=None, config=None):
         super().__init__("visualize", features=features, config=config)
 
-    @property
-    def format(self):
-        """Get format property."""
-        return self.config["format"]
-
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         df = pd.concat([report.pre_df, report.main_df], axis=1)
 
@@ -510,21 +454,10 @@ class VisualizePostprocess(SessionPostprocess):
 class Artifact2ColumnPostprocess(RunPostprocess):
     """Postprocess for converting artifacts to columns in the report."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "file2colname": {},
-    }
+    file2colname = cfg({}, cast=str2dict)
 
     def __init__(self, features=None, config=None):
         super().__init__("artifacts2cols", features=features, config=config)
-
-    @property
-    def file2colname(self):
-        """Get file2colname property."""
-        value = self.config["file2colname"]
-        if not isinstance(value, dict):
-            return str2dict(value)
-        return value
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -562,59 +495,16 @@ class Artifact2ColumnPostprocess(RunPostprocess):
 class AnalyseInstructionsPostprocess(RunPostprocess):
     """Counting specific types of instructions."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "groups": True,
-        "sequences": True,
-        "seq_depth": 3,
-        "top": 10,
-        "to_df": False,
-        "to_file": True,
-        "corev": False,
-    }
+    groups = cfg(True, cast=str2bool)
+    sequences = cfg(True, cast=str2bool)
+    seq_depth = cfg(3, cast=int)
+    top = cfg(10, cast=int)
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
+    corev = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_instructions", features=features, config=config)
-
-    @property
-    def groups(self):
-        """Get groups property."""
-        value = self.config["groups"]
-        return str2bool(value)
-
-    @property
-    def sequences(self):
-        """get sequences property."""
-        value = self.config["sequences"]
-        return str2bool(value)
-
-    @property
-    def seq_depth(self):
-        """get seq_depth property."""
-        return int(self.config["seq_depth"])
-
-    @property
-    def top(self):
-        """get top property."""
-        return int(self.config["top"])
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
-
-    @property
-    def corev(self):
-        """Get corev property."""
-        value = self.config["corev"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1042,56 +932,17 @@ class AnalyseInstructionsPostprocess(RunPostprocess):
 class CompareRowsPostprocess(SessionPostprocess):
     """TODO"""
 
-    DEFAULTS = {
-        **SessionPostprocess.DEFAULTS,
-        "to_compare": None,
-        "group_by": None,
-        "baseline": 0,
-        "percent": False,
-        "invert": False,
-        "substract": False,
-    }
+    to_compare = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    group_by = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    baseline = cfg(0, cast=int)
+    percent = cfg(False, cast=str2bool)
+    invert = cfg(False, cast=str2bool)
+    substract = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("compare_rows", features=features, config=config)
 
-    @property
-    def to_compare(self):
-        """Get to_compare property."""
-        value = self.config["to_compare"]
-        return str2list(value, allow_none=True)
-
-    @property
-    def group_by(self):
-        """Get group_by property."""
-        value = self.config["group_by"]
-        return str2list(value, allow_none=True)
-
-    @property
-    def baseline(self):
-        """Get baseline property."""
-        value = self.config["baseline"]
-        return int(value)
-
-    @property
-    def percent(self):
-        """Get percent property."""
-        value = self.config["percent"]
-        return str2bool(value)
-
-    @property
-    def invert(self):
-        """Get invert property."""
-        value = self.config["invert"]
-        return str2bool(value)
-
-    @property
-    def substract(self):
-        """Get substract property."""
-        value = self.config["substract"]
-        return str2bool(value)
-
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         pre_df = report.pre_df
         main_df = report.main_df  # metrics
@@ -1137,31 +988,16 @@ class CompareRowsPostprocess(SessionPostprocess):
 class AnalyseDumpPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "to_df": False,
-        "to_file": True,
-    }
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_dump", features=features, config=config)
 
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
-
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         platform = report.pre_df["Platform"]
-        if (platform != "mlif").any():
+        if (platform not in ["mlif", "mlif_litex"]).any():
             return []
         ret_artifacts = []
         dump_artifact = lookup_artifacts(
@@ -1218,7 +1054,7 @@ class AnalyseDumpPostprocess(RunPostprocess):
             total += 1
         counts_csv = "Instruction,Count,Probability\n"
         for insn, count in sorted(counts.items(), key=lambda item: item[1]):
-            counts_csv += f"{insn},{count},{count/total:.4f}\n"
+            counts_csv += f"{insn},{count},{count / total:.4f}\n"
         artifact = Artifact("dump_counts.csv", content=counts_csv, fmt=ArtifactFormat.TEXT)
         if self.to_file:
             ret_artifacts.append(artifact)
@@ -1233,26 +1069,11 @@ class AnalyseDumpPostprocess(RunPostprocess):
 class AnalyseCoreVCountsPostprocess(RunPostprocess):
     """Counting static instructions."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "to_df": False,
-        "to_file": True,
-    }
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_corev_counts", features=features, config=config)
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1505,7 +1326,7 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
         for ext, count in sorted(cv_ext_counts.items(), key=lambda item: item[1]):
             if count == 0:
                 continue
-            cv_ext_counts_csv += f"{ext},{count},{count/total_counts}\n"
+            cv_ext_counts_csv += f"{ext},{count},{count / total_counts}\n"
         cv_ext_unique_counts_csv = "Set,Used,Utilization\n"
         for ext, used in sorted(cv_ext_unique_counts.items(), key=lambda item: item[1]):
             if used == 0:
@@ -1548,33 +1369,12 @@ class AnalyseCoreVCountsPostprocess(RunPostprocess):
 class ValidateOutputsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "report": False,
-        "validate_metrics": "topk(n=1);topk(n=2)",
-        "validate_range": True,
-    }
+    report = cfg(False, cast=str2bool)
+    validate_metrics = cfg("allclose(atol=0.01,rtol=0.01);topk(n=1);topk(n=2)")
+    validate_range = cfg(True, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("validate_outputs", features=features, config=config)
-
-    @property
-    def validate_metrics(self):
-        """Get validate_metrics property."""
-        value = self.config["validate_metrics"]
-        return value
-
-    @property
-    def report(self):
-        """Get report property."""
-        value = self.config["report"]
-        return str2bool(value)
-
-    @property
-    def validate_range(self):
-        """Get validate_range property."""
-        value = self.config["validate_range"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1584,8 +1384,6 @@ class ValidateOutputsPostprocess(RunPostprocess):
         import yaml
 
         model_info_data = yaml.safe_load(model_info_artifact.content)
-        if len(model_info_data["output_names"]) > 1:
-            raise NotImplementedError("Multi-outputs not yet supported.")
         outputs_ref_artifact = lookup_artifacts(artifacts, name="outputs_ref.npy", first_only=True)
         assert len(outputs_ref_artifact) == 1, "Could not find artifact: outputs_ref.npy"
         outputs_ref_artifact = outputs_ref_artifact[0]
@@ -1599,6 +1397,8 @@ class ValidateOutputsPostprocess(RunPostprocess):
         assert len(outputs_artifact) == 1, "Could not find artifact: outputs.npy"
         outputs_artifact = outputs_artifact[0]
         outputs = np.load(outputs_artifact.path, allow_pickle=True)
+        if len(outputs) != len(outputs_ref) or len(outputs) == 0:
+            raise ValueError(f"Output sample count mismatch: {len(outputs)} actual, {len(outputs_ref)} reference")
         in_data = None
         # compared = 0
         # matching = 0
@@ -1633,10 +1433,10 @@ class ValidateOutputsPostprocess(RunPostprocess):
                         # fallback for custom name-based npy dict
                         out_data = list(output.values())[ii]
                     else:  # fallback for index-based npy array
-                        assert isinstance(output, (list, np.array)), "expected dict, list or np.array type"
+                        assert isinstance(output, (list, np.ndarray)), "expected dict, list or np.array type"
                         out_data = output[ii]
                 else:
-                    RuntimeError(f"Output not found: {out_name}")
+                    raise RuntimeError(f"Output not found: {out_name}")
                 # optional dequantize
                 # print("out_data_before_quant", out_data)
                 # print("sum(out_data_before_quant", np.sum(out_data))
@@ -1662,7 +1462,7 @@ class ValidateOutputsPostprocess(RunPostprocess):
                             assert lower <= upper
                             assert np.min(data) >= lower and np.max(data) <= upper, "Range missmatch"
 
-                        return np.around((data / quant_scale) + quant_zero_point).astype("int8")
+                        return np.clip(np.around((data / quant_scale) + quant_zero_point), -128, 127).astype("int8")
 
                     def dequant_helper(quant, data):  # TODO: move somewhere else
                         if quant is None:
@@ -1722,26 +1522,11 @@ class ValidateOutputsPostprocess(RunPostprocess):
 class ValidateLabelsPostprocess(RunPostprocess):
     """Postprocess for comparing model outputs with golden reference."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "report": False,
-        "classify_metrics": "topk_label(n=1);topk_label(n=2)",
-    }
+    report = cfg(False, cast=str2bool)
+    classify_metrics = cfg("topk_label(n=1);topk_label(n=2)")
 
     def __init__(self, features=None, config=None):
         super().__init__("validate_labels", features=features, config=config)
-
-    @property
-    def classify_metrics(self):
-        """Get classify_metrics property."""
-        value = self.config["classify_metrics"]
-        return value
-
-    @property
-    def report(self):
-        """Get report property."""
-        value = self.config["report"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1795,49 +1580,14 @@ class ValidateLabelsPostprocess(RunPostprocess):
 class ExportOutputsPostprocess(RunPostprocess):
     """Postprocess for writing model outputs to a directory."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "dest": None,  # if none: export as artifact
-        "use_ref": False,
-        "skip_dequant": False,
-        "fmt": "bin",
-        "archive_fmt": None,
-    }
+    dest = cfg(None, cast=Path)
+    use_ref = cfg(False, cast=str2bool)
+    skip_dequant = cfg(False, cast=str2bool)
+    fmt = cfg("bin")
+    archive_fmt = cfg(None)
 
     def __init__(self, features=None, config=None):
         super().__init__("export_outputs", features=features, config=config)
-
-    @property
-    def dest(self):
-        """Get dest property."""
-        value = self.config["dest"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
-    def use_ref(self):
-        """Get use_ref property."""
-        value = self.config["use_ref"]
-        return str2bool(value)
-
-    @property
-    def skip_dequant(self):
-        """Get skip_dequant property."""
-        value = self.config["skip_dequant"]
-        return str2bool(value)
-
-    @property
-    def fmt(self):
-        """Get fmt property."""
-        return self.config["fmt"]
-
-    @property
-    def archive_fmt(self):
-        """Get archive_fmt property."""
-        return self.config["archive_fmt"]
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -1937,70 +1687,21 @@ class ExportOutputsPostprocess(RunPostprocess):
 class AnalyseLinkerMapPostprocess(RunPostprocess):
     """Calculate memory footprints."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        # "to_df": True,
-        "to_df": False,
-        "to_file": True,
-        "per_func": True,
-        "per_object": True,
-        "per_library": True,
-        "ignore": [],
-        "sum": False,
-    }
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
+    per_func = cfg(True, cast=str2bool)
+    per_object = cfg(True, cast=str2bool)
+    per_library = cfg(True, cast=str2bool)
+    ignore = cfg([], cast=lambda value: str2list(value) if not isinstance(value, list) else value)
+    sum = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("analyse_linker_map", features=features, config=config)
 
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
-
-    @property
-    def per_func(self):
-        """Get per_func property."""
-        value = self.config["per_func"]
-        return str2bool(value)
-
-    @property
-    def per_object(self):
-        """Get per_object property."""
-        value = self.config["per_object"]
-        return str2bool(value)
-
-    @property
-    def per_library(self):
-        """Get per_library property."""
-        value = self.config["per_library"]
-        return str2bool(value)
-
-    @property
-    def ignore(self):
-        """Get ignore property."""
-        value = self.config["ignore"]
-        # print("value", value)
-        if not isinstance(value, list):
-            return str2list(value)
-        return value
-
-    @property
-    def sum(self):
-        """Get sum property."""
-        value = self.config["sum"]
-        return str2bool(value)
-
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
         platform = report.pre_df["Platform"]
-        if (platform != "mlif").any():
+        if (platform not in ["mlif", "mlif_litex"]).any():
             return []
         ret_artifacts = []
         elf_artifact = lookup_artifacts(artifacts, name="generic_mlonmcu", fmt=ArtifactFormat.BIN, first_only=True)
@@ -2132,7 +1833,7 @@ class StageTimesGanttPostprocess(SessionPostprocess):
     def __init__(self, features=None, config=None):
         super().__init__("stage_times_gantt", features=features, config=config)
 
-    def post_session(self, report):
+    def post_session(self, report, artifacts):
         """Called at the end of a session."""
         artifacts = []
         content = """gantt
@@ -2158,6 +1859,8 @@ class StageTimesGanttPostprocess(SessionPostprocess):
             first = True
             for stage, times in stage_times.items():
                 start = times.get("start")
+                if start is None or pd.isna(start):
+                    continue
                 end = times.get("end")
                 # time_s = times.get("time_s")
                 time_s = None
@@ -2180,71 +1883,17 @@ class StageTimesGanttPostprocess(SessionPostprocess):
 class ProfileFunctionsPostprocess(RunPostprocess):
     """Instr-trace based profiling of pcs/functions/objects/libraries."""
 
-    DEFAULTS = {
-        **RunPostprocess.DEFAULTS,
-        "per_func": True,
-        "per_object": False,
-        "per_library": False,
-        "topk": None,
-        "min_weight": None,
-        "to_df": False,
-        "to_file": True,
-    }
+    per_func = cfg(True, cast=str2bool)
+    per_object = cfg(False, cast=str2bool)
+    per_library = cfg(False, cast=str2bool)
+    topk = cfg(None, cast=int)
+    min_weight = cfg(None, cast=float)
+    to_df = cfg(False, cast=str2bool)
+    to_file = cfg(True, cast=str2bool)
+    per_pc = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__("profile_functions", features=features, config=config)
-
-    @property
-    def per_pc(self):
-        """Get per_pc property."""
-        value = self.config["per_pc"]
-        return str2bool(value)
-
-    @property
-    def per_func(self):
-        """Get per_func property."""
-        value = self.config["per_func"]
-        return str2bool(value)
-
-    @property
-    def per_object(self):
-        """Get per_object property."""
-        value = self.config["per_object"]
-        return str2bool(value)
-
-    @property
-    def per_library(self):
-        """Get per_library property."""
-        value = self.config["per_library"]
-        return str2bool(value)
-
-    @property
-    def to_df(self):
-        """Get to_df property."""
-        value = self.config["to_df"]
-        return str2bool(value)
-
-    @property
-    def topk(self):
-        """Get topk property."""
-        value = self.config["topk"]
-        if value is None:
-            return None
-        return int(value)
-
-    @property
-    def min_weight(self):
-        """Get min_weight property."""
-        value = self.config["min_weight"]
-        if value is None:
-            return None
-        return float(value)
-
-    @property
-    def to_file(self):
-        """Get to_file property."""
-        value = self.config["to_file"]
-        return str2bool(value)
 
     def post_run(self, report, artifacts):
         """Called at the end of a run."""
@@ -2395,5 +2044,402 @@ class ProfileFunctionsPostprocess(RunPostprocess):
                 post_df["RuntimePerLibrary"] = str(library_counts["count"].to_dict())
                 post_df["RelRuntimePerLibrary"] = str(library_counts["rel_count"].to_dict())
                 report.post_df = post_df
+        assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
+        return ret_artifacts
+
+
+class Push2DBPostprocess(SessionPostprocess):
+    """Push Session report and artifacts to MLonMCU DB."""
+
+    progress = cfg(True, cast=str2bool)
+    session_artifacts = cfg(True, cast=str2bool)
+    run_artifacts = cfg(False, cast=str2bool)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("push2db", features=features, config=config)
+
+    def post_session(self, report, artifacts):
+        """Called at the end of a session."""
+        # Credentials are NOT passed via MLonMCU config!
+        # Please use environment vars to override:
+        # - POSTGRES_USER
+        # - POSTGRES_PASSWORD
+        # - POSTGRES_DB
+        # - POSTGRES_HOST
+        # - POSTGRES_PORT
+        # - S3_ENDPOINT
+        # - S3_KEY
+        # - S3_SECRET
+        # print("post_session")
+        # print("session_artifacts", artifacts)
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_artifact = label_artifact[0].convert(ArtifactFormat.TEXT)
+        # print("label_artifact", label_artifact)
+        label = label_artifact.content
+        # print("label", label)
+        timestamp_artifact = lookup_artifacts(artifacts, flags=("timestamp",), first_only=True)
+        assert len(timestamp_artifact) == 1
+        timestamp_artifact = timestamp_artifact[0].convert(ArtifactFormat.TEXT)
+        # print("timestamp_artifact", timestamp_artifact)
+        timestamp = timestamp_artifact.content
+        # print("timestamp", timestamp)
+        run_artifact_paths = defaultdict(list)
+        session_artifact_paths = []
+        # TODO: use tuples to handle subs/subdirs!
+        if self.session_artifacts:
+            session_artifact_paths = [(artifact.name, artifact.path) for artifact in artifacts]
+        if self.run_artifacts:
+            # TODO receive via artifacts.yml?
+            # raise NotImplementedError("Run artifacts")
+            label_file = label_artifact.path
+            sess_dir = Path(label_file).parent
+            runs_dir = sess_dir / "runs"
+            if "Run" in report.df.columns:
+                run_ids = list(report.df["Run"].values)
+            else:
+                run_ids = list(report.df.index.values)
+            print("run_ids", run_ids)
+            for run_id in run_ids:
+                run_dir = runs_dir / str(run_id)
+                assert run_dir.is_dir()
+                # TODO: use artifacts.yml instead
+                artifacts_yml = run_dir / "artifacts.yml"
+                import yaml
+
+                with open(artifacts_yml, "r") as f:
+                    artifacts_data = yaml.safe_load(f)
+                for artifact_data in artifacts_data["artifacts"]:
+                    name = artifact_data["name"]
+                    path = artifact_data.get("path")
+                    if path is None:
+                        continue
+                    temp = (name, path)
+                    run_artifact_paths[run_id].append(temp)
+
+        report_df = report.df
+        if "Stages" in report_df.columns:
+            run_stages = list(report_df["Stages"].values)
+            stages = set().union(*run_stages)
+            stages = list(stages)
+        else:
+            stages = []
+        tags = set(stages)
+        push_session_to_mlonmcu_db(
+            report,
+            session_artifacts=session_artifact_paths,
+            run_artifacts=run_artifact_paths,
+            label=label,
+            timestamp=timestamp,
+            tags=tags,
+            progress=self.progress,
+        )
+        return []
+
+
+class MergeAutoTvmRecordsPostprocess(SessionPostprocess):
+    """Collect all AutoTVM tuning logs to build combined tuning database."""
+
+    allow_empty = cfg(False, cast=str2bool)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("merge_autotvm_records", features=features, config=config)
+
+    def post_session(self, report, artifacts):  # TODO: receive all run artifacts via arg!
+        """Called at the end of a session."""
+        # Workaround: look for run dirs relative to session...
+        contents = []
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_file = label_artifact[0].path
+        sess_dir = Path(label_file).parent
+        runs_dir = sess_dir / "runs"
+        if "Run" in report.df.columns:
+            run_ids = list(report.df["Run"].values)
+        else:
+            run_ids = list(report.df.index.values)
+        # print("run_ids", run_ids)
+        for run_id in run_ids:
+            run_dir = runs_dir / str(run_id)
+            assert run_dir.is_dir()
+            # TODO: use artifacts.yml instead
+            records_file = run_dir / "tuning_results.log.txt"
+            if not records_file.is_file():
+                continue
+            with open(records_file, "r") as f:
+                content = f.read()
+            contents.append(content)
+        # print("len(contents)", len(contents))
+
+        if not self.allow_empty:
+            assert len(contents) > 0
+        combined_content = "\n".join(contents)
+        ret_artifacts = []
+        combined_artifact = Artifact(
+            "combined_tuning_results.log.txt",
+            content=combined_content,
+            fmt=ArtifactFormat.TEXT,
+        )
+        ret_artifacts.append(combined_artifact)
+        return ret_artifacts
+
+
+class MergeMSDBsPostprocess(SessionPostprocess):
+    """Build an unified MS database based on all tuning runs in the session."""
+
+    allow_empty = cfg(False, cast=str2bool)
+    prune = cfg(False, cast=str2bool)
+    print_outputs = cfg(False, cast=str2bool)
+    tvm_pythonpath_config = optional("tvm.pythonpath", cast=Path)
+    tvm_build_dir_config = optional("tvm.build_dir", cast=Path)
+
+    OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
+
+    @property
+    def tvm_pythonpath(self):
+        """Get tvm.pythonpath property."""
+        value = self.tvm_pythonpath_config
+        assert value is not None
+        return value
+
+    @property
+    def tvm_build_dir(self):
+        """Get tvm.build_dir property."""
+        value = self.tvm_build_dir_config
+        assert value is not None
+        return value
+
+    def __init__(self, features=None, config=None):
+        super().__init__("merge_ms_dbs", features=features, config=config)
+
+    def post_session(self, report, artifacts):  # TODO: receive all run artifacts via arg!
+        """Called at the end of a session."""
+        # Workaround: look for run dirs relative to session...
+        label_artifact = lookup_artifacts(artifacts, flags=("label",), first_only=True)
+        assert len(label_artifact) == 1
+        label_file = label_artifact[0].path
+        sess_dir = Path(label_file).parent
+        runs_dir = sess_dir / "runs"
+        if "Run" in report.df.columns:
+            run_ids = list(report.df["Run"].values)
+        else:
+            run_ids = list(report.df.index.values)
+        # print("run_ids", run_ids)
+        work_dir_archives = []
+        for run_id in run_ids:
+            run_dir = runs_dir / str(run_id)
+            assert run_dir.is_dir()
+            # TODO: use artifacts.yml instead
+            archive_name = "work_dir_pruned.tar" if self.prune else "work_dir.tar"
+            # TODO: also prune after union...
+            work_dir_archive = run_dir / archive_name
+            if work_dir_archive.is_file():
+                work_dir_archives.append(work_dir_archive)
+        print("len(work_dir_archives)", len(work_dir_archives))
+
+        if len(work_dir_archives) == 0:
+            assert self.allow_empty
+            return []
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_dir = Path(tmp_dir)
+            out_archive = tmp_dir / "merged_ms_db.tar"
+            from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+
+            env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
+            args = work_dir_archives + ["-o", out_archive]
+            utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)
+            with open(out_archive, "rb") as tar:
+                raw = tar.read()
+        merged_artifact = Artifact(
+            "merged_ms_db.tar",
+            raw=raw,
+            fmt=ArtifactFormat.ARCHIVE,
+        )
+        ret_artifacts = []
+        ret_artifacts.append(merged_artifact)
+        return ret_artifacts
+
+
+class PushMSDB2S3Postprocess(SessionPostprocess):
+    """Push Session MS DB to S3 Bucket. Needs merge_ms_dbs postprocess to run fist."""
+
+    DEFAULTS = {"s3_url": None}
+    print_outputs = cfg(False, cast=str2bool)
+    allow_empty = cfg(False, cast=str2bool)
+    append = cfg(True, cast=str2bool)
+    prune = cfg(False, cast=str2bool)
+    tvm_pythonpath_config = optional("tvm.pythonpath", cast=Path)
+    tvm_build_dir_config = optional("tvm.build_dir", cast=Path)
+
+    OPTIONAL = {"tvm.pythonpath", "tvm.build_dir"}
+
+    def __init__(self, features=None, config=None):
+        super().__init__("push_ms_db2s3", features=features, config=config)
+
+    @property
+    def s3_url(self):
+        """Get run_artifacts property."""
+        value = self.config["s3_url"]
+        assert value is not None
+        return value
+
+    @property
+    def tvm_pythonpath(self):
+        """Get tvm.pythonpath property."""
+        value = self.tvm_pythonpath_config
+        assert value is not None
+        return value
+
+    @property
+    def tvm_build_dir(self):
+        """Get tvm.build_dir property."""
+        value = self.tvm_build_dir_config
+        assert value is not None
+        return value
+
+    def post_session(self, report, artifacts):
+        """Called at the end of a session."""
+        # Credentials are NOT passed via MLonMCU config!
+        # Please use environment vars to override:
+        # - AWS_ACCESS_KEY_ID
+        # - AWS_SECRET_ACCESS_KEY
+        # print("post_session")
+        # print("session_artifacts", artifacts)
+        merged_ms_db_artifact = lookup_artifacts(artifacts, name="merged_ms_db.tar", first_only=True)
+        if len(merged_ms_db_artifact) == 0:
+            assert self.allow_empty, "No merged MS DB artifacts found"
+            return []
+        assert len(merged_ms_db_artifact) == 1
+        merged_ms_db_artifact = merged_ms_db_artifact[0]
+        # print("merged_ms_db_artifact", merged_ms_db_artifact)
+        s3_url = self.s3_url
+        # print("s3_url", s3_url)
+        from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
+
+        env = prepare_python_environment(self.tvm_pythonpath, self.tvm_build_dir, tvm_configs_dir=None)
+        # args = [s3_url, str(merged_ms_db_artifact.path), "-o", s3_url]
+        args = [str(merged_ms_db_artifact.path), "-o", s3_url]
+        if self.append:
+            args.append("--append")
+        utils.python("-m", "tvm.meta_schedule.database.merge_dbs", *args, live=self.print_outputs, env=env)
+        # import boto3
+        # from urllib.parse import urlparse, parse_qs
+        # parsed = urlparse(s3_url)
+        # # print("parsed", parsed)
+        # bucket = parsed.netloc
+        # # print("self.bucket", self.bucket)
+        # prefix = parsed.path.lstrip("/")
+        # # print("self.prefix", self.prefix)
+        # query = parse_qs(parsed.query)
+        # # print("query", query)
+
+        # endpoint = query.get("endpoint", [None])[0]
+        # # print("endpoint", endpoint)
+        # region = query.get("region", ["us-east-1"])[0]
+        # # print("region", region)
+        # # session = boto3.Session()
+        # # creds = session.get_credentials()
+        # # print("Access key:", creds.access_key)
+        # # print("Secret key:", "SET" if creds.secret_key else None)
+
+        # s3 = boto3.client(
+        #     "s3",
+        #     region_name=region,
+        #     endpoint_url=endpoint,
+        # )
+        # with tempfile.TemporaryDirectory() as tmp_dir:
+        #     tmp_dir = Path(tmp_dir)
+        # path_workload = tmp_dir / "database_workload.json"
+        # path_records = tmp_dir / "database_tuning_record.json"
+        # s3.upload_file(path_workload, bucket, f"{prefix}/database_workload.json")
+        # self.s3.upload_file(self.path_records, self.bucket, self._key("database_tuning_record.json"))
+        return []
+
+
+class AnalyseVivadoReportsPostprocess(RunPostprocess):
+    """Parse Vivado FPGA Synthesis Reports."""
+
+    DEFAULTS = {
+        **RunPostprocess.DEFAULTS,
+        "to_df": False,
+        "to_file": True,
+        "clock": "soc_crg_clkout0",
+        "limit": [],
+    }
+
+    def __init__(self, features=None, config=None):
+        super().__init__("analyse_vivado_reports", features=features, config=config)
+
+    @property
+    def to_df(self):
+        """Get to_df property."""
+        value = self.config["to_df"]
+        return str2bool(value)
+
+    @property
+    def to_file(self):
+        """Get to_file property."""
+        value = self.config["to_file"]
+        return str2bool(value)
+
+    @property
+    def clock(self):
+        """Clock name used when extracting timing metrics."""
+        return self.config["clock"]
+
+    @property
+    def limit(self):
+        """Optional list of parsed metrics or metric categories to add to the report dataframe."""
+        value = self.config["limit"]
+        return value if isinstance(value, list) else str2list(value)
+
+    def resolve_limit(self, columns):
+        """Expand category shortcuts and validate the requested Vivado metrics."""
+        metrics = []
+        requested_metrics = []
+        for item in self.limit:
+            category = item.lower().replace(" ", "_").replace("-", "_")
+            if category in VIVADO_METRIC_CATEGORIES:
+                metrics.extend(metric for metric in VIVADO_METRIC_CATEGORIES[category] if metric in columns)
+            else:
+                requested_metrics.append(item)
+                metrics.append(item)
+        metrics = list(dict.fromkeys(metrics))
+        unknown = set(requested_metrics) - set(columns)
+        assert not unknown, f"Unknown Vivado metric columns/categories: {', '.join(sorted(unknown))}"
+        return metrics
+
+    def post_run(self, report, artifacts):
+        """Called at the end of a run."""
+        platform = report.pre_df["Platform"]
+        if (~platform.isin(["cfu_playground"])).any():
+            return []
+        ret_artifacts = []
+        vivado_artifacts = lookup_artifacts(artifacts, flags=("vivado", "report"), first_only=False)
+        if len(vivado_artifacts) == 0:
+            return []
+        vivado_report_df = parse_vivado_artifacts(vivado_artifacts, clock=self.clock)
+        if self.to_file:
+            vivado_metrics_artifact = Artifact(
+                "vivado_metrics.csv",
+                content=vivado_report_df.to_csv(index=False),
+                fmt=ArtifactFormat.TEXT,
+            )
+            ret_artifacts.append(vivado_metrics_artifact)
+        if self.to_df:
+            post_df = report.post_df.copy()
+            if self.limit:
+                vivado_report_df = vivado_report_df[self.resolve_limit(vivado_report_df.columns)]
+            metrics_df = vivado_report_df.rename(columns=lambda column: f"Vivado {column}")
+            if "estimated_fmax_mhz" in vivado_report_df:
+                estimated_fmax = vivado_report_df["estimated_fmax_mhz"]
+                metrics_df["Estimated Fmax [MHz]"] = estimated_fmax
+                if "Total Cycles" in report.main_df:
+                    metrics_df["Estimated latency at Fmax [ms]"] = (
+                        report.main_df["Total Cycles"] / estimated_fmax / 1000
+                    )
+            report.post_df = pd.concat([post_df.reset_index(drop=True), metrics_df], axis=1)
+
         assert self.to_file or self.to_df, "Either to_file or to_df have to be true"
         return ret_artifacts

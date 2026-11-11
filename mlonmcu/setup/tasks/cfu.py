@@ -37,8 +37,24 @@ def _validate_cfu_playground(context: MlonMcuContext, params=None):
     return context.environment.has_platform("cfu_playground")
 
 
+def _validate_cfu_playground_clone(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    cfu_src_dir = user_vars.get("cfu_playground.src_dir", None)
+    if cfu_src_dir:
+        return False
+    return _validate_cfu_playground(context, params=params)
+
+
+def _validate_cfu_playground_setup(context: MlonMcuContext, params=None):
+    user_vars = context.environment.vars
+    skip = user_vars.get("cfu_playground.skip_setup", False)
+    if skip:
+        return False
+    return _validate_cfu_playground(context, params=params)
+
+
 @Tasks.provides(["cfu_playground.src_dir"])
-@Tasks.validate(_validate_cfu_playground)
+@Tasks.validate(_validate_cfu_playground_clone)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def clone_cfu_playground(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -54,8 +70,7 @@ def clone_cfu_playground(
 
 
 @Tasks.needs(["cfu_playground.src_dir"])
-# @Tasks.provides(["tf.dl_dir", "tf.lib_path"])
-@Tasks.validate(_validate_cfu_playground)
+@Tasks.validate(_validate_cfu_playground_setup)
 @Tasks.register(category=TaskType.FRAMEWORK)
 def setup_cfu_playground(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
@@ -64,7 +79,6 @@ def setup_cfu_playground(
     del threads
     if not params:
         params = {}
-    # cfuName = utils.makeDirName("cfu_playground", flags=flags)
     cfuSrcDir = context.cache["cfu_playground.src_dir"]
     check_paths = [
         cfuSrcDir / "third_party" / "python" / "pythondata-software-picolibc",
@@ -74,9 +88,6 @@ def setup_cfu_playground(
         setupScript = cfuSrcDir / "scripts" / "setup"
         utils.execute(
             setupScript,
-            # env=env,
             live=verbose,
-            # print_output=False,
             cwd=cfuSrcDir,
         )
-    # context.cache["cfu_playground.dl_dir"] = tflmDownloadsDir

@@ -18,9 +18,8 @@
 #
 """MLonMCU Spike Target definitions"""
 
-
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from .riscv import RISCVTarget
 from .util import update_extensions
 
@@ -32,12 +31,8 @@ class RVPTarget(RISCVTarget):
 
     FEATURES = RISCVTarget.FEATURES | {"pext"}
 
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "enable_pext": False,
-        "pext_spec": 0.92,
-    }
-    REQUIRED = RISCVTarget.REQUIRED
+    enable_pext = cfg(False, cast=str2bool)
+    pext_spec = cfg(0.92, cast=float)
 
     def __init__(
         self,
@@ -50,21 +45,13 @@ class RVPTarget(RISCVTarget):
         self.supported_pext_spec_max = 0.92
 
     @property
-    def enable_pext(self):
-        value = self.config["enable_pext"]
-        return str2bool(value)
-
-    @property
-    def pext_spec(self):
-        return float(self.config["pext_spec"])
-
-    @property
     def extensions(self):
         exts = super().extensions
         return update_extensions(
             exts,
             pext=self.enable_pext,
             pext_spec=self.pext_spec,
+            gcc_major_version=self.gcc_major_version,
         )
 
     def get_platform_defs(self, platform):

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MicroTVM Build Platform"""
+
 from ..platform import BuildPlatform
 from .microtvm_backend import create_microtvm_platform_backend, get_microtvm_platform_backends
 

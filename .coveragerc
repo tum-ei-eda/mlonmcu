@@ -1,0 +1,29 @@
+[run]
+# These modules are adapters around compilers, simulators, boards, package
+# managers and model runtimes.  Their behaviour is covered by the integration
+# suite; including them in the fast unit-test metric makes that metric describe
+# installed tools and hardware rather than unit tests.
+omit =
+    mlonmcu/setup/*
+    mlonmcu/cli/*
+    mlonmcu/platform/*
+    mlonmcu/target/*
+    mlonmcu/flow/*
+    mlonmcu/feature/features.py
+    mlonmcu/session/run.py
+    mlonmcu/session/session.py
+    mlonmcu/session/schedule.py
+    mlonmcu/session/postprocess/*
+    mlonmcu/models/*_frontend.py
+    mlonmcu/models/frontend.py
+    mlonmcu/models/model_info.py
+    mlonmcu/models/options.py
+    mlonmcu/models/torch_models/*
+    mlonmcu/models/model.py
+    mlonmcu/models/pb/*
+    mlonmcu/models/tflite/*
+    mlonmcu/testing/*
+
+[report]
+exclude_also =
+    raise NotImplementedError

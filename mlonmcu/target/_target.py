@@ -28,13 +28,16 @@ from .riscv import (
     EtissTarget,
     EtissPerfTarget,
     EtissRV32Target,
+    EtissRV32MinTarget,
     EtissRV64Target,
+    EtissRV64MinTarget,
     AraTarget,
     AraRtlTarget,
     CV32E40PTarget,
     VicunaTarget,
     Vicuna2Target,
     CanMvK230SSHTarget,
+    MusePiProSSHTarget,
     TGCTarget,
 )
 from .arm import Corstone300Target
@@ -60,7 +63,9 @@ register_target("etiss_pulpino", EtissPulpinoTarget)
 register_target("etiss", EtissTarget)
 register_target("etiss_perf", EtissPerfTarget)
 register_target("etiss_rv32", EtissRV32Target)
+register_target("etiss_rv32_min", EtissRV32MinTarget)
 register_target("etiss_rv64", EtissRV64Target)
+register_target("etiss_rv64_min", EtissRV64MinTarget)
 register_target("host_x86", HostX86Target)
 register_target("host_x86_ssh", HostX86SSHTarget)
 register_target("corstone300", Corstone300Target)
@@ -80,4 +85,5 @@ register_target("cv32e40p", CV32E40PTarget)
 register_target("vicuna", VicunaTarget)
 register_target("vicuna2", Vicuna2Target)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
+register_target("muse_pi_pro_ssh", MusePiProSSHTarget)
 register_target("tgc", TGCTarget)

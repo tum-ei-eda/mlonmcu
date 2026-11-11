@@ -19,6 +19,7 @@
 from pathlib import Path
 
 from mlonmcu.target.target import Target
+from mlonmcu.config import required
 
 from mlonmcu.logging import get_logger
 
@@ -36,7 +37,9 @@ class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "port": None,
         "baud": None,
     }
-    REQUIRED = Target.REQUIRED | {"microtvm_espidf.template", "espidf.src_dir", "espidf.install_dir"}
+    microtvm_espidf_template = required("microtvm_espidf.template", cast=Path)
+    esp_idf_src_dir = required("espidf.src_dir", cast=Path)
+    esp_idf_install_dir = required("espidf.install_dir", cast=Path)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -54,18 +57,6 @@ class EspidfMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "compile_definitions",
             "extra_files_tar",
         ]
-
-    @property
-    def microtvm_espidf_template(self):
-        return Path(self.config["microtvm_espidf.template"])
-
-    @property
-    def esp_idf_src_dir(self):
-        return Path(self.config["espidf.src_dir"])
-
-    @property
-    def esp_idf_install_dir(self):
-        return Path(self.config["espidf.install_dir"])
 
     @property
     def board(self):

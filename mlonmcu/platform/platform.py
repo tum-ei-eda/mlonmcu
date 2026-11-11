@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 import time
+from contextlib import contextmanager
 import tempfile
 import multiprocessing
 
@@ -26,7 +27,7 @@ from pathlib import Path
 from filelock import FileLock
 from typing import Tuple, List
 
-from mlonmcu.config import filter_config, ConfigTracker
+from mlonmcu.config import Configurable, ConfigTracker, cfg, filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.target.metrics import Metrics
@@ -38,17 +39,12 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 logger = get_logger()
 
 
-class Platform:
+class Platform(Configurable):
     """Abstract platform class."""
 
     FEATURES = set()
 
-    DEFAULTS = {
-        "print_outputs": False,
-    }
-
-    REQUIRED = set()
-    OPTIONAL = set()
+    print_outputs = cfg(False, cast=str2bool)
 
     def __init__(self, name, features=None, config=None):
         self.name = name
@@ -59,6 +55,17 @@ class Platform:
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
         self.artifacts = []
         self.supported_targets_cache = {}
+        self.workspace_dir = None
+        self.run_dir = None
+        self.session_dir = None
+
+    def set_context(self, *, workspace=None, run_dir=None, session_dir=None):
+        """Bind filesystem scopes without retaining a live context/session in workers."""
+        if workspace is not None:
+            self.workspace_dir = Path(workspace).resolve()
+        if run_dir is not None:
+            self.run_dir = Path(run_dir).resolve()
+            self.session_dir = Path(session_dir).resolve() if session_dir is not None else None
 
     def init_directory(self, path=None, context=None) -> Path:
         raise NotImplementedError
@@ -82,11 +89,6 @@ class Platform:
     @property
     def supports_monitor(self):
         return False
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
 
     def process_features(self, features):
         if features is None:
@@ -187,25 +189,13 @@ class CompilePlatform(Platform):
 
     FEATURES = Platform.FEATURES | {"debug"}
 
-    DEFAULTS = {
-        **Platform.DEFAULTS,
-        "debug": False,
-        "build_dir": None,
-        "num_threads": multiprocessing.cpu_count(),
-    }
+    debug = cfg(False, cast=str2bool)
+    build_dir = cfg(None)
+    num_threads = cfg(multiprocessing.cpu_count(), cast=lambda value: max(1, int(value)), preserve_none=False)
 
     @property
     def supports_compile(self):
         return True
-
-    @property
-    def debug(self):
-        value = self.config["debug"]
-        return str2bool(value)
-
-    @property
-    def num_threads(self):
-        return max(1, int(self.config["num_threads"]))
 
     def get_metrics(self, elf):
         static_mem = get_static_mem_usage(elf)
@@ -265,16 +255,38 @@ class TargetPlatform(Platform):
     def supports_monitor(self):
         return True
 
+    @property
+    def needs_lock(self):
+        return False
+
     def flash(self, elf, target, timeout=120):
         raise NotImplementedError
 
     def monitor(self, target, timeout=60):
         raise NotImplementedError
 
-    def run(self, elf, target, timeout=120):
+    @contextmanager
+    def preflashed(self):
+        """Monitor firmware programmed earlier in the same locked pipeline invocation."""
+        previous = getattr(self, "_preflashed", False)
+        self._preflashed = True
+        try:
+            yield
+        finally:
+            self._preflashed = previous
+
+    def run(self, elf, target, timeout=120, **kwargs):
         # Only allow one serial communication at a time
-        with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
-            self.flash(elf, target, timeout=timeout)
-            output = self.monitor(target, timeout=timeout)
+        if self.needs_lock:
+            # TODO: move lockfile!
+            # TODO: store flash output?
+            with FileLock(Path(tempfile.gettempdir()) / "mlonmcu_serial.lock"):
+                if not getattr(self, "_preflashed", False):
+                    self.flash(elf, target, timeout=timeout, **kwargs)
+                output = self.monitor(target, timeout=timeout, **kwargs)
+        else:
+            if not getattr(self, "_preflashed", False):
+                self.flash(elf, target, timeout=timeout, **kwargs)
+            output = self.monitor(target, timeout=timeout, **kwargs)
 
         return output

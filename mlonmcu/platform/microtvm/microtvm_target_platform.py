@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 """MicroTVM Target Platform"""
-from mlonmcu.config import str2bool
+
+from mlonmcu.config import cfg, str2bool
 from ..tvm.tvm_target_platform import TvmTargetPlatform
 from .microtvm_base_platform import (
     filter_project_options,
@@ -26,7 +27,7 @@ from .microtvm_base_platform import (
 from mlonmcu.flow.tvm.backend.tvmc_utils import (
     get_bench_tvmc_args,
     get_data_tvmc_args,
-    # get_rpc_tvmc_args,
+    get_rpc_tvmc_args,
 )
 from mlonmcu.logging import get_logger
 
@@ -42,22 +43,8 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
         # Warning: benchamrk and profile not supported!
     )
 
-    DEFAULTS = {
-        **TvmTargetPlatform.DEFAULTS,
-        "experimental_tvmc_print_time": False,
-        "skip_flash": False,
-        # Warning: contains configs not supported by microtvm
-    }
-
-    @property
-    def experimental_tvmc_print_time(self):
-        value = self.config["experimental_tvmc_print_time"]
-        return str2bool(value)
-
-    @property
-    def skip_flash(self):
-        value = self.config["skip_flash"]
-        return str2bool(value)
+    experimental_tvmc_print_time = cfg(False, cast=str2bool)
+    skip_flash = cfg(False, cast=str2bool)
 
     def invoke_tvmc_micro_flash(self, target=None, list_options=False, **kwargs):
         all_args = []
@@ -85,7 +72,8 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
 
     def get_tvmc_run_args(self):
         if self.use_rpc:
-            raise RuntimeError("RPC is only supported for tuning with microtvm platform")
+            pass
+            # raise RuntimeError("RPC is only supported for tuning with microtvm platform")
         if self.profile:
             assert (
                 self.experimental_tvmc_print_time
@@ -101,7 +89,7 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
                 repeat=self.repeat if self.experimental_tvmc_print_time else None,
                 number=self.number if self.experimental_tvmc_print_time else None,
             ),
-            # *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
+            *get_rpc_tvmc_args(self.use_rpc, self.rpc_key, self.rpc_hostname, self.rpc_port),
         ]
         return ret
 

@@ -23,8 +23,8 @@ import os
 import time
 import shutil
 import tempfile
+from importlib.resources import files
 from pathlib import Path
-import pkg_resources
 from typing import Tuple
 
 
@@ -33,7 +33,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target import get_targets
 from mlonmcu.target.target import Target
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 
 from ..platform import CompilePlatform, TargetPlatform
 from .zephyr_target import create_zephyr_platform_target
@@ -42,11 +42,10 @@ logger = get_logger()
 
 
 def get_project_template(name="project2"):  # Workaround which only support tvmaot!!!
-    zephyr_templates = pkg_resources.resource_listdir("mlonmcu", os.path.join("resources", "platforms", "zephyr"))
-    if name not in zephyr_templates:
+    resource = files("mlonmcu").joinpath("resources", "platforms", "zephyr", name)
+    if not resource.is_dir():
         return None
-    fname = pkg_resources.resource_filename("mlonmcu", os.path.join("resources", "platforms", "zephyr", name))
-    return fname
+    return str(resource)
 
 
 class ZephyrPlatform(CompilePlatform, TargetPlatform):
@@ -55,19 +54,18 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
     FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
-        **CompilePlatform.DEFAULTS,
-        **TargetPlatform.DEFAULTS,
         "project_template": None,
         "project_dir": None,
         "port": None,
         # "port": "/dev/ttyUSB0",
         "baud": 115200,
-        "wait_for_user": True,
-        "flash_only": False,
         "optimize": None,  # values: 0,1,2,3,s
     }
-
-    REQUIRED = {"zephyr.install_dir", "zephyr.sdk_dir", "zephyr.venv_dir"}
+    zephyr_install_dir = required("zephyr.install_dir", cast=Path)
+    zephyr_sdk_dir = required("zephyr.sdk_dir", cast=Path)
+    zephyr_venv_dir = required("zephyr.venv_dir", cast=Path)
+    wait_for_user = cfg(True, cast=str2bool)
+    flash_only = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -78,29 +76,6 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
         self.tempdir = None
         self.project_name = "app"
         self.project_dir = None
-
-    @property
-    def zephyr_install_dir(self):
-        return Path(self.config["zephyr.install_dir"])
-
-    @property
-    def zephyr_sdk_dir(self):
-        return Path(self.config["zephyr.sdk_dir"])
-
-    @property
-    def zephyr_venv_dir(self):
-        return Path(self.config["zephyr.venv_dir"])
-
-    @property
-    def wait_for_user(self):
-        value = self.config["wait_for_user"]
-        return str2bool(value)
-
-    @property
-    def flash_only(self):
-        # TODO: get rid of this
-        value = self.config["flash_only"]
-        return str2bool(value)
 
     @property
     def optimize(self):
@@ -148,13 +123,11 @@ class ZephyrPlatform(CompilePlatform, TargetPlatform):
             f = Path(temp) / "CMakeLists.txt"
             # f.touch()
             with open(f, "w") as handle:
-                handle.write(
-                    """
+                handle.write("""
 cmake_minimum_required(VERSION 3.22)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(ProjectName)
-                """
-                )
+                """)
             b = Path(temp) / "build"
 
             # This will fail

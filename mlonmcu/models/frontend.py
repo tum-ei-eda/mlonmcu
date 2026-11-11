@@ -16,13 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import sys
 import re
 import time
 import tempfile
 import multiprocessing
+import pickle
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Dict, Union
+from typing import Tuple, List, Dict
 
 import numpy as np
 
@@ -49,58 +52,43 @@ from mlonmcu.models.model import (
     CmsisNNProgram,
 )
 from mlonmcu.models.lookup import lookup_models
+from mlonmcu.models.data_utils import (
+    ensure_model_data,
+    generate_input_data,
+    generate_output_ref_data,
+    generate_ref_labels,
+    generate_model_info,
+)
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import filter_config, str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, one_of, required, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
 from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.logging import get_logger
 
-
 logger = get_logger()
 
 
-def check_integrity(algorithm: str, value: str, file_path: Union[str, Path], check: bool = True):
-    import hashlib
-
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, "rb") as file:
-        # Read the file in chunks of 8192 bytes
-        while chunk := file.read(8192):
-            hash_func.update(chunk)
-
-    file_hash = hash_func.hexdigest()
-    hash_matches = file_hash == value
-    if check:
-        assert hash_matches, f"Model hash ({algorithm}) missmatch: {file_hash} vs. {value}"
-    return hash_matches
-
-
-class Frontend(ABC):
+class Frontend(Configurable, ABC):
     FEATURES = {"validate"}
 
-    DEFAULTS = {
-        "use_inout_data": False,
-        # the following should be configured using gen_data feature
-        "gen_data": False,
-        "gen_data_fill_mode": None,
-        "gen_data_file": None,
-        "gen_data_number": None,
-        "gen_data_fmt": None,
-        # the following should be configured using gen_ref_data feature
-        "gen_ref_data": False,
-        "gen_ref_data_mode": None,
-        "gen_ref_data_file": None,
-        "gen_ref_data_fmt": None,
-        "gen_ref_labels": False,
-        "gen_ref_labels_mode": None,
-        "gen_ref_labels_file": None,
-        "gen_ref_labels_fmt": None,
-    }
-
-    REQUIRED = set()
-    OPTIONAL = set()
+    download_data = cfg(False, cast=str2bool)
+    check_integrity = cfg(True, cast=str2bool)
+    use_inout_data = cfg(False, cast=str2bool)
+    gen_data = cfg(False, cast=str2bool)
+    gen_data_file = cfg(None)
+    gen_data_fill_mode = cfg(None, cast=one_of(("random", "ones", "zeros", "file", "dataset")), preserve_none=False)
+    gen_data_number = cfg(None, cast=int, preserve_none=False)
+    gen_data_fmt = cfg(None, cast=one_of(("npy", "npz")), preserve_none=False)
+    gen_ref_data = cfg(False, cast=str2bool)
+    gen_ref_data_file = cfg(None)
+    gen_ref_data_mode = cfg(None, cast=one_of(("file", "model")), preserve_none=False)
+    gen_ref_data_fmt = cfg(None, cast=one_of(("npy", "npz")), preserve_none=False)
+    gen_ref_labels = cfg(False, cast=str2bool)
+    gen_ref_labels_file = cfg(None)
+    gen_ref_labels_mode = cfg(None, cast=one_of(("file", "model")), preserve_none=False)
+    gen_ref_labels_fmt = cfg(None, cast=one_of(("npy", "npz", "txt", "csv")), preserve_none=False)
 
     def __init__(self, name, input_formats=None, output_formats=None, features=None, config=None):
         self.name = name
@@ -119,78 +107,6 @@ class Frontend(ABC):
         if self.config and len(self.config) > 0:
             probs.append(str(self.config))
         return "Frontend(" + ",".join(probs) + ")"
-
-    @property
-    def use_inout_data(self):
-        value = self.config["use_inout_data"]
-        return str2bool(value)
-
-    @property
-    def gen_data(self):
-        value = self.config["gen_data"]
-        return str2bool(value)
-
-    @property
-    def gen_data_fill_mode(self):
-        value = self.config["gen_data_fill_mode"]
-        assert value in ["random", "ones", "zeros", "file", "dataset"]
-        return value
-
-    @property
-    def gen_data_file(self):
-        return self.config["gen_data_file"]
-
-    @property
-    def gen_data_number(self):
-        return int(self.config["gen_data_number"])
-
-    @property
-    def gen_data_fmt(self):
-        value = self.config["gen_data_fmt"]
-        assert value in ["npy", "npz"]
-        return value
-
-    @property
-    def gen_ref_data(self):
-        value = self.config["gen_ref_data"]
-        return str2bool(value)
-
-    @property
-    def gen_ref_data_mode(self):
-        value = self.config["gen_ref_data_mode"]
-        assert value in ["file", "model"]
-        return value
-
-    @property
-    def gen_ref_data_file(self):
-        return self.config["gen_ref_data_file"]
-
-    @property
-    def gen_ref_data_fmt(self):
-        value = self.config["gen_ref_data_fmt"]
-        assert value in ["npy", "npz"]
-        return value
-
-    @property
-    def gen_ref_labels(self):
-        value = self.config["gen_ref_labels"]
-        return str2bool(value)
-
-    @property
-    def gen_ref_labels_mode(self):
-        value = self.config["gen_ref_labels_mode"]
-        assert value in ["file", "model"]
-        return value
-
-    @property
-    def gen_ref_labels_file(self):
-        return self.config["gen_ref_labels_file"]
-
-    @property
-    def gen_ref_labels_fmt(self):
-        value = self.config["gen_ref_labels_fmt"]
-        assert value in ["npy", "npz", "txt", "csv"]
-        return value
 
     def inference(self, model: Model, input_data: Dict[str, np.array]):
         raise NotImplementedError
@@ -238,354 +154,20 @@ class Frontend(ABC):
     def produce_artifacts(self, model):
         pass
 
-    def generate_input_data(self, input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths):
-        # TODO: drop self and move method out of frontends.py, support non-tflite models
-        assert self.gen_data
-        inputs_data = []
-        if self.gen_data_fill_mode in ["zeros", "ones", "random"]:
-            for i in range(self.gen_data_number):
-                data = {}
-                NEW = True
-                for ii, input_name in enumerate(input_names):
-                    assert input_name in input_types, f"Unknown dtype for input: {input_name}"
-                    dtype = input_types[input_name]
-                    quant = input_quant_details.get(input_name, None)
-                    rng = input_ranges.get(input_name, None)
-                    gen_dtype = dtype
-                    if quant:
-                        _, _, ty = quant
-                        assert "float" in ty, "Input already quantized?"
-                        if NEW:
-                            gen_dtype = ty
-                    assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
-                    shape = input_shapes[input_name]
-                    if self.gen_data_fill_mode == "zeros":
-                        arr = np.zeros(shape, dtype=gen_dtype)
-                    elif self.gen_data_fill_mode == "ones":
-                        arr = np.ones(shape, dtype=gen_dtype)
-                    elif self.gen_data_fill_mode == "random":
-                        DIST = "uniform"
-                        if DIST == "uniform":
-                            UPPER = None
-                            LOWER = None
-                            if rng is not None:
-                                assert len(rng) == 2, "Range should be a tuple (lower, upper)"
-                                LOWER, UPPER = rng
-                            if "float" in gen_dtype:
-                                if UPPER is None:
-                                    # UPPER = 1.0
-                                    UPPER = 0.5
-                                if LOWER is None:
-                                    # LOWER = -1.0
-                                    LOWER = -0.5
-                            elif "int" in gen_dtype:
-                                dtype_info = (np.iinfo(gen_dtype),)
-                                if UPPER is None:
-                                    UPPER = dtype_info.max
-                                else:
-                                    assert UPPER <= dtype_info.max, "Out of dtype bound"
-                                if LOWER is None:
-                                    LOWER = dtype_info.min
-                                else:
-                                    assert LOWER >= dtype_info.min, "Out of dtype bound"
-                            else:
-                                raise RuntimeError(f"Unsupported dtype: {gen_dtype}")
-                            assert LOWER <= UPPER
-                            RANGE = UPPER - LOWER
-                            assert RANGE > 0
-                            arr = np.random.uniform(LOWER, UPPER, shape)
-                            arr = arr.astype(gen_dtype)
-                            # input("?=")
-                            # if "float" in dtype:
-                            #     arr = np.random.rand(*shape).astype(dtype)
-                            # elif "int" in dtype:
-                            #     arr = np.random.randint(np.iinfo(dtype).min,
-                            #     np.iinfo(dtype).max, size=shape, dtype=dtype)
-                            # else:
-                            #     assert False
-                        # Quantize if required
-                        # if gen_dtype != dtype:
-                        if quant:
-                            assert "int" in dtype
-                            # assert quant
-                            scale, shift, ty = quant
-                            arr = (arr / scale) + shift
-                            arr = np.around(arr)
-                            arr = arr.astype(dtype)
-                            # input("!=")
-                        else:
-                            raise RuntimeError(f"Unsupported distribution: {DIST}")
-                    else:
-                        assert False
-                    data[input_name] = arr
-                assert len(data) > 0
-                inputs_data.append(data)
-        elif self.gen_data_fill_mode == "file":
-            if self.gen_data_file == "auto":
-                assert len(in_paths) > 0, "in_paths is empty"
-                if len(in_paths) == 1:
-                    if in_paths[0].is_dir():
-                        files = list(in_paths[0].iterdir())
-                    else:
-                        assert in_paths[0].is_file(), "in_paths not found"
-                        files = [in_paths[0]]
-                else:
-                    files = in_paths
-                temp = {}
-                NEW = True
-                for file in files:
-                    if not isinstance(file, Path):
-                        file = Path(file)
-                    assert file.is_file(), f"Not found: {file}"
-                    basename, ext = file.stem, file.suffix
-                    if ext == ".bin":
-                        if "_" in basename:
-                            i, ii = basename.split("_", 1)
-                            i = int(i)
-                            ii = int(ii)
-                        else:
-                            i = int(basename)
-                            ii = 0
-                        with open(file, "rb") as f:
-                            data = f.read()
-                        if i not in temp:
-                            temp[i] = {}
-                        temp[i][ii] = data
-                    elif ext in [".npy", ".npz"]:
-                        raise NotImplementedError
-                    else:
-                        raise RuntimeError(f"Unsupported ext: {ext}")
-                assert len(temp) > 0
-                for i in range(min(self.gen_data_number, len(temp))):
-                    assert i in temp
-                    data = {}
-                    for ii, input_name in enumerate(input_names):
-                        assert ii in temp[i]
-                        assert input_name in input_types, f"Unknown dtype for input: {input_name}"
-                        dtype = input_types[input_name]
-                        quant = input_quant_details.get(input_name, None)
-                        rng = input_ranges.get(input_name, None)
-                        gen_dtype = dtype
-                        if quant:
-                            _, _, ty, _ = quant
-                            # assert "float" in ty, "Input already quantized?"
-                            if NEW:
-                                gen_dtype = ty
-                        arr = np.frombuffer(temp[i][ii], dtype=gen_dtype)
-                        assert input_name in input_shapes, f"Unknown shape for input: {input_name}"
-                        shape = input_shapes[input_name]
-                        arr = np.reshape(arr, shape)
-                        # Quantize if required
-                        # if gen_dtype != dtype:
-                        if True:
-                            assert "int" in dtype
-                            # assert quant
-                            scale, shift, ty, qrng = quant
-                            if qrng is not None:
-                                assert len(qrng) == 2, "Range should be a tuple (lower, upper)"
-                                lower, upper = qrng
-                                assert lower <= upper
-                                CLIP_INPUTS = True
-                                if CLIP_INPUTS:
-                                    arr = np.clip(arr, lower, upper)
-                                else:
-                                    assert np.min(arr) >= lower or np.isclose(
-                                        np.min(arr), lower
-                                    ), "Range missmatch (lower)"
-                                    assert np.max(arr) <= upper or np.isclose(
-                                        np.max(arr), upper
-                                    ), "Range missmatch (upper)"
-                            arr = (arr / scale) + shift
-                            arr = np.around(arr)
-                            arr = arr.astype(dtype)
-                            # input("!=")
-                        if rng is not None:
-                            # TODO: Move shared code!
-                            assert len(rng) == 2, "Range should be a tuple (lower, upper)"
-                            lower, upper = rng
-                            assert lower <= upper
-                            CLIP_INPUTS = True
-                            if CLIP_INPUTS:
-                                arr = np.clip(arr, lower, upper)
-                            else:
-                                assert np.min(arr) >= lower or np.isclose(np.min(arr), lower), "Range missmatch (lower)"
-                                assert np.max(arr) <= upper or np.isclose(np.max(arr), upper), "Range missmatch (upper)"
-                        data[input_name] = arr
-                    inputs_data.append(data)
-            else:
-                assert self.gen_data_file is not None, "Missing value for gen_data_file"
-                file = Path(self.gen_data_file)
-                assert file.is_file(), f"File not found: {file}"
-            # for i, input_name in enumerate(input_names):
-
-        elif self.gen_data_fill_mode == "dataset":
-            raise NotImplementedError
-        else:
-            raise RuntimeError(f"unsupported fill_mode: {self.gen_data_fill_mode}")
-        return inputs_data
-
-    def generate_output_ref_data(
-        self, inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
-    ):
-        assert self.gen_ref_data
-        outputs_data = []
-        if self.gen_ref_data_mode == "model":
-            assert len(inputs_data) > 0
-            for i, input_data in enumerate(inputs_data):
-                # input("321?")
-                output_data = self.inference(model, input_data, quant=False, dequant=True)
-                outputs_data.append(output_data)
-                # input("321!")
-
-        elif self.gen_ref_data_mode == "file":
-            if self.gen_ref_data_file == "auto":
-                assert len(out_paths) > 0, "out_paths is empty"
-                if len(out_paths) == 1:
-                    if out_paths[0].is_dir():
-                        files = list(out_paths[0].iterdir())
-                else:
-                    files = out_paths
-                temp = {}
-                assert len(inputs_data) <= len(
-                    files
-                ), f"Missing output data for provided inputs. (Expected: {len(inputs_data)}, Got: {len(files)})"
-                for file in files:
-                    if not isinstance(file, Path):
-                        file = Path(file)
-                    assert file.is_file()
-                    basename, ext = file.stem, file.suffix
-                    if ext == ".bin":
-                        if "_" in basename:
-                            i, ii = basename.split("_", 1)
-                            i = int(i)
-                            ii = int(ii)
-                        else:
-                            i = int(basename)
-                            ii = 0
-                        with open(file, "rb") as f:
-                            data = f.read()
-                        if i not in temp:
-                            temp[i] = {}
-                        temp[i][ii] = data
-                    elif ext in [".npy", ".npz"]:
-                        raise NotImplementedError
-                    else:
-                        raise RuntimeError(f"Unsupported ext: {ext}")
-                # TODO: handle case where there are more output samples than input samples?
-                for i in range(len(temp)):
-                    assert i in temp
-                    data = {}
-                    for ii, output_name in enumerate(output_names):
-                        assert ii in temp[i]
-                        assert output_name in output_types, f"Unknown dtype for output: {output_name}"
-                        dtype = output_types[output_name]
-                        dequant = output_quant_details.get(output_name, None)
-                        if dequant:
-                            _, _, ty, _ = dequant
-                            dtype = ty
-                        arr = np.frombuffer(temp[i][ii], dtype=dtype)
-                        assert output_name in output_shapes, f"Unknown shape for output: {output_name}"
-                        shape = output_shapes[output_name]
-                        arr = np.reshape(arr, shape)
-                        data[output_name] = arr
-                    outputs_data.append(data)
-            else:
-                assert self.gen_ref_data_file is not None, "Missing value for gen_ref_data_file"
-                file = Path(self.gen_data_file)
-                assert file.is_file(), f"File not found: {file}"
-                raise NotImplementedError
-        else:
-            raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_data_mode}")
-        return outputs_data
-
-    def generate_ref_labels(
-        self, inputs_data, model, out_labels_paths, output_names, output_types, output_shapes, output_quant_details
-    ):
-        assert self.gen_ref_labels
-        labels = []
-        if self.gen_ref_labels_mode == "model":
-            assert len(inputs_data) > 0
-            for i, input_data in enumerate(inputs_data):
-                output_data = self.inference(model, input_data, quant=False, dequant=True)
-                assert len(output_data) == 1, "Does not support multi-output classification"
-                output_data = output_data[list(output_data)[0]]
-                top_label = np.argmax(output_data)
-                labels.append(top_label)
-
-        elif self.gen_ref_labels_mode == "file":
-            if self.gen_ref_labels_file == "auto":
-                assert len(out_labels_paths) > 0, "labels_paths is empty"
-                assert len(out_labels_paths) == 1
-                file = Path(out_labels_paths[0])
-            else:
-                assert self.gen_ref_labels_file is not None, "Missing value for gen_ref_labels_file"
-                file = Path(self.gen_ref_labels_file)
-            assert file.is_file(), f"File not found: {file}"
-            ext = file.suffix
-            assert len(ext) > 1
-            fmt = ext[1:].lower()
-            if fmt == "csv":
-                import pandas as pd
-
-                labels_df = pd.read_csv(file, sep=",")
-                assert "i" in labels_df.columns
-                assert "label_idx" in labels_df.columns
-                assert len(inputs_data) <= len(labels_df)
-                labels_df.sort_values("i", inplace=True)
-                labels = list(labels_df["label_idx"].astype(int))[: len(inputs_data)]
-            else:
-                raise NotImplementedError(f"Fmt not supported: {fmt}")
-        else:
-            raise RuntimeError(f"unsupported fill_mode: {self.gen_ref_labels_mode}")
-        return labels
-
-    def generate_model_info(
-        self,
-        input_names,
-        output_names,
-        input_shapes,
-        output_shapes,
-        input_types,
-        output_types,
-        input_ranges,
-        output_ranges,
-        input_quant_details,
-        output_quant_details,
-    ):
-        model_info_dict = {
-            "input_names": input_names,
-            "output_names": output_names,
-            "input_shapes": list(input_shapes.values()),
-            "output_shapes": list(output_shapes.values()),
-            "input_types": list(input_types.values()),
-            "output_types": list(output_types.values()),
-            "input_ranges": list(input_ranges.values()),
-            "output_ranges": list(output_ranges.values()),
-            "input_quant_details": list(input_quant_details.values()),
-            "output_quant_details": list(output_quant_details.values()),
-        }
-        # nested version
-        # model_info_dict = {
-        #     "inputs": [
-        #         {
-        #             "name": "input_1",
-        #             "shape": [1, 1014],
-        #             "type": "int8",
-        #         }
-        #     ],
-        #     "outputs": [
-        #         {
-        #             "name": "output",
-        #             "shape": [1, 10],
-        #             "type": "int8",
-        #         }
-        #     ],
-        # }
-        return model_info_dict  # TODO: turn into class
-
     def process_metadata(self, model, cfg=None):
-        model_dir = Path(model.paths[0]).parent.resolve()
-        metadata = model.metadata
+        if len(model.paths) == 0:
+            model_dir = None
+            metadata = None
+        else:
+            model_dir = Path(model.paths[0]).parent.resolve()
+            metadata = model.metadata
+        if self.check_integrity and metadata is not None:
+            network = metadata.get("network") or {}
+            checksum = network.get("hash") or {}
+            if checksum.get("value") is not None:
+                utils.validate_checksum(model.paths[0], checksum["value"], mode=checksum.get("algorithm", "sha1"))
+            else:
+                logger.debug("Skipping integrity check (missing hash)")
         in_paths = []
         out_paths = []
         labels_paths = []
@@ -597,6 +179,13 @@ class Frontend(ABC):
         output_ranges = {}
         input_quant_details = {}
         output_quant_details = {}
+        needs_inputs = self.use_inout_data or (
+            self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"
+        )
+        needs_outputs = self.use_inout_data or (
+            self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"
+        )
+        needs_labels = self.gen_ref_labels and self.gen_ref_labels_mode == "file" and self.gen_ref_labels_file == "auto"
         if metadata is not None and "network_parameters" in metadata:
             network = metadata["network_parameters"]
             assert "input_nodes" in network
@@ -622,16 +211,11 @@ class Frontend(ABC):
                     quant_range = quantize.get("range", None)
                     quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
                     input_quant_details[name] = quant_details
-                if self.use_inout_data or (
-                    self.gen_data and self.gen_data_fill_mode == "file" and self.gen_data_file == "auto"
-                ):
+                if needs_inputs:
                     if "example_input" in inp and "path" in inp["example_input"]:
                         in_data_dir = Path(inp["example_input"]["path"])
                         # TODO: this will only work with relative paths to model dir! (Fallback to parent directories?)
                         in_path = model_dir / in_data_dir
-                        assert (
-                            in_path.is_dir()
-                        ), f"Input data directory defined in model metadata does not exist: {in_path}"
                         in_paths.append(in_path)
             assert "output_nodes" in network
             outs = network["output_nodes"]
@@ -656,34 +240,35 @@ class Frontend(ABC):
                     quant_range = dequantize.get("range", None)
                     quant_details = [quant_scale, quant_zero_shift, quant_dtype, quant_range]
                     output_quant_details[name] = quant_details
-                if self.use_inout_data or (
-                    self.gen_ref_data and self.gen_ref_data_mode == "file" and self.gen_ref_data_file == "auto"
-                ):
+                if needs_outputs:
                     if "test_output_path" in outp:
                         out_data_dir = Path(outp["test_output_path"])
                         out_path = model_dir / out_data_dir
-                        assert (
-                            out_path.is_dir()
-                        ), f"Output data directory defined in model metadata does not exist: {out_path}"
                         out_paths.append(out_path)
-                if self.gen_ref_labels and self.gen_ref_labels_mode == "file" and self.gen_ref_labels_file == "auto":
+                if needs_labels:
                     if "test_labels_file" in outp:
                         labels_file = Path(outp["test_labels_file"])
                         labels_path = model_dir / labels_file
-                        assert (
-                            labels_path.is_file()
-                        ), f"Labels file defined in model metadata does not exist: {labels_path}"
                         labels_paths.append(labels_path)
-        else:
+        elif model_dir is not None:
             fallback_in_path = model_dir / "input"
-            if fallback_in_path.is_dir():
+            if fallback_in_path.is_dir() or (self.download_data and needs_inputs):
                 in_paths.append(fallback_in_path)
             fallback_out_path = model_dir / "output"
-            if fallback_out_path.is_dir():
+            if fallback_out_path.is_dir() or (self.download_data and needs_outputs):
                 out_paths.append(fallback_out_path)
             fallback_labels_path = model_dir / "output_labels.csv"
-            if fallback_labels_path.is_file():
+            if fallback_labels_path.is_file() or (self.download_data and needs_labels):
                 labels_paths.append(fallback_labels_path)
+        data_number = self.gen_data_number if self.gen_data else 1
+        if self.download_data:
+            data_number = ensure_model_data(
+                model_dir,
+                input_paths=in_paths if needs_inputs and not model.inputs_path else (),
+                output_paths=out_paths if needs_outputs and not model.outputs_path else (),
+                label_paths=labels_paths if needs_labels and not model.output_labels_path else (),
+                number=data_number,
+            )
         if model.inputs_path:
             logger.info("Overriding default model input data with user path")
             in_paths = [model.inputs_path]
@@ -693,6 +278,16 @@ class Frontend(ABC):
         if model.output_labels_path:  # TODO
             logger.info("Overriding default model output labels with user path")
             labels_paths = [model.output_labels_path]
+
+        if needs_inputs:
+            for path in in_paths:
+                assert path.exists(), f"Input data path does not exist: {path}"
+        if needs_outputs:
+            for path in out_paths:
+                assert path.exists(), f"Output data path does not exist: {path}"
+        if needs_labels:
+            for path in labels_paths:
+                assert path.is_file(), f"Labels file defined in model metadata does not exist: {path}"
 
         if metadata is not None and "backends" in metadata:
             assert cfg is not None
@@ -728,9 +323,11 @@ class Frontend(ABC):
         # Detect model support code (Allow overwrite in metadata YAML)
         if model.support_path:
             support_path = model.support_path
-        else:
+        elif model_dir is not None:
             support_path = model_dir / "support"
-        if support_path.is_dir():
+        else:
+            support_path = None
+        if support_path is not None and support_path.is_dir():
             assert cfg is not None
             # TODO: onlu overwrite if unset?
             if cfg.get("mlif.model_support_dir", None) is not None:
@@ -767,7 +364,7 @@ class Frontend(ABC):
         inputs_data = None
         gen_model_info = True  # TODO: move to self (configurable)
         if gen_model_info:
-            model_info_dict = self.generate_model_info(
+            model_info_dict = generate_model_info(
                 input_names,
                 output_names,
                 input_shapes,
@@ -787,8 +384,16 @@ class Frontend(ABC):
             )
             artifacts.append(model_info_artifact)
         if self.gen_data:
-            inputs_data = self.generate_input_data(
-                input_names, input_types, input_shapes, input_ranges, input_quant_details, in_paths
+            inputs_data = generate_input_data(
+                input_names,
+                input_types,
+                input_shapes,
+                input_ranges,
+                input_quant_details,
+                in_paths,
+                fill_mode=self.gen_data_fill_mode,
+                data_file=self.gen_data_file,
+                number=data_number,
             )
             fmt = self.gen_data_fmt
             if fmt == "npy":
@@ -805,10 +410,19 @@ class Frontend(ABC):
             inputs_data_artifact = Artifact(f"inputs.{fmt}", raw=raw, fmt=ArtifactFormat.BIN, flags=("inputs", fmt))
             artifacts.append(inputs_data_artifact)
         if self.gen_ref_data:
-            outputs_ref_data = self.generate_output_ref_data(
-                inputs_data, model, out_paths, output_names, output_types, output_shapes, output_quant_details
+            outputs_ref_data = generate_output_ref_data(
+                inputs_data,
+                model,
+                out_paths,
+                output_names,
+                output_types,
+                output_shapes,
+                output_quant_details,
+                mode=self.gen_ref_data_mode,
+                data_file=self.gen_ref_data_file,
+                inference=self.inference,
             )
-            fmt = self.gen_data_fmt
+            fmt = self.gen_ref_data_fmt
             if fmt == "npy":
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     tempfilename = Path(tmpdirname) / "outputs_ref.npy"
@@ -825,8 +439,13 @@ class Frontend(ABC):
             )
             artifacts.append(outputs_ref_artifact)
         if self.gen_ref_labels:
-            labels_ref = self.generate_ref_labels(
-                inputs_data, model, labels_paths, output_names, output_types, output_shapes, output_quant_details
+            labels_ref = generate_ref_labels(
+                inputs_data,
+                model,
+                labels_paths,
+                mode=self.gen_ref_labels_mode,
+                data_file=self.gen_ref_labels_file,
+                inference=self.inference,
             )
             fmt = self.gen_ref_labels_fmt
             if fmt == "npy":
@@ -853,7 +472,12 @@ class Frontend(ABC):
     def generate(self, model) -> Tuple[dict, dict]:
         artifacts = []
 
-        count = len(model.paths)
+        if len(model.paths) > 0:
+            count = len(model.paths)
+        elif len(model.classes) > 0:
+            count = len(model.classes)
+        else:
+            count = 0
         assert count == len(model.formats)
         assert count > 0, f"'{self.name}' frontend expects at least one model"
         max_ins = len(self.input_formats)
@@ -945,6 +569,28 @@ class SimpleFrontend(Frontend):
         return artifacts
 
 
+class MLFFrontend(SimpleFrontend):
+    """Frontend for pre-compiled TVM Model Library Format archives."""
+
+    def __init__(self, features=None, config=None):
+        super().__init__("mlf", ModelFormats.MLF, features=features, config=config)
+
+    def produce_artifacts(self, model):
+        assert len(model.paths) == 1
+        path = model.paths[0]
+        with open(path, "rb") as handle:
+            raw = handle.read()
+        return [
+            Artifact(
+                f"{model.name}.tar",
+                raw=raw,
+                fmt=ArtifactFormat.MLF,
+                flags=["model"],
+                archive=True,
+            )
+        ]
+
+
 # TODO: move to frontends.py
 # TODO: frontend parsed metadata instead of lookup.py?
 # TODO: how to find inout_data?
@@ -958,20 +604,13 @@ class TfLiteFrontend(SimpleFrontend):
         "gen_ref_labels",
     }
 
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "visualize_enable": False,
-        "visualize_script": None,
-        "split_layers": False,
-        "pack_script": None,
-        "analyze_enable": False,
-        "analyze_script": None,
-        "check_integrity": False,
-    }
-
-    REQUIRED = Frontend.REQUIRED
-
-    OPTIONAL = SimpleFrontend.OPTIONAL | {"tflite_analyze.script"}
+    visualize_enable = cfg(False, cast=str2bool)
+    visualize_script = cfg(None)
+    split_layers = cfg(False, cast=str2bool)
+    pack_script = cfg(None)
+    analyze_enable = cfg(False, cast=str2bool)
+    analyze_script = cfg(None)
+    OPTIONAL = {"tflite_analyze.script"}
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -981,58 +620,12 @@ class TfLiteFrontend(SimpleFrontend):
             config=config,
         )
 
-    def process_metadata(self, model, cfg=None):
-        ret = super().process_metadata(model, cfg=cfg)
-        metadata = model.metadata
-        if self.check_integrity:
-            checked = False
-            if metadata is not None:
-                network_data = metadata.get("network")
-                if network_data is not None:
-                    hash_data = network_data.get("hash")
-                    if hash_data is not None:
-                        algorithm = hash_data.get("algorithm", "sha1")
-                        value = hash_data.get("value", None)
-                        check_integrity(algorithm, value, model.paths[0])
-                        checked = True
-            if not checked:
-                logger.debug("Skipping integrity check (missing hash)")
-        return ret
-
-    @property
-    def check_integrity(self):
-        value = self.config["check_integrity"]
-        return str2bool(value)
-
-    @property
-    def visualize_enable(self):
-        value = self.config["visualize_enable"]
-        return str2bool(value)
-
-    @property
-    def split_layers(self):
-        value = self.config["split_layers"]
-        return str2bool(value)
-
-    @property
-    def visualize_script(self):
-        return self.config["visualize_script"]
-
-    @property
-    def pack_script(self):
-        return self.config["pack_script"]
-
-    @property
-    def analyze_enable(self):
-        value = self.config["analyze_enable"]
-        return str2bool(value)
-
-    @property
-    def analyze_script(self):
-        return self.config["analyze_script"]
-
     def extract_model_info(self, model: Model):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -1051,18 +644,18 @@ class TfLiteFrontend(SimpleFrontend):
             input_names.append(name)
             input_shapes[name] = inp["shape"].tolist()
             input_types[name] = np.dtype(inp["dtype"]).name
-            if "quantization" in inp:
+            if inp.get("quantization", (0, 0))[0] > 0:
                 scale, zero_point = inp["quantization"]
-                quant = [scale, zero_point, "float32"]
+                quant = [scale, zero_point, "float32", None]
                 input_quant_details[name] = quant
         for outp in output_details:
             name = str(outp["name"])
             output_names.append(name)
             output_shapes[name] = outp["shape"].tolist()
             output_types[name] = np.dtype(outp["dtype"]).name
-            if "quantization" in outp:
+            if outp.get("quantization", (0, 0))[0] > 0:
                 scale, zero_point = outp["quantization"]
-                quant = [scale, zero_point, "float32"]
+                quant = [scale, zero_point, "float32", None]
                 output_quant_details[name] = quant
         return (
             input_names,
@@ -1076,7 +669,11 @@ class TfLiteFrontend(SimpleFrontend):
         )
 
     def inference(self, model: Model, input_data: Dict[str, np.array], quant=False, dequant=False, verbose=False):
-        import tensorflow as tf
+        try:
+            import tensorflow as tf
+        except ImportError as ex:
+            logger.error("Missing Python package: tensorflow")
+            raise ex
 
         model_path = str(model.paths[0])
         interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -1273,10 +870,10 @@ class TfLiteFrontend(SimpleFrontend):
 
 class RelayFrontend(SimpleFrontend):
     FEATURES = Frontend.FEATURES | {"relayviz"}
-
-    DEFAULTS = {**Frontend.DEFAULTS, "visualize_graph": False, "relayviz_plotter": "term"}
-
-    REQUIRED = Frontend.REQUIRED | {"tvm.build_dir", "tvm.pythonpath"}
+    visualize_graph = cfg(False, cast=str2bool)
+    relayviz_plotter = cfg("term")
+    tvm_build_dir = required("tvm.build_dir")
+    tvm_pythonpath = required("tvm.pythonpath")
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1285,23 +882,6 @@ class RelayFrontend(SimpleFrontend):
             features=features,
             config=config,
         )
-
-    @property
-    def visualize_graph(self):
-        value = self.config["visualize_graph"]
-        return str2bool(value)
-
-    @property
-    def relayviz_plotter(self):
-        return self.config["relayviz_plotter"]
-
-    @property
-    def tvm_build_dir(self):
-        return self.config["tvm.build_dir"]
-
-    @property
-    def tvm_pythonpath(self):
-        return self.config["tvm.pythonpath"]
 
     def produce_artifacts(self, model):
         assert len(self.input_formats) == len(model.paths) == 1
@@ -1320,15 +900,17 @@ class RelayFrontend(SimpleFrontend):
             assert len(self.output_formats) == 2
 
             def _relayviz(in_file, out_file, plotter_name, env={}):
-                import sys
-                import os
 
                 sys.path.append(env["PYTHONPATH"])
                 os.environ["TVM_LIBRARY_PATH"] = env["TVM_LIBRARY_PATH"]
-                from tvm import parser
-                from tvm.contrib import relay_viz
-                from tvm.contrib.relay_viz.terminal import TermPlotter
-                from tvm.contrib.relay_viz.dot import DotPlotter
+                try:
+                    from tvm import parser
+                    from tvm.contrib import relay_viz
+                    from tvm.contrib.relay_viz.terminal import TermPlotter
+                    from tvm.contrib.relay_viz.dot import DotPlotter
+                except ImportError as ex:
+                    logger.error("Missing Python package: tvm")
+                    raise ex
 
                 if plotter_name == "term":
                     plotter_cls = TermPlotter
@@ -1384,17 +966,11 @@ class RelayFrontend(SimpleFrontend):
 
 class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do constructor?
     FEATURES = Frontend.FEATURES | {"packing", "packed"}
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "ignore_existing": True,
-        "fake_pack": False,  # Pretend that every compatible tensor is packable
-        # (best case scenerio, TODO: rename to force_pack?)
-        "use_packed": True,
-        "check": False,  # Unimplemented
-    }
-
-    REQUIRED = {"packer.exe"}  # TODO move to feature?
+    ignore_existing = cfg(True, cast=str2bool)
+    fake_pack = cfg(False, cast=str2bool)
+    use_packed = cfg(True, cast=str2bool)
+    check = cfg(False, cast=str2bool)
+    packer_exe = required("packer.exe", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(name="packed", features=features, config=config)
@@ -1413,26 +989,6 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
         # else:
         #     self.output_formats = [ModelFormats.TFLITE]
         # Order of formats ir irrelevant here, hot for artifacts, the first one will always be the main object
-
-    @property
-    def ignore_existing(self):
-        value = self.config["ignore_existing"]
-        return str2bool(value)
-
-    @property
-    def fake_pack(self):
-        value = self.config["fake_pack"]
-        return str2bool(value)
-
-    @property
-    def use_packed(self):
-        value = self.config["use_packed"]
-        return str2bool(value)
-
-    @property
-    def check(self):
-        value = self.config["check"]
-        return str2bool(value)
 
     def produce_artifacts(self, model):
         tflite_data = None
@@ -1463,7 +1019,7 @@ class PackedFrontend(Frontend):  # Inherit from TFLiteFrontend? -> how to do con
             # Do packing
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug("Using temporary directory for packing results: %s", tmpdirname)
-                packer_exe = self.config["packer_exe"]
+                packer_exe = self.packer_exe
                 assert packer_exe is not None
                 in_file = Path(tmpdirname) / "in.tflite"
                 with open(in_file, "wb") as handle:
@@ -1501,6 +1057,211 @@ class ONNXFrontend(SimpleFrontend):
         super().__init__(
             "onnx",
             ModelFormats.ONNX,
+            features=features,
+            config=config,
+        )
+
+
+class TorchFrontend(Frontend):
+    def __init__(self, name: str, fmt: ModelFormats, features=None, config=None):
+        super().__init__(
+            name,
+            input_formats=[fmt],
+            output_formats=[fmt],
+            features=features,
+            config=config,
+        )
+
+    @property
+    def supported_extensions(self):
+        return [ext for fmt in self.input_formats for ext in fmt.extensions]
+
+    def _make_hint(self, name, path, model_class=None, config=None):
+        if path is None:
+            assert model_class is not None
+            paths = []
+            formats = [ModelFormats.TORCH_PICKLE]
+            classes = [model_class]
+        else:
+            paths = [path]
+            ext = path.suffix[1:].lower() if path.suffix else ""
+            assert ext in self.supported_extensions, f"Unsupported extension for torch model: {ext}"
+            formats = [ModelFormats.from_extension(ext)]
+            classes = []
+        local_config = {} if config is None else config.copy()
+        # model_name = model_class if model_class is not None else name
+        model_name = name
+        return Model(model_name, paths, config=local_config, alt=name, formats=formats, classes=classes)
+
+    # def _path_contains_class(self, file_path, class_name):
+    #     import ast
+
+    #     with open(file_path, "r", encoding="utf-8") as handle:
+    #         source = handle.read()
+    #     tree = ast.parse(source, filename=str(file_path))
+    #     return any(isinstance(node, ast.ClassDef) and node.name == class_name for node in ast.walk(tree))
+
+    # def _find_class_in_dirs(self, class_name, directories):
+    #     for directory in directories:
+    #         if not directory.is_dir():
+    #             continue
+    #         for candidate in directory.glob("*.py"):
+    #             if self._path_contains_class(candidate, class_name):
+    #                 return candidate
+    #     return None
+
+    def _lookup_builtin_model(self, name):
+        # import ast
+
+        # builtins_file = Path(__file__).parent / "torch_models" / "quant_linear_test.py"
+        # if not builtins_file.is_file():
+        #     return None, None
+        # with open(builtins_file, "r", encoding="utf-8") as handle:
+        #     source = handle.read()
+        # tree = ast.parse(source, filename=str(builtins_file))
+
+        # alias_to_class = {}
+        # for node in tree.body:
+        #     if not isinstance(node, ast.Assign):
+        #         continue
+        #     if not any(isinstance(target, ast.Name) and target.id == "MODELS" for target in node.targets):
+        #         continue
+        #     if not isinstance(node.value, ast.Dict):
+        #         continue
+        #     for key_node, value_node in zip(node.value.keys, node.value.values):
+        #         if isinstance(key_node, ast.Constant)
+        #             and isinstance(key_node.value, str) and isinstance(value_node, ast.Name):
+        #             alias_to_class[key_node.value] = value_node.id
+
+        # if name in alias_to_class:
+        #     return builtins_file, alias_to_class[name]
+        from .torch_models import MODELS, MODEL_NAME_TO_MODEL, EagerModelFactory
+
+        if name in MODELS:
+            return None, MODELS[name]
+        if name in MODEL_NAME_TO_MODEL:
+            model, example_inputs, _, _ = EagerModelFactory.create_model(*MODEL_NAME_TO_MODEL[name])
+            model.example_input = example_inputs
+            return None, model
+        # if self._path_contains_class(builtins_file, name):
+        #     return builtins_file, name
+        return None, None
+
+    def _get_search_directories(self, context=None):
+        directories = []
+        package_models = Path(__file__).parent / "torch_models"
+        directories.append(package_models)
+        if context is not None:
+            model_paths = context.environment.paths.get("models", [])
+            for model_path in model_paths:
+                path = getattr(model_path, "path", model_path)
+                directories.append(Path(path))
+        return directories
+
+    def lookup_models(self, names, config=None, context=None):
+        hints = []
+        config = config if config is not None else {}
+        fmt = self.input_formats[0]
+        for name in names:
+            # path, model_class = self._lookup_builtin_model(name)
+            _, model_class = self._lookup_builtin_model(name)
+            if model_class is not None:
+                assert fmt == ModelFormats.TORCH_PICKLE
+                hints.append(self._make_hint(name, None, model_class=model_class, config=config))
+                continue
+            if fmt in [ModelFormats.TORCH_PYTHON, ModelFormats.TORCH_PICKLE, ModelFormats.TORCH_EXPORTED]:
+                model_path = Path(name)
+                suffix = model_path.suffix
+                assert len(suffix) > 1
+                ext = suffix[1:]
+                assert model_path.is_file(), f"Not a file: {model_path}"
+                assert ext in fmt.extensions, f"Unsupported extension: {ext}"
+                name = model_path.stem
+                from .torch_models.torch_utils import load_torch_model
+
+                model, _, _ = load_torch_model(model_path)
+                hints.append(self._make_hint(name, model_path, model_class=model, config=config))
+                continue
+            # if path is not None:
+            #     hints.append(self._make_hint(name, Path(path), model_class=model_class, config=config))
+            #     continue
+            # class_file = self._find_class_in_dirs(name, self._get_search_directories(context=context))
+            # if class_file is not None:
+            #     hints.append(self._make_hint(name, class_file, model_class=name, config=config))
+            #     continue
+            raise RuntimeError(f"Could not find {self.name} model: {name}")
+        return hints
+
+    def produce_artifacts(self, model):
+        artifacts = []
+        if len(model.paths) == 0:
+            assert len(model.classes) > 0
+            assert len(model.classes) == 1
+            model_class = model.classes[0]
+            ext = "pkl"
+
+            pickled_bytes = pickle.dumps(model_class)
+            artifacts.append(
+                Artifact(f"{model.name}.{ext}", raw=pickled_bytes, fmt=ArtifactFormat.RAW, flags=["model"])
+            )
+        else:
+            path = model.paths[0]
+            ext = model.formats[0].extension
+            if ext == "py":
+                # print("model", model, dir(model))
+                # print("model.classes[0]", model.classes[0], dir(model.classes[0]))
+                # input("!")
+                with open(path, "r") as handle:
+                    content = handle.read()
+                artifacts.append(
+                    Artifact(f"{model.name}.{ext}", content=content, fmt=ArtifactFormat.SOURCE, flags=["model"])
+                )
+            else:
+                assert ext in ["pt", "pth", "pkl", "pickle"]
+                with open(path, "rb") as handle:
+                    raw = handle.read()
+                artifacts.append(Artifact(f"{model.name}.{ext}", raw=raw, fmt=ArtifactFormat.RAW, flags=["model"]))
+        return artifacts
+
+
+class PTEFrontend(SimpleFrontend):
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "pte",
+            ModelFormats.PTE,
+            features=features,
+            config=config,
+        )
+
+
+class TorchPickleFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_pickle",
+            fmt=ModelFormats.TORCH_PICKLE,
+            features=features,
+            config=config,
+        )
+
+
+class TorchPythonFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_python",
+            fmt=ModelFormats.TORCH_PYTHON,
+            features=features,
+            config=config,
+        )
+
+
+class TorchExportedFrontend(TorchFrontend):
+
+    def __init__(self, features=None, config=None):
+        super().__init__(
+            "torch_exported",
+            fmt=ModelFormats.TORCH_EXPORTED,
             features=features,
             config=config,
         )
@@ -1569,7 +1330,7 @@ class BenchFrontend(SimpleFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = self.name
         return ret
 
@@ -1603,7 +1364,7 @@ class ExampleFrontend(BenchFrontend):
 
 
 class EmbenchFrontend(BenchFrontend):
-    REQUIRED = {"embench.src_dir"}
+    embench_src_dir = required("embench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1643,13 +1404,13 @@ class EmbenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
-            ret["EMBENCH_DIR"] = Path(self.config["embench.src_dir"])
+        if platform in ["mlif", "mlif_litex"]:
+            ret["EMBENCH_DIR"] = self.embench_src_dir
         return ret
 
 
 class EmbenchIoTFrontend(BenchFrontend):
-    REQUIRED = {"embench_iot.src_dir"}
+    embench_iot_src_dir = required("embench_iot.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1691,13 +1452,13 @@ class EmbenchIoTFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
-            ret["EMBENCH_IOT_DIR"] = Path(self.config["embench_iot.src_dir"])
+        if platform in ["mlif", "mlif_litex"]:
+            ret["EMBENCH_IOT_DIR"] = self.embench_iot_src_dir
         return ret
 
 
 class EmbenchDSPFrontend(BenchFrontend):
-    REQUIRED = {"embench_dsp.src_dir"}
+    embench_dsp_src_dir = required("embench_dsp.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1725,13 +1486,13 @@ class EmbenchDSPFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
-            ret["EMBENCH_DSP_DIR"] = Path(self.config["embench_dsp.src_dir"])
+        if platform in ["mlif", "mlif_litex"]:
+            ret["EMBENCH_DSP_DIR"] = self.embench_dsp_src_dir
         return ret
 
 
 class TaclebenchFrontend(BenchFrontend):
-    REQUIRED = {"taclebench.src_dir"}
+    taclebench_src_dir = required("taclebench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1806,19 +1567,14 @@ class TaclebenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
-            ret["TACLEBENCH_DIR"] = Path(self.config["taclebench.src_dir"])
+        if platform in ["mlif", "mlif_litex"]:
+            ret["TACLEBENCH_DIR"] = self.taclebench_src_dir
         return ret
 
 
 class PolybenchFrontend(BenchFrontend):
-
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "dataset": "large",  # mini/small/medium/large/extralarge
-    }
-
-    REQUIRED = {"polybench.src_dir"}
+    dataset = cfg("large")
+    polybench_src_dir = required("polybench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1866,9 +1622,9 @@ class PolybenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
-            ret["POLYBENCH_DIR"] = Path(self.config["polybench.src_dir"])
-            ret["POLYBENCH_DATASET"] = self.config["dataset"].upper() + "_DATASET"
+        if platform in ["mlif", "mlif_litex"]:
+            ret["POLYBENCH_DIR"] = self.polybench_src_dir
+            ret["POLYBENCH_DATASET"] = self.dataset.upper() + "_DATASET"
         return ret
 
 
@@ -1935,7 +1691,7 @@ class MathisFrontend(BenchFrontend):
 
 
 class MibenchFrontend(BenchFrontend):
-    REQUIRED = {"mibench.src_dir"}
+    mibench_src_dir = required("mibench.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1966,8 +1722,8 @@ class MibenchFrontend(BenchFrontend):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
-            ret["MIBENCH_DIR"] = Path(self.config["mibench.src_dir"])
+        if platform in ["mlif", "mlif_litex"]:
+            ret["MIBENCH_DIR"] = self.mibench_src_dir
 
         return ret
 
@@ -1989,12 +1745,8 @@ class LayerGenFrontend(Frontend):
 
     FEATURES = Frontend.FEATURES
 
-    DEFAULTS = {
-        **Frontend.DEFAULTS,
-        "fmt": "tflite",  # TODO: relay
-    }
-
-    REQUIRED = Frontend.REQUIRED | {"layergen.exe"}
+    DEFAULTS = {"fmt": "tflite"}  # TODO: relay
+    layergen_exe = required("layergen.exe", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -2011,10 +1763,6 @@ class LayerGenFrontend(Frontend):
         value = value.upper()
         assert value in ["TFLITE", "RELAY"]
         return value
-
-    @property
-    def layergen_exe(self):
-        return Path(self.config["layergen.exe"])
 
     def produce_artifacts(self, model):
         pass
@@ -2202,7 +1950,7 @@ class CmsisDSPFrontend(BenchFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = "cmsis_dsp_bench"
         return ret
 
@@ -2226,6 +1974,6 @@ class CmsisNNFrontend(BenchFrontend):
 
     def get_platform_config(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["template"] = "cmsis_nn_bench"
         return ret

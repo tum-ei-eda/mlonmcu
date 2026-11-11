@@ -15,6 +15,13 @@ mlonmcu.models.convert\_data module
 mlonmcu.models.frontend module
 ------------------------------
 
+Model checksums in ``definition.yml`` (``network.hash.algorithm`` and
+``network.hash.value``) are verified by default before processing metadata.
+Models without a checksum are loaded without verification. To skip verification,
+set the frontend's ``check_integrity`` option to false, for example::
+
+   python3 -m mlonmcu.cli.main flow run resnet -b tvmaotplus -t host_x86 -c tflite.check_integrity=False
+
 .. automodule:: mlonmcu.models.frontend
    :members:
    :undoc-members:

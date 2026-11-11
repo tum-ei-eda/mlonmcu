@@ -27,22 +27,18 @@ from pathlib import Path
 
 import paramiko
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from .target import Target
 
 
 class SSHTarget(Target):
     """TODO"""
 
-    DEFAULTS = {
-        **Target.DEFAULTS,
-        "hostname": None,
-        "port": 22,
-        "username": None,
-        "password": None,
-        "ignore_known_hosts": True,
-        "workdir": None,
-    }
+    # hostname and workdir retain their validation below.
+    DEFAULTS = {"hostname": None, "port": 22, "workdir": None}
+    username = cfg(None)
+    password = cfg(None)
+    ignore_known_hosts = cfg(True, cast=str2bool)
 
     @property
     def hostname(self):
@@ -57,21 +53,6 @@ class SSHTarget(Target):
             value = int(value)
         assert isinstance(value, int)
         return value
-
-    @property
-    def username(self):
-        value = self.config["username"]
-        return value
-
-    @property
-    def password(self):
-        value = self.config["password"]
-        return value
-
-    @property
-    def ignore_known_hosts(self):
-        value = self.config["ignore_known_hosts"]
-        return str2bool(value)
 
     @property
     def workdir(self):
@@ -126,7 +107,9 @@ class SSHTarget(Target):
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(self.hostname, port=self.port, username=self.username, password=self.password)
             if self.workdir is None:
-                raise NotImplementedError("temp workdir")
+                command = "mktemp -d"
+                _, stdout, _ = ssh.exec_command(command)
+                workdir = Path(stdout.read().strip().decode())
             else:
                 self.create_remote_directory(ssh, self.workdir)
                 workdir = self.workdir
@@ -144,6 +127,9 @@ class SSHTarget(Target):
             # print("stderr", stderr)
             output = stderr.read().strip() + stdout.read().strip()
             output = output.decode()
+            if self.workdir is None:
+                command = f"rm -rf {workdir}"
+                ssh.exec_command(command)
             if self.print_outputs:
                 print("output", output)  # TODO: cleanup
         return output

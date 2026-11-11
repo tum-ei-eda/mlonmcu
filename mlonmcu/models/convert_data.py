@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Utility to convert various types of data into MLonMCU compatible raw binary files."""
+
 import sys
 import struct
 from PIL import Image

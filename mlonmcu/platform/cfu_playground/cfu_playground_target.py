@@ -19,9 +19,10 @@
 import re
 import os
 
+from mlonmcu.config import cfg, required, str2bool
+
 # from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.riscv import RISCVTarget
-from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
 
 from mlonmcu.logging import get_logger
@@ -52,16 +53,94 @@ class TemplateCFUPlaygroundPlatformTarget(RISCVTarget):
 
 class FullCFUPlaygroundPlatformTarget(TemplateCFUPlaygroundPlatformTarget):
     DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "verbose": False,
+        "fpga_sim": False,
+        "fpga_tty": None,
+        "fpga_target": "digilent_arty",
+        "fpga_variant": "a7-100",
+        "sys_clk_freq": None,
+        "baud": 1843200,
+        "fpu": "none",  # TODO: use
+        "compressed": False,  # TODO: use
+        "atomic": False,  # TODO: use
+        "integrated_main_ram_size": 0,
+        # "integrated_main_ram_size":  256 * 1024,
     }
-    REQUIRED = RISCVTarget.REQUIRED | {"tvm.build_dir"}
+    tvm_build_dir = required("tvm.build_dir")
+    verbose = cfg(False, cast=str2bool)
+    rtl_sim = cfg(False, cast=str2bool)
+    cpu_variant = cfg(None)
+    use_sw_dir = cfg(None)
+    use_gateware_dir = cfg(None)
+
+    @property
+    def fpga_sim(self):
+        value = self.config["fpga_sim"]
+        return str2bool(value)
+
+    @property
+    def fpga_tty(self):
+        value = self.config["fpga_tty"]
+        if value is None:
+            raise ValueError("fpga_tty can not be undefined")
+        return value
+
+    @property
+    def fpga_target(self):
+        value = self.config["fpga_target"]
+        if value is None:
+            raise ValueError("fpga_target can not be undefined")
+        return value
+
+    @property
+    def fpga_variant(self):
+        value = self.config["fpga_variant"]
+        if value is None:
+            raise ValueError("fpga_variant can not be undefined")
+        return value
+
+    @property
+    def use_renode(self):
+        return not self.rtl_sim and not self.fpga_sim
+
+    @property
+    def sys_clk_freq(self):
+        value = self.config["sys_clk_freq"]
+        if value is None:
+            return None
+        return int(float(value))
+
+    @property
+    def baud(self):
+        value = self.config["baud"]
+        if value is None:
+            return None
+        return int(value)
+
+    @property
+    def integrated_main_ram_size(self):
+        value = self.config["integrated_main_ram_size"]
+        if value is None:
+            return None
+        return int(value)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
 
 
+class FullRTLCFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
+    rtl_sim = cfg(True, cast=str2bool)
+
+
+class FullFPGACFUPlaygroundPlatformTarget(FullCFUPlaygroundPlatformTarget):
+    DEFAULTS = {
+        **FullCFUPlaygroundPlatformTarget.DEFAULTS,
+        "fpga_sim": True,
+    }
+
+
 register_cfu_playground_platform_target("cfu_full", FullCFUPlaygroundPlatformTarget)
+register_cfu_playground_platform_target("cfu_full_rtl", FullRTLCFUPlaygroundPlatformTarget)
+register_cfu_playground_platform_target("cfu_full_fpga", FullFPGACFUPlaygroundPlatformTarget)
 
 
 # class DefaultCFUPlaygroundTarget(Target):
@@ -234,8 +313,8 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
             # CFU Playground actually wants a project directory, but we only get the elf now. As a workaround we
             # assume the elf is right in the build directory inside the project directory
 
-            ret = self.platform.run(program, self)
-            return ret
+            out, artifacts, metrics = self.platform.run(program, self)
+            return out, artifacts, metrics
 
         def parse_exit(self, out):
             exit_code = None
@@ -260,22 +339,39 @@ def create_cfu_playground_platform_target(name, platform, base=RISCVTarget):
                 return temp
 
             if self.print_outputs:
-                out = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
+                out, artifacts, metrics = self.exec(elf, cwd=directory, live=True, handle_exit=_handle_exit)
             else:
-                out = self.exec(
+                out, artifacts, metrics = self.exec(
                     elf, cwd=directory, live=False, print_func=lambda *args, **kwargs: None, handle_exit=_handle_exit
                 )
-            metrics = Metrics()
+            # metrics = Metrics()
             exit_code = 0  # TODO: get from handler?
             self.parse_stdout(out, metrics, exit_code=exit_code)
             # cycles, time_us = self.parse_stdout(out)
+            mips = None
+            if metrics.has("Total Instructions") and metrics.has("Simulation Time [s]"):
+                sim_insns = metrics.get("Total Instructions")
+                sim_time = metrics.get("Simulation Time [s]")
+                if sim_time > 0:
+                    mips = (sim_insns / sim_time) / 1e6
+                    metrics.add("MIPS", mips, True)
+            # Add time based on clock freq
+            if self.sys_clk_freq:
+                for mode in ["Setup", "Run", "Total"]:
+                    if metrics.has(f"{mode} Runtime [s]") or metrics.has(f"{mode} Runtime [us]"):
+                        continue  # Already populated
+                    cycles = metrics.get(f"{mode} Cycles", None)
+                    if cycles is None:
+                        continue  # Missing cycles
+                    secs = cycles / self.sys_clk_freq
+                    metrics.add(f"{mode} Runtime [s]", secs, True)
 
             # metrics = Metrics()
             # metrics.add("Cycles", cycles)
             # time_s = time_us / 1e6 if time_us is not None else time_us
             # metrics.add("Runtime [s]", time_s)
 
-            return metrics, out, []
+            return metrics, out, artifacts
 
         def get_arch(self):
             return "unkwown"

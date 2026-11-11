@@ -22,7 +22,7 @@ from enum import Enum
 from pathlib import Path
 from collections import namedtuple
 
-from mlonmcu.config import filter_config, str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, str2bool
 
 from .metadata import parse_metadata
 
@@ -55,7 +55,12 @@ class ModelFormats(Enum):
     PADDLE = ModelFormat(7, ["pdmodel"])
     TEXT = ModelFormat(8, ["txt"])
     MLIR = ModelFormat(9, ["mlir"])
-    SAVED_MODEL = ModelFormat(9, [""])  # tf
+    SAVED_MODEL = ModelFormat(10, [""])  # tf
+    PTE = ModelFormat(11, ["pte"])
+    TORCH_PICKLE = ModelFormat(12, ["pkl", "pickle"])
+    TORCH_EXPORTED = ModelFormat(13, ["pt", "pth"])
+    TORCH_PYTHON = ModelFormat(14, ["py"])
+    MLF = ModelFormat(15, ["tar"])
 
 
 def parse_metadata_from_path(path):
@@ -133,7 +138,7 @@ def parse_type_string(inputs_string):
     return type_dict
 
 
-class Workload:
+class Workload(Configurable):
     DEFAULTS = {}
 
     def __init__(self, name, config=None, alt=None):
@@ -156,32 +161,28 @@ class Workload:
 
 class Model(Workload):
     DEFAULTS = {
-        **Workload.DEFAULTS,
-        "metadata_path": "definition.yml",
         "input_shapes": None,
         "output_shapes": None,
         "input_types": None,
         "output_types": None,
-        "support_path": None,
-        "inputs_path": None,
-        "outputs_path": None,
-        "output_labels_path": None,
-        "params_path": None,
     }
+    metadata_path = cfg("definition.yml")
+    support_path = cfg(None, cast=Path)
+    inputs_path = cfg(None, cast=Path)
+    outputs_path = cfg(None, cast=Path)
+    output_labels_path = cfg(None, cast=Path)
+    params_path = cfg(None, cast=Path)
 
-    def __init__(self, name, paths, config=None, alt=None, formats=ModelFormats.TFLITE):
+    def __init__(self, name, paths, classes=None, config=None, alt=None, formats=ModelFormats.TFLITE):
         super().__init__(name, config=config, alt=alt)
         self.paths = paths
         if not isinstance(self.paths, list):
             self.paths = [self.paths]
+        self.classes = classes if classes is not None else []
         self.formats = formats
         if not isinstance(self.formats, list):
             self.formats = [formats]
         self.metadata = parse_metadata_from_path(self.metadata_path)
-
-    @property
-    def metadata_path(self):
-        return self.config["metadata_path"]
 
     @property
     def input_shapes(self):
@@ -224,54 +225,6 @@ class Model(Workload):
         return temp
 
     @property
-    def support_path(self):
-        value = self.config["support_path"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
-    def inputs_path(self):
-        # TODO: fall back to metadata
-        value = self.config["inputs_path"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
-    def outputs_path(self):
-        # TODO: fall back to metadata
-        value = self.config["outputs_path"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
-    def output_labels_path(self):
-        # TODO: fall back to metadata
-        value = self.config["output_labels_path"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
-    def params_path(self):
-        value = self.config["params_path"]
-        if value is not None:
-            if not isinstance(value, Path):
-                assert isinstance(value, str)
-                value = Path(value)
-        return value
-
-    @property
     def skip_check(self):
         if len(self.formats) == 0:
             return True
@@ -305,7 +258,7 @@ class MultiBenchProgram(Program):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret[f"{self.prefix}_BENCHMARK"] = self.name
         return ret
 
@@ -342,27 +295,21 @@ class EmbenchIoTProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             if self.global_scale_factor is not None:
                 ret["EMBENCH_IOT_GLOBAL_SCALE_FACTOR"] = self.global_scale_factor
         return ret
 
 
 class EmbenchDSPProgram(MultiBenchProgram):
-    DEFAULTS = {
-        "no_snr_check": False,  # TODO: move to frontend?
-    }
+    no_snr_check = cfg(False, cast=lambda value: str2bool(value, allow_none=True))
 
     def __init__(self, name: str, config=None, alt=None):
         super().__init__(name, "EMBENCH_DSP", config=config, alt=alt)
 
-    @property
-    def no_snr_check(self):
-        return str2bool(self.config["no_snr_check"], allow_none=True)
-
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             if self.no_snr_check is not None:
                 ret["EMBENCH_DSP_NO_SNR_CHECK"] = self.no_snr_check
         return ret
@@ -452,7 +399,7 @@ class MathisProgram(Program):
 
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["MATHIS_TEST"] = self.name
             ret["MATHIS_NARGS"] = self.get_nargs(self.name)
             ret["MATHIS_ELEM_SIZE"] = self.get_elem_size(self.name)
@@ -464,7 +411,7 @@ class MathisProgram(Program):
 class CoremarkProgram(Program):
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["COREMARK_ITERATIONS"] = 10
         return ret
 
@@ -472,26 +419,20 @@ class CoremarkProgram(Program):
 class DhrystoneProgram(Program):
     def get_platform_defs(self, platform):
         ret = {}
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["DHRYSTONE_ITERATIONS"] = 10000
         return ret
 
 
 class OpenASIPProgram(MultiBenchProgram):
-    DEFAULTS = {
-        "crc_mode": "both",
-    }
+    crc_mode = cfg("both", cast=str)
 
     def __init__(self, name: str, config=None, alt=None):
         super().__init__(name, "OPENASIP", config=config, alt=alt)
 
-    @property
-    def crc_mode(self):
-        return str(self.config["crc_mode"])
-
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             if self.name == "crc":
                 ret["OPENASIP_CRC_MODE"] = self.crc_mode
         return ret
@@ -503,30 +444,16 @@ class RVVBenchProgram(MultiBenchProgram):
 
 
 class ISSBenchProgram(MultiBenchProgram):
-    DEFAULTS = {
-        "num_iter": 10000000,
-        "dtype": "uint32_t",
-        "array_size": 1048576,  # mem_heavy only
-    }
+    num_iter = cfg(10000000, cast=int)
+    dtype = cfg("uint32_t")
+    array_size = cfg(1048576, cast=int)
 
     def __init__(self, name: str, config=None, alt=None):
         super().__init__(name, "ISS_BENCH", config=config, alt=alt)
 
-    @property
-    def num_iter(self):
-        return int(self.config["num_iter"])
-
-    @property
-    def dtype(self):
-        return self.config["dtype"]
-
-    @property
-    def array_size(self):
-        return int(self.config["array_size"])
-
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["ISS_BENCH_ITERATIONS"] = self.num_iter
             ret["ISS_BENCH_DTYPE"] = self.dtype
             if self.name == "mem_heavy":
@@ -535,21 +462,14 @@ class ISSBenchProgram(MultiBenchProgram):
 
 
 class CryptoBenchProgram(MultiBenchProgram):
-
-    DEFAULTS = {
-        "verbose": False,  # Enable printfs, only for hqc
-    }
+    verbose = cfg(False, cast=str2bool)
 
     def __init__(self, name: str, config=None, alt=None):
         super().__init__(name, "CRYPTO_BENCH", config=config, alt=alt)
 
-    @property
-    def verbose(self):
-        return str2bool(self.config["verbose"])
-
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["CRYPTO_BENCH_VERBOSE"] = self.verbose
         return ret
 
@@ -594,7 +514,7 @@ class CmsisDSPProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["CMSIS_DSP_SIZE"] = self.size
             ret["CMSIS_DSP_BATCH_SIZE"] = self.batch_size
             ret["CMSIS_DSP_NUMBER"] = self.number
@@ -640,7 +560,7 @@ class CmsisNNProgram(MultiBenchProgram):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        if platform == "mlif":
+        if platform in ["mlif", "mlif_litex"]:
             ret["CMSIS_NN_SIZE"] = self.size
             ret["CMSIS_NN_BATCH_SIZE"] = self.batch_size
             ret["CMSIS_NN_NUMBER"] = self.number

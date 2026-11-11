@@ -17,9 +17,9 @@
 # limitations under the License.
 #
 """IREE utils."""
+
 from typing import Optional
 from mlonmcu.logging import get_logger
-
 
 logger = get_logger()
 

@@ -19,7 +19,7 @@
 from pathlib import Path
 
 from mlonmcu.utils import filter_none
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.target.target import Target
 from mlonmcu.target.riscv.util import sort_extensions_canonical, join_extensions
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
@@ -40,9 +40,10 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "verbose": False,
         "quiet": False,
         "workspace_size_bytes": None,
+        # "cpu_freq": None,
         "toolchain": "gcc",
         "xlen": 32,
-        "extensions": ["i", "m", "c"],  # TODO overwrite extensions elegantly
+        "extensions": ["i", "m", "a", "c"],  # TODO overwrite extensions elegantly
         "fpu": "double",  # allowed: none, single, double
         "arch": None,
         "abi": None,
@@ -50,13 +51,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "cpu_arch": None,
         "jit": None,
         "etiss_extra_args": "",
-        "enable_xcorevmac": False,
-        "enable_xcorevmem": False,
-        "enable_xcorevbi": False,
-        "enable_xcorevalu": False,
-        "enable_xcorevbitmanip": False,
-        "enable_xcorevsimd": False,
-        "enable_xcorevhwlp": False,
+        "fclk": 100e6,
     }
     REQUIRED = Target.REQUIRED | {
         "microtvm_etiss.src_dir",
@@ -65,6 +60,13 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "etiss.script",
         "llvm.install_dir",
     }
+    enable_xcorevmac = cfg(False, cast=str2bool)
+    enable_xcorevmem = cfg(False, cast=str2bool)
+    enable_xcorevbi = cfg(False, cast=str2bool)
+    enable_xcorevalu = cfg(False, cast=str2bool)
+    enable_xcorevbitmanip = cfg(False, cast=str2bool)
+    enable_xcorevsimd = cfg(False, cast=str2bool)
+    enable_xcorevhwlp = cfg(False, cast=str2bool)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -75,6 +77,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "verbose",
             "quiet",
             "workspace_size_bytes",
+            "cpu_freq",
             # "warning_as_error",
             # "compile_definitions",
             # "config_main_stack_size",
@@ -102,41 +105,6 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     def etiss_extra_args(self):
         return self.config["etiss_extra_args"]
 
-    @property
-    def enable_xcorevmac(self):
-        value = self.config["enable_xcorevmac"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevmem(self):
-        value = self.config["enable_xcorevmem"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbi(self):
-        value = self.config["enable_xcorevbi"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevalu(self):
-        value = self.config["enable_xcorevalu"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevbitmanip(self):
-        value = self.config["enable_xcorevbitmanip"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevsimd(self):
-        value = self.config["enable_xcorevsimd"]
-        return str2bool(value)
-
-    @property
-    def enable_xcorevhwlp(self):
-        value = self.config["enable_xcorevhwlp"]
-        return str2bool(value)
-
     def get_project_options(self):
         ret = super().get_project_options()
         # TODO: allow generating etiss ini config instead!
@@ -153,6 +121,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 "abi": self.abi,
                 "cpu_arch": self.cpu_arch,
                 **({"jit": self.jit} if self.jit is not None else {}),
+                "cpu_freq": self.fclk,
             }
         )
         return ret
@@ -253,7 +222,7 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
                 continue
             attrs.append(f"+{ext}")
         attrs = list(set(attrs))
-        return ",".join(attrs)
+        return ",".join(sorted(attrs))
 
     @property
     def cpu_arch(self):
@@ -314,11 +283,22 @@ class EtissMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
 
 
 class EtissPerfMicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    etiss_script = required("etiss_perf.script", cast=Path)
 
-    REQUIRED = EtissMicroTvmPlatformTarget.REQUIRED | {
-        "etiss_perf.script",
-    }
 
-    @property
-    def etiss_script(self):
-        return Path(self.config["etiss_perf.script"])
+class EtissRV32MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {"xlen": 32}
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)
+
+
+class EtissRV64MicroTvmPlatformTarget(EtissMicroTvmPlatformTarget):
+    FEATURES = EtissMicroTvmPlatformTarget.FEATURES
+
+    DEFAULTS = {"xlen": 64}
+
+    def __init__(self, name=None, features=None, config=None):
+        super().__init__(name=name, features=features, config=config)

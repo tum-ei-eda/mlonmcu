@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Command line subcommand for installing a mlonmcu environment."""
+
 from mlonmcu.context.context import MlonMcuContext
 from mlonmcu.setup import setup
 

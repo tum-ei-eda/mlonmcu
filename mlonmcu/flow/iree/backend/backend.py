@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Generic IREEBackend implementation."""
+
 import os
 import tempfile
 from pathlib import Path
@@ -26,7 +27,7 @@ import multiprocessing
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, optional, required, str2bool
 from mlonmcu.logging import get_logger
 from mlonmcu.target.elf import get_code_size_from_static_lib
 from mlonmcu.models.model_info import (
@@ -37,7 +38,6 @@ from mlonmcu.target.metrics import Metrics
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from .wrapper import generate_iree_wrapper
 from .iree_utils import parse_iree_version
-
 
 logger = get_logger()
 
@@ -106,14 +106,14 @@ def get_iree_compile_llvmcpu_vectorization_unroll_args(
         f"--iree-llvmcpu-target-vector-width-in-bytes={vector_width}",
         f"--iree-llvmcpu-slp-vectorization={int(supports_vectorization)}",
         f"--iree-llvmcpu-loop-vectorization={int(supports_vectorization)}",
-        f"--iree-llvmcpu-disable-vector-peeling={1-int(supports_vectorization)}",
+        f"--iree-llvmcpu-disable-vector-peeling={1 - int(supports_vectorization)}",
         # "--iree-llvmcpu-check-linalg-vectorization=0",
         *(
             [f"--iree-llvmcpu-enable-scalable-vectorization={int(target_scalable_vector)}"]
             if target_scalable_vector is not None
             else []
         ),
-        f"--iree-llvmcpu-fail-on-large-vector={1-int(supports_vectorization)}",
+        f"--iree-llvmcpu-fail-on-large-vector={1 - int(supports_vectorization)}",
         *([f"--iree-llvmcpu-loop-unrolling={int(loop_unroll)}"] if loop_unroll is not None else []),
     ]
     return ret
@@ -128,24 +128,25 @@ class IREEBackend(Backend):
 
     FEATURES = set()
 
-    DEFAULTS = {
-        "print_outputs": False,
-        "opt_level": None,
-        "target_cpu": None,
-        "target_triple": None,
-        "target_abi": None,
-        "target_cpu_features": None,
-        "iree_compile_extra_args": [],
-        "num_threads": multiprocessing.cpu_count(),
-        "strip_assertions": None,
-        "target_vector_width": None,
-        "target_scalable_vectorization": None,
-        "loop_unroll": True,
-    }
+    OPTIONAL = {"iree.version"}
 
-    OPTIONAL = {"iree.version", "iree.build_dir"}
-
-    REQUIRED = {"iree.install_dir", "iree.src_dir"}
+    print_outputs = cfg(False, cast=str2bool)
+    opt_level = cfg(None)
+    target_cpu = cfg(None)
+    target_triple = cfg(None)
+    target_abi = cfg(None)
+    target_cpu_features = cfg(None)
+    iree_compile_extra_args = cfg([])
+    num_threads = cfg(multiprocessing.cpu_count())
+    strip_assertions = cfg(None, cast=lambda value: str2bool(value, allow_none=True))
+    target_vector_width = cfg(None)
+    target_scalable_vector = cfg(
+        None, key="target_scalable_vectorization", cast=lambda value: str2bool(value, allow_none=True)
+    )
+    loop_unroll = cfg(True, cast=lambda value: str2bool(value, allow_none=True))
+    iree_install_dir = required("iree.install_dir", cast=Path)
+    iree_src_dir = required("iree.src_dir")
+    iree_build_dir = optional("iree.build_dir", cast=Path)
 
     def __init__(self, output_format=None, hal_backend=None, hal_inline=False, features=None, config=None):
         super().__init__(framework="iree", features=features, config=config)
@@ -180,46 +181,6 @@ class IREEBackend(Backend):
     #     return self.config["target_device"]
 
     @property
-    def target_cpu(self):
-        return self.config["target_cpu"]
-
-    @property
-    def target_triple(self):
-        return self.config["target_triple"]
-
-    @property
-    def target_abi(self):
-        return self.config["target_abi"]
-
-    @property
-    def target_cpu_features(self):
-        return self.config["target_cpu_features"]
-
-    @property
-    def opt_level(self):
-        # O3, O2,...
-        return self.config["opt_level"]
-
-    @property
-    def iree_compile_extra_args(self):
-        return self.config["iree_compile_extra_args"]
-
-    @property
-    def iree_install_dir(self):
-        return Path(self.config["iree.install_dir"])
-
-    @property
-    def iree_build_dir(self):
-        ret = self.config["iree.build_dir"]
-        if ret is None:
-            return None
-        return Path(ret)
-
-    @property
-    def iree_src_dir(self):
-        return self.config["iree.src_dir"]
-
-    @property
     def iree_compile_exe(self):
         return Path(self.iree_install_dir) / "bin" / "iree-compile"
 
@@ -244,15 +205,6 @@ class IREEBackend(Backend):
     @property
     def iree_tf_path(self):
         return Path(self.iree_src_dir) / "integrations" / "tensorflow" / "python_projects" / "iree_tf"
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
-
-    @property
-    def num_threads(self):
-        return self.config["num_threads"]
 
     def prepare_environment(self):
         env = os.environ.copy()
@@ -291,10 +243,6 @@ class IREEBackend(Backend):
         ]
 
     @property
-    def strip_assertions(self):
-        return str2bool(self.config["strip_assertions"], allow_none=True)
-
-    @property
     def iree_version(self):
         value = self.config["iree.version"]
         if value is None:
@@ -303,18 +251,6 @@ class IREEBackend(Backend):
             value = str(float(value))
         assert value.count(".") == 1
         return value
-
-    @property
-    def target_vector_width(self):
-        return self.config["target_vector_width"]
-
-    @property
-    def target_scalable_vector(self):
-        return str2bool(self.config["target_scalable_vectorization"], allow_none=True)
-
-    @property
-    def loop_unroll(self):
-        return str2bool(self.config["loop_unroll"], allow_none=True)
 
     def get_iree_compile_args(self, out, model_path):
         static_lib_path = out.parent / f"{self.identifier}_static_lib.o"
@@ -546,10 +482,32 @@ class IREEBackend(Backend):
                                     args_temp[arg_name] = arg_shape_str
                                 args_str = ",".join([f"arg{i}:1x1960" for arg_name, arg_shape_str in args_temp.items()])
                                 args_str_ = f"args={args_str}"
-                                mlir_opt_args.append(f'--tosa-experimental-input-shape={args_str_}')
+                                mlir_opt_args.append(f"--tosa-experimental-input-shape={args_str_}")
                                 mlir_opt_args.append("-tosa-infer-shapes")
                             if attach_tosa_target:  # TODO: not working because this is hardcoded in IREE (see TODO)
-                                tosa_target_str = "specification_version=1.1.draft profiles=pro_int,pro_fp extensions=int16,int4,int64,bf16,fp8e4m3,fp8e5m2,fft,variable,controlflow,doubleround,inexactround,mxfp_conv,shape"
+                                tosa_profiles = ["pro_int", "pro_fp"]
+                                profiles_str = ",".join(tosa_profiles)
+                                tosa_extensions = [
+                                    "int16",
+                                    "int4",
+                                    "int64",
+                                    "bf16",
+                                    "fp8e4m3",
+                                    "fp8e5m2",
+                                    "fft",
+                                    "variable",
+                                    "controlflow",
+                                    "doubleround",
+                                    "inexactround",
+                                    "mxfp_conv",
+                                    "shape",
+                                ]
+                                extensions_str = ",".join(tosa_extensions)
+                                tosa_target_str = (
+                                    "specification_version=1.1.draft"
+                                    + f" profiles={profiles_str}"
+                                    + f" extensions={extensions_str}"
+                                )
                                 mlir_opt_args.append(f"-tosa-attach-target={tosa_target_str}")
                             utils.execute(
                                 *mlir_opt_args, live=self.print_outputs, env=self.prepare_environment(), cwd=temp_dir

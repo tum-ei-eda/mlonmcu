@@ -19,7 +19,7 @@
 """MLonMCU Spike Target definitions"""
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from mlonmcu.utils import is_power_of_two
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from .riscv import RISCVTarget
@@ -28,30 +28,28 @@ from .util import update_extensions
 logger = get_logger()
 
 
+# TODO
+"""
+        if self.vlen is not None:
+            assert is_power_of_two(self.vlen)
+            assert self.vlen >= VEXT_MIN_ALLOWED_VLEN
+"""
+
+
 class RVVTarget(RISCVTarget):
     """TODO"""
 
     FEATURES = RISCVTarget.FEATURES | {"vext"}
 
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
-        "vlen": 128,  # vectorization=off
-        "elen": 64,
-    }
-    REQUIRED = RISCVTarget.REQUIRED
+    DEFAULTS = {"vlen": 128, "elen": 64}  # validated below
+    enable_vext = cfg(False, cast=str2bool)
+    vext_spec = cfg(1.0, cast=float)
+    embedded_vext = cfg(False, cast=str2bool)
 
     def __init__(self, name, features=None, config=None):
         super().__init__(name, features=features, config=config)
         self.supported_vext_spec_min = 1.0
         self.supported_vext_spec_max = 1.0
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value)
 
     @property
     def vlen(self):
@@ -71,15 +69,6 @@ class RVVTarget(RISCVTarget):
         return value
 
     @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
-        return str2bool(value)
-
-    @property
     def extensions(self):
         exts = super().extensions
         assert (
@@ -92,6 +81,7 @@ class RVVTarget(RISCVTarget):
             embedded_vext=self.embedded_vext,
             vlen=self.vlen,
             fpu=self.fpu,
+            gcc_major_version=self.gcc_major_version,
         )
 
     @property
@@ -120,6 +110,7 @@ class RVVTarget(RISCVTarget):
                 if "zvl" not in model:
                     model = f"{model}-zvl{self.vlen}b"
             ret["target_model"] = model
+            ret["target_vector_width"] = self.vlen
         return ret
 
     def get_vector_width(self):

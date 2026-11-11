@@ -1,5 +1,5 @@
-import onnxruntime
-import os
+# import onnxruntime
+# import os
 from onnxruntime.quantization import CalibrationDataReader
 import numpy as np
 
@@ -19,4 +19,4 @@ class DummyDataReader(CalibrationDataReader):
         return None
 
     def rewind(self):
-        self.first = true
+        self.first = True

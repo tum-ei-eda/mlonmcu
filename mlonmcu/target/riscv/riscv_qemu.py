@@ -22,7 +22,7 @@ import os
 import re
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.setup.utils import execute
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
@@ -39,27 +39,27 @@ class RiscvQemuTarget(RISCVTarget):
 
     FEATURES = RISCVTarget.FEATURES | {"vext"}
 
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "vlen": 0,  # TODO: check allowed range [128, 1024]
-        "elen": 32,
-        "enable_vext": False,
-        "vext_spec": 1.0,
-        "embedded_vext": False,
-    }
-    REQUIRED = RISCVTarget.REQUIRED | {"riscv32_qemu.exe"}  # TODO: 64 bit?
+    riscv32_qemu_exe = required("riscv32_qemu.exe")  # TODO: 64 bit?
+    vlen = cfg(0, cast=int)
+    elen = cfg(32, cast=int)
+    enable_vext = cfg(False, cast=str2bool)
+    vext_spec = cfg(1.0, cast=float)
+    embedded_vext = cfg(False, cast=str2bool)
 
     def __init__(self, name="riscv_qemu", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
     @property
-    def riscv32_qemu_exe(self):
-        return self.config["riscv32_qemu.exe"]
-
-    @property
     def extensions(self):
         exts = super().extensions
-        return update_extensions(exts, vext=self.enable_vext, elen=self.elen, embedded=self.embedded_vext, fpu=self.fpu)
+        return update_extensions(
+            exts,
+            vext=self.enable_vext,
+            elen=self.elen,
+            embedded=self.embedded_vext,
+            fpu=self.fpu,
+            gcc_major_version=self.gcc_major_version,
+        )
 
     @property
     def attr(self):
@@ -67,28 +67,6 @@ class RiscvQemuTarget(RISCVTarget):
         if self.enable_vext and f"+zvl{self.vlen}b" not in attrs:
             attrs.append(f"+zvl{self.vlen}b")
         return ",".join(attrs)
-
-    @property
-    def vlen(self):
-        return int(self.config["vlen"])
-
-    @property
-    def elen(self):
-        return int(self.config["elen"])
-
-    @property
-    def enable_vext(self):
-        value = self.config["enable_vext"]
-        return str2bool(value)
-
-    @property
-    def vext_spec(self):
-        return float(self.config["vext_spec"])
-
-    @property
-    def embedded_vext(self):
-        value = self.config["embedded_vext"]
-        return str2bool(value)
 
     def get_cpu_str(self):
         cfg = {}

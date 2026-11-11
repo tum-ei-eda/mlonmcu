@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 from .mlif import MlifPlatform
+from .mlif_litex import MlifLitexPlatform
 from .espidf import EspIdfPlatform
 from .zephyr import ZephyrPlatform
 from .tvm import TvmPlatform
@@ -42,6 +43,7 @@ def get_platforms():
 
 
 register_platform("mlif", MlifPlatform)
+register_platform("mlif_litex", MlifLitexPlatform)
 register_platform("espidf", EspIdfPlatform)
 register_platform("zephyr", ZephyrPlatform)
 register_platform("tvm", TvmPlatform)

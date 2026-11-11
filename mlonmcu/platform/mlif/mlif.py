@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """MLIF Platform"""
+
 import os
 import tempfile
 from typing import Tuple
@@ -25,7 +26,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 
-from mlonmcu.config import str2bool, str2list
+from mlonmcu.config import cfg, one_of, required, str2bool, str2list
 from mlonmcu.setup import utils  # TODO: Move one level up?
 from mlonmcu.timeout import exec_timeout
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -36,6 +37,7 @@ from mlonmcu.models.utils import get_data_source
 
 from ..platform import CompilePlatform, TargetPlatform
 from .interfaces import ModelSupport
+from .ccache import prepare_ccache_environment, get_ccache_definitions, stage_model_sources
 from .mlif_target import get_mlif_platform_targets, create_mlif_platform_target
 
 logger = get_logger()
@@ -68,103 +70,67 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             "memgraph_llvm_cdfg",
             "global_isel",
             "cfu_wca",
+            "ccache",
         }  # TODO: allow Feature-Features with automatic resolution of initialization order
     )
 
     DEFAULTS = {
-        **CompilePlatform.DEFAULTS,
-        **TargetPlatform.DEFAULTS,
         "template": "ml_interface",
         "template_version": None,
-        "ignore_data": True,
-        "skip_check": False,
-        "fail_on_error": False,  # Prefer to add acolum with validation results instead of raising a RuntimeError
         "model_support_dir": None,
         "toolchain": "gcc",
         "prebuild_lib_path": None,
         "optimize": None,  # values: 0,1,2,3,s
         "input_data_path": None,
         "output_data_path": None,
-        "mem_only": False,
-        "debug_symbols": False,
-        "verbose_makefile": False,
-        "lto": False,
-        "slim_cpp": True,
-        "garbage_collect": True,
-        "strip_strings": False,
         "unroll_loops": None,
         "inline_functions": None,
-        "goal": "generic_mlonmcu",  # Use 'generic_mlif' for older version of MLIF
-        "set_inputs": False,
-        "set_inputs_interface": None,
-        "get_outputs": False,
-        "get_outputs_interface": None,
-        "get_outputs_fmt": None,
-        "batch_size": None,
         "model_support_file": None,
         "model_support_dir": None,
         "model_support_lib": None,
         # llvm specific (TODO: move to toolchain components)
         "fuse_ld": None,
-        "global_isel": False,
-        "extend_attrs": False,
-        "ccache": False,
         "custom_entry": None,
         "extra_paths": None,
     }
 
-    REQUIRED = {"mlif.src_dir"}
+    mlif_src_dir = required("mlif.src_dir", cast=Path)
+    goal = cfg("generic_mlonmcu")
+    ccache = cfg(False, cast=str2bool)
+    ccache_mode = cfg("session", cast=one_of(("global", "workspace", "session")))
+    ccache_max_size = cfg(None)
+    ccache_max_files = cfg(None, cast=int)
+    ccache_compression = cfg(None, cast=str2bool)
+    ccache_compiler_check = cfg(None)
+    ccache_exe = cfg("ccache", cast=str)
+    set_inputs = cfg(False, cast=str2bool)
+    set_inputs_interface = cfg(None)
+    get_outputs = cfg(False, cast=str2bool)
+    get_outputs_interface = cfg(None)
+    get_outputs_fmt = cfg(None)
+    batch_size = cfg(None, cast=lambda value: int(value) if isinstance(value, str) else value)
+    ignore_data = cfg(True, cast=str2bool)
+    skip_check = cfg(False, cast=str2bool)
+    fail_on_error = cfg(False, cast=str2bool)
+    mem_only = cfg(False, cast=str2bool)
+    debug_symbols = cfg(False, cast=str2bool)
+    verbose_makefile = cfg(False, cast=str2bool)
+    lto = cfg(False, cast=str2bool)
+    slim_cpp = cfg(True, cast=str2bool)
+    garbage_collect = cfg(True, cast=str2bool)
+    strip_strings = cfg(False, cast=str2bool)
+    global_isel = cfg(False, cast=str2bool)
+    extend_attrs = cfg(False, cast=str2bool)
     OPTIONAL = {"llvm.install_dir", "srecord.install_dir", "iree.install_dir", "cmake.exe"}
 
-    def __init__(self, features=None, config=None):
+    def __init__(self, name="mlif", features=None, config=None):
         super().__init__(
-            "mlif",
+            name,
             features=features,
             config=config,
         )
         self.tempdir = None
         self.build_dir = None
-
-    @property
-    def goal(self):
-        return self.config["goal"]
-
-    @property
-    def ccache(self):
-        value = self.config["ccache"]
-        return str2bool(value)
-
-    @property
-    def set_inputs(self):
-        value = self.config["set_inputs"]
-        return str2bool(value)
-
-    @property
-    def set_inputs_interface(self):
-        value = self.config["set_inputs_interface"]
-        return value
-
-    @property
-    def get_outputs(self):
-        value = self.config["get_outputs"]
-        return str2bool(value)
-
-    @property
-    def get_outputs_interface(self):
-        value = self.config["get_outputs_interface"]
-        return value
-
-    @property
-    def get_outputs_fmt(self):
-        value = self.config["get_outputs_fmt"]  # TODO: use
-        return value
-
-    @property
-    def batch_size(self):
-        value = self.config["batch_size"]  # TODO: use
-        if isinstance(value, str):
-            value = int(value)
-        return value
 
     @property
     def inputs_artifact(self):
@@ -229,6 +195,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return Artifact("data.c", content=data_src, fmt=ArtifactFormat.SOURCE)
 
     def init_directory(self, path=None, context=None):
+        if context is not None:
+            self.set_context(workspace=context.environment.home)
         if self.build_dir is not None:
             self.build_dir.mkdir(exist_ok=True)
             logger.debug("Build directory already initialized")
@@ -290,22 +258,12 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def template_version(self):
-        return self.config["template_version"]
-
-    @property
-    def ignore_data(self):
-        value = self.config["ignore_data"]
-        return str2bool(value)
-
-    @property
-    def skip_check(self):
-        value = self.config["skip_check"]
-        return str2bool(value)
-
-    @property
-    def fail_on_error(self):
-        value = self.config["fail_on_error"]
-        return str2bool(value)
+        value = self.config["template_version"]
+        if self.needs_model_support:
+            if value not in (None, "v2"):
+                raise ValueError("set_inputs/get_outputs require mlif.template_version=v2")
+            return "v2"
+        return value
 
     @property
     def validate_outputs(self):
@@ -336,7 +294,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
 
     @property
     def optimize(self):
-        return self.config["optimize"]
+        value = self.config["optimize"]
+        if value is not None and value.lower().strip() in ["", "auto"]:
+            value = None
+        return value
 
     @property
     def input_data_path(self):
@@ -347,54 +308,9 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         return self.config["output_data_path"]
 
     @property
-    def mem_only(self):
-        value = self.config["mem_only"]
-        return str2bool(value)
-
-    @property
-    def debug_symbols(self):
-        value = self.config["debug_symbols"]
-        return str2bool(value)
-
-    @property
-    def verbose_makefile(self):
-        value = self.config["verbose_makefile"]
-        return str2bool(value)
-
-    @property
-    def lto(self):
-        value = self.config["lto"]
-        return str2bool(value)
-
-    @property
-    def slim_cpp(self):
-        value = self.config["slim_cpp"]
-        return str2bool(value)
-
-    @property
-    def garbage_collect(self):
-        value = self.config["garbage_collect"]
-        return str2bool(value)
-
-    @property
     def fuse_ld(self):
         value = self.config["fuse_ld"]
         return value
-
-    @property
-    def global_isel(self):
-        value = self.config["global_isel"]
-        return str2bool(value)
-
-    @property
-    def extend_attrs(self):
-        value = self.config["extend_attrs"]
-        return str2bool(value)
-
-    @property
-    def strip_strings(self):
-        value = self.config["strip_strings"]
-        return str2bool(value)
 
     @property
     def unroll_loops(self):
@@ -415,6 +331,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         value = self.config["custom_entry"]
         return value
 
+    @property
+    def extra_paths(self):
+        ret = self.config["extra_paths"]
+        if ret is None:
+            return None
+        if isinstance(ret, str):
+            ret = str2list(ret)
+        assert isinstance(ret, list)
+        return ret
+
     def _get_supported_targets(self):
         target_names = get_mlif_platform_targets()
         return target_names
@@ -430,8 +356,8 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             definitions["TEMPLATE_VERSION"] = self.template_version
         definitions["TOOLCHAIN"] = self.toolchain
         definitions["QUIET"] = self.mem_only
-        definitions["SKIP_CHECK"] = self.skip_check
-        if self.batch_size is not None:
+        definitions["SKIP_CHECK"] = False if self.needs_model_support else self.skip_check
+        if self.batch_size is not None and not self.needs_model_support:
             definitions["BATCH_SIZE"] = self.batch_size
         if self.num_threads is not None:
             definitions["SUBPROJECT_THREADS"] = self.num_threads
@@ -472,14 +398,15 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if self.inline_functions is not None:
             definitions["INLINE_FUNCTIONS"] = self.inline_functions
         if self.ccache:
-            definitions["CMAKE_C_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
-            definitions["CMAKE_CXX_COMPILER_LAUNCHER"] = "ccache"  # TODO: choose between ccache/sccache
+            # Do not accumulate path mapping flags when configuring repeatedly.
+            definitions = get_ccache_definitions(self, definitions)
         if self.custom_entry is not None:
             definitions["CUSTOM_ENTRY"] = self.custom_entry
 
         return definitions
 
-    def get_cmake_args(self):
+    def get_cmake_args(self, target):
+        del target
         cmakeArgs = []
         definitions = self.get_definitions()
         for key, value in definitions.items():
@@ -488,20 +415,10 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             cmakeArgs.append(f"-D{key}={value}")
         return cmakeArgs
 
-    def prepare(self):
+    def prepare(self, target):
         pass  # TODO: is this used?
 
-    @property
-    def extra_paths(self):
-        ret = self.config["extra_paths"]
-        if ret is None:
-            return None
-        if isinstance(ret, str):
-            ret = str2list(ret)
-        assert isinstance(ret, list)
-        return ret
-
-    def prepare_environment(self):
+    def prepare_environment(self, target=None):
         env = os.environ.copy()
         path_new = env["PATH"]
         if self.srecord_dir:
@@ -520,12 +437,16 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 path_new = f"{path}:{path_new}"
         env["PATH"] = path_new
 
+        if self.ccache:
+            env = prepare_ccache_environment(self, env)
+
         return env
 
     def generate_model_support(self, target):
         artifacts = []
         batch_size = self.batch_size
         inputs_data = None
+        model_info = None
         if self.inputs_artifact is not None:
             inputs_data = np.load(self.inputs_artifact, allow_pickle=True)
         if self.model_info_file is not None:
@@ -561,13 +482,14 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
                 model_support_file = self.build_dir / model_support_artifact.name
                 model_support_artifact.export(model_support_file)
                 self.definitions["MODEL_SUPPORT_FILE"] = model_support_file
-            del target
         if not isinstance(src, Path):
             src = Path(src)
-        cmakeArgs = self.get_cmake_args()
+        cmakeArgs = self.get_cmake_args(target)
         if src.is_file():
             src = src.parent  # TODO deal with directories or files?
         if src.is_dir():
+            if self.ccache:
+                src = stage_model_sources(self, src)
             cmakeArgs.append("-DSRC_DIR=" + str(src))
         else:
             raise RuntimeError("Unable to find sources!")
@@ -584,7 +506,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
             else:
                 logger.warning("No validation data provided for model.")
         utils.mkdirs(self.build_dir)
-        env = self.prepare_environment()
+        env = self.prepare_environment(target)
         out = utils.cmake(
             self.mlif_dir,
             *cmakeArgs,
@@ -601,7 +523,7 @@ class MlifPlatform(CompilePlatform, TargetPlatform):
         if src:
             configure_out, artifacts = self.configure(target, src, model)
             out += configure_out
-        env = self.prepare_environment()
+        env = self.prepare_environment(target)
         out += utils.make(
             self.goal,
             cwd=self.build_dir,

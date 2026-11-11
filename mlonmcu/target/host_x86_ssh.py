@@ -28,11 +28,6 @@ class HostX86SSHTarget(SSHTarget, HostX86Target):
 
     FEATURES = SSHTarget.FEATURES | HostX86Target.FEATURES  # TODO: do not allow gdbserver
 
-    DEFAULTS = {
-        **SSHTarget.DEFAULTS,
-        **HostX86Target.DEFAULTS,
-    }
-
     def __init__(self, name="host_x86_ssh", features=None, config=None):
         super().__init__(name, features=features, config=config)
 

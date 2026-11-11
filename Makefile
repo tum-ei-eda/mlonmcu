@@ -65,19 +65,15 @@ test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	# coverage run --source mlonmcu setup.py test
-	# coverage run --source mlonmcu -m pytest tests
-	coverage run --source mlonmcu -m pytest tests
-	coverage report -m
+	coverage run --source mlonmcu -m pytest tests/unit-tests -rs
+	coverage report -m --fail-under=50
 	coverage html
-	$(BROWSER) htmlcov/index.html
 
 coverage-full: ## check code coverage quickly with the default Python
 	# coverage run --source mlonmcu -m pytest --run-slow --run-user-context --run-hardware tests
 	coverage run --source mlonmcu -m pytest --run-slow --run-user-context tests
 	coverage report -m
 	coverage html
-	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/mlonmcu.rst

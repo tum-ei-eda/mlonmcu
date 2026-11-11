@@ -38,10 +38,10 @@ class EtissPerfTarget(EtissTarget):
         "use_run_helper": False,
     }
     REQUIRED = EtissTarget.REQUIRED | {
-        "etiss_perf.src_dir",
         "etiss_perf.install_dir",
         "etiss_perf.exe",
     }
+    OPTIONAL = EtissTarget.OPTIONAL | {"etiss_perf.src_dir"}
 
     def __init__(self, name="etiss_perf", features=None, config=None):
         super().__init__(name, features=features, config=config)

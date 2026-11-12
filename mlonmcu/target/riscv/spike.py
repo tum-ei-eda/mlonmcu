@@ -19,6 +19,8 @@
 """MLonMCU Spike Target definitions"""
 
 import os
+import json
+import subprocess
 import re
 import time
 import tempfile
@@ -32,7 +34,7 @@ from mlonmcu.setup import utils
 from mlonmcu.target.common import cli
 from mlonmcu.target.metrics import Metrics
 from mlonmcu.target.bench import add_bench_metrics
-from mlonmcu.config import cfg, optional, pick_first, str2bool
+from mlonmcu.config import cfg, optional, pick_first, str2bool, str2list
 from .riscv_pext_target import RVPTarget
 from .riscv_vext_target import RVVTarget
 from .riscv_bext_target import RVBTarget
@@ -107,6 +109,9 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
 
     legacy = cfg(True, cast=str2bool)
     spike_exe = optional("spike.exe", cast=Path)
+    plugin_manifest_path = cfg(None, key="plugin_manifest")
+    extlibs = cfg([])
+    configured_extension_names = cfg([], key="extension_names")
 
     def __init__(self, name, features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -129,9 +134,39 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         exts_str = join_extensions(sort_extensions_canonical(exts, lower=True))
         return f"rv{self.xlen}{exts_str}"
 
+    @property
+    def plugin_manifest(self):
+        path = self.plugin_manifest_path
+        if path is None:
+            return {}
+        path = Path(path).expanduser().resolve()
+        with path.open() as handle:
+            manifest = json.load(handle)
+        if manifest.get("schema") != 1:
+            raise ValueError("Unsupported Spike plugin manifest schema")
+        manifest["extlibs"] = [
+            str((path.parent / library).resolve()) if not Path(library).is_absolute() else library
+            for library in manifest.get("extlibs", [])
+        ]
+        return manifest
+
+    @property
+    def extension_names(self):
+        return str2list(self.configured_extension_names) + self.plugin_manifest.get("extension_names", [])
+
     def get_spike_args(self):
         spike_args = []
-        spike_args.append(f"--isa={self.isa}")
+        isa = self.isa
+        # Compiler-only custom ISA names are implemented by the loaded extensions.
+        if self.extension_names:
+            isa = "_".join(part for part in isa.split("_") if not part.startswith("xisaac"))
+        spike_args.append(f"--isa={isa}")
+        for library in str2list(self.extlibs) + self.plugin_manifest.get("extlibs", []):
+            library = Path(library).expanduser().resolve()
+            if not library.is_file():
+                raise FileNotFoundError(f"Spike extension library not found: {library}")
+            spike_args.append(f"--extlib={library}")
+        spike_args.extend(f"--extension={name}" for name in self.extension_names)
 
         if self.enable_vext:
             assert self.vlen < 8192, "Spike does not support VLEN >= 8192"
@@ -148,6 +183,8 @@ class SpikeBaseTarget(RVPTarget, RVVTarget, RVBTarget):
         raise NotImplementedError()  # TODO: abstract!
 
     def parse_stdout(self, out, metrics, exit_code=0):
+        if re.search(r"assertion failed|Access exception occurred while loading payload|could not open", out, re.I):
+            raise RuntimeError(f"Spike or proxy kernel failed before benchmark completion:\n{out}")
         add_bench_metrics(out, metrics, exit_code != 0, target_name=self.name)
         sim_insns = re.search(r"(\d*) cycles", out)
         if sim_insns:  # PK only
@@ -219,6 +256,10 @@ class SpikePKTarget(SpikeBaseTarget):
 
     spikepk_extra_args = cfg([])
     build_pk = cfg(False, cast=str2bool)
+
+    def __init__(self, name="spike_pk", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
     OPTIONAL = {
         "spike.pk",
         "spike.pk_rv32",
@@ -244,10 +285,25 @@ class SpikePKTarget(SpikeBaseTarget):
         )
         return ret
 
+    spikepk_src_dir = optional("spikepk.src_dir")
+
     @property
     def spike_pk_src_dir(self):
-        value = self.config["spikepk.src_dir"]
+        value = self.spikepk_src_dir
         return value if value is None else Path(value)
+
+    def get_spike_args(self):
+        """Add supervisor mode required by the proxy kernel."""
+        spike_args = super().get_spike_args()
+        for index, arg in enumerate(spike_args):
+            if arg.startswith("--isa="):
+                isa = arg[len("--isa=") :]
+                base, separator, extensions = isa.partition("_")
+                if "s" not in base[4:].lower():
+                    base += "s"
+                spike_args[index] = "--isa=" + base + (separator + extensions if separator else "")
+                break
+        return spike_args
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute a executable with given arguments"""
@@ -340,14 +396,45 @@ class SpikeBMTarget(SpikeBaseTarget):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret.update(
-            {
-                "HTIF": self.htif,
-                "HTIF_NANO": self.htif_nano,
-                "HTIF_WRAP": self.htif_wrap,
-                "HTIF_ARGV": self.htif_argv,
-            }
-        )
+        if self.htif:
+            if not self.htif_nano or self.htif_argv:
+                ret["HTIF"] = True
+                ret["HTIF_NANO"] = self.htif_nano
+                ret["HTIF_ARGV"] = self.htif_argv
+                return ret
+            # Link libgloss-htif explicitly so both Clang and GCC work, including
+            # MLIF branches which predate its HTIF CMake options.
+            compiler = self.riscv_gcc_prefix / "bin" / f"{self.riscv_gcc_basename}-gcc"
+
+            def find_runtime(name):
+                result = subprocess.run(
+                    [str(compiler), f"-march={self.isa}", f"-mabi={self.abi}", f"-print-file-name={name}"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                path = Path(result.stdout.strip())
+                if not path.is_file():
+                    raise FileNotFoundError(f"GNU toolchain lacks {name} for {self.isa}/{self.abi}: {compiler}")
+                return path.resolve()
+
+            script = find_runtime("htif.ld")
+            library = find_runtime("libgloss_htif.a")
+            flags = [
+                "-nostartfiles",
+                f"-Wl,-T,{script}",
+                "-Wl,-u,_start",
+                "-Wl,--whole-archive",
+                str(library),
+                "-Wl,--no-whole-archive",
+            ]
+            if self.htif_wrap:
+                flags += [f"-Wl,--wrap={name}" for name in ("puts", "printf", "sprintf", "snprintf")]
+            ret["EXTRA_CMAKE_LD_FLAGS"] = ";".join(flags)
+            ret["RISCV_CMODEL"] = "medany"
+            for language in ("C", "CXX", "ASM"):
+                ret[f"EXTRA_CMAKE_{language}_FLAGS"] = "-mcmodel=medany"
+        ret["HTIF"] = False  # Flags above also cover older MLIF checkouts.
         return ret
 
 

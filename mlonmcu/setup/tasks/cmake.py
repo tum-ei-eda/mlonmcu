@@ -80,7 +80,9 @@ def _validate_cmake_dist(context: MlonMcuContext, params=None):
 
 
 def _validate_cmake_build(context: MlonMcuContext, params=None):
-    return _validate_cmake_source(context, params=params)
+    if "cmake.exe" in context.environment.vars:
+        return False
+    return _validate_cmake(context, params=params)
 
 
 @Tasks.provides(["cmake.src_dir"])

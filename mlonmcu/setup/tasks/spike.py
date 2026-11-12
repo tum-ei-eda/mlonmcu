@@ -73,7 +73,10 @@ def _validate_spike_build(context: MlonMcuContext, params=None):
 
 
 def _validate_spikepk(context: MlonMcuContext, params=None):
-    if not _validate_spike(context, params=params):
+    if not any(
+        context.environment.has_target(name)
+        for name in ("spike", "spike_pk", "spike_rv32", "spike_rv64", "spike_rv32_min")
+    ):
         return False
     user_vars = context.environment.vars
     enable_rv32 = str2bool(user_vars.get("spikepk.enable_rv32", True))
@@ -95,6 +98,8 @@ def _validate_spikepk_build(context: MlonMcuContext, params=None):
     enable_rv64 = str2bool(user_vars.get("spikepk.enable_rv64", False))
     assert params is not None
     xlen = params.get("xlen")
+    if f"spike.pk_rv{xlen}" in user_vars:
+        return False
     if xlen == 32 and not enable_rv32:
         return False
     if xlen == 64 and not enable_rv64:

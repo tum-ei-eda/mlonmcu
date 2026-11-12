@@ -21,6 +21,7 @@
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
+from mlonmcu.config import cfg, optional, required, str2bool
 from .etiss import EtissTarget
 
 logger = get_logger()
@@ -33,15 +34,10 @@ class EtissPerfTarget(EtissTarget):
         "perf_sim",
     }
 
-    DEFAULTS = {
-        **EtissTarget.DEFAULTS,
-        "use_run_helper": False,
-    }
-    REQUIRED = EtissTarget.REQUIRED | {
-        "etiss_perf.src_dir",
-        "etiss_perf.install_dir",
-        "etiss_perf.exe",
-    }
+    use_run_helper = cfg(False, cast=str2bool)
+    etiss_perf_src_dir = optional("etiss_perf.src_dir")
+    etiss_dir = required("etiss_perf.install_dir")
+    etiss_exe = required("etiss_perf.exe")
 
     def __init__(self, name="etiss_perf", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -50,20 +46,12 @@ class EtissPerfTarget(EtissTarget):
 
     @property
     def etiss_src_dir(self):
-        ret = self.config["etiss_perf.src_dir"]
+        ret = self.etiss_perf_src_dir
         if ret is None:  # Fallback
             ret = self.config["etiss.src_dir"]
         assert ret is not None
         return ret
 
     @property
-    def etiss_dir(self):
-        return self.config["etiss_perf.install_dir"]
-
-    @property
     def etiss_script(self):
         assert not self.use_run_helper, "Target etiss_perf does not support run_helper.sh"
-
-    @property
-    def etiss_exe(self):
-        return self.config["etiss_perf.exe"]

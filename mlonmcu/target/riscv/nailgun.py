@@ -21,6 +21,12 @@ class NailgunTarget(RISCVTarget):
         "core": "cva5",
         "rtl_dir": None,
         "runner": None,
+        "execution": "rtl",
+        "fpga_runner": None,
+        "fpga_vivado": "/nfs/tools/xilinx/Vivado/2024.1/bin/vivado",
+        "fpga_board_serial": "210319C08AE1",
+        "fpga_port": "/dev/serial/by-id/usb-Digilent_Digilent_USB_Device_210319C08AE1-if01-port0",
+        "fpga_uart_container": None,
         "verilator": "verilator",
         "max_cycles": 100000000,
         "timeout": 600,
@@ -57,16 +63,20 @@ class NailgunTarget(RISCVTarget):
             raise ValueError("Nailgun supports ROM inputs; set mlif.set_inputs_interface=rom")
         if args:
             raise ValueError("Nailgun firmware does not accept command-line input")
-        if not self.config["runner"] or not self.config["rtl_dir"]:
-            raise ValueError("Set nailgun.runner and nailgun.rtl_dir")
-        directory = Path(cwd or ".").resolve() / "nailgun_sim"
+        mode = self.config["execution"]
+        if mode not in ("rtl", "fpga"):
+            raise ValueError("nailgun.execution must be rtl or fpga")
+        runner = self.config["fpga_runner"] if mode == "fpga" else self.config["runner"]
+        if not runner or not self.config["rtl_dir"]:
+            raise ValueError("Set nailgun.rtl_dir and the selected execution runner")
+        directory = Path(cwd or ".").resolve() / ("nailgun_fpga" if mode == "fpga" else "nailgun_sim")
         directory.mkdir(parents=True, exist_ok=True)
         binary = directory / "firmware.bin"
         objcopy = Path(self.riscv_gcc_prefix) / "bin" / (str(self.riscv_gcc_basename) + "-objcopy")
         subprocess.run([str(objcopy), "-O", "binary", str(Path(program).resolve()), str(binary)], check=True)
         command = [
             sys.executable,
-            str(self.config["runner"]),
+            str(runner),
             "--core",
             self.config["core"],
             "--rtl",
@@ -75,17 +85,24 @@ class NailgunTarget(RISCVTarget):
             str(binary),
             "--output",
             str(directory),
-            "--verilator",
-            str(self.config["verilator"]),
         ]
-        for option in ("max_cycles", "timeout", "jobs", "data_wait", "ram_size"):
+        if mode == "fpga":
+            for option in ("vivado", "board_serial", "port", "uart_container"):
+                value = self.config["fpga_" + option]
+                if value:
+                    command += ["--" + option.replace("_", "-"), str(value)]
+            options = ("timeout", "ram_size")
+        else:
+            command += ["--verilator", str(self.config["verilator"])]
+            options = ("max_cycles", "timeout", "jobs", "data_wait", "ram_size")
+        for option in options:
             command += ["--" + option.replace("_", "-"), str(self.config[option])]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         uart = directory / "uart.log"
         out = uart.read_text(errors="replace") if uart.exists() else result.stdout
         meta = directory / "execution.json"
         if not meta.exists() or result.returncode or not json.loads(meta.read_text())["passed"]:
-            raise RuntimeError("Nailgun RTL execution failed:\n" + out + "\n" + result.stdout)
+            raise RuntimeError(f"Nailgun {mode} execution failed:\n" + out + "\n" + result.stdout)
         handler = kwargs.get("handle_exit")
         if handler is not None:
             status = handler(0, out=out)
@@ -96,6 +113,18 @@ class NailgunTarget(RISCVTarget):
             for name in ("execution.json", "uart.log", "compile.log")
         ]
         artifacts.append(Artifact("nailgun_uart.bin", raw=uart.read_bytes(), fmt=ArtifactFormat.BIN))
+        if mode == "fpga":
+            build = directory / "synthesis"
+            for name in ("timing_summary.rpt", "utilization_impl.rpt", "drc_impl.rpt"):
+                artifacts.append(
+                    Artifact(
+                        "nailgun_fpga_" + name, content=(build / "reports" / name).read_text(), fmt=ArtifactFormat.TEXT
+                    )
+                )
+            for source, name in ((build / "vex_arty_top.bit", "arty.bit"), (build / "routed.dcp", "routed.dcp")):
+                artifacts.append(
+                    Artifact("nailgun_fpga_" + name, raw=source.read_bytes(), fmt=ArtifactFormat.BIN, optional=True)
+                )
         if kwargs.get("live"):
             kwargs.get("print_func", print)(out)
         if kwargs.get("encoding", "utf-8") is None:

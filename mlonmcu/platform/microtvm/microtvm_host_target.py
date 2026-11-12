@@ -18,7 +18,7 @@
 #
 from pathlib import Path
 
-from mlonmcu.target.target import Target
+from mlonmcu.config import cfg, required
 
 from mlonmcu.logging import get_logger
 
@@ -28,17 +28,10 @@ logger = get_logger()
 
 
 class HostMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
-    DEFAULTS = {
-        **Target.DEFAULTS,
-        "verbose": False,
-    }
-    REQUIRED = Target.REQUIRED | {"tvm.build_dir"}
+    verbose = cfg(False)
+    tvm_build_dir = required("tvm.build_dir", cast=Path)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
         self.template_path = self.tvm_build_dir / "microtvm_template_projects" / "crt"
         # self.option_names = ["verbose"]
-
-    @property
-    def tvm_build_dir(self):
-        return Path(self.config["tvm.build_dir"])

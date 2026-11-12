@@ -26,11 +26,19 @@ from threading import Thread
 from mlonmcu.session.run import RunInitializer, RunResult, RunStage
 import mlonmcu.session.rpc_utils as base
 
+ARTIFACT_MODES = ("none", "all")
+
 
 @dataclass
 class RemoteConfig:
     tracker: str = "localhost:9000"
     key: str = "default"
+    # "none": discard the run directories on the server, "all": transfer them to the client after the run
+    artifacts: str = "none"
+
+    def __post_init__(self):
+        if self.artifacts not in ARTIFACT_MODES:
+            raise ValueError(f"Invalid rpc_artifacts '{self.artifacts}', expected one of {ARTIFACT_MODES}")
 
     @property
     def tracker_host(self):
@@ -70,7 +78,18 @@ class RPCSession(object):
             self._sock.close()
             self._sock = None
 
-    def execute(self, run_initializers: List[RunInitializer], until: RunStage, parallel: int = 1) -> RunResult:
+    def execute(
+        self,
+        run_initializers: List[RunInitializer],
+        until: RunStage,
+        parallel: int = 1,
+        artifacts_dest: Optional[str] = None,
+    ) -> List[RunResult]:
+        """Run the initializers remotely.
+
+        If artifacts_dest is given, the run directories are transferred as a tar archive to that file. Its members are
+        named by the position of the run in run_initializers.
+        """
         # print("execute")
         # TODO: move imports
         import codecs
@@ -79,6 +98,8 @@ class RPCSession(object):
 
         run_initializers = [codecs.encode(cloudpickle.dumps(x), "base64").decode("utf8") for x in run_initializers]
         msg = {"operation": "execute", "run_initializers": run_initializers, "until": until, "parallel": parallel}
+        if artifacts_dest:
+            msg["artifacts"] = True
         # print("msg", msg)
         assert self._sock is not None
         # TODO: pickle?
@@ -92,9 +113,13 @@ class RPCSession(object):
         results = response.get("results", None)
         assert results is not None
         # print("success", success)
-        assert success, "Session failed!"
+        if not success:
+            raise RuntimeError(f"Remote session failed:\n{response.get('error', 'unknown error')}")
         # print("r", results)
         results = [pickle.loads(codecs.decode(x.encode("utf-8"), "base64")) for x in results]
+        size = response.get("artifacts_size")
+        if artifacts_dest and size is not None:
+            base.recvfile(self._sock, artifacts_dest, size)
         # print("results", results)
         return results
 
@@ -192,7 +217,7 @@ class TrackerSession:
         )
         # TODO: response?
 
-    def request_server(self, key, priority=1, session_timeout=0, max_retry=5):
+    def request_server(self, key, priority=1, session_timeout=0, max_retry=5, request_timeout=None):
         # print("request_server", key, priority, session_timeout, max_retry)
         # TODO: implement priority
         """Request a new connection from the tracker.
@@ -223,12 +248,17 @@ class TrackerSession:
                     self._connect()
                 # print("connected")
                 # base.sendjson(self._sock, [base.TrackerCode.REQUEST, key, "", priority])
-                base.sendjson(self._sock, {"action": "request_server", "key": key})
+                msg = {"action": "request_server", "key": key}
+                if request_timeout is not None:
+                    msg["timeout"] = request_timeout
+                base.sendjson(self._sock, msg)
                 # print("requested")
                 # value = base.recvjson(self._sock)
                 server_info = base.recvjson(self._sock)
                 # print("received")
                 assert server_info
+                if "error" in server_info:
+                    raise RuntimeError(f"Tracker refused request: {server_info['error']}")
                 # if value[0] != base.TrackerCode.SUCCESS:
                 #     raise RuntimeError(f"Invalid return value {str(value)}")
                 # url, port, matchkey = value[1]

@@ -30,7 +30,6 @@ class CanMvK230TvmPlatformTarget(RVVTarget):
     FEATURES = RVVTarget.FEATURES | set()
 
     DEFAULTS = {
-        **RVVTarget.DEFAULTS,
         "xlen": 64,
         "vlen": 128,
         "elen": 64,
@@ -42,7 +41,6 @@ class CanMvK230TvmPlatformTarget(RVVTarget):
         "fclk": 1.6e9,
         # "fcpu": 1.6e9,
     }
-    REQUIRED = RVVTarget.REQUIRED | set()
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

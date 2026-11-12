@@ -66,7 +66,7 @@ def test_rpc_session_execute_round_trip(monkeypatch):
 
 @pytest.mark.parametrize(
     "response",
-    [None, {}, {"success": True}, {"success": False, "results": []}],
+    [None, {}, {"success": True}],
 )
 @requires_cloudpickle
 def test_rpc_session_execute_rejects_invalid_responses(monkeypatch, response):
@@ -74,6 +74,17 @@ def test_rpc_session_execute_rejects_invalid_responses(monkeypatch, response):
     monkeypatch.setattr(rpc.base, "sendjson", MagicMock())
     monkeypatch.setattr(rpc.base, "recvjson", MagicMock(return_value=response))
     with pytest.raises(AssertionError):
+        session.execute([], until="run")
+
+
+@requires_cloudpickle
+def test_rpc_session_execute_reports_remote_error(monkeypatch):
+    session = make_rpc_session()
+    monkeypatch.setattr(rpc.base, "sendjson", MagicMock())
+    monkeypatch.setattr(
+        rpc.base, "recvjson", MagicMock(return_value={"success": False, "results": [], "error": "boom"})
+    )
+    with pytest.raises(RuntimeError, match="boom"):
         session.execute([], until="run")
 
 

@@ -27,7 +27,7 @@ import multiprocessing
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool, str2list, str2dict
+from mlonmcu.config import cfg, optional, str2bool, str2list, str2dict
 from mlonmcu.logging import get_logger
 from mlonmcu.models.model_info import (
     get_model_info,
@@ -75,55 +75,56 @@ class TVMBackend(Backend):
         "cfu_wca",
     }
 
+    # These retain explicit properties because they contain computed values,
+    # aliases, or validation beyond a direct lookup/legalization.
     DEFAULTS = {
-        "print_outputs": False,
-        "opt_level": 3,
-        "target_device": None,
-        "target_mcpu": None,
-        "target_march": None,
-        "target_model": None,
-        "target_mtriple": None,
-        "target_mabi": None,
-        "target_mfloat_abi": None,
-        "target_mattr": None,
-        "target_keys": None,
-        "target_num_cores": None,
-        "target_vector_width": None,
-        "cross_compiler": None,
-        "tvm_target_str": None,
-        "extra_targets": None,  # list
-        "extra_target_details": None,  # dict
-        "desired_layout": None,  # optional: NCHW, NHWC, NHWC:HWOI, ...
-        "desired_layout_ops": None,  # optional: conv2d, max_pool2d,...
-        "desired_layout_map": None,  # optional, conv2d=NCHW, ...
-        "disabled_passes": [],  # i.e. AlterOpLayout, FuseOps, FoldScaleAxis,
-        # qnn.Legalize, QnnCanonicalize, tir.CommonSubexprElimTIR
-        "extra_pass_config": {},  # TODO: some example (fuse_max_depth etc.)
-        "tir_add_lower_pass": None,  # opt_level1,pass1,opt_level2,pass2,...
-        "use_tuning_results": False,
-        "tvmc_extra_args": [],  # Currently compile subcommand only!
-        "tvmc_custom_script": None,
-        # See https://github.com/apache/tvm/blob/1115fd9bc261619ffa0539746ae0aebc46232dc6/python/tvm/autotvm/tophub.py
-        "tophub_url": None,
-        "num_threads": multiprocessing.cpu_count(),
-        "dump": [],  # Supports: c, relay, tir, ll
         "disable_vectorize": "auto",
-        "custom_unroll": False,  # Experimental, RISC-V only
-        "autotuned_mode": None,
-        "autotuned_results_file": None,
-        "relay_debug": None,  # Use "DEFAULT=2" to have most verbosity. Needs USE_RELAY_DEBUG during setup.
-        "refresh_model_info": False,
+        "extra_pass_config": {},
+        "tir_add_lower_pass": None,
+        "tvm_target_str": None,
+        "dump": [],
         "generate_wrapper": "auto",
-        "bool_as_int": True,
         "ms_db": None,
-        "filter_ms_db": False,
-        "filter_ms_db_extra_args": None,
-        "experimental_tvm_target_vector_width": False,
     }
 
-    REQUIRED = set()
-
-    OPTIONAL = {"tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir", "tvm.use_tlcpack"}
+    print_outputs = cfg(False, cast=str2bool)
+    opt_level = cfg(3)
+    target_device = cfg(None)
+    target_mcpu = cfg(None)
+    target_march = cfg(None)
+    target_model = cfg(None)
+    target_mtriple = cfg(None)
+    target_mabi = cfg(None)
+    target_mfloat_abi = cfg(None)
+    target_mattr = cfg(None)
+    target_keys = cfg(None)
+    target_num_cores = cfg(None)
+    target_vector_width = cfg(None, cast=int)
+    cross_compiler = cfg(None)
+    extra_targets = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    extra_target_details = cfg(None, cast=lambda value: str2dict(value, allow_none=True))
+    desired_layout = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    desired_layout_ops = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    desired_layout_map = cfg(None, cast=lambda value: str2dict(value, allow_none=True))
+    disabled_passes = cfg([], cast=str2list, preserve_none=False)
+    use_tuning_results = cfg(False, cast=str2bool)
+    tvmc_extra_args = cfg([], cast=lambda value: str2list(value, allow_none=True))
+    tvmc_custom_script = cfg(None)
+    tophub_url = cfg(None)
+    num_threads = cfg(multiprocessing.cpu_count())
+    custom_unroll = cfg(False, cast=lambda value: str2bool(value, allow_none=True))
+    autotuned_mode = cfg(None)
+    autotuned_results_file = cfg(None)
+    relay_debug = cfg(None)
+    refresh_model_info = cfg(False, cast=lambda value: str2bool(value, allow_none=True))
+    bool_as_int = cfg(True, cast=str2bool)
+    filter_ms_db = cfg(False, cast=str2bool)
+    filter_ms_db_extra_args = cfg(None)
+    experimental_tvm_target_vector_width = cfg(False, cast=str2bool)
+    tvm_pythonpath = optional("tvm.pythonpath")
+    tvm_build_dir = optional("tvm.build_dir")
+    tvm_configs_dir = optional("tvm.configs_dir")
+    use_tlcpack = optional("tvm.use_tlcpack", cast=lambda value: str2bool(value, allow_none=True))
 
     def __init__(
         self, target="c", executor=None, runtime="crt", fmt="mlf", system_lib=False, features=None, config=None
@@ -238,57 +239,6 @@ class TVMBackend(Backend):
         base.update(extra)
         return base
 
-    @property
-    def target_device(self):
-        return self.config["target_device"]
-
-    @property
-    def target_mcpu(self):
-        return self.config["target_mcpu"]
-
-    @property
-    def target_march(self):
-        return self.config["target_march"]
-
-    @property
-    def target_mtriple(self):
-        return self.config["target_mtriple"]
-
-    @property
-    def target_mabi(self):
-        return self.config["target_mabi"]
-
-    @property
-    def target_mfloat_abi(self):
-        return self.config["target_mfloat_abi"]
-
-    @property
-    def target_mattr(self):
-        return self.config["target_mattr"]
-
-    @property
-    def target_keys(self):
-        return self.config["target_keys"]
-
-    @property
-    def target_model(self):
-        return self.config["target_model"]
-
-    @property
-    def target_num_cores(self):
-        return self.config["target_num_cores"]
-
-    @property
-    def target_vector_width(self):
-        val = self.config["target_vector_width"]
-        if val is None:
-            return None
-        return int(val)
-
-    @property
-    def cross_compiler(self):
-        return self.config["cross_compiler"]
-
     # TODO:
     # "target_libs": ?,
     # "target_tag": ?,
@@ -301,83 +251,6 @@ class TVMBackend(Backend):
     # "target_fast_math_nsz": ?,
     # "target_fast_math_reassoc": ?,
     # "target_fast_math_arcp": ?,
-
-    @property
-    def bool_as_int(self):
-        return str2bool(self.config["bool_as_int"])
-
-    @property
-    def extra_targets(self):
-        return str2list(self.config["extra_targets"], allow_none=True)
-
-    @property
-    def extra_target_details(self):
-        return str2dict(self.config["extra_target_details"], allow_none=True)
-
-    @property
-    def desired_layout(self):
-        return str2list(self.config["desired_layout"], allow_none=True)
-
-    @property
-    def desired_layout_ops(self):
-        return str2list(self.config["desired_layout_ops"], allow_none=True)
-
-    @property
-    def desired_layout_map(self):
-        return str2dict(self.config["desired_layout_map"], allow_none=True)
-
-    @property
-    def opt_level(self):
-        return self.config["opt_level"]
-
-    @property
-    def use_tuning_results(self):
-        value = self.config["use_tuning_results"]
-        return str2bool(value)
-
-    @property
-    def tvmc_extra_args(self):
-        return str2list(self.config["tvmc_extra_args"], allow_none=True)
-
-    @property
-    def tvmc_custom_script(self):
-        return self.config["tvmc_custom_script"]
-
-    @property
-    def disabled_passes(self):
-        value = self.config["disabled_passes"]
-        return str2list(value)
-
-    @property
-    def tvm_pythonpath(self):
-        return self.config["tvm.pythonpath"]
-
-    @property
-    def tvm_build_dir(self):
-        return self.config["tvm.build_dir"]
-
-    @property
-    def tvm_configs_dir(self):
-        return self.config["tvm.configs_dir"]
-
-    @property
-    def tophub_url(self):
-        return self.config["tophub_url"]
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
-
-    @property
-    def use_tlcpack(self):
-        value = self.config["tvm.use_tlcpack"]
-        return str2bool(value, allow_none=True)
-
-    @property
-    def custom_unroll(self):
-        value = self.config["custom_unroll"]
-        return str2bool(value, allow_none=True)
 
     def gen_tvm_target_str(self):
         kind = self.target
@@ -436,11 +309,6 @@ class TVMBackend(Backend):
         return self.target == "llvm"  # not c
 
     @property
-    def refresh_model_info(self):
-        value = self.config["refresh_model_info"]
-        return str2bool(value, allow_none=True)
-
-    @property
     def generate_wrapper(self):
         value = self.config["generate_wrapper"]
         if isinstance(value, str):
@@ -459,30 +327,6 @@ class TVMBackend(Backend):
         if "metascheduler" in self._tuning_records and self.use_tuning_results:
             return self._tuning_records["metascheduler"]
         return None
-
-    @property
-    def filter_ms_db(self):
-        value = self.config["filter_ms_db"]
-        return str2bool(value)
-
-    @property
-    def filter_ms_db_extra_args(self):
-        value = self.config["filter_ms_db_extra_args"]
-        return value
-
-    @property
-    def num_threads(self):
-        return self.config["num_threads"]
-
-    @property
-    def relay_debug(self):
-        return self.config["relay_debug"]
-
-    @property
-    def experimental_tvm_target_vector_width(self):
-        # only availablein latest TVM or forks
-        value = self.config["experimental_tvm_target_vector_width"]
-        return str2bool(value)
 
     def get_target_details(self):
         ret = {}

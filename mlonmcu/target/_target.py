@@ -39,6 +39,7 @@ from .riscv import (
     CanMvK230SSHTarget,
     MusePiProSSHTarget,
     TGCTarget,
+    NailgunTarget,
 )
 from .arm import Corstone300Target
 from .host_x86 import HostX86Target
@@ -87,3 +88,5 @@ register_target("vicuna2", Vicuna2Target)
 register_target("canmv_k230_ssh", CanMvK230SSHTarget)
 register_target("muse_pi_pro_ssh", MusePiProSSHTarget)
 register_target("tgc", TGCTarget)
+
+register_target("nailgun", NailgunTarget)

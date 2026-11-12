@@ -140,11 +140,7 @@ class SpikeMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget, RVPTarget, RVV
 class SpikeRV32MicroTvmPlatformTarget(SpikeMicroTvmPlatformTarget):
     FEATURES = SpikeMicroTvmPlatformTarget.FEATURES
 
-    DEFAULTS = {
-        **SpikeMicroTvmPlatformTarget.DEFAULTS,
-        "xlen": 32,
-    }
-    REQUIRED = SpikeMicroTvmPlatformTarget.REQUIRED
+    DEFAULTS = {"xlen": 32}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -153,11 +149,7 @@ class SpikeRV32MicroTvmPlatformTarget(SpikeMicroTvmPlatformTarget):
 class SpikeRV64MicroTvmPlatformTarget(SpikeMicroTvmPlatformTarget):
     FEATURES = SpikeMicroTvmPlatformTarget.FEATURES
 
-    DEFAULTS = {
-        **SpikeMicroTvmPlatformTarget.DEFAULTS,
-        "xlen": 64,
-    }
-    REQUIRED = SpikeMicroTvmPlatformTarget.REQUIRED
+    DEFAULTS = {"xlen": 64}
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

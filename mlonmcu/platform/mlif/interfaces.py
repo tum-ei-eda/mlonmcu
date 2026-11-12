@@ -193,11 +193,11 @@ class ModelSupport:
     def select_get_outputs_interface(self, out_interface, batch_size):
         if out_interface == "auto":
             assert self.target is not None
-            if self.target.supports_filesystem:
-                out_interface = "filesystem"
-            elif self.target.supports_stdout:
+            if self.target.supports_stdout:
                 out_interface = "stdout_raw"
                 # TODO: also allow stdout?
+            elif self.target.supports_filesystem:
+                out_interface = "filesystem"
             else:  # Fallback
                 out_interface = "ram"
         assert out_interface in ["filesystem", "stdout", "stdout_raw", "ram"]

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Definition of a MLonMCU Run which represents a set of benchmarks in a session."""
+
 import os
 import shutil
 import tempfile
@@ -30,8 +31,7 @@ import filelock
 from mlonmcu.session.run import Run, RunInitializer, RunResult
 from mlonmcu.logging import get_logger
 from mlonmcu.report import Report
-from mlonmcu.config import filter_config
-from mlonmcu.config import str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, str2bool
 
 from .run import RunStage
 from .rpc import RemoteConfig
@@ -49,21 +49,20 @@ class SessionStatus(Enum):  # TODO: remove?
     ERROR = 3
 
 
-class Session:
+class Session(Configurable):
     """A session which wraps around multiple runs in a context."""
 
-    DEFAULTS = {
-        "report_fmt": "csv",
-        # "process_pool": False,
-        "executor": "thread_pool",
-        "use_init_stage": False,
-        # "cleanup_runs": False,
-        "shuffle": False,
-        "batch_size": 1,  # TODO: auto
-        "parallel_jobs": 1,
-        "rpc_tracker": None,
-        "rpc_key": None,
-    }
+    report_fmt = cfg("csv", cast=str)
+    executor = cfg("thread_pool", cast=str)
+    use_init_stage = cfg(False, cast=str2bool)
+    cleanup_runs = cfg(False, cast=str2bool)
+    ccache_cleanup = cfg(False, cast=str2bool)
+    shuffle = cfg(False, cast=str2bool)
+    batch_size = cfg(1, cast=int)
+    parallel_jobs = cfg(1, cast=int)
+    rpc_tracker = cfg(None)
+    rpc_key = cfg(None)
+    rpc_artifacts = cfg("none")
 
     def __init__(self, label=None, idx=None, archived=False, dest=None, config=None):
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
@@ -105,53 +104,11 @@ class Session:
         """get prefix property."""
         return f"[session-{self.idx}] " if self.idx else ""
 
-    @property
-    def report_fmt(self):
-        """get report_fmt property."""
-        return str(self.config["report_fmt"])
-
     # @property
     # def process_pool(self):
     #     """get process_pool property."""
     #     value = self.config["process_pool"]
     #     return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def executor(self):
-        """get executor property."""
-        return str(self.config["executor"])
-
-    @property
-    def use_init_stage(self):
-        """get use_init_stage property."""
-        value = self.config["use_init_stage"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def shuffle(self):
-        """get shuffle property."""
-        value = self.config["shuffle"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def batch_size(self):
-        """get batch_size property."""
-        return int(self.config["batch_size"])
-
-    @property
-    def parallel_jobs(self):
-        """get parallel_jobs property."""
-        return int(self.config["parallel_jobs"])
-
-    @property
-    def rpc_tracker(self):
-        """get rpc_tracker property."""
-        return self.config["rpc_tracker"]
-
-    @property
-    def rpc_key(self):
-        """get rpc_key property."""
-        return self.config["rpc_key"]
 
     @property
     def needs_initializer(self):
@@ -249,6 +206,7 @@ class Session:
         per_stage=False,
         print_report=False,
         num_workers=1,
+        num_workers_per_stage=None,
         progress=False,
         export=False,
         context=None,
@@ -266,7 +224,7 @@ class Session:
         remote_config = None
         if self.rpc_tracker:
             assert self.executor == "rpc"
-            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key)
+            remote_config = RemoteConfig(self.rpc_tracker, self.rpc_key, self.rpc_artifacts)
         else:
             assert self.executor != "rpc"
         scheduler = SessionScheduler(
@@ -276,6 +234,7 @@ class Session:
             per_stage=per_stage,
             progress=progress,
             num_workers=num_workers,
+            num_workers_per_stage=num_workers_per_stage,
             use_init_stage=self.use_init_stage,
             session=self,
             shuffle=self.shuffle,
@@ -291,13 +250,22 @@ class Session:
         self.runs, self.results = scheduler.process(export=export, context=context)
         report = self.get_reports(results=self.results)
         scheduler.print_summary()
-        report = scheduler.postprocess(report, dest=self.dir)
+        report = scheduler.postprocess(report, dest=self.dir, context=context)
         report_file = Path(self.dir) / f"report.{self.report_fmt}"
         report.export(report_file)
         results_dir = context.environment.paths["results"].path
         results_file = results_dir / f"{self.label}.{self.report_fmt}"
         report.export(results_file)
         logger.info(self.prefix + "Done processing runs")
+        if self.cleanup_runs:
+            # TODO: does this work with runinitializers?
+            logger.info(self.prefix + "Cleaning up runs")
+            count = 0
+            for run in self.runs:
+                if hasattr(run, "cleanup_directories"):
+                    run.cleanup_directories()
+                    count += 1
+            logger.info(self.prefix + f"Done cleaning {count} runs")
         self.report = report
         if print_report:
             logger.info("Report:\n%s", str(report.df))
@@ -348,9 +316,13 @@ class Session:
         else:
             if not self.dir.is_dir():
                 self.dir.mkdir(parents=True)
+        # TODO: move to session.yml (label, timestamp,...)
         label_file = self.dir / "label.txt"
         with open(label_file, "w") as f:
             f.write(self.label)
+        timestamp_file = self.dir / "timestamp.txt"
+        with open(timestamp_file, "w") as f:
+            f.write(self.timestamp)
         self.session_lock = filelock.FileLock(os.path.join(self.dir, ".lock"))
         try:
             self.session_lock.acquire(timeout=10)
@@ -361,6 +333,11 @@ class Session:
 
     def close(self, err=None):
         """Close this run."""
+        # Workers have joined before the session closes. Keep the session lock
+        # while discarding the shared cache, never a workspace/global cache.
+        cache_dir = self.dir / "ccache"
+        if self.ccache_cleanup and cache_dir.is_dir() and not cache_dir.is_symlink():
+            shutil.rmtree(cache_dir)
         if err:
             self.status = SessionStatus.ERROR
         else:

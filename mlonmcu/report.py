@@ -17,9 +17,9 @@
 # limitations under the License.
 #
 """Definitions of the Report class used by MLonMCU sessions and runs."""
+
 from pathlib import Path
 import pandas as pd
-
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)

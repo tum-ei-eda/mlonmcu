@@ -18,7 +18,7 @@
 ##
 ARG ENABLE_CMAKE="false"
 
-FROM debian:bullseye-slim AS cmake-install
+FROM debian:bookworm-slim AS cmake-install
 ARG CMAKE_REPO="https://github.com/Kitware/CMake"
 ARG CMAKE_VERSION="3.22.2"
 ARG CMAKE_TARGET="Linux-x86_64"
@@ -31,10 +31,10 @@ RUN mkdir -p /opt/tools/cmake  \
     fi
 
 RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
-    then apt-get update \
+    then apt update \
     && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends wget ca-certificates \
-    && apt-get clean \
+    && apt -y install --no-install-recommends wget ca-certificates \
+    && apt clean \
     && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists \
     && rm -rf /var/lib/apt/lists; \
@@ -48,23 +48,23 @@ RUN if [ "${ENABLE_CMAKE}" = "true" ] ; \
     && rm ./cmake.sh ; \
     fi
 
-FROM debian:bullseye-slim AS mlonmcu-ci
+FROM debian:bookworm-slim AS mlonmcu-ci
 
 COPY --from=cmake-install /opt/tools/cmake/ /opt/tools/cmake/
 ENV PATH="/opt/tools/cmake/bin:${PATH}"
 ENV CMAKE_DIR="/opt/tools/cmake"
 
 # Install APT dependencies  (TODO: update list)
-RUN apt-get update \
+RUN apt update \
     && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends wget ca-certificates unzip vim openssh-client \
+    && apt -y install --no-install-recommends wget ca-certificates unzip vim openssh-client \
     g++ graphviz doxygen libtinfo-dev zlib1g-dev \
     autoconf automake autotools-dev curl libcurl4-openssl-dev libssl-dev python3 libmpc-dev libmpfr-dev libgmp-dev gawk build-essential \
     bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ca-certificates \
     virtualenv git python3-dev python3-pip python3-setuptools python3-venv libtinfo5 libzstd-dev \
     gcc libedit-dev libxml2-dev libopenblas-dev liblapack-dev gfortran ninja-build python-is-python3 device-tree-compiler libboost-all-dev \
     libfl-dev lsb-release libelf-dev direnv help2man git-lfs \
-    && apt-get clean \
+    && apt clean \
     && rm -rf /var/cache/apt/archives/ \
     && rm -rf /var/cache/apt/lists \
     && rm -rf /var/lib/apt/lists

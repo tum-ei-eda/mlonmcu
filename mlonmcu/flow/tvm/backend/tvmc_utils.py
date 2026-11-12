@@ -51,7 +51,7 @@ def get_input_shapes_tvmc_args(input_shapes):
     return ["--input-shapes", arg]
 
 
-def check_allowed(target, name):
+def check_allowed(target, name, has_target_vector_width: bool = False):
     common = ["libs", "model", "tag", "mcpu", "device", "keys"]
     if target == "c":
         return name in ["constants-byte-alignment", "workspace-bytes-alignment", "march"] + common
@@ -71,7 +71,8 @@ def check_allowed(target, name):
                 "fast-math-arcp",
                 "fast-math-reassoc",
                 "mabi",
-                "num_cores",
+                "num-cores",
+                *(["vector-width"] if has_target_vector_width else []),
             ]
             + common
         )
@@ -80,7 +81,7 @@ def check_allowed(target, name):
         return True
 
 
-def gen_target_details_args(target, target_details, bool_as_int: bool = True):
+def gen_target_details_args(target, target_details, bool_as_int: bool = True, has_target_vector_width: bool = False):
     def helper(value, bool_as_int: bool = True):
         if isinstance(value, bool):
             value = legalize_bool(value, bool_as_int=bool_as_int)
@@ -92,7 +93,7 @@ def gen_target_details_args(target, target_details, bool_as_int: bool = True):
         [
             [f"--target-{target}-{key}", helper(value, bool_as_int=bool_as_int)]
             for key, value in target_details.items()
-            if check_allowed(target, key)
+            if check_allowed(target, key, has_target_vector_width=has_target_vector_width)
         ],
         [],
     )
@@ -107,7 +108,12 @@ def gen_extra_target_details_args(extra_target_details, bool_as_int: bool = True
 
 
 def get_target_tvmc_args(
-    target="c", extra_targets=[], target_details={}, extra_target_details={}, bool_as_int: bool = True
+    target="c",
+    extra_targets=[],
+    target_details={},
+    extra_target_details={},
+    bool_as_int: bool = True,
+    has_target_vector_width: bool = False,
 ):
     if extra_targets:
         assert isinstance(extra_targets, list)
@@ -122,12 +128,16 @@ def get_target_tvmc_args(
         "--target",
         ",".join(extra_targets + [target]),
         # TODO: provide a feature which sets these automatically depending on the chosen target
-        *gen_target_details_args(target, target_details, bool_as_int=bool_as_int),
+        *gen_target_details_args(
+            target, target_details, bool_as_int=bool_as_int, has_target_vector_width=has_target_vector_width
+        ),
         *(gen_extra_target_details_args(extra_target_details)),
     ]
 
 
-def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file):
+def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file, ms_db=None):
+    if ms_db is not None:
+        return ["--ms-db", ms_db]
     if use_tuning_results:
         assert tuning_records_file is not None, "No tuning records are available"
         return ["--tuning-records", str(tuning_records_file)]
@@ -136,6 +146,11 @@ def get_tuning_records_tvmc_args(use_tuning_results, tuning_records_file):
 
 
 def get_rpc_tvmc_args(enabled, key, hostname, port):
+    if not enabled:
+        return []
+    assert hostname is not None
+    assert port is not None
+    is_tracker = key is not None
     return (
         [
             "--rpc-key",
@@ -143,8 +158,13 @@ def get_rpc_tvmc_args(enabled, key, hostname, port):
             "--rpc-tracker",
             hostname + ":" + str(port),
         ]
-        if enabled
-        else []
+        if is_tracker
+        else [
+            # "--rpc-key",
+            # key,
+            "--rpc-tracker",
+            hostname + ":" + str(port),
+        ]
     )
 
 
@@ -179,13 +199,16 @@ def get_tvmrt_tvmc_args(runtime="crt", system_lib=True, link_params=True, bool_a
     return ret
 
 
-def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=None):
+def get_data_tvmc_args(mode=None, ins_file=None, outs_file=None, print_top=None, has_fill_mode_none: bool = False):
+    # TODO: expose has_fill_mode_none
     ret = []
     if ins_file is not None:
         ret.extend(["--inputs", ins_file])
     else:
         if mode is not None:
             ret.extend(["--fill-mode", mode])
+        elif has_fill_mode_none:
+            ret.extend(["--fill-mode", "none"])
 
     if outs_file is not None:
         ret.extend(["--outputs", outs_file])
@@ -232,6 +255,11 @@ def get_desired_layout_args(layouts, ops, mapping):
 
     if layouts and ops:
         assert len(layouts) == len(ops) or len(layouts) == 1
+    elif layouts:
+        assert len(ops) == 0
+        assert len(layouts) == 1
+        if layouts[0] == "default":
+            layouts = []
 
     ret = []
     if layouts:

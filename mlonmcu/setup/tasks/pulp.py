@@ -19,7 +19,7 @@
 """Definition of tasks used to dynamically install MLonMCU dependencies"""
 
 import os
-import pkg_resources
+from importlib.resources import files
 from pathlib import Path
 import multiprocessing
 
@@ -129,11 +129,7 @@ def clone_pulp_freertos(
         user_vars = context.environment.vars
         experimental_install = user_vars.get("pulp_freertos.experimental_install", False)
         if experimental_install:
-            patchFile = Path(
-                pkg_resources.resource_filename(
-                    "mlonmcu", os.path.join("..", "resources", "patches", "pulp_freertos_support.patch")
-                )
-            )
+            patchFile = Path(str(files("mlonmcu").joinpath("resources", "patches", "pulp_freertos_support.patch")))
             if patchFile.is_file():
                 utils.patch(patchFile, cwd=pulpRtosSrcDir)
     context.cache["pulp_freertos.src_dir"] = pulpRtosSrcDir

@@ -25,7 +25,7 @@ from tempfile import TemporaryDirectory
 import time
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, one_of, optional, required, str2bool
 
 # from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
 from mlonmcu.setup.utils import execute
@@ -43,44 +43,30 @@ class Vicuna2Target(RVVTarget):
 
     FEATURES = RVVTarget.FEATURES | {"log_instrs"}  # TODO: cache feature?, support log_instrs
 
-    DEFAULTS = {
-        **RVVTarget.DEFAULTS,
-        # vext config
-        "vlen": 128,  # default value for hardware compilation, will be overwritten by -c vext.vlen
-        "embedded_vext": True,
-        "elen": 32,
-        # riscv config
-        "compressed": False,
-        "atomic": False,
-        "fpu": None,  # supports: none, half
-        # processor config
-        "core": "cv32e40x",  # TODO: also support ibex?
-        # vproc config
-        "mem_size": 4194304,
-        "mem_width": 32,
-        "vlane_width": 32,
-        "vmem_width": 32,
-        "mem_latency": 1,
-        # cache config
-        # "ic_size": 0,  # off
-        # "ic_line_width": 128,
-        # "dc_size": 0,  # off
-        # "dc_line_width": None,  # AUTO (2*VMEM_W)
-        # trace config
-        # TODO
-        # testbench config
-        "abort_cycles": 10000000,  # Used to detect freezes
-        "extra_cycles": 1,  # Number of remaining cycles after jump to reset vector
-        "log_instrs": False,
-        "trace": False,
-        "trace_full": False,
-    }
-
-    REQUIRED = RVVTarget.REQUIRED | {
-        "vicuna2.src_dir",
-        "verilator.install_dir",  # for simulation
-    }
-    OPTIONAL = RVVTarget.OPTIONAL | {"cmake.exe"}
+    vlen = cfg(128)
+    embedded_vext = cfg(True, cast=str2bool)
+    elen = cfg(32, cast=int)
+    compressed = cfg(False, cast=str2bool)
+    atomic = cfg(False, cast=str2bool)
+    fpu = cfg(None)
+    core = cfg("cv32e40x", cast=one_of(("cv32e40x",)))
+    mem_size = cfg(4194304, cast=int)
+    mem_width = cfg(32, cast=int)
+    vlane_width = cfg(32, cast=int)
+    vmem_width = cfg(32, cast=int)
+    mem_latency = cfg(1, cast=int)
+    vproc_pipelines = cfg(None)
+    abort_cycles = cfg(10000000, cast=int, preserve_none=False)
+    extra_cycles = cfg(1, cast=int, preserve_none=False)
+    log_instrs = cfg(False, cast=str2bool)
+    trace = cfg(False, cast=str2bool)
+    trace_full = cfg(False, cast=str2bool)
+    verilator_install_dir = required("verilator.install_dir", cast=Path)
+    vicuna2_src_dir = required("vicuna2.src_dir", cast=Path)
+    vicuna2_model_dir_config = optional("vicuna2.model_dir", cast=Path)
+    vicuna2_bsp_dir_config = optional("vicuna2.bsp_dir", cast=Path)
+    vicuna2_vsim_exe_config = optional("vicuna2.vsim_exe", cast=Path)
+    cmake_exe = optional("cmake.exe")
 
     def __init__(self, name="vicuna2", features=None, config=None):
         super().__init__(name, features=features, config=config)
@@ -90,37 +76,25 @@ class Vicuna2Target(RVVTarget):
         self.model_build_dir = None
 
     @property
-    def verilator_install_dir(self):
-        return Path(self.config["verilator.install_dir"])
-
-    @property
-    def vicuna2_src_dir(self):
-        return Path(self.config["vicuna2.src_dir"])
-
-    @property
-    def cmake_exe(self):
-        return self.config["cmake.exe"]
-
-    @property
-    def core(self):
-        value = self.config["core"]
-        assert value == "cv32e40x"
+    def vicuna2_model_dir(self):
+        value = self.vicuna2_model_dir_config
+        if value is None:
+            return self.vicuna2_src_dir / "build_model"
         return value
 
     @property
-    def mem_width(self):
-        value = self.config["mem_width"]
-        return int(value) if value is not None else value
+    def vicuna2_bsp_dir(self):
+        value = self.vicuna2_bsp_dir_config
+        if value is None:
+            return self.vicuna2_src_dir / "bsp"
+        return value
 
     @property
-    def mem_size(self):
-        value = self.config["mem_size"]
-        return int(value) if value is not None else value
-
-    @property
-    def mem_latency(self):
-        value = self.config["mem_latency"]
-        return int(value) if value is not None else value
+    def vicuna2_vsim_exe(self):
+        value = self.vicuna2_vsim_exe_config
+        if value is None:
+            return None
+        return value
 
     # @property
     # def ic_size(self):
@@ -152,51 +126,12 @@ class Vicuna2Target(RVVTarget):
     #     value = self.config["vport_policy"]
     #     return value
 
-    @property
-    def vmem_width(self):
-        value = self.config["vmem_width"]
-        return int(value) if value is not None else value
-
-    @property
-    def vlane_width(self):
-        value = self.config["vlane_width"]
-        return int(value) if value is not None else value
-
-    # @property
-    # def vproc_pipelines(self):
-    #     value = self.config["vproc_pipelines"]
-    #     return value
-
-    @property
-    def abort_cycles(self):
-        value = self.config["abort_cycles"]
-        return int(value)
-
-    @property
-    def extra_cycles(self):
-        value = self.config["extra_cycles"]
-        return int(value)
-
-    @property
-    def log_instrs(self):
-        value = self.config["log_instrs"]
-        return str2bool(value)
-
-    @property
-    def trace(self):
-        value = self.config["trace"]
-        return str2bool(value)
-
-    @property
-    def trace_full(self):
-        value = self.config["trace_full"]
-        return str2bool(value)
-
     def get_model_cmake_args(self):
         ret = []
 
         def filter_riscv_arch(arch):
-            return arch.replace("_zvl128b", "")
+            # return arch.replace("_zvl128b", "")
+            return re.sub(r"_zvl[0-9]+b", "", arch)
 
         riscv_arch = filter_riscv_arch(self.arch)
         ret.append(f"-DRISCV_ARCH={riscv_arch}")
@@ -215,18 +150,29 @@ class Vicuna2Target(RVVTarget):
         if self.mem_size is not None:
             # TODO: use in cmake!
             ret.append(f"-DMEM_SZ={self.mem_size}")
+        ret.append(f"-DSCALAR_CORE={self.core}")
+        vproc_config_dir = Path(self.prj_dir.name)
+        ret.append(f"-DVPROC_CONFIG_DIR={vproc_config_dir}")
+        ret.append("-DVPROC_CONFIG=dual-zve32x")  # TODO
 
         return ret
 
     def prepare_simulator(self, cwd=os.getcwd(), **kwargs):
         self.prj_dir = TemporaryDirectory()
+        # self.prj_dir = "/tmp/vtemp"
+        # Path(self.prj_dir).mkdir(exist_ok=True)
+        vsim_exe = self.vicuna2_vsim_exe
+        if vsim_exe is not None:
+            assert vsim_exe.is_file(), f"Not a file: {vsim_exe}"
+            return
         self.model_build_dir = Path(self.prj_dir.name) / "build_model"
+        # self.model_build_dir = Path(self.prj_dir) / "build_model"
         self.model_build_dir.mkdir()
         env = os.environ.copy()
-        # orig_path = env["PATH"]
-        # env["PATH"] = f"{self.verilator_install_dir}/bin:{orig_path}"
+        orig_path = env["PATH"]
+        env["PATH"] = f"{self.verilator_install_dir}/bin:{orig_path}"
         out = utils.cmake(
-            self.vicuna2_src_dir / "build_model",
+            self.vicuna2_model_dir,
             *self.get_model_cmake_args(),
             env=env,
             cwd=self.model_build_dir,
@@ -238,7 +184,9 @@ class Vicuna2Target(RVVTarget):
 
     def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
         """Use target to execute an executable with given arguments"""
-        vicuna_exe = self.model_build_dir / "verilated_model"
+        vicuna_exe = self.vicuna2_vsim_exe
+        if vicuna_exe is None:
+            vicuna_exe = self.model_build_dir / "verilated_model"
         if len(self.extra_args) > 0:
             assert False, "Vicuna TB does not allow cmdline arguments"
 
@@ -341,7 +289,7 @@ class Vicuna2Target(RVVTarget):
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
-        ret["VICUNA2_BSP_DIR"] = self.vicuna2_src_dir / "bsp"
+        ret["VICUNA2_BSP_DIR"] = self.vicuna2_bsp_dir
         return ret
 
     def get_backend_config(self, backend, optimized_layouts=False, optimized_schedules=False):

@@ -66,17 +66,6 @@ def _validate_muriscvnn(context: MlonMcuContext, params=None):
     return True
 
 
-def _validate_muriscvnn_build(context: MlonMcuContext, params=None):
-    if not _validate_muriscvnn(context, params=params):
-        return False
-    user_vars = context.environment.vars
-    skip_build = user_vars.get("muriscvnn.skip_build", True)
-    # TODO: str2bool
-    if skip_build:
-        return False
-    return True
-
-
 @Tasks.provides(["muriscvnn.src_dir", "muriscvnn.inc_dir"])
 @Tasks.validate(_validate_muriscvnn)
 @Tasks.register(category=TaskType.OPT)
@@ -100,89 +89,3 @@ def clone_muriscvnn(
         utils.clone_wrapper(muriscvnnRepo, muriscvnnSrcDir, refresh=rebuild)
     context.cache["muriscvnn.src_dir"] = muriscvnnSrcDir
     context.cache["muriscvnn.inc_dir"] = muriscvnnIncludeDir
-
-
-@Tasks.needs(["muriscvnn.src_dir", "riscv_gcc_rv{xlen}.install_dir", "riscv_gcc_rv{xlen}.name"])
-# @Tasks.optional(["riscv_gcc.install_dir", "riscv_gcc.name", "arm_gcc.install_dir"])
-@Tasks.optional(["cmake.exe"])
-@Tasks.provides(["muriscvnn.build_dir", "muriscvnn.lib"])
-# @Tasks.param("dbg", [False, True])
-@Tasks.param("dbg", [False])  # disable due to bug with vext gcc
-@Tasks.param("xlen", [32])
-@Tasks.param("vext", [False])
-@Tasks.param("pext", [False])
-@Tasks.param("toolchain", ["gcc"])
-@Tasks.param("target_arch", ["x86", "riscv"])
-@Tasks.validate(_validate_muriscvnn_build)
-@Tasks.register(category=TaskType.OPT)
-def build_muriscvnn(
-    context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
-):
-    """Build muRISCV-NN."""
-    if not params:
-        params = {}
-    xlen = params["xlen"]
-    flags = utils.makeFlags(
-        (params["dbg"], "dbg"),
-        (params["vext"], "vext"),
-        (params["pext"], "pext"),
-        (True, params["toolchain"]),
-        (True, params["target_arch"]),
-    )
-    flags_ = utils.makeFlags((params["vext"], "vext"), (params["pext"], "pext"))
-    muriscvnnName = utils.makeDirName("muriscvnn", flags=flags)
-    muriscvnnSrcDir = context.cache["muriscvnn.src_dir"]
-    cmake_exe = context.cache.get("cmake.exe")
-    muriscvnnBuildDir = context.environment.paths["deps"].path / "build" / muriscvnnName
-    muriscvnnInstallDir = context.environment.paths["deps"].path / "install" / muriscvnnName
-    muriscvnnLib = muriscvnnInstallDir / "libmuriscvnn.a"
-    user_vars = context.environment.vars
-    if "muriscvnn.lib" in user_vars:  # TODO: also check command line flags?
-        return False
-    if rebuild or not (utils.is_populated(muriscvnnBuildDir) and muriscvnnLib.is_file()):
-        utils.mkdirs(muriscvnnBuildDir)
-        muriscvnnArgs = []
-        target_arch = params.get("target_arch", "riscv")
-        if target_arch == "riscv":
-            gccName = context.cache["riscv_gcc.name", flags_]
-            toolchain = params.get("toolchain", "gcc")
-            assert (
-                gccName == "riscv32-unknown-elf" or toolchain != "llvm"
-            ), "muRISCV-NN requires a non-multilib toolchain!"
-            if f"riscv_gcc_rv{xlen}.install_dir" in user_vars:
-                riscv_gcc = user_vars[f"riscv_gcc_rv{xlen}.install_dir"]
-            else:
-                riscv_gcc = context.cache[f"riscv_gcc_rv{xlen}.install_dir", flags_]
-            muriscvnnArgs.append("-DRISCV_GCC_PREFIX=" + str(riscv_gcc))
-            muriscvnnArgs.append("-DTOOLCHAIN=" + params["toolchain"].upper())
-            vext = params.get("vext", False)
-            pext = params.get("pext", False)
-            muriscvnnArgs.append("-DUSE_VEXT=" + ("ON" if vext else "OFF"))
-            muriscvnnArgs.append("-DUSE_PEXT=" + ("ON" if pext else "OFF"))
-            muriscvnnArgs.append(f"-DRISCV_GCC_BASENAME={gccName}")
-            arch = "rv32imafdc"
-            if vext:
-                arch += "v"
-            if pext:
-                arch += "p"
-            muriscvnnArgs.append(f"-DRISCV_ARCH={arch}")
-        elif target_arch == "x86":
-            toolchain = params.get("toolchain", "gcc")
-            muriscvnnArgs.append("-DTOOLCHAIN=x86")
-            muriscvnnArgs.append("-DUSE_VEXT=OFF")
-            muriscvnnArgs.append("-DUSE_PEXT=OFF")
-        else:
-            raise RuntimeError(f"Unsupported target_arch for muriscvnn: {target_arch}")
-        utils.cmake(
-            muriscvnnSrcDir,
-            *muriscvnnArgs,
-            cwd=muriscvnnBuildDir,
-            debug=params["dbg"],
-            live=verbose,
-            cmake_exe=cmake_exe,
-        )
-        utils.make(cwd=muriscvnnBuildDir, threads=threads, live=verbose)
-        utils.mkdirs(muriscvnnInstallDir)
-        utils.move(muriscvnnBuildDir / "Source" / "libmuriscvnn.a", muriscvnnLib)
-    context.cache["muriscvnn.build_dir", flags] = muriscvnnBuildDir
-    context.cache["muriscvnn.lib", flags] = muriscvnnLib

@@ -50,9 +50,115 @@ import re
 import textwrap
 import sys
 import typing
+from importlib import metadata
 
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
+from packaging.version import InvalidVersion, Version
 
 RequirementsByPieceType = typing.List[typing.Tuple[str, typing.Tuple[str, typing.List[str]]]]
+
+
+def get_extra_requirements(extras: typing.List[str]) -> typing.List[str]:
+    """Return applicable extra dependencies from installed package metadata.
+
+    Evaluate markers for this interpreter and remove them before writing the
+    requirements file: pip evaluates standalone requirements without an extra.
+    """
+    if not isinstance(extras, list) or not all(isinstance(item, str) for item in extras):
+        raise ValueError("python.extra must be a list of strings")
+    if not extras:
+        return []
+
+    dist = metadata.distribution("mlonmcu")
+    available = {canonicalize_name(name) for name in dist.metadata.get_all("Provides-Extra", [])}
+    selected = {canonicalize_name(name) for name in extras}
+    for name in selected:
+        if name not in available:
+            raise ValueError(f"Unknown MLonMCU Python extra: {name}")
+
+    requirements = []
+    for value in dist.requires or []:
+        requirement = Requirement(value)
+        if requirement.marker is None or not re.search(r"\bextra\b", str(requirement.marker)):
+            continue
+        if any(requirement.marker.evaluate({"extra": name}) for name in selected):
+            requirement.marker = None
+            requirements.append(str(requirement))
+    return requirements
+
+
+def _specifier_conflicts(specifiers):
+    """Return whether a set of PEP 440 specifiers has an obvious empty intersection."""
+    exact_versions = []
+    wildcard_prefixes = []
+    lower = upper = None
+    lower_inclusive = upper_inclusive = False
+    for specifier in specifiers:
+        operator, value = specifier.operator, specifier.version
+        if operator in ("==", "===") and not value.endswith(".*"):
+            try:
+                exact_versions.append(Version(value))
+            except InvalidVersion:
+                continue
+        elif operator == "==" and value.endswith(".*"):
+            wildcard_prefixes.append(value[:-2])
+        elif operator in (">", ">=", "<", "<="):
+            try:
+                version = Version(value)
+            except InvalidVersion:
+                continue
+            if operator in (">", ">=") and (lower is None or version > lower or (version == lower and operator == ">")):
+                lower, lower_inclusive = version, operator == ">="
+            if operator in ("<", "<=") and (upper is None or version < upper or (version == upper and operator == "<")):
+                upper, upper_inclusive = version, operator == "<="
+
+    if exact_versions:
+        return any(not all(version in specifier for specifier in specifiers) for version in exact_versions)
+    if wildcard_prefixes:
+        return any(
+            not (
+                prefix == wildcard_prefixes[0]
+                or prefix.startswith(wildcard_prefixes[0] + ".")
+                or wildcard_prefixes[0].startswith(prefix + ".")
+            )
+            for prefix in wildcard_prefixes[1:]
+        )
+    return (
+        lower is not None
+        and upper is not None
+        and (lower > upper or (lower == upper and not (lower_inclusive and upper_inclusive)))
+    )
+
+
+def merge_requirements(requirements: typing.Iterable[str]) -> typing.List[str]:
+    """Combine requirements by distribution name and reject incompatible versions."""
+    merged = collections.OrderedDict()
+    for text in requirements:
+        try:
+            requirement = Requirement(text)
+        except InvalidRequirement as err:
+            raise ValueError(f"Invalid Python requirement '{text}': {err}") from err
+        if requirement.url:
+            raise ValueError(f"Direct URL requirements are not supported: {text}")
+        if requirement.marker:
+            raise ValueError(f"Environment markers are not supported in generated requirements: {text}")
+        name = canonicalize_name(requirement.name)
+        if name not in merged:
+            merged[name] = {"name": requirement.name, "extras": set(requirement.extras), "specifiers": []}
+        merged[name]["extras"].update(requirement.extras)
+        merged[name]["specifiers"].extend(requirement.specifier)
+
+    result = []
+    for data in merged.values():
+        specifiers = data["specifiers"]
+        if _specifier_conflicts(specifiers):
+            specs = ",".join(str(specifier) for specifier in specifiers)
+            raise ValueError(f"Conflicting version requirements for {data['name']}: {specs}")
+        extras = f"[{','.join(sorted(data['extras']))}]" if data["extras"] else ""
+        unique_specifiers = list(dict.fromkeys(str(specifier) for specifier in specifiers))
+        result.append(f"{data['name']}{extras}{','.join(unique_specifiers)}")
+    return result
 
 
 # Maps named MLonMCU piece (see description above) to a list of names of Python packages. Please use
@@ -73,7 +179,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "jinja2",
                 "mapfile_parser",
                 "networkx",
-                "numpy",
+                # "numpy",
                 "openpyxl",  # xlsx reports
                 "packaging",
                 "pandas",
@@ -87,38 +193,21 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    # Provide support for espidf.
-    (
-        "espidf",
-        (
-            "Requirements for using espidf",
-            [
-                "bitstring",
-                "click",
-                "construct",
-                "cryptography",
-                "ecdsa",
-                "future",
-                "gdbgui",
-                "idf-component-manager",
-                "itsdangerous",  # there are two espidf in origin requirements.txt this is from the 2nd
-                "jinja2",  # there are two espidf in origin requirements.txt this is from the 2nd
-                "kconfiglib",
-                "psutil",
-                "pygdbmi",
-                "pyparsing",
-                "pyserial",  # for custom monitor
-                "python-socketio",
-                "reedsolo",
-            ],
-        ),
-    ),
     # Provide support for etiss.
     (
         "etiss",
         (
             "Requirements for using etiss",
             ["humanize", "pyelftools"],
+        ),
+    ),
+    (
+        "executorch",
+        (
+            "Requirements for using executorch",
+            [
+                "executorch",
+            ],
         ),
     ),
     ("gvsoc_pulp", ("Requirements for gvsoc", ["PrettyTable"])),
@@ -130,6 +219,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "iree-turbine",
                 "tensorflow",
                 "tflite",
+                "tosa-converter-for-tflite",
             ],
         ),
     ),
@@ -154,6 +244,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
         (
             "Requirements for using tflite",
             [
+                "tensorflow",
                 "tflite",
             ],
         ),
@@ -180,7 +271,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
                 "decorator",
                 "graphviz",  # for relay visualization
                 "matplotlib",
-                "numpy",
+                # "numpy",
                 "psutil",
                 "scipy",
                 "synr",
@@ -189,7 +280,7 @@ REQUIREMENTS_BY_PIECE: RequirementsByPieceType = [
             ],
         ),
     ),
-    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost"])),  # for autotuning on some target
+    ("tvm-autotuning", ("Requirements for using tvm autotuning", ["xgboost-cpu"])),  # for autotuning on some target
     # Provide support for visualize.
     (
         "visualize",
@@ -228,52 +319,45 @@ ConstraintsType = typing.List[typing.Tuple[str, typing.Union[None, str]]]
 CONSTRAINTS = [
     ("GitPython", None),
     ("Pillow", None),
-    ("bitstring", ">=3.1.6"),
-    ("click", ">=7.0"),
     ("cloudpickle", None),
-    ("construct", "==2.10.54"),  # From PR #213.
-    ("cryptography", ">=2.1.4"),
     ("decorator", None),
-    ("ecdsa", ">=0.16.0"),
+    ("executorch", "==1.1.0"),
     ("filelock", None),
-    ("future", ">=0.15.2"),
-    ("gdbgui", "==0.13.2.0"),
     ("graphviz", None),
     ("humanize", None),
     ("hydra-core", None),
-    ("idf-component-manager", "~=1.0"),
-    ("itsdangerous", "<2.1"),
     ("jinja2", ">=3.1.3"),
-    ("kconfiglib", "==13.7.1"),
     ("matplotlib", None),
     ("networkx", None),
-    ("numpy", "<2.0"),
-    ("onnx", None),
+    # ("numpy", "<2.0; python_version <= '3.8'"),
+    # ("numpy", ">=2.0,<2.1.0; python_version >= '3.10'"),
+    ("onnx", "==1.20.1"),
     ("openpyxl", None),
     ("ortools", None),
     ("pandas", None),
     ("prettytable", None),
     ("psutil", None),
+    # ("psutil", "==5.9.3"),  # cfu?
     ("pyelftools", None),
-    ("pygdbmi", "<=0.9.0.2"),
-    ("pyparsing", ">=2.0.3,<2.4.0"),
-    ("pyserial", None),
-    ("python-socketio", "<5"),
+    # ("pyelftools", "==0.30"),  # cfu?
     ("pyusb", None),
     ("pyyaml", None),
-    ("reedsolo", ">=1.5.3,<=1.5.4"),
+    # ("pyyaml", "==6.0.*"),  # cfu?
     ("scipy", None),
     ("synr", None),
     # ("tensorflow", "~=2.13.0"),
     ("tensorflow", "~=2.18.0"),
     ("tflite", ">=2.4.0"),
     ("tornado", None),
+    ("tosa-converter-for-tflite", "==2025.11.0"),
     ("typing_extensions", None),
     ("xdg", None),
-    ("xgboost", ">=1.7.0,<2.0"),
+    # ("xgboost", ">=1.7.0,<2.0"),  # GPU-variant (500MB!)
+    ("xgboost-cpu", None),
     ("xlsxwriter", None),
     ("xlwt", None),
 ]
+
 
 ################################################################################
 # End of configuration options.

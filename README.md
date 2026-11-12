@@ -2,7 +2,7 @@
 
 [![pypi package](https://badge.fury.io/py/mlonmcu.svg)](https://pypi.org/project/mlonmcu)
 [![readthedocs](https://readthedocs.org/projects/mlonmcu/badge/?version=latest)](https://mlonmcu.readthedocs.io/en/latest/?version=latest)
-![coverage](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)
+[![coverage](https://byob.yarr.is/tum-ei-eda/mlonmcu/coverage)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
 [![GitHub license](https://img.shields.io/github/license/tum-ei-eda/mlonmcu.svg)](https://github.com/tum-ei-eda/mlonmcu/blob/main/LICENSE)
 
 [![cicd workflow](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml/badge.svg)](https://github.com/tum-ei-eda/mlonmcu/actions/workflows/cicd.yml)
@@ -47,7 +47,7 @@ sudo apt install python3-pip python3-venv
 sudo apt install libboost-all-dev graphviz doxygen libtinfo-dev zlib1g-dev texinfo unzip device-tree-compiler tree g++
 
 # Optional (depending on configuration)
-sudo apt install ninja-build flex lsb-release libelf-dev
+sudo apt install ninja-build flex lsb-release libelf-dev libcurl4-openssl-dev libgtest-dev libgmock-dev
 ```
 
 Also make sure that your default Python is at least v3.7. If the `python` command is not available in your shell or points Python v2.7 check out `python-is-python3`.
@@ -65,6 +65,8 @@ To use the PIP package, run the following: `pip install mlonmcu` (Add `--user` i
 
 #### Build Package manually
 
+Don't forget to clone using `--recursive` or run `git submodule update --init --recursive` after checkout.
+
 First, install all relevant dependencies:
 
 ```
@@ -74,18 +76,11 @@ python -m venv .venv  # Feel free to choose a different directory or use a conda
 source .venv/bin/activate
 
 # Environment-specific dependencies are installed later
+```
 
 **Warning:** It is recommended to have at least version 3.20 of CMake installed for full compatibility!
 
-# Install ptional dependecies (only for development)
-pip install -r requirements_dev.txt
-pip install -r docs/requirements.txt
-
-# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
-pip install -r ipynb/requirements.txt
-```
-
-Then you should be able to install the `mlonmcu` python package like this
+You should be able to install the `mlonmcu` python package like this
 
 ```
 # Optionally remove an older version first: pip uninstall mlonmcu
@@ -93,7 +88,15 @@ Then you should be able to install the `mlonmcu` python package like this
 pip install .
 # or editable version:
 pip install -e .  # editable version
+
+# Install optional dependecies (only for development)
+pip install -e ".[dev]"
+pip install -r ".[docs]"
+
+# Only if you want to use the provided python notebooks, as explained in  ./ipynb/README.md
+pip install -r ".[ipynb]"
 ```
+
 
 #### Docker (Any other OS)
 
@@ -150,8 +153,11 @@ with mlonmcu.context.MlonMcuContext() as context:
 Make sure to first install the additonal set of development Python packages into your virtual environment:
 
 ```
-pip install -r requirements_dev.txt  # Building distributions and running tests
-pip install -r docs/requirements.txt  # For working with the documentation
+pip install -e ".[dev]"  # Building distributions and running tests
+pip install -e ".[docs]"  # For working with the documentation
+pip install -e ".[ipynb]"  # For working with the notebooks
+pip install -e ".[dev,docs,ipynb]"  # All together
+pip install "mlonmcu[dev,docs,ipynb]"  # All together from PiPy
 ```
 
 Unit test and integration test are defined in the `tests/` directory and can be triggered using `make test` or `pytest tests/`

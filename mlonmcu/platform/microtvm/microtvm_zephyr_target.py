@@ -18,7 +18,7 @@
 #
 from pathlib import Path
 
-from mlonmcu.target.target import Target
+from mlonmcu.config import cfg, required
 
 from mlonmcu.logging import get_logger
 from .microtvm_template_target import TemplateMicroTvmPlatformTarget
@@ -28,7 +28,6 @@ logger = get_logger()
 
 class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     DEFAULTS = {
-        **Target.DEFAULTS,
         "extra_files_tar": None,
         "project_type": "host_driven",
         "zephyr_board": "",
@@ -42,9 +41,10 @@ class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "gdbserver_port": None,
         "nrfjprog_snr": None,
         "openocd_serial": None,
-        "port": None,  # Workaround to overwrite esptool detection
     }
-    REQUIRED = Target.REQUIRED | {"zephyr.install_dir", "zephyr.sdk_dir"}
+    zephyr_install_dir = required("zephyr.install_dir", cast=Path)
+    zephyr_sdk_dir = required("zephyr.sdk_dir", cast=Path)
+    port = cfg(None)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -63,18 +63,6 @@ class ZephyrMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         ]
         # self.platform = platform
         # self.template = name2template(name)
-
-    @property
-    def zephyr_install_dir(self):
-        return Path(self.config["zephyr.install_dir"])
-
-    @property
-    def port(self):
-        return self.config["port"]
-
-    @property
-    def zephyr_sdk_dir(self):
-        return Path(self.config["zephyr.sdk_dir"])
 
     def get_project_options(self):
         ret = super().get_project_options()

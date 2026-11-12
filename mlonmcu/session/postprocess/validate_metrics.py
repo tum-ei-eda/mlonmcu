@@ -49,7 +49,7 @@ class ValidationMetric:
     def get_summary(self):
         if self.num_total == 0:
             return "N/A"
-        return f"{self.num_correct}/{self.num_total} ({int(self.num_correct/self.num_total*100)}%)"
+        return f"{self.num_correct}/{self.num_total} ({int(self.num_correct / self.num_total * 100)}%)"
 
 
 class ClassifyMetric:
@@ -74,7 +74,7 @@ class ClassifyMetric:
     def get_summary(self):
         if self.num_total == 0:
             return "N/A"
-        return f"{self.num_correct}/{self.num_total} ({int(self.num_correct/self.num_total*100)}%)"
+        return f"{self.num_correct}/{self.num_total} ({int(self.num_correct / self.num_total * 100)}%)"
 
 
 class AllCloseMetric(ValidationMetric):

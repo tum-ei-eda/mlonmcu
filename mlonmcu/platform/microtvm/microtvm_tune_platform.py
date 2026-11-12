@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 """MicroTVM Tune Platform"""
-from mlonmcu.config import str2bool
+
+from mlonmcu.config import cfg, str2bool
 from .microtvm_target_platform import MicroTvmTargetPlatform
 from ..tvm.tvm_tune_platform import TvmTunePlatform
 
@@ -27,17 +28,8 @@ class MicroTvmTunePlatform(TvmTunePlatform, MicroTvmTargetPlatform):
 
     FEATURES = TvmTunePlatform.FEATURES | MicroTvmTargetPlatform.FEATURES
 
-    DEFAULTS = {
-        **TvmTunePlatform.DEFAULTS,
-        **MicroTvmTargetPlatform.DEFAULTS,
-    }
-
-    REQUIRED = TvmTunePlatform.REQUIRED | MicroTvmTargetPlatform.REQUIRED
-
-    @property
-    def experimental_tvmc_micro_tune(self):
-        value = self.config["experimental_tvmc_micro_tune"]
-        return str2bool(value)
+    flop_prefix = cfg("M")
+    experimental_tvmc_micro_tune = cfg(False, cast=str2bool)
 
     def invoke_tvmc_micro_tune(self, *args, target=None, list_options=False, **kwargs):
         all_args = []

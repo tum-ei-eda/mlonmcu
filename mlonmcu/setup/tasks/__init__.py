@@ -44,6 +44,7 @@ from .ara import *  # noqa: F401, F403
 from .verilator import *  # noqa: F401, F403
 from .ovpsim import *  # noqa: F401, F403
 from .vicuna import *  # noqa: F401, F403
+from .vicuna2 import *  # noqa: F401, F403
 from .benchmarks import *  # noqa: F401, F403
 from .srecord import *  # noqa: F401, F403
 from .layergen import *  # noqa: F401, F403
@@ -52,4 +53,7 @@ from .corev import *  # noqa: F401, F403
 from .cv32e40p import *  # noqa: F401, F403
 from .boost import *  # noqa: F401, F403
 from .cmake import *  # noqa: F401, F403
+from .onnx2c import *  # noqa: F401, F403
 from .tgc import *  # noqa: F401, F403
+from .yosys import *  # noqa: F401, F403
+from .executorch import *  # noqa: F401, F403

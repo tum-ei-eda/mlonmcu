@@ -18,7 +18,6 @@
 #
 """MLonMCU ETISS/Pulpino Target definitions"""
 
-
 from mlonmcu.logging import get_logger
 from mlonmcu.target.common import cli
 from .etiss import EtissTarget

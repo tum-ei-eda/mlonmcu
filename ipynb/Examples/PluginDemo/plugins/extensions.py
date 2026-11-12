@@ -13,5 +13,4 @@ sys.path.insert(0, os.path.dirname(__file__))
 from _setup.tasks.abc import *  # noqa: E402,F401,F403
 from _target.riscv.abc import ABCTarget  # noqa: E402
 
-
 register_target("abc", ABCTarget)

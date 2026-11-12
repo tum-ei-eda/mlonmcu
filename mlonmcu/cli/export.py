@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Command line subcommand for exporting session and runs."""
+
 from mlonmcu.context.context import MlonMcuContext
 
 from mlonmcu.cli.common import (

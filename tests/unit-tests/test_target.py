@@ -58,14 +58,15 @@ def _fake(*args, **kwargs):
     print("FAKE")
 
 
-# @mock.patch('subprocess.run', side_effect=_fake)  # FIXME
+@mock.patch("mlonmcu.target.target.execute", side_effect=_fake)
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-x64-bash"], indirect=True)
-def test_target_common_cli_inspect(example_elf_file, capsys):
+def test_target_common_cli_inspect(mocked_execute, example_elf_file, capsys):
     cli(target=CustomTarget, args=["inspect", example_elf_file, "-c", "foo=bar"])
+    mocked_execute.assert_called_once()
     out, err = capsys.readouterr()
 
 
-@mock.patch("mlonmcu.target.common.execute", side_effect=_fake)  # FIXME
+@mock.patch("mlonmcu.target.target.execute", side_effect=_fake)
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-x64-bash"], indirect=True)
 def test_target_custom(mocked_execute, example_elf_file, capsys):
     t = CustomTarget()
@@ -78,7 +79,7 @@ def test_target_custom(mocked_execute, example_elf_file, capsys):
     # mocked_execute.assert_called_once_with("inspect", "program")
 
 
-@mock.patch("mlonmcu.target.common.execute", side_effect=_fake)  # FIXME
+@mock.patch("mlonmcu.target.target.execute", side_effect=_fake)
 @pytest.mark.parametrize("example_elf_file", ["elf-Linux-x64-bash"], indirect=True)
 def test_target_base(mocked_execute, example_elf_file, capsys):
     t = Target("base")

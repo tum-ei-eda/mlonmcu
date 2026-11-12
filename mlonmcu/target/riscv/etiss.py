@@ -59,8 +59,46 @@ class EtissTarget(RVVTarget):
     trace_memory = cfg(False, cast=str2bool)
     plugins = cfg([], cast=str2list)
     verbose = cfg(False, cast=str2bool)
+    # cpu_arch is derived when its configured override is absent.
     DEFAULTS = {
         "cpu_arch": None,
+        "rom_start": 0x1000000,
+        "rom_size": 0x800000,  # 8 MB
+        "ram_start": 0x1000000 + 0x800000,
+        "ram_size": 0x4000000,  # 64 MB
+        "flash_start": None,
+        "flash_size": None,
+        "min_stack_size": None,
+        "min_heap_size": None,
+        "cycle_time_ps": 31250,  # 32 MHz
+        "enable_pext": False,
+        "pext_spec": 0.96,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
+        "jit": None,
+        "allow_error": False,
+        "max_block_size": None,
+        "enable_xcorevmac": False,
+        "enable_xcorevmem": False,
+        "enable_xcorevbi": False,
+        "enable_xcorevalu": False,
+        "enable_xcorevbitmanip": False,
+        "enable_xcorevsimd": False,
+        "enable_xcorevhwlp": False,
+        "extra_int_config": {},
+        "extra_bool_config": {},
+        "extra_string_config": {},
+        "extra_plugin_config": {},
+        "use_run_helper": True,
+        "exit_on_loop": False,
+        "log_pc": False,
+        "log_level": None,
+        "enable_semihosting": True,
+        "output_path_prefix": "",
+        "jit_gcc_cleanup": True,
+        "jit_verify": False,
+        "jit_debug": False,
+        "load_integrated_libraries": True,
         "fclk": 100e6,
     }
     etiss_src_dir = required("etiss.src_dir")
@@ -68,8 +106,12 @@ class EtissTarget(RVVTarget):
     use_stats_file = cfg(False, cast=str2bool)
     rom_start = cfg(0x1000000, cast=parse_int)
     rom_size = cfg(0x800000, cast=parse_int)
-    ram_start = cfg(0x1000000 + 0x800000, cast=parse_int)
+    ram_start = cfg(0x1800000, cast=parse_int)
     ram_size = cfg(0x4000000, cast=parse_int)
+    flash_start = cfg(None, cast=parse_int)
+    flash_size = cfg(None, cast=parse_int)
+    min_stack_size = cfg(None, cast=parse_int)
+    min_heap_size = cfg(None, cast=parse_int)
     cycle_time_ps = cfg(31250, cast=int)
     enable_pext = cfg(False, cast=str2bool)
     pext_spec = cfg(0.96, cast=float)
@@ -254,6 +296,8 @@ class EtissTarget(RVVTarget):
             "simple_mem_system.memseg_length_00": self.rom_size,
             "simple_mem_system.memseg_origin_01": self.ram_start,
             "simple_mem_system.memseg_length_01": self.ram_size,
+            **({"simple_mem_system.memseg_origin_02": self.flash_start} if self.flash_start is not None else {}),
+            **({"simple_mem_system.memseg_length_02": self.flash_size} if self.flash_size is not None else {}),
             "arch.cpu_cycle_time_ps": self.cycle_time_ps,
         }
         if self.max_block_size:
@@ -549,9 +593,10 @@ class EtissTarget(RVVTarget):
                 get_metrics_args.extend(["--trace", trace_file])
             get_metrics_args.extend(["--out", metrics_file])
             if self.print_outputs:
-                out += execute(self.metrics_script.resolve(), *get_metrics_args, live=True)
+                out += execute("python3", self.metrics_script.resolve(), *get_metrics_args, live=True)
             else:
                 out += execute(
+                    "python3",
                     self.metrics_script.resolve(),
                     *get_metrics_args,
                     live=False,
@@ -626,6 +671,14 @@ class EtissTarget(RVVTarget):
         ret["MEM_ROM_LENGTH"] = self.rom_size
         ret["MEM_RAM_ORIGIN"] = self.ram_start
         ret["MEM_RAM_LENGTH"] = self.ram_size
+        if self.flash_start is not None:
+            ret["MEM_FLASH_ORIGIN"] = self.flash_start
+        if self.flash_size is not None:
+            ret["MEM_FLASH_LENGTH"] = self.flash_size
+        if self.min_stack_size is not None:
+            ret["MIN_STACK_SIZE"] = self.min_stack_size
+        if self.min_heap_size is not None:
+            ret["MIN_HEAP_SIZE"] = self.min_heap_size
         ret.update(RVVTarget.get_platform_defs(self, platform))
         return ret
 
@@ -660,6 +713,23 @@ class EtissRV32Target(EtissTarget):
         super().__init__(name, features=features, config=config)
 
 
+class EtissRV32MinTarget(EtissTarget):
+    """32-bit integer-only version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 32,
+        "vlen": 0,  # vectorization=off
+        "elen": 32,
+        "fpu": None,
+        "atomic": False,
+        "compressed": False,
+    }
+
+    def __init__(self, name="etiss_rv32_min", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
 class EtissRV64Target(EtissTarget):
     """64-bit version of etiss target"""
 
@@ -671,6 +741,23 @@ class EtissRV64Target(EtissTarget):
     }
 
     def __init__(self, name="etiss_rv64", features=None, config=None):
+        super().__init__(name, features=features, config=config)
+
+
+class EtissRV64MinTarget(EtissTarget):
+    """64-bit integer-only version of etiss target"""
+
+    DEFAULTS = {
+        **EtissTarget.DEFAULTS,
+        "xlen": 64,
+        "vlen": 0,  # vectorization=off
+        "elen": 64,
+        "fpu": None,
+        "atomic": False,
+        "compressed": False,
+    }
+
+    def __init__(self, name="etiss_rv64_min", features=None, config=None):
         super().__init__(name, features=features, config=config)
 
 

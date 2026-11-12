@@ -20,7 +20,6 @@
 
 """Tests for `mlonmcu` package."""
 
-
 # import unittest
 import pytest
 
@@ -35,7 +34,6 @@ from pathlib import Path
 
 from mlonmcu.version import __version__
 from mlonmcu.cli.main import main
-
 
 # @pytest.fixture()
 # def fake_config_home(tmp_path):

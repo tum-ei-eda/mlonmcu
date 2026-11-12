@@ -17,12 +17,17 @@
 # limitations under the License.
 #
 import sys
+import tempfile
+from pathlib import Path
 from typing import Tuple
 
 from .backend import TFLMBackend
-from mlonmcu.config import str2bool, str2list, str2dict
+from mlonmcu.config import cfg, str2bool, str2dict, str2list
 from mlonmcu.flow.backend import main
 from mlonmcu.artifact import Artifact, ArtifactFormat
+from mlonmcu.logging import get_logger
+
+logger = get_logger()
 
 
 # TODO: move to another place
@@ -147,10 +152,9 @@ size_t {prefix}_outputs();
                     new_name += c
                 prev = c
             # workarounds for strange op names
-            MAPPINGS = {
-                "Lstm": "LSTM",
-            }
+            MAPPINGS = {"Lstm": "LSTM", "Padv2": "PadV2"}
             for key, value in MAPPINGS.items():
+                # new_name = new_name.replace(key, value)
                 new_name = new_name.replace(key, value)
             return new_name
 
@@ -178,6 +182,7 @@ size_t {prefix}_outputs();
                 "CONV_2D",
                 "DEPTHWISE_CONV_2D",
                 "FULLY_CONNECTED",
+                "SLICE",
                 # "GATHER",
                 # "LOGISTIC",
                 "MAX_POOL_2D",
@@ -185,6 +190,13 @@ size_t {prefix}_outputs();
                 # "REDUCE_MAX",
                 "RESHAPE",
                 "SOFTMAX",
+                "LOGISTIC",
+                "TANH",
+                "MUL",
+                "TRANSPOSE",
+                "PAD",
+                "PADV2",
+                "SUM",
             ]
             default_ops = list(map(convert_op_name, default_ops))
             ops = list(set(ops + default_ops))  # remove duplicates
@@ -408,19 +420,16 @@ int {prefix}_invoke() {{
 class TFLMIBackend(TFLMBackend):
     name = "tflmi"
 
-    FEATURES = TFLMBackend.FEATURES | {"debug_arena"}
+    FEATURES = TFLMBackend.FEATURES | {"debug_arena", "cfu_wca"}
 
-    DEFAULTS = {
-        **TFLMBackend.DEFAULTS,
-        "arena_size": 2**20,  # 1 MB
-        "debug_arena": False,
-        "ops": [],
-        "custom_ops": [],
-        "registrations": {},
-        "ops_resolver": "mutable",
-        "legacy": False,
-        "reporter": False,  # Has to be disabled for support with latest upstream
-    }
+    arena_size = cfg(2**20, cast=int)
+    debug_arena = cfg(False, cast=str2bool)
+    ops = cfg([], cast=str2list)
+    custom_ops = cfg([], cast=str2list)
+    registrations = cfg({}, cast=str2dict)
+    ops_resolver = cfg("mutable")
+    legacy = cfg(False, cast=str2bool)
+    reporter = cfg(False, cast=str2bool)
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
@@ -432,60 +441,64 @@ class TFLMIBackend(TFLMBackend):
         )  # TODO: either make sure that ony one model is processed at a time or move the artifacts to the methods
         # TODO: decide if artifacts should be handled by code (str) or file path or binary data
 
-    @property
-    def legacy(self):
-        value = self.config["legacy"]
-        return str2bool(value)
-
-    @property
-    def debug_arena(self):
-        value = self.config["debug_arena"]
-        return str2bool(value)
-
-    @property
-    def arena_size(self):
-        return int(self.config["arena_size"])
-
-    @property
-    def ops(self):
-        value = self.config["ops"]
-        return str2list(value)
-
-    @property
-    def custom_ops(self):
-        value = self.config["custom_ops"]
-        return str2list(value)
-
-    @property
-    def registrations(self):
-        value = self.config["registrations"]
-        return str2dict(value)
-
-    @property
-    def ops_resolver(self):
-        return self.config["ops_resolver"]
-
-    @property
-    def reporter(self):
-        value = self.config["reporter"]
-        return str2bool(value)
-
     def generate(self) -> Tuple[dict, dict]:
         artifacts = []
         assert self.model is not None
-        wrapper_code, header_code = self.codegen.generate_wrapper(
-            self.model,
-            prefix=self.prefix,
-            header=True,
-            arena_size=self.arena_size,
-            debug_arena=self.debug_arena,
-            ops=self.ops,
-            custom_ops=self.custom_ops,
-            registrations=self.registrations,
-            ops_resolver=self.ops_resolver,
-            legacy=self.legacy,
-            reporter=self.reporter,
-        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            out_dir = Path(temp_dir)
+            # model_path = self.model
+            # model_info = self.model_info
+            if self.model_format == "torch":
+                # TODO: check ai_edge_torch available?
+                # resnet18 test
+                tflite_path = out_dir / f"{self.prefix}.tflite"
+
+                def torch2tflite(torch_model, sample_inputs):
+                    try:
+                        import litert_torch
+                    except ImportError as ex:
+                        logger.error("Missing Python package: litert-torch")
+                        raise ex
+
+                    edge_model = litert_torch.convert(torch_model.eval(), sample_inputs)
+                    return edge_model
+
+                def torch2tflite_from_file(torch_path, tflite_path):
+                    from mlonmcu.models.torch_models.torch_utils import load_torch_model
+
+                    torch_model, _, sample_inputs = load_torch_model(torch_path)
+                    edge_model = torch2tflite(torch_model, sample_inputs)
+                    edge_model.export(tflite_path)
+
+                torch_path = self.model
+                torch2tflite_from_file(torch_path, tflite_path)
+
+                with open(tflite_path, "rb") as f:
+                    model_raw = f.read()
+                artifacts.append(
+                    Artifact(
+                        tflite_path.name,
+                        raw=model_raw,
+                        fmt=ArtifactFormat.BIN,
+                    )
+                )
+            else:
+                assert self.model_format == "tflite"
+                tflite_path = self.model
+            wrapper_code, header_code = self.codegen.generate_wrapper(
+                tflite_path,
+                prefix=self.prefix,
+                header=True,
+                arena_size=self.arena_size,
+                debug_arena=self.debug_arena,
+                ops=self.ops,
+                custom_ops=self.custom_ops,
+                registrations=self.registrations,
+                ops_resolver=self.ops_resolver,
+                legacy=self.legacy,
+                reporter=self.reporter,
+            )
         artifacts.append(Artifact(f"{self.prefix}.cc", content=wrapper_code, fmt=ArtifactFormat.SOURCE))
         artifacts.append(
             Artifact(

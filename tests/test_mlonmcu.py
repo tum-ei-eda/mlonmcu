@@ -20,7 +20,6 @@
 
 """Tests for `mlonmcu` package."""
 
-
 import unittest
 
 # from mlonmcu import mlonmcu

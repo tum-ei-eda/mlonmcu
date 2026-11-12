@@ -38,8 +38,10 @@ Tasks = get_task_factory()
 
 
 def _validate_spike(context: MlonMcuContext, params=None):
-    if not any(context.environment.has_target(name) for name in
-               ("spike", "spike_bm", "spike_pk", "spike_rv32", "spike_rv64", "spike_rv32_min")) and not _validate_ara_rtl(context, params=params):
+    if not any(
+        context.environment.has_target(name)
+        for name in ("spike", "spike_bm", "spike_pk", "spike_rv32", "spike_rv64", "spike_rv32_min")
+    ) and not _validate_ara_rtl(context, params=params):
         return False
     # user_vars = context.environment.vars
     # if "spike.exe" in user_vars:  # TODO: also check command line flags?
@@ -134,11 +136,11 @@ def clone_spike_pk(
 
 
 @Tasks.needs(["spikepk.src_dir"])
-@Tasks.optional(["riscv_gcc_rv{xlen}.install_dir", "riscv_gcc_rv{xlen}.name"])
-@Tasks.provides(["spikepk_rv{xlen}.build_dir", "spikepk_rv{xlen}.install_dir", "spike.pk_rv{xlen}"])
+@Tasks.optional(["riscv_gcc_{name}.install_dir", "riscv_gcc_{name}.name"])
+@Tasks.provides(["spikepk_{name}.build_dir", "spikepk_{name}.install_dir", "spike.pk_{name}"])
 # TODO: allow arch,abi
 # @Tasks.param("arch", ["default"])  # ["rv32gc", "rv64gc", "rv32im", "rv64im"]
-@Tasks.param("xlen", [32, 64])
+@Tasks.param("xlen,name", [(32, "rv32"), (64, "rv32")])
 @Tasks.validate(_validate_spikepk_build)
 @Tasks.register(category=TaskType.TARGET)
 def build_spike_pk(
@@ -269,8 +271,10 @@ def build_spike(
     user_vars = context.environment.vars
     if "spike.exe" in user_vars:  # TODO: also check command line flags?
         return False
-    if rebuild or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file()) or (
-        full and not (spikeInstallDir / "include/riscv/extension.h").is_file()
+    if (
+        rebuild
+        or not (utils.is_populated(spikeBuildDir) and spikeExe.is_file())
+        or (full and not (spikeInstallDir / "include/riscv/extension.h").is_file())
     ):
         # No need to build a vext and non-vext variant?
         utils.mkdirs(spikeBuildDir)

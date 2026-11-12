@@ -22,6 +22,7 @@ from pathlib import Path
 
 from mlonmcu.flow.framework import Framework
 from mlonmcu.flow.tflm import TFLMBackend
+from mlonmcu.config import cfg, required, str2bool
 
 
 class TFLMFramework(Framework):
@@ -29,39 +30,35 @@ class TFLMFramework(Framework):
 
     name = "tflm"
 
-    FEATURES = {"muriscvnn", "cmsisnn"}
+    FEATURES = {"muriscvnn", "cmsisnn", "cfu_wca"}
 
-    DEFAULTS = {
-        "optimized_kernel": None,
-        "optimized_kernel_inc_dirs": [],
-        "optimized_kernel_libs": [],
-    }
-
-    REQUIRED = {"tf.src_dir"}
+    tf_src = required("tf.src_dir", cast=Path)
+    optimized_kernel = cfg(None)
+    optimized_kernel_inc_dirs = cfg([])
+    optimized_kernel_libs = cfg([])
+    override_dir = cfg(None)
+    generate_tree = cfg(False, cast=str2bool)
 
     backends = TFLMBackend.registry
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)
 
-    @property
-    def tf_src(self):
-        return Path(self.config["tf.src_dir"])
+    # @property
+    # def cfu_accelerate(self):
+    #     return str2bool(self.config["cfu_accelerate"], allow_none=True)
 
     @property
-    def optimized_kernel(self):
-        return self.config["optimized_kernel"]
-
-    @property
-    def optimized_kernel_libs(self):
-        return self.config["optimized_kernel_libs"]
-
-    @property
-    def optimized_kernel_inc_dirs(self):
-        return self.config["optimized_kernel_inc_dirs"]
+    def cfu_conv2d_idx_init(self):
+        value = self.config["cfu_conv2d_idx_init"]
+        if value is not None:
+            value = int(value)
+        return value
 
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
+        if self.generate_tree:
+            ret["TFLM_GENERATE_TREE"] = True
         if self.optimized_kernel or self.optimized_kernel_inc_dirs or self.optimized_kernel_libs:
             if self.optimized_kernel:
                 ret["TFLM_OPTIMIZED_KERNEL"] = self.optimized_kernel
@@ -77,5 +74,12 @@ class TFLMFramework(Framework):
                 else:
                     temp = self.optimized_kernel_libs
                 ret["TFLM_OPTIMIZED_KERNEL_LIB"] = temp
-        ret["TF_DIR"] = str(self.tf_src)
+        if platform in ["mlif", "mlif_litex"]:
+            ret["TF_DIR"] = str(self.tf_src)
+        # if self.cfu_accelerate:
+        #     ret["CFU_ACCELERATE"] = True
+        #     if self.cfu_conv2d_idx_init is not None:
+        #         ret["CFU_CONV2D_IDX_INIT"] = self.cfu_conv2d_idx_init
+        if self.override_dir:
+            ret["TFLM_OVERRIDE"] = self.override_dir
         return ret

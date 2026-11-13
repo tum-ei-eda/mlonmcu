@@ -37,7 +37,9 @@ class Framework(Configurable, ABC):
         self.config = config if config else {}
         self.features = self.process_features(features)
         self.config_tracker = ConfigTracker(self.config)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker
+        )
 
     def process_features(self, features):
         if features is None:

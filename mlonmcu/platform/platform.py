@@ -52,7 +52,9 @@ class Platform(Configurable):
         self.definitions = {}
         self.features = self.process_features(features)
         self.config_tracker = ConfigTracker(self.config)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker
+        )
         self.artifacts = []
         self.supported_targets_cache = {}
         self.workspace_dir = None

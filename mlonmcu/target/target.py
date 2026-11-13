@@ -76,7 +76,9 @@ class Target(Configurable):
         self.post_callbacks = []
         self.features = self.process_features(features)
         self.config_tracker = ConfigTracker(self.config)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker
+        )
         self.inspect_program = "readelf"
         self.inspect_program_args = ["--all"]
         self.env = os.environ

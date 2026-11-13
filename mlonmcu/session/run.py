@@ -348,7 +348,9 @@ class Run(Configurable):
         self.config_tracker = None
         if not archived:
             self.config_tracker = ConfigTracker(self.config)
-        self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker)
+        self.run_config = filter_config(
+            self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker
+        )
         self.sub_names = []
         self.sub_parents = {}
         self.times = {}

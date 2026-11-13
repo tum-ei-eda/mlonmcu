@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 """Collection of utilities to manage MLonMCU configs."""
+
 import re
 from typing import List, Optional
 import ast
@@ -224,6 +225,7 @@ def remove_config_prefix(config, prefix, skip=None):
 
 IGNORE_KEYS = {"runs_per_stage", "allow_extensions"}
 
+
 class ConfigTracker:
     def __init__(self, config=None):
         if config is not None:
@@ -276,8 +278,6 @@ class ConfigTracker:
         merged.names = new_names
         merged.used = new_used
         return merged
-
-
 
 
 def filter_config(config, prefix, defaults, optionals, required_keys, config_tracker: Optional[ConfigTracker] = None):

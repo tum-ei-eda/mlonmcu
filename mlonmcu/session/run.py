@@ -363,9 +363,7 @@ class Run(Configurable):
             return []
         features = get_matching_features(features, FeatureType.RUN)
         quantizers = {
-            feature.name
-            for feature in features
-            if feature.enabled and feature.name in ("quant_onnx", "quant_tflite")
+            feature.name for feature in features if feature.enabled and feature.name in ("quant_onnx", "quant_tflite")
         }
         if len(quantizers) > 1:
             raise ValueError("quant_onnx and quant_tflite are mutually exclusive; select one per run")
@@ -608,7 +606,9 @@ class Run(Configurable):
             if not isinstance(self.model, Model):
                 self.backend = None
                 return
-            if not self.model.skip_check and not any(spec["uses"] == "convert" for spec in self.pipeline.specs.values()):
+            if not self.model.skip_check and not any(
+                spec["uses"] == "convert" for spec in self.pipeline.specs.values()
+            ):
                 assert self.backend.supports_model(self.model), (
                     "The added backend does not support the chosen model. "
                     "Add the backend before adding a model to find a suitable frontend."

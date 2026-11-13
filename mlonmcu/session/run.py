@@ -35,7 +35,7 @@ from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from mlonmcu.config import Configurable, cfg, str2bool
 from mlonmcu.platform.platform import Platform, CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
-from mlonmcu.config import resolve_required_config, filter_config
+from mlonmcu.config import resolve_required_config, filter_config, ConfigTracker
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.feature.features import get_matching_features, get_available_features
 from mlonmcu.target.metrics import Metrics
@@ -345,7 +345,12 @@ class Run(Configurable):
         self.features = features if features else []
         self.run_config = {}
         self.run_features = self.process_features(features)
-        self.run_config = filter_config(self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.config_tracker = None
+        if not archived:
+            self.config_tracker = ConfigTracker(self.config)
+        self.run_config = filter_config(
+            self.config, "run", self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker
+        )
         self.sub_names = []
         self.sub_parents = {}
         self.times = {}
@@ -601,6 +606,8 @@ class Run(Configurable):
         for platform in self.platforms:
             self.backend.add_platform_config(platform.name, platform.config)
             self.backend.add_platform_defs(platform.name, platform.definitions)
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(self.backend.config_tracker)
 
     def add_framework(self, framework):
         """Setter for the framework instance."""
@@ -609,6 +616,8 @@ class Run(Configurable):
         for platform in self.platforms:
             self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(self.framework.config_tracker)
 
     def add_target(self, target):
         """Setter for the target instance."""
@@ -619,6 +628,8 @@ class Run(Configurable):
             self.target.add_platform_defs(platform.name, platform.definitions)
         self.cache_hints = [self.target.get_arch()]
         # self.resolve_chache_refs()
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(self.target.config_tracker)
 
     def add_platform(self, platform, append=True):
         """Setter for the platform instance."""
@@ -635,6 +646,8 @@ class Run(Configurable):
         if self.framework:
             self.framework.add_platform_config(platform.name, platform.config)
             self.framework.add_platform_defs(platform.name, platform.definitions)
+        if self.config_tracker:
+            self.config_tracker = self.config_tracker.merge(platform.config_tracker)
 
     def add_platforms(self, platforms, append=False):
         """Setter for the list of platforms."""
@@ -653,6 +666,8 @@ class Run(Configurable):
             if self.framework:
                 self.framework.add_platform_config(platform.name, platform.config)
                 self.framework.add_platform_defs(platform.name, platform.definitions)
+            if self.config_tracker:
+                self.config_tracker = self.config_tracker.merge(platform.config_tracker)
 
     def add_postprocess(self, postprocess, append=True):
         """Setter for a postprocess instance."""
@@ -1065,6 +1080,8 @@ class Run(Configurable):
                 self._flash_parent = None
 
     def process(self, until=RunStage.RUN, start=None, skip=None, export=False):
+        if self.config_tracker:
+            self.config_tracker.check()
         """Execute an inclusive pipeline prefix through the common stage engine."""
         with self.resource_scope():
             return self._process_pipeline(until, start, skip, export)
@@ -1329,7 +1346,6 @@ class Run(Configurable):
     # Everything in Run is serializable except PlatformTargets and PlatformBackends...
     # def __getstate__(self):
     #     state = self.__dict__.copy()
-    #     print("state", state)
     #     # Don't pickle baz
     #     # del state["baz"]
     #     # del state["platforms"]
@@ -1437,7 +1453,6 @@ class ArchivedRun(Run):
         assert path.is_file()
         with open(path, "r") as f:
             yaml_data = yaml.safe_load(f)
-        print("yaml_data", yaml_data)
         return ArchivedRun(**yaml_data)
 
     @staticmethod

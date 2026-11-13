@@ -27,7 +27,7 @@ from pathlib import Path
 from filelock import FileLock
 from typing import Tuple, List
 
-from mlonmcu.config import Configurable, cfg, filter_config
+from mlonmcu.config import Configurable, ConfigTracker, cfg, filter_config
 from mlonmcu.feature.features import get_matching_features
 from mlonmcu.feature.type import FeatureType
 from mlonmcu.target.metrics import Metrics
@@ -51,7 +51,10 @@ class Platform(Configurable):
         self.config = config if config else {}
         self.definitions = {}
         self.features = self.process_features(features)
-        self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
+        self.config_tracker = ConfigTracker(self.config)
+        self.config = filter_config(
+            self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED, config_tracker=self.config_tracker
+        )
         self.artifacts = []
         self.supported_targets_cache = {}
         self.workspace_dir = None

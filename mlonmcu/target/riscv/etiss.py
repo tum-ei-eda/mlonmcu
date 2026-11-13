@@ -100,7 +100,6 @@ class EtissTarget(RVVTarget):
         "jit_debug": False,
         "load_integrated_libraries": True,
         "fclk": 100e6,
-        "use_stats_file": False,
     }
     etiss_src_dir = required("etiss.src_dir")
     etiss_dir = required("etiss.install_dir")
@@ -118,7 +117,7 @@ class EtissTarget(RVVTarget):
     pext_spec = cfg(0.96, cast=float)
     vlen = cfg(0, cast=int)
     elen = cfg(32, cast=int)
-    jit = cfg(None)
+    jit = cfg("TCC")
     allow_error = cfg(False, cast=str2bool)
     max_block_size = cfg(None, cast=lambda value: int(value) if isinstance(value, str) else value)
     enable_xcorevmac = cfg(False, cast=str2bool)

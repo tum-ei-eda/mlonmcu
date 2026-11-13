@@ -196,6 +196,8 @@ class ModelSupport:
             if self.target.supports_stdout:
                 out_interface = "stdout_raw"
                 # TODO: also allow stdout?
+            elif self.target.supports_filesystem:
+                out_interface = "filesystem"
             else:  # Fallback
                 out_interface = "ram"
         assert out_interface in ["filesystem", "stdout", "stdout_raw", "ram"]

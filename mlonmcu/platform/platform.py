@@ -54,6 +54,17 @@ class Platform(Configurable):
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         self.artifacts = []
         self.supported_targets_cache = {}
+        self.workspace_dir = None
+        self.run_dir = None
+        self.session_dir = None
+
+    def set_context(self, *, workspace=None, run_dir=None, session_dir=None):
+        """Bind filesystem scopes without retaining a live context/session in workers."""
+        if workspace is not None:
+            self.workspace_dir = Path(workspace).resolve()
+        if run_dir is not None:
+            self.run_dir = Path(run_dir).resolve()
+            self.session_dir = Path(session_dir).resolve() if session_dir is not None else None
 
     def init_directory(self, path=None, context=None) -> Path:
         raise NotImplementedError

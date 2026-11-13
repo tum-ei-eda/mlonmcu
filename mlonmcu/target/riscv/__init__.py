@@ -14,6 +14,7 @@ from .vicuna2 import Vicuna2Target
 from .canmv_k230_ssh import CanMvK230SSHTarget
 from .muse_pi_pro_ssh import MusePiProSSHTarget
 from .tgc import TGCTarget
+from .nailgun import NailgunTarget
 
 __all__ = [
     "EtissPulpinoTarget",
@@ -41,4 +42,5 @@ __all__ = [
     "CanMvK230SSHTarget",
     "MusePiProSSHTarget",
     "TGCTarget",
+    "NailgunTarget",
 ]

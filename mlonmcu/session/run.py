@@ -33,7 +33,7 @@ import yaml
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from mlonmcu.config import Configurable, cfg, str2bool
-from mlonmcu.platform.platform import CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
+from mlonmcu.platform.platform import Platform, CompilePlatform, TargetPlatform, BuildPlatform, TunePlatform
 from mlonmcu.report import Report  # TODO: move to mlonmcu.session.report
 from mlonmcu.config import resolve_required_config, filter_config
 from mlonmcu.feature.type import FeatureType
@@ -511,6 +511,10 @@ class Run(Configurable):
         # This is not a good idea, but else we would need a mutex/lock on the shared build_dir
         # A solution would be to split up the framework runtime libs from the mlif...
         for platform in self.platforms:  # TODO: only do this if needed! (not for every platform)
+            platform.set_context(
+                run_dir=self.dir,
+                session_dir=parent.parent if parent is not None else (session.dir if session is not None else None),
+            )
             # The stage_subdirs setting is ignored here because platforms can be multi-stage!
             # platform.init_directory(path=Path(self.dir) / platform.name)
             if platform in self.directories:
@@ -562,7 +566,10 @@ class Run(Configurable):
             )
         )
         component_config = self.config.copy()  # TODOL get rid of this
-        return component_cls(features=self.features, config=component_config)
+        component = component_cls(features=self.features, config=component_config)
+        if isinstance(component, Platform) and context is not None:
+            component.set_context(workspace=context.environment.home)
+        return component
 
     def add_model(self, model):
         """Setter for the model instance."""

@@ -93,6 +93,32 @@ def get_matching_features(features, feature_type):
     return [feature for feature in features if feature_type in feature.types()]
 
 
+@register_feature("ccache")
+class Ccache(PlatformFeature):
+    """Cache MLIF C/C++ compilations within a session, workspace, or globally."""
+
+    mode = cfg("session", cast=one_of(("global", "workspace", "session")))
+    max_size = cfg(None)
+    max_files = cfg(None, cast=int)
+    compression = cfg(None, cast=str2bool)
+    compiler_check = cfg(None)
+    exe = cfg("ccache", cast=str)
+
+    def __init__(self, features=None, config=None):
+        super().__init__("ccache", features=features, config=config)
+
+    def get_platform_config(self, platform):
+        assert platform in ("mlif", "mlif_litex"), f"Unsupported feature '{self.name}' for platform '{platform}'"
+        return {
+            f"{platform}.ccache": self.enabled,
+            **{
+                f"{platform}.ccache_{key}": getattr(self, key)
+                for key in ("mode", "max_size", "max_files", "compression", "compiler_check", "exe")
+                if getattr(self, key) is not None
+            },
+        }
+
+
 # @register_feature("debug_arena", depends=["debug"])
 @register_feature("debug_arena")
 class DebugArena(BackendFeature):
@@ -1050,6 +1076,9 @@ class CacheSim(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
             spike_args = config.get(f"{target}.extra_args", [])
@@ -1071,6 +1100,9 @@ class CacheSim(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
         ], f"Unsupported feature '{self.name}' for target '{target}'"
         if self.enabled:
 
@@ -1117,6 +1149,9 @@ class LogInstructions(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
             "etiss_pulpino",
             "etiss",
             "etiss_rv32",
@@ -1130,7 +1165,11 @@ class LogInstructions(TargetFeature):
         if not self.enabled:
             return
         if target.startswith("spike"):
-            extra_args_new = config.get("extra_args", [])
+            extra_args_new = config.get(f"{target}.extra_args", [])
+            if isinstance(extra_args_new, str):
+                extra_args_new = [extra_args_new] if extra_args_new else []
+            else:
+                extra_args_new = list(extra_args_new)
             extra_args_new.append("-l")
             if self.to_file:
                 # assert directory is not None
@@ -1175,6 +1214,9 @@ class LogInstructions(TargetFeature):
             "spike",
             "spike_rv32",
             "spike_rv64",
+            "spike_bm",
+            "spike_pk",
+            "spike_rv32_min",
             "etiss_pulpino",
             "etiss",
             "etiss_rv32",
@@ -1215,7 +1257,7 @@ class LogInstructions(TargetFeature):
                             with open(log_file, "r") as f:
                                 content = f.read()
                         else:
-                            assert target in ["spike", "spike_rv32", "spike_rv64", "ovpsim", "corev_ovpsim"]
+                            assert target.startswith("spike") or target in ["ovpsim", "corev_ovpsim"]
                             log_file = Path(directory) / "instrs.txt"
                             with open(log_file, "r") as f:
                                 content = f.read()
@@ -2084,6 +2126,7 @@ class PerfSim(TargetFeature):
     def __init__(self, features=None, config=None):
         super().__init__("perf_sim", features=features, config=config)
 
+    @property
     def to_file(self):
         value = self.config["to_file"]
         return str2bool(value, allow_none=True)
@@ -2102,7 +2145,7 @@ class PerfSim(TargetFeature):
                 extra_plugin_config["perfEst"]["uArch"] = self.core.upper()
                 if self.to_file:
                     extra_plugin_config["perfEst"]["print"] = 1
-                extra_plugin_config["perfEst"]["printDir"] = "."
+                    extra_plugin_config["perfEst"]["printDir"] = "."
         if self.trace_asm or self.trace_instr:
             if self.to_file:
                 assert not (self.trace_asm and self.trace_instr)

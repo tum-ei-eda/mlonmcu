@@ -56,6 +56,7 @@ class Session(Configurable):
     executor = cfg("thread_pool", cast=str)
     use_init_stage = cfg(False, cast=str2bool)
     cleanup_runs = cfg(False, cast=str2bool)
+    ccache_cleanup = cfg(False, cast=str2bool)
     shuffle = cfg(False, cast=str2bool)
     batch_size = cfg(1, cast=int)
     parallel_jobs = cfg(1, cast=int)
@@ -332,6 +333,11 @@ class Session(Configurable):
 
     def close(self, err=None):
         """Close this run."""
+        # Workers have joined before the session closes. Keep the session lock
+        # while discarding the shared cache, never a workspace/global cache.
+        cache_dir = self.dir / "ccache"
+        if self.ccache_cleanup and cache_dir.is_dir() and not cache_dir.is_symlink():
+            shutil.rmtree(cache_dir)
         if err:
             self.status = SessionStatus.ERROR
         else:

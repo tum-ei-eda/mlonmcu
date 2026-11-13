@@ -21,7 +21,7 @@
 from pathlib import Path
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import cfg, required, str2bool
+from mlonmcu.config import cfg, optional, required, str2bool
 from .etiss import EtissTarget
 
 logger = get_logger()
@@ -35,7 +35,7 @@ class EtissPerfTarget(EtissTarget):
     }
 
     use_run_helper = cfg(False, cast=str2bool)
-    etiss_src_dir = required("etiss_perf.src_dir")
+    etiss_perf_src_dir = optional("etiss_perf.src_dir")
     etiss_dir = required("etiss_perf.install_dir")
     etiss_exe = required("etiss_perf.exe")
 
@@ -43,6 +43,14 @@ class EtissPerfTarget(EtissTarget):
         super().__init__(name, features=features, config=config)
         # TODO: make optional or move to mlonmcu pkg
         self.metrics_script = Path(self.etiss_src_dir) / "src" / "bare_etiss_processor" / "get_metrics.py"
+
+    @property
+    def etiss_src_dir(self):
+        ret = self.etiss_perf_src_dir
+        if ret is None:  # Fallback
+            ret = self.config["etiss.src_dir"]
+        assert ret is not None
+        return ret
 
     @property
     def etiss_script(self):

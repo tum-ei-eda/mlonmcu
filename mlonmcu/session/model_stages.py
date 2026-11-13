@@ -361,6 +361,8 @@ class QuantizeStage(ModelTransformStage):
             try:
                 activation = config.get("activation_type", "QInt8")
                 activation = QuantType[aliases.get(activation, activation)]
+                quant_format = config.get("quant_format", "QDQ")
+                assert quant_format in [None, "QDQ", "QOperator"], f"quant_format: {quant_format}"
                 quant_format = QuantFormat[config.get("quant_format", "QDQ")]
                 method = CalibrationMethod[config.get("calibration_method", "MinMax")]
             except KeyError as exc:

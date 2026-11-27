@@ -22,7 +22,7 @@ import re
 import os
 import json
 import numpy as np
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 import time
 import tempfile
 import tarfile
@@ -59,72 +59,26 @@ class TvmTunePlatform(TunePlatform, TvmTargetPlatform):
     FEATURES = TunePlatform.FEATURES | TvmTargetPlatform.FEATURES | {"autotvm", "autoscheduler", "metascheduler"}
 
     DEFAULTS = {
-        **TunePlatform.DEFAULTS,
-        **TvmTargetPlatform.DEFAULTS,
-        "experimental_tvmc_tune_tasks": False,
-        "experimental_tvmc_tune_visualize": False,
-        "experimental_tvmc_tune_pass_config": False,
-        # "experimental_tvmc_tune_wandb": False,  # TODO
-        "enable_wandb": False,
-        "min_repeat_ms": 0,
-        "flop_prefix": "G",  # TODO: pass to tvmc tune!
-        "split_artifacts_per_task": False,
-        "confidence_levels": [],
+        "flop_prefix": "G",  # validated below
         # "confidence_levels": [0.8, 0.9, 0.95, 0.99, 0.999],
         **{("autotuning_" + key): value for key, value in get_autotuning_defaults().items()},
         **{("autotvm_" + key): value for key, value in get_autotvm_defaults().items()},
         **{("autoscheduler_" + key): value for key, value in get_autoscheduler_defaults().items()},
         **{("metascheduler_" + key): value for key, value in get_metascheduler_defaults().items()},
     }
-
-    REQUIRED = TunePlatform.REQUIRED | TvmTargetPlatform.REQUIRED
-
-    @property
-    def tune_tasks(self):
-        # Effectively select which tasks should be tuned in the session
-        return self.config["tune_tasks"]
-
-    @property
-    def experimental_tvmc_tune_tasks(self):
-        value = self.config["experimental_tvmc_tune_tasks"]
-        return str2bool(value)
-
-    @property
-    def experimental_tvmc_tune_visualize(self):
-        value = self.config["experimental_tvmc_tune_visualize"]
-        return str2bool(value)
-
-    @property
-    def experimental_tvmc_tune_pass_config(self):
-        value = self.config["experimental_tvmc_tune_pass_config"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def enable_wandb(self):
-        value = self.config["enable_wandb"]
-        return str2bool(value)
-
-    @property
-    def split_artifacts_per_task(self):
-        value = self.config["split_artifacts_per_task"]
-        return str2bool(value) if not isinstance(value, (bool, int)) else value
-
-    @property
-    def min_repeat_ms(self):
-        value = self.config["min_repeat_ms"]
-        return int(value)
+    tune_tasks = cfg(None)
+    experimental_tvmc_tune_tasks = cfg(False, cast=str2bool)
+    experimental_tvmc_tune_visualize = cfg(False, cast=str2bool)
+    experimental_tvmc_tune_pass_config = cfg(False, cast=str2bool)
+    enable_wandb = cfg(False, cast=str2bool)
+    min_repeat_ms = cfg(0, cast=int)
+    split_artifacts_per_task = cfg(False, cast=str2bool)
+    confidence_levels = cfg([])
 
     @property
     def flop_prefix(self):
         value = self.config["flop_prefix"]
         assert value in ["M", "G", "T"]
-        return value
-
-    @property
-    def confidence_levels(self):
-        # TODO: move confidence calc to postprocess depending on splitted task artifacts
-        value = self.config["confidence_levels"]
-        assert isinstance(value, list), "TODO: implement str2list of floats"
         return value
 
     def invoke_tvmc_tune(self, *args, target=None, **kwargs):

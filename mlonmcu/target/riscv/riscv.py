@@ -23,7 +23,7 @@ from pathlib import Path
 
 from mlonmcu.logging import get_logger
 from mlonmcu.target import Target
-from mlonmcu.config import str2list, str2bool, pick_first
+from mlonmcu.config import optional, str2list, str2bool, pick_first
 from .util import sort_extensions_canonical, join_extensions, update_extensions, split_extensions
 
 logger = get_logger()
@@ -75,6 +75,8 @@ class RISCVTarget(Target):
         "riscv_gcc.version",
         "llvm.version",
     }
+
+    llvm_version = optional("llvm.version")
 
     def reconfigure(self):
         # super().reconfigure()
@@ -163,10 +165,6 @@ class RISCVTarget(Target):
         return ret
 
     @property
-    def llvm_version(self):
-        return self.config["llvm.version"]
-
-    @property
     def llvm_major_version(self):
         temp = self.llvm_version
         if temp is None:
@@ -190,8 +188,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "e" in exts:
-                return True
+            return "e" in exts
         value = self.config["embedded"]
         return str2bool(value)
 
@@ -200,8 +197,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "c" in exts:
-                return True
+            return "c" in exts
         value = self.config["compressed"]
         return str2bool(value)
 
@@ -210,8 +206,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "a" in exts or "g" in exts:
-                return True
+            return "a" in exts or "g" in exts or {"zaamo", "zalrsc"} <= exts
         value = self.config["atomic"]
         return str2bool(value)
 
@@ -220,8 +215,7 @@ class RISCVTarget(Target):
         arch = self.config.get("arch", None)
         if arch is not None:
             exts = split_extensions(arch)
-            if "m" in exts or "g" in exts:
-                return True
+            return "m" in exts or "g" in exts
         value = self.config["multiply"]
         return str2bool(value)
 

@@ -20,21 +20,19 @@
 
 from abc import ABC
 
-from mlonmcu.config import filter_config, str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, str2bool
 from .type import FeatureType
 
 # TODO: features might get an optional context parameter to lookup if they are supported by themselfs in the environment
 
 
-class FeatureBase(ABC):
+class FeatureBase(Configurable, ABC):
     """Feature base class"""
 
     feature_type = None
     scope = None
 
-    DEFAULTS = {"enabled": True}
-    REQUIRED = set()
-    OPTIONAL = set()
+    enabled = cfg(True, cast=str2bool)
 
     def __init__(self, name, features=None, config=None):
         self.name = name
@@ -43,11 +41,6 @@ class FeatureBase(ABC):
         self.config = filter_config(self.config, self.name, self.DEFAULTS, self.OPTIONAL, self.REQUIRED)
         # assert features is None, "Features with features are currently not supported"
         # just ignore the supplied feature list for now
-
-    @property
-    def enabled(self):
-        value = self.config["enabled"]
-        return str2bool(value)
 
     def remove_config_prefix(self, config):  # TODO: move to different place
         def helper(key):

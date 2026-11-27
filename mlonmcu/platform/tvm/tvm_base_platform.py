@@ -20,6 +20,7 @@
 
 import tempfile
 from pathlib import Path
+from mlonmcu.config import cfg, required
 from ..platform import Platform
 from mlonmcu.setup import utils
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
@@ -34,12 +35,11 @@ class TvmBasePlatform(Platform):
 
     FEATURES = set()
 
-    DEFAULTS = {
-        "tvmc_custom_script": None,
-        "project_dir": None,
-    }
-
-    REQUIRED = {"tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"}
+    tvmc_custom_script = cfg(None)
+    project_dir_config = cfg(None, key="project_dir")
+    tvm_pythonpath = required("tvm.pythonpath")
+    tvm_build_dir = required("tvm.build_dir")
+    tvm_configs_dir = required("tvm.configs_dir")
 
     def __init__(self, name, features=None, config=None):
         super().__init__(
@@ -59,8 +59,8 @@ class TvmBasePlatform(Platform):
         dir_name = self.name
         if path is not None:
             self.project_dir = Path(path)
-        elif self.config["project_dir"] is not None:
-            self.project_dir = Path(self.config["project_dir"])
+        elif self.project_dir_config is not None:
+            self.project_dir = Path(self.project_dir_config)
         else:
             if context:
                 assert "temp" in context.environment.paths
@@ -77,22 +77,6 @@ class TvmBasePlatform(Platform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
         return self.project_dir
-
-    @property
-    def tvmc_custom_script(self):
-        return self.config["tvmc_custom_script"]
-
-    @property
-    def tvm_pythonpath(self):
-        return self.config["tvm.pythonpath"]
-
-    @property
-    def tvm_build_dir(self):
-        return self.config["tvm.build_dir"]
-
-    @property
-    def tvm_configs_dir(self):
-        return self.config["tvm.configs_dir"]
 
     def invoke_tvmc(self, command, *args, target=None, live=None, **kwargs):
         if live is None:

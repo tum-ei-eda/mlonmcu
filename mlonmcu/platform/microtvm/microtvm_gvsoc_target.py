@@ -18,7 +18,7 @@
 #
 from pathlib import Path
 
-from mlonmcu.target.target import Target
+from mlonmcu.config import cfg, required
 
 from mlonmcu.logging import get_logger
 
@@ -32,14 +32,12 @@ class GVSocMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
     FEATURES = TemplateMicroTvmPlatformTarget.FEATURES
 
     DEFAULTS = {
-        **TemplateMicroTvmPlatformTarget.DEFAULTS,
         # "verbose": True,
-        "compiler": "gcc",
         "project_type": "host_driven",
         # "xpulp_version": None,  # None means that xpulp extension is not used,
         # "model": "pulp",
     }
-    REQUIRED = Target.REQUIRED | {
+    REQUIRED = {
         "gvsoc.exe",
         "pulp_freertos.support_dir",
         "pulp_freertos.config_dir",
@@ -47,6 +45,9 @@ class GVSocMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
         "microtvm_gvsoc.template",
         "hannah_tvm.src_dir",
     }
+    compiler = cfg("gcc")
+    microtvm_gvsoc_template = required("microtvm_gvsoc.template", cast=Path)
+    hannah_tvm_src_dir = required("hannah_tvm.src_dir", cast=Path)
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
@@ -57,18 +58,6 @@ class GVSocMicroTvmPlatformTarget(TemplateMicroTvmPlatformTarget):
             "project_type",
             "compiler",
         ]
-
-    @property
-    def microtvm_gvsoc_template(self):
-        return Path(self.config["microtvm_gvsoc.template"])
-
-    @property
-    def hannah_tvm_src_dir(self):
-        return Path(self.config["hannah_tvm.src_dir"])
-
-    @property
-    def compiler(self):
-        return self.config["compiler"]
 
     def get_project_options(self):
         ret = super().get_project_options()

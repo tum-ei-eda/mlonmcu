@@ -32,7 +32,7 @@ from mlonmcu.setup import utils
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.logging import get_logger
 from mlonmcu.target.target import Target
-from mlonmcu.config import str2bool, str2list, str2dict
+from mlonmcu.config import cfg, required, str2bool, str2dict, str2list
 
 from ..platform import CompilePlatform, TargetPlatform
 from .espidf_target import create_espidf_platform_target, get_espidf_platform_targets
@@ -53,22 +53,20 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
     FEATURES = CompilePlatform.FEATURES | TargetPlatform.FEATURES | {"benchmark"}
 
     DEFAULTS = {
-        **CompilePlatform.DEFAULTS,
-        **TargetPlatform.DEFAULTS,
         "project_template": None,
         "project_dir": None,
         "port": None,
         "baud": 115200,
-        "use_idf_monitor": True,
-        "wait_for_user": True,
-        "flash_only": False,
-        "newlib_nano_fmt": True,
-        "idf_build_extra_args": None,
-        "extra_cmake_defs": None,
         "optimize": None,  # values: 0,2,s (s implies z for llvm) only!
     }
-
-    REQUIRED = {"espidf.install_dir", "espidf.src_dir"}
+    espidf_install_dir = required("espidf.install_dir", cast=Path)
+    espidf_src_dir = required("espidf.src_dir", cast=Path)
+    use_idf_monitor = cfg(True, cast=str2bool)
+    wait_for_user = cfg(True, cast=str2bool)
+    flash_only = cfg(False, cast=str2bool)
+    newlib_nano_fmt = cfg(True, cast=str2bool)
+    idf_build_extra_args = cfg(None, cast=lambda value: str2list(value, allow_none=True))
+    extra_cmake_defs = cfg(None, cast=lambda value: str2dict(value, allow_none=True))
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -97,47 +95,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         return self._idf_version
 
     @property
-    def espidf_install_dir(self):
-        return Path(self.config["espidf.install_dir"])
-
-    @property
-    def espidf_src_dir(self):
-        return Path(self.config["espidf.src_dir"])
-
-    @property
     def idf_exe(self):
         return self.espidf_src_dir / "tools" / "idf.py"
-
-    @property
-    def use_idf_monitor(self):
-        value = self.config["use_idf_monitor"]
-        return str2bool(value)
-
-    @property
-    def wait_for_user(self):
-        value = self.config["wait_for_user"]
-        return str2bool(value)
-
-    @property
-    def newlib_nano_fmt(self):
-        value = self.config["newlib_nano_fmt"]
-        return str2bool(value)
-
-    @property
-    def flash_only(self):
-        # TODO: get rid of this
-        value = self.config["flash_only"]
-        return str2bool(value)
-
-    @property
-    def idf_build_extra_args(self):
-        value = self.config["idf_build_extra_args"]
-        return str2list(value, allow_none=True)
-
-    @property
-    def extra_cmake_defs(self):
-        value = self.config["extra_cmake_defs"]
-        return str2dict(value, allow_none=True)
 
     def invoke_idf_exe(self, *args, **kwargs):
         env = os.environ.copy()
@@ -248,7 +207,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.check()
         template_dir = self.project_template
         if template_dir is None:
-            template_dir = get_project_template()
+            name = "rvv_bench" if "RVV_BENCH_BENCHMARK" in self.definitions else "project"
+            template_dir = get_project_template(name)
         else:
             template_dir = Path(template_dir)
             if not template_dir.is_dir():
@@ -525,13 +485,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 # start_match and end_match are inclusive
                 found_start = start_match is None
                 outStr = ""
-                if timeout:
-                    pass  # TODO: implement timeout
                 # The following is a custom initialization sequence inspired by
                 # (https://github.com/espressif/esp-idf/blob/master/tools/idf_monitor_base/serial_reader.py)
                 high = False
                 low = True
-                ser = serial.Serial(port, baud)
+                ser = serial.Serial(port, baud, timeout=1)
                 ser.close()
                 ser.dtr = False
                 ser.rts = False
@@ -546,9 +504,14 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 time.sleep(0.002)
                 ser.rts = high
                 ser.dtr = ser.dtr
+                deadline = time.monotonic() + timeout if timeout else None
                 try:
                     while True:
                         try:
+                            if deadline is not None and time.monotonic() >= deadline:
+                                raise TimeoutError(
+                                    f"ESP-IDF UART monitor timed out after {timeout}s:\n{outStr[-4000:]}"
+                                )
                             ser_bytes = ser.readline()
                             new_line = ser_bytes.decode("utf-8", errors="replace")
                             if verbose:

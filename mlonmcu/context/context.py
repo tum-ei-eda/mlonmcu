@@ -394,7 +394,7 @@ class MlonMcuContext:
                             return
         logger.info("No cache found in deps directory")
 
-    def load_extensions(self):
+    def load_extensions(self, skip_loaded=False):
         """If available load the extensions.py scripts in the plugin directories"""
         if self.environment:
             allow_extensions = self.environment.vars.get("allow_extensions", False)
@@ -407,7 +407,7 @@ class MlonMcuContext:
                 extensions_file = plugins_dir / "extensions.py"
                 if extensions_file.is_file():
                     logger.info(f"Loading extensions.py ({hint})")
-                    process_extensions(extensions_file, desc=hint.lower())
+                    process_extensions(extensions_file, desc=hint.lower(), skip_loaded=skip_loaded)
 
         # global (user)
         plugins_dir = Path(get_plugins_dir())

@@ -24,7 +24,7 @@ from typing import Tuple
 
 from .backend import TFLMBackend
 import mlonmcu.setup.utils as utils
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.flow.backend import main
 from mlonmcu.logging import get_logger
 from mlonmcu.artifact import Artifact, ArtifactFormat
@@ -37,20 +37,11 @@ class TFLMCBackend(TFLMBackend):
 
     FEATURES = {"debug_arena"}
 
-    DEFAULTS = {
-        **TFLMBackend.DEFAULTS,
-        "print_outputs": False,
-        "custom_ops": [],
-        "registrations": {},
-        "debug_arena": False,
-    }
-
-    REQUIRED = TFLMBackend.REQUIRED | {"tflmc.exe"}
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
+    print_outputs = cfg(False, cast=str2bool)
+    custom_ops = cfg([])
+    registrations = cfg({})
+    debug_arena = cfg(False, cast=str2bool)
+    tflmc_exe = required("tflmc.exe")
 
     def __init__(self, features=None, config=None):
         super().__init__(features=features, config=config)

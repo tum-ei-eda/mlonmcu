@@ -278,7 +278,8 @@ def kickoff_runs(args, until, context):
     # session.label = args.label
     config, config_gen = extract_config(args)
     # TODO: move into context/session
-    per_stage = True
+    # Executors which transfer whole runs cannot schedule individual stages.
+    per_stage = session.executor not in ("process_pool", "cmdline", "context", "rpc")
     print_report = True
     if "runs_per_stage" in config:
         value = config["runs_per_stage"]

@@ -18,6 +18,7 @@
 #
 
 from mlonmcu.target.target import Target
+from mlonmcu.config import required
 
 from mlonmcu.logging import get_logger
 from mlonmcu.utils import filter_none
@@ -26,7 +27,7 @@ logger = get_logger()
 
 
 class TemplateMicroTvmPlatformTarget(Target):
-    REQUIRED = Target.REQUIRED | {"tvm.build_dir"}
+    tvm_build_dir = required("tvm.build_dir")
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

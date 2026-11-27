@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    mlonmcu.session.postprocess
+   custom_stages
 
 Submodules
 ----------

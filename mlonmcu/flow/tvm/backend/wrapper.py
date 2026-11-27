@@ -217,6 +217,7 @@ TVMModuleHandle TVMArgs_AsModuleHandle(const TVMArgs* args, size_t index);
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
     mlonmcu_exit(1);
+    abort();  // Some platforms only report the exit status and return.
 }
 
 void TVMLogf(const char* msg, ...)
@@ -536,6 +537,7 @@ tvm_crt_error_t TVMPlatformMemoryFree(void* ptr, DLDevice dev)
 void __attribute__((noreturn)) TVMPlatformAbort(tvm_crt_error_t code)
 {
     mlonmcu_exit(1);
+    abort();  // Some platforms only report the exit status and return.
 }
 """
     if minimal:

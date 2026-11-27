@@ -1,0 +1,32 @@
+--- /tmp/mlonmcu-ccache-bench-20261030/parallel-prime-tvmaotplus-cold/runs/3/mlif/ccache-model/codegen/host/src/default_lib1.c
++++ /tmp/mlonmcu-ccache-bench-20261030/parallel-tvmaotplus-s0-p1-t4-warm/runs/3/mlif/ccache-model/codegen/host/src/default_lib1.c
+@@ -593,20 +593,20 @@
+ extern "C"
+ #endif
+ TVM_DLL int32_t tvmgen_default___tvm_main__(int8_t* input_1_int8_buffer_var, int8_t* Identity_int8_buffer_var, uint8_t* global_const_workspace_0_var, uint8_t* global_workspace_1_var) {
++  void* sid_9_let = (&(global_workspace_1_var[47136]));
++  void* sid_1_let = (&(global_workspace_1_var[6944]));
++  void* sid_12_let = (&(global_workspace_1_var[128]));
+   void* sid_11_let = (&(global_workspace_1_var[16384]));
+-  void* sid_12_let = (&(global_workspace_1_var[128]));
+-  void* sid_9_let = (&(global_workspace_1_var[47136]));
++  void* sid_5_let = (&(global_workspace_1_var[36992]));
++  void* sid_8_let = (&(global_workspace_1_var[30752]));
++  void* sid_6_let = (&(global_workspace_1_var[69760]));
+   void* sid_10_let = (&(global_workspace_1_var[0]));
+-  void* sid_8_let = (&(global_workspace_1_var[30752]));
++  void* sid_14_let = (&(global_workspace_1_var[128]));
++  void* sid_13_let = (&(global_workspace_1_var[0]));
+   void* sid_7_let = (&(global_workspace_1_var[69760]));
+-  void* sid_13_let = (&(global_workspace_1_var[0]));
++  void* sid_2_let = (&(global_workspace_1_var[69760]));
+   void* sid_3_let = (&(global_workspace_1_var[36992]));
+-  void* sid_6_let = (&(global_workspace_1_var[69760]));
+-  void* sid_2_let = (&(global_workspace_1_var[69760]));
+-  void* sid_1_let = (&(global_workspace_1_var[6944]));
+   void* sid_4_let = (&(global_workspace_1_var[36992]));
+-  void* sid_14_let = (&(global_workspace_1_var[128]));
+-  void* sid_5_let = (&(global_workspace_1_var[36992]));
+   if (tvmgen_default_fused_cast_subtract(input_1_int8_buffer_var, sid_1_let, global_const_workspace_0_var, global_workspace_1_var) != 0 ) return -1;
+   if (tvmgen_default_fused_nn_conv2d_add_fixed_point_multiply_per_axis_add_clip_cast(sid_1_let, sid_2_let, global_const_workspace_0_var, global_workspace_1_var) != 0 ) return -1;
+   if (tvmgen_default_fused_cast_subtract_1(sid_2_let, sid_3_let, global_const_workspace_0_var, global_workspace_1_var) != 0 ) return -1;

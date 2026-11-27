@@ -27,6 +27,7 @@ from ..tvm.tvm_base_platform import TvmBasePlatform
 from mlonmcu.setup import utils
 from mlonmcu.flow.tvm.backend.python_utils import prepare_python_environment
 from mlonmcu.logging import get_logger
+from mlonmcu.config import cfg
 
 logger = get_logger()
 
@@ -54,17 +55,9 @@ def get_project_option_args(stage, project_options):
 class MicroTvmBasePlatform(TvmBasePlatform):
     """MicroTVM base platform class."""
 
-    DEFAULTS = {
-        **TvmBasePlatform.DEFAULTS,
-        "project_template": None,
-        "project_options": {},
-        "tvmc_custom_script": None,
-        "project_dir": None,
-        "experimental_tvmc_micro_tune": False,
-        "experimental_tvmc_print_time": False,
-    }
-
-    REQUIRED = TvmBasePlatform.REQUIRED | {"tvm.build_dir", "tvm.pythonpath", "tvm.configs_dir"}
+    project_template = cfg(None)
+    experimental_tvmc_micro_tune = cfg(False)
+    experimental_tvmc_print_time = cfg(False)
 
     def __init__(self, name, features=None, config=None):
         super().__init__(
@@ -146,10 +139,6 @@ class MicroTvmBasePlatform(TvmBasePlatform):
                 logger.debug("Temporary project directory: %s", self.project_dir)
         self.project_dir.mkdir(exist_ok=True)
         return self.project_dir
-
-    @property
-    def project_template(self):
-        return self.config["project_template"]
 
     @property
     def project_options(self):

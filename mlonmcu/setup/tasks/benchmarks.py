@@ -51,7 +51,7 @@ def _validate_benchmarks(context: MlonMcuContext, params=None):
 def clone_benchmarks(
     context: MlonMcuContext, params=None, rebuild=False, verbose=False, threads=multiprocessing.cpu_count()
 ):
-    """Clone the embench repo."""
+    """Clone the benchmark repo."""
     benchmark = params.get("benchmark", None)
     benchName = utils.makeDirName(benchmark)
     benchmarksSrcDir = context.environment.paths["deps"].path / "src" / "benchmarks"

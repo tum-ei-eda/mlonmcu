@@ -22,7 +22,7 @@ from typing import Tuple
 
 from .backend import TVMBackend
 from mlonmcu.flow.backend import main
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat, lookup_artifacts
 from mlonmcu.models.model_info import get_relay_model_info
 from .wrapper import generate_tvmaot_wrapper, generate_wrapper_header
@@ -37,14 +37,11 @@ class TVMAOTBackend(TVMBackend):
         "usmp",
     }
 
-    DEFAULTS = {
-        **TVMBackend.DEFAULTS,
-        "debug_arena": False,
-        "arena_size": None,  # Determined automatically
-        "unpacked_api": False,
-        "alignment_bytes": 16,
-        "minimal_runtime": True,
-    }
+    debug_arena = cfg(False, cast=str2bool)
+    arena_size = cfg(None, cast=int)
+    unpacked_api = cfg(False, cast=str2bool)
+    alignment_bytes = cfg(16, cast=int)
+    minimal_runtime = cfg(True, cast=str2bool)
 
     name = "tvmaot"
 
@@ -59,30 +56,6 @@ class TVMAOTBackend(TVMBackend):
         extra = super().extra_pass_config
         default.update(extra)
         return default
-
-    @property
-    def arena_size(self):
-        size = self.config["arena_size"]
-        return int(size) if size is not None else None
-
-    @property
-    def unpacked_api(self):
-        value = self.config["unpacked_api"]
-        return str2bool(value)
-
-    @property
-    def debug_arena(self):
-        value = self.config["debug_arena"]
-        return str2bool(value)
-
-    @property
-    def minimal_runtime(self):
-        value = self.config["minimal_runtime"]
-        return str2bool(value)
-
-    @property
-    def alignment_bytes(self):
-        return int(self.config["alignment_bytes"])
 
     def get_tvmc_compile_args(self, out, dump=None):
         return super().get_tvmc_compile_args(out, dump=dump) + get_tvmaot_tvmc_args(

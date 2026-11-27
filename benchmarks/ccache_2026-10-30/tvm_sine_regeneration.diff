@@ -1,0 +1,12 @@
+--- /tmp/mlonmcu-ccache-bench-20261030/complexity-tvmaotplus-sine_model-r0-cold/runs/0/mlif/ccache-model/codegen/host/src/default_lib1.c
++++ /tmp/mlonmcu-ccache-bench-20261030/complexity-tvmaotplus-sine_model-r0-warm/runs/0/mlif/ccache-model/codegen/host/src/default_lib1.c
+@@ -100,8 +100,8 @@
+ #endif
+ TVM_DLL int32_t tvmgen_default___tvm_main__(float* dense_2_input_buffer_var, float* Identity_buffer_var, uint8_t* global_const_workspace_0_var, uint8_t* global_workspace_1_var) {
+   void* sid_1_let = (&(global_workspace_1_var[64]));
++  void* sid_2_let = (&(global_workspace_1_var[0]));
+   void* sid_3_let = (&(global_workspace_1_var[64]));
+-  void* sid_2_let = (&(global_workspace_1_var[0]));
+   if (tvmgen_default_fused_reshape(dense_2_input_buffer_var, sid_1_let, global_const_workspace_0_var, global_workspace_1_var) != 0 ) return -1;
+   if (tvmgen_default_fused_nn_contrib_dense_pack_add_nn_relu(sid_1_let, sid_2_let, global_const_workspace_0_var, global_workspace_1_var) != 0 ) return -1;
+   if (tvmgen_default_fused_nn_contrib_dense_pack_add_nn_relu_1(sid_2_let, sid_3_let, global_const_workspace_0_var, global_workspace_1_var) != 0 ) return -1;

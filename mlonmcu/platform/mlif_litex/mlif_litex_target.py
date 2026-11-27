@@ -19,6 +19,7 @@
 import os
 
 from mlonmcu.target import Target
+from mlonmcu.config import cfg, parse_int
 from mlonmcu.target.riscv.riscv import RISCVTarget
 from mlonmcu.logging import get_logger
 from mlonmcu.platform.mlif.mlif_target import MlifExitCode
@@ -36,107 +37,37 @@ def register_mlif_litex_platform_target(target_name, t, override=False):
 
 class TemplateMlifLitexPlatformTarget(RISCVTarget):
 
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "bus_standard": "wishbone",
-        "sys_clk_freq": 100e6,
-        # "integrated_main_ram_size": 0x10000,
-        # "integrated_main_ram_size": 0x80000,
-        "integrated_main_ram_size": 0x100000,
-        # "integrated_main_ram_size": 0x10000,
-        "integrated_sram_size": 0x80000,
-        # "integrated_sram_size": 0x8000,
-        "litex_cpu": None,
-        "litex_cpu_variant": "standard",
-    }
-    REQUIRED = RISCVTarget.REQUIRED
-
-    @property
-    def litex_cpu(self):
-        value = self.config["litex_cpu"]
-        return value
-
-    @property
-    def litex_cpu_variant(self):
-        value = self.config["litex_cpu_variant"]
-        return value
-
-    @property
-    def bus_standard(self):
-        value = self.config["bus_standard"]
-        return value
-
-    @property
-    def sys_clk_freq(self):
-        value = int(self.config["sys_clk_freq"])
-        return value
-
-    @property
-    def integrated_main_ram_size(self):
-        value = self.config["integrated_main_ram_size"]
-        if not isinstance(value, int):
-            assert isinstance(value, str)
-            value = int(value, 0)
-        return value
-
-    @property
-    def integrated_sram_size(self):
-        value = self.config["integrated_sram_size"]
-        if not isinstance(value, int):
-            assert isinstance(value, str)
-            value = int(value, 0)
-        return value
+    bus_standard = cfg("wishbone")
+    sys_clk_freq = cfg(100e6, cast=int)
+    integrated_main_ram_size = cfg(0x100000, cast=parse_int)
+    integrated_sram_size = cfg(0x80000, cast=parse_int)
+    litex_cpu = cfg(None)
+    litex_cpu_variant = cfg("standard")
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
 
 
 class VexRiscvTarget(TemplateMlifLitexPlatformTarget):
-    DEFAULTS = {
-        **TemplateMlifLitexPlatformTarget.DEFAULTS,
-        "xlen": 32,
-        "atomic": False,
-        "compressed": False,
-        "fpu": "none",
-        "arch": "rv32im",
-        "litex_cpu": "vexriscv",
-        "litex_cpu_variant": "full",
-    }
-    REQUIRED = TemplateMlifLitexPlatformTarget.REQUIRED
+    DEFAULTS = {"xlen": 32, "atomic": False, "compressed": False, "fpu": "none", "arch": "rv32im"}
+    litex_cpu = cfg("vexriscv")
+    litex_cpu_variant = cfg("full")
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
 
 
 class CV32E40PTarget(TemplateMlifLitexPlatformTarget):
-    DEFAULTS = {
-        **TemplateMlifLitexPlatformTarget.DEFAULTS,
-        "xlen": 32,
-        "atomic": False,
-        "compressed": False,
-        "fpu": "none",
-        "arch": "rv32im",
-        "litex_cpu": "cv32e40p",
-        "litex_cpu_variant": "standard",
-    }
-    REQUIRED = TemplateMlifLitexPlatformTarget.REQUIRED
+    DEFAULTS = {"xlen": 32, "atomic": False, "compressed": False, "fpu": "none", "arch": "rv32im"}
+    litex_cpu = cfg("cv32e40p")
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)
 
 
 class CVA5Target(TemplateMlifLitexPlatformTarget):
-    DEFAULTS = {
-        **TemplateMlifLitexPlatformTarget.DEFAULTS,
-        "xlen": 32,
-        "atomic": False,
-        "compressed": False,
-        "fpu": "none",
-        "arch": "rv32im",
-        "litex_cpu": "cva5",
-        "litex_cpu_variant": "standard",
-    }
-    REQUIRED = TemplateMlifLitexPlatformTarget.REQUIRED
+    DEFAULTS = {"xlen": 32, "atomic": False, "compressed": False, "fpu": "none", "arch": "rv32im"}
+    litex_cpu = cfg("cva5")
 
     def __init__(self, name=None, features=None, config=None):
         super().__init__(name=name, features=features, config=config)

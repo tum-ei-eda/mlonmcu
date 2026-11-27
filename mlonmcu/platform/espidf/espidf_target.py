@@ -22,6 +22,7 @@ from enum import Enum
 
 from mlonmcu.utils import filter_none
 from mlonmcu.target.target import Target
+from mlonmcu.config import cfg
 from mlonmcu.target.metrics import Metrics
 
 from mlonmcu.feature.features import SUPPORTED_TVM_BACKENDS
@@ -64,19 +65,14 @@ def get_espidf_platform_targets():
 
 class Esp32C3Target(Target):
     DEFAULTS = {
-        **Target.DEFAULTS,
-        "xlen": 32,
         "extensions": ["i", "m", "c"],
         "fpu": "none",
         "arch": None,
         "abi": None,
         "attr": "",
-        "count": Esp32C3PerfCount.CYCLE,
     }
-
-    @property
-    def xlen(self):
-        return int(self.config["xlen"])
+    xlen = cfg(32, cast=int)
+    count = cfg(Esp32C3PerfCount.CYCLE, cast=int)
 
     @property
     def extensions(self):
@@ -141,11 +137,6 @@ class Esp32C3Target(Target):
         return value
 
     @property
-    def count(self):
-        value = int(self.config["count"])
-        return value
-
-    @property
     def has_fpu(self):
         return self.fpu != "none"
 
@@ -203,6 +194,7 @@ def create_espidf_platform_target(name, platform, base=Target):
             "port": None,
             "baud": None,
         }
+        revision = cfg(None, cast=str)
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)
@@ -219,6 +211,24 @@ def create_espidf_platform_target(name, platform, base=Target):
         @property
         def baud(self):
             return self.config["baud"]
+
+        def get_platform_defs(self, platform):
+            ret = super().get_platform_defs(platform)
+            if platform != "espidf" or self.revision is None:
+                return ret
+            if self.name != "esp32p4":
+                raise ValueError("The revision option is currently supported only for esp32p4")
+            match = re.fullmatch(r"(0|1|3)\.(\d{1,2})", self.revision)
+            if match is None:
+                raise ValueError("esp32p4.revision must be major.minor in the 0.x, 1.x or 3.x series")
+            major, minor = map(int, match.groups())
+            revision = major * 100 + minor
+            # ESP-IDF exposes a discrete set of minimum revisions. Pick the
+            # highest supported minimum that includes the requested hardware.
+            minimum = max(value for value in (0, 1, 100, 300, 301) if value <= revision)
+            ret["ESP32P4_SELECTS_REV_LESS_V3"] = major < 3
+            ret[f"ESP32P4_REV_MIN_{minimum}"] = True
+            return ret
 
         def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""

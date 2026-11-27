@@ -19,7 +19,7 @@
 """MLonMCU Spike Target definitions"""
 
 from mlonmcu.logging import get_logger
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from .riscv import RISCVTarget
 from .util import update_extensions
 
@@ -31,16 +31,12 @@ class RVBTarget(RISCVTarget):
 
     FEATURES = RISCVTarget.FEATURES | {"bext"}
 
-    DEFAULTS = {
-        **RISCVTarget.DEFAULTS,
-        "enable_bext": False,
-        "bext_spec": 0.92,
-        "bext_zba": False,
-        "bext_zbb": False,
-        "bext_zbc": False,
-        "bext_zbs": False,
-    }
-    REQUIRED = RISCVTarget.REQUIRED
+    enable_bext = cfg(False, cast=str2bool)
+    bext_spec = cfg(0.92, cast=float)
+    bext_zba = cfg(False, cast=str2bool)
+    bext_zbb = cfg(False, cast=str2bool)
+    bext_zbc = cfg(False, cast=str2bool)
+    bext_zbs = cfg(False, cast=str2bool)
 
     def __init__(
         self,
@@ -49,35 +45,6 @@ class RVBTarget(RISCVTarget):
         config=None,
     ):
         super().__init__(name, features=features, config=config)
-
-    @property
-    def enable_bext(self):
-        value = self.config["enable_bext"]
-        return str2bool(value)
-
-    @property
-    def bext_spec(self):
-        return float(self.config["bext_spec"])
-
-    @property
-    def bext_zba(self):
-        value = self.config["bext_zba"]
-        return str2bool(value)
-
-    @property
-    def bext_zbb(self):
-        value = self.config["bext_zbb"]
-        return str2bool(value)
-
-    @property
-    def bext_zbc(self):
-        value = self.config["bext_zbc"]
-        return str2bool(value)
-
-    @property
-    def bext_zbs(self):
-        value = self.config["bext_zbs"]
-        return str2bool(value)
 
     @property
     def extensions(self):

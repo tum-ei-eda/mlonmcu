@@ -52,6 +52,9 @@ def get_parser(subparsers, parent=None):
     build.get_parser(subparsers)
     compile_.get_parser(subparsers)
     run.get_parser(subparsers)
+    from mlonmcu.cli.execute import get_parser as get_execute_parser
+
+    get_execute_parser(subparsers)
 
 
 def handle_list_components(args):

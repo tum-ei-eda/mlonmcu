@@ -18,7 +18,7 @@
 #
 """MicroTVM Target Platform"""
 
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, str2bool
 from ..tvm.tvm_target_platform import TvmTargetPlatform
 from .microtvm_base_platform import (
     filter_project_options,
@@ -43,22 +43,8 @@ class MicroTvmTargetPlatform(TvmTargetPlatform):
         # Warning: benchamrk and profile not supported!
     )
 
-    DEFAULTS = {
-        **TvmTargetPlatform.DEFAULTS,
-        "experimental_tvmc_print_time": False,
-        "skip_flash": False,
-        # Warning: contains configs not supported by microtvm
-    }
-
-    @property
-    def experimental_tvmc_print_time(self):
-        value = self.config["experimental_tvmc_print_time"]
-        return str2bool(value)
-
-    @property
-    def skip_flash(self):
-        value = self.config["skip_flash"]
-        return str2bool(value)
+    experimental_tvmc_print_time = cfg(False, cast=str2bool)
+    skip_flash = cfg(False, cast=str2bool)
 
     def invoke_tvmc_micro_flash(self, target=None, list_options=False, **kwargs):
         all_args = []

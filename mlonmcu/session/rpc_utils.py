@@ -126,6 +126,28 @@ def recvjson(sock):
     return data
 
 
+def sendfile(sock, path, chunk_size=1 << 20):
+    """Stream the content of a file as raw bytes (the size has to be announced separately)."""
+    with open(path, "rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            sock.sendall(chunk)
+
+
+def recvfile(sock, path, nbytes, chunk_size=1 << 20):
+    """Receive exactly nbytes raw bytes into a file without holding them in memory."""
+    nread = 0
+    with open(path, "wb") as f:
+        while nread < nbytes:
+            chunk = sock.recv(min(nbytes - nread, chunk_size))
+            if not chunk:
+                raise IOError("connection reset")
+            f.write(chunk)
+            nread += len(chunk)
+
+
 def random_key(prefix, delimiter=":", cmap=None):
     """Generate a random key
 

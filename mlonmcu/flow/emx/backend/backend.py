@@ -25,7 +25,7 @@ from typing import Tuple
 from mlonmcu.flow.backend import Backend
 from mlonmcu.setup import utils
 from mlonmcu.timeout import exec_timeout
-from mlonmcu.config import str2bool
+from mlonmcu.config import cfg, required, str2bool
 from mlonmcu.logging import get_logger
 from mlonmcu.models.model_info import (
     get_model_info,
@@ -190,19 +190,21 @@ class EMXBackend(Backend):
     # name = None
     name = "emx"
 
+    # These retain explicit properties because they implement value aliases
+    # and validation beyond a direct lookup/legalization.
     DEFAULTS = {
-        "print_outputs": False,
-        "large_weight_threshold": 10000000,
-        "large_temp_threshold": None,
-        "restrict_arrays": None,
         "inline_kernels": "preferred",
-        "static_kernels": True,
-        "accumulation_strategy": None,  # fp32 or fp16
-        "verbose": False,
-        "emx_compile_extra_args": [],
+        "accumulation_strategy": None,
     }
 
-    REQUIRED = {"emx.src_dir"}
+    emx_src_dir = required("emx.src_dir")
+    emx_compile_extra_args = cfg([])
+    print_outputs = cfg(False, cast=str2bool)
+    verbose = cfg(False, cast=str2bool)
+    static_kernels = cfg(True, cast=str2bool)
+    restrict_arrays = cfg(None, cast=lambda value: str2bool(value, allow_none=True))
+    large_weight_threshold = cfg(10000000, cast=int)
+    large_temp_threshold = cfg(None, cast=int)
 
     def __init__(self, features=None, config=None):
         super().__init__(framework="emx", features=features, config=config)
@@ -219,24 +221,6 @@ class EMXBackend(Backend):
         self.artifacts = []
 
     @property
-    def emx_src_dir(self):
-        return self.config["emx.src_dir"]
-
-    @property
-    def emx_compile_extra_args(self):
-        return self.config["emx_compile_extra_args"]
-
-    @property
-    def print_outputs(self):
-        value = self.config["print_outputs"]
-        return str2bool(value)
-
-    @property
-    def verbose(self):
-        value = self.config["verbose"]
-        return str2bool(value)
-
-    @property
     def inline_kernels(self):
         value = self.config["inline_kernels"]
         if value in ["always", "preferred", "never", "force"]:
@@ -244,30 +228,6 @@ class EMXBackend(Backend):
         if value in ["", "none", "None", None]:
             return None
         return str2bool(value)
-
-    @property
-    def static_kernels(self):
-        value = self.config["static_kernels"]
-        return str2bool(value)
-
-    @property
-    def restrict_arrays(self):
-        value = self.config["restrict_arrays"]
-        return str2bool(value, allow_none=True)
-
-    @property
-    def large_weight_threshold(self):
-        value = self.config["large_weight_threshold"]
-        if value is None:
-            return None
-        return int(value)
-
-    @property
-    def large_temp_threshold(self):
-        value = self.config["large_temp_threshold"]
-        if value is None:
-            return None
-        return int(value)
 
     @property
     def accumulation_strategy(self):

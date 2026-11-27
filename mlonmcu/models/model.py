@@ -442,6 +442,15 @@ class RVVBenchProgram(MultiBenchProgram):
     def __init__(self, name: str, config=None, alt=None):
         super().__init__(name, "RVV_BENCH", config=config, alt=alt)
 
+    def get_platform_defs(self, platform):
+        if platform == "espidf":
+            if self.name not in ("instructions_scalar", "instructions_pie"):
+                raise ValueError("ESP-IDF rvv_bench currently supports only instructions_scalar and instructions_pie")
+            return {"RVV_BENCH_BENCHMARK": self.name}
+        if self.name == "instructions_pie":
+            raise ValueError("instructions_pie currently supports only the ESP-IDF platform")
+        return super().get_platform_defs(platform)
+
 
 class ISSBenchProgram(MultiBenchProgram):
     num_iter = cfg(10000000, cast=int)

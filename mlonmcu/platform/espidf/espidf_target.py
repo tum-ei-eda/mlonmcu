@@ -194,6 +194,7 @@ def create_espidf_platform_target(name, platform, base=Target):
             "port": None,
             "baud": None,
         }
+        revision = cfg(None, cast=str)
 
         def __init__(self, features=None, config=None):
             super().__init__(name=name, features=features, config=config)
@@ -210,6 +211,24 @@ def create_espidf_platform_target(name, platform, base=Target):
         @property
         def baud(self):
             return self.config["baud"]
+
+        def get_platform_defs(self, platform):
+            ret = super().get_platform_defs(platform)
+            if platform != "espidf" or self.revision is None:
+                return ret
+            if self.name != "esp32p4":
+                raise ValueError("The revision option is currently supported only for esp32p4")
+            match = re.fullmatch(r"(0|1|3)\.(\d{1,2})", self.revision)
+            if match is None:
+                raise ValueError("esp32p4.revision must be major.minor in the 0.x, 1.x or 3.x series")
+            major, minor = map(int, match.groups())
+            revision = major * 100 + minor
+            # ESP-IDF exposes a discrete set of minimum revisions. Pick the
+            # highest supported minimum that includes the requested hardware.
+            minimum = max(value for value in (0, 1, 100, 300, 301) if value <= revision)
+            ret["ESP32P4_SELECTS_REV_LESS_V3"] = major < 3
+            ret[f"ESP32P4_REV_MIN_{minimum}"] = True
+            return ret
 
         def exec(self, program, *args, cwd=os.getcwd(), **kwargs):
             """Use target to execute a executable with given arguments"""

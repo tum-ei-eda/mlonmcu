@@ -45,6 +45,8 @@ from .postprocesses import (
     AnalyseVivadoReportsPostprocess,
 )
 
+from .rvv_bench import RVVBenchPostprocess
+
 SUPPORTED_POSTPROCESSES = {}
 
 
@@ -91,6 +93,8 @@ register_postprocess("merge_autotvm_records", MergeAutoTvmRecordsPostprocess)
 register_postprocess("merge_ms_dbs", MergeMSDBsPostprocess)
 register_postprocess("push_ms_db2s3", PushMSDB2S3Postprocess)
 register_postprocess("analyse_vivado_reports", AnalyseVivadoReportsPostprocess)
+
+register_postprocess("rvv_bench", RVVBenchPostprocess)
 
 
 __all__ = ["SUPPORTED_POSTPROCESSES", "register_postprocess", "get_postprocesses"]

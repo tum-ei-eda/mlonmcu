@@ -54,6 +54,31 @@ adds the identity, timing, and total-area Vivado metrics. The pre-existing
 when `Total Cycles` is available, `Estimated latency at Fmax [ms]`.
 
 
+### RVV bench instruction reports
+
+Add `--post rvv_bench` to a scalar or vector instruction benchmark flow to
+automatically generate a standalone `rvv_bench.html` in each run directory.
+Scalar/vector layout is detected from the timing rows. ISS startup messages,
+UART boot logs and aggregate timing metrics are excluded from the tables.
+
+```bash
+python -m mlonmcu.cli.main flow run instructions_scalar --platform mlif --post rvv_bench
+python -m mlonmcu.cli.main postprocess --session 2432 rvv_bench
+```
+
+Optional postprocess configuration keys are `rvv_bench.title`,
+`rvv_bench.comment`, `rvv_bench.info`, `rvv_bench.vlen`, and
+`rvv_bench.scalar` (normally detected automatically). For example, add
+`-c rvv_bench.title="ESP32-P4 scalar instruction timings"`.
+
+The parser and renderer live in `mlonmcu.session.postprocess.rvv_bench`.
+The original script remains a CLI wrapper and preserves HTML output to stdout:
+
+```bash
+python scripts/rvv_bench_parser.py path/to/esp32p4_out.log --scalar > timings.html
+python scripts/rvv_bench_parser.py path/to/etiss_out.log --output timings.html
+```
+
 ### Implement custom postprocesses
 
 To extend the list of predefined post-processes with a custom implementation a Python class has to be developed as follows:

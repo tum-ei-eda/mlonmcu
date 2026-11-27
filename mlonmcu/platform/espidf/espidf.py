@@ -207,7 +207,8 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
         self.check()
         template_dir = self.project_template
         if template_dir is None:
-            template_dir = get_project_template()
+            name = "rvv_bench" if "RVV_BENCH_BENCHMARK" in self.definitions else "project"
+            template_dir = get_project_template(name)
         else:
             template_dir = Path(template_dir)
             if not template_dir.is_dir():
@@ -484,13 +485,11 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 # start_match and end_match are inclusive
                 found_start = start_match is None
                 outStr = ""
-                if timeout:
-                    pass  # TODO: implement timeout
                 # The following is a custom initialization sequence inspired by
                 # (https://github.com/espressif/esp-idf/blob/master/tools/idf_monitor_base/serial_reader.py)
                 high = False
                 low = True
-                ser = serial.Serial(port, baud)
+                ser = serial.Serial(port, baud, timeout=1)
                 ser.close()
                 ser.dtr = False
                 ser.rts = False
@@ -505,9 +504,14 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                 time.sleep(0.002)
                 ser.rts = high
                 ser.dtr = ser.dtr
+                deadline = time.monotonic() + timeout if timeout else None
                 try:
                     while True:
                         try:
+                            if deadline is not None and time.monotonic() >= deadline:
+                                raise TimeoutError(
+                                    f"ESP-IDF UART monitor timed out after {timeout}s:\n{outStr[-4000:]}"
+                                )
                             ser_bytes = ser.readline()
                             new_line = ser_bytes.decode("utf-8", errors="replace")
                             if verbose:

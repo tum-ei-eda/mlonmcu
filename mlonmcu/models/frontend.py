@@ -60,7 +60,7 @@ from mlonmcu.models.data_utils import (
     generate_model_info,
 )
 from mlonmcu.feature.type import FeatureType
-from mlonmcu.config import Configurable, cfg, filter_config, one_of, required, str2bool
+from mlonmcu.config import Configurable, cfg, filter_config, one_of, optional, required, str2bool
 from mlonmcu.artifact import Artifact, ArtifactFormat
 from mlonmcu.setup import utils
 from mlonmcu.target.metrics import Metrics
@@ -1855,6 +1855,7 @@ class OpenASIPFrontend(BenchFrontend):
 
 
 class RVVBenchFrontend(BenchFrontend):
+    mlif_src_dir = optional("mlif.src_dir", cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -1864,10 +1865,18 @@ class RVVBenchFrontend(BenchFrontend):
             config=config,
         )
 
+    def get_platform_defs(self, platform):
+        if platform == "espidf":
+            if self.mlif_src_dir is None:
+                raise ValueError("ESP-IDF rvv_bench requires mlif.src_dir (the mlonmcu-sw checkout)")
+            return {"RVV_BENCH_DIR": self.mlif_src_dir / "lib" / "rvv_bench"}
+        return super().get_platform_defs(platform)
+
     @property
     def supported_names(self):
         return [
             "instructions_scalar",
+            "instructions_pie",
             "instructions_rvv",
             "memcpy",
             "memset",

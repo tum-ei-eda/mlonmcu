@@ -509,7 +509,9 @@ class EspIdfPlatform(CompilePlatform, TargetPlatform):
                     while True:
                         try:
                             if deadline is not None and time.monotonic() >= deadline:
-                                raise TimeoutError(f"ESP-IDF UART monitor timed out after {timeout}s:\n{outStr[-4000:]}")
+                                raise TimeoutError(
+                                    f"ESP-IDF UART monitor timed out after {timeout}s:\n{outStr[-4000:]}"
+                                )
                             ser_bytes = ser.readline()
                             new_line = ser_bytes.decode("utf-8", errors="replace")
                             if verbose:

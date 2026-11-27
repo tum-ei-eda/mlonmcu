@@ -21,6 +21,7 @@
 # Warning: use `export LITEX_BOARDS_REF=c498f00938bba94fe7ddc27dad9ed84294208201` for openocd 0.10.0 (Ubuntu 20.04)
 
 import os
+import json
 import time
 import shutil
 import tempfile
@@ -39,6 +40,8 @@ from mlonmcu.config import str2bool
 
 from ..platform import CompilePlatform, TargetPlatform
 from .cfu_playground_target import create_cfu_playground_platform_target, get_cfu_playground_platform_targets
+
+from . import bitstream as bitstream_reuse
 
 logger = get_logger()
 
@@ -70,6 +73,9 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     mlif_template = cfg(None, cast=Path)
     vivado_install_dir = optional("vivado.install_dir", cast=Path)
     verilog_file = cfg(None, cast=Path)
+    reuse_bitstream = cfg(False, cast=str2bool)
+    strict_bios_compatibility = cfg(False, cast=str2bool)
+    bitstream_file = cfg(None, cast=Path)
 
     def __init__(self, features=None, config=None):
         super().__init__(
@@ -94,8 +100,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
         else:
             if context:
                 assert "temp" in context.environment.paths
-                self.project_dir = (
-                    context.environment.paths["temp"].path / dir_name
+                self.project_dir = Path(
+                    tempfile.mkdtemp(prefix="cfu_playground-", dir=context.environment.paths["temp"].path)
                 )  # TODO: Need to lock this for parallel builds
             else:
                 logger.debug(
@@ -189,6 +195,11 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
 
     def get_makefile_includes(self):
         includes = []
+        tvm_extra_incs = self.definitions.get("TVM_EXTRA_INCS")
+        # TODO: tflm?
+        if tvm_extra_incs:
+            # TODO: split at semi?
+            includes.append(tvm_extra_incs)
 
         # print("includes", includes)
         return includes
@@ -218,6 +229,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     def prepare(self, target, src):
         self.init_directory()
         self.check()
+        # Validate inputs before copying or compiling the software project.
+        bitstream_reuse.resolve(self, target)
         template_dir = self.project_template
         if template_dir is None:
             template_dir = get_project_template()
@@ -391,43 +404,9 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 to_copy += [
                     (src / "aot_wrapper.c", dest_base),
                     *([(src / "codegen" / "host" / "include", dest_base)] if backend == "tvmaotplus" else []),
-                    (src / "runtime" / "include" / "dlpack", dest_base / "dlpack"),
-                    (
-                        src / "runtime/include/tvm/runtime/crt/error_codes.h",
-                        dest_base / "tvm/runtime/crt/error_codes.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/crt/logging.h",
-                        dest_base / "tvm/runtime/crt/logging.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/crt/platform.h",
-                        dest_base / "tvm/runtime/crt/platform.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/crt/page_allocator.h",
-                        dest_base / "tvm/runtime/crt/page_allocator.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/crt/internal/memory/page_allocator.h",
-                        dest_base / "tvm/runtime/crt/internal/memory/page_allocator.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/c_runtime_api.h",
-                        dest_base / "tvm/runtime/c_runtime_api.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/c_backend_api.h",
-                        dest_base / "tvm/runtime/c_backend_api.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/metadata_types.h",
-                        dest_base / "tvm/runtime/metadata_types.h",
-                    ),
-                    (
-                        src / "runtime/include/tvm/runtime/crt/stack_allocator.h",
-                        dest_base / "tvm/runtime/crt/stack_allocator.h",
-                    ),
+                    # Generated system-library code also needs module.h and its dependencies.
+                    # Keep the complete header tree bundled with the model archive.
+                    (src / "runtime" / "include", dest_base),
                     (
                         src / "runtime/src/runtime/crt/common/crt_backend_api.c",
                         dest_base / "tvm/runtime/crt/common/crt_backend_api.c",
@@ -533,6 +512,7 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
     def compile(self, target, src=None):
         # TODO: call make (without renode)?
         out = self.prepare(target, src=src)
+        state = bitstream_reuse.resolve(self, target)
         platform = self.pick_platform(target)
         out += utils.make(
             "software",
@@ -541,12 +521,18 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             f"PLATFORM={platform}",
             *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
             # *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
-            # *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+            *(
+                [f"UART_SPEED={target.baud}"]
+                if self.reuse_bitstream and target.fpga_sim and target.baud is not None
+                else []
+            ),
             cwd=self.project_dir,
             env=self.prepare_environment(target=target),
             live=self.print_outputs,
             threads=self.num_threads,
         )
+        if state:
+            bitstream_reuse.check_generated(self, state)
         return out
 
     def generate(self, src, target, model=None):
@@ -587,20 +573,31 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             env_["LIBC_CLEANUP"] = "1"
             platform = self.pick_platform(target)
             out = ""
-            out += utils.make(
-                # "load2",
-                "bitstream",
-                f"PLATFORM={platform}",
-                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
-                *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
-                *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
-                f"OUT_DIR={out_dir}",
-                f"SOC_BUILD_DIR={out_dir}",
-                cwd=self.project_dir,
-                env=env_,
-                live=self.print_outputs,
-                threads=self.num_threads,
-            )
+            state = bitstream_reuse.resolve(self, target)
+            if state:
+                bitstream_reuse.check_generated(self, state)
+                gateware_dir = out_dir / "gateware"
+                gateware_dir.mkdir(parents=True, exist_ok=True)
+                source = Path(state["source"])
+                destination = gateware_dir / f"{target.fpga_target}.bit"
+                if source == destination.resolve():
+                    raise ValueError("Prebuilt bitstream must be outside the current run directory")
+                shutil.copyfile(source, destination)
+            else:
+                out += utils.make(
+                    # "load2",
+                    "bitstream",
+                    f"PLATFORM={platform}",
+                    *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+                    *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+                    *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+                    f"OUT_DIR={out_dir}",
+                    f"SOC_BUILD_DIR={out_dir}",
+                    cwd=self.project_dir,
+                    env=env_,
+                    live=self.print_outputs,
+                    threads=self.num_threads,
+                )
             gateware_dir = out_dir / "gateware"
             assert gateware_dir.is_dir()
             report_types = [
@@ -610,10 +607,28 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                 "power",
                 "utilization_hierarchical_place",
             ]
+            report_provenance = {}
             for report_type in report_types:
                 matches = list(gateware_dir.glob(f"*_{report_type}.rpt"))
-                assert len(matches) == 1  # TODO: loosen?
+                if state:
+                    source_dir = Path(state["source"]).parent
+                    matches = list(source_dir.glob(f"*_{report_type}.rpt"))
+                    if not matches:
+                        exported = Path(state["project"]).parent / f"vivado_report_{report_type}.rpt"
+                        matches = [exported] if exported.is_file() else []
+                    if not matches:
+                        continue
+                if len(matches) != 1:
+                    raise ValueError(f"Expected one Vivado {report_type} report, got {matches}")
                 report_match = matches[0]
+                if state:
+                    recorded = state["source_metadata"].get("reports", {}).get(report_type, {})
+                    if recorded.get("sha256") and recorded["sha256"] != bitstream_reuse.sha256(report_match):
+                        raise ValueError(f"Reused Vivado report SHA-256 mismatch: {report_match}")
+                report_provenance[report_type] = {
+                    "source": str(report_match.resolve()),
+                    "sha256": bitstream_reuse.sha256(report_match),
+                }
                 artifact = Artifact(
                     f"vivado_report_{report_type}.rpt",
                     path=report_match,
@@ -621,6 +636,11 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                     flags=("vivado", "report", report_type, self.name, target.name),
                 ).convert(ArtifactFormat.TEXT)
                 artifacts.append(artifact)
+            metadata = bitstream_reuse.provenance(self, target, gateware_dir / f"{target.fpga_target}.bit", state)
+            metadata["reports"] = report_provenance
+            metadata_text = json.dumps(metadata, indent=2, sort_keys=True)
+            (gateware_dir / bitstream_reuse.MANIFEST).write_text(metadata_text)
+            artifacts.append(Artifact(bitstream_reuse.MANIFEST, content=metadata_text, fmt=ArtifactFormat.TEXT))
         else:
             raise RuntimeError("Only renode & verilator sim & fpga sim are supported")
         metrics = Metrics()
@@ -634,7 +654,8 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
             # metrics.add("Verilator Prepare Time [s]", diff, True)
         else:
             assert target.fpga_sim
-            metrics.add("FPGA Bitstream Time [s]", diff, True)
+            metrics.add("FPGA Bitstream Time [s]", 0 if self.reuse_bitstream else diff, True)
+            metrics.add("FPGA Bitstream Reused", self.reuse_bitstream, True)
         # return out, {"default": artifacts}, {"default": metrics}
         return out, artifacts, metrics
 
@@ -697,21 +718,46 @@ class CFUPlaygroundPlatform(CompilePlatform, TargetPlatform):
                     return ""
             logger.debug("Flashing bitstream & target software")
             out = ""
-            out += utils.make(
-                # "load2",
-                # "prog",
-                "prog-only",
-                f"PLATFORM={platform}",
-                *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
-                *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
-                *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
-                f"OUT_DIR={out_dir}",
-                f"SOC_BUILD_DIR={out_dir}",
-                cwd=self.project_dir,
-                env=env_,
-                live=self.print_outputs,
-                threads=self.num_threads,
-            )
+            path = out_dir / "gateware" / f"{target.fpga_target}.bit"
+            if self.reuse_bitstream:
+                state = bitstream_reuse.resolve(self, target)
+                bitstream_reuse.check_generated(self, state)
+                if not path.is_file() or bitstream_reuse.sha256(path) != state["bitstream_sha256"]:
+                    raise ValueError("Run-local reused bitstream is missing or has changed")
+                out += utils.execute(
+                    self.cfu_playground_src_dir / "scripts/pyrun",
+                    "./common_soc.py",
+                    "--load-only",
+                    "--bitstream-file",
+                    str(path),
+                    "--target",
+                    target.fpga_target,
+                    "--variant",
+                    target.fpga_variant,
+                    cwd=self.cfu_playground_src_dir / "soc",
+                    env=env_,
+                    live=self.print_outputs,
+                )
+            else:
+                if not path.is_file() or path.stat().st_size == 0:
+                    raise ValueError(f"Run-local bitstream is missing or empty: {path}")
+                out += utils.make(
+                    # "load2",
+                    # "prog",
+                    "prog-only",
+                    f"BITSTREAM={path}",
+                    f"PLATFORM={platform}",
+                    *([f"TARGET={target.fpga_target}"] if target.fpga_sim else []),
+                    *([f"TTY={target.fpga_tty}"] if target.fpga_sim else []),
+                    *([f"UART_SPEED={target.baud}"] if target.fpga_sim and target.baud is not None else []),
+                    f"OUT_DIR={out_dir}",
+                    f"SOC_BUILD_DIR={out_dir}",
+                    cwd=self.project_dir,
+                    env=env_,
+                    live=self.print_outputs,
+                    threads=self.num_threads,
+                )
+
         else:
             raise RuntimeError("Only renode & verilator sim & fpga sim are supported")
         metrics = Metrics()

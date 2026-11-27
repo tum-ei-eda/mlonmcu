@@ -93,7 +93,7 @@ def _parse_cfg(value):
 class FilterColumnsPostprocess(SessionPostprocess):
     """Postprocess which can be used to drop unwanted columns from a report."""
 
-    DEFAULTS = {}
+    DEFAULTS = {"keep": None, "drop": None}
     drop_nan = cfg(False, cast=str2bool)
     drop_empty = cfg(False, cast=str2bool)
     drop_const = cfg(False, cast=str2bool)

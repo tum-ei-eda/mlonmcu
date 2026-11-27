@@ -76,7 +76,7 @@ class TVMFramework(Framework):
     def get_platform_defs(self, platform):
         ret = super().get_platform_defs(platform)
         if self.extra_incs or self.extra_libs or self.extra_defs:
-            assert platform in ["mlif", "mlif_litex"], "Extra incs or libs are only supported by 'mlif' platform"
+            assert platform in ["mlif", "mlif_litex", "cfu_playground"], "Extra incs or libs are only supported by 'mlif' platform"
             if self.extra_incs:
                 if isinstance(self.extra_incs, list):
                     temp = r"\;".join(self.extra_incs)

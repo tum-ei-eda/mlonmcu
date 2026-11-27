@@ -13,3 +13,4 @@ Components in Detail
    components/muriscvnnbyoc
    components/auto_vectorize
    components/ccache
+   components/cfu_bitstream_reuse

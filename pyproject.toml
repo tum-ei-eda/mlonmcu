@@ -19,6 +19,8 @@ description = "Tool for the deployment and analysis of TinyML applications using
 dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.dynamic.optional-dependencies]
+onnx = { file = ["requirements_onnx.txt"] }
+tflite2onnx = { file = ["requirements_tflite2onnx.txt"] }
 dev = { file = ["requirements_dev.txt"] }
 docs = { file = ["docs/requirements.txt"] }
 ipynb = { file = ["ipynb/requirements.txt"] }
